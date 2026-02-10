@@ -2,6 +2,12 @@
 
 > Original documentation from Business Analyst team - preserved as received
 
+## 📖 Context
+
+These documents represent requirements gathered from **Nourish**, our launch client. While building for Nourish, we're designing DFMS as a **flexible product** that can serve multiple clients in the distribution and fleet management space.
+
+> See [PRODUCT_VISION.md](../PRODUCT_VISION.md) for our product strategy
+
 ## ⚠️ Important
 
 **Do not modify or delete files in this directory.** These documents represent the original artifacts from the Business Analyst team and serve as the authoritative source for all derived documentation.
@@ -17,7 +23,9 @@ Product Requirements Documents (PRD) and core specifications.
 Business proposals from BS23 for the Logistics and Fleet Management System.
 
 - `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx` - Internal proposal version 1.2.1
-- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` - Version 1.3.1 without commercial aspects
+- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` - Version 1.3.1 without commercial aspects (Latest)
+
+> 📖 See [business-proposal/README.md](business-proposal/README.md) for deployment phases and instructions on reading binary DOCX files
 
 ### `planning/`
 Project planning artifacts including features and work breakdown.
@@ -144,8 +152,140 @@ The source documents remain unchanged as the authoritative reference.
 
 ---
 
-**Maintained by**: DFMS Project Team  
-**Source**: Business Analyst Team  
-**Project**: Distribution and Fleet Management System (DFMS)  
+## 🤖 For LLMs: How to Read Binary Files (DOCX, XLSX)
+
+Most files in this directory are binary formats (Microsoft Word, Excel) and cannot be read directly as text. Here's how to extract content:
+
+### Reading DOCX Files (Word Documents)
+
+DOCX files are ZIP archives containing XML. Extract text content using:
+
+```bash
+# Basic extraction - get all text
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g'
+
+# Search for specific section
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' | \
+  grep -A 50 "Section Name"
+
+# Extract first 200 lines
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' | \
+  head -200
+```
+
+**Explanation**:
+- `unzip -p` extracts file to stdout without creating files
+- `word/document.xml` contains the main text content
+- `grep -o '<w:t[^>]*>[^<]*</w:t>'` extracts text elements
+- `sed 's/<[^>]*>//g'` removes XML tags
+- `2>/dev/null` suppresses error messages
+
+### Reading XLSX Files (Excel Spreadsheets)
+
+XLSX files are also ZIP archives with XML:
+
+```bash
+# List all sheets in workbook
+unzip -l "filename.xlsx" | grep xl/worksheets
+
+# Extract data from first sheet
+unzip -p "filename.xlsx" xl/worksheets/sheet1.xml 2>/dev/null | \
+  grep -o '<t[^>]*>[^<]*</t>' | \
+  sed 's/<[^>]*>//g'
+
+# Extract shared strings (often contains cell values)
+unzip -p "filename.xlsx" xl/sharedStrings.xml 2>/dev/null | \
+  grep -o '<t[^>]*>[^<]*</t>' | \
+  sed 's/<[^>]*>//g'
+```
+
+### Alternative Methods
+
+#### Using textutil (macOS built-in, DOCX only)
+```bash
+textutil -convert txt "filename.docx" -output output.txt
+cat output.txt
+```
+
+#### Using pandoc (if installed)
+```bash
+pandoc "filename.docx" -o output.md
+cat output.md
+```
+
+#### Using Python (if available)
+```python
+# For DOCX
+from docx import Document
+doc = Document('filename.docx')
+for para in doc.paragraphs:
+    print(para.text)
+
+# For XLSX
+import openpyxl
+wb = openpyxl.load_workbook('filename.xlsx')
+sheet = wb.active
+for row in sheet.iter_rows(values_only=True):
+    print(row)
+```
+
+### Common Use Cases
+
+```bash
+# 1. Get complete document content
+unzip -p "PRD_DFMS_v1.0.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' > full_content.txt
+
+# 2. Search across multiple documents
+for file in *.docx; do
+  echo "=== $file ==="
+  unzip -p "$file" word/document.xml 2>/dev/null | \
+    grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+    sed 's/<[^>]*>//g' | \
+    grep -i "search_term"
+done
+
+# 3. Extract table of contents
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' | \
+  head -30
+
+# 4. Count words in document
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' | \
+  wc -w
+```
+
+### Notes
+- Extracted text may have formatting issues (spacing, line breaks)
+- Tables and images won't be properly represented
+- Use `grep -A N` for N lines after match, `-B N` for before, `-C N` for context
+- For large documents, pipe through `less` or save to file
+
+### Quick Reference Template
+
+```bash
+# Replace <filename> and <search_term> with your values
+unzip -p "<filename>.docx" word/document.xml 2>/dev/null | \
+  grep -o '<w:t[^>]*>[^<]*</w:t>' | \
+  sed 's/<[^>]*>//g' | \
+  grep -i "<search_term>"
+```
+
+---
+
+**Product**: Distribution and Fleet Management System (DFMS)  
+**Developed by**: Brain Station 23  
+**Source**: Business Analyst Team (Nourish requirements)  
+**Maintained by**: DFMS Product Team  
 **Last Updated**: February 2026
 

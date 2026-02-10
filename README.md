@@ -2,6 +2,14 @@
 
 > Comprehensive documentation repository for the Distribution and Fleet Management System (DFMS)
 
+**Organization**: Brain Station 23  
+**Product**: DFMS - A flexible distribution and fleet management product  
+**Launch Client**: Nourish
+
+📖 **[Read Product Vision](PRODUCT_VISION.md)** - Understand our product vision, approach, and strategy
+
+---
+
 ## 📁 Repository Structure
 
 ### `source-documents/`
@@ -36,13 +44,22 @@ This will be the primary documentation for:
 
 ## 🎯 Purpose
 
-This repository serves as the single source of truth for:
-- Business requirements and context
-- Feature specifications
-- Stakeholder insights and feedback
-- Project planning and phases
-- High-level technical architecture
-- Process flows and workflows
+This repository serves as the single source of truth for DFMS product development:
+
+### Product Development
+- **Product Vision**: Building a flexible, multi-tenant distribution and fleet management system
+- **Launch Client**: Nourish - our first client helping us build a robust, market-ready product
+- **Approach**: Requirements from Nourish, architecture for scalability
+
+### Documentation Scope
+- Business requirements and domain context
+- Feature specifications and use cases
+- Stakeholder insights from Nourish
+- Project planning and implementation phases
+- High-level product architecture
+- Process flows and operational workflows
+
+> 💡 See [PRODUCT_VISION.md](PRODUCT_VISION.md) for detailed information about our product strategy
 
 ## 📖 Navigation
 
@@ -102,5 +119,6 @@ For questions about documentation:
 ---
 
 **Last Updated**: February 2026  
-**Project**: DFMS - Distribution and Fleet Management System  
-**Organization**: Nourish
+**Product**: DFMS - Distribution and Fleet Management System  
+**Developed by**: Brain Station 23  
+**Launch Client**: Nourish

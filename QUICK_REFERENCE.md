@@ -1,5 +1,14 @@
 # Quick Reference Guide
 
+## 📖 Important: Read This First
+
+**[PRODUCT_VISION.md](PRODUCT_VISION.md)** - Understand the product vision and strategy
+- Brain Station 23 is building DFMS as a **product**
+- Nourish is our **launch client** (not the only client)
+- Architecture designed for **flexibility and multi-tenancy**
+
+---
+
 ## 📁 Repository Organization
 
 ### Current Structure
