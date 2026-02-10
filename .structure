@@ -7,6 +7,10 @@ DFMS-product-context/
     ├── requirements/                            # Product requirements
     │   └── PRD_DFMS_v1.0.docx
     │
+    ├── business-proposal/                       # BS23 business proposals
+    │   ├── BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx
+    │   └── BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
+    │
     ├── planning/                                # Project planning
     │   ├── feature-lists/                       # Features by version
     │   │   ├── DFMS_Feature_List_v1.0.xlsx

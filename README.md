@@ -12,6 +12,7 @@ Original documentation from Business Analyst team (DOCX, XLSX, DrawIO).
 ```
 source-documents/
 ├── requirements/           # Product requirements and specifications
+├── business-proposal/      # BS23 business proposals (v1.2.1, v1.3.1)
 ├── planning/              
 │   ├── feature-lists/     # Feature lists across versions
 │   └── work-breakdown/    # Work breakdown structure by phase
@@ -46,6 +47,7 @@ This repository serves as the single source of truth for:
 ## 📖 Navigation
 
 ### For Business Stakeholders
+- [Business Proposals](source-documents/business-proposal/) - BS23 proposals for the system
 - [Meeting Minutes](source-documents/meeting-minutes/) - Chronological record of stakeholder discussions
 - [Feature Lists](source-documents/planning/feature-lists/) - Feature specifications by version
 - [Product Requirements](source-documents/requirements/) - Core business requirements

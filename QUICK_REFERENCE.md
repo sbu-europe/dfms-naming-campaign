@@ -26,6 +26,7 @@
 
 | What You Need | Where to Find It |
 |--------------|------------------|
+| **Business proposals** | `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` |
 | **Core requirements** | `source-documents/requirements/PRD_DFMS_v1.0.docx` |
 | **Latest features** | `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx` |
 | **Phase 1 work plan** | `source-documents/planning/work-breakdown/WBS_Phase_1_v1.0.xlsx` |
@@ -69,6 +70,8 @@ ls -lt source-documents/planning/feature-lists/
 
 | Document | Current Version | Notes |
 |----------|----------------|-------|
+| Business Proposal (BS23) | v1.3.1 | **Latest** - without commercial aspects |
+| Business Proposal (BS23) | v1.2.1 | Internal version |
 | PRD | v1.0 | Initial product requirements |
 | Feature List | v1.2 | **Latest** - use this version |
 | WBS Phase 1-3 | v1.0 | Initial work breakdown |
@@ -78,22 +81,25 @@ ls -lt source-documents/planning/feature-lists/
 
 ### New Engineer Onboarding
 1. Read `README.md` for repository overview
-2. Review `source-documents/requirements/PRD_DFMS_v1.0.docx`
-3. Check latest features: `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx`
-4. Explore process flows: `source-documents/design/Flow_Diagrams.drawio`
-5. Understand stakeholder needs: Review relevant meeting minutes
+2. Review business proposal: `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
+3. Review `source-documents/requirements/PRD_DFMS_v1.0.docx`
+4. Check latest features: `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx`
+5. Explore process flows: `source-documents/design/Flow_Diagrams.drawio`
+6. Understand stakeholder needs: Review relevant meeting minutes
 
 ### Business Stakeholder Review
 1. Start with `source-documents/README.md`
-2. Review your department's meeting minutes
-3. Check feature list for your requirements
-4. Review work breakdown for timeline
+2. Review business proposals in `source-documents/business-proposal/`
+3. Review your department's meeting minutes
+4. Check feature list for your requirements
+5. Review work breakdown for timeline
 
 ### Project Manager View
-1. Latest features: `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx`
-2. Phase breakdown: `source-documents/planning/work-breakdown/`
-3. Stakeholder engagement: `source-documents/meeting-minutes/`
-4. Review status: `source-documents/reviews/`
+1. Business proposals: `source-documents/business-proposal/`
+2. Latest features: `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx`
+3. Phase breakdown: `source-documents/planning/work-breakdown/`
+4. Stakeholder engagement: `source-documents/meeting-minutes/`
+5. Review status: `source-documents/reviews/`
 
 ## 🎨 File Naming Convention
 

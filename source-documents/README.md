@@ -13,6 +13,12 @@ Product Requirements Documents (PRD) and core specifications.
 
 - `PRD_DFMS_v1.0.docx` - Primary product requirements document
 
+### `business-proposal/`
+Business proposals from BS23 for the Logistics and Fleet Management System.
+
+- `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx` - Internal proposal version 1.2.1
+- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` - Version 1.3.1 without commercial aspects
+
 ### `planning/`
 Project planning artifacts including features and work breakdown.
 
@@ -104,6 +110,7 @@ Key documentation milestones:
 - **MIS**: `meeting-minutes/2025-10/MIS_Operations_2025-10-08.docx`
 
 ### By Document Type
+- **Business Proposals**: `business-proposal/` (BS23 proposals, versions 1.2.1 & 1.3.1)
 - **Requirements**: `requirements/PRD_DFMS_v1.0.docx`
 - **Features**: `planning/feature-lists/` (check latest version)
 - **Project Plan**: `planning/work-breakdown/` (by phase)
@@ -115,6 +122,7 @@ Key documentation milestones:
 
 | Document Type | Latest Version | Last Updated |
 |--------------|----------------|--------------|
+| Business Proposal | v1.3.1 | Latest |
 | PRD | v1.0 | Initial |
 | Feature List | v1.2 | Latest |
 | WBS Phase 1 | v1.0 | Initial |
