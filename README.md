@@ -34,17 +34,27 @@ source-documents/
 └── reviews/               # Review documents and feedback
 ```
 
-### `knowledge-base/` *(Coming Soon)*
-Structured, markdown-based knowledge base built from source documents.
+### `business-context/` & `technical-context/` *(Coming Soon)*
+Structured, markdown-based knowledge repositories built from source documents.
 
-This will be the primary documentation for:
-- **Engineers**: IDE-friendly markdown, mermaid diagrams, searchable
-- **Business Stakeholders**: Clear business context and processes  
+**📋 Generation Plans:**
+- **[BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md)** - Plan for building business domain knowledge (5 weeks, ~60 files)
+- **[TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md)** - Plan for building technical architecture & contracts (6 weeks, ~90 files)
+
+**Primary documentation for:**
+- **Engineers**: IDE-friendly markdown, mermaid diagrams, API contracts
+- **Business Stakeholders**: Clear business context, processes, and features  
 - **AI/LLM**: Structured context for AI-assisted development
+- **All Teams**: Single source of truth via git submodule
 
 ## 🎯 Purpose
 
-This repository serves as the single source of truth for DFMS product development:
+This repository serves as the **domain context and interface contract layer** for DFMS:
+
+### Repository Role
+- **Domain Knowledge Layer**: Business + High-level technical context
+- **Interface Contracts**: APIs, Events, Data Models for system integration
+- **Git Submodule**: Imported by all implementation repos (backend, frontend, mobile, devops)
 
 ### Product Development
 - **Product Vision**: Building a flexible, multi-tenant distribution and fleet management system
@@ -52,26 +62,24 @@ This repository serves as the single source of truth for DFMS product developmen
 - **Approach**: Requirements from Nourish, architecture for scalability
 
 ### Documentation Scope
-- Business requirements and domain context
-- Feature specifications and use cases
-- Stakeholder insights from Nourish
-- Project planning and implementation phases
-- High-level product architecture
-- Process flows and operational workflows
+- **Business Context**: Requirements, features, stakeholder insights, business processes
+- **Technical Context**: High-level architecture (C4 Level 1-2), workflows, ADRs, interface contracts
 
-> 💡 See [PRODUCT_VISION.md](PRODUCT_VISION.md) for detailed information about our product strategy
+> 💡 See [PRODUCT_VISION.md](PRODUCT_VISION.md) for product strategy and [REPOSITORY_PURPOSE.md](REPOSITORY_PURPOSE.md) for architecture
 
 ## 📖 Navigation
 
 ### For Business Stakeholders
+- [Business Context Plan](BUSINESS_CONTEXT_PLAN.md) - Plan for business domain knowledge
 - [Business Proposals](source-documents/business-proposal/) - BS23 proposals for the system
 - [Meeting Minutes](source-documents/meeting-minutes/) - Chronological record of stakeholder discussions
 - [Feature Lists](source-documents/planning/feature-lists/) - Feature specifications by version
 - [Product Requirements](source-documents/requirements/) - Core business requirements
 
 ### For Engineers
+- [Technical Context Plan](TECHNICAL_CONTEXT_PLAN.md) - Plan for architecture, workflows, and contracts
 - Start with source documents to understand raw requirements
-- Knowledge base (coming soon) will provide structured, technical-friendly documentation
+- Technical context (coming soon) will provide architecture and API contracts
 
 ### For Project Managers
 - [Work Breakdown Structure](source-documents/planning/work-breakdown/) - Phase-wise project breakdown
@@ -96,18 +104,20 @@ find source-documents/ -name "*.xlsx"
 - **Versions**: `v1.0`, `v1.1`, `v1.2` etc.
 - **No spaces**: Use underscores for readability
 
-### Knowledge Base *(Coming Soon)*
-- **Format**: Markdown (`.md`) and Mermaid (`.mmd`)
+### Business & Technical Context *(Coming Soon)*
+- **Format**: Markdown (`.md`), Mermaid (`.mmd`), YAML contracts
 - **Structure**: Numbered folders for reading order
 - **Cross-references**: Linked documents
 - **Metadata**: Frontmatter in each document
+- **Contracts**: OpenAPI 3.0 specs for APIs, AsyncAPI for events
 
 ## 🤝 Contributing
 
 This repository is maintained by the DFMS project team.
 
 - **Source documents**: Only add new documents as received from BA team
-- **Knowledge base**: Will follow separate contribution guidelines
+- **Business context**: Follow [BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md)
+- **Technical context**: Follow [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md)
 
 ## 📞 Contact
 
