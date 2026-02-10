@@ -1,6 +1,6 @@
 # DFMS Product Context
 
-> Comprehensive documentation repository for the Dairy Farm Management System (DFMS)
+> Comprehensive documentation repository for the Distribution and Fleet Management System (DFMS)
 
 ## 📁 Repository Structure
 
@@ -100,5 +100,5 @@ For questions about documentation:
 ---
 
 **Last Updated**: February 2026  
-**Project**: DFMS - Dairy Farm Management System  
+**Project**: DFMS - Distribution and Fleet Management System  
 **Organization**: Nourish
