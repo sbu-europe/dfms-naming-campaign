@@ -35,6 +35,7 @@
 
 | What You Need | Where to Find It |
 |--------------|------------------|
+| **Discovery phase materials** | `source-documents/discovery-phase/` (questionnaires, workflows, samples) |
 | **Business proposals** | `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` |
 | **Core requirements** | `source-documents/requirements/PRD_DFMS_v1.0.docx` |
 | **Latest features** | `source-documents/planning/feature-lists/DFMS_Feature_List_v1.2.xlsx` |
@@ -42,7 +43,7 @@
 | **Phase 2 work plan** | `source-documents/planning/work-breakdown/WBS_Phase_2_v1.0.xlsx` |
 | **Phase 3 work plan** | `source-documents/planning/work-breakdown/WBS_Phase_3_v1.0.xlsx` |
 | **Logistics & Fleet** | `source-documents/planning/work-breakdown/WBS_Logistics_Fleet_v1.3.xlsx` |
-| **Process flows** | `source-documents/design/Flow_Diagrams.drawio` |
+| **Process flows** | `source-documents/discovery-phase/flow-diagrams/` |
 | **BA team review** | `source-documents/reviews/DFMS_V2_Reviewed_BA_Team.docx` |
 | **Contract discussion** | `source-documents/meeting-minutes/2025-07/TMS_Contract_Discussion_2025-07-30.docx` |
 

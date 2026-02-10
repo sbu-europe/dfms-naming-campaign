@@ -19,6 +19,17 @@ Product Requirements Documents (PRD) and core specifications.
 
 - `PRD_DFMS_v1.0.docx` - Primary product requirements document
 
+### `discovery-phase/`
+Documentation and artifacts collected during the discovery phase with Nourish (Sept-Dec 2025).
+
+- `client-feedback/` - Reviewed questionnaires and feedback
+- `questionnaires/` - Discovery session questionnaires (English & Bengali)
+- `client-resources/` - Reference documents, samples, and master data from Nourish
+- `flow-diagrams/` - Visual workflow diagrams (v1.1 through v1.6)
+- `feature-lists/` - Evolution of feature lists during discovery
+
+> 📖 See [discovery-phase/README.md](discovery-phase/README.md) for detailed information about discovery phase materials
+
 ### `business-proposal/`
 Business proposals from BS23 for the Logistics and Fleet Management System.
 
@@ -42,11 +53,6 @@ Work Breakdown Structure (WBS) by project phase:
 - `WBS_Phase_2_v1.0.xlsx` - Phase 2 work breakdown
 - `WBS_Phase_3_v1.0.xlsx` - Phase 3 work breakdown
 - `WBS_Logistics_Fleet_v1.3.xlsx` - Logistics & Fleet Management breakdown
-
-### `design/`
-Design artifacts and visual documentation.
-
-- `Flow_Diagrams.drawio` - System and process flow diagrams
 
 ### `meeting-minutes/`
 Chronological record of stakeholder meetings organized by date.

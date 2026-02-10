@@ -7,7 +7,17 @@ DFMS-product-context/
     ├── requirements/                            # Product requirements
     │   └── PRD_DFMS_v1.0.docx
     │
+    ├── discovery-phase/                         # Discovery phase materials
+    │   ├── README.md
+    │   ├── client-feedback/
+    │   ├── questionnaires/
+    │   ├── client-resources/
+    │   │   └── master-data/
+    │   ├── flow-diagrams/
+    │   └── feature-lists/
+    │
     ├── business-proposal/                       # BS23 business proposals
+    │   ├── README.md
     │   ├── BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx
     │   └── BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
     │
@@ -22,9 +32,6 @@ DFMS-product-context/
     │       ├── WBS_Phase_2_v1.0.xlsx
     │       ├── WBS_Phase_3_v1.0.xlsx
     │       └── WBS_Logistics_Fleet_v1.3.xlsx
-    │
-    ├── design/                                  # Design artifacts
-    │   └── Flow_Diagrams.drawio
     │
     ├── meeting-minutes/                         # Stakeholder meetings
     │   ├── 2025-07/

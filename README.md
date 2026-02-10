@@ -20,11 +20,11 @@ Original documentation from Business Analyst team (DOCX, XLSX, DrawIO).
 ```
 source-documents/
 ├── requirements/           # Product requirements and specifications
+├── discovery-phase/        # Discovery phase materials (questionnaires, workflows, samples)
 ├── business-proposal/      # BS23 business proposals (v1.2.1, v1.3.1)
 ├── planning/              
 │   ├── feature-lists/     # Feature lists across versions
 │   └── work-breakdown/    # Work breakdown structure by phase
-├── design/                # Flow diagrams and design artifacts
 ├── meeting-minutes/       # Stakeholder meetings organized by date
 │   ├── 2025-07/
 │   ├── 2025-09/
