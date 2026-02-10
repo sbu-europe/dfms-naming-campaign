@@ -1,0 +1,58 @@
+DFMS-product-context/
+├── README.md                                    # Main repository documentation
+│
+└── source-documents/                            # Original BA team documents
+    ├── README.md                                # Source documents guide
+    │
+    ├── requirements/                            # Product requirements
+    │   └── PRD_DFMS_v1.0.docx
+    │
+    ├── planning/                                # Project planning
+    │   ├── feature-lists/                       # Features by version
+    │   │   ├── DFMS_Feature_List_v1.0.xlsx
+    │   │   ├── DFMS_Feature_List_v1.1.xlsx
+    │   │   └── DFMS_Feature_List_v1.2.xlsx
+    │   │
+    │   └── work-breakdown/                      # WBS by phase
+    │       ├── WBS_Phase_1_v1.0.xlsx
+    │       ├── WBS_Phase_2_v1.0.xlsx
+    │       ├── WBS_Phase_3_v1.0.xlsx
+    │       └── WBS_Logistics_Fleet_v1.3.xlsx
+    │
+    ├── design/                                  # Design artifacts
+    │   └── Flow_Diagrams.drawio
+    │
+    ├── meeting-minutes/                         # Stakeholder meetings
+    │   ├── 2025-07/
+    │   │   └── TMS_Contract_Discussion_2025-07-30.docx
+    │   ├── 2025-09/
+    │   │   └── Transport_Operations_2025-09-29.docx
+    │   ├── 2025-10/
+    │   │   ├── Accounts_Finance_2025-10-08.docx
+    │   │   ├── Commercial_Operations_2025-10-08.docx
+    │   │   ├── Distribution_Sales_2025-10-06.docx
+    │   │   ├── MIS_Operations_2025-10-08.docx
+    │   │   ├── Procurement_Operations_2025-10-06.docx
+    │   │   └── QA_QC_Operations_2025-10-06.docx
+    │   ├── 2025-11/
+    │   │   └── General_Meeting_2025-11-25.docx
+    │   └── 2025-12/
+    │       ├── General_Meeting_2025-12-01.docx
+    │       └── General_Meeting_2025-12-17.docx
+    │
+    └── reviews/                                 # Review documents
+        └── DFMS_V2_Reviewed_BA_Team.docx
+
+
+NEXT: knowledge-base/ (to be created)
+├── 00-overview/
+├── 01-business-domain/
+├── 02-requirements/
+├── 03-features/
+├── 04-architecture/
+├── 05-design/
+├── 06-stakeholder-insights/
+├── 07-implementation/
+├── 08-decisions/
+└── 09-reference/
+
