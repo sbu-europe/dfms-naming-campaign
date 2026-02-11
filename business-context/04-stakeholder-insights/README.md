@@ -13,18 +13,10 @@ This folder contains insights gathered during the discovery phase through:
 ## 📁 Contents
 
 ### Core Documents
-- **[discovery-summary.md](./discovery-summary.md)** - Overview of discovery process and key findings
-- **[pain-points.md](./pain-points.md)** - Current challenges and pain points
-- **[expectations.md](./expectations.md)** - Stakeholder expectations and success criteria
-
-### Department-Specific Insights
-- **[departments/transport-operations.md](./departments/transport-operations.md)** - Transport team insights
-- **[departments/procurement-operations.md](./departments/procurement-operations.md)** - Procurement team insights
-- **[departments/distribution-sales.md](./departments/distribution-sales.md)** - Distribution & sales insights
-- **[departments/accounts-finance.md](./departments/accounts-finance.md)** - Finance team insights
-- **[departments/commercial-operations.md](./departments/commercial-operations.md)** - Commercial team insights
-- **[departments/qa-qc-operations.md](./departments/qa-qc-operations.md)** - QA/QC team insights
-- **[departments/mis-operations.md](./departments/mis-operations.md)** - MIS team insights
+- **[discovery-summary.md](./discovery-summary.md)** - Overview of discovery process and key findings (1,400+ lines)
+- **[pain-points.md](./pain-points.md)** - Current challenges and pain points (900+ lines)
+- **[expectations.md](./expectations.md)** - Stakeholder expectations and success criteria (1,100+ lines)
+- **[department-insights.md](./department-insights.md)** - Consolidated insights from all 7 departments (1,400+ lines)
 
 ## 🎯 Key Insights Summary
 
