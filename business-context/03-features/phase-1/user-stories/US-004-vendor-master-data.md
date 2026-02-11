@@ -1,0 +1,301 @@
+---
+title: Manage Vendor Master Data
+story_id: US-004
+phase: phase-1
+module: Master Data Management
+priority: Critical
+status: Pending
+epic: Master Data Foundation
+sprint: Sprint 1
+story_points: 5
+created: 2026-02-11
+updated: 2026-02-11
+source_documents:
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+related_stories:
+  - US-027-vendor-registration.md
+  - US-029-vendor-verification.md
+dependencies:
+  - US-007-user-role-management.md
+tags: [master-data, vendor, registration, critical]
+---
+
+# US-004: Manage Vendor Master Data
+
+## User Story
+
+**As a** Vendor Manager  
+**I want to** register and manage vendor (transport provider) profiles with their company details, fleet information, and verification status  
+**So that** I can onboard external transport providers and assign them to transport orders
+
+## Business Context
+
+Vendors are external transport providers who supplement the own fleet. Proper vendor management enables:
+- **Fleet Expansion**: Access to additional vehicles without capital investment
+- **Cost Optimization**: Competitive pricing through vendor bidding
+- **Risk Mitigation**: Diversified transport provider base
+- **Compliance**: Track vendor licenses, insurance, certifications
+
+---
+
+## Acceptance Criteria
+
+### AC-1: Vendor Registration
+- [ ] System SHALL allow creating vendor profile with:
+  - Company Name
+  - Trade License Number (unique)
+  - TIN Number (unique)
+  - Company Address
+  - Contact Person Name
+  - Contact Phone (unique)
+  - Contact Email
+  - Vendor Type (Contractual / Non-Contractual)
+  - Contract Start/End Date (if contractual)
+  - Agreed Rates (if contractual)
+  - Bank Account Details
+  - Fleet Size (number of vehicles)
+- [ ] System SHALL validate mandatory fields
+- [ ] System SHALL prevent duplicate Trade License and TIN
+
+### AC-2: Vendor Verification Status
+- [ ] System SHALL maintain verification status:
+  - Pending, Under Review, Verified, Rejected, Suspended
+- [ ] System SHALL allow only verified vendors to bid/receive TOs
+- [ ] System SHALL track verification date and verifier
+
+### AC-3: Vendor Document Management
+- [ ] System SHALL allow uploading vendor documents:
+  - Trade License
+  - TIN Certificate
+  - Insurance Certificate
+  - Bank Statement
+- [ ] System SHALL track document expiry dates
+- [ ] System SHALL generate expiry alerts
+
+### AC-4: Vendor Fleet Linkage
+- [ ] System SHALL link vendor to their vehicles (US-001)
+- [ ] System SHALL link vendor to their drivers (US-002)
+- [ ] System SHALL display vendor's available fleet
+
+### AC-5: Vendor Performance Tracking
+- [ ] System SHALL track:
+  - Total TOs completed
+  - On-time delivery %
+  - Average cost per trip
+  - Incident count
+  - Rating (if enabled)
+- [ ] System SHALL calculate metrics from trip data
+
+---
+
+## Functional Requirements
+
+### FR-001: Vendor Registration
+- [Critical] Multi-step registration form
+- [Critical] Document upload capability
+- [High] Vendor type selection (Contractual/Non-Contractual)
+
+### FR-002: Verification Workflow
+- [Critical] Admin approval workflow
+- [Critical] Status transition tracking
+- [High] Rejection reason capture
+
+### FR-003: Performance Tracking
+- [High] Auto-calculate performance metrics
+- [High] Performance dashboard per vendor
+- [Medium] Comparative vendor analysis
+
+---
+
+## Business Rules
+
+### BR-VM-001: Unique Identifiers
+- Trade License and TIN must be unique
+- **Enforcement**: Database constraints
+
+### BR-VM-002: Verification Requirement
+- Only verified vendors can bid or receive direct assignments
+- **Enforcement**: API validation
+
+### BR-VM-003: Contractual Vendor Rates
+- Contractual vendors have pre-agreed rates (no bidding)
+- **Enforcement**: Business logic in TO assignment
+
+### BR-VM-004: Document Expiry
+- Vendors with expired critical documents cannot receive new TOs
+- **Enforcement**: Validation during assignment
+
+---
+
+## Data Model
+
+```typescript
+Vendor {
+  id: UUID (PK)
+  tenant_id: UUID (FK)
+  
+  company_name: String
+  trade_license_number: String (unique)
+  tin_number: String (unique)
+  company_address: Text
+  
+  contact_person_name: String
+  contact_phone: String (unique)
+  contact_email: String
+  
+  vendor_type: Enum (Contractual, Non_Contractual)
+  contract_start_date: Date (nullable)
+  contract_end_date: Date (nullable)
+  agreed_rate_per_km: Decimal (nullable, for contractual)
+  
+  bank_account_number: String
+  bank_name: String
+  bank_branch: String
+  
+  fleet_size: Integer
+  
+  verification_status: Enum (
+    Pending,
+    Under_Review,
+    Verified,
+    Rejected,
+    Suspended
+  )
+  verification_date: Date (nullable)
+  verified_by: UUID (FK to User, nullable)
+  rejection_reason: Text (nullable)
+  
+  total_tos_completed: Integer (default: 0)
+  on_time_delivery_percentage: Decimal (nullable)
+  average_cost_per_trip: Decimal (nullable)
+  incident_count: Integer (default: 0)
+  average_rating: Decimal (nullable)
+  
+  created_at: Timestamp
+  created_by: UUID (FK)
+  updated_at: Timestamp
+  updated_by: UUID (FK)
+}
+
+VendorDocument {
+  id: UUID (PK)
+  vendor_id: UUID (FK)
+  
+  document_type: Enum (
+    Trade_License,
+    TIN_Certificate,
+    Insurance_Certificate,
+    Bank_Statement,
+    Other
+  )
+  
+  file_name: String
+  file_url: String
+  issue_date: Date (nullable)
+  expiry_date: Date (nullable)
+  
+  uploaded_at: Timestamp
+}
+```
+
+---
+
+## UI/UX Requirements
+
+### Vendor Registration Form
+```
+┌─────────────────────────────────────────┐
+│ Register New Vendor                     │
+├─────────────────────────────────────────┤
+│ Company Name: *                         │
+│ [_____________________________]         │
+│                                         │
+│ Trade License: *                        │
+│ [_____________________________]         │
+│                                         │
+│ TIN Number: *                           │
+│ [_____________________________]         │
+│                                         │
+│ Vendor Type: *                          │
+│ ⚪ Contractual  ⚪ Non-Contractual       │
+│                                         │
+│ Contact Person: *                       │
+│ [_____________________________]         │
+│                                         │
+│ Phone: *                                │
+│ [_____________________________]         │
+│                                         │
+│ [Cancel]              [Save]            │
+└─────────────────────────────────────────┘
+```
+
+### Vendor List View
+```
+┌──────────────────────────────────────────────────────────────┐
+│ Vendor Management                [+ Add Vendor]              │
+├──────────────────────────────────────────────────────────────┤
+│ Company         Type          Status      Rating    Action   │
+│ ──────────────────────────────────────────────────────────  │
+│ ABC Logistics   Contractual   ✅ Verified  ⭐4.5    [View]  │
+│ XYZ Transport   Non-Contract  ⏳ Pending   -        [View]  │
+│ QuickMove Ltd   Non-Contract  ✅ Verified  ⭐4.2    [View]  │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## API Endpoints
+
+```typescript
+POST /api/v1/vendors
+GET /api/v1/vendors?status=Verified&type=Non_Contractual
+GET /api/v1/vendors/{vendor_id}
+PATCH /api/v1/vendors/{vendor_id}
+POST /api/v1/vendors/{vendor_id}/documents
+PATCH /api/v1/vendors/{vendor_id}/verification-status
+GET /api/v1/vendors/{vendor_id}/performance
+```
+
+---
+
+## Testing Scenarios
+
+### Happy Path
+1. Register vendor → Pending status
+2. Admin verifies → Verified status
+3. Vendor receives TO → Performance tracked
+
+### Edge Cases
+1. Duplicate Trade License → Error
+2. Unverified vendor tries to bid → Blocked
+3. Expired insurance → Cannot receive new TOs
+
+---
+
+## Dependencies
+
+### Prerequisites
+- ✅ US-007: User & Role Management
+
+### Enables
+- → US-027-029: Vendor onboarding workflow
+- → US-020: Vendor bidding
+- → US-019: Direct vendor assignment
+
+---
+
+## Definition of Done
+- [ ] CRUD operations functional
+- [ ] Verification workflow working
+- [ ] Document management complete
+- [ ] Performance tracking implemented
+- [ ] Unit tests > 85%
+- [ ] UAT approved
+
+---
+
+**Story Points**: 5  
+**Estimated Hours**: 40 hours  
+**Sprint**: Sprint 1  
+**Priority**: Critical
+
