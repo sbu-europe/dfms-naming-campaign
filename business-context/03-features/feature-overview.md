@@ -20,6 +20,8 @@ tags: [features, overview, roadmap, phases]
 
 DFMS delivers a comprehensive distribution and fleet management platform through **91 user stories** across **12 modules**, deployed in **3 phases** over **52 weeks**. The phased approach ensures rapid MVP delivery while building toward an enterprise-grade solution.
 
+> **Note**: Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 which is a duplicate of US-061). The total functional coverage is 63 stories as planned.
+
 ---
 
 ## Feature Distribution
@@ -142,9 +144,9 @@ Deliver a fully operational DFMS platform that replaces manual processes with di
 - Vendor trip cost tracking
 
 #### Mobile Applications (3 stories)
-- Driver mobile interface (trip view, status updates)
-- QC Supervisor mobile interface
-- Vendor mobile application (bidding, TO view)
+- Driver mobile app (US-052) - trip view, status updates, POD capture, offline mode
+- QC Supervisor mobile interface (US-061) - sample collection, checklist execution, photo capture
+- Vendor mobile application (US-063) - bidding, TO view, trip tracking
 
 ---
 
@@ -282,7 +284,7 @@ This approach ensures:
 5. **Quality Control** (US-040 to US-051)
    - Requires unloading operations
 
-6. **Trip Costing** (US-060 to US-061)
+6. **Trip Costing** (US-059 to US-060)
    - Requires completed trips
 
 ---
