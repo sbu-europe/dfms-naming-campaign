@@ -1,0 +1,46 @@
+# ============================================================================
+# DFMS Product Context Repository - .gitignore
+# ============================================================================
+# Purpose: Ignore only OS-generated and temporary files
+# All documentation files (MD, DOCX, XLSX, etc.) are tracked
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# Temporary document locks
+~$*.docx
+~$*.xlsx
+~$*.pptx
+.~lock.*
+
+# Editor temporary files
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
