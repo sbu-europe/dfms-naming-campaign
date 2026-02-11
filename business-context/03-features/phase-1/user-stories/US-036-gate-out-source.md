@@ -1,0 +1,194 @@
+---
+title: Gate-Out Entry at Source POI
+story_id: US-036
+phase: phase-1
+module: Operations (Gate Management)
+priority: Critical
+status: Pending
+epic: Gate Operations
+sprint: Sprint 11
+story_points: 3
+created: 2026-02-11
+updated: 2026-02-11
+source_documents:
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+related_stories:
+  - US-035-gate-in-source.md
+  - US-041-loading-operations.md
+dependencies:
+  - US-035-gate-in-source.md
+  - US-041-loading-operations.md
+tags: [operations, gate, gate-out, source, critical]
+---
+
+# US-036: Gate-Out Entry at Source POI
+
+## User Story
+
+**As a** Gate Operator (Source)  
+**I want to** record vehicle departure from source location  
+**So that** loaded vehicle exit is tracked and trip can proceed to destination
+
+## Business Context
+
+Gate-Out at source confirms:
+- **Loading Complete**: Vehicle loaded and ready to depart
+- **Security Clearance**: All checks passed
+- **Trip Continuation**: Vehicle en route to destination
+- **Time Tracking**: Record departure time for transit calculation
+
+---
+
+## Acceptance Criteria
+
+### AC-1: Gate-Out Entry
+- [ ] System SHALL record gate-out with:
+  - Trip ID *
+  - Departure time * (auto-captured)
+  - Loaded quantity * (from loading record)
+  - Seal number (if applicable)
+  - Odometer reading (optional)
+  - Photos (optional)
+- [ ] System SHALL validate loading completed
+
+### AC-2: Pre-Departure Checks
+- [ ] System SHALL verify:
+  - Loading status = "Loaded"
+  - Scaling completed (if required)
+  - Documents attached (delivery note, invoice)
+- [ ] System SHALL prevent gate-out if checks fail
+
+### AC-3: Trip State Update
+- [ ] System SHALL update trip status to "Departed from Source"
+- [ ] System SHALL record departure timestamp
+- [ ] System SHALL calculate loading duration
+
+### AC-4: Notifications
+- [ ] System SHALL notify:
+  - Driver (departure confirmed)
+  - Destination gate (vehicle en route)
+  - Command Center (trip in transit)
+
+---
+
+## Functional Requirements
+
+### FR-001: Gate-Out Form
+- [Critical] Quick exit form
+- [Critical] Pre-departure checklist
+- [High] Seal number entry
+- [Medium] Photo capture
+
+### FR-002: Validation
+- [Critical] Loading completion check
+- [High] Document verification
+- [Medium] Weight reconciliation
+
+---
+
+## Business Rules
+
+### BR-GATEOUT-001: Loading Required
+- Gate-out only allowed if loading completed
+- **Enforcement**: Status check
+
+### BR-GATEOUT-002: Departure After Arrival
+- Gate-out time must be > gate-in time
+- **Enforcement**: Timestamp validation
+
+---
+
+## Data Model
+
+```typescript
+// Uses same GateEntry model with entry_type = 'Gate_Out'
+GateEntry {
+  // ... existing fields ...
+  
+  loaded_quantity: Decimal (nullable, for gate-out)
+  seal_number: String (nullable)
+  pre_departure_checks_completed: Boolean
+}
+```
+
+---
+
+## UI/UX Requirements
+
+```
+┌─────────────────────────────────────────┐
+│ Gate-Out Entry - Source                 │
+├─────────────────────────────────────────┤
+│ Trip: TRIP-20260211-0042                │
+│ Vehicle: DM-11-1234                     │
+│                                         │
+│ Pre-Departure Checklist:                │
+│ ✅ Loading Completed                    │
+│ ✅ Scaling Done (500 KG)                │
+│ ✅ Documents Attached                   │
+│                                         │
+│ Loaded Quantity: 500 KG ✅              │
+│                                         │
+│ Seal Number: (if applicable)            │
+│ [SEAL-123456]                           │
+│                                         │
+│ Departure Time: [09:45 AM]              │
+│ Loading Duration: 30 minutes            │
+│                                         │
+│ [Cancel]              [Record Gate-Out] │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## API Endpoints
+
+```typescript
+POST /api/v1/gate-entries/gate-out
+Body: {
+  trip_id, departure_time, loaded_quantity,
+  seal_number?, odometer_reading?
+}
+```
+
+---
+
+## Testing Scenarios
+
+### Happy Path
+1. Loading complete → Gate-out form shown
+2. Checks passed → Gate-out recorded
+3. Trip status updated → Notifications sent
+
+### Edge Cases
+1. **Loading not complete**: Gate-out blocked
+2. **Missing documents**: Warning, allow override with approval
+
+---
+
+## Dependencies
+
+### Prerequisites
+- ✅ US-035: Gate-In at Source
+- ✅ US-041: Loading Operations
+
+### Enables
+- → US-037: Gate-In at Destination
+
+---
+
+## Definition of Done
+- [ ] Gate-out form functional
+- [ ] Pre-departure checks working
+- [ ] Trip status update
+- [ ] Notifications sent
+- [ ] Unit tests > 85%
+- [ ] UAT approved
+
+---
+
+**Story Points**: 3  
+**Estimated Hours**: 24 hours  
+**Sprint**: Sprint 11  
+**Priority**: Critical
+
