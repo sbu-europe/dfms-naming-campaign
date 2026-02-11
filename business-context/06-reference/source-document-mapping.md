@@ -25,7 +25,7 @@ This document provides a comprehensive mapping between all business-context docu
 #### project-summary.md
 **Primary Sources**:
 - `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source**
-- `../../PRODUCT_VISION.md`
+- `../../01-PRODUCT_VISION.md`
 
 **Content Extracted**:
 - Product overview and vision
@@ -41,7 +41,7 @@ This document provides a comprehensive mapping between all business-context docu
 **Primary Sources**:
 - `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source**
 - `../../source-documents/discovery-phase/` (multiple files)
-- `../../PRODUCT_VISION.md`
+- `../../01-PRODUCT_VISION.md`
 
 **Content Extracted**:
 - Industry context and market trends
@@ -107,7 +107,7 @@ This document provides a comprehensive mapping between all business-context docu
 - `../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx`
 - `../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx`
 - `../../source-documents/meeting-minutes/2025-10/Procurement_Operations_2025-10-06.docx`
-- `../../PRODUCT_VISION.md`
+- `../../01-PRODUCT_VISION.md`
 
 **Content Extracted**:
 - 8 primary business objectives with success metrics
@@ -464,7 +464,7 @@ unzip -p "filename.pptx" ppt/slides/*.xml | sed 's/<[^>]*>//g'
 
 - [Source Documents README](../../source-documents/README.md) - Overview of all source materials
 - [Business Context Plan](../../BUSINESS_CONTEXT_PLAN.md) - Documentation generation plan
-- [Product Vision](../../PRODUCT_VISION.md) - Strategic context
+- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic context
 
 ---
 

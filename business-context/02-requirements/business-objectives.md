@@ -14,7 +14,7 @@ source_documents:
   - ../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx
   - ../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx
   - ../../source-documents/meeting-minutes/2025-10/Procurement_Operations_2025-10-06.docx
-  - ../../PRODUCT_VISION.md
+  - ../../01-PRODUCT_VISION.md
 tags: [business-objectives, goals, success-criteria, kpis]
 ---
 

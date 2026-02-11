@@ -6,7 +6,8 @@
 **Product**: DFMS - A flexible distribution and fleet management product  
 **Launch Client**: Nourish
 
-📖 **[Read Product Vision](PRODUCT_VISION.md)** - Understand our product vision, approach, and strategy
+🚀 **[START HERE](00-START-HERE.md)** - New to this repo? Start with this guide!  
+📖 **[Product Vision](01-PRODUCT_VISION.md)** - Understand our product vision, approach, and strategy
 
 ---
 
@@ -149,12 +150,14 @@ This repository serves as the **domain context and interface contract layer** fo
 - **Business Context**: Requirements, features, stakeholder insights, business processes
 - **Technical Context**: High-level architecture (C4 Level 1-2), workflows, ADRs, interface contracts
 
-> 💡 See [PRODUCT_VISION.md](PRODUCT_VISION.md) for product strategy and [REPOSITORY_PURPOSE.md](REPOSITORY_PURPOSE.md) for architecture
+> 💡 See [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) for product strategy and [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) for architecture
 
 ## 📖 Navigation
 
 ### 🎯 Start Here
-- **[Product Vision](PRODUCT_VISION.md)** - Product strategy and vision
+- **[00-START-HERE.md](00-START-HERE.md)** - Quick navigation guide for new users
+- **[01-PRODUCT_VISION.md](01-PRODUCT_VISION.md)** - Product strategy and vision
+- **[02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md)** - Architecture and how to use this repo
 - **[Quick Reference Guide](business-context/06-reference/quick-reference-guide.md)** - Fast lookup for everything
 - **[Completion Report](business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion documentation
 

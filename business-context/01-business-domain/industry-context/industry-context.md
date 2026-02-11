@@ -9,7 +9,7 @@ source_documents:
   - ../../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
   - ../../../source-documents/discovery-phase/client-resources/Transport_Operations_Issues_Solutions.pptx
   - ../../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx
-  - ../../../PRODUCT_VISION.md
+  - ../../../01-PRODUCT_VISION.md
 tags: [industry-context, market, logistics, fleet-management, bangladesh]
 ---
 
@@ -639,7 +639,7 @@ The Distribution and Fleet Management System (DFMS) operates in the logistics an
 
 ## Related Documents
 
-- [Product Vision](../../../PRODUCT_VISION.md) - Strategic vision and approach
+- [Product Vision](../../../01-PRODUCT_VISION.md) - Strategic vision and approach
 - [Business Objectives](../../02-requirements/business-objectives.md) - Business goals
 - [Market Analysis](../../../source-documents/business-proposal/) - Detailed market research
 

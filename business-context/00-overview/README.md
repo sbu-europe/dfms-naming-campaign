@@ -164,7 +164,7 @@ All documents in order:
 
 - **[Technical Context](../../technical-context/)** - Architecture, workflows, and contracts
 - **[Source Documents](../../source-documents/)** - Original BA documents
-- **[Product Vision](../../PRODUCT_VISION.md)** - Strategic vision and principles
+- **[Product Vision](../../01-PRODUCT_VISION.md)** - Strategic vision and principles
 
 ---
 

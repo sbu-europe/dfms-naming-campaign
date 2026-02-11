@@ -8,7 +8,7 @@ updated: 2026-02-10
 source_documents:
   - ../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
   - ../../source-documents/discovery-phase/
-  - ../../PRODUCT_VISION.md
+  - ../../01-PRODUCT_VISION.md
 tags: [business-context, domain, logistics, fleet-management]
 ---
 

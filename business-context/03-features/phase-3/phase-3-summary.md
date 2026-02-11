@@ -440,7 +440,7 @@ All Phase 3 user stories follow the same comprehensive template as Phase 1 and 2
 - [Phase 1 Summary](../phase-1/phase-1-summary.md) - MVP features
 - [Phase 2 Summary](../phase-2/phase-2-summary.md) - Optimization features
 - [Business Objectives](../../02-requirements/business-objectives.md) - Strategic goals
-- [PRODUCT_VISION.md](../../../PRODUCT_VISION.md) - Long-term product strategy
+- [01-PRODUCT_VISION.md](../../../01-PRODUCT_VISION.md) - Long-term product strategy
 
 ---
 

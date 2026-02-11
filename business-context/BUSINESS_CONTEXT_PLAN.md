@@ -8,7 +8,7 @@ This plan focuses on building the **business-context/** folder, which contains a
 
 **Related Plans:**
 - [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md) - High-level technical architecture and contracts
-- [REPOSITORY_PURPOSE.md](REPOSITORY_PURPOSE.md) - Overall repository purpose and architecture
+- [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) - Overall repository purpose and architecture
 
 ---
 
@@ -597,7 +597,7 @@ unzip -p "$INPUT_FILE" xl/sharedStrings.xml 2>/dev/null | \
 ## 📚 Related Documents
 
 - [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md) - Technical architecture plan
-- [PRODUCT_VISION.md](PRODUCT_VISION.md) - Product vision and strategy
+- [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) - Product vision and strategy
 - [source-documents/README.md](source-documents/README.md) - Instructions for reading binary files
 
 ---

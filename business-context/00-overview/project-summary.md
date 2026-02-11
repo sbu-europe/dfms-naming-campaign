@@ -7,7 +7,7 @@ created: 2026-02-10
 updated: 2026-02-10
 source_documents:
   - ../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
-  - ../../PRODUCT_VISION.md
+  - ../../01-PRODUCT_VISION.md
 tags: [overview, project-summary, nourish]
 ---
 
@@ -240,7 +240,7 @@ DFMS addresses these challenges by:
 
 ## Related Documents
 
-- [Product Vision](../../PRODUCT_VISION.md) - Strategic vision and design principles
+- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic vision and design principles
 - [Business Proposal](../../source-documents/business-proposal/) - Detailed proposal and pricing
 - [Business Context](./business-context.md) - Detailed business context and domain
 - [Stakeholders](./stakeholders.md) - Complete stakeholder mapping

@@ -85,7 +85,7 @@ This folder will contain:
 
 - **[Business Context](../business-context/)** - ✅ Complete business documentation
 - **[Technical Context Plan](./TECHNICAL_CONTEXT_PLAN.md)** - Detailed plan for this folder
-- **[Repository Purpose](../docs/REPOSITORY_PURPOSE.md)** - How this repo fits in architecture
+- **[Repository Purpose](../docs/02-REPOSITORY_PURPOSE.md)** - How this repo fits in architecture
 
 ---
 

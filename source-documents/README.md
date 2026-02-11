@@ -6,7 +6,7 @@
 
 These documents represent requirements gathered from **Nourish**, our launch client. While building for Nourish, we're designing DFMS as a **flexible product** that can serve multiple clients in the distribution and fleet management space.
 
-> See [PRODUCT_VISION.md](../PRODUCT_VISION.md) for our product strategy
+> See [01-PRODUCT_VISION.md](../01-PRODUCT_VISION.md) for our product strategy
 
 ## ⚠️ Important
 

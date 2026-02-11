@@ -1,7 +1,8 @@
 DFMS-product-context/
 ├── README.md                                    # Main repository documentation
-├── PRODUCT_VISION.md                            # Product vision and strategy
-├── REPOSITORY_PURPOSE.md                        # Repository architecture
+├── 00-START-HERE.md                             # Quick navigation guide (start here!)
+├── 01-PRODUCT_VISION.md                         # Product vision and strategy
+├── 02-REPOSITORY_PURPOSE.md                     # Repository architecture
 │
 ├── business-context/                            # ✅ COMPLETE (v1.0.0)
 │   ├── README.md

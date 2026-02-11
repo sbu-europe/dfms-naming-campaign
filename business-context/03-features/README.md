@@ -232,7 +232,7 @@ _*Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 whi
 - [Data Models](../../technical-context/05-contracts/data-models/) - Data structures
 
 ### Planning
-- [Product Vision](../../PRODUCT_VISION.md) - Strategic direction
+- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic direction
 - [Business Context Plan](../../BUSINESS_CONTEXT_PLAN.md) - Documentation plan
 - [Technical Context Plan](../../TECHNICAL_CONTEXT_PLAN.md) - Technical documentation plan
 

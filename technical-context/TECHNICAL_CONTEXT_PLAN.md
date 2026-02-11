@@ -8,7 +8,7 @@ This plan focuses on building the **technical-context/** folder, which contains 
 
 **Related Plans:**
 - [BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md) - Business domain knowledge
-- [REPOSITORY_PURPOSE.md](REPOSITORY_PURPOSE.md) - Overall repository purpose and architecture
+- [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) - Overall repository purpose and architecture
 
 ---
 
@@ -845,8 +845,8 @@ git commit -m "Pin domain to v1.2.0"
 ## 📚 Related Documents
 
 - [BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md) - Business domain plan
-- [PRODUCT_VISION.md](PRODUCT_VISION.md) - Product vision and strategy
-- [REPOSITORY_PURPOSE.md](REPOSITORY_PURPOSE.md) - Repository architecture
+- [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) - Product vision and strategy
+- [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) - Repository architecture
 
 ---
 
