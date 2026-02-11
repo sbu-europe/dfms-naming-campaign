@@ -498,6 +498,9 @@ The DFMS business context documentation has been successfully completed, deliver
 
 ### Brain Station 23 Team
 
+**Architecture & Technical Lead**:
+- Md. Mahfuzur Rahman - Architect & Technical Team Lead
+
 **Project Management**:
 - Monojit Shil - Project Manager
 
@@ -525,6 +528,11 @@ The DFMS business context documentation has been successfully completed, deliver
 - Refer to [Quick Reference Guide](business-context/06-reference/quick-reference-guide.md)
 - Check [Cross-Reference Index](business-context/06-reference/cross-reference-index.md)
 - Review [Version History](business-context/06-reference/version-history.md)
+
+### Technical & Architecture Questions
+- **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
+- Architecture decisions and technical direction
+- System design and integration patterns
 
 ### Implementation Support
 - Use [Phase 1 Summary](business-context/03-features/phase-1/phase-1-summary.md)

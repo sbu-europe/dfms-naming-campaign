@@ -104,9 +104,9 @@ Start technical context documentation when:
 ## 📞 Contact
 
 For questions about technical context:
-- Architecture decisions: Contact technical lead
-- API contracts: Contact backend team
-- Integration specs: Contact DevOps team
+- **Architecture & Technical Lead**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
+- **API Contracts**: Contact backend team
+- **Integration Specs**: Contact DevOps team
 
 ---
 

@@ -164,9 +164,9 @@ See [BUSINESS_CONTEXT_COMPLETION_REPORT.md](business-context/BUSINESS_CONTEXT_CO
 ## 📞 Contact
 
 For questions about documentation:
-- Business requirements: Contact BA team
-- Technical questions: Contact development team
-- Documentation structure: Contact project lead
+- **Architecture & Technical Lead**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
+- **Business Requirements**: Contact BA team
+- **Documentation Structure**: Contact project lead
 
 ---
 

@@ -453,5 +453,6 @@ git submodule update --remote domain
 **Repository Type**: Domain Context + Interface Contracts  
 **Usage**: Git submodule in all implementation repos  
 **Audience**: Product managers, Business analysts, Architects, All developers  
-**Purpose**: Single source of truth for domain knowledge and system integration
+**Purpose**: Single source of truth for domain knowledge and system integration  
+**Architecture & Technical Lead**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 
