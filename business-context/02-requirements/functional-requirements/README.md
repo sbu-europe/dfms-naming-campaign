@@ -1,125 +1,116 @@
 # Functional Requirements
 
-> Detailed functional requirements organized by DFMS modules
+> Comprehensive functional requirements for all DFMS modules
 
 ## Overview
 
-This folder contains comprehensive functional requirements for all DFMS modules, organized by business domain and system capability. Each module document includes user stories, acceptance criteria, and detailed functional specifications.
+This folder contains all functional requirements for DFMS, organized by business domain and system capability. Requirements include user stories, acceptance criteria, and detailed functional specifications extracted from the PRD.
 
 ---
 
-## Module Structure
+## Documents in This Folder
 
-### Core Modules
+### **[Functional Requirements Summary](./functional-requirements-summary.md)** ⭐
+**Complete functional requirements catalog** covering all 91 user stories across 12 modules:
 
-1. **[Master Data Management](./01-master-data-management.md)**
-   - Vehicle Management
-   - Driver Management
-   - Helper Management
-   - Vendor Management
-   - POI (Point of Interest) Management
-   - Product Inventory Management
+1. **Master Data Management** (6 user stories)
+   - Vehicle, Driver, Helper, Vendor, POI, Product Management
 
-2. **[Product Requisition Management](./02-product-requisition-management.md)**
-   - Finished Goods Transfer Requisition
-   - Port Transfer Requisition
-   - Approval Workflows (Distribution & Procurement)
-   - Stock Validation
+2. **Product Requisition Management** (6 user stories)
+   - Finished Goods & Port Transfer Requisitions
+   - Approval Workflows & Stock Validation
 
-3. **[Transport Management](./03-transport-management.md)**
-   - Transport Requisition (TR) Management
-   - Transport Order (TO) Management
-   - Fleet Assignment (Own vs Vendor)
-   - Trip Lifecycle Management
+3. **Transport Management** (11 user stories)
+   - Transport Requisition (TR) & Transport Order (TO)
+   - Fleet Assignment & Trip Lifecycle
 
-4. **[Vendor Management](./04-vendor-management.md)**
-   - Vendor Onboarding & Verification
-   - Bidding Portal (Contractual & Non-Contractual)
-   - Vendor Performance Tracking
+4. **Vendor Management** (8 user stories)
+   - Onboarding, Bidding Portal, Performance Tracking
    - Invoice & Claims Management
 
-5. **[Operations Management](./05-operations-management.md)**
-   - Gate Management (Gate-in/Gate-out)
-   - Scaling/Weighing Management
-   - Command Center Operations
-   - Loading/Unloading Management
+5. **Operations Management** (15 user stories)
+   - Gate Management, Scaling, Command Center
+   - Loading/Unloading Operations
 
-6. **[Quality Control](./06-quality-control.md)**
-   - Physical Inspection
-   - Sampling & Lab Testing
+6. **Quality Control** (6 user stories)
+   - Physical Inspection, Sampling, Lab Testing
    - QC Pass/Fail Workflow
-   - Escalation & Recheck
 
-7. **[Fleet & Vehicle Management](./07-fleet-vehicle-management.md)**
-   - Fleet Health Dashboard
-   - Vehicle Utilization Analytics
-   - Downtime Management
-   - Workshop Management
+7. **Fleet & Vehicle Management** (8 user stories)
+   - Fleet Health Dashboard, Utilization Analytics
+   - Downtime & Workshop Management
 
-8. **[Fuel Management](./08-fuel-management.md)**
-   - Fuel Consumption Tracking
-   - Fuel Entry System
-   - Fuel Performance Monitoring
+8. **Fuel Management** (3 user stories)
+   - Fuel Consumption Tracking & Performance Monitoring
 
-9. **[Trip Costing & Finance](./09-trip-costing-finance.md)**
-   - Trip Cost Calculation
-   - Vendor Billing
-   - Invoice Processing
-   - ERP Integration
+9. **Trip Costing & Finance** (5 user stories)
+   - Trip Cost Calculation, Vendor Billing
+   - Invoice Processing & ERP Integration
 
-10. **[Reporting & Analytics](./10-reporting-analytics.md)**
-    - Transport & Trip Reports
-    - Fleet Performance Reports
-    - Vendor Reports
-    - Costing & Finance Reports
+10. **Reporting & Analytics** (12 user stories)
+    - Transport, Fleet, Vendor, Costing Reports
     - System Usage & Audit Reports
 
-11. **[Mobile Applications](./11-mobile-applications.md)**
-    - Driver Mobile Interface
-    - QC Supervisor Mobile Interface
-    - Vendor Mobile Application
+11. **Mobile Applications** (8 user stories)
+    - Driver, QC Supervisor, Vendor Mobile Interfaces
 
-12. **[Notifications & Alerts](./12-notifications-alerts.md)**
-    - System Alerts
-    - Role-Based Notifications
-    - TO Update Alerts
+12. **Notifications & Alerts** (3 user stories)
+    - System Alerts, Role-Based Notifications
+
+---
+
+## Detailed User Stories
+
+For detailed, production-ready user stories with acceptance criteria, functional requirements, and business rules, see:
+
+📁 **[Phase 1 User Stories](../../03-features/phase-1/user-stories/)** - 62 detailed stories
+- Each story includes: User Story, Acceptance Criteria, Functional Requirements, Business Rules, Dependencies, Data Model, API Endpoints, Testing Scenarios
+
+📄 **[Phase 1 Summary](../../03-features/phase-1/phase-1-summary.md)** - Complete index of all Phase 1 stories
+
+📄 **[Phase 2 Summary](../../03-features/phase-2/phase-2-summary.md)** - High-level Phase 2 features (14 stories)
+
+📄 **[Phase 3 Summary](../../03-features/phase-3/phase-3-summary.md)** - High-level Phase 3 features (14 stories)
 
 ---
 
 ## Phase-Wise Feature Breakdown
 
-### Phase 1 (MVP) - Weeks 1-26
-**Focus**: Core operational foundation
+### Phase 1 (MVP) - Weeks 1-26 ✅
+**Focus**: Core operational foundation  
+**Stories**: 62 detailed user stories (complete)
 
 **Modules**:
-- ✅ Master Data Management (Complete)
-- ✅ Product Requisition Management (Complete)
-- ✅ Transport Management (Core features)
-- ✅ Vendor Management (Basic bidding)
-- ✅ Operations Management (Gate, Scaling, Command Center, Loading/Unloading)
-- ✅ Quality Control (Physical inspection, sampling, lab testing)
-- ✅ Trip Costing (Basic)
-- ✅ Mobile Apps (Driver, QC, Vendor - basic features)
+- ✅ Master Data Management (6 stories)
+- ✅ Product Requisition Management (6 stories)
+- ✅ Transport Management (11 stories)
+- ✅ Vendor Management (7 stories)
+- ✅ Operations Management (15 stories)
+- ✅ Quality Control (6 stories)
+- ✅ Trip Costing (2 stories)
+- ✅ Mobile Apps (9 stories)
 
-### Phase 2 - Weeks 27-39
-**Focus**: Optimization and analytics
-
-**Modules**:
-- ✅ Transport Management (Dispatch planning, TR conjoinment)
-- ✅ Fleet & Vehicle Management (Health dashboard, maintenance)
-- ✅ Fuel Management (Complete)
-- ✅ Vendor Management (Billing & claims)
-- ✅ Reporting & Analytics (Comprehensive reports)
-
-### Phase 3 - Weeks 40-52
-**Focus**: Enterprise features and intelligence
+### Phase 2 - Weeks 27-39 ⏳
+**Focus**: Optimization and analytics  
+**Stories**: 14 high-level features
 
 **Modules**:
-- ✅ Fleet & Vehicle Management (Workshop management)
-- ✅ Vendor Management (Rating system, bid probability)
-- ✅ Reporting & Analytics (Advanced analytics)
-- ✅ Notifications & Alerts (Complete)
-- ✅ Multi-language Support
+- Transport Management (Dispatch planning, TR conjoinment)
+- Fleet & Vehicle Management (Health dashboard, maintenance)
+- Fuel Management (Complete)
+- Vendor Management (Billing & claims)
+- Reporting & Analytics (Comprehensive reports)
+
+### Phase 3 - Weeks 40-52 ⏳
+**Focus**: Enterprise features and intelligence  
+**Stories**: 14 high-level features
+
+**Modules**:
+- Fleet & Vehicle Management (Workshop management)
+- Vendor Management (Rating system, bid probability)
+- Reporting & Analytics (Advanced analytics)
+- Notifications & Alerts (Complete)
+- Multi-language Support
 
 ---
 
