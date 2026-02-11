@@ -38,9 +38,9 @@ source-documents/
 Structured, markdown-based knowledge repositories built from source documents.
 
 **📋 Documentation Status:**
-- ✅ **[BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md)** - Business domain knowledge (6 weeks, 96 files) - **COMPLETE**
-- ✅ **[BUSINESS_CONTEXT_COMPLETION_REPORT.md](BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion report
-- ⏳ **[TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md)** - Technical architecture & contracts (6 weeks, ~90 files) - *Pending*
+- ✅ **[BUSINESS_CONTEXT_PLAN.md](business-context/BUSINESS_CONTEXT_PLAN.md)** - Business domain knowledge (6 weeks, 96 files) - **COMPLETE**
+- ✅ **[BUSINESS_CONTEXT_COMPLETION_REPORT.md](business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion report
+- ⏳ **[TECHNICAL_CONTEXT_PLAN.md](technical-context/TECHNICAL_CONTEXT_PLAN.md)** - Technical architecture & contracts (6 weeks, ~90 files) - *Pending*
 
 **Business Context Includes** (100% Complete):
 - ✅ 62 Phase 1 User Stories (production-ready)
@@ -81,7 +81,7 @@ This repository serves as the **domain context and interface contract layer** fo
 ### 🎯 Start Here
 - **[Product Vision](PRODUCT_VISION.md)** - Product strategy and vision
 - **[Quick Reference Guide](business-context/06-reference/quick-reference-guide.md)** - Fast lookup for everything
-- **[Completion Report](BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion documentation
+- **[Completion Report](business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion documentation
 
 ### For Business Stakeholders
 - ✅ **[Business Context](business-context/)** - Complete business domain knowledge (96 files)
@@ -98,7 +98,7 @@ This repository serves as the **domain context and interface contract layer** fo
   - [Feature Dependencies](business-context/03-features/feature-dependencies.md) - What depends on what
 - ✅ **[Data Dictionary](business-context/05-data-reference/data-dictionary.md)** - Complete data model
 - ✅ **[Business Rules](business-context/01-business-domain/business-rules/business-rules.md)** - 112 rules
-- ⏳ [Technical Context Plan](TECHNICAL_CONTEXT_PLAN.md) - Architecture & contracts (coming soon)
+- ⏳ [Technical Context Plan](technical-context/TECHNICAL_CONTEXT_PLAN.md) - Architecture & contracts (coming soon)
 
 ### For QA Engineers
 - ✅ **[Functional Requirements](business-context/02-requirements/functional-requirements/)** - 91 user stories
@@ -140,7 +140,7 @@ find source-documents/ -name "*.xlsx"
 - **Format**: Markdown (`.md`), Mermaid (`.mmd`), YAML contracts
 - **Structure**: Architecture diagrams (C4 Level 1-2), workflows, ADRs
 - **Contracts**: OpenAPI 3.0 specs for APIs, AsyncAPI for events
-- **Plan**: [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md)
+- **Plan**: [TECHNICAL_CONTEXT_PLAN.md](technical-context/TECHNICAL_CONTEXT_PLAN.md)
 
 ## 🤝 Contributing
 
@@ -148,7 +148,7 @@ This repository is maintained by the DFMS project team.
 
 - **Source documents**: Only add new documents as received from BA team
 - **Business context**: ✅ Complete - Update as needed based on implementation learnings
-- **Technical context**: ⏳ Follow [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md) when starting
+- **Technical context**: ⏳ Follow [TECHNICAL_CONTEXT_PLAN.md](technical-context/TECHNICAL_CONTEXT_PLAN.md) when starting
 
 ## 📊 Documentation Status
 
@@ -159,7 +159,7 @@ This repository is maintained by the DFMS project team.
 | **Source Documents** | ✅ Current | - | 40+ | - |
 
 **Business Context v1.0.0** completed February 11, 2026  
-See [BUSINESS_CONTEXT_COMPLETION_REPORT.md](BUSINESS_CONTEXT_COMPLETION_REPORT.md) for details
+See [BUSINESS_CONTEXT_COMPLETION_REPORT.md](business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md) for details
 
 ## 📞 Contact
 
