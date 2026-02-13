@@ -1,0 +1,297 @@
+# Common Schemas
+# Shared data models and schemas for DFMS APIs
+
+openapi: 3.0.3
+info:
+  title: DFMS Common Schemas
+  description: Shared schemas used across all DFMS APIs
+  version: 1.0.0
+
+components:
+  schemas:
+    # Pagination
+    PaginatedResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Total number of items
+        next:
+          type: string
+          nullable: true
+          format: uri
+          description: URL to next page
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          description: URL to previous page
+        results:
+          type: array
+          items: {}
+    
+    # Error Response
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+            message:
+              type: string
+              description: Error message
+            details:
+              type: object
+              description: Additional error details
+          required:
+            - code
+            - message
+    
+    # Success Response
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+    
+    # Location
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: float
+        longitude:
+          type: number
+          format: float
+        address:
+          type: string
+          nullable: true
+      required:
+        - latitude
+        - longitude
+    
+    # Money
+    Money:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          default: BDT
+      required:
+        - amount
+        - currency
+    
+    # Date Range
+    DateRange:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+      required:
+        - start_date
+        - end_date
+    
+    # Status Enum
+    Status:
+      type: string
+      enum:
+        - pending
+        - in_progress
+        - completed
+        - cancelled
+        - failed
+    
+    # Priority Enum
+    Priority:
+      type: string
+      enum:
+        - low
+        - normal
+        - high
+        - urgent
+    
+    # Vehicle Type Enum
+    VehicleType:
+      type: string
+      enum:
+        - covered_van
+        - open_truck
+        - container
+        - refrigerated
+    
+    # Fleet Type Enum
+    FleetType:
+      type: string
+      enum:
+        - own
+        - vendor
+    
+    # Vendor Type Enum
+    VendorType:
+      type: string
+      enum:
+        - contractual
+        - non_contractual
+    
+    # QC Result Enum
+    QCResult:
+      type: string
+      enum:
+        - pass
+        - fail
+        - pending
+    
+    # Audit Fields
+    AuditFields:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        updated_by:
+          type: string
+          format: uuid
+    
+    # Tenant Context
+    TenantContext:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+          format: uuid
+        tenant_name:
+          type: string
+
+  parameters:
+    # Pagination Parameters
+    PageParam:
+      name: page
+      in: query
+      description: Page number
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    
+    PageSizeParam:
+      name: page_size
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    
+    # Common Filters
+    StatusFilter:
+      name: status
+      in: query
+      description: Filter by status
+      schema:
+        $ref: '#/components/schemas/Status'
+      required: false
+    
+    DateRangeFilter:
+      name: date_range
+      in: query
+      description: Filter by date range
+      schema:
+        $ref: '#/components/schemas/DateRange'
+      required: false
+    
+    # ID Parameters
+    UUIDParam:
+      name: id
+      in: path
+      description: Resource ID (UUID)
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
+
+  responses:
+    # Common Responses
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+    
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: BAD_REQUEST
+              message: Invalid request parameters
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Authentication required
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: FORBIDDEN
+              message: Insufficient permissions
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: An internal error occurred
+

@@ -1,0 +1,371 @@
+openapi: 3.0.3
+info:
+  title: DFMS Master Data Management API
+  description: |
+    API contract for Master Data Management module in DFMS.
+    
+    This contract defines the interface for managing master data entities:
+    - Vehicles
+    - Drivers
+    - Helpers
+    - Vendors (master data)
+    - POIs (Points of Interest)
+    - Products
+    - Zones
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+
+tags:
+  - name: Vehicles
+    description: Vehicle management operations
+  - name: Drivers
+    description: Driver management operations
+  - name: Vendors
+    description: Vendor master data operations
+  - name: POIs
+    description: Point of Interest management operations
+  - name: Products
+    description: Product management operations
+
+paths:
+  # Vehicles
+  /vehicles:
+    get:
+      tags: [Vehicles]
+      summary: List vehicles
+      operationId: listVehicles
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, assigned, maintenance, inactive]
+        - name: owner_type
+          in: query
+          schema:
+            type: string
+            enum: [own, vendor]
+      responses:
+        '200':
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Vehicle'
+    
+    post:
+      tags: [Vehicles]
+      summary: Create vehicle
+      operationId: createVehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreate'
+      responses:
+        '201':
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+  
+  /vehicles/{id}:
+    get:
+      tags: [Vehicles]
+      summary: Get vehicle by ID
+      operationId: getVehicle
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+    
+    put:
+      tags: [Vehicles]
+      summary: Update vehicle
+      operationId: updateVehicle
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleUpdate'
+      responses:
+        '200':
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+    
+    delete:
+      tags: [Vehicles]
+      summary: Delete vehicle
+      operationId: deleteVehicle
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Vehicle deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+  
+  # Drivers
+  /drivers:
+    get:
+      tags: [Drivers]
+      summary: List drivers
+      operationId: listDrivers
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, assigned, on_leave, inactive]
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Driver'
+    
+    post:
+      tags: [Drivers]
+      summary: Create driver
+      operationId: createDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverCreate'
+      responses:
+        '201':
+          description: Driver created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+  
+  /drivers/{id}:
+    get:
+      tags: [Drivers]
+      summary: Get driver by ID
+      operationId: getDriver
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Driver details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+    
+    put:
+      tags: [Drivers]
+      summary: Update driver
+      operationId: updateDriver
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverUpdate'
+      responses:
+        '200':
+          description: Driver updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+components:
+  schemas:
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        registration_number:
+          type: string
+        type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/VehicleType'
+        capacity:
+          type: number
+          format: decimal
+        owner_type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/FleetType'
+        status:
+          type: string
+          enum: [available, assigned, maintenance, inactive]
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - registration_number
+        - type
+        - capacity
+        - owner_type
+        - status
+    
+    VehicleCreate:
+      type: object
+      properties:
+        registration_number:
+          type: string
+        type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/VehicleType'
+        capacity:
+          type: number
+          format: decimal
+        owner_type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/FleetType'
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - registration_number
+        - type
+        - capacity
+        - owner_type
+    
+    VehicleUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [available, assigned, maintenance, inactive]
+        capacity:
+          type: number
+          format: decimal
+    
+    Driver:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        contact_number:
+          type: string
+        license_number:
+          type: string
+        license_valid_until:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [available, assigned, on_leave, inactive]
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - contact_number
+        - license_number
+        - license_valid_until
+        - status
+    
+    DriverCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_number:
+          type: string
+        license_number:
+          type: string
+        license_valid_until:
+          type: string
+          format: date
+      required:
+        - name
+        - contact_number
+        - license_number
+        - license_valid_until
+    
+    DriverUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [available, assigned, on_leave, inactive]
+        license_valid_until:
+          type: string
+          format: date
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+
