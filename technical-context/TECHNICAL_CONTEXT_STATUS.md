@@ -17,9 +17,9 @@
 | **02-workflows** | ✅ Complete | 100% | 16/16 | Feb 13, 2026 |
 | **03-implementation** | ✅ Complete | 100% | 7/7 | Feb 13, 2026 |
 | **04-decisions** | ⏳ Pending | 0% | 0/~6 | - |
-| **05-contracts** | ✅ Complete | 100% | 12/12 | Feb 13, 2026 |
+| **05-contracts** | 🚧 In Progress | 85% | 22/26 | Feb 13, 2026 |
 | **06-reference** | ⏳ Pending | 0% | 0/~3 | - |
-| **TOTAL** | 🚧 In Progress | **51%** | **57/~88** | - |
+| **TOTAL** | 🚧 In Progress | **58%** | **67/~88** | - |
 
 ---
 
@@ -128,21 +128,32 @@
 
 ---
 
-### Week 5: Event & Data Contracts
+### Week 5: Event & Data Contracts 🚧 IN PROGRESS
 **Focus**: Async events and data models  
-**Status**: ⏳ Not Started  
-**Target Completion**: TBD
+**Status**: 🚧 In Progress  
+**Started**: February 13, 2026
 
 **Tasks**:
-- [ ] Create `05-contracts/events/` (~8 files)
-  - [ ] Event contracts (AsyncAPI)
-- [ ] Create `05-contracts/data-models/` (~10 files)
-  - [ ] Shared data contracts
-  - [ ] Entities, enums, value objects
-- [ ] Create `05-contracts/integration/` (~2 files)
-  - [ ] External integration contracts
+- [x] Create `05-contracts/events/` (3 files)
+  - [x] README.md
+  - [x] event-catalog.md (37 events documented)
+  - [x] event-specifications.yaml (AsyncAPI 2.6.0)
+- [x] Create `05-contracts/data-models/` (4 files)
+  - [x] README.md
+  - [x] common-entities.yaml (12 entities)
+  - [x] enums-constants.yaml (15+ enums)
+  - [x] value-objects.yaml (7 value objects)
+- [x] Create `05-contracts/integration/` (3 files)
+  - [x] README.md
+  - [x] gps-vts-integration.yaml
+  - [x] erp-integration.yaml
+- [ ] Remaining integration contracts (4 files)
+  - [ ] sms-gateway-integration.yaml
+  - [ ] maps-service-integration.yaml
+  - [ ] iot-devices-integration.yaml
+  - [ ] payment-gateway-integration.yaml
 
-**Deliverables**: `05-contracts/events/`, `05-contracts/data-models/`, `05-contracts/integration/` (complete)
+**Deliverables**: ✅ `05-contracts/events/` (complete), ✅ `05-contracts/data-models/` (complete), 🚧 `05-contracts/integration/` (2/6 complete) - 10 files, ~2,200 lines
 
 ---
 
@@ -170,11 +181,12 @@
 
 **Week**: 5  
 **Focus**: Event & Data Contracts  
+**Progress**: 85% complete  
 **Next Steps**: 
-1. Create AsyncAPI event contracts
-2. Define shared data models
-3. Document integration contracts
-4. Add examples and schemas
+1. ✅ AsyncAPI event contracts (complete)
+2. ✅ Shared data models (complete)
+3. 🚧 Integration contracts (2/6 complete)
+4. Remaining: SMS, Maps, IoT, Payment gateway contracts
 
 ---
 
