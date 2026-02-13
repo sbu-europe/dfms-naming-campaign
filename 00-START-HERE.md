@@ -34,8 +34,12 @@ Follow this sequence to understand the repository:
    - Start with [00-overview/](./business-context/00-overview/)
    - Then explore by your role (see Quick Links below)
 
-5. **[technical-context/](./technical-context/)** *(Coming soon)*
-   - High-level architecture and contracts
+5. **[technical-context/](./technical-context/)** ✅ **Complete**
+   - High-level architecture (C4 Level 1-2)
+   - API contracts (OpenAPI 3.0)
+   - Event contracts (AsyncAPI 2.6.0)
+   - Architecture Decision Records (ADRs)
+   - Technical diagrams (37 diagrams)
 
 ---
 
@@ -52,6 +56,10 @@ Follow this sequence to understand the repository:
 - [Data Dictionary](./business-context/05-data-reference/data-dictionary.md) - 10 entities, 200+ fields
 - [Business Rules](./business-context/01-business-domain/business-rules/business-rules.md) - 112 validation rules
 - [Feature Dependencies](./business-context/03-features/feature-dependencies.md) - What depends on what
+- **[API Contracts](./technical-context/05-contracts/api/rest/)** - 10 REST APIs (OpenAPI 3.0) ready for code generation
+- **[Event Contracts](./technical-context/05-contracts/events/)** - 37 domain events (AsyncAPI 2.6.0)
+- **[Architecture Overview](./technical-context/00-overview/architecture-summary.md)** - System architecture
+- **[Technical Diagrams](./technical-context/04-diagrams/)** - 37 diagrams (C4, workflows, sequences, states)
 
 ### **📊 Business Analysts**
 - [Functional Requirements](./business-context/02-requirements/functional-requirements/functional-requirements-summary.md) - 91 stories
@@ -67,7 +75,11 @@ Follow this sequence to understand the repository:
 ### **🏗️ Architects**
 - [Business Processes](./business-context/01-business-domain/business-processes/business-processes-overview.md) - 7 core processes
 - [Integration Points](./business-context/00-overview/business-context.md#integration-points) - System integrations
-- [Technical Context Plan](./technical-context/TECHNICAL_CONTEXT_PLAN.md) - Architecture roadmap
+- **[Architecture Overview](./technical-context/00-overview/architecture-summary.md)** - High-level architecture
+- **[Container View](./technical-context/01-architecture/container-view.md)** - C4 Level 2 architecture
+- **[ADRs](./technical-context/03-decisions/)** - 5 architectural decisions with alternatives
+- **[Integration Patterns](./technical-context/01-architecture/integration/integration-patterns.md)** - How systems integrate
+- **[Deployment Diagram](./technical-context/04-diagrams/deployment/deployment-diagram.mmd)** - Infrastructure architecture
 - [Repository Purpose](./02-REPOSITORY_PURPOSE.md) - Submodule architecture
 
 ### **🆕 New Team Members**
@@ -113,8 +125,18 @@ Follow this sequence to understand the repository:
 4. **Check dependencies**
    - [Feature Dependencies](./business-context/03-features/feature-dependencies.md) - What to build first
 
-5. **Review contracts** *(coming soon)*
-   - [Technical Context](./technical-context/) - API specs, event schemas
+5. **Review technical contracts** ✅
+   - [API Contracts](./technical-context/05-contracts/api/rest/) - OpenAPI 3.0 specs for your module
+   - [Event Contracts](./technical-context/05-contracts/events/) - Domain events your module publishes/consumes
+   - [Data Models](./technical-context/05-contracts/data-models/) - JSON Schema definitions
+
+6. **Review architecture**
+   - [Module Boundaries](./technical-context/01-architecture/modules/module-boundaries.md) - Your module's responsibilities
+   - [Module Interactions](./technical-context/01-architecture/modules/module-interactions.md) - How modules communicate
+   - [Operational Flows](./technical-context/02-workflows/operational-flows/) - Technical workflow diagrams
+
+7. **Check ADRs**
+   - [Architecture Decisions](./technical-context/03-decisions/) - Key decisions affecting your module
 
 **Example**: Implementing "Product Requisition"
 ```bash
@@ -128,6 +150,16 @@ Follow this sequence to understand the repository:
 # 3. Review business rules
 ./business-context/01-business-domain/business-rules/business-rules.md
 # Filter by: "Product Requisition" module
+
+# 4. Review API contract
+./technical-context/05-contracts/api/rest/product-requisition.yaml
+
+# 5. Review events
+./technical-context/05-contracts/events/event-catalog.md
+# Search for: "ProductRequisition"
+
+# 6. Review workflow
+./technical-context/02-workflows/operational-flows/01-product-requisition-flow.md
 ```
 
 ---
@@ -193,8 +225,10 @@ git submodule add https://github.com/org/DFMS-product-context.git context
 # Import business context
 import { BusinessRules } from './context/business-context/...'
 
-# Import technical contracts (coming soon)
-import { APIContract } from './context/technical-context/05-contracts/...'
+# Import technical contracts ✅
+import { APIContract } from './context/technical-context/05-contracts/api/rest/product-requisition.yaml'
+import { EventSchema } from './context/technical-context/05-contracts/events/event-specifications.yaml'
+import { DataModel } from './context/technical-context/05-contracts/data-models/common-entities.yaml'
 ```
 
 ---
