@@ -1,0 +1,119 @@
+# GPS/VTS Integration Contract
+# Contract for GPS/VTS provider integration
+
+openapi: 3.0.3
+info:
+  title: GPS/VTS Provider Integration
+  description: |
+    Integration contract for GPS/VTS provider.
+    
+    This contract defines the interface for vehicle tracking and location services.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://gps-provider.example.com/api/v1
+    description: GPS Provider API
+
+paths:
+  /vehicles/{vehicle_id}/location:
+    get:
+      summary: Get current vehicle location
+      operationId: getVehicleLocation
+      parameters:
+        - name: vehicle_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current vehicle location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicle_id:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                        format: float
+                      longitude:
+                        type: number
+                        format: float
+                      speed:
+                        type: number
+                        format: float
+                      heading:
+                        type: number
+                        format: float
+                      timestamp:
+                        type: string
+                        format: date-time
+                  ignition_status:
+                    type: string
+                    enum: [on, off]
+  
+  /trips/{trip_id}/route:
+    get:
+      summary: Get trip route history
+      operationId: getTripRoute
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Trip route points
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trip_id:
+                    type: string
+                  route_points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        latitude:
+                          type: number
+                        longitude:
+                          type: number
+                        timestamp:
+                          type: string
+                          format: date-time
+                        speed:
+                          type: number
+                        heading:
+                          type: number
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - apiKey: []
+

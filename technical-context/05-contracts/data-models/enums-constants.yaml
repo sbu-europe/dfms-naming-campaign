@@ -1,0 +1,215 @@
+# Enums & Constants
+# Enumerations and constants for DFMS
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://dfms.example.com/schemas/enums-constants.json
+
+definitions:
+  # Status Enums
+  TripStatus:
+    type: string
+    enum:
+      - pending
+      - in_transit
+      - completed
+      - cancelled
+    description: Trip status enumeration
+  
+  TransportOrderStatus:
+    type: string
+    enum:
+      - pending
+      - assigned
+      - in_transit
+      - completed
+      - cancelled
+    description: Transport Order status enumeration
+  
+  ProductRequisitionStatus:
+    type: string
+    enum:
+      - draft
+      - pending_distribution_approval
+      - pending_procurement_approval
+      - approved
+      - rejected
+      - pending_stock
+    description: Product Requisition status enumeration
+  
+  VehicleStatus:
+    type: string
+    enum:
+      - available
+      - assigned
+      - maintenance
+      - inactive
+    description: Vehicle status enumeration
+  
+  DriverStatus:
+    type: string
+    enum:
+      - available
+      - assigned
+      - on_leave
+      - inactive
+    description: Driver status enumeration
+  
+  VendorStatus:
+    type: string
+    enum:
+      - active
+      - inactive
+      - suspended
+    description: Vendor status enumeration
+  
+  QCInspectionStatus:
+    type: string
+    enum:
+      - pending
+      - in_progress
+      - completed
+      - failed
+    description: QC Inspection status enumeration
+  
+  InvoiceStatus:
+    type: string
+    enum:
+      - pending_approval
+      - approved
+      - paid
+      - rejected
+    description: Invoice status enumeration
+  
+  # Priority Enums
+  Priority:
+    type: string
+    enum:
+      - low
+      - normal
+      - high
+      - urgent
+    description: Priority level enumeration
+    default: normal
+  
+  # Vehicle Type Enums
+  VehicleType:
+    type: string
+    enum:
+      - covered_van
+      - open_truck
+      - container
+      - refrigerated
+    description: Vehicle type enumeration
+  
+  # Fleet Type Enums
+  FleetType:
+    type: string
+    enum:
+      - own
+      - vendor
+    description: Fleet type enumeration
+  
+  # Vendor Type Enums
+  VendorType:
+    type: string
+    enum:
+      - contractual
+      - non_contractual
+    description: Vendor type enumeration
+  
+  # POI Type Enums
+  POIType:
+    type: string
+    enum:
+      - factory
+      - warehouse
+      - cfs
+      - customer
+      - depot
+    description: Point of Interest type enumeration
+  
+  # QC Result Enums
+  QCResult:
+    type: string
+    enum:
+      - pass
+      - fail
+      - pending
+    description: QC inspection result enumeration
+  
+  # Unit of Measure Enums
+  UnitOfMeasure:
+    type: string
+    enum:
+      - kg
+      - ton
+      - piece
+      - bag
+    description: Unit of measure enumeration
+  
+  # Notification Channel Enums
+  NotificationChannel:
+    type: string
+    enum:
+      - email
+      - sms
+      - push
+      - in_app
+    description: Notification channel enumeration
+  
+  # Alert Severity Enums
+  AlertSeverity:
+    type: string
+    enum:
+      - critical
+      - high
+      - medium
+      - low
+    description: Alert severity enumeration
+  
+  # Error Codes
+  ErrorCode:
+    type: string
+    enum:
+      - VALIDATION_ERROR
+      - NOT_FOUND
+      - UNAUTHORIZED
+      - FORBIDDEN
+      - CONFLICT
+      - INTERNAL_ERROR
+      - EXTERNAL_SERVICE_ERROR
+      - RATE_LIMIT_EXCEEDED
+    description: Standard error codes
+  
+  # Constants
+  Constants:
+    type: object
+    properties:
+      MAX_PAGE_SIZE:
+        type: integer
+        default: 100
+        description: Maximum items per page
+      DEFAULT_PAGE_SIZE:
+        type: integer
+        default: 20
+        description: Default items per page
+      MAX_FILE_SIZE_MB:
+        type: integer
+        default: 10
+        description: Maximum file size in MB
+      GPS_UPDATE_INTERVAL_SECONDS:
+        type: integer
+        default: 60
+        description: GPS update interval in seconds
+      QC_INSPECTION_SLA_HOURS:
+        type: integer
+        default: 2
+        description: QC inspection SLA in hours
+      INVOICE_DUE_DAYS:
+        type: integer
+        default: 7
+        description: Invoice due days
+    required:
+      - MAX_PAGE_SIZE
+      - DEFAULT_PAGE_SIZE
+

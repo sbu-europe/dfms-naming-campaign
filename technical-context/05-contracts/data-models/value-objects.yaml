@@ -1,0 +1,209 @@
+# Value Objects
+# Reusable value objects for DFMS
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://dfms.example.com/schemas/value-objects.json
+
+definitions:
+  Location:
+    type: object
+    title: Location
+    description: Geographic location with latitude and longitude
+    properties:
+      latitude:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+        description: Latitude in decimal degrees
+      longitude:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+        description: Longitude in decimal degrees
+      address:
+        type: string
+        nullable: true
+        description: Human-readable address
+      accuracy:
+        type: number
+        format: float
+        nullable: true
+        description: Location accuracy in meters
+    required:
+      - latitude
+      - longitude
+    examples:
+      - latitude: 23.8103
+        longitude: 90.4125
+        address: "Dhaka, Bangladesh"
+  
+  Money:
+    type: object
+    title: Money
+    description: Monetary amount with currency
+    properties:
+      amount:
+        type: number
+        format: decimal
+        minimum: 0
+        description: Amount value
+      currency:
+        type: string
+        pattern: '^[A-Z]{3}$'
+        default: BDT
+        description: ISO 4217 currency code
+    required:
+      - amount
+      - currency
+    examples:
+      - amount: 15000.00
+        currency: BDT
+  
+  DateRange:
+    type: object
+    title: Date Range
+    description: Date range with start and end dates
+    properties:
+      start_date:
+        type: string
+        format: date
+        description: Start date (inclusive)
+      end_date:
+        type: string
+        format: date
+        description: End date (inclusive)
+    required:
+      - start_date
+      - end_date
+    examples:
+      - start_date: "2026-02-01"
+        end_date: "2026-02-28"
+  
+  Address:
+    type: object
+    title: Address
+    description: Physical address
+    properties:
+      street:
+        type: string
+        description: Street address
+      city:
+        type: string
+        description: City name
+      state:
+        type: string
+        nullable: true
+        description: State or province
+      postal_code:
+        type: string
+        nullable: true
+        description: Postal or ZIP code
+      country:
+        type: string
+        default: Bangladesh
+        description: Country name
+    required:
+      - street
+      - city
+      - country
+    examples:
+      - street: "123 Main Street"
+        city: "Dhaka"
+        state: "Dhaka Division"
+        postal_code: "1200"
+        country: "Bangladesh"
+  
+  Contact:
+    type: object
+    title: Contact
+    description: Contact information
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+        description: Contact person name
+      phone:
+        type: string
+        pattern: '^\+?[0-9]{10,15}$'
+        description: Phone number
+      email:
+        type: string
+        format: email
+        nullable: true
+        description: Email address
+    required:
+      - name
+      - phone
+    examples:
+      - name: "John Doe"
+        phone: "+8801712345678"
+        email: "john@example.com"
+  
+  Distance:
+    type: object
+    title: Distance
+    description: Distance measurement
+    properties:
+      value:
+        type: number
+        format: decimal
+        minimum: 0
+        description: Distance value
+      unit:
+        type: string
+        enum: [km, miles, meters]
+        default: km
+        description: Distance unit
+    required:
+      - value
+      - unit
+    examples:
+      - value: 120.5
+        unit: km
+  
+  Weight:
+    type: object
+    title: Weight
+    description: Weight measurement
+    properties:
+      value:
+        type: number
+        format: decimal
+        minimum: 0
+        description: Weight value
+      unit:
+        type: string
+        enum: [kg, ton, gram]
+        default: kg
+        description: Weight unit
+    required:
+      - value
+      - unit
+    examples:
+      - value: 3500.5
+        unit: kg
+  
+  Quantity:
+    type: object
+    title: Quantity
+    description: Quantity measurement
+    properties:
+      value:
+        type: number
+        format: decimal
+        minimum: 0
+        description: Quantity value
+      unit:
+        type: string
+        enum: [kg, ton, piece, bag]
+        description: Quantity unit
+    required:
+      - value
+      - unit
+    examples:
+      - value: 1000.00
+        unit: kg
+

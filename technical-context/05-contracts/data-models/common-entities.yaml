@@ -1,0 +1,550 @@
+# Common Entities
+# Shared entity definitions for DFMS
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://dfms.example.com/schemas/common-entities.json
+
+definitions:
+  # Master Data Entities
+  Vehicle:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      registration_number:
+        type: string
+        pattern: '^[A-Z0-9-]+$'
+      type:
+        type: string
+        enum: [covered_van, open_truck, container, refrigerated]
+      capacity:
+        type: number
+        format: decimal
+        minimum: 0
+      owner_type:
+        type: string
+        enum: [own, vendor]
+      status:
+        type: string
+        enum: [available, assigned, maintenance, inactive]
+      vendor_id:
+        type: string
+        format: uuid
+        nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - registration_number
+      - type
+      - capacity
+      - owner_type
+      - status
+  
+  Driver:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+      contact_number:
+        type: string
+        pattern: '^\+?[0-9]{10,15}$'
+      license_number:
+        type: string
+      license_valid_until:
+        type: string
+        format: date
+      status:
+        type: string
+        enum: [available, assigned, on_leave, inactive]
+      rating:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 5
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - contact_number
+      - license_number
+      - license_valid_until
+      - status
+  
+  Vendor:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+        minLength: 1
+        maxLength: 200
+      contact_number:
+        type: string
+      email:
+        type: string
+        format: email
+      type:
+        type: string
+        enum: [contractual, non_contractual]
+      status:
+        type: string
+        enum: [active, inactive, suspended]
+      rating:
+        type: number
+        format: float
+        minimum: 0
+        maximum: 5
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - type
+      - status
+  
+  POI:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      address:
+        type: string
+      location:
+        $ref: '#/definitions/Location'
+      type:
+        type: string
+        enum: [factory, warehouse, cfs, customer, depot]
+      contact_person:
+        type: string
+        nullable: true
+      contact_number:
+        type: string
+        nullable: true
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - location
+      - type
+  
+  Product:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      code:
+        type: string
+      category:
+        type: string
+      unit_of_measure:
+        type: string
+        enum: [kg, ton, piece, bag]
+      weight_per_unit:
+        type: number
+        format: decimal
+        nullable: true
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - code
+      - unit_of_measure
+  
+  # Transactional Entities
+  ProductRequisition:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      pr_number:
+        type: string
+        pattern: '^PR-[0-9]{8}-[0-9]{4}$'
+      product_id:
+        type: string
+        format: uuid
+      quantity:
+        type: number
+        format: decimal
+        minimum: 0
+      origin_poi_id:
+        type: string
+        format: uuid
+      destination_poi_id:
+        type: string
+        format: uuid
+      requested_date:
+        type: string
+        format: date
+      priority:
+        type: string
+        enum: [low, normal, high, urgent]
+      status:
+        type: string
+        enum: [draft, pending_distribution_approval, pending_procurement_approval, approved, rejected, pending_stock]
+      tr_id:
+        type: string
+        format: uuid
+        nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - pr_number
+      - product_id
+      - quantity
+      - origin_poi_id
+      - destination_poi_id
+      - requested_date
+      - priority
+      - status
+  
+  TransportRequest:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      tr_number:
+        type: string
+        pattern: '^TR-[0-9]{8}-[0-9]{4}$'
+      pr_id:
+        type: string
+        format: uuid
+      product_id:
+        type: string
+        format: uuid
+      quantity:
+        type: number
+        format: decimal
+      origin_poi_id:
+        type: string
+        format: uuid
+      destination_poi_id:
+        type: string
+        format: uuid
+      vehicle_type_required:
+        type: string
+        enum: [covered_van, open_truck, container, refrigerated]
+      priority:
+        type: string
+        enum: [low, normal, high, urgent]
+      status:
+        type: string
+        enum: [pending, approved, to_created, cancelled]
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - tr_number
+      - pr_id
+      - product_id
+      - quantity
+      - origin_poi_id
+      - destination_poi_id
+      - status
+  
+  TransportOrder:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      to_number:
+        type: string
+        pattern: '^TO-[0-9]{8}-[0-9]{4}$'
+      tr_id:
+        type: string
+        format: uuid
+      fleet_type:
+        type: string
+        enum: [own, vendor]
+      vehicle_id:
+        type: string
+        format: uuid
+        nullable: true
+      driver_id:
+        type: string
+        format: uuid
+        nullable: true
+      vendor_id:
+        type: string
+        format: uuid
+        nullable: true
+      scheduled_date:
+        type: string
+        format: date
+      scheduled_time:
+        type: string
+        format: time
+      status:
+        type: string
+        enum: [pending, assigned, in_transit, completed, cancelled]
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - to_number
+      - tr_id
+      - fleet_type
+      - scheduled_date
+      - status
+  
+  Trip:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      trip_number:
+        type: string
+        pattern: '^TRIP-[0-9]{8}-[0-9]{4}$'
+      to_id:
+        type: string
+        format: uuid
+      vehicle_id:
+        type: string
+        format: uuid
+      driver_id:
+        type: string
+        format: uuid
+      scheduled_date:
+        type: string
+        format: date
+      start_time:
+        type: string
+        format: date-time
+        nullable: true
+      end_time:
+        type: string
+        format: date-time
+        nullable: true
+      start_odometer:
+        type: number
+        format: decimal
+        nullable: true
+      end_odometer:
+        type: number
+        format: decimal
+        nullable: true
+      distance_traveled:
+        type: number
+        format: decimal
+        nullable: true
+      status:
+        type: string
+        enum: [pending, in_transit, completed, cancelled]
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - trip_number
+      - to_id
+      - vehicle_id
+      - driver_id
+      - scheduled_date
+      - status
+  
+  QCInspection:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      trip_id:
+        type: string
+        format: uuid
+      inspection_type:
+        type: string
+        enum: [physical, physical_and_lab]
+      status:
+        type: string
+        enum: [pending, in_progress, completed, failed]
+      result:
+        type: string
+        enum: [pass, fail]
+        nullable: true
+      inspector_id:
+        type: string
+        format: uuid
+        nullable: true
+      photos:
+        type: array
+        items:
+          type: string
+          format: uri
+      created_at:
+        type: string
+        format: date-time
+      completed_at:
+        type: string
+        format: date-time
+        nullable: true
+    required:
+      - id
+      - trip_id
+      - inspection_type
+      - status
+  
+  Invoice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      invoice_number:
+        type: string
+        pattern: '^INV-[0-9]{8}-[0-9]{4}$'
+      vendor_id:
+        type: string
+        format: uuid
+      trip_id:
+        type: string
+        format: uuid
+      amount:
+        $ref: '#/definitions/Money'
+      tax:
+        $ref: '#/definitions/Money'
+      total_amount:
+        $ref: '#/definitions/Money'
+      status:
+        type: string
+        enum: [pending_approval, approved, paid, rejected]
+      due_date:
+        type: string
+        format: date
+      erp_sync_status:
+        type: string
+        enum: [pending, synced, failed]
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - invoice_number
+      - vendor_id
+      - amount
+      - status
+  
+  # Value Objects
+  Location:
+    type: object
+    properties:
+      latitude:
+        type: number
+        format: float
+        minimum: -90
+        maximum: 90
+      longitude:
+        type: number
+        format: float
+        minimum: -180
+        maximum: 180
+      address:
+        type: string
+        nullable: true
+    required:
+      - latitude
+      - longitude
+  
+  Money:
+    type: object
+    properties:
+      amount:
+        type: number
+        format: decimal
+        minimum: 0
+      currency:
+        type: string
+        default: BDT
+        pattern: '^[A-Z]{3}$'
+    required:
+      - amount
+      - currency
+  
+  DateRange:
+    type: object
+    properties:
+      start_date:
+        type: string
+        format: date
+      end_date:
+        type: string
+        format: date
+    required:
+      - start_date
+      - end_date
+  
+  Address:
+    type: object
+    properties:
+      street:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      postal_code:
+        type: string
+      country:
+        type: string
+        default: Bangladesh
+    required:
+      - street
+      - city
+      - country
+  
+  Contact:
+    type: object
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
+      email:
+        type: string
+        format: email
+        nullable: true
+    required:
+      - name
+      - phone
+

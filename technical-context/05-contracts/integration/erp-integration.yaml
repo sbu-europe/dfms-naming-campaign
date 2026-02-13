@@ -1,0 +1,119 @@
+# ERP Integration Contract
+# Contract for ERP system integration
+
+openapi: 3.0.3
+info:
+  title: ERP System Integration
+  description: |
+    Integration contract for ERP system.
+    
+    This contract defines the interface for financial data synchronization.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://erp.example.com/api/v1
+    description: ERP System API
+
+paths:
+  /invoices/batch:
+    post:
+      summary: Sync invoices to ERP (batch)
+      operationId: syncInvoicesBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoices:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      invoice_number:
+                        type: string
+                      vendor_code:
+                        type: string
+                      amount:
+                        type: number
+                        format: decimal
+                      tax:
+                        type: number
+                        format: decimal
+                      total_amount:
+                        type: number
+                        format: decimal
+                      invoice_date:
+                        type: string
+                        format: date
+                      due_date:
+                        type: string
+                        format: date
+                      trip_reference:
+                        type: string
+                      cost_center:
+                        type: string
+                      gl_account:
+                        type: string
+      responses:
+        '200':
+          description: Invoices synced
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  failed:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+  
+  /payments/{payment_id}/status:
+    get:
+      summary: Get payment status from ERP
+      operationId: getPaymentStatus
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, processing, completed, failed]
+                  transaction_id:
+                    type: string
+                    nullable: true
+                  completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+

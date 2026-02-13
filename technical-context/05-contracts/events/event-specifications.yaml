@@ -1,0 +1,780 @@
+asyncapi: 2.6.0
+info:
+  title: DFMS Event Bus
+  version: 1.0.0
+  description: |
+    AsyncAPI specification for DFMS domain events.
+    
+    This contract defines all events published and consumed by DFMS modules.
+    Events enable loose coupling between modules through asynchronous communication.
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  production:
+    url: rabbitmq://rabbitmq.dfms.example.com:5672
+    protocol: amqp
+    description: Production RabbitMQ server
+  staging:
+    url: rabbitmq://rabbitmq-staging.dfms.example.com:5672
+    protocol: amqp
+    description: Staging RabbitMQ server
+
+defaultContentType: application/json
+
+channels:
+  # Product Requisition Events
+  product-requisition.created:
+    publish:
+      message:
+        $ref: '#/components/messages/ProductRequisitionCreated'
+  
+  product-requisition.submitted:
+    publish:
+      message:
+        $ref: '#/components/messages/ProductRequisitionSubmitted'
+  
+  product-requisition.approved:
+    publish:
+      message:
+        $ref: '#/components/messages/ProductRequisitionApproved'
+    subscribe:
+      message:
+        $ref: '#/components/messages/ProductRequisitionApproved'
+  
+  product-requisition.rejected:
+    publish:
+      message:
+        $ref: '#/components/messages/ProductRequisitionRejected'
+  
+  # Transport Events
+  transport.request.created:
+    publish:
+      message:
+        $ref: '#/components/messages/TransportRequestCreated'
+  
+  transport.order.created:
+    publish:
+      message:
+        $ref: '#/components/messages/TransportOrderCreated'
+    subscribe:
+      message:
+        $ref: '#/components/messages/TransportOrderCreated'
+  
+  trip.created:
+    publish:
+      message:
+        $ref: '#/components/messages/TripCreated'
+  
+  trip.started:
+    publish:
+      message:
+        $ref: '#/components/messages/TripStarted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/TripStarted'
+  
+  trip.location.updated:
+    publish:
+      message:
+        $ref: '#/components/messages/TripLocationUpdated'
+    subscribe:
+      message:
+        $ref: '#/components/messages/TripLocationUpdated'
+  
+  trip.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/TripCompleted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/TripCompleted'
+  
+  trip.cancelled:
+    publish:
+      message:
+        $ref: '#/components/messages/TripCancelled'
+  
+  # Vendor Events
+  vendor.onboarded:
+    publish:
+      message:
+        $ref: '#/components/messages/VendorOnboarded'
+  
+  vendor.bid.submitted:
+    publish:
+      message:
+        $ref: '#/components/messages/VendorBidSubmitted'
+  
+  vendor.bid.accepted:
+    publish:
+      message:
+        $ref: '#/components/messages/VendorBidAccepted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/VendorBidAccepted'
+  
+  vendor.bid.rejected:
+    publish:
+      message:
+        $ref: '#/components/messages/VendorBidRejected'
+  
+  vendor.assigned:
+    publish:
+      message:
+        $ref: '#/components/messages/VendorAssigned'
+  
+  # Operations Events
+  gate.in.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/GateInCompleted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/GateInCompleted'
+  
+  gate.out.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/GateOutCompleted'
+  
+  weighing.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/WeighingCompleted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/WeighingCompleted'
+  
+  loading.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/LoadingCompleted'
+  
+  unloading.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/UnloadingCompleted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/UnloadingCompleted'
+  
+  # QC Events
+  qc.inspection.created:
+    publish:
+      message:
+        $ref: '#/components/messages/QCInspectionCreated'
+  
+  qc.inspection.started:
+    publish:
+      message:
+        $ref: '#/components/messages/QCInspectionStarted'
+  
+  qc.inspection.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/QCInspectionCompleted'
+    subscribe:
+      message:
+        $ref: '#/components/messages/QCInspectionCompleted'
+  
+  qc.inspection.failed:
+    publish:
+      message:
+        $ref: '#/components/messages/QCInspectionFailed'
+  
+  qc.sample.collected:
+    publish:
+      message:
+        $ref: '#/components/messages/QCSampleCollected'
+  
+  qc.lab-test.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/QCLabTestCompleted'
+  
+  # Costing Events
+  trip.cost.calculated:
+    publish:
+      message:
+        $ref: '#/components/messages/TripCostCalculated'
+  
+  trip.cost.approved:
+    publish:
+      message:
+        $ref: '#/components/messages/TripCostApproved'
+  
+  invoice.generated:
+    publish:
+      message:
+        $ref: '#/components/messages/InvoiceGenerated'
+  
+  invoice.approved:
+    publish:
+      message:
+        $ref: '#/components/messages/InvoiceApproved'
+  
+  payment.processed:
+    publish:
+      message:
+        $ref: '#/components/messages/PaymentProcessed'
+  
+  erp.sync.completed:
+    publish:
+      message:
+        $ref: '#/components/messages/ERPSyncCompleted'
+
+components:
+  messages:
+    # Product Requisition Messages
+    ProductRequisitionCreated:
+      name: ProductRequisitionCreated
+      title: Product Requisition Created
+      summary: Event published when a product requisition is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProductRequisitionCreatedPayload'
+    
+    ProductRequisitionSubmitted:
+      name: ProductRequisitionSubmitted
+      title: Product Requisition Submitted
+      summary: Event published when a product requisition is submitted for approval
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProductRequisitionSubmittedPayload'
+    
+    ProductRequisitionApproved:
+      name: ProductRequisitionApproved
+      title: Product Requisition Approved
+      summary: Event published when a product requisition is approved
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProductRequisitionApprovedPayload'
+    
+    ProductRequisitionRejected:
+      name: ProductRequisitionRejected
+      title: Product Requisition Rejected
+      summary: Event published when a product requisition is rejected
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ProductRequisitionRejectedPayload'
+    
+    # Transport Messages
+    TransportRequestCreated:
+      name: TransportRequestCreated
+      title: Transport Request Created
+      summary: Event published when a transport request is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TransportRequestCreatedPayload'
+    
+    TransportOrderCreated:
+      name: TransportOrderCreated
+      title: Transport Order Created
+      summary: Event published when a transport order is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TransportOrderCreatedPayload'
+    
+    TripCreated:
+      name: TripCreated
+      title: Trip Created
+      summary: Event published when a trip is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripCreatedPayload'
+    
+    TripStarted:
+      name: TripStarted
+      title: Trip Started
+      summary: Event published when a trip is started
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripStartedPayload'
+    
+    TripLocationUpdated:
+      name: TripLocationUpdated
+      title: Trip Location Updated
+      summary: Event published when trip location is updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripLocationUpdatedPayload'
+    
+    TripCompleted:
+      name: TripCompleted
+      title: Trip Completed
+      summary: Event published when a trip is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripCompletedPayload'
+    
+    TripCancelled:
+      name: TripCancelled
+      title: Trip Cancelled
+      summary: Event published when a trip is cancelled
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripCancelledPayload'
+    
+    # Vendor Messages
+    VendorOnboarded:
+      name: VendorOnboarded
+      title: Vendor Onboarded
+      summary: Event published when a vendor is onboarded
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/VendorOnboardedPayload'
+    
+    VendorBidSubmitted:
+      name: VendorBidSubmitted
+      title: Vendor Bid Submitted
+      summary: Event published when a vendor submits a bid
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/VendorBidSubmittedPayload'
+    
+    VendorBidAccepted:
+      name: VendorBidAccepted
+      title: Vendor Bid Accepted
+      summary: Event published when a vendor bid is accepted
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/VendorBidAcceptedPayload'
+    
+    VendorBidRejected:
+      name: VendorBidRejected
+      title: Vendor Bid Rejected
+      summary: Event published when a vendor bid is rejected
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/VendorBidRejectedPayload'
+    
+    VendorAssigned:
+      name: VendorAssigned
+      title: Vendor Assigned
+      summary: Event published when a vendor is assigned to a TO
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/VendorAssignedPayload'
+    
+    # Operations Messages
+    GateInCompleted:
+      name: GateInCompleted
+      title: Gate-In Completed
+      summary: Event published when gate entry is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/GateInCompletedPayload'
+    
+    GateOutCompleted:
+      name: GateOutCompleted
+      title: Gate-Out Completed
+      summary: Event published when gate exit is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/GateOutCompletedPayload'
+    
+    WeighingCompleted:
+      name: WeighingCompleted
+      title: Weighing Completed
+      summary: Event published when weighing is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/WeighingCompletedPayload'
+    
+    LoadingCompleted:
+      name: LoadingCompleted
+      title: Loading Completed
+      summary: Event published when loading is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/LoadingCompletedPayload'
+    
+    UnloadingCompleted:
+      name: UnloadingCompleted
+      title: Unloading Completed
+      summary: Event published when unloading is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UnloadingCompletedPayload'
+    
+    # QC Messages
+    QCInspectionCreated:
+      name: QCInspectionCreated
+      title: QC Inspection Created
+      summary: Event published when a QC inspection is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCInspectionCreatedPayload'
+    
+    QCInspectionStarted:
+      name: QCInspectionStarted
+      title: QC Inspection Started
+      summary: Event published when a QC inspection is started
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCInspectionStartedPayload'
+    
+    QCInspectionCompleted:
+      name: QCInspectionCompleted
+      title: QC Inspection Completed
+      summary: Event published when a QC inspection is completed (pass)
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCInspectionCompletedPayload'
+    
+    QCInspectionFailed:
+      name: QCInspectionFailed
+      title: QC Inspection Failed
+      summary: Event published when a QC inspection fails
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCInspectionFailedPayload'
+    
+    QCSampleCollected:
+      name: QCSampleCollected
+      title: QC Sample Collected
+      summary: Event published when a QC sample is collected
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCSampleCollectedPayload'
+    
+    QCLabTestCompleted:
+      name: QCLabTestCompleted
+      title: QC Lab Test Completed
+      summary: Event published when a QC lab test is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/QCLabTestCompletedPayload'
+    
+    # Costing Messages
+    TripCostCalculated:
+      name: TripCostCalculated
+      title: Trip Cost Calculated
+      summary: Event published when trip cost is calculated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripCostCalculatedPayload'
+    
+    TripCostApproved:
+      name: TripCostApproved
+      title: Trip Cost Approved
+      summary: Event published when trip cost is approved
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TripCostApprovedPayload'
+    
+    InvoiceGenerated:
+      name: InvoiceGenerated
+      title: Invoice Generated
+      summary: Event published when an invoice is generated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/InvoiceGeneratedPayload'
+    
+    InvoiceApproved:
+      name: InvoiceApproved
+      title: Invoice Approved
+      summary: Event published when an invoice is approved
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/InvoiceApprovedPayload'
+    
+    PaymentProcessed:
+      name: PaymentProcessed
+      title: Payment Processed
+      summary: Event published when a payment is processed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/PaymentProcessedPayload'
+    
+    ERPSyncCompleted:
+      name: ERPSyncCompleted
+      title: ERP Sync Completed
+      summary: Event published when ERP sync is completed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ERPSyncCompletedPayload'
+
+  schemas:
+    # Base Event Schema
+    BaseEvent:
+      type: object
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+        version:
+          type: string
+          default: "1.0"
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - event_id
+        - event_type
+        - version
+        - timestamp
+    
+    # Product Requisition Payloads
+    ProductRequisitionCreatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                pr_id:
+                  type: string
+                  format: uuid
+                pr_number:
+                  type: string
+                product_id:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: number
+                  format: decimal
+                origin_poi_id:
+                  type: string
+                  format: uuid
+                destination_poi_id:
+                  type: string
+                  format: uuid
+                requested_date:
+                  type: string
+                  format: date
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                created_by:
+                  type: string
+                  format: uuid
+    
+    ProductRequisitionApprovedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                pr_id:
+                  type: string
+                  format: uuid
+                pr_number:
+                  type: string
+                tr_id:
+                  type: string
+                  format: uuid
+                tr_number:
+                  type: string
+                approved_by:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                approved_at:
+                  type: string
+                  format: date-time
+    
+    # Transport Payloads
+    TransportOrderCreatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                to_id:
+                  type: string
+                  format: uuid
+                to_number:
+                  type: string
+                tr_id:
+                  type: string
+                  format: uuid
+                fleet_type:
+                  type: string
+                  enum: [own, vendor]
+                vehicle_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+                driver_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+                vendor_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+                scheduled_date:
+                  type: string
+                  format: date
+    
+    TripCompletedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                trip_number:
+                  type: string
+                distance_traveled:
+                  type: number
+                  format: decimal
+                duration:
+                  type: string
+                end_time:
+                  type: string
+                  format: date-time
+                completed_at:
+                  type: string
+                  format: date-time
+    
+    # Vendor Payloads
+    VendorBidAcceptedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                bid_id:
+                  type: string
+                  format: uuid
+                to_id:
+                  type: string
+                  format: uuid
+                vendor_id:
+                  type: string
+                  format: uuid
+                bid_amount:
+                  type: object
+                  properties:
+                    amount:
+                      type: number
+                      format: decimal
+                    currency:
+                      type: string
+                accepted_by:
+                  type: string
+                  format: uuid
+                accepted_at:
+                  type: string
+                  format: date-time
+    
+    # Operations Payloads
+    UnloadingCompletedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                unloading_id:
+                  type: string
+                  format: uuid
+                trip_id:
+                  type: string
+                  format: uuid
+                quantity_unloaded:
+                  type: number
+                  format: decimal
+                completed_at:
+                  type: string
+                  format: date-time
+    
+    # QC Payloads
+    QCInspectionCompletedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                inspection_id:
+                  type: string
+                  format: uuid
+                trip_id:
+                  type: string
+                  format: uuid
+                result:
+                  type: string
+                  enum: [pass, fail]
+                inspector_id:
+                  type: string
+                  format: uuid
+                completed_at:
+                  type: string
+                  format: date-time
+    
+    # Costing Payloads
+    TripCostCalculatedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                trip_cost_id:
+                  type: string
+                  format: uuid
+                trip_id:
+                  type: string
+                  format: uuid
+                total_cost:
+                  type: object
+                  properties:
+                    amount:
+                      type: number
+                      format: decimal
+                    currency:
+                      type: string
+                calculated_at:
+                  type: string
+                  format: date-time
+    
+    InvoiceApprovedPayload:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                invoice_id:
+                  type: string
+                  format: uuid
+                invoice_number:
+                  type: string
+                approved_by:
+                  type: string
+                  format: uuid
+                approved_at:
+                  type: string
+                  format: date-time
+
+  securitySchemes:
+    userPassword:
+      type: userPassword
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
