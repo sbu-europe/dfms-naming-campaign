@@ -1,0 +1,40 @@
+sequenceDiagram
+    participant Transport as Transport Service
+    participant VendorMgmt as Vendor Management Service
+    participant Vendor as Vendor Mobile
+    participant Notif as Notifications Service
+    participant EventBus as Event Bus
+
+    Transport->>Transport: Create Transport Order (Vendor Fleet)
+    Transport->>EventBus: Publish TransportOrderCreated
+    EventBus->>VendorMgmt: TransportOrderCreated Event
+    EventBus->>Notif: TransportOrderCreated Event
+    Notif->>Notif: Notify Vendors
+
+    Note over Vendor: Multiple Vendors Receive Notification
+
+    Vendor->>VendorMgmt: Submit Bid
+    VendorMgmt->>VendorMgmt: Validate Bid
+    VendorMgmt->>VendorMgmt: Save Bid
+    VendorMgmt->>EventBus: Publish VendorBidSubmitted
+    EventBus->>Notif: VendorBidSubmitted Event
+    Notif->>Notif: Notify Logistics Team
+    VendorMgmt->>Vendor: Return Bid Confirmation
+
+    Note over Transport: Logistics Team Reviews Bids
+
+    Transport->>VendorMgmt: Accept Bid
+    VendorMgmt->>VendorMgmt: Update Bid Status (ACCEPTED)
+    VendorMgmt->>EventBus: Publish VendorBidAccepted
+    EventBus->>Transport: VendorBidAccepted Event
+    EventBus->>Notif: VendorBidAccepted Event
+    Notif->>Vendor: Notify Winning Vendor
+    Notif->>Notif: Notify Other Vendors (Rejected)
+
+    Transport->>Transport: Assign Vendor to TO
+    Transport->>EventBus: Publish VendorAssigned
+    EventBus->>VendorMgmt: VendorAssigned Event
+    VendorMgmt->>Vendor: Notify Assignment
+
+    Note over Vendor: Vendor Prepares for Trip
+

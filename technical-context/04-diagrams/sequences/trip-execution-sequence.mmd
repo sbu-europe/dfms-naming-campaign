@@ -1,0 +1,67 @@
+sequenceDiagram
+    participant Driver as Driver Mobile
+    participant Transport as Transport Service
+    participant GPS as GPS/VTS Provider
+    participant Operations as Operations Service
+    participant QC as QC Service
+    participant Costing as Trip Costing Service
+    participant EventBus as Event Bus
+
+    Note over Transport: Trip Created & Assigned
+
+    Driver->>Transport: Start Trip
+    Transport->>Transport: Update Status (IN_TRANSIT)
+    Transport->>EventBus: Publish TripStarted
+    Transport->>Driver: Return Trip Details
+
+    loop Every 60 seconds
+        Driver->>GPS: Update Location
+        GPS->>Transport: Location Update
+        Transport->>EventBus: Publish TripLocationUpdated
+    end
+
+    Driver->>Operations: Gate In (Origin)
+    Operations->>Operations: Record Gate Entry
+    Operations->>EventBus: Publish GateInCompleted
+    EventBus->>Operations: Trigger Weighing
+
+    Operations->>Operations: Weigh Empty Vehicle
+    Operations->>EventBus: Publish WeighingCompleted (Empty)
+
+    Operations->>Operations: Load Products
+    Operations->>EventBus: Publish LoadingCompleted
+
+    Operations->>Operations: Weigh Loaded Vehicle
+    Operations->>EventBus: Publish WeighingCompleted (Loaded)
+
+    Operations->>Operations: Gate Out (Origin)
+    Operations->>EventBus: Publish GateOutCompleted
+
+    Note over Driver: Trip in Transit
+
+    Driver->>Operations: Gate In (Destination)
+    Operations->>EventBus: Publish GateInCompleted
+
+    Operations->>Operations: Unload Products
+    Operations->>EventBus: Publish UnloadingCompleted
+    EventBus->>QC: Trigger QC Inspection
+
+    QC->>QC: Create QC Inspection
+    QC->>QC: Perform Physical Inspection
+    QC->>QC: Collect Samples (if needed)
+    QC->>QC: Complete Inspection
+    QC->>EventBus: Publish QCInspectionCompleted
+    EventBus->>Transport: Update Trip Status
+
+    Operations->>Operations: Gate Out (Destination)
+    Operations->>EventBus: Publish GateOutCompleted
+
+    Driver->>Transport: Complete Trip
+    Transport->>Transport: Update Status (COMPLETED)
+    Transport->>EventBus: Publish TripCompleted
+    EventBus->>Costing: Trigger Cost Calculation
+
+    Costing->>Costing: Calculate Trip Cost
+    Costing->>EventBus: Publish TripCostCalculated
+    Costing->>Transport: Return Cost Details
+

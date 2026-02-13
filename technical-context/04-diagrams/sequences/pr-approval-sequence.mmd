@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant User as Logistics Coordinator
+    participant PR as Product Requisition Service
+    participant Notif as Notifications Service
+    participant Transport as Transport Management Service
+    participant EventBus as Event Bus
+
+    User->>PR: Create Product Requisition
+    PR->>PR: Validate & Save
+    PR->>EventBus: Publish ProductRequisitionCreated
+    PR->>User: Return PR Details
+
+    User->>PR: Submit for Approval
+    PR->>PR: Update Status (PENDING)
+    PR->>EventBus: Publish ProductRequisitionSubmitted
+    EventBus->>Notif: ProductRequisitionSubmitted Event
+    Notif->>Notif: Send Notification to Approvers
+
+    Note over User: Approver Reviews PR
+
+    User->>PR: Approve PR
+    PR->>PR: Update Status (APPROVED)
+    PR->>Transport: Create Transport Request
+    Transport->>Transport: Generate TR
+    Transport->>EventBus: Publish TransportRequestCreated
+    PR->>EventBus: Publish ProductRequisitionApproved
+    EventBus->>Notif: ProductRequisitionApproved Event
+    Notif->>Notif: Send Approval Notification
+    PR->>User: Return Approved PR with TR
+
+    Note over Transport: TR triggers TO creation
+
