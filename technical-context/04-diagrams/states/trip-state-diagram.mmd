@@ -1,0 +1,41 @@
+%% Trip State Diagram
+%% Shows Trip state transitions
+
+stateDiagram-v2
+    [*] --> Pending: Trip Created
+    
+    Pending --> InTransit: Driver Starts Trip<br/>(TripStarted Event)
+    Pending --> Cancelled: Cancel Trip<br/>(TripCancelled Event)
+    
+    InTransit --> InTransit: Location Update<br/>(TripLocationUpdated Event)
+    InTransit --> Completed: Driver Completes Trip<br/>(TripCompleted Event)
+    InTransit --> Cancelled: Cancel Trip<br/>(TripCancelled Event)
+    
+    Completed --> [*]: Trip Cost Calculated
+    
+    Cancelled --> [*]: Cancellation Recorded
+    
+    note right of Pending
+        Initial state
+        Trip assigned to driver
+        Waiting for start
+    end note
+    
+    note right of InTransit
+        Active trip
+        GPS tracking active
+        Location updates every 60s
+    end note
+    
+    note right of Completed
+        Trip finished
+        Triggers cost calculation
+        QC inspection completed
+    end note
+    
+    note right of Cancelled
+        Trip cancelled
+        Reason recorded
+        No cost calculation
+    end note
+

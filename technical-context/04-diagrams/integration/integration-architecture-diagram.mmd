@@ -1,0 +1,62 @@
+%% DFMS Integration Architecture Diagram
+%% Shows how external systems integrate with DFMS
+
+graph TB
+    subgraph DFMS["DFMS Platform"]
+        APIGateway["API Gateway<br/><br/>Authentication<br/>Rate Limiting"]
+        APIServer["API Server<br/><br/>Business Logic"]
+        EventBus["Event Bus<br/>(RabbitMQ/SQS)<br/><br/>Domain Events"]
+        Worker["Background Worker<br/>(Celery)<br/><br/>Async Processing"]
+    end
+    
+    subgraph RealTime["Real-Time Integrations"]
+        GPS["GPS/VTS Provider<br/><br/>REST API<br/>WebSocket<br/><br/>Vehicle Location<br/>Route History"]
+        IoT["IoT Devices<br/><br/>MQTT<br/>REST API<br/><br/>Weighing Scales<br/>Sensors<br/>Gate Barriers"]
+    end
+    
+    subgraph Batch["Batch Integrations"]
+        ERP["ERP System<br/><br/>REST API<br/>Batch Sync<br/><br/>Invoice Sync<br/>Payment Status"]
+    end
+    
+    subgraph OnDemand["On-Demand Integrations"]
+        Maps["Maps Service<br/><br/>REST API<br/><br/>Route Planning<br/>Geocoding<br/>Distance Calculation"]
+        SMS["SMS Gateway<br/><br/>REST API<br/><br/>SMS Notifications<br/>Delivery Status"]
+        Payment["Payment Gateway<br/><br/>REST API<br/>Webhooks<br/><br/>Payment Processing<br/>Refunds"]
+    end
+    
+    %% Real-Time Connections
+    GPS -->|"HTTPS<br/>WebSocket<br/>Every 60s"| APIServer
+    APIServer -->|"HTTPS<br/>Location Updates"| GPS
+    
+    IoT -->|"MQTT<br/>Real-time"| EventBus
+    IoT -->|"REST API<br/>Device Control"| APIServer
+    APIServer -->|"REST API<br/>Commands"| IoT
+    
+    %% Batch Connections
+    Worker -->|"HTTPS<br/>Batch API<br/>Scheduled"| ERP
+    ERP -->|"HTTPS<br/>Webhook<br/>(Optional)"| APIServer
+    
+    %% On-Demand Connections
+    APIServer -->|"HTTPS<br/>On-demand"| Maps
+    APIServer -->|"HTTPS<br/>On-demand"| SMS
+    APIServer -->|"HTTPS<br/>On-demand"| Payment
+    Payment -->|"HTTPS<br/>Webhook<br/>Payment Events"| APIServer
+    
+    %% Event-Driven Integration
+    APIServer -->|"Publish Events"| EventBus
+    EventBus -->|"Consume Events"| Worker
+    Worker -->|"Trigger Integrations"| ERP
+    Worker -->|"Trigger Integrations"| SMS
+    
+    %% Adapter Pattern
+    APIServer -.->|"Adapter Layer"| GPS
+    APIServer -.->|"Adapter Layer"| ERP
+    APIServer -.->|"Adapter Layer"| Maps
+    APIServer -.->|"Adapter Layer"| SMS
+    APIServer -.->|"Adapter Layer"| Payment
+    
+    style DFMS fill:#146EB4
+    style RealTime fill:#FF9900
+    style Batch fill:#232F3E
+    style OnDemand fill:#146EB4
+

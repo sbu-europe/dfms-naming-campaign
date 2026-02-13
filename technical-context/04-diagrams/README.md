@@ -41,6 +41,41 @@ Standalone sequence diagrams for key flows:
   - Vendor bidding flow with service interactions
   - Bid submission, acceptance, assignment
 
+### **[Deployment Diagrams](./deployment/)**
+Infrastructure and deployment architecture:
+
+- **[Deployment Diagram](./deployment/deployment-diagram.mmd)**
+  - AWS infrastructure layout
+  - VPC, subnets, services
+  - Networking and security groups
+
+### **[Integration Architecture](./integration/)**
+External system integration:
+
+- **[Integration Architecture Diagram](./integration/integration-architecture-diagram.mmd)**
+  - How external systems integrate with DFMS
+  - Real-time, batch, and on-demand integrations
+  - Adapter pattern visualization
+
+### **[State Diagrams](./states/)**
+Entity state machines:
+
+- **[Trip State Diagram](./states/trip-state-diagram.mmd)**
+  - Trip state transitions
+  - Pending → InTransit → Completed/Cancelled
+
+- **[Product Requisition State Diagram](./states/product-requisition-state-diagram.mmd)**
+  - PR state transitions
+  - Draft → Pending → Approved/Rejected
+
+### **[Data Diagrams](./data/)**
+Data model visualizations:
+
+- **[Entity Relationship Diagram](./data/entity-relationship-diagram.mmd)**
+  - High-level ER diagram
+  - Core entity relationships
+  - Primary and foreign keys
+
 ---
 
 ## 📊 Diagram Locations
@@ -78,11 +113,15 @@ Standalone sequence diagrams for key flows:
 
 ## 📈 Statistics
 
-- **Total Diagrams**: 32
-- **Architecture Diagrams**: 2
-- **Workflow Diagrams**: 12
+- **Total Diagrams**: 37
+- **Architecture Diagrams**: 2 (C4 Level 1-2)
+- **Workflow Diagrams**: 12 (operational + user workflows)
 - **Exception Diagrams**: 14
 - **Sequence Diagrams**: 3
+- **Deployment Diagrams**: 1
+- **Integration Diagrams**: 1
+- **State Diagrams**: 2
+- **ER Diagrams**: 1
 - **Data Flow Diagrams**: 1
 
 ---

@@ -129,6 +129,44 @@ Located in `04-diagrams/sequences/`:
 
 ---
 
+## 🏗️ Deployment Diagrams
+
+- **Location**: `04-diagrams/deployment/deployment-diagram.mmd`
+- **Type**: Infrastructure deployment diagram
+- **Description**: AWS infrastructure, VPC, subnets, services, networking
+
+---
+
+## 🔌 Integration Architecture Diagrams
+
+- **Location**: `04-diagrams/integration/integration-architecture-diagram.mmd`
+- **Type**: Integration architecture diagram
+- **Description**: How external systems integrate with DFMS (real-time, batch, on-demand)
+
+---
+
+## 🔄 State Diagrams
+
+Located in `04-diagrams/states/`:
+
+1. **Trip State Diagram**
+   - **File**: `trip-state-diagram.mmd`
+   - **Description**: Trip state transitions (Pending → InTransit → Completed/Cancelled)
+
+2. **Product Requisition State Diagram**
+   - **File**: `product-requisition-state-diagram.mmd`
+   - **Description**: PR state transitions (Draft → Pending → Approved/Rejected)
+
+---
+
+## 📊 Entity Relationship Diagrams
+
+- **Location**: `04-diagrams/data/entity-relationship-diagram.mmd`
+- **Type**: ER diagram
+- **Description**: High-level entity relationships and data model
+
+---
+
 ## 📈 Statistics
 
 ### Total Diagrams
@@ -136,8 +174,12 @@ Located in `04-diagrams/sequences/`:
 - **Workflow Diagrams**: 12 (operational + user workflows)
 - **Exception Diagrams**: 14
 - **Sequence Diagrams**: 3
+- **Deployment Diagrams**: 1
+- **Integration Diagrams**: 1
+- **State Diagrams**: 2
+- **ER Diagrams**: 1
 - **Data Flow Diagrams**: 1
-- **Total**: **32 diagrams**
+- **Total**: **37 diagrams**
 
 ### By Format
 - **Mermaid**: 32 diagrams

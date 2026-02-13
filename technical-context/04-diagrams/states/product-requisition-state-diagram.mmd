@@ -1,0 +1,62 @@
+%% Product Requisition State Diagram
+%% Shows Product Requisition state transitions
+
+stateDiagram-v2
+    [*] --> Draft: PR Created
+    
+    Draft --> PendingDistribution: Submit for<br/>Distribution Approval<br/>(ProductRequisitionSubmitted)
+    Draft --> [*]: Delete PR
+    
+    PendingDistribution --> PendingProcurement: Distribution<br/>Approved
+    PendingDistribution --> Rejected: Distribution<br/>Rejected<br/>(ProductRequisitionRejected)
+    PendingDistribution --> Draft: Return to Draft
+    
+    PendingProcurement --> Approved: Procurement<br/>Approved<br/>(ProductRequisitionApproved)
+    PendingProcurement --> Rejected: Procurement<br/>Rejected<br/>(ProductRequisitionRejected)
+    PendingProcurement --> PendingStock: Stock Check<br/>Required
+    PendingProcurement --> Draft: Return to Draft
+    
+    PendingStock --> Approved: Stock Available
+    PendingStock --> Rejected: Insufficient Stock
+    PendingStock --> PendingProcurement: Return for Review
+    
+    Approved --> [*]: TR Created<br/>(TransportRequestCreated)
+    
+    Rejected --> [*]: Rejection Recorded
+    
+    note right of Draft
+        Initial state
+        Can be edited
+        Not yet submitted
+    end note
+    
+    note right of PendingDistribution
+        Waiting for Distribution
+        team approval
+        First approval step
+    end note
+    
+    note right of PendingProcurement
+        Waiting for Procurement
+        team approval
+        Second approval step
+    end note
+    
+    note right of PendingStock
+        Stock availability
+        check required
+        May need to wait
+    end note
+    
+    note right of Approved
+        PR approved
+        Triggers TR creation
+        Cannot be modified
+    end note
+    
+    note right of Rejected
+        PR rejected
+        Reason recorded
+        Cannot be modified
+    end note
+
