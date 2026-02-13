@@ -1,0 +1,262 @@
+# Maps Service Integration Contract
+# Contract for maps service provider integration
+
+openapi: 3.0.3
+info:
+  title: Maps Service Integration
+  description: |
+    Integration contract for maps service provider.
+    
+    This contract defines the interface for route planning, geocoding, and distance calculation.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://maps-api.example.com/v1
+    description: Maps Service API
+
+paths:
+  /routes/plan:
+    post:
+      summary: Plan route
+      operationId: planRoute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                origin:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                    address:
+                      type: string
+                      nullable: true
+                  required:
+                    - latitude
+                    - longitude
+                destination:
+                  type: object
+                  properties:
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                    address:
+                      type: string
+                      nullable: true
+                  required:
+                    - latitude
+                    - longitude
+                waypoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
+                optimize:
+                  type: boolean
+                  default: false
+                  description: Optimize route order
+                avoid:
+                  type: array
+                  items:
+                    type: string
+                    enum: [tolls, highways, ferries]
+              required:
+                - origin
+                - destination
+      responses:
+        '200':
+          description: Route planned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  route_id:
+                    type: string
+                    format: uuid
+                  distance:
+                    type: number
+                    format: decimal
+                    description: Distance in kilometers
+                  duration:
+                    type: integer
+                    description: Duration in seconds
+                  polyline:
+                    type: string
+                    description: Encoded polyline
+                  waypoints:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        latitude:
+                          type: number
+                        longitude:
+                          type: number
+                        order:
+                          type: integer
+  
+  /geocode:
+    post:
+      summary: Geocode address
+      operationId: geocodeAddress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: Address to geocode
+                country:
+                  type: string
+                  default: Bangladesh
+              required:
+                - address
+      responses:
+        '200':
+          description: Address geocoded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  formatted_address:
+                    type: string
+                  address_components:
+                    type: object
+                    properties:
+                      street:
+                        type: string
+                      city:
+                        type: string
+                      state:
+                        type: string
+                      postal_code:
+                        type: string
+                      country:
+                        type: string
+  
+  /geocode/reverse:
+    post:
+      summary: Reverse geocode coordinates
+      operationId: reverseGeocode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+              required:
+                - latitude
+                - longitude
+      responses:
+        '200':
+          description: Coordinates reverse geocoded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  formatted_address:
+                    type: string
+                  address_components:
+                    type: object
+  
+  /distance:
+    post:
+      summary: Calculate distance
+      operationId: calculateDistance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                origins:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
+                destinations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
+              required:
+                - origins
+                - destinations
+      responses:
+        '200':
+          description: Distance calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  distances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        origin:
+                          type: object
+                        destination:
+                          type: object
+                        distance_km:
+                          type: number
+                          format: decimal
+                        duration_seconds:
+                          type: integer
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - apiKey: []
+

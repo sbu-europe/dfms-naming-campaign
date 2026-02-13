@@ -1,0 +1,308 @@
+# Payment Gateway Integration Contract
+# Contract for payment gateway provider integration
+
+openapi: 3.0.3
+info:
+  title: Payment Gateway Integration
+  description: |
+    Integration contract for payment gateway provider.
+    
+    This contract defines the interface for processing payments and handling webhooks.
+    Supports multiple payment methods: bank transfer, mobile banking, card payments.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://payment-gateway.example.com/api/v1
+    description: Payment Gateway API
+
+paths:
+  /payments/initiate:
+    post:
+      summary: Initiate payment
+      operationId: initiatePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoice_id:
+                  type: string
+                  format: uuid
+                invoice_number:
+                  type: string
+                amount:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                currency:
+                  type: string
+                  default: BDT
+                payment_method:
+                  type: string
+                  enum: [bank_transfer, mobile_banking, card, cash]
+                payer_name:
+                  type: string
+                payer_email:
+                  type: string
+                  format: email
+                  nullable: true
+                payer_phone:
+                  type: string
+                  nullable: true
+                description:
+                  type: string
+                  nullable: true
+                return_url:
+                  type: string
+                  format: uri
+                  nullable: true
+                webhook_url:
+                  type: string
+                  format: uri
+                  nullable: true
+              required:
+                - invoice_id
+                - invoice_number
+                - amount
+                - currency
+                - payment_method
+                - payer_name
+      responses:
+        '200':
+          description: Payment initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                    format: uuid
+                  payment_url:
+                    type: string
+                    format: uri
+                    nullable: true
+                    description: Payment URL for redirect (if applicable)
+                  status:
+                    type: string
+                    enum: [pending, processing, completed, failed]
+                  expires_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+        '400':
+          description: Invalid request
+        '422':
+          description: Payment validation failed
+  
+  /payments/{payment_id}:
+    get:
+      summary: Get payment status
+      operationId: getPaymentStatus
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                    format: uuid
+                  invoice_id:
+                    type: string
+                    format: uuid
+                  amount:
+                    type: number
+                    format: decimal
+                  currency:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, processing, completed, failed, cancelled, refunded]
+                  payment_method:
+                    type: string
+                  transaction_id:
+                    type: string
+                    nullable: true
+                  gateway_reference:
+                    type: string
+                    nullable: true
+                  initiated_at:
+                    type: string
+                    format: date-time
+                  completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  failure_reason:
+                    type: string
+                    nullable: true
+        '404':
+          description: Payment not found
+  
+  /payments/{payment_id}/cancel:
+    post:
+      summary: Cancel payment
+      operationId: cancelPayment
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [cancelled]
+                  cancelled_at:
+                    type: string
+                    format: date-time
+  
+  /payments/{payment_id}/refund:
+    post:
+      summary: Refund payment
+      operationId: refundPayment
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: decimal
+                  nullable: true
+                  description: Partial refund amount (null for full refund)
+                reason:
+                  type: string
+              required:
+                - reason
+      responses:
+        '200':
+          description: Refund initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refund_id:
+                    type: string
+                    format: uuid
+                  payment_id:
+                    type: string
+                    format: uuid
+                  refund_amount:
+                    type: number
+                    format: decimal
+                  status:
+                    type: string
+                    enum: [pending, processing, completed, failed]
+  
+  /webhooks/payment:
+    post:
+      summary: Payment webhook endpoint
+      description: |
+        Webhook endpoint for payment gateway to send payment status updates.
+        This endpoint should be called by the payment gateway when payment status changes.
+      operationId: paymentWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event_type:
+                  type: string
+                  enum: [payment.completed, payment.failed, payment.cancelled, payment.refunded]
+                payment_id:
+                  type: string
+                  format: uuid
+                invoice_id:
+                  type: string
+                  format: uuid
+                status:
+                  type: string
+                transaction_id:
+                  type: string
+                  nullable: true
+                amount:
+                  type: number
+                  format: decimal
+                timestamp:
+                  type: string
+                  format: date-time
+                signature:
+                  type: string
+                  description: Webhook signature for verification
+              required:
+                - event_type
+                - payment_id
+                - status
+                - timestamp
+                - signature
+      responses:
+        '200':
+          description: Webhook received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Invalid webhook
+        '401':
+          description: Invalid signature
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    webhookSignature:
+      type: apiKey
+      in: header
+      name: X-Webhook-Signature
+      description: HMAC signature for webhook verification
+
+security:
+  - apiKey: []
+

@@ -1,0 +1,284 @@
+# IoT Devices Integration Contract
+# Contract for IoT devices integration (weighing scales, sensors, etc.)
+
+openapi: 3.0.3
+info:
+  title: IoT Devices Integration
+  description: |
+    Integration contract for IoT devices.
+    
+    This contract defines the interface for integrating with IoT devices such as:
+    - Weighing scales
+    - Temperature sensors
+    - RFID readers
+    - Gate barriers
+    
+    Communication can be via MQTT or REST API.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: mqtt://iot-gateway.dfms.example.com:1883
+    description: MQTT Broker
+  - url: https://iot-api.dfms.example.com/v1
+    description: IoT REST API
+
+paths:
+  # Weighing Scale Integration
+  /devices/weighing-scales/{device_id}/reading:
+    get:
+      summary: Get weighing scale reading
+      operationId: getWeighingReading
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current weighing reading
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  weight:
+                    type: number
+                    format: decimal
+                    description: Weight in kg
+                  unit:
+                    type: string
+                    default: kg
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum: [stable, unstable, error]
+        '503':
+          description: Device unavailable
+  
+  /devices/weighing-scales/{device_id}/tare:
+    post:
+      summary: Tare weighing scale
+      operationId: tareWeighingScale
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scale tared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  tare_completed_at:
+                    type: string
+                    format: date-time
+  
+  # Temperature Sensor Integration
+  /devices/temperature-sensors/{device_id}/reading:
+    get:
+      summary: Get temperature sensor reading
+      operationId: getTemperatureReading
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current temperature reading
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  temperature:
+                    type: number
+                    format: float
+                    description: Temperature in Celsius
+                  humidity:
+                    type: number
+                    format: float
+                    nullable: true
+                    description: Humidity percentage
+                  timestamp:
+                    type: string
+                    format: date-time
+  
+  # RFID Reader Integration
+  /devices/rfid-readers/{device_id}/read:
+    post:
+      summary: Read RFID tag
+      operationId: readRFIDTag
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: RFID tag read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  tag_id:
+                    type: string
+                  read_at:
+                    type: string
+                    format: date-time
+                  signal_strength:
+                    type: number
+                    format: float
+        '404':
+          description: No tag detected
+  
+  # Gate Barrier Integration
+  /devices/gate-barriers/{device_id}/open:
+    post:
+      summary: Open gate barrier
+      operationId: openGateBarrier
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  enum: [entry, exit, maintenance]
+                operator_id:
+                  type: string
+                  format: uuid
+              required:
+                - reason
+      responses:
+        '200':
+          description: Gate opened
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  opened_at:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum: [open, opening, closed, closing]
+  
+  /devices/gate-barriers/{device_id}/close:
+    post:
+      summary: Close gate barrier
+      operationId: closeGateBarrier
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gate closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  closed_at:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+  
+  # Device Status
+  /devices/{device_id}/status:
+    get:
+      summary: Get device status
+      operationId: getDeviceStatus
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Device status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  device_id:
+                    type: string
+                  device_type:
+                    type: string
+                    enum: [weighing_scale, temperature_sensor, rfid_reader, gate_barrier]
+                  status:
+                    type: string
+                    enum: [online, offline, error, maintenance]
+                  last_seen:
+                    type: string
+                    format: date-time
+                  firmware_version:
+                    type: string
+                    nullable: true
+                  battery_level:
+                    type: integer
+                    nullable: true
+                    minimum: 0
+                    maximum: 100
+
+# MQTT Topics (for reference)
+# Topic structure: dfms/devices/{device_type}/{device_id}/{event_type}
+# Examples:
+# - dfms/devices/weighing-scales/WS-001/reading
+# - dfms/devices/temperature-sensors/TS-001/reading
+# - dfms/devices/rfid-readers/RFID-001/tag-read
+# - dfms/devices/gate-barriers/GB-001/status
+
+components:
+  securitySchemes:
+    mqttAuth:
+      type: userPassword
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - mqttAuth: []
+  - apiKey: []
+
