@@ -1,0 +1,275 @@
+openapi: 3.0.3
+info:
+  title: DFMS Product Requisition API
+  description: |
+    API contract for Product Requisition Management module.
+    
+    Handles product requisition creation, approval workflows, and TR generation.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Product Requisitions
+    description: Product Requisition (PR) management operations
+
+paths:
+  /product-requisitions:
+    get:
+      tags: [Product Requisitions]
+      summary: List product requisitions
+      operationId: listProductRequisitions
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, pending_distribution_approval, pending_procurement_approval, approved, rejected, pending_stock]
+      responses:
+        '200':
+          description: List of product requisitions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ProductRequisition'
+    
+    post:
+      tags: [Product Requisitions]
+      summary: Create product requisition
+      operationId: createProductRequisition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequisitionCreate'
+      responses:
+        '201':
+          description: Product requisition created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+  
+  /product-requisitions/{id}:
+    get:
+      tags: [Product Requisitions]
+      summary: Get product requisition by ID
+      operationId: getProductRequisition
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Product requisition details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+    
+    put:
+      tags: [Product Requisitions]
+      summary: Update product requisition
+      operationId: updateProductRequisition
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequisitionUpdate'
+      responses:
+        '200':
+          description: Product requisition updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+  
+  /product-requisitions/{id}/submit:
+    post:
+      tags: [Product Requisitions]
+      summary: Submit product requisition for approval
+      operationId: submitProductRequisition
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Product requisition submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+  
+  /product-requisitions/{id}/approve:
+    post:
+      tags: [Product Requisitions]
+      summary: Approve product requisition
+      operationId: approveProductRequisition
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approval_type:
+                  type: string
+                  enum: [distribution, procurement]
+                comments:
+                  type: string
+      responses:
+        '200':
+          description: Product requisition approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+  
+  /product-requisitions/{id}/reject:
+    post:
+      tags: [Product Requisitions]
+      summary: Reject product requisition
+      operationId: rejectProductRequisition
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Product requisition rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRequisition'
+
+components:
+  schemas:
+    ProductRequisition:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pr_number:
+          type: string
+        product_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: decimal
+        origin_poi_id:
+          type: string
+          format: uuid
+        destination_poi_id:
+          type: string
+          format: uuid
+        requested_date:
+          type: string
+          format: date
+        priority:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Priority'
+        status:
+          type: string
+          enum: [draft, pending_distribution_approval, pending_procurement_approval, approved, rejected, pending_stock]
+        tr_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - pr_number
+        - product_id
+        - quantity
+        - origin_poi_id
+        - destination_poi_id
+        - requested_date
+        - priority
+        - status
+    
+    ProductRequisitionCreate:
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: decimal
+        origin_poi_id:
+          type: string
+          format: uuid
+        destination_poi_id:
+          type: string
+          format: uuid
+        requested_date:
+          type: string
+          format: date
+        priority:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Priority'
+        special_instructions:
+          type: string
+          nullable: true
+      required:
+        - product_id
+        - quantity
+        - origin_poi_id
+        - destination_poi_id
+        - requested_date
+        - priority
+    
+    ProductRequisitionUpdate:
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: decimal
+        requested_date:
+          type: string
+          format: date
+        priority:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Priority'
+        special_instructions:
+          type: string
+          nullable: true
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+
