@@ -1,0 +1,424 @@
+openapi: 3.0.3
+info:
+  title: DFMS Operations Management API
+  description: |
+    API contract for Operations Management module.
+    
+    Handles gate management, weighing, loading/unloading operations.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Gate Operations
+    description: Gate entry/exit operations
+  - name: Weighing
+    description: Vehicle weighing operations
+  - name: Loading
+    description: Loading operations
+  - name: Unloading
+    description: Unloading operations
+
+paths:
+  # Gate Operations
+  /operations/gate-in:
+    post:
+      tags: [Gate Operations]
+      summary: Record gate entry
+      operationId: gateIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                vehicle_registration:
+                  type: string
+                poi_id:
+                  type: string
+                  format: uuid
+                entry_time:
+                  type: string
+                  format: date-time
+              required:
+                - trip_id
+                - vehicle_registration
+                - poi_id
+      responses:
+        '201':
+          description: Gate entry recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEntry'
+  
+  /operations/gate-out:
+    post:
+      tags: [Gate Operations]
+      summary: Record gate exit
+      operationId: gateOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                poi_id:
+                  type: string
+                  format: uuid
+                exit_time:
+                  type: string
+                  format: date-time
+              required:
+                - trip_id
+                - poi_id
+      responses:
+        '201':
+          description: Gate exit recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateExit'
+  
+  # Weighing
+  /operations/weighing:
+    post:
+      tags: [Weighing]
+      summary: Record weighing
+      operationId: recordWeighing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeighingCreate'
+      responses:
+        '201':
+          description: Weighing recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Weighing'
+  
+  /operations/weighing-records:
+    get:
+      tags: [Weighing]
+      summary: List weighing records
+      operationId: listWeighingRecords
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: trip_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of weighing records
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Weighing'
+  
+  # Loading
+  /operations/loading/start:
+    post:
+      tags: [Loading]
+      summary: Start loading operation
+      operationId: startLoading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                start_time:
+                  type: string
+                  format: date-time
+              required:
+                - trip_id
+      responses:
+        '201':
+          description: Loading started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadingOperation'
+  
+  /operations/loading/complete:
+    post:
+      tags: [Loading]
+      summary: Complete loading operation
+      operationId: completeLoading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loading_id:
+                  type: string
+                  format: uuid
+                quantity_loaded:
+                  type: number
+                  format: decimal
+                end_time:
+                  type: string
+                  format: date-time
+              required:
+                - loading_id
+                - quantity_loaded
+      responses:
+        '200':
+          description: Loading completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadingOperation'
+  
+  # Unloading
+  /operations/unloading/start:
+    post:
+      tags: [Unloading]
+      summary: Start unloading operation
+      operationId: startUnloading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                start_time:
+                  type: string
+                  format: date-time
+              required:
+                - trip_id
+      responses:
+        '201':
+          description: Unloading started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnloadingOperation'
+  
+  /operations/unloading/complete:
+    post:
+      tags: [Unloading]
+      summary: Complete unloading operation
+      operationId: completeUnloading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                unloading_id:
+                  type: string
+                  format: uuid
+                quantity_unloaded:
+                  type: number
+                  format: decimal
+                end_time:
+                  type: string
+                  format: date-time
+              required:
+                - unloading_id
+                - quantity_unloaded
+      responses:
+        '200':
+          description: Unloading completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnloadingOperation'
+
+components:
+  schemas:
+    GateEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        poi_id:
+          type: string
+          format: uuid
+        vehicle_registration:
+          type: string
+        entry_time:
+          type: string
+          format: date-time
+        operator_id:
+          type: string
+          format: uuid
+      required:
+        - id
+        - trip_id
+        - poi_id
+        - entry_time
+    
+    GateExit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        poi_id:
+          type: string
+          format: uuid
+        exit_time:
+          type: string
+          format: date-time
+        operator_id:
+          type: string
+          format: uuid
+      required:
+        - id
+        - trip_id
+        - poi_id
+        - exit_time
+    
+    Weighing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        weighing_type:
+          type: string
+          enum: [empty, loaded]
+        weight:
+          type: number
+          format: decimal
+        weighing_time:
+          type: string
+          format: date-time
+        operator_id:
+          type: string
+          format: uuid
+      required:
+        - id
+        - trip_id
+        - weighing_type
+        - weight
+        - weighing_time
+    
+    WeighingCreate:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          format: uuid
+        weighing_type:
+          type: string
+          enum: [empty, loaded]
+        weight:
+          type: number
+          format: decimal
+      required:
+        - trip_id
+        - weighing_type
+        - weight
+    
+    LoadingOperation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        quantity_loaded:
+          type: number
+          format: decimal
+          nullable: true
+        loaded_by:
+          type: string
+          format: uuid
+      required:
+        - id
+        - trip_id
+        - start_time
+    
+    UnloadingOperation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        quantity_unloaded:
+          type: number
+          format: decimal
+          nullable: true
+        unloaded_by:
+          type: string
+          format: uuid
+      required:
+        - id
+        - trip_id
+        - start_time
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+

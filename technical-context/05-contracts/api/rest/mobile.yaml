@@ -1,0 +1,436 @@
+openapi: 3.0.3
+info:
+  title: DFMS Mobile APIs
+  description: |
+    API contract for Mobile Applications.
+    
+    Handles driver, QC supervisor, and vendor mobile app APIs.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Driver Mobile
+    description: Driver mobile app APIs
+  - name: QC Mobile
+    description: QC supervisor mobile app APIs
+  - name: Vendor Mobile
+    description: Vendor mobile app APIs
+
+paths:
+  # Driver Mobile APIs
+  /mobile/driver/trips:
+    get:
+      tags: [Driver Mobile]
+      summary: Get driver's trips
+      operationId: getDriverTrips
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_transit, completed]
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripSummary'
+  
+  /mobile/driver/trips/{id}:
+    get:
+      tags: [Driver Mobile]
+      summary: Get trip details
+      operationId: getDriverTripDetails
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetails'
+  
+  /mobile/driver/trips/{id}/start:
+    post:
+      tags: [Driver Mobile]
+      summary: Start trip
+      operationId: startTrip
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_odometer:
+                  type: number
+                  format: decimal
+                start_location:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+              required:
+                - start_odometer
+                - start_location
+      responses:
+        '200':
+          description: Trip started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetails'
+  
+  /mobile/driver/trips/{id}/update-location:
+    post:
+      tags: [Driver Mobile]
+      summary: Update trip location
+      operationId: updateTripLocation
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                location:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+                speed:
+                  type: number
+                  format: float
+                odometer:
+                  type: number
+                  format: decimal
+              required:
+                - location
+      responses:
+        '200':
+          description: Location updated
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/common-schemas.yaml#/components/schemas/SuccessResponse'
+  
+  /mobile/driver/trips/{id}/complete:
+    post:
+      tags: [Driver Mobile]
+      summary: Complete trip
+      operationId: completeTrip
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                end_odometer:
+                  type: number
+                  format: decimal
+                end_location:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+              required:
+                - end_odometer
+                - end_location
+      responses:
+        '200':
+          description: Trip completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetails'
+  
+  # QC Mobile APIs
+  /mobile/qc/inspections:
+    get:
+      tags: [QC Mobile]
+      summary: Get QC supervisor's inspections
+      operationId: getQCInspections
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+      responses:
+        '200':
+          description: List of inspections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QCInspectionSummary'
+  
+  /mobile/qc/inspections:
+    post:
+      tags: [QC Mobile]
+      summary: Create QC inspection
+      operationId: createQCInspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                inspection_type:
+                  type: string
+                  enum: [physical, physical_and_lab]
+              required:
+                - trip_id
+      responses:
+        '201':
+          description: Inspection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCInspectionSummary'
+  
+  /mobile/qc/inspections/{id}/upload-photo:
+    post:
+      tags: [QC Mobile]
+      summary: Upload inspection photo
+      operationId: uploadInspectionPhoto
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo_url:
+                    type: string
+                    format: uri
+  
+  # Vendor Mobile APIs
+  /mobile/vendor/bids:
+    get:
+      tags: [Vendor Mobile]
+      summary: Get vendor's bids
+      operationId: getVendorBids
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [submitted, accepted, rejected]
+      responses:
+        '200':
+          description: List of bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendorBidSummary'
+  
+  /mobile/vendor/bids:
+    post:
+      tags: [Vendor Mobile]
+      summary: Submit bid
+      operationId: submitVendorBid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_id:
+                  type: string
+                  format: uuid
+                bid_amount:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+                vehicle_registration:
+                  type: string
+                driver_name:
+                  type: string
+                driver_contact:
+                  type: string
+              required:
+                - to_id
+                - bid_amount
+                - vehicle_registration
+                - driver_name
+      responses:
+        '201':
+          description: Bid submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorBidSummary'
+  
+  /mobile/vendor/trips:
+    get:
+      tags: [Vendor Mobile]
+      summary: Get vendor's trips
+      operationId: getVendorTrips
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_transit, completed]
+      responses:
+        '200':
+          description: List of trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripSummary'
+
+components:
+  schemas:
+    TripSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_number:
+          type: string
+        origin:
+          type: string
+        destination:
+          type: string
+        scheduled_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [pending, in_transit, completed, cancelled]
+      required:
+        - id
+        - trip_number
+        - status
+    
+    TripDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_number:
+          type: string
+        origin:
+          type: object
+          properties:
+            name:
+              type: string
+            location:
+              $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+        destination:
+          type: object
+          properties:
+            name:
+              type: string
+            location:
+              $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+        product:
+          type: object
+          properties:
+            name:
+              type: string
+            quantity:
+              type: number
+        scheduled_date:
+          type: string
+          format: date
+        status:
+          type: string
+        current_location:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Location'
+          nullable: true
+      required:
+        - id
+        - trip_number
+        - status
+    
+    QCInspectionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        trip_number:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+        result:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+          nullable: true
+      required:
+        - id
+        - trip_id
+        - status
+    
+    VendorBidSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        to_id:
+          type: string
+          format: uuid
+        to_number:
+          type: string
+        route:
+          type: string
+        bid_amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        status:
+          type: string
+          enum: [submitted, accepted, rejected]
+      required:
+        - id
+        - to_id
+        - bid_amount
+        - status
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+

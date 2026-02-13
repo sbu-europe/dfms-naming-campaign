@@ -1,0 +1,306 @@
+openapi: 3.0.3
+info:
+  title: DFMS Trip Costing API
+  description: |
+    API contract for Trip Costing & Finance module.
+    
+    Handles trip cost calculation, invoice generation, and ERP synchronization.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Trip Costs
+    description: Trip cost calculation operations
+  - name: Invoices
+    description: Invoice management operations
+  - name: ERP Sync
+    description: ERP synchronization operations
+
+paths:
+  /costing/trips:
+    get:
+      tags: [Trip Costs]
+      summary: List trip costs
+      operationId: listTripCosts
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: trip_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending_calculation, pending_review, approved, rejected]
+      responses:
+        '200':
+          description: List of trip costs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TripCost'
+  
+  /costing/trips/{trip_id}:
+    get:
+      tags: [Trip Costs]
+      summary: Get trip cost by trip ID
+      operationId: getTripCost
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Trip cost details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripCost'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+    
+    post:
+      tags: [Trip Costs]
+      summary: Calculate trip cost
+      operationId: calculateTripCost
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Trip cost calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripCost'
+  
+  /costing/invoices:
+    get:
+      tags: [Invoices]
+      summary: List invoices
+      operationId: listInvoices
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending_approval, approved, paid, rejected]
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Invoice'
+    
+    post:
+      tags: [Invoices]
+      summary: Generate invoice
+      operationId: generateInvoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                vendor_id:
+                  type: string
+                  format: uuid
+              required:
+                - trip_id
+                - vendor_id
+      responses:
+        '201':
+          description: Invoice generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  
+  /costing/invoices/{id}:
+    get:
+      tags: [Invoices]
+      summary: Get invoice by ID
+      operationId: getInvoice
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Invoice details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  
+  /costing/invoices/{id}/approve:
+    post:
+      tags: [Invoices]
+      summary: Approve invoice
+      operationId: approveInvoice
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Invoice approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+  
+  /costing/erp/sync:
+    post:
+      tags: [ERP Sync]
+      summary: Sync invoices to ERP
+      operationId: syncToERP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invoice_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+              required:
+                - invoice_ids
+      responses:
+        '200':
+          description: ERP sync initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sync_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [pending, in_progress, completed, failed]
+
+components:
+  schemas:
+    TripCost:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        base_rate:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        distance_cost:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        weight_cost:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        additional_charges:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        discount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        tax:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        total_cost:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        status:
+          type: string
+          enum: [pending_calculation, pending_review, approved, rejected]
+        calculated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - trip_id
+        - total_cost
+        - status
+    
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_number:
+          type: string
+        vendor_id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        tax:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        total_amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        status:
+          type: string
+          enum: [pending_approval, approved, paid, rejected]
+        due_date:
+          type: string
+          format: date
+        erp_sync_status:
+          type: string
+          enum: [pending, synced, failed]
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - invoice_number
+        - vendor_id
+        - amount
+        - status
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+

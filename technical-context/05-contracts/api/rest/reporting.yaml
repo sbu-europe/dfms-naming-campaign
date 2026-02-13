@@ -1,0 +1,291 @@
+openapi: 3.0.3
+info:
+  title: DFMS Reporting API
+  description: |
+    API contract for Reporting & Analytics module.
+    
+    Handles dashboards, reports, and KPI tracking.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Dashboards
+    description: Dashboard operations
+  - name: Reports
+    description: Report generation operations
+  - name: KPIs
+    description: KPI tracking operations
+
+paths:
+  /reports/dashboards:
+    get:
+      tags: [Dashboards]
+      summary: List dashboards
+      operationId: listDashboards
+      responses:
+        '200':
+          description: List of dashboards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dashboard'
+  
+  /reports/dashboards/{dashboard_id}:
+    get:
+      tags: [Dashboards]
+      summary: Get dashboard data
+      operationId: getDashboard
+      parameters:
+        - name: dashboard_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_range
+          in: query
+          schema:
+            $ref: '../schemas/common-schemas.yaml#/components/schemas/DateRange'
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardData'
+  
+  /reports:
+    get:
+      tags: [Reports]
+      summary: List reports
+      operationId: listReports
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: report_type
+          in: query
+          schema:
+            type: string
+            enum: [trip, cost, vendor, qc, operations]
+      responses:
+        '200':
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Report'
+    
+    post:
+      tags: [Reports]
+      summary: Generate report
+      operationId: generateReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequest'
+      responses:
+        '202':
+          description: Report generation initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  report_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [pending, generating, completed, failed]
+  
+  /reports/{id}:
+    get:
+      tags: [Reports]
+      summary: Get report by ID
+      operationId: getReport
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Report details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+  
+  /reports/{id}/download:
+    get:
+      tags: [Reports]
+      summary: Download report
+      operationId: downloadReport
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [pdf, excel, csv]
+            default: pdf
+      responses:
+        '200':
+          description: Report file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+                format: binary
+  
+  /reports/kpis:
+    get:
+      tags: [KPIs]
+      summary: Get KPIs
+      operationId: getKPIs
+      parameters:
+        - name: date_range
+          in: query
+          schema:
+            $ref: '../schemas/common-schemas.yaml#/components/schemas/DateRange'
+      responses:
+        '200':
+          description: KPI data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpis:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KPI'
+
+components:
+  schemas:
+    Dashboard:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        widgets:
+          type: array
+          items:
+            type: object
+      required:
+        - id
+        - name
+    
+    DashboardData:
+      type: object
+      properties:
+        dashboard_id:
+          type: string
+        widgets:
+          type: array
+          items:
+            type: object
+            properties:
+              widget_id:
+                type: string
+              widget_type:
+                type: string
+              data:
+                type: object
+    
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        report_type:
+          type: string
+          enum: [trip, cost, vendor, qc, operations]
+        report_name:
+          type: string
+        status:
+          type: string
+          enum: [pending, generating, completed, failed]
+        file_url:
+          type: string
+          format: uri
+          nullable: true
+        generated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - report_type
+        - report_name
+        - status
+    
+    ReportRequest:
+      type: object
+      properties:
+        report_type:
+          type: string
+          enum: [trip, cost, vendor, qc, operations]
+        date_range:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/DateRange'
+        filters:
+          type: object
+          additionalProperties: true
+      required:
+        - report_type
+        - date_range
+    
+    KPI:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        trend:
+          type: string
+          enum: [up, down, stable]
+        target:
+          type: number
+          nullable: true
+      required:
+        - id
+        - name
+        - value
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+

@@ -1,0 +1,402 @@
+openapi: 3.0.3
+info:
+  title: DFMS Vendor Management API
+  description: |
+    API contract for Vendor Management module.
+    
+    Handles vendor onboarding, bidding, assignment, and performance tracking.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Vendors
+    description: Vendor management operations
+  - name: Bids
+    description: Vendor bidding operations
+  - name: Invoices
+    description: Vendor invoice management
+
+paths:
+  # Vendors
+  /vendors:
+    get:
+      tags: [Vendors]
+      summary: List vendors
+      operationId: listVendors
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: type
+          in: query
+          schema:
+            $ref: '../schemas/common-schemas.yaml#/components/schemas/VendorType'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+      responses:
+        '200':
+          description: List of vendors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Vendor'
+    
+    post:
+      tags: [Vendors]
+      summary: Onboard vendor
+      operationId: onboardVendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCreate'
+      responses:
+        '201':
+          description: Vendor onboarded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+  
+  /vendors/{id}:
+    get:
+      tags: [Vendors]
+      summary: Get vendor by ID
+      operationId: getVendor
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Vendor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+  
+  # Bids
+  /vendor-bids:
+    get:
+      tags: [Bids]
+      summary: List vendor bids
+      operationId: listVendorBids
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: to_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [submitted, accepted, rejected, withdrawn]
+      responses:
+        '200':
+          description: List of bids
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/VendorBid'
+    
+    post:
+      tags: [Bids]
+      summary: Submit bid
+      operationId: submitBid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorBidCreate'
+      responses:
+        '201':
+          description: Bid submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorBid'
+  
+  /vendor-bids/{id}/accept:
+    post:
+      tags: [Bids]
+      summary: Accept bid
+      operationId: acceptBid
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Bid accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorBid'
+  
+  /vendor-bids/{id}/reject:
+    post:
+      tags: [Bids]
+      summary: Reject bid
+      operationId: rejectBid
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Bid rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorBid'
+  
+  # Invoices
+  /vendor-invoices:
+    get:
+      tags: [Invoices]
+      summary: List vendor invoices
+      operationId: listVendorInvoices
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, paid, rejected]
+      responses:
+        '200':
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/VendorInvoice'
+    
+    post:
+      tags: [Invoices]
+      summary: Submit invoice
+      operationId: submitInvoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorInvoiceCreate'
+      responses:
+        '201':
+          description: Invoice submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorInvoice'
+
+components:
+  schemas:
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        contact_number:
+          type: string
+        email:
+          type: string
+        type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/VendorType'
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        rating:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - status
+    
+    VendorCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_number:
+          type: string
+        email:
+          type: string
+        type:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/VendorType'
+      required:
+        - name
+        - contact_number
+        - type
+    
+    VendorBid:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        to_id:
+          type: string
+          format: uuid
+        vendor_id:
+          type: string
+          format: uuid
+        bid_amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        vehicle_registration:
+          type: string
+        driver_name:
+          type: string
+        status:
+          type: string
+          enum: [submitted, accepted, rejected, withdrawn]
+        submitted_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - to_id
+        - vendor_id
+        - bid_amount
+        - status
+    
+    VendorBidCreate:
+      type: object
+      properties:
+        to_id:
+          type: string
+          format: uuid
+        bid_amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        vehicle_registration:
+          type: string
+        driver_name:
+          type: string
+        driver_contact:
+          type: string
+        driver_license:
+          type: string
+      required:
+        - to_id
+        - bid_amount
+        - vehicle_registration
+        - driver_name
+    
+    VendorInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_number:
+          type: string
+        vendor_id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        status:
+          type: string
+          enum: [pending, approved, paid, rejected]
+        due_date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - invoice_number
+        - vendor_id
+        - amount
+        - status
+    
+    VendorInvoiceCreate:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/Money'
+        line_items:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              quantity:
+                type: number
+              rate:
+                type: number
+              amount:
+                type: number
+      required:
+        - trip_id
+        - amount
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+

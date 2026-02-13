@@ -1,0 +1,366 @@
+openapi: 3.0.3
+info:
+  title: DFMS Quality Control API
+  description: |
+    API contract for Quality Control module.
+    
+    Handles QC inspections, sampling, lab testing, and pass/fail decisions.
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+
+servers:
+  - url: https://api.dfms.example.com/v1
+
+tags:
+  - name: Inspections
+    description: QC inspection operations
+  - name: Samples
+    description: Sample collection operations
+  - name: Lab Tests
+    description: Lab testing operations
+
+paths:
+  /qc/inspections:
+    get:
+      tags: [Inspections]
+      summary: List QC inspections
+      operationId: listInspections
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: trip_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, failed]
+        - name: result
+          in: query
+          schema:
+            $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+      responses:
+        '200':
+          description: List of inspections
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/QCInspection'
+    
+    post:
+      tags: [Inspections]
+      summary: Create QC inspection
+      operationId: createInspection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                inspection_type:
+                  type: string
+                  enum: [physical, physical_and_lab]
+              required:
+                - trip_id
+      responses:
+        '201':
+          description: Inspection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCInspection'
+  
+  /qc/inspections/{id}:
+    get:
+      tags: [Inspections]
+      summary: Get inspection by ID
+      operationId: getInspection
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Inspection details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCInspection'
+    
+    put:
+      tags: [Inspections]
+      summary: Update inspection
+      operationId: updateInspection
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QCInspectionUpdate'
+      responses:
+        '200':
+          description: Inspection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCInspection'
+  
+  /qc/inspections/{id}/submit:
+    post:
+      tags: [Inspections]
+      summary: Submit QC inspection
+      operationId: submitInspection
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+                failure_reason:
+                  type: string
+                  nullable: true
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+              required:
+                - result
+      responses:
+        '200':
+          description: Inspection submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCInspection'
+  
+  /qc/samples:
+    post:
+      tags: [Samples]
+      summary: Collect sample
+      operationId: collectSample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                inspection_id:
+                  type: string
+                  format: uuid
+                sample_type:
+                  type: string
+                quantity:
+                  type: number
+                  format: decimal
+              required:
+                - inspection_id
+                - sample_type
+                - quantity
+      responses:
+        '201':
+          description: Sample collected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCSample'
+  
+  /qc/lab-tests:
+    post:
+      tags: [Lab Tests]
+      summary: Create lab test
+      operationId: createLabTest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sample_id:
+                  type: string
+                  format: uuid
+                test_type:
+                  type: string
+              required:
+                - sample_id
+                - test_type
+      responses:
+        '201':
+          description: Lab test created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCLabTest'
+  
+  /qc/lab-tests/{id}/submit-results:
+    post:
+      tags: [Lab Tests]
+      summary: Submit lab test results
+      operationId: submitLabTestResults
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result:
+                  $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+                test_results:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required:
+                - result
+                - test_results
+      responses:
+        '200':
+          description: Lab test results submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QCLabTest'
+
+components:
+  schemas:
+    QCInspection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+        inspection_type:
+          type: string
+          enum: [physical, physical_and_lab]
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        result:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+        inspector_id:
+          type: string
+          format: uuid
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - trip_id
+        - inspection_type
+        - status
+    
+    QCInspectionUpdate:
+      type: object
+      properties:
+        product_condition:
+          type: string
+          enum: [good, damaged, contaminated]
+        quantity_match:
+          type: boolean
+        packaging_condition:
+          type: string
+          enum: [intact, damaged, tampered]
+        documents_complete:
+          type: boolean
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
+    
+    QCSample:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        inspection_id:
+          type: string
+          format: uuid
+        sample_type:
+          type: string
+        quantity:
+          type: number
+          format: decimal
+        collection_time:
+          type: string
+          format: date-time
+      required:
+        - id
+        - inspection_id
+        - sample_type
+        - quantity
+    
+    QCLabTest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sample_id:
+          type: string
+          format: uuid
+        test_type:
+          type: string
+        result:
+          $ref: '../schemas/common-schemas.yaml#/components/schemas/QCResult'
+        test_results:
+          type: object
+          additionalProperties:
+            type: string
+        tested_by:
+          type: string
+          format: uuid
+        tested_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - sample_id
+        - test_type
+        - result
+
+  securitySchemes:
+    bearerAuth:
+      $ref: '../schemas/common-schemas.yaml#/components/securitySchemes/bearerAuth'
+
+security:
+  - bearerAuth: []
+
