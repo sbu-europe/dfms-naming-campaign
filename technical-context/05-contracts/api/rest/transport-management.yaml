@@ -1,0 +1,771 @@
+openapi: 3.0.3
+info:
+  title: DFMS Transport Management API
+  description: |
+    API contract for Transport Management module in DFMS.
+    
+    This contract defines the interface for:
+    - Transport Request (TR) management
+    - Transport Order (TO) management
+    - Trip lifecycle management
+    - Vehicle assignment
+    
+    **Note**: This is a high-level contract. Implementation repos will add
+    framework-specific details (authentication, error handling, etc.)
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+  - url: https://api-staging.dfms.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Transport Requests
+    description: Transport Request (TR) management operations
+  - name: Transport Orders
+    description: Transport Order (TO) management operations
+  - name: Trips
+    description: Trip lifecycle and tracking operations
+
+paths:
+  /transport-requests:
+    get:
+      tags:
+        - Transport Requests
+      summary: List transport requests
+      description: Retrieve a paginated list of transport requests with optional filters
+      operationId: listTransportRequests
+      parameters:
+        - name: status
+          in: query
+          description: Filter by TR status
+          schema:
+            type: string
+            enum: [draft, pending_approval, approved, rejected, cancelled]
+        - name: requisition_id
+          in: query
+          description: Filter by product requisition ID
+          schema:
+            type: string
+            format: uuid
+        - name: created_after
+          in: query
+          description: Filter TRs created after this date
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransportRequest'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                data:
+                  - id: "550e8400-e29b-41d4-a716-446655440000"
+                    tr_number: "TR-2026-0001"
+                    requisition_id: "660e8400-e29b-41d4-a716-446655440000"
+                    origin:
+                      poi_id: "770e8400-e29b-41d4-a716-446655440000"
+                      name: "Bhaluka Factory"
+                      address: "Bhaluka, Mymensingh"
+                    destination:
+                      poi_id: "880e8400-e29b-41d4-a716-446655440000"
+                      name: "Dhaka CFS"
+                      address: "Container Freight Station, Dhaka"
+                    product:
+                      product_id: "990e8400-e29b-41d4-a716-446655440000"
+                      name: "Poultry Feed - Broiler Starter"
+                      quantity: 20000
+                      unit: "kg"
+                    vehicle_type: "covered_van"
+                    priority: "high"
+                    requested_date: "2026-02-15"
+                    status: "approved"
+                    created_by: "user-001"
+                    created_at: "2026-02-13T10:30:00Z"
+                    updated_at: "2026-02-13T11:00:00Z"
+                pagination:
+                  page: 1
+                  page_size: 20
+                  total_items: 150
+                  total_pages: 8
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+          
+    post:
+      tags:
+        - Transport Requests
+      summary: Create transport request
+      description: Create a new transport request from an approved product requisition
+      operationId: createTransportRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransportRequestInput'
+            example:
+              requisition_id: "660e8400-e29b-41d4-a716-446655440000"
+              origin_poi_id: "770e8400-e29b-41d4-a716-446655440000"
+              destination_poi_id: "880e8400-e29b-41d4-a716-446655440000"
+              product_id: "990e8400-e29b-41d4-a716-446655440000"
+              quantity: 20000
+              unit: "kg"
+              vehicle_type: "covered_van"
+              priority: "high"
+              requested_date: "2026-02-15"
+              special_instructions: "Temperature controlled transport required"
+      responses:
+        '201':
+          description: Transport request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransportRequest'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  
+  /transport-requests/{tr_id}:
+    get:
+      tags:
+        - Transport Requests
+      summary: Get transport request details
+      description: Retrieve detailed information about a specific transport request
+      operationId: getTransportRequest
+      parameters:
+        - name: tr_id
+          in: path
+          required: true
+          description: Transport Request ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransportRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+          
+  /transport-orders:
+    post:
+      tags:
+        - Transport Orders
+      summary: Create transport order
+      description: |
+        Create a Transport Order (TO) from an approved Transport Request (TR).
+        This involves assigning a vehicle and driver (own fleet or vendor).
+      operationId: createTransportOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransportOrderInput'
+            example:
+              tr_id: "550e8400-e29b-41d4-a716-446655440000"
+              fleet_type: "own"
+              vehicle_id: "aa0e8400-e29b-41d4-a716-446655440000"
+              driver_id: "bb0e8400-e29b-41d4-a716-446655440000"
+              helper_id: "cc0e8400-e29b-41d4-a716-446655440000"
+              scheduled_date: "2026-02-15T06:00:00Z"
+              estimated_distance_km: 120
+              estimated_duration_hours: 4
+      responses:
+        '201':
+          description: Transport order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransportOrder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+          
+  /transport-orders/{to_id}:
+    get:
+      tags:
+        - Transport Orders
+      summary: Get transport order details
+      description: Retrieve detailed information about a specific transport order
+      operationId: getTransportOrder
+      parameters:
+        - name: to_id
+          in: path
+          required: true
+          description: Transport Order ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransportOrder'
+        '404':
+          $ref: '#/components/responses/NotFound'
+          
+  /trips:
+    get:
+      tags:
+        - Trips
+      summary: List trips
+      description: Retrieve a paginated list of trips with optional filters
+      operationId: listTrips
+      parameters:
+        - name: status
+          in: query
+          description: Filter by trip status
+          schema:
+            type: string
+            enum: [pending, in_transit, completed, cancelled]
+        - name: vehicle_id
+          in: query
+          description: Filter by vehicle ID
+          schema:
+            type: string
+            format: uuid
+        - name: driver_id
+          in: query
+          description: Filter by driver ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Trip'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                    
+  /trips/{trip_id}:
+    get:
+      tags:
+        - Trips
+      summary: Get trip details
+      description: Retrieve detailed information about a specific trip
+      operationId: getTrip
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          description: Trip ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '404':
+          $ref: '#/components/responses/NotFound'
+          
+  /trips/{trip_id}/start:
+    post:
+      tags:
+        - Trips
+      summary: Start trip
+      description: Mark trip as started (typically called by driver mobile app)
+      operationId: startTrip
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - location
+                - odometer_start
+              properties:
+                location:
+                  $ref: '#/components/schemas/Location'
+                odometer_start:
+                  type: number
+                  description: Starting odometer reading in km
+                  example: 45230.5
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: Actual start time (defaults to current time if not provided)
+      responses:
+        '200':
+          description: Trip started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+components:
+  schemas:
+    TransportRequest:
+      type: object
+      required:
+        - id
+        - tr_number
+        - requisition_id
+        - origin
+        - destination
+        - product
+        - vehicle_type
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the transport request
+        tr_number:
+          type: string
+          description: Human-readable TR number (e.g., TR-2026-0001)
+          example: "TR-2026-0001"
+        requisition_id:
+          type: string
+          format: uuid
+          description: Reference to the product requisition
+        origin:
+          $ref: '#/components/schemas/POIReference'
+        destination:
+          $ref: '#/components/schemas/POIReference'
+        product:
+          $ref: '#/components/schemas/ProductReference'
+        vehicle_type:
+          type: string
+          enum: [covered_van, open_truck, refrigerated, tanker]
+          description: Required vehicle type
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        requested_date:
+          type: string
+          format: date
+          description: Requested delivery date
+        status:
+          type: string
+          enum: [draft, pending_approval, approved, rejected, cancelled]
+        special_instructions:
+          type: string
+          description: Any special handling instructions
+        created_by:
+          type: string
+          description: User ID who created the TR
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          
+    CreateTransportRequestInput:
+      type: object
+      required:
+        - requisition_id
+        - origin_poi_id
+        - destination_poi_id
+        - product_id
+        - quantity
+        - unit
+        - vehicle_type
+        - requested_date
+      properties:
+        requisition_id:
+          type: string
+          format: uuid
+        origin_poi_id:
+          type: string
+          format: uuid
+        destination_poi_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          minimum: 0
+        unit:
+          type: string
+          example: "kg"
+        vehicle_type:
+          type: string
+          enum: [covered_van, open_truck, refrigerated, tanker]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        requested_date:
+          type: string
+          format: date
+        special_instructions:
+          type: string
+          
+    TransportOrder:
+      type: object
+      required:
+        - id
+        - to_number
+        - tr_id
+        - fleet_type
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        to_number:
+          type: string
+          example: "TO-2026-0001"
+        tr_id:
+          type: string
+          format: uuid
+          description: Reference to transport request
+        fleet_type:
+          type: string
+          enum: [own, vendor]
+        vehicle_id:
+          type: string
+          format: uuid
+          nullable: true
+        driver_id:
+          type: string
+          format: uuid
+          nullable: true
+        helper_id:
+          type: string
+          format: uuid
+          nullable: true
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Set if fleet_type is 'vendor'
+        scheduled_date:
+          type: string
+          format: date-time
+        estimated_distance_km:
+          type: number
+        estimated_duration_hours:
+          type: number
+        status:
+          type: string
+          enum: [pending, assigned, in_progress, completed, cancelled]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          
+    CreateTransportOrderInput:
+      type: object
+      required:
+        - tr_id
+        - fleet_type
+        - scheduled_date
+      properties:
+        tr_id:
+          type: string
+          format: uuid
+        fleet_type:
+          type: string
+          enum: [own, vendor]
+        vehicle_id:
+          type: string
+          format: uuid
+          description: Required if fleet_type is 'own'
+        driver_id:
+          type: string
+          format: uuid
+          description: Required if fleet_type is 'own'
+        helper_id:
+          type: string
+          format: uuid
+        vendor_id:
+          type: string
+          format: uuid
+          description: Required if fleet_type is 'vendor'
+        scheduled_date:
+          type: string
+          format: date-time
+        estimated_distance_km:
+          type: number
+        estimated_duration_hours:
+          type: number
+          
+    Trip:
+      type: object
+      required:
+        - id
+        - trip_number
+        - to_id
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        trip_number:
+          type: string
+          example: "TRIP-2026-0001"
+        to_id:
+          type: string
+          format: uuid
+        vehicle_id:
+          type: string
+          format: uuid
+        driver_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, in_transit, completed, cancelled]
+        start_time:
+          type: string
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        odometer_start:
+          type: number
+          nullable: true
+        odometer_end:
+          type: number
+          nullable: true
+        actual_distance_km:
+          type: number
+          nullable: true
+        current_location:
+          $ref: '#/components/schemas/Location'
+          
+    POIReference:
+      type: object
+      required:
+        - poi_id
+        - name
+      properties:
+        poi_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+          
+    ProductReference:
+      type: object
+      required:
+        - product_id
+        - name
+        - quantity
+        - unit
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+          
+    Location:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 23.8103
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 90.4125
+          
+    Pagination:
+      type: object
+      required:
+        - page
+        - page_size
+        - total_items
+        - total_pages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+        total_items:
+          type: integer
+          minimum: 0
+        total_pages:
+          type: integer
+          minimum: 0
+          
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+          
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "BAD_REQUEST"
+            message: "Invalid request parameters"
+            
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Authentication required"
+            
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "FORBIDDEN"
+            message: "Insufficient permissions to access this resource"
+            
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "NOT_FOUND"
+            message: "Resource not found"
+            
+    ValidationError:
+      description: Validation error - invalid data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "VALIDATION_ERROR"
+            message: "Validation failed"
+            details:
+              vehicle_id: "Vehicle is not available on the requested date"
+              
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_SERVER_ERROR"
+            message: "An unexpected error occurred"
+

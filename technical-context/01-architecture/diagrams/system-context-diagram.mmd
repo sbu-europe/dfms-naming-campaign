@@ -1,0 +1,65 @@
+%% DFMS System Context Diagram (C4 Level 1)
+%% This diagram shows the DFMS system, its users, and external systems it integrates with
+
+graph TB
+    %% Define the DFMS system (center)
+    DFMS[("DFMS Platform<br/>(Distribution & Fleet<br/>Management System)<br/><br/>Multi-tenant SaaS platform<br/>for logistics operations")]
+    
+    %% Internal Users (Administrative - Web Portal)
+    LogCoord["Logistics Coordinator<br/>(Web Portal)<br/><br/>Creates TRs, manages TOs,<br/>assigns vehicles"]
+    Dispatcher["Dispatcher<br/>(Web Portal)<br/><br/>Monitors trips,<br/>handles exceptions"]
+    FleetMgr["Fleet Manager<br/>(Web Portal)<br/><br/>Manages vehicles,<br/>maintenance"]
+    ProcMgr["Procurement Manager<br/>(Web Portal)<br/><br/>Manages product<br/>requisitions"]
+    FinTeam["Finance Team<br/>(Web Portal)<br/><br/>Processes invoices,<br/>manages costing"]
+    QAMgr["QA/QC Manager<br/>(Web Portal)<br/><br/>Monitors quality<br/>compliance"]
+    SysAdmin["System Administrator<br/>(Web Portal)<br/><br/>User management,<br/>system config"]
+    
+    %% Field Users (Mobile Apps)
+    Driver["Driver<br/>(Mobile App)<br/><br/>Receives assignments,<br/>updates trip status"]
+    QCSup["QC Supervisor<br/>(Mobile App)<br/><br/>Conducts inspections,<br/>submits reports"]
+    Vendor["Vendor<br/>(Mobile App + Web)<br/><br/>Bids on trips,<br/>submits invoices"]
+    
+    %% External Systems
+    GPS["GPS/VTS Provider<br/>(External System)<br/><br/>Real-time vehicle<br/>location tracking"]
+    ERP["ERP/Accounting System<br/>(External System)<br/><br/>Financial data<br/>synchronization"]
+    Maps["Mapping Service<br/>(External System)<br/><br/>Route planning,<br/>geocoding"]
+    SMS["SMS Gateway<br/>(External System)<br/><br/>Notifications<br/>and alerts"]
+    IoT["IoT Device Provider<br/>(External System)<br/><br/>Vehicle sensors,<br/>fuel monitoring"]
+    Payment["Payment Gateway<br/>(External System)<br/><br/>Online vendor<br/>payments (Phase 3)"]
+    
+    %% Connections - Internal Users to DFMS
+    LogCoord -->|"Creates TRs/TOs,<br/>assigns vehicles"| DFMS
+    Dispatcher -->|"Monitors trips,<br/>manages exceptions"| DFMS
+    FleetMgr -->|"Manages fleet,<br/>schedules maintenance"| DFMS
+    ProcMgr -->|"Creates requisitions,<br/>approves requests"| DFMS
+    FinTeam -->|"Processes invoices,<br/>manages costs"| DFMS
+    QAMgr -->|"Reviews QC reports,<br/>monitors compliance"| DFMS
+    SysAdmin -->|"Manages users,<br/>configures system"| DFMS
+    
+    %% Connections - Field Users to DFMS
+    Driver -->|"Updates trip status,<br/>navigates routes"| DFMS
+    QCSup -->|"Submits inspections,<br/>uploads evidence"| DFMS
+    Vendor -->|"Bids on trips,<br/>submits invoices"| DFMS
+    
+    DFMS -->|"Trip assignments,<br/>notifications"| Driver
+    DFMS -->|"Inspection requests,<br/>QC workflows"| QCSup
+    DFMS -->|"Trip opportunities,<br/>payment status"| Vendor
+    
+    %% Connections - DFMS to External Systems
+    DFMS <-->|"Vehicle locations,<br/>trip tracking data"| GPS
+    DFMS <-->|"Invoice sync,<br/>payment status"| ERP
+    DFMS -->|"Route requests,<br/>geocoding"| Maps
+    Maps -->|"Optimized routes,<br/>distance, ETA"| DFMS
+    DFMS -->|"SMS notifications,<br/>alerts, OTPs"| SMS
+    DFMS <-->|"Sensor data,<br/>fuel consumption"| IoT
+    DFMS <-->|"Payment requests,<br/>transaction status"| Payment
+    
+    %% Styling
+    classDef systemStyle fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff
+    classDef userStyle fill:#08427b,stroke:#052e56,stroke-width:2px,color:#ffffff
+    classDef externalStyle fill:#999999,stroke:#666666,stroke-width:2px,color:#ffffff
+    
+    class DFMS systemStyle
+    class LogCoord,Dispatcher,FleetMgr,ProcMgr,FinTeam,QAMgr,SysAdmin,Driver,QCSup,Vendor userStyle
+    class GPS,ERP,Maps,SMS,IoT,Payment externalStyle
+
