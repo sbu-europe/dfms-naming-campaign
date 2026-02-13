@@ -1,0 +1,88 @@
+%% DFMS Container Diagram (C4 Level 2)
+%% Shows high-level technical building blocks and their interactions
+
+graph TB
+    %% External Users
+    WebUser["Web User<br/>(Internal Staff)<br/><br/>Logistics, Fleet,<br/>Finance, QA teams"]
+    MobileUser["Mobile User<br/>(Field Staff)<br/><br/>Drivers, QC,<br/>Vendors"]
+    
+    %% DFMS Containers
+    subgraph DFMS["DFMS Platform"]
+        APIGateway["API Gateway<br/>(Kong/AWS)<br/><br/>Authentication,<br/>Rate Limiting,<br/>Routing"]
+        
+        WebApp["Web Application<br/>(Vue.js SPA)<br/><br/>Administrative<br/>Portal"]
+        
+        MobileApps["Mobile Applications<br/>(Flutter)<br/><br/>Driver, QC,<br/>Vendor Apps"]
+        
+        APIServer["API Server<br/>(Django + DRF)<br/><br/>Business Logic,<br/>REST APIs,<br/>12 Modules"]
+        
+        BGWorker["Background Worker<br/>(Celery)<br/><br/>Async Tasks,<br/>Scheduled Jobs,<br/>Heavy Processing"]
+        
+        Database[("Database<br/>(PostgreSQL)<br/><br/>Transactional<br/>& Master Data")]
+        
+        Cache[("Cache<br/>(Redis)<br/><br/>Sessions,<br/>Real-time Data,<br/>API Cache")]
+        
+        MsgQueue[("Message Queue<br/>(RabbitMQ/SQS)<br/><br/>Task Queue,<br/>Event Bus")]
+        
+        FileStorage[("File Storage<br/>(AWS S3)<br/><br/>Documents,<br/>Photos, Videos,<br/>Reports")]
+        
+        Search[("Search Engine<br/>(Elasticsearch)<br/><br/>Full-text Search,<br/>Log Aggregation<br/>(Phase 2)")]
+    end
+    
+    %% External Systems
+    GPS["GPS/VTS Provider<br/>(External)<br/><br/>Vehicle Tracking"]
+    ERP["ERP System<br/>(External)<br/><br/>Financial Sync"]
+    Maps["Maps Service<br/>(External)<br/><br/>Routing, Geocoding"]
+    SMS["SMS Gateway<br/>(External)<br/><br/>Notifications"]
+    IoT["IoT Devices<br/>(External)<br/><br/>Sensors, Fuel"]
+    
+    %% User to Application Connections
+    WebUser -->|"HTTPS<br/>(REST + WebSocket)"| WebApp
+    MobileUser -->|"HTTPS<br/>(REST)"| MobileApps
+    
+    %% Application to API Gateway
+    WebApp -->|"HTTPS<br/>(JSON)"| APIGateway
+    MobileApps -->|"HTTPS<br/>(JSON)"| APIGateway
+    
+    %% API Gateway to API Server
+    APIGateway -->|"HTTP<br/>(Internal Network)"| APIServer
+    
+    %% API Server Connections
+    APIServer -->|"SQL<br/>(Read/Write)"| Database
+    APIServer -->|"TCP<br/>(Get/Set)"| Cache
+    APIServer -->|"AMQP/HTTP<br/>(Publish)"| MsgQueue
+    APIServer -->|"S3 API<br/>(Upload/Download)"| FileStorage
+    APIServer -->|"HTTP<br/>(Index/Search)"| Search
+    
+    %% Background Worker Connections
+    MsgQueue -->|"AMQP/HTTP<br/>(Consume)"| BGWorker
+    BGWorker -->|"SQL<br/>(Read/Write)"| Database
+    BGWorker -->|"S3 API<br/>(Store Reports)"| FileStorage
+    BGWorker -->|"TCP<br/>(Pub/Sub)"| Cache
+    
+    %% External System Connections
+    APIServer -->|"HTTPS<br/>(REST)"| GPS
+    APIServer -->|"HTTPS<br/>(REST/SOAP)"| ERP
+    APIServer -->|"HTTPS<br/>(REST)"| Maps
+    BGWorker -->|"HTTPS<br/>(REST)"| SMS
+    APIServer -->|"HTTPS/MQTT<br/>(REST)"| IoT
+    
+    %% Reverse connections (responses)
+    GPS -.->|"Location Data"| APIServer
+    ERP -.->|"Payment Status"| APIServer
+    Maps -.->|"Routes, Distance"| APIServer
+    IoT -.->|"Sensor Data"| APIServer
+    
+    %% Styling
+    classDef userStyle fill:#08427b,stroke:#052e56,stroke-width:2px,color:#ffffff
+    classDef appStyle fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff
+    classDef dataStyle fill:#438dd5,stroke:#2e5f8d,stroke-width:2px,color:#ffffff
+    classDef externalStyle fill:#999999,stroke:#666666,stroke-width:2px,color:#ffffff
+    classDef gatewayStyle fill:#f39c12,stroke:#d68910,stroke-width:2px,color:#ffffff
+    
+    class WebUser,MobileUser userStyle
+    class WebApp,MobileApps,APIServer,BGWorker appStyle
+    class Database,Cache,MsgQueue,FileStorage,Search dataStyle
+    class GPS,ERP,Maps,SMS,IoT externalStyle
+    class APIGateway gatewayStyle
+
