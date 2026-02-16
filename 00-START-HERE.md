@@ -62,8 +62,6 @@ Follow this sequence to understand the repository:
 
 ### **📊 Business Analysts**
 - [Functional Requirements](./business-context/02-requirements/functional-requirements/functional-requirements-summary.md) - 91 stories
-- [Stakeholder Insights](./business-context/04-stakeholder-insights/) - 45+ pain points
-- [Department Insights](./business-context/04-stakeholder-insights/department-insights.md) - 7 departments
 - [Source Document Mapping](./business-context/06-reference/source-document-mapping.md) - Traceability
 
 ### **🧪 QA/Testers**
@@ -175,7 +173,6 @@ Follow this sequence to understand the repository:
 3. **Understand stakeholders**
    - [Stakeholders](./business-context/00-overview/stakeholders.md) - Who's involved
    - [User Personas](./business-context/02-requirements/user-personas.md) - 21 detailed personas
-   - [Department Insights](./business-context/04-stakeholder-insights/department-insights.md) - 7 departments
 
 4. **Learn the terminology**
    - [Glossary](./business-context/00-overview/glossary.md) - 50+ terms (TR, TO, PIM, POI, QC, etc.)

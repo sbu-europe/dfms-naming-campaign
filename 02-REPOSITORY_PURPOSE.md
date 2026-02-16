@@ -14,7 +14,6 @@ This repository serves as the **central domain knowledge and interface contract 
    - Business processes and rules
    - Requirements and features
    - User stories and workflows
-   - Stakeholder insights
 
 2. **High-Level Technical Architecture**
    - System overview and context
@@ -124,7 +123,6 @@ DFMS-product-context/
 │   │   └── architectural-decisions/
 │   ├── 05-workflows/
 │   ├── 06-data-reference/
-│   ├── 07-stakeholder-insights/
 │   ├── 08-implementation/        # High-level deployment strategy
 │   └── 10-reference/
 │

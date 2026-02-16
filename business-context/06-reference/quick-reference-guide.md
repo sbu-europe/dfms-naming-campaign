@@ -29,8 +29,6 @@ updated: 2026-02-11
 ### For Product Managers
 1. **[Business Objectives](../02-requirements/business-objectives.md)** - Goals and KPIs
 2. **[User Personas](../02-requirements/user-personas.md)** - 21 personas
-3. **[Pain Points](../04-stakeholder-insights/pain-points.md)** - Current challenges
-4. **[Expectations](../04-stakeholder-insights/expectations.md)** - Stakeholder needs
 
 ### For QA
 1. **[Functional Requirements](../02-requirements/functional-requirements/functional-requirements-summary.md)** - 91 user stories
@@ -207,14 +205,8 @@ TR → TO → Trip → QC
 - **Master Data**: See [Master Data Overview](../05-data-reference/master-data/master-data-overview.md)
 - **Transactional Data**: See [Transactional Data Overview](../05-data-reference/transactional-data/transactional-data-overview.md)
 
-### Find Pain Point
-- **By Category**: See [Pain Points](../04-stakeholder-insights/pain-points.md)
-- **By Department**: See [Department Insights](../04-stakeholder-insights/department-insights.md)
-
 ### Find Stakeholder Info
 - **Personas**: See [User Personas](../02-requirements/user-personas.md)
-- **Expectations**: See [Expectations](../04-stakeholder-insights/expectations.md)
-- **Discovery**: See [Discovery Summary](../04-stakeholder-insights/discovery-summary.md)
 
 ---
 

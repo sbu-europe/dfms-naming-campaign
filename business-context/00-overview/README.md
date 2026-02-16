@@ -144,7 +144,6 @@ All documents in order:
 
 **Next Steps**:
 - Review [Features](../03-features/) for phase-wise scope
-- Study [Stakeholder Insights](../04-stakeholder-insights/) for detailed feedback
 - Check [Requirements](../02-requirements/) for specifications
 
 ---
@@ -156,7 +155,6 @@ All documents in order:
 - **[Business Domain](../01-business-domain/)** - Detailed business processes and rules
 - **[Requirements](../02-requirements/)** - Functional and non-functional requirements
 - **[Features](../03-features/)** - Phase-wise feature breakdown with user stories
-- **[Stakeholder Insights](../04-stakeholder-insights/)** - Department-specific insights
 - **[Data Reference](../05-data-reference/)** - Master data and data dictionary
 - **[Reference](../06-reference/)** - Additional reference materials
 

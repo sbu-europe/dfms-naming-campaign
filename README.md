@@ -74,12 +74,6 @@ business-context/
 │   ├── phase-2/                   # 14 stories (high-level)
 │   └── phase-3/                   # 14 stories (high-level)
 │
-├── 04-stakeholder-insights/  # Discovery (5 files)
-│   ├── discovery-summary.md       # 5-phase discovery
-│   ├── pain-points.md             # 45+ pain points
-│   ├── expectations.md            # Stakeholder needs
-│   └── department-insights.md     # 7 departments
-│
 ├── 05-data-reference/        # Data (4 files)
 │   ├── data-dictionary.md         # 10 entities, 200+ fields
 │   ├── master-data/               # 6 master entities
@@ -185,7 +179,7 @@ This repository serves as the **domain context and interface contract layer** fo
 - **Approach**: Requirements from Nourish, architecture for scalability
 
 ### Documentation Scope
-- **Business Context**: Requirements, features, stakeholder insights, business processes
+- **Business Context**: Requirements, features, business processes
 - **Technical Context**: High-level architecture (C4 Level 1-2), workflows, ADRs, interface contracts
 
 > 💡 See [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) for product strategy and [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) for architecture
@@ -200,11 +194,9 @@ This repository serves as the **domain context and interface contract layer** fo
 - **[Completion Report](business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Official completion documentation
 
 ### For Business Stakeholders
-- ✅ **[Business Context](business-context/)** - Complete business domain knowledge (96 files)
+- ✅ **[Business Context](business-context/)** - Complete business domain knowledge
   - [Project Summary](business-context/00-overview/project-summary.md) - 5-minute overview
   - [Business Objectives](business-context/02-requirements/business-objectives.md) - Goals and KPIs
-  - [Pain Points](business-context/04-stakeholder-insights/pain-points.md) - Current challenges
-  - [Expectations](business-context/04-stakeholder-insights/expectations.md) - Stakeholder needs
 - [Business Proposals](source-documents/business-proposal/) - BS23 proposals for the system
 - [Meeting Minutes](source-documents/meeting-minutes/) - Chronological record of stakeholder discussions
 
