@@ -14,8 +14,8 @@
 ## 📁 Repository Structure
 
 - **`source-documents/`** - Original BA documents (DOCX, XLSX) - Do not modify
-- **`business-context/`** ✅ Complete - Business domain knowledge (96 files, 30,000+ lines)
-- **`technical-context/`** ✅ Complete - Architecture & contracts (82 files, 26,200+ lines)
+- **`business-context/`** ⏳ Needs Review - Business domain knowledge (96 files, 30,000+ lines)
+- **`technical-context/`** ⏳ Needs Review - Architecture & contracts (82 files, 26,200+ lines)
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
@@ -49,8 +49,8 @@ This repository serves as the **domain context and interface contract layer** fo
 
 | Section | Status | Files | Lines |
 |---------|--------|-------|-------|
-| **Business Context** | ✅ Complete | 96 | 30,000+ |
-| **Technical Context** | ✅ Complete | 82 | 26,200+ |
+| **Business Context** | ⏳ Needs Review | 96 | 30,000+ |
+| **Technical Context** | ⏳ Needs Review | 82 | 26,200+ |
 | **Source Documents** | ✅ Current | 40+ | - |
 
 ## 📝 Change Requests

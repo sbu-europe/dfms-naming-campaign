@@ -34,7 +34,7 @@ Follow this sequence to understand the repository:
    - Start with [00-overview/](./business-context/00-overview/)
    - Then explore by your role (see Quick Links below)
 
-5. **[technical-context/](./technical-context/)** ✅ **Complete**
+5. **[technical-context/](./technical-context/)** ⏳ **Needs Review**
    - High-level architecture (C4 Level 1-2)
    - API contracts (OpenAPI 3.0)
    - Event contracts (AsyncAPI 2.6.0)
@@ -253,8 +253,8 @@ grep -r "gate management" source-documents/
 
 | Section | Status | Files |
 |---------|--------|-------|
-| **Business Context** | ✅ 100% Complete | 96 files |
-| **Technical Context** | ⏳ Coming Soon | 0 files |
+| **Business Context** | ⏳ Needs Review | 96 files |
+| **Technical Context** | ⏳ Needs Review | 82 files |
 | **Source Documents** | ✅ Current | 40+ files |
 
 **For detailed metrics**, see **[README.md](./README.md#documentation-status)**
