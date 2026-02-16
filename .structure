@@ -4,7 +4,7 @@ DFMS-product-context/
 ├── 01-PRODUCT_VISION.md                         # Product vision and strategy
 ├── 02-REPOSITORY_PURPOSE.md                     # Repository architecture
 │
-├── business-context/                            # ✅ COMPLETE (v1.0.0)
+├── business-context/                            # ⏳ Needs Review (v1.0.0)
 │   ├── README.md
 │   ├── BUSINESS_CONTEXT_PLAN.md                 # Business context plan
 │   ├── BUSINESS_CONTEXT_COMPLETION_REPORT.md    # Completion report
@@ -36,12 +36,6 @@ DFMS-product-context/
 │   │   ├── phase-3/                             # High-level
 │   │   └── PHASE-2-3-IMPLEMENTATION-GUIDE.md
 │   │
-│   ├── 04-stakeholder-insights/                 # Discovery insights
-│   │   ├── discovery-summary.md
-│   │   ├── pain-points.md
-│   │   ├── expectations.md
-│   │   └── department-insights.md
-│   │
 │   ├── 05-data-reference/                       # Data models
 │   │   ├── data-dictionary.md
 │   │   ├── master-data/
@@ -50,7 +44,6 @@ DFMS-product-context/
 │   └── 06-reference/                            # Reference materials
 │       ├── version-history.md
 │       ├── quick-reference-guide.md
-│       ├── QUICK_REFERENCE.md
 │       ├── cross-reference-index.md
 │       └── source-document-mapping.md
 │
@@ -86,7 +79,7 @@ DFMS-product-context/
 │   │
 │   └── reviews/
 │
-└── technical-context/                           # ✅ COMPLETE (v1.0.0)
+└── technical-context/                           # ⏳ Needs Review (v1.0.0)
     ├── README.md                                # Technical context overview
     ├── TECHNICAL_CONTEXT_PLAN.md                # Technical context plan
     ├── TECHNICAL_CONTEXT_STATUS.md              # Status report
@@ -137,4 +130,10 @@ DFMS-product-context/
         ├── events/                            # 37 domain events (AsyncAPI 2.6.0)
         ├── data-models/                       # Entities, enums, value objects
         └── integration/                      # 6 external integration contracts
+│
+└── change-requests/                           # Change request management
+    ├── README.md                              # Change requests overview
+    ├── CR-TEMPLATE.md                         # CR template
+    ├── CR-INDEX.md                            # Change requests index
+    └── CR-001-phase-based-architecture.md     # Change requests
 

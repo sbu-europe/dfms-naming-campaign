@@ -12,6 +12,49 @@ This repository is the **single source of truth** for DFMS domain knowledge and 
 
 ---
 
+## 📁 Repository Structure
+
+```
+DFMS-product-context/
+├── README.md                                    # Main repository overview
+├── 00-START-HERE.md                             # This file - navigation guide
+├── 01-PRODUCT_VISION.md                         # Product vision and strategy
+├── 02-REPOSITORY_PURPOSE.md                     # Repository architecture
+│
+├── business-context/                            # ⏳ Needs Review
+│   ├── 00-overview/                             # Foundation (project summary, stakeholders, glossary)
+│   ├── 01-business-domain/                      # Domain knowledge (processes, rules, industry)
+│   ├── 02-requirements/                         # Requirements (objectives, personas, functional/NFR)
+│   ├── 03-features/                             # Features & user stories (62 Phase 1 stories)
+│   ├── 05-data-reference/                       # Data models (dictionary, master/transactional data)
+│   └── 06-reference/                            # Reference materials (version history, cross-refs)
+│
+├── technical-context/                           # ⏳ Needs Review
+│   ├── 00-overview/                             # Foundation (architecture summary, design principles)
+│   ├── 01-architecture/                        # Architecture (C4 Level 1-2, modules, data, integration)
+│   ├── 02-workflows/                           # Workflows (operational, user, exception handling)
+│   ├── 03-implementation/                      # Implementation (deployment, testing, migration)
+│   ├── 03-decisions/                           # ADRs (architectural decisions)
+│   ├── 04-diagrams/                            # Technical diagrams (37 diagrams)
+│   └── 05-contracts/                           # Interface contracts (APIs, events, data models)
+│
+├── source-documents/                           # Original BA documents (DOCX, XLSX)
+│   ├── requirements/                           # Product requirements
+│   ├── discovery-phase/                        # Discovery materials
+│   ├── business-proposal/                      # BS23 proposals
+│   ├── planning/                               # Feature lists, work breakdown
+│   ├── meeting-minutes/                        # Stakeholder meetings
+│   └── reviews/                                # Review documents
+│
+└── change-requests/                            # Change request management
+    ├── CR-INDEX.md                             # Change requests index
+    └── CR-001-phase-based-architecture.md      # Change requests
+```
+
+> 📋 For complete detailed structure, see [`.structure`](.structure) file
+
+---
+
 ## 📖 Reading Order (First Time Users)
 
 Follow this sequence to understand the repository:
