@@ -153,9 +153,7 @@ The DFMS business context documentation has been successfully completed, deliver
 - Engaged 30+ stakeholders across 7 departments
 - Identified and categorized 45+ pain points (P0-P3)
 - Quantified cost impact: BDT 4.6M annually
-- Documented expectations with quantified benefits: BDT 15.5M annual savings
 - Captured department-specific insights from all 7 departments
-- Expected Phase 1 improvement: 70%
 
 ---
 
@@ -264,46 +262,6 @@ The DFMS business context documentation has been successfully completed, deliver
 | **Navigation** | ⭐⭐⭐⭐⭐ | Complete indexes and cross-refs |
 | **LLM-Friendly** | ⭐⭐⭐⭐⭐ | Consistent structure and frontmatter |
 | **Implementation Ready** | ⭐⭐⭐⭐⭐ | Phase 1 fully documented |
-
----
-
-## 💰 Expected Business Impact
-
-### Cost Savings (Annual)
-
-| Category | Current Cost | Expected Reduction | Annual Savings |
-|----------|--------------|-------------------|----------------|
-| Transport operations | BDT 50M | 15% | BDT 7.5M |
-| Vendor payments | BDT 30M | 10% | BDT 3M |
-| Fuel costs | BDT 20M | 10% | BDT 2M |
-| Maintenance | BDT 10M | 15% | BDT 1.5M |
-| Administrative | BDT 5M | 30% | BDT 1.5M |
-| **TOTAL** | **BDT 115M** | - | **BDT 15.5M/year** |
-
-### Productivity Gains (Annual)
-
-| Area | Current Time | Expected Time | Time Saved | Annual Impact |
-|------|--------------|---------------|------------|---------------|
-| Transport planning | 3 hrs/day | 30 min/day | 2.5 hrs/day | 625 hrs/year |
-| Manual tracking | 5 hrs/day | 30 min/day | 4.5 hrs/day | 1,125 hrs/year |
-| Vendor bidding | 2 hrs/day | 30 min/day | 1.5 hrs/day | 375 hrs/year |
-| QC documentation | 3 hrs/day | 1 hr/day | 2 hrs/day | 500 hrs/year |
-| Report generation | 2 days/month | Real-time | 24 days/year | 192 hrs/year |
-| **TOTAL** | - | - | - | **2,817 hrs/year** |
-
-**Value**: At BDT 500/hr average = **BDT 1,408,500/year**
-
-**Combined Annual Benefit**: **BDT 16.9M**
-
-### Quality Improvements
-
-| Metric | Current | Target | Improvement |
-|--------|---------|--------|-------------|
-| Data accuracy | 70% | 95% | +25% |
-| On-time delivery | 75% | 90% | +15% |
-| QC compliance | 80% | 98% | +18% |
-| Customer satisfaction | 70% | 90% | +20% |
-| Vendor performance | 75% | 90% | +15% |
 
 ---
 
@@ -550,7 +508,6 @@ The DFMS business context documentation is **100% complete** and represents a co
 - ✅ 62 Phase 1 user stories production-ready
 - ✅ Complete data model with 200+ fields
 - ✅ 1,500+ cross-references for traceability
-- ✅ Expected annual benefit: BDT 16.9M
 
 **The documentation is ready. Let's build DFMS!** 🚀
 

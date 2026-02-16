@@ -60,9 +60,6 @@ updated: 2026-02-11
 ### Pain Points & Impact
 - **Manual Work Time Lost**: 2,400+ hours/year
 - **Annual Cost Impact**: BDT 4.6M
-- **Expected Phase 1 Savings**: BDT 15.5M/year
-- **Productivity Improvement**: +70%
-- **Cost Reduction**: 15-20%
 
 ---
 
@@ -103,7 +100,7 @@ updated: 2026-02-11
 | Group | Count | Top Priority | Expected Benefit |
 |-------|-------|--------------|------------------|
 | **Management** | 3 | Strategic visibility | Data-driven decisions |
-| **Transport Operations** | 8 | Real-time tracking | 70% time savings |
+| **Transport Operations** | 8 | Real-time tracking | Improved visibility |
 | **Procurement** | 5 | Vendor bidding | Transparent process |
 | **Distribution/Sales** | 6 | Capacity validation | No wasted trips |
 | **QA/QC** | 7 | Digital workflow | 60% faster clearance |
@@ -191,25 +188,6 @@ TR → TO → Trip → QC
 **Total Business Rules**: 112 (see [Business Rules](../01-business-domain/business-rules/business-rules.md))
 
 ---
-
-## 📈 Success Metrics Quick Reference
-
-### Phase 1 Targets
-
-| Metric | Current | Target | Improvement |
-|--------|---------|--------|-------------|
-| **Operational Efficiency** |
-| Manual tracking time | 4-5 hrs/day | 30 min/day | 90% reduction |
-| Trip planning time | 2-3 hrs/day | 30 min/day | 83% reduction |
-| QC clearance time | 2 hrs | 30 min | 75% reduction |
-| **Visibility** |
-| Vehicle tracking | 40% | 100% | +60% |
-| Real-time data | 0% | 90% | +90% |
-| **Cost** |
-| Transport cost | Baseline | -15% | BDT 7.5M savings |
-| **Quality** |
-| Data accuracy | 70% | 95% | +25% |
-| On-time delivery | 75% | 90% | +15% |
 
 ---
 

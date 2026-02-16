@@ -49,7 +49,6 @@ Follow this sequence to understand the repository:
 - [Business Objectives](./business-context/02-requirements/business-objectives.md) - Goals and KPIs
 - [Feature Overview](./business-context/03-features/feature-overview.md) - All features at a glance
 - [Phase 1 Summary](./business-context/03-features/phase-1/phase-1-summary.md) - 62 user stories
-- [Expected Impact](./business-context/BUSINESS_CONTEXT_COMPLETION_REPORT.md#expected-business-impact) - BDT 15.5M savings
 
 ### **💻 Engineers**
 - [Phase 1 User Stories](./business-context/03-features/phase-1/user-stories/) - 62 production-ready stories

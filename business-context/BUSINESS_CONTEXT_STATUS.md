@@ -150,7 +150,6 @@ status: in-progress
 - ✅ Expected resolution by phase mapped
 - ✅ Stakeholder expectations by 8 groups
 - ✅ Success criteria for all 3 phases
-- ✅ Quantified benefits: BDT 15.5M annual savings
 - ✅ Department-specific insights (7 departments)
 
 **Source Documents Processed**:

@@ -275,31 +275,26 @@ tags: [discovery, stakeholder-engagement, requirements-gathering]
    - Move from manual to digital processes
    - Eliminate paper-based workflows
    - Centralized data management
-   - **Expected Impact**: 70% time savings
 
 2. **Real-time Tracking** (Priority: Critical)
    - GPS tracking for all vehicles (own + vendor)
    - Live trip status updates
    - Real-time dashboard
-   - **Expected Impact**: 90% visibility improvement
 
 3. **Mobile Applications** (Priority: High)
    - Driver mobile app for trip updates
    - QC mobile app for inspections
    - Vendor mobile app for bidding
-   - **Expected Impact**: 60% faster updates
 
 4. **Automated Workflows** (Priority: High)
    - Automated requisition approval
    - Auto-TO creation from TR
    - Automated vendor selection
-   - **Expected Impact**: 50% faster processing
 
 5. **Analytics & Reporting** (Priority: Medium)
    - Automated daily/weekly/monthly reports
    - Performance dashboards
    - Trend analysis
-   - **Expected Impact**: Data-driven decisions
 
 ---
 

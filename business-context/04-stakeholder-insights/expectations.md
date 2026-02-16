@@ -471,46 +471,6 @@ Stakeholders across 7 departments have articulated clear expectations for DFMS. 
 
 ---
 
-## 📈 Expected Benefits (Quantified)
-
-### Productivity Gains
-
-| Area | Current Time | Expected Time | Savings | Annual Impact |
-|------|--------------|---------------|---------|---------------|
-| Transport planning | 3 hrs/day | 30 min/day | 2.5 hrs/day | 625 hrs/year |
-| Manual tracking | 5 hrs/day | 30 min/day | 4.5 hrs/day | 1,125 hrs/year |
-| Vendor bidding | 2 hrs/day | 30 min/day | 1.5 hrs/day | 375 hrs/year |
-| QC documentation | 3 hrs/day | 1 hr/day | 2 hrs/day | 500 hrs/year |
-| Report generation | 2 days/month | Real-time | 24 days/year | 192 hrs/year |
-| **TOTAL** | - | - | - | **2,817 hrs/year** |
-
-**Value**: At BDT 500/hr average, savings = **BDT 1,408,500/year**
-
----
-
-### Cost Reductions
-
-| Category | Current Annual Cost | Expected Reduction | Annual Savings |
-|----------|---------------------|-------------------|----------------|
-| Transport operations | BDT 50M | 15% | BDT 7.5M |
-| Vendor payments | BDT 30M | 10% | BDT 3M |
-| Fuel costs | BDT 20M | 10% | BDT 2M |
-| Maintenance | BDT 10M | 15% | BDT 1.5M |
-| Administrative | BDT 5M | 30% | BDT 1.5M |
-| **TOTAL** | **BDT 115M** | - | **BDT 15.5M/year** |
-
----
-
-### Quality Improvements
-
-| Metric | Current | Expected | Improvement |
-|--------|---------|----------|-------------|
-| Data accuracy | 70% | 95% | +25% |
-| On-time delivery | 75% | 90% | +15% |
-| QC compliance | 80% | 98% | +18% |
-| Customer satisfaction | 70% | 90% | +20% |
-| Vendor performance | 75% | 90% | +15% |
-
 ---
 
 ## 🎓 Stakeholder Quotes
@@ -555,6 +515,5 @@ Stakeholders across 7 departments have articulated clear expectations for DFMS. 
 **Last Updated**: February 2026  
 **Status**: Complete  
 **Stakeholders Consulted**: 30+  
-**Departments Covered**: 7  
-**Expected ROI**: BDT 15.5M annual savings + 2,817 hours productivity gain
+**Departments Covered**: 7
 
