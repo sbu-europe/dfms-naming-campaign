@@ -46,6 +46,21 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 
 ## 🏗️ Technology Stack
 
+### Phase 1 vs Phase 2+ Overview
+
+| Component | Phase 1 | Phase 2+ |
+|-----------|---------|----------|
+| **Frontend** | Django Templates + Bootstrap 5 | Vue.js 3 SPA |
+| **API Gateway** | Nginx (reverse proxy) | Kong/AWS API Gateway |
+| **Message Queue** | Redis (Celery broker) | RabbitMQ/AWS SQS |
+| **Deployment** | Docker Compose, Single EC2 | Kubernetes/ECS |
+| **Search** | PostgreSQL full-text | Elasticsearch |
+| **Multi-Tenancy** | Schema-per-tenant | Schema-per-tenant → Row-level security (optional) |
+
+**See**: [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md) for Phase 1 rationale
+
+---
+
 ### Backend Technologies
 
 #### **Programming Language: Python 3.x**
@@ -105,14 +120,39 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 
 ### Frontend Technologies
 
-#### **Framework: Vue.js 3.x**
+#### **Phase 1: Django Templates + Bootstrap 5**
 
 **Rationale**:
-- ✅ Progressive framework
-- ✅ Easy learning curve
-- ✅ Component-based architecture
-- ✅ Good performance
-- ✅ Strong ecosystem
+- ✅ Faster development (no separate build)
+- ✅ Lower complexity
+- ✅ Cost-effective (no separate hosting)
+- ✅ Good for small teams
+- ✅ Tight integration with Django backend
+
+**Technology Stack**:
+- Django Templates (server-side rendering)
+- Bootstrap 5 (UI components)
+- Vanilla JavaScript + Alpine.js (reactivity)
+- Django Compressor (asset optimization)
+
+**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
+
+---
+
+#### **Phase 2+: Vue.js 3 SPA**
+
+**Rationale**:
+- ✅ Better separation of concerns
+- ✅ Modern SPA architecture
+- ✅ Better for multiple client types
+- ✅ Industry standard
+- ✅ Better user experience
+
+**Technology Stack**:
+- Vue.js 3.x
+- Pinia/Vuex (state management)
+- Modern component library
+- Vite (build tool)
 
 **Features Used**:
 - Vue Router for navigation
@@ -309,36 +349,64 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 
 ### Integration Technologies
 
-#### **Message Queue: RabbitMQ / AWS SQS**
+#### **Message Queue**
 
-**Rationale**:
+**Phase 1**: Redis (used as Celery broker)  
+**Phase 2+**: RabbitMQ / AWS SQS
+
+**Phase 1 Rationale**:
+- ✅ Shared with cache (cost-effective)
+- ✅ Sufficient for Celery tasks
+- ✅ Simple setup
+- ✅ Lower infrastructure costs
+
+**Phase 1 Use Cases**:
+- Celery task queue (background jobs)
+- Basic event distribution
+
+**Phase 2+ Rationale**:
 - ✅ Reliable message delivery
 - ✅ Asynchronous processing
 - ✅ Event-driven architecture
 - ✅ Scalable
 
-**Use Cases**:
+**Phase 2+ Use Cases**:
 - Event distribution between modules
 - Background job queue
 - Integration with external systems
 - Notification delivery
 
-**Options**:
+**Phase 2+ Options**:
 - **RabbitMQ**: Self-hosted, feature-rich
 - **AWS SQS**: Managed, simpler, cost-effective
 
 ---
 
-#### **API Gateway: Kong / AWS API Gateway**
+#### **API Gateway**
 
-**Rationale**:
+**Phase 1**: Nginx (reverse proxy)  
+**Phase 2+**: Kong / AWS API Gateway
+
+**Phase 1 Rationale**:
+- ✅ Simple reverse proxy
+- ✅ SSL termination
+- ✅ Basic routing
+- ✅ Cost-effective (no separate service)
+
+**Phase 1 Features**:
+- Basic request routing
+- SSL termination
+- Static file serving
+- Load balancing (if multiple instances)
+
+**Phase 2+ Rationale**:
 - ✅ Single entry point
 - ✅ Authentication & authorization
 - ✅ Rate limiting
 - ✅ Request routing
 - ✅ API versioning
 
-**Features**:
+**Phase 2+ Features**:
 - JWT authentication
 - Rate limiting per tenant
 - Request/response transformation
@@ -425,22 +493,22 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 
 ## 📊 Technology Matrix
 
-| Layer | Technology | Purpose | Phase |
-|-------|------------|---------|-------|
-| **Backend** | Python + Django | API & Business Logic | Phase 1 |
-| **Frontend** | Vue.js 3 | Web Portal | Phase 1 |
-| **Mobile** | Flutter | iOS + Android Apps | Phase 1 |
-| **Database** | PostgreSQL | Primary Data Store | Phase 1 |
-| **Cache** | Redis | Session & Caching | Phase 1 |
-| **File Storage** | AWS S3 | Object Storage | Phase 1 |
-| **Message Queue** | RabbitMQ/SQS | Async Processing | Phase 1 |
-| **API Gateway** | Kong/AWS | API Management | Phase 1 |
-| **Search** | Elasticsearch | Full-text Search | Phase 2 |
-| **Orchestration** | Kubernetes | Container Orchestration | Phase 2 |
-| **Monitoring** | Prometheus + Grafana | Metrics & Alerts | Phase 1 |
-| **Logging** | ELK Stack | Log Management | Phase 1 |
-| **CI/CD** | GitHub Actions | Automation | Phase 1 |
-| **Error Tracking** | Sentry | Error Monitoring | Phase 1 |
+| Layer | Phase 1 | Phase 2+ | Purpose |
+|-------|---------|----------|---------|
+| **Backend** | Python + Django | Python + Django | API & Business Logic |
+| **Frontend** | Django Templates + Bootstrap 5 | Vue.js 3 SPA | Web Portal |
+| **Mobile** | Flutter | Flutter | iOS + Android Apps |
+| **Database** | PostgreSQL | PostgreSQL | Primary Data Store |
+| **Cache** | Redis | Redis | Session & Caching |
+| **File Storage** | AWS S3 | AWS S3 | Object Storage |
+| **Message Queue** | Redis (Celery broker) | RabbitMQ/SQS | Async Processing |
+| **API Gateway** | Nginx (reverse proxy) | Kong/AWS API Gateway | API Management |
+| **Deployment** | Docker Compose, Single EC2 | Kubernetes/ECS | Container Orchestration |
+| **Search** | PostgreSQL full-text | Elasticsearch | Full-text Search |
+| **Monitoring** | CloudWatch | Prometheus + Grafana | Metrics & Alerts |
+| **Logging** | CloudWatch Logs | ELK Stack | Log Management |
+| **CI/CD** | GitHub Actions | GitHub Actions | Automation |
+| **Error Tracking** | Sentry | Sentry | Error Monitoring |
 
 ---
 

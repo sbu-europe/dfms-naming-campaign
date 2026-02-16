@@ -35,6 +35,17 @@ Template for creating new ADRs.
   - OpenAPI/AsyncAPI specifications
   - Centralized contracts repository
 
+- **[ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md)**
+  - Phase 1 cost-optimized monolithic implementation
+  - Django modular monolith with clear boundaries
+  - Single EC2 deployment, ~$107/month
+  - Migration path to microservices
+
+- **[ADR-005: Phase 1 Frontend Approach](./adr-005-phase-1-frontend-approach.md)**
+  - Django Templates + Bootstrap 5 for Phase 1
+  - Server-side rendering, no separate build
+  - Migration path to Vue.js 3 SPA in Phase 2
+
 ### **Technology Decisions**
 
 - **[ADR-100: Technology Stack](./adr-100-technology-stack.md)**
@@ -60,6 +71,8 @@ Template for creating new ADRs.
 | [ADR-001](./adr-001-microservices-architecture.md) | Microservices Architecture | ✅ Accepted | architecture, scalability |
 | [ADR-002](./adr-002-event-driven-communication.md) | Event-Driven Communication | ✅ Accepted | architecture, events |
 | [ADR-003](./adr-003-api-first-design.md) | API-First Design | ✅ Accepted | api, contracts |
+| [ADR-004](./adr-004-phase-1-modular-monolith.md) | Phase 1 Modular Monolith | ✅ Accepted | architecture, phase-1, implementation |
+| [ADR-005](./adr-005-phase-1-frontend-approach.md) | Phase 1 Frontend Approach | ✅ Accepted | frontend, phase-1, implementation |
 | [ADR-100](./adr-100-technology-stack.md) | Technology Stack | ✅ Accepted | technology, stack |
 | [ADR-200](./adr-200-integration-patterns.md) | Integration Patterns | ✅ Accepted | integration, patterns |
 

@@ -15,6 +15,64 @@ Phase 1 deploys the core DFMS modules that form the foundation of the system. Th
 
 ---
 
+## Phase 1: Cost-Optimized Deployment
+
+### Infrastructure Overview
+
+**Approach**: Single EC2 instance with Docker Compose
+
+**Components**:
+- Single EC2 instance (t3.large)
+- RDS PostgreSQL (db.t3.small)
+- ElastiCache Redis (cache.t3.micro)
+- S3 for file storage
+- Nginx reverse proxy (no separate API Gateway)
+- No Load Balancer (Nginx handles routing)
+
+**Monthly Cost**: ~$107/month
+
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Route 53 (DNS)                      │
+└─────────────────────────────────────────────────────────┘
+                            │
+┌─────────────────────────────────────────────────────────┐
+│            EC2 Instance (t3.large)                      │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │               Nginx (Port 80/443)                │   │
+│  ├─────────────────────────────────────────────────┤   │
+│  │         Docker Containers                        │   │
+│  │  ┌──────────────┐  ┌──────────────┐            │   │
+│  │  │   Django     │  │   Celery     │            │   │
+│  │  │   Gunicorn   │  │   Workers    │            │   │
+│  │  └──────────────┘  └──────────────┘            │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+                     │                │
+        ┌────────────┴───┐    ┌──────┴──────┐
+        │  RDS PostgreSQL │    │ ElastiCache │
+        │   (db.t3.small) │    │    Redis    │
+        │                 │    │ (cache.t3.  │
+        │                 │    │   micro)    │
+        └─────────────────┘    └─────────────┘
+```
+
+**Rationale**:
+- Cost-effective for single tenant (Nourish)
+- Simpler operations and deployment
+- Sufficient for 200-300 users
+- Clear migration path to Phase 2
+
+**See**: [ADR-004: Phase 1 Modular Monolith](../../03-decisions/adr-004-phase-1-modular-monolith.md)
+
+### Phase 2 Evolution
+
+See [Phase 2 Deployment](../deployment-strategy/README.md) for Kubernetes/ECS approach.
+
+---
+
 ## 🎯 Deployment Objectives
 
 1. **Establish Core Workflow**
@@ -247,27 +305,45 @@ graph TD
 
 ## 🏗️ Infrastructure Requirements
 
-### Development Environment
-- **Servers**: 2-3 servers (API, Worker, Database)
-- **Database**: PostgreSQL (single instance)
-- **Cache**: Redis (single instance)
+### Phase 1: Cost-Optimized Infrastructure
+
+#### Development Environment
+- **Server**: Single EC2 instance (t3.medium) or local Docker Compose
+- **Database**: PostgreSQL (single instance, local or RDS)
+- **Cache**: Redis (single instance, local or ElastiCache)
 - **Storage**: S3 (development bucket)
-- **Monitoring**: Basic logging
+- **Monitoring**: Basic logging (CloudWatch or local)
 
-### Staging Environment
-- **Servers**: 3-4 servers (API, Worker, Database, Cache)
-- **Database**: PostgreSQL (primary + read replica)
-- **Cache**: Redis (single instance)
+#### Staging Environment
+- **Server**: Single EC2 instance (t3.large)
+- **Database**: RDS PostgreSQL (db.t3.small)
+- **Cache**: ElastiCache Redis (cache.t3.micro)
 - **Storage**: S3 (staging bucket)
-- **Monitoring**: Prometheus + Grafana
+- **Monitoring**: CloudWatch Logs + basic metrics
+- **Reverse Proxy**: Nginx (on EC2 instance)
 
-### Production Environment
-- **Servers**: 5+ servers (API cluster, Worker cluster)
+#### Production Environment
+- **Server**: Single EC2 instance (t3.large)
+- **Database**: RDS PostgreSQL (db.t3.small)
+- **Cache**: ElastiCache Redis (cache.t3.micro)
+- **Storage**: S3 (production bucket)
+- **Monitoring**: CloudWatch Logs + Metrics
+- **Reverse Proxy**: Nginx (on EC2 instance)
+- **DNS**: Route 53
+- **SSL**: Let's Encrypt or AWS Certificate Manager
+
+**Note**: Phase 1 uses a simplified infrastructure to minimize costs. Phase 2 will evolve to Kubernetes/ECS with auto-scaling and load balancing.
+
+### Phase 2+ Infrastructure (Future)
+
+**Production Environment**:
+- **Servers**: Kubernetes cluster or ECS (API cluster, Worker cluster)
 - **Database**: PostgreSQL (primary + 2 read replicas)
 - **Cache**: Redis cluster
 - **Storage**: S3 (production bucket)
-- **Monitoring**: Full observability stack
+- **Monitoring**: Full observability stack (Prometheus + Grafana)
 - **Load Balancer**: Application Load Balancer
+- **API Gateway**: Kong or AWS API Gateway
 - **CDN**: CloudFront
 
 ---

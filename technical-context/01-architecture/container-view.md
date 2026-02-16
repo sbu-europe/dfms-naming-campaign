@@ -39,9 +39,16 @@ DFMS consists of the following containers:
 
 ### 1. Web Application
 
-**Technology**: Vue.js 3 (Single Page Application)
+**Phase 1**: Django Templates + Bootstrap 5 (server-side rendering)  
+**Phase 2+**: Vue.js 3 (Single Page Application)
+
+**Technology**: 
+- Phase 1: Django Templates + Bootstrap 5
+- Phase 2+: Vue.js 3 (SPA)
 
 **Purpose**: Administrative web portal for internal users
+
+**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
 
 **Users**:
 - Logistics Coordinators
@@ -52,21 +59,28 @@ DFMS consists of the following containers:
 - QA/QC Managers
 - System Administrators
 
-**Responsibilities**:
-- Render user interface
+**Phase 1 Responsibilities**:
+- Server-side rendering (Django Templates)
+- Handle form submissions
+- Server-side validation
+- Session management (Django sessions)
+- Static asset serving
+
+**Phase 2+ Responsibilities**:
+- Render user interface (SPA)
 - Handle user interactions
 - Make API calls to backend
 - Real-time updates via WebSocket
 - Client-side validation
-- Session management
+- Session management (JWT tokens)
 
 **Communication**:
-- **→ API Gateway**: HTTPS REST calls, WebSocket
-- **→ CDN**: Static assets (JS, CSS, images)
+- **Phase 1**: Direct to API Server (same Django app)
+- **Phase 2+**: → API Gateway (HTTPS REST calls, WebSocket)
 
 **Deployment**:
-- Static files served via CDN (CloudFront)
-- SPA hosted on S3 or web server
+- **Phase 1**: Part of Django application (no separate deployment)
+- **Phase 2+**: Static files served via CDN (CloudFront), SPA hosted on S3 or web server
 
 ---
 
@@ -183,11 +197,22 @@ api_server/
 
 ### 5. API Gateway
 
-**Technology**: Kong / AWS API Gateway
+**Phase 1**: Nginx reverse proxy (basic routing, SSL termination)  
+**Phase 2+**: API Gateway (Kong/AWS API Gateway)
+
+**Technology**: 
+- Phase 1: Nginx (reverse proxy)
+- Phase 2+: Kong / AWS API Gateway
 
 **Purpose**: Single entry point for all API requests
 
-**Responsibilities**:
+**Phase 1 Responsibilities**:
+- Basic request routing
+- SSL termination
+- Static file serving
+- Load balancing (if multiple Django instances)
+
+**Phase 2+ Responsibilities**:
 - Request routing
 - Authentication (JWT validation)
 - Rate limiting (per tenant)
@@ -196,7 +221,7 @@ api_server/
 - Logging and monitoring
 - CORS handling
 
-**Features**:
+**Phase 2+ Features**:
 - **Authentication**: JWT token validation
 - **Authorization**: Route-level permissions
 - **Rate Limiting**: Prevent abuse
@@ -205,13 +230,12 @@ api_server/
 - **SSL Termination**: HTTPS handling
 
 **Communication**:
-- **← Web App**: HTTPS requests
-- **← Mobile Apps**: HTTPS requests
-- **→ API Server**: Forward requests
+- **Phase 1**: ← Web App (Django Templates), ← Mobile Apps → API Server
+- **Phase 2+**: ← Web App (SPA), ← Mobile Apps → API Server
 
 **Deployment**:
-- Managed service (AWS API Gateway) or
-- Self-hosted (Kong in containers)
+- **Phase 1**: Nginx on same EC2 instance or separate container
+- **Phase 2+**: Managed service (AWS API Gateway) or Self-hosted (Kong in containers)
 
 ---
 
@@ -228,17 +252,24 @@ api_server/
 - **Audit Logs**: All system actions
 
 **Schema Organization**:
+
+**Phase 1 (Current)**: Schema per Tenant
 ```
-Option 1: Schema per Tenant
 - tenant_1 schema
 - tenant_2 schema
 - shared schema (for system data)
-
-Option 2: Row-Level Security
-- Single schema
-- tenant_id column in all tables
-- RLS policies for isolation
 ```
+
+**Rationale for Phase 1**:
+- Complete data isolation
+- Simpler security model
+- Easier backup/restore per tenant
+- Clear tenant boundaries
+
+**Future Consideration (Phase 2+)**: Row-Level Security
+- Single schema with tenant_id column
+- RLS policies for isolation
+- May be considered if schema-per-tenant becomes limiting
 
 **Features Used**:
 - ACID transactions
@@ -297,14 +328,23 @@ Option 2: Row-Level Security
 
 ### 8. Message Queue
 
-**Technology**: RabbitMQ / AWS SQS
+**Phase 1**: Redis (used as Celery broker)  
+**Phase 2+**: RabbitMQ / AWS SQS
+
+**Technology**: 
+- Phase 1: Redis (shared with cache)
+- Phase 2+: RabbitMQ / AWS SQS
 
 **Purpose**: Asynchronous message passing
 
-**Use Cases**:
-- **Task Queue**: Background jobs for Celery
-- **Event Bus**: Domain events between modules
-- **Integration Queue**: External system messages
+**Phase 1 Use Cases**:
+- Celery task queue (background jobs)
+- Basic event distribution
+
+**Phase 2+ Use Cases**:
+- Task Queue: Background jobs for Celery
+- Event Bus: Domain events between modules
+- Integration Queue: External system messages
 
 **Queues**:
 ```

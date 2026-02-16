@@ -168,15 +168,94 @@ This repository documents architecture at **C4 Level 1-2** only:
 
 ---
 
+## 🚀 Implementation Phases
+
+DFMS architecture evolves through distinct phases to balance cost, complexity, and scalability:
+
+### Phase 1: Modular Monolith (Current - Nourish Launch)
+**Approach**: Cost-optimized monolithic implementation
+
+**Characteristics**:
+- **Architecture**: Modular monolith (Django apps with clear boundaries)
+- **Frontend**: Django Templates + Bootstrap 5 (server-side rendering)
+- **Infrastructure**: Single EC2 instance, Nginx reverse proxy
+- **Message Queue**: Redis (Celery broker)
+- **Deployment**: Docker Compose, manual deployment
+- **Target**: Single tenant, 200-300 users
+- **Cost**: ~$107/month
+
+**Rationale**:
+- Faster time-to-market
+- Lower infrastructure costs
+- Simpler operations
+- Clear module boundaries for future extraction
+
+**See**: [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)
+
+---
+
+### Phase 2: Microservices-Ready
+**Approach**: Extract high-traffic modules to microservices
+
+**Characteristics**:
+- **Architecture**: Hybrid (some modules as services)
+- **Frontend**: Vue.js 3 SPA
+- **Infrastructure**: Kubernetes/ECS, API Gateway
+- **Message Queue**: RabbitMQ/AWS SQS
+- **Deployment**: CI/CD, auto-scaling
+- **Target**: Multi-tenant, 1000+ users
+
+**Migration Strategy**:
+- Extract high-traffic modules first
+- Maintain API contracts for smooth transition
+- Gradual migration path
+
+**See**: [ADR-001: Microservices Architecture](../03-decisions/adr-001-microservices-architecture.md)
+
+---
+
+### Phase 3: Full Microservices
+**Approach**: Complete microservices architecture
+
+**Characteristics**:
+- **Architecture**: All modules as independent services
+- **Infrastructure**: Kubernetes, service mesh
+- **Target**: 50+ tenants, 10,000+ users
+
+**Benefits**:
+- Independent scaling per module
+- Technology flexibility
+- Complete separation of concerns
+
+---
+
+### Phase Comparison
+
+| Characteristic | Phase 1 | Phase 2+ |
+|----------------|---------|----------|
+| **Architecture Style** | Modular Monolith | Microservices-ready → Microservices |
+| **Frontend** | Django Templates + Bootstrap 5 | Vue.js 3 SPA |
+| **API Gateway** | Nginx (reverse proxy) | Kong/AWS API Gateway |
+| **Message Queue** | Redis (Celery broker) | RabbitMQ/AWS SQS |
+| **Deployment** | Single EC2, Docker Compose | Kubernetes/ECS, auto-scaling |
+| **Multi-Tenancy** | Schema-per-tenant | Schema-per-tenant → Row-level security (optional) |
+| **Cost** | ~$107/month | ~$500+/month |
+| **Target Users** | 200-300 | 1000+ → 10,000+ |
+
+---
+
 ## 🔧 Technical Building Blocks
 
 ### Application Layer
 
 #### **Web Portal**
-- **Technology**: Vue.js (SPA)
+- **Phase 1**: Django Templates + Bootstrap 5 (server-side rendering)
+- **Phase 2+**: Vue.js 3 (SPA)
 - **Purpose**: Administrative interface for internal users
 - **Users**: Logistics coordinators, dispatchers, fleet managers, finance team
 - **Features**: Full DFMS functionality
+
+**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
 
 #### **Mobile Applications**
 - **Technology**: Flutter (iOS + Android)
@@ -187,13 +266,23 @@ This repository documents architecture at **C4 Level 1-2** only:
   - **Vendor App**: Bidding, trip management, invoicing
 
 #### **API Gateway**
+- **Phase 1**: Nginx reverse proxy (basic routing, SSL termination)
+- **Phase 2+**: API Gateway (Kong/AWS API Gateway)
 - **Purpose**: Single entry point for all API requests
-- **Features**:
-  - Authentication and authorization
-  - Rate limiting
-  - Request routing
-  - API versioning
-  - Logging and monitoring
+
+**Phase 1 Features**:
+- Basic request routing
+- SSL termination
+- Static file serving
+
+**Phase 2+ Features**:
+- Authentication and authorization (JWT validation)
+- Rate limiting (per tenant)
+- Request routing
+- Request/response transformation
+- API versioning
+- Logging and monitoring
+- CORS handling
 
 ---
 
@@ -202,7 +291,15 @@ This repository documents architecture at **C4 Level 1-2** only:
 #### **Primary Database**
 - **Technology**: PostgreSQL
 - **Purpose**: Transactional data, master data
-- **Strategy**: Tenant-isolated schemas or row-level security
+- **Phase 1 Strategy**: Schema-per-tenant isolation
+  - Complete data isolation
+  - Simpler security model
+  - Easier backup/restore per tenant
+  - Clear tenant boundaries
+- **Phase 2+ Consideration**: Row-Level Security (optional)
+  - Single schema with tenant_id column
+  - RLS policies for isolation
+  - May be considered if schema-per-tenant becomes limiting
 - **Features**: ACID compliance, relational integrity
 
 #### **Cache Layer**
@@ -234,12 +331,18 @@ This repository documents architecture at **C4 Level 1-2** only:
 ### Integration Layer
 
 #### **Message Queue**
-- **Technology**: RabbitMQ / AWS SQS
+- **Phase 1**: Redis (used as Celery broker)
+- **Phase 2+**: RabbitMQ / AWS SQS
 - **Purpose**: Asynchronous processing, event distribution
-- **Use Cases**:
-  - Background jobs (report generation, email sending)
-  - Event-driven module communication
-  - Integration with external systems
+
+**Phase 1 Use Cases**:
+- Celery task queue (background jobs)
+- Basic event distribution
+
+**Phase 2+ Use Cases**:
+- Task Queue: Background jobs for Celery
+- Event Bus: Domain events between modules
+- Integration Queue: External system messages
 
 #### **External Integrations**
 - **GPS/VTS**: Real-time vehicle tracking

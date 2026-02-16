@@ -288,6 +288,18 @@ This repository is maintained by the DFMS project team.
 - **Technical context**: ✅ Complete - Update contracts and ADRs as architecture evolves
 - **Diagrams**: ✅ Complete - Add new diagrams as needed for new features or integrations
 
+## 📝 Change Requests
+
+Change requests for modifications to this repository are managed centrally:
+
+- **[Change Requests Index](change-requests/CR-INDEX.md)** - View all change requests
+- **[CR Template](change-requests/CR-TEMPLATE.md)** - Template for creating new CRs
+- **[Change Requests README](change-requests/README.md)** - How to create and manage CRs
+
+**Current Status**: 1 CR implemented (CR-001: Phase-Based Architecture Documentation)
+
+---
+
 ## 📊 Documentation Status
 
 | Section | Status | Progress | Files | Lines |
