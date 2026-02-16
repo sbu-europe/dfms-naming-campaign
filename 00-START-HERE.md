@@ -14,6 +14,8 @@ This repository is the **single source of truth** for DFMS domain knowledge and 
 
 ## 📁 Repository Structure
 
+### High-Level Overview
+
 ```
 DFMS-product-context/
 ├── README.md                                    # Main repository overview
@@ -22,33 +24,119 @@ DFMS-product-context/
 ├── 02-REPOSITORY_PURPOSE.md                     # Repository architecture
 │
 ├── business-context/                            # ⏳ Needs Review
-│   ├── 00-overview/                             # Foundation (project summary, stakeholders, glossary)
-│   ├── 01-business-domain/                      # Domain knowledge (processes, rules, industry)
-│   ├── 02-requirements/                         # Requirements (objectives, personas, functional/NFR)
-│   ├── 03-features/                             # Features & user stories (62 Phase 1 stories)
-│   ├── 05-data-reference/                       # Data models (dictionary, master/transactional data)
-│   └── 06-reference/                            # Reference materials (version history, cross-refs)
-│
 ├── technical-context/                           # ⏳ Needs Review
-│   ├── 00-overview/                             # Foundation (architecture summary, design principles)
-│   ├── 01-architecture/                        # Architecture (C4 Level 1-2, modules, data, integration)
-│   ├── 02-workflows/                           # Workflows (operational, user, exception handling)
-│   ├── 03-implementation/                      # Implementation (deployment, testing, migration)
-│   ├── 03-decisions/                           # ADRs (architectural decisions)
-│   ├── 04-diagrams/                            # Technical diagrams (37 diagrams)
-│   └── 05-contracts/                           # Interface contracts (APIs, events, data models)
-│
 ├── source-documents/                           # Original BA documents (DOCX, XLSX)
-│   ├── requirements/                           # Product requirements
-│   ├── discovery-phase/                        # Discovery materials
-│   ├── business-proposal/                      # BS23 proposals
-│   ├── planning/                               # Feature lists, work breakdown
-│   ├── meeting-minutes/                        # Stakeholder meetings
-│   └── reviews/                                # Review documents
-│
 └── change-requests/                            # Change request management
-    ├── CR-INDEX.md                             # Change requests index
-    └── CR-001-phase-based-architecture.md      # Change requests
+```
+
+### `business-context/` Structure
+
+```
+business-context/
+├── 00-overview/                             # Foundation
+│   ├── project-summary.md                   # Executive summary
+│   ├── business-context.md                 # Domain knowledge
+│   ├── stakeholders.md                     # 21 personas
+│   └── glossary.md                         # 50+ terms
+│
+├── 01-business-domain/                      # Domain knowledge
+│   ├── industry-context/                   # Logistics industry
+│   ├── business-processes/                 # 7 core processes
+│   └── business-rules/                     # 112 rules
+│
+├── 02-requirements/                         # Requirements
+│   ├── business-objectives.md              # Goals and KPIs
+│   ├── user-personas.md                    # 21 detailed personas
+│   ├── functional-requirements/           # 91 user stories
+│   ├── non-functional-requirements/      # Performance, security
+│   └── constraints-assumptions.md
+│
+├── 03-features/                             # Features & user stories
+│   ├── feature-overview.md                 # All features
+│   ├── feature-dependencies.md             # Dependencies
+│   ├── phase-1/                           # 62 user stories ✅
+│   ├── phase-2/                           # 14 stories (high-level)
+│   └── phase-3/                           # 14 stories (high-level)
+│
+├── 05-data-reference/                       # Data models
+│   ├── data-dictionary.md                  # 10 entities, 200+ fields
+│   ├── master-data/                        # 6 master entities
+│   └── transactional-data/                 # 4 transactional entities
+│
+└── 06-reference/                            # Reference materials
+    ├── version-history.md                  # Complete history
+    ├── quick-reference-guide.md           # Fast lookup
+    └── cross-reference-index.md           # 1,500+ references
+```
+
+### `technical-context/` Structure
+
+```
+technical-context/
+├── 00-overview/                             # Foundation
+│   ├── architecture-summary.md             # High-level architecture
+│   ├── design-principles.md                 # Core design principles
+│   └── technology-stack-overview.md        # Technology choices
+│
+├── 01-architecture/                        # Architecture (C4 Level 1-2)
+│   ├── system-overview.md                  # C4 Level 1
+│   ├── container-view.md                  # C4 Level 2
+│   ├── diagrams/                          # C4 diagrams
+│   ├── modules/                           # Module boundaries & interactions
+│   ├── data-architecture/                 # Data model & flow
+│   └── integration/                       # Integration patterns
+│
+├── 02-workflows/                           # Workflows
+│   ├── operational-flows/                # 7 core operational flows
+│   ├── user-workflows/                    # 5 user workflows
+│   └── exception-handling/                # 14 exception scenarios
+│
+├── 03-implementation/                      # Implementation
+│   ├── deployment-strategy/               # Phase 1 deployment
+│   ├── testing-approach.md                # Testing strategy
+│   ├── migration-strategy.md              # Data migration
+│   └── rollout-plan.md                    # Rollout plan
+│
+├── 03-decisions/                           # ADRs
+│   ├── adr-template.md                    # ADR template
+│   ├── adr-001-microservices-architecture.md
+│   ├── adr-002-event-driven-communication.md
+│   ├── adr-003-api-first-design.md
+│   ├── adr-100-technology-stack.md
+│   └── adr-200-integration-patterns.md
+│
+├── 04-diagrams/                            # Technical diagrams (37 diagrams)
+│   ├── diagrams-index.md                  # Complete index
+│   ├── sequences/                         # 3 sequence diagrams
+│   ├── deployment/                        # Deployment diagram
+│   ├── integration/                       # Integration diagram
+│   ├── states/                           # 2 state diagrams
+│   └── data/                             # ER diagram
+│
+└── 05-contracts/                           # Interface contracts
+    ├── api/rest/                          # 10 REST API contracts (OpenAPI 3.0)
+    ├── api/schemas/                       # Common schemas
+    ├── events/                            # 37 domain events (AsyncAPI 2.6.0)
+    ├── data-models/                       # Entities, enums, value objects
+    └── integration/                       # 6 external integration contracts
+```
+
+### Other Folders
+
+```
+source-documents/                           # Original BA documents (DOCX, XLSX)
+├── requirements/                          # Product requirements
+├── discovery-phase/                       # Discovery materials
+├── business-proposal/                      # BS23 proposals
+├── planning/                              # Feature lists, work breakdown
+├── meeting-minutes/                        # Stakeholder meetings
+└── reviews/                                # Review documents
+
+change-requests/                            # Change request management
+├── README.md                              # Change requests overview
+├── CR-TEMPLATE.md                         # CR template
+├── CR-INDEX.md                            # Change requests index
+└── CR-001-phase-based-architecture.md     # Change requests
 ```
 
 > 📋 For complete detailed structure, see [`.structure`](.structure) file
