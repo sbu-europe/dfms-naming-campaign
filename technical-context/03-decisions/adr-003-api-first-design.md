@@ -10,10 +10,12 @@
 ## Context
 
 DFMS will have multiple clients:
-- Web application (Vue.js)
-- Mobile applications (Flutter - Driver, QC Supervisor, Vendor)
-- External systems (ERP, GPS/VTS, SMS Gateway, etc.)
-- Future integrations
+- **Web application**: 
+  - Phase 1: Django Templates (server-side rendering)
+  - Phase 2+: Vue.js 3 SPA
+- **Mobile applications**: Flutter (Driver, QC Supervisor, Vendor) - Available in Phase 1
+- **External systems**: ERP, GPS/VTS, SMS Gateway, etc.
+- **Future integrations**: Additional clients as needed
 
 We need to:
 - Define clear contracts before implementation
@@ -130,7 +132,9 @@ We will adopt an **API-First Design** approach:
 
 ## Related Decisions
 
-- [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md)
+- [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md) - Phase 2+ vision
+- [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 approach
+- [ADR-005: Phase 1 Frontend Approach](./adr-005-phase-1-frontend-approach.md) - Phase 1 frontend
 - [ADR-002: Event-Driven Communication](./adr-002-event-driven-communication.md)
 - [Repository Purpose](../../../02-REPOSITORY_PURPOSE.md)
 - [API Contracts](../../05-contracts/api/)

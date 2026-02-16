@@ -144,9 +144,29 @@ Choose technologies with strong security features and regular updates.
 
 ## 🌐 Frontend Technology
 
-### Vue.js 3
+### Phase 1: Django Templates + Bootstrap 5
 
-**Choice**: Vue.js 3 with Composition API
+**Choice**: Django Templates with Bootstrap 5 for Phase 1
+
+**Rationale**:
+- **Faster Development**: No separate build process
+- **Lower Complexity**: Server-side rendering, simpler deployment
+- **Cost-Effective**: No separate frontend hosting
+- **Team Efficiency**: Better for small teams
+
+**Technology Stack**:
+- Django Templates (server-side rendering)
+- Bootstrap 5 (UI components)
+- Vanilla JavaScript + Alpine.js (reactivity)
+- Django Compressor (asset optimization)
+
+**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
+
+---
+
+### Phase 2+: Vue.js 3 SPA
+
+**Choice**: Vue.js 3 with Composition API for Phase 2+
 
 **Rationale**:
 - **Progressive Framework**: Easy to learn and adopt incrementally
@@ -154,11 +174,12 @@ Choose technologies with strong security features and regular updates.
 - **Developer Experience**: Great tooling and documentation
 - **Ecosystem**: Rich ecosystem (Vuex, Vue Router, Vuetify)
 - **Team Familiarity**: Team has Vue.js experience
+- **Better Separation**: Clear separation of frontend and backend
 
 **Considerations**:
 - **Bundle Size**: Use code splitting and lazy loading
 - **State Management**: Use Pinia (Vuex successor) for state management
-- **TypeScript**: Consider TypeScript for type safety (Phase 2)
+- **TypeScript**: Consider TypeScript for type safety
 
 **Alternatives Considered**:
 - **React**: More popular but steeper learning curve
@@ -166,9 +187,9 @@ Choose technologies with strong security features and regular updates.
 
 ---
 
-### Nuxt.js
+### Nuxt.js (Phase 2+)
 
-**Choice**: Nuxt.js 3 for SSR/SSG (if needed)
+**Choice**: Nuxt.js 3 for SSR/SSG (if needed in Phase 2+)
 
 **Rationale**:
 - **SSR Support**: Server-side rendering for better SEO (if needed)
@@ -178,7 +199,7 @@ Choose technologies with strong security features and regular updates.
 
 **Considerations**:
 - **Complexity**: Adds complexity, use only if SSR needed
-- **For Phase 1**: SPA (Single Page App) is sufficient
+- **Phase 1**: Not needed (Django Templates handles SSR)
 
 ---
 

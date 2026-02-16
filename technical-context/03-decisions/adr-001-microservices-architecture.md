@@ -5,6 +5,8 @@
 **Deciders**: Architecture Team, Technical Lead  
 **Tags**: [architecture, scalability, maintainability]
 
+> **Note**: This ADR describes the **Phase 2+ microservices vision**. For Phase 1 implementation, see [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md).
+
 ---
 
 ## Context
@@ -139,8 +141,29 @@ We will adopt a **microservices architecture** with the following characteristic
 
 ---
 
+## Migration Path from Phase 1
+
+**Phase 1**: Modular Monolith (see [ADR-004](./adr-004-phase-1-modular-monolith.md))
+- Single Django application with clear module boundaries
+- Shared database with schema-per-tenant isolation
+- Cost-optimized deployment (~$107/month)
+- Suitable for single tenant, 200-300 users
+
+**Phase 2**: Extract High-Traffic Modules
+- Extract modules that need independent scaling
+- Maintain API contracts for smooth transition
+- Hybrid architecture (some modules as services)
+
+**Phase 3**: Full Microservices
+- All modules as independent services
+- Complete microservices architecture
+- Suitable for 50+ tenants, 10,000+ users
+
+---
+
 ## Related Decisions
 
+- [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 approach
 - [ADR-002: Event-Driven Communication](./adr-002-event-driven-communication.md)
 - [ADR-003: API-First Design](./adr-003-api-first-design.md)
 - [ADR-200: Integration Patterns](./adr-200-integration-patterns.md)

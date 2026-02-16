@@ -1,11 +1,16 @@
 %% DFMS Integration Architecture Diagram
 %% Shows how external systems integrate with DFMS
+%%
+%% Phase Notes:
+%% - Phase 1: API Gateway = Nginx, Event Bus = Redis
+%% - Phase 2+: API Gateway = Kong/AWS API Gateway, Event Bus = RabbitMQ/SQS
+%% See: ADR-004 (Phase 1 Modular Monolith)
 
 graph TB
     subgraph DFMS["DFMS Platform"]
-        APIGateway["API Gateway<br/><br/>Authentication<br/>Rate Limiting"]
+        APIGateway["API Gateway<br/>(Phase 1: Nginx<br/>Phase 2+: Kong/AWS)<br/><br/>Authentication<br/>Rate Limiting"]
         APIServer["API Server<br/><br/>Business Logic"]
-        EventBus["Event Bus<br/>(RabbitMQ/SQS)<br/><br/>Domain Events"]
+        EventBus["Event Bus<br/>(Phase 1: Redis<br/>Phase 2+: RabbitMQ/SQS)<br/><br/>Domain Events"]
         Worker["Background Worker<br/>(Celery)<br/><br/>Async Processing"]
     end
     

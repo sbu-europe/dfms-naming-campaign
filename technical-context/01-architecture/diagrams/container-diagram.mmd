@@ -1,5 +1,10 @@
 %% DFMS Container Diagram (C4 Level 2)
 %% Shows high-level technical building blocks and their interactions
+%%
+%% Phase Notes:
+%% - Phase 1: Web App = Django Templates, API Gateway = Nginx, Message Queue = Redis
+%% - Phase 2+: Web App = Vue.js SPA, API Gateway = Kong/AWS, Message Queue = RabbitMQ/SQS
+%% See: ADR-004 (Phase 1 Modular Monolith) and ADR-005 (Phase 1 Frontend Approach)
 
 graph TB
     %% External Users
@@ -8,9 +13,9 @@ graph TB
     
     %% DFMS Containers
     subgraph DFMS["DFMS Platform"]
-        APIGateway["API Gateway<br/>(Kong/AWS)<br/><br/>Authentication,<br/>Rate Limiting,<br/>Routing"]
+        APIGateway["API Gateway<br/>(Phase 1: Nginx<br/>Phase 2+: Kong/AWS)<br/><br/>Authentication,<br/>Rate Limiting,<br/>Routing"]
         
-        WebApp["Web Application<br/>(Vue.js SPA)<br/><br/>Administrative<br/>Portal"]
+        WebApp["Web Application<br/>(Phase 1: Django Templates<br/>Phase 2+: Vue.js SPA)<br/><br/>Administrative<br/>Portal"]
         
         MobileApps["Mobile Applications<br/>(Flutter)<br/><br/>Driver, QC,<br/>Vendor Apps"]
         
@@ -22,7 +27,7 @@ graph TB
         
         Cache[("Cache<br/>(Redis)<br/><br/>Sessions,<br/>Real-time Data,<br/>API Cache")]
         
-        MsgQueue[("Message Queue<br/>(RabbitMQ/SQS)<br/><br/>Task Queue,<br/>Event Bus")]
+        MsgQueue[("Message Queue<br/>(Phase 1: Redis<br/>Phase 2+: RabbitMQ/SQS)<br/><br/>Task Queue,<br/>Event Bus")]
         
         FileStorage[("File Storage<br/>(AWS S3)<br/><br/>Documents,<br/>Photos, Videos,<br/>Reports")]
         

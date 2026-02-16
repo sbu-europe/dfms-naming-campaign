@@ -68,7 +68,9 @@ Integrate testing into CI/CD pipeline.
 
 **Tools**:
 - **Backend**: pytest (Python)
-- **Frontend**: Vitest (Vue.js)
+- **Frontend**: 
+  - **Phase 1**: Django TestCase (server-side template testing)
+  - **Phase 2+**: Vitest (Vue.js component testing)
 - **Mobile**: Flutter Test (Dart)
 
 **Coverage Target**: > 80%
@@ -97,7 +99,9 @@ def test_calculate_trip_cost():
 
 **Tools**:
 - **Backend**: pytest + Django TestCase
-- **Frontend**: Vitest + Vue Test Utils
+- **Frontend**: 
+  - **Phase 1**: Django TestCase (template rendering tests)
+  - **Phase 2+**: Vitest + Vue Test Utils
 - **API**: pytest + requests
 
 **Coverage Target**: > 60%

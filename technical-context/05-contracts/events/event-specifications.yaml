@@ -7,6 +7,11 @@ info:
     
     This contract defines all events published and consumed by DFMS modules.
     Events enable loose coupling between modules through asynchronous communication.
+    
+    **Phase Notes**:
+    - Phase 1: Events distributed via Redis (Celery broker)
+    - Phase 2+: Events distributed via RabbitMQ/AWS SQS (full event bus)
+    - See: ADR-002 (Event-Driven Communication) and ADR-004 (Phase 1 Modular Monolith)
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com

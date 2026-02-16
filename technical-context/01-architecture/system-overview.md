@@ -332,29 +332,50 @@ Report Generation → Escalation (if fail)
 - **API Style**: RESTful + GraphQL (for complex queries)
 
 ### Frontend
-- **Framework**: Vue.js
-- **UI Components**: Modern component library
-- **State Management**: Vuex/Pinia
+- **Phase 1**: Django Templates + Bootstrap 5 (server-side rendering)
+  - Server-side rendering with Django Templates
+  - Bootstrap 5 for UI components
+  - Vanilla JavaScript + Alpine.js for reactivity
+- **Phase 2+**: Vue.js 3 SPA
+  - Modern Single Page Application
+  - UI Components: Modern component library
+  - State Management: Pinia/Vuex
+
+**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
 
 ### Mobile
 - **Framework**: Flutter
 - **Platforms**: iOS + Android (single codebase)
+- **Phase**: Available in Phase 1
 
 ### Infrastructure
 - **Cloud Provider**: AWS
 - **Containerization**: Docker
-- **Orchestration**: Kubernetes (for scaling)
+- **Phase 1**: Docker Compose, Single EC2 instance
+- **Phase 2+**: Kubernetes (for scaling and orchestration)
+
+**See**: [Phase 1 Deployment](../03-implementation/deployment-strategy/phase-1-deployment.md)
 
 ### Data
 - **Primary Database**: PostgreSQL (relational data)
 - **Cache**: Redis (sessions, real-time data)
 - **File Storage**: S3-compatible object storage
-- **Search**: Elasticsearch (for advanced search)
+- **Search**: 
+  - **Phase 1**: PostgreSQL full-text search
+  - **Phase 2+**: Elasticsearch (for advanced search and log aggregation)
 
 ### Integration
-- **Message Queue**: RabbitMQ / AWS SQS (async processing)
-- **API Gateway**: Kong / AWS API Gateway
+- **Message Queue**: 
+  - **Phase 1**: Redis (used as Celery broker)
+  - **Phase 2+**: RabbitMQ / AWS SQS (async processing)
+- **API Gateway**: 
+  - **Phase 1**: Nginx (reverse proxy)
+  - **Phase 2+**: Kong / AWS API Gateway
 - **Event Bus**: Event-driven architecture for module communication
+  - **Phase 1**: Basic event distribution via Redis
+  - **Phase 2+**: Full event bus via RabbitMQ/SQS
+
+**See**: [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ---
 

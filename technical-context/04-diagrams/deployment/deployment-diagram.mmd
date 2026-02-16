@@ -1,5 +1,10 @@
 %% DFMS Deployment Diagram
 %% Shows infrastructure and deployment architecture
+%%
+%% Phase Notes:
+%% - Phase 1: Single EC2 instance, Nginx reverse proxy, Redis for message queue
+%% - Phase 2+: Kubernetes/ECS, API Gateway (Kong/AWS), RabbitMQ/SQS
+%% See: ADR-004 (Phase 1 Modular Monolith) and phase-1-deployment.md
 
 graph TB
     subgraph Internet["Internet"]

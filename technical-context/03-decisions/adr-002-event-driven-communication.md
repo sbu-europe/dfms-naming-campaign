@@ -33,7 +33,10 @@ Examples of inter-service communication:
 
 We will use **event-driven communication** as the primary pattern for inter-service communication:
 
-1. **Event Bus**: Central message broker (RabbitMQ/Kafka) for event distribution
+1. **Event Bus**: Central message broker for event distribution
+   - **Phase 1**: Redis (used as Celery broker, basic event distribution)
+   - **Phase 2+**: RabbitMQ / AWS SQS (full event bus capabilities)
+   - **Alternative**: Kafka (for high-throughput scenarios in Phase 2+)
 
 2. **Domain Events**: Services publish domain events when business events occur
    - ProductRequisitionApproved
@@ -149,7 +152,8 @@ We will use **event-driven communication** as the primary pattern for inter-serv
 
 ## Related Decisions
 
-- [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md)
+- [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md) - Phase 2+ vision
+- [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 approach
 - [ADR-003: API-First Design](./adr-003-api-first-design.md)
 - [Event Catalog](../../05-contracts/events/event-catalog.md)
 - [Event Specifications](../../05-contracts/events/event-specifications.yaml)
