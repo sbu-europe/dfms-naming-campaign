@@ -1,11 +1,3 @@
-%% DFMS Container Diagram (C4 Level 2)
-%% Shows high-level technical building blocks and their interactions
-%%
-%% Phase Notes:
-%% - Phase 1: Web App = Django Templates, API Gateway = Nginx, Message Queue = Redis
-%% - Phase 2+: Web App = Vue.js SPA, API Gateway = Kong/AWS, Message Queue = RabbitMQ/SQS
-%% See: ADR-004 (Phase 1 Modular Monolith) and ADR-005 (Phase 1 Frontend Approach)
-
 graph TB
     %% External Users
     WebUser["Web User<br/>(Internal Staff)<br/><br/>Logistics, Fleet,<br/>Finance, QA teams"]
@@ -90,4 +82,10 @@ graph TB
     class Database,Cache,MsgQueue,FileStorage,Search dataStyle
     class GPS,ERP,Maps,SMS,IoT externalStyle
     class APIGateway gatewayStyle
+
+%% DFMS Container Diagram C4 Level 2
+%% Shows high-level technical building blocks and their interactions
+%% Phase 1: Web App = Django Templates, API Gateway = Nginx, Message Queue = Redis
+%% Phase 2+: Web App = Vue.js SPA, API Gateway = Kong/AWS, Message Queue = RabbitMQ/SQS
+%% See: ADR-004 (Phase 1 Modular Monolith) and ADR-005 (Phase 1 Frontend Approach)
 
