@@ -9,9 +9,9 @@ epic: Fleet Master Data Setup
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
   - US-002-driver-registration.md
   - US-015-fleet-health-dashboard.md
@@ -48,20 +48,26 @@ Without proper vehicle master data, the system cannot:
 ### Must Have (Critical)
 - [ ] System SHALL allow creation of vehicle records with all mandatory fields
 - [ ] System SHALL enforce unique vehicle registration number per tenant
+- [ ] System SHALL enforce unique chassis number per tenant
 - [ ] System SHALL track vehicle attributes: registration number, type, capacity, ownership, depot
 - [ ] System SHALL support vehicle status tracking (Available, Active, Idle, Scheduled/Parked, Under Maintenance)
 - [ ] System SHALL link vehicles with TO, Trip, Driver, Fuel, and maintenance records
 - [ ] System SHALL prevent vehicles under maintenance from being assigned to trips
 - [ ] System SHALL enforce one vehicle per active trip constraint
 - [ ] System SHALL provide CRUD operations for vehicle master data
+- [ ] System SHALL provide bulk upload functionality for vehicle data via CSV
+- [ ] System SHALL support inline editing at row and column level
+- [ ] System SHALL support referential integrity validation (e.g., assigned POI must exist and be active)
 
 ### Should Have (High)
-- [ ] System SHOULD allow bulk upload of vehicle data via CSV
 - [ ] System SHOULD support vehicle categorization by type (Truck, Van, Pickup, etc.)
 - [ ] System SHOULD track vehicle ownership (Own, Leased, Vendor)
 - [ ] System SHOULD allow filtering and searching vehicles by multiple criteria
 - [ ] System SHOULD display vehicle history (trips, maintenance, incidents)
 - [ ] System SHOULD support vehicle activation/deactivation
+- [ ] System SHOULD provide CSV template download with mandatory fields marked and sample values
+- [ ] System SHOULD support multiple bulk uploads (append-only behavior)
+- [ ] System SHOULD display upload progress and completion status
 
 ### Nice to Have (Medium)
 - [ ] System MAY support vehicle photo upload
@@ -77,23 +83,41 @@ Without proper vehicle master data, the system cannot:
 - [Critical] System SHALL auto-generate unique vehicle ID
 - [High] System SHALL support inline validation with real-time feedback
 
-**Mandatory Fields**:
-- Vehicle Registration Number (unique)
-- Vehicle Type (dropdown: Truck, Van, Pickup, etc.)
-- Capacity (tonnage)
-- Ownership (Own, Leased, Vendor)
-- Home Depot (POI)
+**Mandatory Fields** (per PRD Section 6.6.1):
+- Vehicle Type (required): Pickup Van, Open Truck, Covered Truck, Nosimon, Auto, Tom Tom, Tractor
+- Number of Wheels (Numeric Input): 4, 6, 10, 12, 16, 18, 20+
+- Capacity (Max Load Capacity in Ton) - Numeric Input
+- Allowed Product Category (FG / RM / Both)
+- License/Registration Number (required, unique)
+  - Format validation: Bangladesh vehicle registration pattern
+  - Display format: Dhaka Metro-GA-11-1234
+- Chassis Number (required, unique)
+  - VIN (Vehicle Identification Number) format
+  - Uniqueness validation
+- Model (required)
+- Ownership (Own/Vendor)
+- Assigned POI (Vehicle operates from this POI)
 - Status (default: Available)
 
 **Optional Fields**:
+- Mileage:
+  - Initial Odometer reading (numeric, KM)
+  - Current Odometer Reading
+  - Average Mileage
+  - Total Distance Travelled
+- Purchase Information:
+  - Purchase Date
+  - Purchase Price
+- Body Type: Open Body, Closed Body, Container, Flatbed, Tanker, Refrigerated
+- Fuel Type: Diesel, Petrol, CNG, Electric, Hybrid
+- Assigned Driver (Optional - can be assigned post-registration)
+- GPS Tracker ID (Tracker Model and ID)
+- Assigned Garage/Workshop (Primary maintenance location)
 - Make/Model
 - Year
 - Color
-- VIN Number
-- License Plate Number
 - Insurance Details
 - Fitness Certificate
-- Purchase Date
 - Notes/Remarks
 
 ### FR-002: Vehicle Status Management
@@ -115,18 +139,45 @@ Without proper vehicle master data, the system cannot:
 - [High] System SHALL display filtered results in sortable table
 - [Medium] System SHALL support advanced search with combined filters
 
-### FR-004: Vehicle Bulk Operations
-- [High] System SHALL support bulk upload via CSV template
-- [High] System SHALL validate CSV data before import
+### FR-004: Vehicle Bulk Upload & Inline Management
+- [Critical] System SHALL provide bulk upload option for vehicle master data
+- [Critical] Bulk upload SHALL support CSV file format only (UTF-8 encoded)
+- [Critical] System SHALL provide vehicle-specific CSV template with:
+  - Mandatory fields marked
+  - Date type hints
+  - Sample values
+- [Critical] Bulk upload SHALL support append-only behavior:
+  - Existing records are NOT overwritten by default
+  - New records are added to the existing master dataset
+- [Critical] System SHALL allow uploading additional CSV files to append new vehicle records
+- [Critical] System SHALL validate each row independently and report:
+  - Successful rows
+  - Failed rows with error reason
+- [Critical] System SHALL support inline editing at:
+  - Row level
+  - Column (Field) level
+- [Critical] Changes SHALL be saved immediately or via explicit save action
+- [Critical] All bulk upload actions SHALL be audit logged:
+  - Entity type (Vehicle)
+  - File name
+  - Uploaded by
+  - Timestamp
+  - Number of rows processed / success / failed
+- [Critical] System SHALL allow single-row delete actions with:
+  - Delete reason (mandatory)
+  - Deleting user
+  - Timestamp
+- [High] System SHALL allow bulk upload multiple times for the same entity
+- [High] Upload progress and completion status SHALL be shown to the user
 - [High] System SHALL provide detailed error report for failed imports
-- [Medium] System SHALL support bulk status updates
 
 ## Business Rules
 
-### BR-001: Unique Registration
-- **Rule**: Each vehicle must have unique registration number within tenant
-- **Validation**: System SHALL prevent duplicate registration numbers
-- **Error Message**: "Vehicle with registration number [XXX] already exists"
+### BR-001: Unique Registration & Chassis Number
+- **Rule**: Each vehicle must have unique registration number AND unique chassis number within tenant
+- **Validation**: System SHALL prevent duplicate registration numbers and chassis numbers
+- **Error Message**: "Vehicle with registration number [XXX] already exists" or "Vehicle with chassis number [YYY] already exists"
+- **Enforcement**: Database constraints + application validation
 
 ### BR-002: Status Exclusivity
 - **Rule**: Vehicle can only have one status at a time
@@ -148,33 +199,84 @@ Without proper vehicle master data, the system cannot:
 - **Validation**: System SHALL require driver assignment before dispatch
 - **Impact**: TO execution workflow
 
+### BR-006: Referential Integrity
+- **Rule**: Vehicle must be assigned to existing active POI
+- **Rule**: Assigned driver (if any) must exist and be active
+- **Rule**: Assigned garage/workshop (if any) must exist
+- **Validation**: System SHALL validate all foreign key relationships before saving
+- **Error Message**: "Cannot save vehicle - [POI/Driver/Garage] does not exist or is inactive"
+- **Enforcement**: Database foreign keys + application validation
+
+### BR-007: Bulk Upload Append-Only
+- **Rule**: Bulk upload does not overwrite existing records
+- **Rule**: Duplicate registration/chassis numbers in CSV are rejected with error report
+- **Validation**: System SHALL check for duplicates before inserting new records
+- **Enforcement**: Pre-upload validation + transaction rollback on errors
+
 ## Data Model
 
 ```
 Vehicle {
   id: UUID (PK, auto-generated)
   tenant_id: UUID (FK)
-  registration_number: String (unique, indexed)
-  vehicle_type: Enum (Truck, Van, Pickup, Tanker, etc.)
-  capacity_tonnage: Decimal
-  ownership: Enum (Own, Leased, Vendor)
-  home_depot_id: UUID (FK to POI)
+  
+  // Mandatory Fields
+  registration_number: String (unique per tenant, indexed)
+  chassis_number: String (unique per tenant, indexed)
+  vehicle_type: Enum (Pickup_Van, Open_Truck, Covered_Truck, Nosimon, Auto, Tom_Tom, Tractor)
+  number_of_wheels: Integer (4, 6, 10, 12, 16, 18, 20+)
+  capacity_tonnage: Decimal (Max Load Capacity in Ton)
+  allowed_product_category: Enum (FG, RM, Both)
+  model: String (required)
+  ownership: Enum (Own, Vendor)
+  assigned_poi_id: UUID (FK to POI, required)
   status: Enum (Available, Active, Idle, Scheduled, Under_Maintenance)
-  make: String (optional)
-  model: String (optional)
-  year: Integer (optional)
-  vin: String (optional)
-  license_plate: String (optional)
-  insurance_number: String (optional)
-  insurance_expiry: Date (optional)
-  fitness_expiry: Date (optional)
-  purchase_date: Date (optional)
+  
+  // Optional Fields
+  body_type: Enum (Open_Body, Closed_Body, Container, Flatbed, Tanker, Refrigerated)
+  fuel_type: Enum (Diesel, Petrol, CNG, Electric, Hybrid)
+  assigned_driver_id: UUID (FK to Driver, nullable)
+  gps_tracker_id: String (nullable)
+  assigned_garage_id: UUID (FK to Garage/Workshop, nullable)
+  
+  // Mileage Tracking
+  initial_odometer_reading: Decimal (KM, nullable)
+  current_odometer_reading: Decimal (KM, nullable)
+  average_mileage: Decimal (nullable)
+  total_distance_travelled: Decimal (KM, nullable)
+  
+  // Purchase Information
+  purchase_date: Date (nullable)
+  purchase_price: Decimal (nullable)
+  
+  // Additional Details
+  make: String (nullable)
+  year: Integer (nullable)
+  color: String (nullable)
+  insurance_number: String (nullable)
+  insurance_expiry: Date (nullable)
+  fitness_expiry: Date (nullable)
+  notes: Text (nullable)
+  
   is_active: Boolean (default: true)
-  notes: Text (optional)
   created_at: Timestamp
   created_by: UUID (FK to User)
   updated_at: Timestamp
   updated_by: UUID (FK to User)
+}
+
+BulkUploadLog {
+  id: UUID (PK)
+  tenant_id: UUID (FK)
+  entity_type: String (e.g., "Vehicle")
+  file_name: String
+  uploaded_by: UUID (FK to User)
+  uploaded_at: Timestamp
+  total_rows: Integer
+  successful_rows: Integer
+  failed_rows: Integer
+  error_details: JSONB (stores failed rows with error reasons)
+  status: Enum (In_Progress, Completed, Failed)
 }
 ```
 
@@ -243,6 +345,18 @@ PUT    /api/v1/vehicles/{id}         - Update vehicle
 DELETE /api/v1/vehicles/{id}         - Delete vehicle (soft)
 PATCH  /api/v1/vehicles/{id}/status  - Update status
 POST   /api/v1/vehicles/bulk-upload  - Bulk upload CSV
+Body: {file: CSV file}
+Response: {upload_id, total_rows, successful_rows, failed_rows, errors: [{row, errors}]}
+
+GET    /api/v1/vehicles/bulk-upload/{upload_id}  - Get upload status
+
+GET    /api/v1/vehicles/bulk-upload/template  - Download CSV template
+
+PATCH  /api/v1/vehicles/{id}  - Inline edit (row/column level)
+Body: {field_name: new_value}
+
+DELETE /api/v1/vehicles/{id}  - Single row delete
+Body: {delete_reason: string}
 GET    /api/v1/vehicles/{id}/history - Get vehicle history
 ```
 
@@ -270,7 +384,20 @@ GET    /api/v1/vehicles/{id}/history - Get vehicle history
    - Download CSV template
    - Add 10 vehicles with valid data
    - Upload CSV
-   - **Expected**: All 10 vehicles created successfully
+   - **Expected**: All 10 vehicles created successfully, upload log created
+
+4. **Bulk Upload with Errors**
+   - Upload CSV with 5 valid and 2 duplicate registration numbers
+   - **Expected**: 5 vehicles created, 2 rejected with detailed error report
+
+5. **Inline Editing**
+   - Edit vehicle status directly in list view (column level)
+   - **Expected**: Status updated immediately or on save
+
+6. **Append-Only Bulk Upload**
+   - Upload 5 vehicles via CSV
+   - Upload another CSV with 3 new vehicles
+   - **Expected**: Total 8 vehicles exist, no overwrites
 
 ### Edge Cases
 1. **Duplicate Registration**
@@ -348,9 +475,21 @@ GET    /api/v1/vehicles/{id}/history - Get vehicle history
 
 ---
 
-**Story Points**: 5  
-**Estimated Hours**: 40 hours  
+**Story Points**: 8 (increased due to bulk upload and inline editing requirements)  
+**Estimated Hours**: 64 hours  
 **Assigned To**: Backend Team + Frontend Team  
 **Sprint**: Sprint 1  
 **Priority**: Critical (Must complete before Trip Assignment)
+
+---
+
+**Source Documents**:
+- PRD Section 6.3.1: Entity Registration (Master Setup)
+- PRD Section 6.3.2: Bulk Upload & Inline Master Data Management
+- PRD Section 6.3.3: Master Tables (CRUD Operation)
+- PRD Section 6.3.4: Data Consistency Rules (Referential Control)
+- PRD Section 6.6.1: Vehicle Registration
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to align with PRD v1.0
 
