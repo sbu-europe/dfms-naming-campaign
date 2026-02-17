@@ -233,7 +233,7 @@ This documentation is **production-ready** and can be directly used by:
 
 All user stories are located in:
 ```
-business-context/03-features/phase-1/user-stories/
+business-context/04-implementation-stories/phase-1/user-stories/
 ```
 
 File naming convention:

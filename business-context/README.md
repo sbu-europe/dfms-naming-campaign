@@ -17,10 +17,17 @@ This folder contains comprehensive business context documentation for the DFMS (
 - Functional and non-functional requirements
 - Constraints and assumptions
 
-### `03-features/` - Features & User Stories
+### `03-prd-reference/` - PRD Reference Content
+- Business context extracted directly from PRD v1.0
+- Organized by functional modules (00-overview through 11-reference)
+- Contains PRD content with embedded user stories, acceptance criteria, and functional requirements
+- See [03-prd-reference/README.md](03-prd-reference/README.md) for details
+
+### `04-implementation-stories/` - Implementation User Stories
 - Feature overview and dependencies
 - Phase 1, 2, 3 summaries
-- User stories organized by phase
+- Detailed user stories organized by phase (implementation-ready)
+- See [04-implementation-stories/README.md](04-implementation-stories/README.md) for details
 
 ### `05-data-reference/` - Data Reference
 - Data dictionary
@@ -32,50 +39,43 @@ This folder contains comprehensive business context documentation for the DFMS (
 - Version history
 - Quick reference guides
 
-### `prd-based/` - PRD-Based Content
-- **New**: Business context extracted directly from PRD v1.0
-- Organized in Jira-style Epic → Story → Task structure
-- See [prd-based/README.md](prd-based/README.md) for details
-
 ## 📊 Content Overview
 
 ### Original Business Context
-- **User Stories**: 70+ detailed user stories (Phase 1-3)
+- **User Stories**: 70+ detailed user stories (Phase 1-3) in `04-implementation-stories/`
 - **Business Rules**: 112+ validation rules
 - **User Personas**: 21 detailed stakeholder profiles
 - **Data Entities**: 10+ complete data dictionaries
 
-### PRD-Based Content (`prd-based/`)
-- **Epics**: 41 epics organized by module
-- **Stories**: 67 user stories extracted from PRD
-- **Tasks**: 494 implementation tasks
+### PRD Reference Content (`03-prd-reference/`)
 - **Modules**: 12 modules (00-overview through 11-reference)
+- **Content**: PRD content with embedded user stories, acceptance criteria, and functional requirements
+- **Source**: Direct extraction from PRD_DFMS_v1.0.md
 
 ## 🔍 Navigation
 
 ### By Content Type
 - **Overview**: `00-overview/`
 - **Requirements**: `02-requirements/`
-- **Features**: `03-features/`
+- **PRD Reference**: `03-prd-reference/` (module-organized, PRD traceability)
+- **Implementation Stories**: `04-implementation-stories/` (phase-organized, detailed)
 - **Data**: `05-data-reference/`
 - **Reference**: `06-reference/`
 
 ### By Source
-- **Original Analysis**: Main folders (00-overview through 06-reference)
-- **PRD-Based**: `prd-based/` folder
+- **Original Analysis**: Main folders (00-overview, 01-business-domain, 02-requirements, 04-implementation-stories, 05-data-reference, 06-reference)
+- **PRD Reference**: `03-prd-reference/` folder
 
 ## 📝 Documentation Status
 
 - ✅ Original business context: Complete
-- ✅ PRD-based content: Complete (in `prd-based/` folder)
-- ✅ User stories: Available in both formats
-- ✅ Epic/Story/Task structure: Available in `prd-based/` folder
+- ✅ PRD reference content: Complete (in `03-prd-reference/` folder)
+- ✅ User stories: Available in both formats (detailed in `04-implementation-stories/`, embedded in `03-prd-reference/`)
 
 ## 🔗 Related Documentation
 
-- **[PRD-Based Content](prd-based/README.md)** - PRD-extracted content with Epic → Story → Task structure
-- **[Business Context Completion Report](BUSINESS_CONTEXT_COMPLETION_REPORT.md)** - Original context completion status
-- **[Business Context Plan](BUSINESS_CONTEXT_PLAN.md)** - Original planning document
+- **[PRD Reference Content](03-prd-reference/README.md)** - PRD-extracted content organized by module
+- **[Implementation Stories](04-implementation-stories/README.md)** - Detailed user stories organized by phase
 
 ---
 

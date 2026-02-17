@@ -519,7 +519,7 @@ DFMS aims to transform distribution and fleet operations from manual, fragmented
 - [Functional Requirements](./functional-requirements/) - Detailed feature specifications
 - [Non-Functional Requirements](./non-functional-requirements/) - System quality attributes
 - [User Personas](./user-personas.md) - Detailed user profiles
-- [Features](../03-features/) - Phase-wise feature breakdown
+- [Features](../04-implementation-stories/) - Phase-wise feature breakdown
 
 ---
 

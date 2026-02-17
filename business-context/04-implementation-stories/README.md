@@ -1,6 +1,8 @@
-# Features
+# Implementation User Stories
 
-> Comprehensive feature breakdown and user stories across all deployment phases
+> Detailed, implementation-ready user stories organized by deployment phase
+
+**Note**: This folder contains detailed user stories for implementation. For PRD reference content organized by module, see [`03-prd-reference/`](../03-prd-reference/README.md).
 
 ## 📖 Purpose
 
@@ -24,7 +26,7 @@ _*Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 whi
 ## 📁 Folder Structure
 
 ```
-03-features/
+04-implementation-stories/
 ├── README.md (this file)
 ├── feature-overview.md (✅ created)
 ├── feature-dependencies.md (✅ created)

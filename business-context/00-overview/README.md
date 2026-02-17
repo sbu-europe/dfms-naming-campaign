@@ -122,7 +122,7 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 **Next Steps**:
 - Review [Requirements](../02-requirements/) for detailed specifications
-- Study [Features](../03-features/) for implementation scope
+- Study [Features](../04-implementation-stories/) for implementation scope
 - Check [Technical Context](../../technical-context/) for architecture
 
 ---
@@ -143,7 +143,7 @@ All documents in order:
 - Feature prioritization drivers
 
 **Next Steps**:
-- Review [Features](../03-features/) for phase-wise scope
+- Review [Features](../04-implementation-stories/) for phase-wise scope
 - Check [Requirements](../02-requirements/) for specifications
 
 ---
@@ -154,7 +154,7 @@ All documents in order:
 
 - **[Business Domain](../01-business-domain/)** - Detailed business processes and rules
 - **[Requirements](../02-requirements/)** - Functional and non-functional requirements
-- **[Features](../03-features/)** - Phase-wise feature breakdown with user stories
+- **[Features](../04-implementation-stories/)** - Phase-wise feature breakdown with user stories
 - **[Data Reference](../05-data-reference/)** - Master data and data dictionary
 - **[Reference](../06-reference/)** - Additional reference materials
 
