@@ -194,5 +194,5 @@ Each functional requirement follows this structure:
 
 **Last Updated**: 2026-02-10  
 **Status**: In Progress  
-**Source**: PRD_DFMS_v1.0.docx
+**Source**: PRD_DFMS_v1.0.md
 
