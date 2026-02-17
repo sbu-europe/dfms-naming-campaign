@@ -7,7 +7,7 @@ created: 2026-02-10
 updated: 2026-02-10
 source_documents:
   - ../../source-documents/requirements/PRD_DFMS_v1.0.md
-  - ../../03-prd-reference/00-overview/business-objectives.md
+  - ../../03-module-specifications/00-overview/business-objectives.md
   - ../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
   - ../../source-documents/discovery-phase/
 tags: [business-context, domain, logistics, fleet-management, prd-aligned]

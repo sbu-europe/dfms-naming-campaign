@@ -1,8 +1,8 @@
 # PRD Alignment Summary
 
 **Date**: 2026-02-17  
-**Source**: `business-context/03-prd-reference/` (66 user stories)  
-**Target**: `business-context/04-implementation-stories/` (64 user stories)
+**Source**: `business-context/03-module-specifications/` (66 user stories)  
+**Target**: `business-context/04-phase-stories/` (64 user stories)
 
 ## Overview
 

@@ -342,7 +342,7 @@ Bangladesh
 
 - [Data Dictionary](../data-dictionary.md) - Complete field-level definitions
 - [Business Rules](../../01-business-domain/business-rules/business-rules.md) - Rules governing master data
-- [User Stories](../../04-implementation-stories/) - Features using master data
+- [User Stories](../../04-phase-stories/) - Features using master data
 
 ---
 

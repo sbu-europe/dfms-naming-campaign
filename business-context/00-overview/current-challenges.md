@@ -7,7 +7,7 @@ created: 2026-02-13
 updated: 2026-02-13
 source_documents:
   - ../../source-documents/requirements/PRD_DFMS_v1.0.md
-  - ../../03-prd-reference/00-overview/business-objectives.md
+  - ../../03-module-specifications/00-overview/business-objectives.md
 tags: [challenges, problem-statement, overview, prd-aligned]
 ---
 

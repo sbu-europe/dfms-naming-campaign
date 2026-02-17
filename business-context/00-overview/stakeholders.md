@@ -7,7 +7,7 @@ created: 2026-02-10
 updated: 2026-02-10
 source_documents:
   - ../../source-documents/requirements/PRD_DFMS_v1.0.md
-  - ../../03-prd-reference/00-overview/user-personas.md
+  - ../../03-module-specifications/00-overview/user-personas.md
   - ../../source-documents/meeting-minutes/
   - ../../source-documents/discovery-phase/
 tags: [stakeholders, personas, users, prd-aligned]

@@ -131,13 +131,13 @@ End-to-end operational workflows from requisition to billing.
 
 - **[Overview](../../00-overview/)** - Product vision, objectives, scope
 - **[Requirements](../../02-requirements/)** - Functional and non-functional requirements
-- **[Implementation Stories](../../04-implementation-stories/)** - Phase-wise feature breakdown
+- **[Implementation Stories](../../04-phase-stories/)** - Phase-wise feature breakdown
 
 ### Outside Business Context
 
 - **[Technical Context](../../../technical-context/)** - Architecture, workflows, contracts
 - **[Source Documents](../../../source-documents/)** - Original BA documents
-- **[PRD Reference](../../03-prd-reference/)** - PRD-based structured content
+- **[PRD Reference](../../03-module-specifications/)** - PRD-based structured content
 
 ---
 
