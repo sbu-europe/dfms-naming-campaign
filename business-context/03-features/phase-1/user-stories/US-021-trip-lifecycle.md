@@ -16,7 +16,7 @@ source_documents:
 related_stories:
   - US-020-to-execution-own-fleet.md
   - US-025-trip-closure-pod.md
-  - US-052-driver-mobile-app.md
+  - US-052-driver-mobile-interface.md
 dependencies:
   - US-020-to-execution-own-fleet.md
 tags: [transport, trip, lifecycle, state-machine, critical]
@@ -149,7 +149,7 @@ Trip lifecycle is the **core workflow** of DFMS. Every transport execution goes 
 - [ ] System SHALL support multiple trigger types:
   - Manual (by user)
   - Automatic (geofence, time-based)
-  - API (from mobile app, GPS device)
+  - API (from mobile-responsive web interface, GPS device)
   - Event-based (gate entry, QC completion)
 
 ### AC-6: State History & Audit
@@ -421,7 +421,7 @@ Response: {trip, incident_id}
 - → US-022: Partial Delivery
 - → US-023: Incident Management
 - → US-025: Trip Closure with POD
-- → US-052: Driver Mobile App (state updates)
+- → US-052: Driver Mobile Interface (state updates)
 - → All operations and QC stories
 
 ---

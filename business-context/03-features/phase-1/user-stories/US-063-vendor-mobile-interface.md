@@ -1,39 +1,41 @@
 ---
-title: Vendor Mobile Application (Bidding & TO View)
+title: Vendor Mobile Interface (Bidding & TO View)
 story_id: US-063
 phase: phase-1
-module: Mobile Applications
+module: Mobile Interfaces
 priority: High
 status: Pending
-epic: Mobile Apps
+epic: Mobile User Experiences
 sprint: Sprint 18
 story_points: 8
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
   - US-024-vendor-bidding-portal.md
   - US-031-vendor-portal.md
 dependencies:
   - US-024-vendor-bidding-portal.md
-tags: [mobile, vendor, bidding, high-priority]
+tags: [mobile, vendor, bidding, responsive-web, high-priority]
 ---
 
-# US-063: Vendor Mobile Application (Bidding & TO View)
+# US-063: Vendor Mobile Interface (Bidding & TO View)
 
 ## User Story
 
 **As a** Vendor  
-**I want to** access bidding opportunities and view Transport Orders via mobile app  
+**I want to** access bidding opportunities and view Transport Orders via a mobile-responsive web interface  
 **So that** I can respond quickly and manage my transport operations on-the-go
 
 ## Business Context
 
-Vendor mobile app enables:
-- **Quick Response**: Bid on TOs immediately
-- **Mobility**: Manage operations from anywhere
-- **Real-time Updates**: Instant notifications
+**Note**: Per PRD Section 6.9.3, "Mobile Interface" refers to a responsive web application accessible on mobile devices via web browsers, not a native mobile application.
+
+Vendor mobile-responsive web interface enables:
+- **Quick Response**: Bid on TOs immediately via mobile browser
+- **Mobility**: Manage operations from anywhere using mobile devices
+- **Real-time Updates**: Instant notifications via browser Push API
 - **Competitive Advantage**: Faster bidding = more opportunities
 - **Operational Efficiency**: Track fleet and trips
 
@@ -103,8 +105,8 @@ Vendor mobile app enables:
   - Checkpoints completed
 - [ ] System SHALL show trip history
 
-### AC-6: Push Notifications
-- [ ] System SHALL send push notifications for:
+### AC-6: Browser Notifications
+- [ ] System SHALL send browser push notifications (via Push API) for:
   - New TO available for bidding
   - Bid accepted/rejected
   - TO awarded
@@ -112,6 +114,7 @@ Vendor mobile app enables:
   - Payment processed
   - Performance alerts
 - [ ] System SHALL allow notification preferences
+- [ ] System SHALL request notification permission from user
 
 ### AC-7: Payment Tracking
 - [ ] System SHALL display:
@@ -133,11 +136,11 @@ Vendor mobile app enables:
 
 ## Functional Requirements
 
-### FR-001: Mobile App Platform
-- [Critical] Native mobile app (Android/iOS)
-- [Critical] Push notification support
-- [High] Offline mode (view data)
-- [Medium] Biometric authentication
+### FR-001: Mobile-Responsive Web Platform
+- [Critical] Responsive web interface (mobile-first design)
+- [Critical] Browser Push API for notifications (if supported)
+- [High] Offline mode (view cached data using Service Worker)
+- [High] Progressive Web App (PWA) features for app-like experience
 
 ### FR-002: Bidding Features
 - [Critical] TO listing and filtering
@@ -178,15 +181,15 @@ Vendor mobile app enables:
 
 ```typescript
 // Reuses existing entities from US-024, US-031
-// Mobile app is a client interface
+// Mobile-responsive web interface is a client interface
 
 VendorMobileSession {
   id: UUID (PK)
   vendor_id: UUID (FK)
-  device_id: String
-  device_type: Enum (Android, iOS)
+  browser_user_agent: String
+  device_type: Enum (Mobile, Tablet, Desktop)
   
-  fcm_token: String (for push notifications)
+  push_subscription_endpoint: String (for browser Push API, nullable)
   
   session_start: Timestamp
   last_active: Timestamp
@@ -402,9 +405,9 @@ Body: {rejection_reason}
 GET /api/v1/vendors/{vendor_id}/trips
 Query: ?status=In_Progress
 
-// Push Notifications
-POST /api/v1/mobile/register-device
-Body: {vendor_id, device_id, fcm_token}
+// Browser Push Notifications
+POST /api/v1/mobile/register-push-subscription
+Body: {vendor_id, push_subscription: {endpoint, keys}}
 
 POST /api/v1/mobile/notifications/mark-read
 Body: {notification_id}
@@ -443,19 +446,19 @@ Body: {notification_id}
 ---
 
 ## Definition of Done
-- [ ] Native mobile app (Android & iOS) functional
+- [ ] Mobile-responsive web interface functional on mobile browsers
 - [ ] TO listing and filtering working
 - [ ] Bid submission functional
 - [ ] Awarded TO management working
 - [ ] Driver/vehicle assignment
-- [ ] Trip tracking with GPS
-- [ ] Push notifications working
+- [ ] Trip tracking with GPS (via Geolocation API)
+- [ ] Browser push notifications working (if supported)
 - [ ] Payment tracking display
 - [ ] Performance metrics display
-- [ ] Offline mode for viewing
+- [ ] Offline mode for viewing (Service Worker)
+- [ ] PWA features: Installable, offline-capable
 - [ ] Unit tests > 85%
 - [ ] UAT approved (on mobile devices)
-- [ ] App published to stores (future)
 
 ---
 
@@ -463,4 +466,12 @@ Body: {notification_id}
 **Estimated Hours**: 64 hours  
 **Sprint**: Sprint 18  
 **Priority**: High
+
+---
+
+**Source Documents**:
+- PRD Section 6.9.3: Vendor Portal Access (Bidding & Trip Management)
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to reflect mobile-responsive web interface (not native app) per PRD clarification
 

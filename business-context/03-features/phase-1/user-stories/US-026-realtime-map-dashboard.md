@@ -14,7 +14,7 @@ source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
 related_stories:
   - US-021-trip-lifecycle.md
-  - US-052-driver-mobile-app.md
+  - US-052-driver-mobile-interface.md
 dependencies:
   - US-021-trip-lifecycle.md
 tags: [transport, map, realtime, command-center, high-priority]
@@ -121,7 +121,7 @@ Command Center is the **nerve center** of fleet operations:
 
 ### AC-8: GPS Data Handling
 - [ ] System SHALL receive GPS data from:
-  - Driver mobile app
+  - Driver mobile interface
   - GPS tracking devices (if installed)
 - [ ] System SHALL handle GPS data frequency (every 30-60 seconds)
 - [ ] System SHALL detect GPS signal loss
@@ -139,7 +139,7 @@ Command Center is the **nerve center** of fleet operations:
 
 ### FR-002: Real-time Data Pipeline
 - [Critical] WebSocket connection for live updates
-- [Critical] GPS data ingestion from mobile app
+- [Critical] GPS data ingestion from mobile-responsive web interface
 - [High] Data caching for performance
 - [Medium] Fallback to polling if WebSocket fails
 
@@ -161,7 +161,7 @@ Command Center is the **nerve center** of fleet operations:
 
 ### BR-MAP-001: GPS Update Frequency
 - GPS data updated every 30 seconds during active trip
-- **Enforcement**: Mobile app configuration
+- **Enforcement**: Mobile interface configuration
 
 ### BR-MAP-002: Delay Classification
 - Minor Delay: 30-60 minutes
@@ -294,7 +294,7 @@ WS /api/v1/trips/realtime
 Message: {type: 'gps_update', trip_id, latitude, longitude, timestamp}
 Message: {type: 'status_change', trip_id, new_status}
 
-// Submit GPS data (from mobile app)
+// Submit GPS data (from mobile-responsive web interface)
 POST /api/v1/trips/{trip_id}/gps
 Body: {latitude, longitude, accuracy, speed, heading, timestamp}
 

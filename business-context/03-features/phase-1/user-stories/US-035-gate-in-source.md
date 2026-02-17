@@ -85,7 +85,7 @@ Vehicle Arrives → Security Check → Gate-In Entry → Queue for Loading
 - [ ] System SHALL notify:
   - Loading Supervisor (vehicle ready for loading)
   - Command Center (arrival confirmed)
-  - Driver (via mobile app - queue position)
+  - Driver (via mobile-responsive web interface - queue position)
 - [ ] System SHALL send alerts for delayed arrivals
 
 ### AC-6: Gate-In History

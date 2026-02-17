@@ -98,7 +98,7 @@ Own fleet execution provides:
 - [ ] System SHALL update vehicle status to "On Trip"
 - [ ] System SHALL update driver status to "On Trip"
 - [ ] System SHALL send notifications to:
-  - Driver (mobile app + SMS)
+  - Driver (mobile-responsive web interface + SMS)
   - Helper (if assigned)
   - Transport Planner
 - [ ] System SHALL create trip record

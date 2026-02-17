@@ -14,7 +14,7 @@ source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
 related_stories:
   - US-021-trip-lifecycle.md
-  - US-052-driver-mobile-app.md
+  - US-052-driver-mobile-interface.md
 dependencies:
   - US-021-trip-lifecycle.md
 tags: [transport, incident, trip, high-priority]
@@ -53,7 +53,7 @@ tags: [transport, incident, trip, high-priority]
 
 ### AC-1: Incident Reporting
 - [ ] System SHALL allow reporting incident from:
-  - Driver mobile app
+  - Driver mobile interface
   - Command center dashboard
   - TDO interface
 - [ ] System SHALL capture:
@@ -267,7 +267,7 @@ Query: ?driver_id={id}&date_from=2026-01-01
 - ✅ US-021: Trip Lifecycle
 
 ### Enables
-- → US-052: Driver Mobile App (incident reporting)
+- → US-052: Driver Mobile Interface (incident reporting)
 - → Insurance claims
 - → Performance analytics
 

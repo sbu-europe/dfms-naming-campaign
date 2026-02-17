@@ -2,23 +2,23 @@
 title: QC Supervisor Mobile Interface
 story_id: US-061
 phase: phase-1
-module: Mobile Applications
+module: Mobile Interfaces
 priority: High
 status: Pending
-epic: Mobile Apps
+epic: Mobile User Experiences
 sprint: Sprint 18
 story_points: 8
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
   - US-044-qc-lab-testing.md
   - US-045-qc-sample-collection.md
   - US-051-qc-checklist-management.md
 dependencies:
   - US-044-qc-lab-testing.md
-tags: [mobile, qc, supervisor, high-priority]
+tags: [mobile, qc, supervisor, responsive-web, high-priority]
 ---
 
 # US-061: QC Supervisor Mobile Interface
@@ -26,15 +26,17 @@ tags: [mobile, qc, supervisor, high-priority]
 ## User Story
 
 **As a** QC Supervisor  
-**I want to** conduct quality inspections using a mobile interface  
+**I want to** conduct quality inspections using a mobile-responsive web interface  
 **So that** I can perform QC activities efficiently at the inspection site
 
 ## Business Context
 
-Mobile QC interface enables:
-- **On-site Inspection**: Conduct QC at gate/warehouse
-- **Real-time Data Entry**: Immediate recording of results
-- **Photo Evidence**: Capture defects on-site
+**Note**: Per PRD Section 6.9.2, "Mobile Interface" refers to a responsive web application accessible on mobile devices/tablets via web browsers, not a native mobile application.
+
+Mobile-responsive QC interface enables:
+- **On-site Inspection**: Conduct QC at gate/warehouse using tablets/mobile devices
+- **Real-time Data Entry**: Immediate recording of results via web interface
+- **Photo Evidence**: Capture defects on-site using device camera
 - **Efficiency**: Eliminate paper-based processes
 - **Traceability**: Timestamp all QC activities
 
@@ -123,11 +125,11 @@ Mobile QC interface enables:
 ## Functional Requirements
 
 ### FR-001: Mobile-Optimized UI
-- [Critical] Responsive web interface (mobile-first)
-- [Critical] Touch-friendly controls
-- [High] Camera integration
-- [High] QR code scanning
-- [Medium] Native app (future)
+- [Critical] Responsive web interface (mobile-first design)
+- [Critical] Touch-friendly controls (optimized for tablets and mobile devices)
+- [Critical] Camera integration via HTML5 camera API
+- [High] QR code scanning via device camera
+- [High] Accessible on tablets and mobile devices via web browsers
 
 ### FR-002: QC Workflow
 - [Critical] Sample collection flow
@@ -309,7 +311,7 @@ Body: {pending_items: [...]}
 ## Testing Scenarios
 
 ### Happy Path
-1. Receive QC notification → Open mobile app
+1. Receive QC notification → Open mobile-responsive web interface
 2. Start inspection → Context displayed
 3. Collect sample → QR code generated
 4. Execute checklist → All items marked
@@ -338,15 +340,15 @@ Body: {pending_items: [...]}
 ---
 
 ## Definition of Done
-- [ ] Mobile-responsive UI functional
+- [ ] Mobile-responsive web UI functional on tablets and mobile browsers
 - [ ] Sample collection working
 - [ ] Checklist execution working
-- [ ] Photo capture and upload
+- [ ] Photo capture and upload via HTML5 camera API
 - [ ] QR code generation and scanning
-- [ ] Offline mode working
-- [ ] Background sync functional
+- [ ] Offline mode working (Service Worker)
+- [ ] Background sync functional when online
 - [ ] Unit tests > 85%
-- [ ] UAT approved (on mobile devices)
+- [ ] UAT approved (on mobile devices/tablets)
 
 ---
 
@@ -354,4 +356,12 @@ Body: {pending_items: [...]}
 **Estimated Hours**: 64 hours  
 **Sprint**: Sprint 18  
 **Priority**: High
+
+---
+
+**Source Documents**:
+- PRD Section 6.9.2: Mobile QC Inspection Interface
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to clarify mobile-responsive web interface (not native app) per PRD
 

@@ -1,46 +1,48 @@
 ---
-title: Driver Mobile Application
+title: Driver Mobile Interface
 story_id: US-052
 phase: phase-1
-module: Mobile Applications
+module: Mobile Interfaces
 priority: High
 status: Pending
 epic: Mobile User Experiences
 sprint: Sprint 9
 story_points: 8
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
   - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Transport_Operations_2025-09-29.docx
 related_stories:
   - US-020-to-execution-own-fleet.md
   - US-026-trip-lifecycle-management.md
 dependencies:
   - US-026-trip-lifecycle-management.md (Must have trip states defined)
-tags: [mobile, driver, flutter, field-operations, high-priority]
+tags: [mobile, driver, responsive-web, field-operations, high-priority]
 ---
 
-# US-052: Driver Mobile Application
+# US-052: Driver Mobile Interface
 
 ## User Story
 
 **As a** Driver  
-**I want to** view my assigned trips, navigate to destinations, update trip status, and record incidents via a mobile app  
+**I want to** view my assigned trips, navigate to destinations, update trip status, and record incidents via a mobile-responsive web interface  
 **So that** I can efficiently execute deliveries while providing real-time updates to the command center
 
 ## Business Context
 
-Drivers are **field personnel** who operate vehicles and execute transport orders. They need a **mobile-first interface** that works in varying network conditions and provides essential trip information at a glance.
+Drivers are **field personnel** who operate vehicles and execute transport orders. They need a **mobile-responsive web interface** that works on mobile devices and provides essential trip information at a glance.
 
-**Driver Challenges Without Mobile App**:
+**Note**: Per PRD, "Mobile Interface" refers to mobile-responsive web pages accessible via mobile browsers, not native mobile applications.
+
+**Driver Challenges Without Mobile Interface**:
 - Rely on paper-based TO documents (risk of loss/damage)
 - Cannot update trip status in real-time → Command center has no visibility
 - Manual incident reporting via phone calls → Delayed, incomplete information
 - No GPS navigation → Drivers unfamiliar with routes get lost
 - Difficulty proving delivery completion (no POD capture)
 
-**Business Benefits of Mobile App**:
+**Business Benefits of Mobile Interface**:
 - ✅ **Real-time visibility**: Command center sees live trip progress
 - ✅ **Reduced errors**: Digital status updates eliminate miscommunication
 - ✅ **Faster incident resolution**: Photo/video evidence speeds up claims
@@ -189,33 +191,34 @@ Drivers are **field personnel** who operate vehicles and execute transport order
 ### FR-001: User Authentication
 - [Critical] System SHALL authenticate driver via phone number + OTP
 - [Critical] System SHALL maintain login session for 30 days
-- [High] System SHALL support biometric login (fingerprint, face ID)
+- [High] System SHALL support browser-based authentication (no app installation required)
 - [High] System SHALL allow logout and session invalidation
 
 ### FR-002: Trip Data Loading
 - [Critical] System SHALL fetch trips via API: `GET /api/v1/drivers/me/trips?status=active`
-- [Critical] System SHALL cache trips locally (SQLite/Hive)
-- [High] System SHALL refresh trips on app launch
-- [High] System SHALL support manual refresh (pull-to-refresh)
+- [Critical] System SHALL cache trips locally using browser storage (localStorage/IndexedDB)
+- [High] System SHALL refresh trips on page load
+- [High] System SHALL support manual refresh (pull-to-refresh or refresh button)
 
 ### FR-003: Status Update API
 - [Critical] System SHALL POST status updates to backend
 - [Critical] System SHALL include: `trip_id, new_status, timestamp, gps_location, remarks`
-- [High] System SHALL queue updates if offline, batch sync when online
+- [High] System SHALL queue updates if offline, batch sync when online (using Service Worker)
 - [High] System SHALL handle duplicate status updates (idempotency)
 
 ### FR-004: GPS Tracking Service
-- [Critical] System SHALL use background location service (iOS: Background Location, Android: Foreground Service)
-- [Critical] System SHALL respect battery optimization settings
-- [High] System SHALL adjust tracking frequency based on battery level:
+- [Critical] System SHALL use browser Geolocation API for GPS tracking
+- [Critical] System SHALL request location permission from user
+- [High] System SHALL track location when page is active (foreground tracking)
+- [High] System SHALL adjust tracking frequency based on battery level (if available via Battery API):
   - > 50%: Every 30 seconds
   - 20-50%: Every 60 seconds
   - < 20%: Every 120 seconds
-- [Medium] System SHALL stop tracking if battery < 10% (with user consent)
+- [Medium] System SHALL warn user about battery usage for continuous tracking
 
 ### FR-005: POD Capture
-- [Critical] System SHALL capture photos using device camera
-- [Critical] System SHALL capture digital signature on canvas
+- [Critical] System SHALL capture photos using device camera via HTML5 camera API
+- [Critical] System SHALL capture digital signature on HTML5 canvas
 - [Critical] System SHALL compress images before upload (max 500 KB per image)
 - [High] System SHALL allow retaking photo if blurry
 - [Medium] System SHALL overlay timestamp on photo
@@ -224,15 +227,15 @@ Drivers are **field personnel** who operate vehicles and execute transport order
 - [Critical] System SHALL POST incidents to: `POST /api/v1/trips/{trip_id}/incidents`
 - [Critical] System SHALL upload photos/videos to secure storage
 - [High] System SHALL validate file size (max 10 MB per file)
-- [High] System SHALL allow incident drafts (save without submitting)
+- [High] System SHALL allow incident drafts (save to localStorage without submitting)
 
-### FR-007: Push Notifications
-- [High] System SHALL receive push notifications for:
+### FR-007: Browser Notifications
+- [High] System SHALL use browser Push API for notifications (if supported):
   - New trip assignment
   - Trip cancellation
   - Route change
   - Urgent alerts from Command Center
-- [High] System SHALL display in-app notification badge
+- [High] System SHALL display in-page notification badge
 - [Medium] System SHALL support notification actions (e.g., "View Trip")
 
 ---
@@ -272,7 +275,7 @@ Drivers are **field personnel** who operate vehicles and execute transport order
 ## Data Model
 
 ```typescript
-// Local Storage (SQLite/Hive)
+// Local Storage (Browser localStorage/IndexedDB)
 DriverTrip {
   id: UUID
   to_number: String
@@ -349,7 +352,7 @@ TripIncident {
 
 ## UI/UX Requirements
 
-### Mobile App Design (Flutter - iOS & Android)
+### Mobile-Responsive Web Interface Design
 
 #### Home Screen - Trip List
 ```
@@ -549,33 +552,33 @@ Response: {notifications: Notification[]}
 ## Non-Functional Requirements
 
 ### Performance
-- App launch time: < 2 seconds
+- Page load time: < 2 seconds on 3G/4G
 - Trip list load: < 1 second
-- GPS tracking battery impact: < 5% per hour
-- Offline mode: Full functionality for cached trips
+- GPS tracking battery impact: Minimized (foreground tracking only)
+- Offline mode: Full functionality for cached trips using Service Worker
 
 ### Compatibility
-- iOS: 13.0+
-- Android: 8.0+ (API level 26+)
-- Screen sizes: 4.7" to 6.7"
+- Mobile browsers: Chrome, Safari, Firefox (latest 2 versions)
+- Screen sizes: 4.7" to 6.7" (responsive design)
+- Operating Systems: Android 8.0+, iOS 13.0+
 - Languages: English, Bangla (Phase 3)
 
 ### Security
-- Encrypted local storage (SQLite Cipher)
+- Encrypted local storage (browser localStorage/IndexedDB)
 - HTTPS for all API calls
 - Token-based authentication (JWT)
-- Biometric authentication support
+- Secure session management
 
 ### Usability
 - Simple, driver-friendly UI (minimal training required)
-- Large touch targets (min 48x48 dp)
+- Large touch targets (min 48x48 px)
 - High contrast for outdoor visibility
-- Voice commands (future enhancement)
+- Progressive Web App (PWA) features for app-like experience
 
 ### Reliability
-- Offline mode: 100% functionality for active trips
+- Offline mode: 100% functionality for active trips using Service Worker
 - Auto-save: Every user action saved locally
-- Crash recovery: Resume from last state
+- Page refresh recovery: Resume from last state
 - Sync retry: Up to 3 attempts with exponential backoff
 
 ---
@@ -617,27 +620,35 @@ Response: {notifications: Notification[]}
 
 ## Definition of Done
 - [ ] All acceptance criteria met
-- [ ] Flutter app functional on iOS & Android
-- [ ] Authentication (phone + OTP + biometric)
+- [ ] Mobile-responsive web interface functional on iOS & Android browsers
+- [ ] Authentication (phone + OTP)
 - [ ] Trip list, details, status update flows complete
-- [ ] GPS tracking (foreground + background)
-- [ ] POD capture (photo + signature)
+- [ ] GPS tracking (foreground via Geolocation API)
+- [ ] POD capture (photo + signature via HTML5 APIs)
 - [ ] Incident reporting (text + photos)
-- [ ] Offline mode: Full functionality for cached data
-- [ ] Sync queue: Automatic background sync
-- [ ] Push notifications: Firebase Cloud Messaging integrated
+- [ ] Offline mode: Full functionality for cached data (Service Worker)
+- [ ] Sync queue: Automatic background sync when online
+- [ ] Browser notifications: Push API integrated (if supported)
 - [ ] Unit tests: coverage > 75%
 - [ ] Field testing: 10 drivers, 50+ trips
-- [ ] Performance: < 5% battery/hour for GPS tracking
-- [ ] App store ready (iOS App Store, Google Play)
+- [ ] Performance: Optimized for mobile browsers
+- [ ] PWA features: Installable, offline-capable
 - [ ] User manual: Driver onboarding guide
 
 ---
 
 **Story Points**: 8  
 **Estimated Hours**: 80 hours  
-**Assigned To**: Mobile Team (Flutter developers)  
+**Assigned To**: Frontend Team (Responsive Web Developers)  
 **Sprint**: Sprint 9  
 **Priority**: High (Critical for field operations)  
-**Platform**: Flutter (iOS 13+, Android 8+)
+**Platform**: Mobile-Responsive Web (iOS Safari 13+, Android Chrome 8+)
+
+---
+
+**Source Documents**:
+- PRD Section 6.9.1: Driver Mobile Interface - Trip Management (Trip Assignment & Navigation)
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to reflect mobile-responsive web interface (not native app) per PRD clarification
 

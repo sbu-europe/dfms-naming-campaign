@@ -563,7 +563,7 @@ Body: {field_name: new_value}
 
 ### Enables
 - → US-018: TO Execution - Own Fleet (requires driver assignment)
-- → US-052: Driver Mobile App (requires driver profiles)
+- → US-052: Driver Mobile Interface (requires driver profiles)
 - → US-067: Vehicle Utilization Analytics (uses driver data)
 
 ---

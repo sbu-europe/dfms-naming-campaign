@@ -195,7 +195,7 @@ Proper product management ensures:
 
 ### BR-PM-005: Handling Instructions Display
 - Handling instructions must be visible to driver, loader, QC supervisor
-- **Enforcement**: UI display in mobile apps and operations screens
+- **Enforcement**: UI display in mobile-responsive interfaces and operations screens
 
 ### BR-PM-006: Catalogue Configuration
 - Product catalogue structure is configurable without code changes

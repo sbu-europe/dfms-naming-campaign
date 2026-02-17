@@ -14,7 +14,7 @@ source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
 related_stories:
   - US-021-trip-lifecycle.md
-  - US-052-driver-mobile-app.md
+  - US-052-driver-mobile-interface.md
 dependencies:
   - US-021-trip-lifecycle.md
 tags: [transport, trip-closure, pod, critical]
@@ -50,8 +50,8 @@ POD is **critical** for:
 
 ## Acceptance Criteria
 
-### AC-1: POD Capture (Mobile App)
-- [ ] System SHALL allow driver to capture POD via mobile app
+### AC-1: POD Capture (Mobile Interface)
+- [ ] System SHALL allow driver to capture POD via mobile-responsive web interface
 - [ ] System SHALL require:
   - Recipient name *
   - Recipient designation *
