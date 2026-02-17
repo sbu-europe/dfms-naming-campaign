@@ -1,8 +1,8 @@
 ---
-title: Vendor Mobile Interface (Bidding & TO View)
+title: Vendor Mobile Application (Flutter - Bidding & TO View)
 story_id: US-063
 phase: phase-1
-module: Mobile Interfaces
+module: Mobile Applications
 priority: High
 status: Pending
 epic: Mobile User Experiences
@@ -17,27 +17,28 @@ related_stories:
   - US-031-vendor-portal.md
 dependencies:
   - US-024-vendor-bidding-portal.md
-tags: [mobile, vendor, bidding, responsive-web, high-priority]
+tags: [mobile, vendor, bidding, flutter, native-app, high-priority]
 ---
 
-# US-063: Vendor Mobile Interface (Bidding & TO View)
+# US-063: Vendor Mobile Application (Flutter - Bidding & TO View)
 
 ## User Story
 
 **As a** Vendor  
-**I want to** access bidding opportunities and view Transport Orders via a mobile-responsive web interface  
+**I want to** access bidding opportunities and view Transport Orders via a native mobile application  
 **So that** I can respond quickly and manage my transport operations on-the-go
 
 ## Business Context
 
-**Note**: Per PRD Section 6.9.3, "Mobile Interface" refers to a responsive web application accessible on mobile devices via web browsers, not a native mobile application.
+**Note**: Per user clarification, the Vendor Mobile Application is a **native Flutter mobile app** (not a mobile-responsive web interface). This differs from Driver and QC Supervisor interfaces which are mobile-responsive web pages.
 
-Vendor mobile-responsive web interface enables:
-- **Quick Response**: Bid on TOs immediately via mobile browser
+Vendor Flutter mobile app enables:
+- **Quick Response**: Bid on TOs immediately via native mobile app
 - **Mobility**: Manage operations from anywhere using mobile devices
-- **Real-time Updates**: Instant notifications via browser Push API
+- **Real-time Updates**: Instant push notifications via Firebase Cloud Messaging (FCM)
 - **Competitive Advantage**: Faster bidding = more opportunities
 - **Operational Efficiency**: Track fleet and trips
+- **Offline Capability**: View cached data when offline
 
 **Key Features**:
 - View available TOs for bidding
@@ -105,8 +106,8 @@ Vendor mobile-responsive web interface enables:
   - Checkpoints completed
 - [ ] System SHALL show trip history
 
-### AC-6: Browser Notifications
-- [ ] System SHALL send browser push notifications (via Push API) for:
+### AC-6: Push Notifications
+- [ ] System SHALL send push notifications via Firebase Cloud Messaging (FCM) for:
   - New TO available for bidding
   - Bid accepted/rejected
   - TO awarded
@@ -114,7 +115,7 @@ Vendor mobile-responsive web interface enables:
   - Payment processed
   - Performance alerts
 - [ ] System SHALL allow notification preferences
-- [ ] System SHALL request notification permission from user
+- [ ] System SHALL register device for push notifications on app launch
 
 ### AC-7: Payment Tracking
 - [ ] System SHALL display:
@@ -136,11 +137,12 @@ Vendor mobile-responsive web interface enables:
 
 ## Functional Requirements
 
-### FR-001: Mobile-Responsive Web Platform
-- [Critical] Responsive web interface (mobile-first design)
-- [Critical] Browser Push API for notifications (if supported)
-- [High] Offline mode (view cached data using Service Worker)
-- [High] Progressive Web App (PWA) features for app-like experience
+### FR-001: Flutter Mobile App Platform
+- [Critical] Native Flutter mobile app (iOS & Android)
+- [Critical] Firebase Cloud Messaging (FCM) for push notifications
+- [High] Offline mode (view cached data using local storage - SQLite/Hive)
+- [High] Background sync when online
+- [High] App store distribution (iOS App Store, Google Play)
 
 ### FR-002: Bidding Features
 - [Critical] TO listing and filtering
@@ -180,16 +182,17 @@ Vendor mobile-responsive web interface enables:
 ## Data Model
 
 ```typescript
+// Local Storage (SQLite/Hive for Flutter)
 // Reuses existing entities from US-024, US-031
-// Mobile-responsive web interface is a client interface
+// Flutter mobile app is a native client interface
 
 VendorMobileSession {
   id: UUID (PK)
   vendor_id: UUID (FK)
-  browser_user_agent: String
-  device_type: Enum (Mobile, Tablet, Desktop)
+  device_id: String
+  device_type: Enum (Android, iOS)
   
-  push_subscription_endpoint: String (for browser Push API, nullable)
+  fcm_token: String (for Firebase Cloud Messaging)
   
   session_start: Timestamp
   last_active: Timestamp
@@ -405,9 +408,9 @@ Body: {rejection_reason}
 GET /api/v1/vendors/{vendor_id}/trips
 Query: ?status=In_Progress
 
-// Browser Push Notifications
-POST /api/v1/mobile/register-push-subscription
-Body: {vendor_id, push_subscription: {endpoint, keys}}
+// Push Notifications (FCM)
+POST /api/v1/mobile/register-device
+Body: {vendor_id, device_id, fcm_token, device_type}
 
 POST /api/v1/mobile/notifications/mark-read
 Body: {notification_id}
@@ -415,10 +418,44 @@ Body: {notification_id}
 
 ---
 
+## Non-Functional Requirements
+
+### Performance
+- App launch time: < 2 seconds
+- TO list load: < 1 second
+- Offline mode: Full functionality for cached data
+- Background sync: Automatic when online
+
+### Compatibility
+- iOS: 13.0+
+- Android: 8.0+ (API level 26+)
+- Screen sizes: 4.7" to 6.7"
+- Languages: English, Bangla (Phase 3)
+
+### Security
+- Encrypted local storage (SQLite Cipher)
+- HTTPS for all API calls
+- Token-based authentication (JWT)
+- Secure FCM token storage
+
+### Usability
+- Simple, vendor-friendly UI
+- Large touch targets (min 48x48 dp)
+- Offline-first design
+- Push notification badges
+
+### Reliability
+- Offline mode: 100% functionality for cached data
+- Auto-save: Every user action saved locally
+- Crash recovery: Resume from last state
+- Sync retry: Up to 3 attempts with exponential backoff
+
+---
+
 ## Testing Scenarios
 
 ### Happy Path
-1. Receive push notification → Open app
+1. Receive push notification → Open Flutter app
 2. View available TOs → TO list displayed
 3. Place bid → Bid submitted
 4. Bid accepted → Notification received
@@ -428,7 +465,13 @@ Body: {notification_id}
 ### Edge Cases
 1. **Bidding deadline passed**: Cannot submit bid
 2. **TO acceptance timeout**: TO reassigned
-3. **Offline mode**: View cached data only
+3. **Offline mode**: View cached data only, sync when online
+4. **Push notification not received**: Fallback to in-app notification
+
+### Error Scenarios
+1. **Network failure**: Offline mode activated, data queued
+2. **FCM registration fails**: Retry mechanism
+3. **App crash**: Recovery from last saved state
 
 ---
 
@@ -446,32 +489,36 @@ Body: {notification_id}
 ---
 
 ## Definition of Done
-- [ ] Mobile-responsive web interface functional on mobile browsers
+- [ ] Flutter mobile app functional on iOS & Android
 - [ ] TO listing and filtering working
 - [ ] Bid submission functional
 - [ ] Awarded TO management working
 - [ ] Driver/vehicle assignment
-- [ ] Trip tracking with GPS (via Geolocation API)
-- [ ] Browser push notifications working (if supported)
+- [ ] Trip tracking with GPS (optional)
+- [ ] Push notifications working (Firebase Cloud Messaging)
 - [ ] Payment tracking display
 - [ ] Performance metrics display
-- [ ] Offline mode for viewing (Service Worker)
-- [ ] PWA features: Installable, offline-capable
-- [ ] Unit tests > 85%
+- [ ] Offline mode for viewing (local storage)
+- [ ] Background sync functional
+- [ ] Unit tests > 75%
 - [ ] UAT approved (on mobile devices)
+- [ ] App store ready (iOS App Store, Google Play)
 
 ---
 
 **Story Points**: 8  
 **Estimated Hours**: 64 hours  
+**Assigned To**: Mobile Team (Flutter developers)  
 **Sprint**: Sprint 18  
-**Priority**: High
+**Priority**: High  
+**Platform**: Flutter (iOS 13+, Android 8+)
 
 ---
 
 **Source Documents**:
 - PRD Section 6.9.3: Vendor Portal Access (Bidding & Trip Management)
+- PRD Section 6.10: Vendor Mobile Application (Flutter)
 
 **Last Updated**: February 13, 2026  
-**Status**: Updated to reflect mobile-responsive web interface (not native app) per PRD clarification
+**Status**: Updated to reflect Flutter native mobile application (per user clarification)
 

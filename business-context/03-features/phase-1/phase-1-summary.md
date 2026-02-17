@@ -232,7 +232,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 |----|------------|----------|--------------|--------|--------|------------------|
 | US-052 | Driver Mobile Interface | High | 8 | Sprint 9 | Pending | [✅ Available](./user-stories/US-052-driver-mobile-interface.md) |
 | US-062 | QC Supervisor Mobile Interface | High | 8 | Sprint 9 | Pending | _Template Available_ |
-| US-063 | Vendor Mobile Interface (Bidding & TO View) | High | 8 | Sprint 10 | Pending | [✅ Available](./user-stories/US-063-vendor-mobile-interface.md) |
+| US-063 | Vendor Mobile Application (Flutter - Bidding & TO View) | High | 8 | Sprint 10 | Pending | [✅ Available](./user-stories/US-063-vendor-mobile-app.md) |
 
 **Module Dependencies**: 
 - Transport Management (for driver app)

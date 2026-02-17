@@ -291,7 +291,7 @@ US-061: QC Supervisor Mobile Interface
   └─ Depends: US-044-056 (QC workflow APIs)
   └─ Note: US-062 is duplicate of US-061, not created separately
 
-US-063: Vendor Mobile Interface (Bidding & TO View)
+US-063: Vendor Mobile Application (Flutter - Bidding & TO View)
   └─ Depends: US-024 (Bidding APIs), US-031 (Vendor Portal APIs)
 ```
 

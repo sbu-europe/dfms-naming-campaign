@@ -182,7 +182,7 @@ estimated_hours: 2128
 **Stories**:
 - ✓ US-052: Driver Mobile Interface
 - ✓ US-061: QC Supervisor Mobile Interface
-- ✓ US-063: Vendor Mobile Interface
+- ✓ US-063: Vendor Mobile Application (Flutter)
 
 ---
 
