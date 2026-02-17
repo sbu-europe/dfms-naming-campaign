@@ -10,21 +10,87 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 ## 📄 Documents in This Section
 
-### 1. [Project Summary](./project-summary.md)
-**What it covers**: Complete project overview including product vision, deployment model, and business model
+### Core Overview Files
+
+#### 1. [Project Summary](./project-summary.md)
+**What it covers**: Complete project overview including deployment model, business model, and key information
 
 **Read this to understand**:
 - What DFMS is and who it's for
-- The problem it solves
 - Three-phase deployment approach
 - Pricing and subscription model
 - Key stakeholders and success criteria
+- Technology stack and platform capabilities
 
 **Target Audience**: Everyone - this is the starting point
 
 ---
 
-### 2. [Business Context](./business-context.md)
+#### 2. [Product Vision](./product-vision.md)
+**What it covers**: Strategic vision, purpose, and platform capabilities
+
+**Read this to understand**:
+- Product vision and purpose
+- What DFMS is NOT
+- Platform capabilities across all domains
+- Strategic direction
+
+**Target Audience**: Everyone - understand the vision
+
+---
+
+#### 3. [Value Proposition](./value-proposition.md)
+**What it covers**: How DFMS addresses business challenges
+
+**Read this to understand**:
+- Key challenges DFMS solves
+- Solution impact and benefits
+- Operational, business, and technical benefits
+
+**Target Audience**: Business stakeholders, decision makers
+
+---
+
+#### 4. [Business Objectives](./business-objectives.md)
+**What it covers**: Strategic goals and stakeholder-specific objectives
+
+**Read this to understand**:
+- Primary business objectives
+- Stakeholder-specific objectives
+- Strategic goals by role
+
+**Target Audience**: Business stakeholders, product managers
+
+---
+
+#### 5. [Current Challenges](./current-challenges.md)
+**What it covers**: Detailed problem statement and business impact
+
+**Read this to understand**:
+- Current-state challenges organizations face
+- Business impact of these challenges
+- How DFMS addresses them
+
+**Target Audience**: Business analysts, product managers
+
+---
+
+#### 6. [Scope & Boundaries](./scope.md)
+**What it covers**: What's included and excluded in DFMS
+
+**Read this to understand**:
+- In-scope features and capabilities
+- Out-of-scope items
+- Assumptions and dependencies
+- Target users
+
+**Target Audience**: Everyone - understand boundaries
+
+---
+
+### Detailed Context Files
+
+#### 7. [Business Context](./business-context.md)
 **What it covers**: Comprehensive business domain knowledge and operational context
 
 **Read this to understand**:
@@ -40,7 +106,7 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 ---
 
-### 3. [Stakeholders](./stakeholders.md)
+#### 8. [Stakeholders](./stakeholders.md)
 **What it covers**: Complete mapping of all stakeholders, their roles, and interactions
 
 **Read this to understand**:
@@ -54,7 +120,7 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 ---
 
-### 4. [Glossary](./glossary.md)
+#### 9. [Glossary](./glossary.md)
 **What it covers**: Comprehensive list of terms, acronyms, and definitions
 
 **Read this to understand**:
@@ -73,20 +139,30 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 **Step 1**: Start with [Project Summary](./project-summary.md)
 - Get the big picture
-- Understand the product vision
+- Understand what DFMS is
 - Learn about the deployment phases
 
-**Step 2**: Read [Stakeholders](./stakeholders.md)
+**Step 2**: Read [Product Vision](./product-vision.md)
+- Understand the strategic vision
+- Learn about platform capabilities
+- See what DFMS is NOT
+
+**Step 3**: Review [Current Challenges](./current-challenges.md) and [Value Proposition](./value-proposition.md)
+- Understand the problems DFMS solves
+- See how it addresses challenges
+- Learn about benefits
+
+**Step 4**: Read [Business Objectives](./business-objectives.md) and [Scope](./scope.md)
+- Understand strategic goals
+- Learn what's included/excluded
+- See assumptions and dependencies
+
+**Step 5**: Study [Stakeholders](./stakeholders.md) and [Business Context](./business-context.md)
 - Identify key user personas
-- Understand different user needs
-- Learn about department structures
-
-**Step 3**: Study [Business Context](./business-context.md)
 - Deep dive into business processes
-- Understand business rules
-- Learn operational workflows
+- Understand business rules and workflows
 
-**Step 4**: Keep [Glossary](./glossary.md) handy
+**Step 6**: Keep [Glossary](./glossary.md) handy
 - Reference unfamiliar terms
 - Clarify acronyms
 - Understand domain language
@@ -170,10 +246,15 @@ All documents in order:
 
 | Document | Status | Last Updated | Completeness |
 |----------|--------|--------------|--------------|
-| Project Summary | ✅ Approved | 2026-02-10 | 100% |
-| Business Context | ✅ Approved | 2026-02-10 | 100% |
-| Stakeholders | ✅ Approved | 2026-02-10 | 100% |
-| Glossary | ✅ Approved | 2026-02-10 | 100% |
+| Project Summary | ✅ Approved | 2026-02-13 | 100% |
+| Product Vision | ✅ Approved | 2026-02-13 | 100% |
+| Value Proposition | ✅ Approved | 2026-02-13 | 100% |
+| Business Objectives | ✅ Approved | 2026-02-13 | 100% |
+| Current Challenges | ✅ Approved | 2026-02-13 | 100% |
+| Scope & Boundaries | ✅ Approved | 2026-02-13 | 100% |
+| Business Context | ✅ Approved | 2026-02-13 | 100% |
+| Stakeholders | ✅ Approved | 2026-02-13 | 100% |
+| Glossary | ✅ Approved | 2026-02-13 | 100% |
 
 ---
 
@@ -244,8 +325,8 @@ If you have questions about these documents or suggestions for improvement:
 ---
 
 **Section**: Business Context - Overview  
-**Documents**: 4  
-**Total Pages**: ~50 (combined)  
-**Last Updated**: 2026-02-10  
-**Status**: Complete - Week 1 Foundation
+**Documents**: 9 (5 core overview + 4 detailed context)  
+**Total Pages**: ~60 (combined)  
+**Last Updated**: 2026-02-13  
+**Status**: Complete - Aligned with PRD v1.0 - Optimized for indexing
 

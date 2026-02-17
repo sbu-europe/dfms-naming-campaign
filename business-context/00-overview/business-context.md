@@ -6,10 +6,11 @@ status: approved
 created: 2026-02-10
 updated: 2026-02-10
 source_documents:
+  - ../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../03-prd-reference/00-overview/business-objectives.md
   - ../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
   - ../../source-documents/discovery-phase/
-  - ../../01-PRODUCT_VISION.md
-tags: [business-context, domain, logistics, fleet-management]
+tags: [business-context, domain, logistics, fleet-management, prd-aligned]
 ---
 
 # DFMS Business Context
@@ -18,7 +19,13 @@ tags: [business-context, domain, logistics, fleet-management]
 
 ## Executive Summary
 
-DFMS (Distribution and Fleet Management System) operates in the logistics and fleet management domain, serving organizations that need to manage complex distribution operations. The system addresses the critical need for centralized, automated, and transparent fleet management across multiple operational areas: transport planning, vehicle tracking, vendor coordination, quality control, and financial management.
+DFMS (Distribution and Fleet Management System) is a unified, enterprise-grade platform designed to digitize, standardize, and optimize end-to-end transport, quality control, and logistics operations across complex supply chain environments.
+
+The system addresses the critical need for centralized, automated, and transparent fleet management across multiple operational areas: transport planning, vehicle tracking, vendor coordination, quality control, and financial management.
+
+### Primary Business Objectives
+
+> For detailed business objectives, see **[Business Objectives](./business-objectives.md)**
 
 ---
 
@@ -476,7 +483,7 @@ DFMS supports the complete lifecycle of distribution operations:
 
 ---
 
-**Last Updated**: 2026-02-10  
-**Status**: Approved  
+**Last Updated**: 2026-02-13  
+**Status**: Approved - Aligned with PRD v1.0  
 **Maintained By**: Business Context Team
 
