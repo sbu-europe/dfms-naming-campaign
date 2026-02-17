@@ -12,6 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/05-vendor-management/vendor-onboarding.md
 related_stories:
   - US-027-vendor-registration.md
   - US-029-vendor-verification.md
@@ -24,9 +25,8 @@ tags: [master-data, vendor, registration, critical]
 
 ## User Story
 
-**As a** Vendor Manager  
-**I want to** register and manage vendor (transport provider) profiles with their company details, fleet information, and verification status  
-**So that** I can onboard external transport providers and assign them to transport orders
+**As a** transport vendor  
+**I want to** register my company and vehicles on DFMS so that I can participate in transport bidding and execute trips for the organization
 
 ## Business Context
 
@@ -40,28 +40,38 @@ Vendors are external transport providers who supplement the own fleet. Proper ve
 
 ## Acceptance Criteria
 
-### AC-1: Vendor Registration
-- [ ] System SHALL allow creating vendor profile with:
-  - Company Name
-  - Trade License Number (unique)
-  - TIN Number (unique)
-  - Company Address
-  - Contact Person Name
-  - Contact Phone (unique)
-  - Contact Email
-  - Vendor Type (Contractual / Non-Contractual)
-  - Contract Start/End Date (if contractual)
-  - Agreed Rates (if contractual)
-  - Bank Account Details
-  - Fleet Size (number of vehicles)
-- [ ] System SHALL validate mandatory fields
-- [ ] System SHALL prevent duplicate Trade License and TIN
+### AC-1: Vendor Registration (per PRD)
+- [ ] System SHALL provide vendor self-registration interface (web/mobile)
+- [ ] System SHALL capture vendor registration form with:
+  - Company details
+  - Vendor type: Contractual (Fixed Rate) or Non-Contractual
+  - Contact Information
+  - Testimonial / reference from Truck Association
+- [ ] System SHALL require mandatory compliance document uploads:
+  - Trade License
+  - BIN
+  - TIN
+- [ ] System SHALL allow vendor contract type selection:
+  - **Contractual Vendor**: Can be directly assigned to TOs by TDO (Transport Distribution Officer) instead of bidding
+  - **Non-Contractual Vendor**: Sent bidding notification with vehicle requirement, route information, optional expected bid price. After approval/winning, vendors add vehicle and driver information with the TO
+- [ ] Vendor profile SHALL be saved in **Pending Verification** status
+- [ ] Submitted vendor profile SHALL remain inactive until admin approval
+- [ ] Vendors SHALL NOT access bidding or TO details before approval
+- [ ] Vendor registration data SHALL be tenant-specific and isolated
+- [ ] System SHALL allow vendors to manage multiple vehicles under one profile
+- [ ] System SHALL allow rejected vendors to resubmit corrected information
+- [ ] All vendor registration attempts SHALL be logged for audit
 
-### AC-2: Vendor Verification Status
+### AC-2: Vendor Verification Status (per PRD)
 - [ ] System SHALL maintain verification status:
-  - Pending, Under Review, Verified, Rejected, Suspended
+  - **Pending Verification** (default after registration)
+  - Under Review
+  - Verified (active, can bid/receive TOs)
+  - Rejected (can resubmit)
+  - Suspended
 - [ ] System SHALL allow only verified vendors to bid/receive TOs
 - [ ] System SHALL track verification date and verifier
+- [ ] System SHALL prevent vendor access to bidding or TO details before approval
 
 ### AC-3: Vendor Document Management
 - [ ] System SHALL allow uploading vendor documents:
@@ -90,10 +100,13 @@ Vendors are external transport providers who supplement the own fleet. Proper ve
 
 ## Functional Requirements
 
-### FR-001: Vendor Registration
-- [Critical] Multi-step registration form
-- [Critical] Document upload capability
-- [High] Vendor type selection (Contractual/Non-Contractual)
+### FR-001: Vendor Registration (per PRD)
+- [Critical] System SHALL provide vendor self-registration interface (web/mobile)
+- [Critical] System SHALL require document uploads (trade license, BIN, TIN) before submission
+- [High] Vendor registration form SHALL capture company, vehicle, driver, and compliance data
+- [High] System SHALL allow vendors to manage multiple vehicles under one profile
+- [High] System SHALL allow rejected vendors to resubmit corrected information
+- [High] All vendor registration attempts SHALL be logged for audit
 
 ### FR-002: Verification Workflow
 - [Critical] Admin approval workflow

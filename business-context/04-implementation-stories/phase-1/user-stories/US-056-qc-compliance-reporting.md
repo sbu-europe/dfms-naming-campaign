@@ -11,7 +11,8 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/qc-workflow.md
 related_stories:
   - US-048-qc-report-generation.md
   - US-054-qc-audit-trail.md

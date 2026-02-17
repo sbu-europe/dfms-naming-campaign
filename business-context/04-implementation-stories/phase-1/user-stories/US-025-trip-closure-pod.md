@@ -11,7 +11,8 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-021-trip-lifecycle.md
   - US-052-driver-mobile-interface.md
@@ -24,9 +25,8 @@ tags: [transport, trip-closure, pod, critical]
 
 ## User Story
 
-**As a** Driver  
-**I want to** capture Proof of Delivery and close the trip  
-**So that** delivery is documented, customer acknowledges receipt, and trip can be billed
+**As a** Transport Planner  
+**I want** trips to close automatically once delivery and QC are completed
 
 ## Business Context
 

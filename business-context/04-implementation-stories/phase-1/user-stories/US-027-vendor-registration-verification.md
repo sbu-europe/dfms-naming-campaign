@@ -11,7 +11,8 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/05-vendor-management/vendor-onboarding.md
 related_stories:
   - US-004-vendor-master-data.md
   - US-024-vendor-bidding-portal.md
@@ -24,9 +25,8 @@ tags: [vendor, registration, verification, onboarding, critical]
 
 ## User Story
 
-**As a** Vendor Manager  
-**I want to** register new vendors and verify their credentials through a structured workflow  
-**So that** only qualified and trustworthy vendors can participate in transport operations
+**As a** transport vendor  
+**I want to** register my company and vehicles on DFMS so that I can participate in transport bidding and execute trips for the organization
 
 ## Business Context
 
@@ -95,37 +95,37 @@ Registration → Document Submission → Verification → Approval/Rejection
   - Verified
   - Rejected
 
-### AC-4: Background Checks
-- [ ] System SHALL allow recording background check results:
-  - Trade license verification (with govt. portal)
-  - Reference checks (previous clients)
-  - Credit check (if applicable)
-  - Criminal background check (if applicable)
-- [ ] System SHALL require approval from senior manager for final verification
+### AC-4: Vendor Contract Type Selection (per PRD)
+- [ ] System SHALL allow vendor to select contract type during registration:
+  - **Contractual (Fixed Rate)**: Can be directly assigned TOs by TDO without bidding
+  - **Non-Contractual**: Must participate in bidding to receive TOs
+- [ ] System SHALL enforce contract type in TO assignment workflow
+- [ ] Contractual vendors SHALL NOT see bidding opportunities (direct assignment only)
+- [ ] Non-contractual vendors SHALL receive bidding notifications
 
-### AC-5: Approval/Rejection
-- [ ] System SHALL update vendor status to "Verified" after approval
+### AC-5: Approval/Rejection (per PRD)
+- [ ] System SHALL update vendor status to "Verified" (active) after admin approval
 - [ ] System SHALL send approval notification to vendor
-- [ ] System SHALL grant vendor portal access
+- [ ] System SHALL grant vendor portal access after approval
 - [ ] System SHALL send rejection notification with reason if rejected
-- [ ] System SHALL allow vendor to reapply after rejection
-
-### AC-6: Vendor Profile Completion
-- [ ] System SHALL require verified vendors to complete profile:
-  - Add fleet details (vehicles)
-  - Add driver details
-  - Set service preferences
-  - Upload additional certifications
-- [ ] System SHALL mark profile as "Complete" when all required info added
+- [ ] System SHALL allow rejected vendors to resubmit corrected information
+- [ ] All vendor registration attempts SHALL be logged for audit
 
 ---
 
 ## Functional Requirements
 
-### FR-001: Registration Form
-- [Critical] Public-facing registration form (no login required)
-- [Critical] Multi-step form (company info → documents → fleet)
+### FR-001: Registration Form (per PRD)
+- [Critical] Vendor self-registration interface (web/mobile)
+- [Critical] Multi-step form capturing:
+  - Company details
+  - Vendor type (Contractual/Non-Contractual)
+  - Contact Information
+  - Testimonial/reference from Truck Association
+  - Vehicle, driver, and compliance data
+- [Critical] Document uploads (trade license, BIN, TIN) required before submission
 - [High] Form validation and error messages
+- [High] Allow vendors to manage multiple vehicles under one profile
 - [Medium] Auto-save draft (session storage)
 
 ### FR-002: Document Management
@@ -153,8 +153,9 @@ Registration → Document Submission → Verification → Approval/Rejection
 - Trade license number must be unique in system
 - **Enforcement**: Database unique constraint
 
-### BR-VEN-002: Mandatory Documents
-- Trade License, TIN, Bank Statement are mandatory
+### BR-VEN-002: Mandatory Documents (per PRD)
+- Trade License, BIN, TIN are mandatory
+- Documents must be uploaded before submission
 - **Enforcement**: Form validation
 
 ### BR-VEN-003: Document Expiry
@@ -166,9 +167,10 @@ Registration → Document Submission → Verification → Approval/Rejection
 - Senior Manager approval required for final verification
 - **Enforcement**: RBAC
 
-### BR-VEN-005: Reapplication Period
-- Rejected vendors can reapply after 30 days
-- **Enforcement**: Date check
+### BR-VEN-005: Reapplication Period (per PRD)
+- Rejected vendors can resubmit corrected information immediately
+- All registration attempts are logged for audit
+- **Enforcement**: System logging
 
 ---
 
@@ -181,11 +183,15 @@ Vendor {
   // Registration fields
   registration_status: Enum (
     Draft,
-    Submitted,
-    Documents_Under_Review,
-    Additional_Documents_Requested,
-    Verified,
-    Rejected
+    Pending_Verification,  // Default status per PRD
+    Under_Review,
+    Verified,  // Active, can bid/receive TOs
+    Rejected  // Can resubmit
+  )
+  
+  vendor_type: Enum (
+    Contractual,  // Fixed Rate, direct assignment
+    Non_Contractual  // Bidding required
   )
   
   registered_at: Timestamp

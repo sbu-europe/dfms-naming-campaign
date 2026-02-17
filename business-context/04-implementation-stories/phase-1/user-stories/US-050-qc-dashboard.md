@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/qc-workflow.md
 related_stories:
   - US-044-qc-lab-testing.md
   - US-047-qc-pass-fail-decision.md

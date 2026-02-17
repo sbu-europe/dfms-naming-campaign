@@ -11,7 +11,8 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-060-trip-costing.md
   - US-025-trip-closure-pod.md
@@ -25,9 +26,8 @@ tags: [vendor, payment, billing, financial, high-priority]
 
 ## User Story
 
-**As a** Finance Manager  
-**I want to** manage vendor payments for completed trips  
-**So that** vendors are paid accurately and on time, maintaining good relationships
+**As an** Accounts Officer  
+**I want** vendor trip to be finalized per trip so that invoices can be generated accurately without disputes
 
 ## Business Context
 
@@ -69,17 +69,26 @@ Trip Completed → Invoice Generated → Invoice Approved → Payment Processed 
   - Due date
 - [ ] System SHALL allow manual invoice creation (for adjustments)
 
-### AC-2: Invoice Approval Workflow
-- [ ] System SHALL require Finance Manager approval before payment
-- [ ] System SHALL display pending invoices queue
-- [ ] System SHALL allow Finance Manager to:
-  - Approve invoice
-  - Reject invoice (with reason)
-  - Request modification
-  - Add deductions/adjustments
-- [ ] System SHALL notify vendor of approval/rejection
+### AC-2: Invoice Submission Requirements (per PRD)
+- [ ] System SHALL require mandatory documents before invoicing:
+  - POD (Proof of Delivery)
+  - GRN (Goods Receipt Note)
+- [ ] System SHALL link invoices to corresponding TO
+- [ ] System SHALL support one invoice per TO
+- [ ] System SHALL allow consolidated invoice submission (multiple TOs)
 
-### AC-3: Payment Processing
+### AC-3: Vendor Cost Locking (per PRD)
+- [ ] Vendor Cost SHALL be linked to:
+  - TO ID
+  - Trip ID
+  - Vendor ID
+- [ ] Vendor Cost SHALL originate from:
+  - Contractual rate (pre-configured, hidden from vendor)
+  - Approved Bid Rate (non-contractual)
+- [ ] Vendor Cost SHALL be locked after Bid approval
+- [ ] System SHALL prevent cost modification after locking
+
+### AC-4: Payment Processing
 - [ ] System SHALL allow recording payment details:
   - Payment method
   - Payment date
@@ -90,7 +99,7 @@ Trip Completed → Invoice Generated → Invoice Approved → Payment Processed 
 - [ ] System SHALL calculate outstanding balance
 - [ ] System SHALL update invoice status to "Paid"
 
-### AC-4: Payment Tracking
+### AC-5: Payment Tracking
 - [ ] System SHALL track payment status:
   - Pending Approval
   - Approved (Awaiting Payment)
@@ -101,7 +110,7 @@ Trip Completed → Invoice Generated → Invoice Approved → Payment Processed 
 - [ ] System SHALL send payment reminders for overdue invoices
 - [ ] System SHALL calculate aging (days overdue)
 
-### AC-5: Vendor Payment History
+### AC-6: Vendor Payment History
 - [ ] System SHALL display vendor payment history:
   - All invoices (paid/unpaid)
   - Total amount paid
@@ -109,7 +118,7 @@ Trip Completed → Invoice Generated → Invoice Approved → Payment Processed 
   - Payment trends
 - [ ] System SHALL allow filtering by date, status, amount
 
-### AC-6: Payment Reports
+### AC-7: Payment Reports
 - [ ] System SHALL generate payment reports:
   - Vendor-wise payment summary
   - Period-wise payment summary
@@ -121,11 +130,12 @@ Trip Completed → Invoice Generated → Invoice Approved → Payment Processed 
 
 ## Functional Requirements
 
-### FR-001: Invoice Management
-- [Critical] Auto-invoice generation on trip completion
-- [Critical] Invoice approval workflow
-- [High] Manual invoice creation/editing
-- [Medium] Invoice templates (customizable)
+### FR-001: Invoice Management (per PRD)
+- [Critical] Invoice generation per TO (one invoice per TO)
+- [Critical] Mandatory POD and GRN documents before invoicing
+- [Critical] Link invoices to corresponding TO
+- [High] Consolidated invoice submission (multiple TOs)
+- [High] Vendor cost locking after bid approval
 
 ### FR-002: Payment Processing
 - [Critical] Payment recording interface

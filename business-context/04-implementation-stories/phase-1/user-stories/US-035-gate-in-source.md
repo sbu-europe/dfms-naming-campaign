@@ -11,8 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
-  - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Distribution_Operations_2025-10-03.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/gate-management.md
 related_stories:
   - US-021-trip-lifecycle.md
   - US-036-gate-out-source.md
@@ -26,9 +26,8 @@ tags: [operations, gate, gate-in, source, critical]
 
 ## User Story
 
-**As a** Gate Operator (Source)  
-**I want to** record vehicle entry at source location  
-**So that** vehicle arrival is tracked and loading process can begin
+**As a** Gate man  
+**I want to** register vehicle gate-in details so that all incoming vehicles are formally logged and validated before operational processing
 
 ## Business Context
 

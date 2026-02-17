@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/transport-requisition-management.md
 related_stories:
   - US-009-fg-transfer-requisition.md
   - US-015-tr-assessment.md
@@ -24,9 +25,8 @@ tags: [requisition, approval, workflow, distribution, critical]
 
 ## User Story
 
-**As a** Distribution Approver  
-**I want to** review and approve/reject FG Transfer Requisitions  
-**So that** only validated distribution needs proceed to transport planning
+**As a** Distribution Manager (DM)  
+**I want to** review, approve and update Transport Request (TR) created by DO so that products are being transferred at their desired POIs based on coordinated approval workflow
 
 ## Business Context
 

@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-060-profitability-analysis.md
   - US-058-fuel-management.md
@@ -25,9 +26,8 @@ tags: [costing, financial, trip-cost, high-priority]
 
 ## User Story
 
-**As a** Finance Manager  
-**I want to** calculate actual trip costs automatically  
-**So that** I can track transportation expenses and profitability accurately
+**As an** Accounts or Financial Officer and Transport Planner  
+**I want to** record and review trip-level costs for each completed TOs so that I can analyze delivery expenses, compare own vs vendor costs, and prepare accurate invoices
 
 ## Business Context
 
@@ -62,15 +62,18 @@ Trip costing enables:
   - **Overhead**: Allocated percentage
 - [ ] System SHALL allow manual cost entry for missing data
 
-### AC-2: Automatic Cost Calculation
-- [ ] System SHALL auto-calculate trip cost on trip completion
-- [ ] System SHALL use:
-  - Actual fuel consumption (if available) or estimated
-  - Actual distance traveled
-  - Trip duration
-  - Vehicle type
-  - Fleet type (own/vendor)
-- [ ] System SHALL store calculated cost per trip
+### AC-2: Automatic Cost Calculation (per PRD)
+- [ ] System SHALL generate a Trip Cost record once a Trip is created
+- [ ] System SHALL allow manual entry of:
+  - Fuel cost
+  - Vendor Trip Charge (If Vendor Fleet used)
+  - Maintenance Allocation (Manual – applicable for Own Fleet)
+  - Toll / Ferry / Parking (Manual – applicable for Own Fleet)
+  - Other Operational Changes
+- [ ] System SHALL calculate:
+  - Total Trip Cost
+  - Cost per KM
+- [ ] System SHALL differentiate Own Fleet vs Vendor Fleet costing
 
 ### AC-3: Cost Breakdown Display
 - [ ] System SHALL display cost breakdown:

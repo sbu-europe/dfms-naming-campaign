@@ -11,7 +11,8 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/06-fleet-management/fuel-management.md
 related_stories:
   - US-001-vehicle-master-data.md
   - US-057-vehicle-maintenance.md
@@ -26,9 +27,11 @@ tags: [fleet, fuel, tracking, medium-priority]
 
 ## User Story
 
-**As a** Fleet Manager  
-**I want to** track fuel consumption and costs  
-**So that** I can monitor fuel efficiency and control fuel expenses
+**As a** Driver Supervisor  
+**I want to** track fuel consumption so that fuel efficiency and cost can be analyzed
+
+**Additional User Story** (from PRD):
+- **As a** Driver, **I want to** record refueling events so that fuel tracking remains accurate
 
 ## Business Context
 
@@ -43,20 +46,22 @@ Fuel management enables:
 
 ## Acceptance Criteria
 
-### AC-1: Fuel Entry Recording
-- [ ] System SHALL allow recording fuel entries with:
-  - Vehicle *
-  - Fuel date *
-  - Fuel station
-  - Fuel type (Diesel, Petrol, CNG)
-  - Quantity (liters) *
-  - Cost *
-  - Odometer reading *
-  - Trip ID (if trip-specific)
-  - Receipt upload
+### AC-1: Fuel Entry Recording (per PRD)
+- [ ] System SHALL allow fuel entry with:
+  - Fuel quantity *
+  - Mileage reading *
+  - Receipt image (upload)
+- [ ] System SHALL allow Workshop Supervisor to record refueling on behalf of drivers
+- [ ] System SHALL allow Driver to record refueling events
+- [ ] System SHALL support receipt and mileage photo upload
 - [ ] System SHALL validate odometer reading (must be > last reading)
 
-### AC-2: Fuel Efficiency Calculation
+### AC-2: Fuel Consumption Tracking (per PRD)
+- [ ] System SHALL track:
+  - Mileage
+  - Fuel intake
+- [ ] System SHALL calculate fuel consumption per kilometer
+- [ ] Fuel calculations SHALL rely on last recorded mileage
 - [ ] System SHALL calculate:
   - Fuel efficiency (km/liter) per vehicle
   - Fuel cost per km

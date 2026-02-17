@@ -6,7 +6,8 @@ status: planned
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../03-prd-reference/
 tags: [phase-2, phase-3, roadmap, guidelines, future-work]
 ---
 
@@ -271,7 +272,8 @@ tags: [relevant, tags]
 
 ### Step 3: Extract Requirements
 - Review source documents:
-  - `PRD_DFMS_v1.0.docx`
+  - `PRD_DFMS_v1.0.md`
+  - `business-context/03-prd-reference/`
   - Discovery phase documents
   - User feedback from Phase 1
 - Gather operational data insights

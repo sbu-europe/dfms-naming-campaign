@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-021-trip-lifecycle.md
   - US-025-trip-closure-pod.md

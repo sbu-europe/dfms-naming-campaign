@@ -12,6 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/06-fleet-management/helper-management.md
 related_stories:
   - US-002-driver-master-data.md
   - US-018-to-execution-own-fleet.md
@@ -24,9 +25,11 @@ tags: [master-data, helper, registration, critical]
 
 ## User Story
 
-**As a** Fleet Manager  
-**I want to** register and manage helper profiles with their contact information and availability status  
-**So that** I can assign helpers to transport orders for loading/unloading assistance
+**As a** Transport Distribution Officer (TDO)  
+**I want to** register and manage helper profiles so that helpers can be formally linked to drivers and tracked during transport operations
+
+**Additional User Story** (from PRD):
+- **As a** Transport Distribution Officer (TDO), **I want to** assign one or more helpers to a driver so that trips are carried out with the required supporting personnel
 
 ## Business Context
 
@@ -56,20 +59,29 @@ Helpers assist drivers with loading, unloading, and handling goods during transp
 - [ ] System SHALL prevent duplicate NID (unique constraint)
 - [ ] System SHALL allow helper profile update with audit logging (per PRD)
 
-### AC-2: Helper Availability
+### AC-2: Helper Assignment to Driver (per PRD)
+- [ ] System SHALL allow assigning one or more helpers to a driver
+- [ ] Helper assignment SHALL be linked to trip execution
+- [ ] System SHALL support many-to-one mapping (multiple helpers to one driver)
+- [ ] System SHALL link helper assignments to Driver, Vehicle, and Trip/Transport Order (TO)
+- [ ] System SHALL store helper assignment history per trip
+- [ ] A helper MAY be assigned to multiple trips over time but NOT to conflicting active trips
+- [ ] System SHALL prevent assigning helper to conflicting active trips
+
+### AC-3: Helper Availability
 - [ ] System SHALL maintain helper status:
   - Available, On Trip, On Leave, Terminated
 - [ ] System SHALL auto-update status when assigned to trip
 - [ ] System SHALL allow marking helper on leave
 
-### AC-3: Helper Performance
+### AC-4: Helper Performance
 - [ ] System SHALL track:
   - Total trips completed
   - Last trip date
   - Incident count
 - [ ] System SHALL display performance on helper profile
 
-### AC-4: Helper Management
+### AC-5: Helper Management
 - [ ] System SHALL provide helper list with search and filter
 - [ ] System SHALL allow editing helper information
 - [ ] System SHALL allow viewing helper trip history
@@ -85,7 +97,7 @@ Helpers assist drivers with loading, unloading, and handling goods during transp
 - [High] Bulk import via Excel
 - [Medium] Photo upload (optional)
 
-### FR-004: Bulk Upload & Inline Management (per PRD 6.3.2)
+### FR-005: Bulk Upload & Inline Management (per PRD 6.3.2)
 - [Critical] Bulk upload option for helper master data
 - [Critical] CSV file format (UTF-8 encoded)
 - [Critical] Entity-specific CSV templates with mandatory fields marked
@@ -99,7 +111,13 @@ Helpers assist drivers with loading, unloading, and handling goods during transp
 - [High] Leave management
 - [Medium] Performance tracking
 
-### FR-003: Integration
+### FR-003: Helper Assignment (per PRD)
+- [Critical] System SHALL support many-to-one mapping (multiple helpers to one driver)
+- [High] System SHALL link helper assignments to Driver, Vehicle, and Trip/Transport Order (TO)
+- [High] System SHALL store helper assignment history per trip
+- [High] System SHALL prevent assigning helper to conflicting active trips
+
+### FR-004: Integration
 - [Critical] API for helper availability check
 - [Critical] Link helper to trip records
 

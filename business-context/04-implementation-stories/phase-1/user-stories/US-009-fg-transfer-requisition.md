@@ -12,6 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/transport-requisition-management.md
 related_stories:
   - US-073-requisition-transfer-type-configuration.md
   - US-011-distribution-approval.md
@@ -29,9 +30,8 @@ tags: [requisition, fg-transfer, tr, critical, workflow]
 
 ## User Story
 
-**As a** Distribution Manager  
-**I want to** create a Finished Goods (FG) Transfer Requisition to move products from one location to another  
-**So that** distribution needs are formally documented and can be planned for transport execution
+**As a** Distribution Officer (DO)  
+**I want to** create Transport Request from approved Finished Goods PR so that products are being transferred at their desired POIs
 
 ## Business Context
 

@@ -256,7 +256,8 @@ epic: [Epic Name]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 source_documents:
-  - ../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../03-prd-reference/
 related_stories:
   - US-XXX-related-story.md
 dependencies:

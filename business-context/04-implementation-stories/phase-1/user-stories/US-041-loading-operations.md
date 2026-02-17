@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/command-center.md
 related_stories:
   - US-042-unloading-operations.md
   - US-039-scaling-source.md
@@ -24,9 +25,8 @@ tags: [operations, loading, source, critical]
 
 ## User Story
 
-**As a** Loading Supervisor  
-**I want to** manage and track loading operations  
-**So that** vehicles are loaded efficiently, safely, and accurately
+**As a** Loading Operator  
+**I want to** log loading start/end times, Quantity Loaded, and Seal Number so that loading operations are tracked and documented
 
 ## Business Context
 

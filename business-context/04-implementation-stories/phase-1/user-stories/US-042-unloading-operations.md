@@ -11,7 +11,9 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/command-center.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-041-loading-operations.md
   - US-040-scaling-destination.md
@@ -25,9 +27,8 @@ tags: [operations, unloading, destination, critical]
 
 ## User Story
 
-**As an** Unloading Supervisor  
-**I want to** manage and track unloading operations  
-**So that** vehicles are unloaded efficiently and products are received accurately
+**As an** Unloading Operator  
+**I want to** log unloading start/end times so that unloading operations are tracked and delivery is confirmed
 
 ## Business Context
 

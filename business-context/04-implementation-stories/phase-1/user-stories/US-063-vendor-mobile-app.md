@@ -12,6 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/07-mobile-interfaces/vendor-mobile.md
 related_stories:
   - US-024-vendor-bidding-portal.md
   - US-031-vendor-portal.md

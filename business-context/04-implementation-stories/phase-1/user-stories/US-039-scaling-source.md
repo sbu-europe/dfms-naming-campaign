@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/scaling-management.md
 related_stories:
   - US-040-scaling-destination.md
   - US-041-loading-operations.md
@@ -24,9 +25,8 @@ tags: [operations, scaling, weighing, source, high-priority]
 
 ## User Story
 
-**As a** Scaling Operator (Source)  
-**I want to** record vehicle weight before and after loading  
-**So that** loaded quantity is accurately measured and documented
+**As a** Scaling Operator  
+**I want to** record vehicle weight so that accurate load calculations can be made
 
 ## Business Context
 

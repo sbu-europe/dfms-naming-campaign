@@ -77,6 +77,12 @@ This folder contains comprehensive business context documentation for the DFMS (
 - **[PRD Reference Content](03-prd-reference/README.md)** - PRD-extracted content organized by module
 - **[Implementation Stories](04-implementation-stories/README.md)** - Detailed user stories organized by phase
 
+## 📊 Analysis & Alignment
+
+- **[PRD Alignment Plan](PRD_ALIGNMENT_PLAN.md)** - Module-by-module alignment plan
+- **[PRD Alignment Summary](PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work
+- **[PRD Implementation Comparison](PRD_IMPLEMENTATION_COMPARISON.md)** - Detailed comparison report
+
 ---
 
 **Last Updated**: 2026-02-17  

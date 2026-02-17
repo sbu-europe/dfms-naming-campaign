@@ -11,8 +11,9 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
-  - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Transport_Operations_2025-09-29.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/05-vendor-management/vendor-portal.md
+  - ../../../03-prd-reference/03-core-operations/trip-management.md
 related_stories:
   - US-021-to-execution-vendor-fleet.md
   - US-027-vendor-registration.md

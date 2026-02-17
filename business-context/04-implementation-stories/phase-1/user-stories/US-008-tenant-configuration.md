@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/01-foundation/user-tenant-management.md
 related_stories:
   - US-007-user-role-management.md
 tags: [master-data, tenant, configuration, multi-tenant, high-priority]
@@ -21,38 +22,62 @@ tags: [master-data, tenant, configuration, multi-tenant, high-priority]
 
 ## User Story
 
-**As a** System Administrator  
-**I want to** configure tenant-specific settings and branding  
-**So that** the system can be customized per organization while supporting multi-tenancy
+**As a** new organization  
+**I want to** register for a DFMS account and configure tenant settings  
+**So that** I can start managing my transport and logistics operations digitally with customized settings
 
 ## Business Context
 
-DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization) requires:
+DFMS is designed as a **multi-tenant SaaS platform**. Organizations need to:
+1. **Register**: Sign up for a DFMS account (Organization Signup & Tenant Creation)
+2. **Configure**: Set up tenant-specific settings and branding
+3. **Isolate**: Ensure complete data isolation between organizations
+
+Each tenant (organization) requires:
+- **Registration**: Organization details, admin contact, OTP verification
 - **Branding**: Company logo, colors, name
 - **Business Settings**: Operational hours, currency, timezone
 - **Feature Toggles**: Enable/disable specific features
 - **Integration Settings**: API keys for external services (GPS, SMS, maps)
 - **Notification Preferences**: Email, SMS, push notification settings
+- **Data Isolation**: Complete logical and physical separation from other tenants
 
 ---
 
 ## Acceptance Criteria
 
-### AC-1: Tenant Registration
-- [ ] System SHALL allow Super Admin to create tenant with:
+### AC-1: Organization Signup & Tenant Creation
+- [ ] System SHALL provide public registration form for new organization signup
+- [ ] Registration form SHALL collect:
+  - Organization/Company name
+  - Admin email
+  - Contact number
+  - Business category
+  - Industry Type
+  - Address
+- [ ] System SHALL send email and SMS OTP to verify admin contact details before account activation
+- [ ] System SHALL auto-generate unique tenant ID upon successful registration
+- [ ] System SHALL create dedicated database schema ensuring multi-tenant separation
+- [ ] System SHALL send registration confirmation email with activation link and getting started guide
+- [ ] OTP SHALL be valid for 10 minutes with resend option after 2 minutes cooldown
+- [ ] Failed OTP attempts (>3) SHALL temporarily block registration for 15 minutes
+- [ ] All registration attempts SHALL be logged with timestamp, IP address, device information
+- [ ] System SHALL validate email domain uniqueness to prevent duplicate registrations
+- [ ] System SHALL create default admin user account upon OTP verification
+
+### AC-2: Tenant Configuration
+- [ ] System SHALL allow Tenant Admin to configure:
   - Tenant Name
   - Tenant Code (unique, subdomain)
   - Company Logo
   - Primary Color, Secondary Color
   - Contact Email, Phone
   - Address
-  - Subscription Plan (Basic, Professional, Enterprise)
+  - Subscription Plan (Basic, Starter, Growth, Enterprise)
   - Subscription Start/End Date
   - Status (Active, Suspended, Expired)
-- [ ] System SHALL generate unique tenant ID
-- [ ] System SHALL create tenant database schema (if multi-schema approach)
 
-### AC-2: Business Configuration
+### AC-3: Business Configuration
 - [ ] System SHALL allow Admin to configure:
   - Business Hours (from-to time)
   - Working Days (Mon-Sun selection)
@@ -63,7 +88,7 @@ DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization)
   - Weight Unit (KG, LBS)
 - [ ] System SHALL apply settings across all tenant users
 
-### AC-3: Feature Toggles
+### AC-4: Feature Toggles
 - [ ] System SHALL provide feature enable/disable toggles:
   - Vendor Bidding
   - QC Module
@@ -74,7 +99,7 @@ DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization)
 - [ ] System SHALL hide disabled features from UI
 - [ ] System SHALL block disabled feature API calls
 
-### AC-4: Integration Settings
+### AC-5: Integration Settings
 - [ ] System SHALL allow Admin to configure:
   - GPS/VTS Provider (API URL, API Key)
   - SMS Gateway (Provider, API Key)
@@ -84,7 +109,7 @@ DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization)
 - [ ] System SHALL validate integration credentials
 - [ ] System SHALL test integration connectivity
 
-### AC-5: Notification Preferences
+### AC-6: Notification Preferences
 - [ ] System SHALL allow configuring notification channels:
   - Email notifications (enabled/disabled)
   - SMS notifications (enabled/disabled)
@@ -92,7 +117,17 @@ DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization)
 - [ ] System SHALL configure notification templates per event
 - [ ] System SHALL set notification recipients per event type
 
-### AC-6: Branding Application
+### AC-7: Tenant Data Isolation
+- [ ] Each organization's data (user, fleet, trips, vendors) SHALL be logically and physically segregated
+- [ ] Each tenant SHALL have unique tenant ID and isolated database schema
+- [ ] Tenant ID SHALL be auto-appended to all queries
+- [ ] No cross-tenant data SHALL be visible in UI or API
+- [ ] Database foreign keys SHALL enforce boundaries
+- [ ] API endpoints SHALL validate tenant context
+- [ ] Tenant-specific file storage folders SHALL be used
+- [ ] Encrypted separate tenant backups SHALL be maintained
+
+### AC-8: Branding Application
 - [ ] System SHALL display tenant logo in header
 - [ ] System SHALL apply tenant colors to UI theme
 - [ ] System SHALL show tenant name in page titles
@@ -102,25 +137,39 @@ DFMS is designed as a **multi-tenant SaaS platform**. Each tenant (organization)
 
 ## Functional Requirements
 
-### FR-001: Tenant Management
+### FR-001: Organization Signup & Tenant Creation
+- [Critical] System SHALL provide public registration form for new organization signup
+- [Critical] Registration form SHALL collect: Organization name, Admin email, Contact number, Business category, Industry Type, Address
+- [Critical] Upon successful registration, system SHALL generate unique tenant ID and dedicated database schema
+- [Critical] System SHALL send email and SMS OTP to verify admin contact details before account activation
+- [High] System SHALL create default admin user account upon OTP verification
+- [High] Verification logs SHALL be stored with timestamp and IP address for audit purposes
+- [High] System SHALL validate email domain uniqueness to prevent duplicate registrations
+- [High] OTP SHALL be valid for 10 minutes with resend option after 2 minutes cooldown
+- [High] Failed OTP attempts (>3) SHALL temporarily block registration for 15 minutes
+
+### FR-002: Tenant Management
 - [Critical] Tenant registration and configuration
 - [Critical] Tenant isolation (data security)
+- [Critical] System SHALL implement logical and physical tenant data isolation
+- [Critical] Each tenant SHALL have unique tenant ID and dedicated database schema
+- [Critical] All user data (users, fleet, trips, vendors) SHALL be scoped to tenant ID
 - [High] Tenant subdomain routing (e.g., nourish.dfms.com)
-- [Medium] Tenant-specific database schema
+- [High] System SHALL prevent tenant ID tampering through request validation
 
-### FR-002: Configuration UI
+### FR-003: Configuration UI
 - [Critical] Settings page with tabs (General, Business, Features, Integrations, Notifications)
 - [High] Real-time preview of branding changes
 - [High] Configuration validation
 - [Medium] Configuration export/import (JSON)
 
-### FR-003: Feature Toggle System
+### FR-004: Feature Toggle System
 - [Critical] Feature flag management
 - [Critical] Runtime feature check (no deployment needed)
 - [High] Feature-based UI rendering
 - [High] Feature-based API authorization
 
-### FR-004: Integration Management
+### FR-005: Integration Management
 - [High] Integration credential encryption
 - [High] Integration health check
 - [Medium] Integration usage monitoring

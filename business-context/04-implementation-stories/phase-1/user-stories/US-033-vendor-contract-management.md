@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/05-vendor-management/vendor-onboarding.md
 related_stories:
   - US-027-vendor-registration-verification.md
   - US-019-to-execution-vendor-direct.md
@@ -46,19 +47,21 @@ Contract management enables:
 
 ## Acceptance Criteria
 
-### AC-1: Contract Creation
-- [ ] System SHALL allow creating vendor contract with:
+### AC-1: Contract Creation (per PRD)
+- [ ] System SHALL allow creating vendor contract for Contractual vendors with:
   - Contract number (auto-generated)
-  - Vendor *
-  - Contract type *
+  - Vendor * (must be marked as Contractual type)
+  - Contract type: Contractual (Fixed Rate)
   - Start date *
   - End date *
-  - Rate structure (per km, per trip, or custom)
+  - Fixed rate structure (pre-configured, hidden from vendor)
   - Routes covered (if route-specific)
   - Terms and conditions
   - Contract document upload (PDF)
 - [ ] System SHALL validate start date < end date
 - [ ] System SHALL prevent overlapping contracts for same vendor/route
+- [ ] Contractual vendors SHALL be directly assigned TOs by TDO without bidding
+- [ ] Contractual rates SHALL be hidden from vendor (pre-configured by admin)
 
 ### AC-2: Rate Management
 - [ ] System SHALL allow defining rates:

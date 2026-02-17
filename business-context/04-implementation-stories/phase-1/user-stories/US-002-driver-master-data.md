@@ -12,7 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
-  - ../../../../source-documents/discovery-phase/client-resources/master-data/
+  - ../../../03-prd-reference/06-fleet-management/driver-management.md
 related_stories:
   - US-001-vehicle-master-data.md
   - US-003-helper-master-data.md
@@ -26,9 +26,13 @@ tags: [master-data, driver, registration, critical]
 
 ## User Story
 
-**As a** Fleet Manager  
-**I want to** register and manage driver profiles with their licenses, contact information, and availability status  
-**So that** I can assign qualified drivers to transport orders and ensure regulatory compliance
+**As a** Transport Planner  
+**I want to** register and manage driver profiles so that only verified drivers operate vehicles
+
+**Additional User Stories** (from PRD):
+- **As a** Transport Distribution Officer (TDO), **I want to** assign drivers to vehicles so that trips are carried out with the correct and available personnel
+- **As a** Transport Manager and Driver Supervisor, **I want to** see driver states so that I can assign trips efficiently
+- **As a** Driver Supervisor, **I want to** capture driver availability status and work time so that driver utilization and compliance can be analyzed
 
 ## Business Context
 
@@ -97,9 +101,60 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [ ] System SHALL support multiple file formats (PDF, JPG, PNG)
 - [ ] System SHALL limit file size to 5 MB per document
 
-### AC-2: Driver Availability Management
+### AC-2: Driver-Vehicle Assignment (per PRD)
+- [ ] System SHALL allow assignment and reassignment of drivers to vehicles
+- [ ] System SHALL only allow available and active drivers to be assigned
+- [ ] System SHALL only allow operational vehicles (not under maintenance) to be scheduled
+- [ ] System SHALL enforce one driver can be assigned to only one active vehicle at a time
+- [ ] System SHALL prevent driver from being assigned to multiple vehicles simultaneously
+- [ ] System SHALL retain assignment history for audit and reporting
+- [ ] System SHALL store assignment records including:
+  - Driver ID
+  - Vehicle ID
+  - Assignment start date & time
+  - Assignment end date & time
+  - Assigned by (user)
+- [ ] System SHALL auto-unassign driver upon trip completion or reassignment
+- [ ] System SHALL prevent assigning:
+  - Absent drivers
+  - Drivers already assigned to an active trip
+  - Vehicles under maintenance
 
-#### AC-2.1: Status Tracking
+### AC-3: Driver State Tracking (per PRD)
+- [ ] System SHALL track driver state as:
+  - Assigned
+  - Available (Default – Unassigned)
+  - On Leave
+- [ ] System SHALL update driver state based on:
+  - Trip assignment
+  - Trip start and completion
+  - Manual attendance input (where applicable)
+- [ ] System SHALL calculate effective driving hours using GPS movement data per trip
+- [ ] System SHALL exclude idle or parked durations from driving hours calculation
+- [ ] System SHALL expose driver state in:
+  - Trip planning screens
+  - Vehicle assignment views
+  - Dispatch boards
+  - Driver Supervisor Menu
+- [ ] Driver state 'On Trip' SHALL take precedence over all other states
+
+### AC-4: Driver Availability Status Tracking (per PRD)
+- [ ] System SHALL support attendance capture through manual entry of:
+  - Driver
+  - POI
+  - Entry Date & Time
+  - Exit Date & Time
+- [ ] Supervisor SHALL be able to update Driver Status to On Leave with Leave Start Date and Leave End Date
+- [ ] Attendance records SHALL be date-wise and driver specific
+- [ ] Working hours SHALL be visible in reports and dashboards
+- [ ] Maximum working hours SHALL be configurable (Default reference: 12 hours)
+- [ ] All driver assignments, state changes and attendance entries SHALL be logged
+- [ ] System SHALL derive working hours from GPS trip data where available
+- [ ] System SHALL consolidate manual and GPS data into a single attendance record
+
+### AC-5: Driver Availability Management (Legacy - Keep for compatibility)
+
+#### AC-5.1: Status Tracking
 - [ ] System SHALL maintain driver status:
   - Available
   - On Trip (auto-set when assigned to active trip)
@@ -111,13 +166,13 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [ ] System SHALL auto-update status to "On Trip" when TO assigned
 - [ ] System SHALL auto-update status to "Available" when trip completed
 
-#### AC-2.2: Leave Management
+#### AC-5.2: Leave Management
 - [ ] System SHALL allow Fleet Manager to mark driver on leave
 - [ ] System SHALL require leave start and end dates
 - [ ] System SHALL show leave calendar per driver
 - [ ] System SHALL hide drivers on leave from assignment lists
 
-### AC-3: Driver Performance Tracking
+### AC-6: Driver Performance Tracking
 
 #### AC-3.1: Performance Metrics
 - [ ] System SHALL track and display:
@@ -135,7 +190,7 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [ ] System SHALL display incident count and severity
 - [ ] System SHALL allow filtering drivers by incident history
 
-### AC-4: Driver Search & Filtering
+### AC-7: Driver Search & Filtering
 
 #### AC-4.1: Driver List View
 - [ ] System SHALL display all drivers in sortable, filterable list
@@ -157,7 +212,7 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [ ] System SHALL exclude drivers with expired licenses
 - [ ] System SHALL exclude drivers on leave
 
-### AC-5: Driver Profile Management
+### AC-8: Driver Profile Management
 
 #### AC-5.1: View Driver Details
 - [ ] System SHALL display comprehensive driver profile:
@@ -200,7 +255,7 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [High] System SHALL allow saving draft (incomplete profile)
 - [High] System SHALL support bulk import via Excel (for initial data migration)
 
-### FR-006: Bulk Upload & Inline Management (per PRD 6.3.2)
+### FR-009: Bulk Upload & Inline Management (per PRD 6.3.2)
 - [Critical] Bulk upload option for driver master data
 - [Critical] CSV file format (UTF-8 encoded)
 - [Critical] Entity-specific CSV templates with mandatory fields marked
@@ -231,7 +286,25 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 - [High] System SHALL update metrics after each trip completion
 - [Medium] System SHALL provide performance trend charts
 
-### FR-005: Integration with Trip Management
+### FR-005: Driver-Vehicle Assignment (per PRD)
+- [Critical] System SHALL support driver-vehicle pairing without requiring vehicle master modification
+- [Critical] System SHALL prevent assigning absent drivers, drivers already assigned to active trip, or vehicles under maintenance
+- [High] System SHALL store assignment records including Driver ID, Vehicle ID, Assignment start/end date & time, Assigned by (user)
+- [High] System SHALL auto-unassign driver upon trip completion or reassignment
+
+### FR-006: Driver State Tracking (per PRD)
+- [Critical] System SHALL track driver state as: Assigned, Available (Default – Unassigned), On Leave
+- [Critical] System SHALL update driver state based on trip assignment, trip start/completion, manual attendance input
+- [High] System SHALL calculate effective driving hours using GPS movement data per trip
+- [High] System SHALL expose driver state in trip planning screens, vehicle assignment views, dispatch boards, Driver Supervisor Menu
+
+### FR-007: Driver Availability Status Tracking (per PRD)
+- [High] System SHALL allow manual attendance entry for drivers
+- [High] System SHALL derive working hours from GPS trip data where available
+- [High] System SHALL consolidate manual and GPS data into a single attendance record
+- [High] System SHALL support maximum working hours configuration (Default: 12 hours)
+
+### FR-008: Integration with Trip Management
 - [Critical] System SHALL provide API for driver availability check
 - [Critical] System SHALL update driver status when assigned to trip
 - [Critical] System SHALL link driver to trip records

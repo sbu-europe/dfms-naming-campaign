@@ -11,7 +11,8 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/scaling-management.md
 related_stories:
   - US-039-scaling-source.md
   - US-042-unloading-operations.md
@@ -24,9 +25,8 @@ tags: [operations, scaling, weighing, destination, high-priority]
 
 ## User Story
 
-**As a** Scaling Operator (Destination)  
-**I want to** record vehicle weight before and after unloading  
-**So that** delivered quantity is verified and discrepancies are detected
+**As a** Scaling Operator  
+**I want to** record scale-out weight to calculate net load
 
 ## Business Context
 

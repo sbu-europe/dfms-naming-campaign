@@ -11,7 +11,8 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/05-vendor-management/vendor-bidding.md
 related_stories:
   - US-024-vendor-bidding-portal.md
   - US-030-vendor-fleet-management.md
@@ -59,9 +60,17 @@ Vendor portal provides:
   - Recent notifications
 - [ ] System SHALL update dashboard in real-time
 
-### AC-2: Bid Management
-- [ ] System SHALL display available bid opportunities
-- [ ] System SHALL allow vendor to submit bids (US-024)
+### AC-2: Bid Management (per PRD)
+- [ ] System SHALL display available bid opportunities (for non-contractual vendors only)
+- [ ] System SHALL allow vendor to view:
+  - Active bids
+  - Active trips
+  - Completed Trips
+- [ ] System SHALL allow vendor to submit structured bids with:
+  - Rate
+  - Vehicle availability
+  - Number of vehicles available
+- [ ] System SHALL record bid timestamp and rate validity
 - [ ] System SHALL show bid status (Submitted, Won, Lost)
 - [ ] System SHALL notify vendor of bid results
 

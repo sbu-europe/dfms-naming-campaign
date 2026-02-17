@@ -24,9 +24,9 @@ tags: [master-data, vehicle, fleet, mvp, critical]
 
 ## User Story
 
-**As a** Transport Planner  
-**I want to** maintain comprehensive vehicle master data  
-**So that** I can effectively manage fleet operations and make informed assignment decisions
+**As a** Transport Manager  
+**I want to** register vehicles with complete identification and configuration details  
+**So that** vehicles can be tracked, assigned, and monitored throughout transport operations
 
 ## Business Context
 
@@ -58,6 +58,10 @@ Without proper vehicle master data, the system cannot:
 - [ ] System SHALL provide bulk upload functionality for vehicle data via CSV
 - [ ] System SHALL support inline editing at row and column level
 - [ ] System SHALL support referential integrity validation (e.g., assigned POI must exist and be active)
+- [ ] System SHALL provide vehicle list view with filtering
+- [ ] List SHALL display: Registration number, type, capacity, Status, POI, Driver, Actions
+- [ ] System SHALL NOT require mileage tracking validation for vendor vehicles
+- [ ] System SHALL prevent vehicles from being assigned to trips unless marked Active
 
 ### Should Have (High)
 - [ ] System SHOULD support vehicle categorization by type (Truck, Van, Pickup, etc.)
@@ -83,10 +87,10 @@ Without proper vehicle master data, the system cannot:
 - [Critical] System SHALL auto-generate unique vehicle ID
 - [High] System SHALL support inline validation with real-time feedback
 
-**Mandatory Fields** (per PRD Section 6.6.1):
+**Mandatory Fields** (per PRD Section 6.6.1 - Vehicle Registration & Master Data Management):
 - Vehicle Type (required): Pickup Van, Open Truck, Covered Truck, Nosimon, Auto, Tom Tom, Tractor
 - Number of Wheels (Numeric Input): 4, 6, 10, 12, 16, 18, 20+
-- Capacity (Max Load Capacity in Ton) - Numeric Input
+- Capacity (Max Load Capacity in Ton) - Numeric Input, Manual override allowed
 - Allowed Product Category (FG / RM / Both)
 - License/Registration Number (required, unique)
   - Format validation: Bangladesh vehicle registration pattern
@@ -94,9 +98,24 @@ Without proper vehicle master data, the system cannot:
 - Chassis Number (required, unique)
   - VIN (Vehicle Identification Number) format
   - Uniqueness validation
+- Mileage:
+  - Initial Odometer reading (numeric, KM)
+  - Current Odometer Reading
+  - Average Mileage
+  - Total Distance Travelled
+- Purchase Information (optional):
+  - Purchase Date
 - Model (required)
+- Body Type: Open Body, Closed Body, Container, Flatbed, Tanker, Refrigerated
+- Fuel Type: Diesel, Petrol, CNG, Electric, Hybrid
 - Ownership (Own/Vendor)
+- Assigned Driver (Optional)
+  - Select from active drivers
+  - Can be assigned post-registration
+- GPS Tracker ID
+  - Tracker Model and ID
 - Assigned POI (Vehicle operates from this POI)
+- Assigned Garage/Workshop (Primary Handover location)
 - Status (default: Available)
 
 **Optional Fields**:

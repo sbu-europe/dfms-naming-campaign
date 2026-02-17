@@ -11,7 +11,9 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/command-center.md
+  - ../../../03-prd-reference/04-operations-support/scaling-management.md
 related_stories:
   - US-026-realtime-map-dashboard.md
   - US-021-trip-lifecycle.md
@@ -26,9 +28,8 @@ tags: [operations, command-center, monitoring, high-priority]
 
 ## User Story
 
-**As a** Command Center Operator  
-**I want to** monitor all operational activities in real-time  
-**So that** I can coordinate operations, identify bottlenecks, and resolve issues quickly
+**As a** Command Center Officer  
+**I want to** assign loading/unloading lines based on product type and urgency so that operations are coordinated efficiently
 
 ## Business Context
 

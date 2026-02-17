@@ -11,7 +11,9 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/product-requisition-management.md
+  - ../../../03-prd-reference/03-core-operations/transport-requisition-management.md
 related_stories:
   - US-010-port-transfer-requisition.md
   - US-011-distribution-approval.md
@@ -24,9 +26,9 @@ tags: [requisition, approval, procurement, port, critical]
 
 ## User Story
 
-**As a** Procurement Approver  
-**I want to** review and approve/reject Port Consignment Transfer Requisitions  
-**So that** only validated LC-based imports proceed to transport planning
+**As a** Procurement Officer  
+**I want to** review and approve Port Transfer Requisitions with CNF clearance confirmation  
+**So that** LC-based imports can proceed to transport planning with proper documentation and distribution breakdown
 
 ## Business Context
 
@@ -66,24 +68,32 @@ Similar to Distribution Approval (US-011) but with additional checks for:
 - [ ] System SHALL validate LC documentation completeness
 - [ ] System SHALL show customs clearance timeline
 
-### AC-3: Approval with Conditions
-- [ ] System SHALL allow conditional approval:
-  - "Approve pending customs clearance"
-  - "Approve with cost limit"
-- [ ] System SHALL block TO creation until conditions met
-- [ ] System SHALL track condition fulfillment
+### AC-3: Procurement Approval & CNF Confirmation (per PRD)
+- [ ] System SHALL route Port Transfer Requisitions to Procurement Department for approval
+- [ ] System SHALL require Procurement approval before forwarding to Transport Department
+- [ ] System SHALL require CNF (Clearing & Forwarding) clearance confirmation
+- [ ] System SHALL allow Procurement Officer to create distribution breakdown plan
+- [ ] System SHALL forward approved Port TRs with distribution breakdown to Transport Department
+- [ ] System SHALL block TO creation until Procurement approval and CNF confirmation
 
-### AC-4: Document Verification
+### AC-4: Distribution Breakdown Plan (per PRD)
+- [ ] System SHALL allow Procurement Officer to create destination breakdown plan
+- [ ] System SHALL specify quantity allocation to each destination POI
+- [ ] System SHALL validate breakdown quantities match total Port TR quantity
+- [ ] System SHALL display breakdown plan in TR details for Transport Planner
+
+### AC-5: Document Verification
 - [ ] System SHALL display checklist of required documents:
   - LC Copy ✓
   - Bill of Lading ✓
+  - CNF Clearance Note ✓
   - Packing List
   - Invoice
   - Certificate of Origin
 - [ ] System SHALL allow approver to mark documents as verified
 - [ ] System SHALL require all critical documents before approval
 
-### AC-5: Approval Actions (Same as US-011)
+### AC-6: Approval Actions
 - [ ] System SHALL allow: Approve, Reject, Request Modification
 - [ ] System SHALL require rejection reason
 - [ ] System SHALL send notifications

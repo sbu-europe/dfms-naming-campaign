@@ -11,7 +11,9 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/transport-order-management.md
+  - ../../../03-prd-reference/03-core-operations/transport-requisition-management.md
 related_stories:
   - US-011-distribution-approval.md
   - US-017-to-creation.md
@@ -25,9 +27,8 @@ tags: [transport, tr-assessment, planning, critical]
 
 ## User Story
 
-**As a** Transport Planner  
-**I want to** assess approved Transport Requisitions and determine transport feasibility  
-**So that** I can plan efficient transport execution and create Transport Orders
+**As a** transport Planner  
+**I want to** view and access all approved Transport Requisitions (TRs) so that I can plan transport execution and create appropriate Transport Orders (TOs)
 
 ## Business Context
 

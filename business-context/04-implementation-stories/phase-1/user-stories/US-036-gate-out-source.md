@@ -11,7 +11,8 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/04-operations-support/gate-management.md
 related_stories:
   - US-035-gate-in-source.md
   - US-041-loading-operations.md
@@ -25,9 +26,8 @@ tags: [operations, gate, gate-out, source, critical]
 
 ## User Story
 
-**As a** Gate Operator (Source)  
-**I want to** record vehicle departure from source location  
-**So that** loaded vehicle exit is tracked and trip can proceed to destination
+**As a** Gate man  
+**I want to** record gate-out after clearance so that vehicle exit is formally completed
 
 ## Business Context
 
@@ -41,22 +41,14 @@ Gate-Out at source confirms:
 
 ## Acceptance Criteria
 
-### AC-1: Gate-Out Entry
-- [ ] System SHALL record gate-out with:
-  - Trip ID *
-  - Departure time * (auto-captured)
-  - Loaded quantity * (from loading record)
-  - Seal number (if applicable)
-  - Odometer reading (optional)
-  - Photos (optional)
-- [ ] System SHALL validate loading completed
-
-### AC-2: Pre-Departure Checks
-- [ ] System SHALL verify:
-  - Loading status = "Loaded"
-  - Scaling completed (if required)
-  - Documents attached (delivery note, invoice)
-- [ ] System SHALL prevent gate-out if checks fail
+### AC-1: Gate-Out Entry (per PRD)
+- [ ] System SHALL allow gate-out date and time entry after receiving gate clearance copy from Scaling
+- [ ] Gate-out entry SHALL be allowed only after gate pass
+- [ ] Gate-out time SHALL be stored against vehicle
+- [ ] Gate-out SHALL be linked to QC and scaling completion
+- [ ] Gate-out SHALL NOT occur before scale-out
+- [ ] Gate-out SHALL be blocked if QC status is pending (for unloading flows)
+- [ ] System SHALL record gate-out timestamp
 
 ### AC-3: Trip State Update
 - [ ] System SHALL update trip status to "Departed from Source"

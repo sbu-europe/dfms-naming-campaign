@@ -11,7 +11,7 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
   - US-028-vendor-performance-tracking.md
 dependencies:

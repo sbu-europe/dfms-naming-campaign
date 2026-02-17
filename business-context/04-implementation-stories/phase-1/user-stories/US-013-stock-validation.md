@@ -11,7 +11,8 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/03-core-operations/product-requisition-management.md
 related_stories:
   - US-009-fg-transfer-requisition.md
   - US-014-capacity-checking.md
@@ -24,9 +25,9 @@ tags: [requisition, stock, validation, inventory, high-priority]
 
 ## User Story
 
-**As a** Distribution Manager  
-**I want the** system to validate stock availability at source and capacity at destination when creating TRs  
-**So that** transport requisitions are realistic and executable
+**As a** Distribution Officer / Procurement Officer  
+**I want** stock and capacity visibility (informational) with threshold-based warnings when creating TRs  
+**So that** I can make informed decisions about transport requisitions
 
 ## Business Context
 
@@ -43,18 +44,24 @@ Validation types:
 
 ## Acceptance Criteria
 
-### AC-1: Source Stock Validation
-- [ ] System SHALL check stock availability at source POI when TR created
+### AC-1: Source Stock Validation (Informational per PRD)
+- [ ] System SHALL display stock visibility (informational) at source POI when TR created
 - [ ] System SHALL display current stock level for selected product
-- [ ] System SHALL show warning if requested quantity > available stock
-- [ ] System SHALL allow proceeding with warning (not blocking)
+- [ ] System SHALL show threshold-based warnings:
+  - Warning if requested quantity > available stock
+  - Warning if stock level below threshold (e.g., < 20% safety stock)
+- [ ] System SHALL allow proceeding with warnings (informational, not blocking)
 - [ ] System SHALL update stock display in real-time
+- [ ] System SHALL integrate with real-time stock validation at source (per PRD)
 
-### AC-2: Destination Capacity Validation
-- [ ] System SHALL check destination POI capacity
+### AC-2: Destination Capacity Validation (Informational per PRD)
+- [ ] System SHALL display capacity visibility (informational) at destination POI
 - [ ] System SHALL display current utilization and available capacity
-- [ ] System SHALL warn if shipment exceeds available capacity
-- [ ] System SHALL allow proceeding with warning (not blocking)
+- [ ] System SHALL show threshold-based warnings:
+  - Warning if shipment exceeds available capacity
+  - Warning if capacity utilization above threshold (e.g., > 80%)
+- [ ] System SHALL allow proceeding with warnings (informational, not blocking)
+- [ ] System SHALL integrate with capacity validation at destination (per PRD)
 
 ### AC-3: Stock Reservation (Optional)
 - [ ] System MAY reserve stock at source when TR approved

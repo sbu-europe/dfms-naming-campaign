@@ -27,9 +27,8 @@ tags: [requisition, port-consignment, rm, lc, critical]
 
 ## User Story
 
-**As a** Procurement Manager  
-**I want to** create a Port Consignment Transfer Requisition for raw materials arriving at port  
-**So that** LC-based imports can be transported from port to warehouse with proper documentation
+**As a** Commercial Team (L.C Shipment) / Procurement Officer  
+**I want to** create Port Consignment Transfer Requisition so that raw materials from port can be transported to warehouses with proper documentation and distribution breakdown
 
 ## Business Context
 

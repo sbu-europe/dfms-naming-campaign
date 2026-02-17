@@ -12,6 +12,7 @@ created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../03-prd-reference/07-mobile-interfaces/driver-mobile.md
   - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Transport_Operations_2025-09-29.docx
 related_stories:
   - US-020-to-execution-own-fleet.md
