@@ -9,9 +9,9 @@ epic: Master Data Foundation
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
   - ../../../../source-documents/discovery-phase/client-resources/master-data/
 related_stories:
   - US-001-vehicle-master-data.md
@@ -50,24 +50,30 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 
 ### AC-1: Driver Registration
 
-#### AC-1.1: Create Driver Profile
-- [ ] System SHALL allow Fleet Manager to create new driver profile with mandatory fields:
+#### AC-1.1: Create Driver Profile (per PRD 6.6.2)
+- [ ] System SHALL allow Transport Planner to create new driver profile with mandatory fields:
   - Full Name (as per license)
-  - National ID / Passport Number (unique)
+  - National ID (unique, required)
   - Date of Birth
-  - Contact Phone (unique)
-  - Emergency Contact Name & Phone
-  - Current Address
-  - Driving License Number (unique)
-  - License Type (Professional / Non-Professional)
-  - License Issue Date
-  - License Expiry Date
+  - Contact Phone (unique, required)
+  - Emergency Contact Name & Phone (Minimum 2 reference contacts per PRD)
+  - Current Address (Biodata)
+  - Driving License Number (unique, required)
+  - License Type/Class (Professional / Non-Professional)
+  - License Issue Date (required)
+  - License Expiry Date (required)
+  - Driver Type (Permanent/Temporary/Own/Vendor) (per PRD)
+  - Experience Certificate (upload, optional)
+  - Medical Certificate (upload, required)
+  - Last Training/Assessment Information (text, optional)
+  - Accident History (text, optional)
   - Blood Group
-  - Photo (upload)
+  - Photo (upload, optional)
 - [ ] System SHALL validate all mandatory fields before saving
 - [ ] System SHALL prevent duplicate entries (NID, Phone, License Number)
 - [ ] System SHALL auto-calculate age from date of birth
 - [ ] System SHALL flag if driver age < 21 or > 65 (warning, not blocking)
+- [ ] System SHALL require minimum 2 reference contacts (per PRD)
 
 #### AC-1.2: Driver Employment Details
 - [ ] System SHALL capture employment information:
@@ -185,14 +191,23 @@ Drivers are critical resources in fleet operations. Proper driver management ens
 ### FR-001: Driver Registration Form
 - [Critical] System SHALL provide multi-step registration form:
   - Step 1: Personal Information
-  - Step 2: Contact & Emergency Details
+  - Step 2: Contact & Emergency Details (Minimum 2 reference contacts)
   - Step 3: License & Certifications
-  - Step 4: Employment Details
-  - Step 5: Document Upload
+  - Step 4: Employment Details (Driver Type: Permanent/Temporary/Own/Vendor)
+  - Step 5: Document Upload (Experience Certificate, Medical Certificate, Training Records)
   - Step 6: Review & Submit
 - [Critical] System SHALL validate each step before proceeding
 - [High] System SHALL allow saving draft (incomplete profile)
 - [High] System SHALL support bulk import via Excel (for initial data migration)
+
+### FR-006: Bulk Upload & Inline Management (per PRD 6.3.2)
+- [Critical] Bulk upload option for driver master data
+- [Critical] CSV file format (UTF-8 encoded)
+- [Critical] Entity-specific CSV templates with mandatory fields marked
+- [Critical] Append-only behavior (existing records not overwritten)
+- [Critical] Row-level and column-level inline editing
+- [Critical] Independent row validation with detailed error reports
+- [Critical] Comprehensive audit logging for all bulk operations
 
 ### FR-002: Document Management
 - [Critical] System SHALL upload files to secure storage (S3/Azure Blob)
@@ -504,6 +519,17 @@ Response: {metrics, trip_history, incident_history}
 GET /api/v1/drivers/expiring-licenses
 Query: ?days=30
 Response: {drivers: Driver[]}
+
+// Bulk Upload APIs
+POST /api/v1/drivers/bulk-upload
+Body: {file: CSV file}
+Response: {upload_id, total_rows, successful_rows, failed_rows, errors}
+
+GET /api/v1/drivers/bulk-upload/template
+Response: CSV template download
+
+PATCH /api/v1/drivers/{id}  - Inline edit (row/column level)
+Body: {field_name: new_value}
 ```
 
 ---
@@ -563,4 +589,13 @@ Response: {drivers: Driver[]}
 **Assigned To**: Backend (20h) + Frontend (15h) + QA (5h)  
 **Sprint**: Sprint 1  
 **Priority**: Critical (Foundation for trip execution)
+
+---
+
+**Source Documents**:
+- PRD Section 6.6.2: Driver Master Data
+- PRD Section 6.3.2: Bulk Upload & Inline Master Data Management
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to align with PRD v1.0
 

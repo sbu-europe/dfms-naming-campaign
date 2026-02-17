@@ -9,9 +9,9 @@ epic: Master Data Foundation
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
   - US-027-vendor-registration.md
   - US-029-vendor-verification.md
@@ -104,6 +104,15 @@ Vendors are external transport providers who supplement the own fleet. Proper ve
 - [High] Auto-calculate performance metrics
 - [High] Performance dashboard per vendor
 - [Medium] Comparative vendor analysis
+
+### FR-004: Bulk Upload & Inline Management (per PRD 6.3.2)
+- [Critical] Bulk upload option for vendor master data
+- [Critical] CSV file format (UTF-8 encoded)
+- [Critical] Entity-specific CSV templates with mandatory fields marked
+- [Critical] Append-only behavior (existing records not overwritten)
+- [Critical] Row-level and column-level inline editing
+- [Critical] Independent row validation with detailed error reports
+- [Critical] Comprehensive audit logging for all bulk operations
 
 ---
 
@@ -254,6 +263,17 @@ PATCH /api/v1/vendors/{vendor_id}
 POST /api/v1/vendors/{vendor_id}/documents
 PATCH /api/v1/vendors/{vendor_id}/verification-status
 GET /api/v1/vendors/{vendor_id}/performance
+
+// Bulk Upload APIs
+POST /api/v1/vendors/bulk-upload
+Body: {file: CSV file}
+Response: {upload_id, total_rows, successful_rows, failed_rows, errors}
+
+GET /api/v1/vendors/bulk-upload/template
+Response: CSV template download
+
+PATCH /api/v1/vendors/{id}  - Inline edit (row/column level)
+Body: {field_name: new_value}
 ```
 
 ---
@@ -298,4 +318,13 @@ GET /api/v1/vendors/{vendor_id}/performance
 **Estimated Hours**: 40 hours  
 **Sprint**: Sprint 1  
 **Priority**: Critical
+
+---
+
+**Source Documents**:
+- PRD Section 6.7: Vendor Management (Vendor Onboarding & Registration, Vendor Verification Workflow)
+- PRD Section 6.3.2: Bulk Upload & Inline Master Data Management
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to align with PRD v1.0
 
