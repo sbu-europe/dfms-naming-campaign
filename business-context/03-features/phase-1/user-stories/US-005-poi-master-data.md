@@ -9,16 +9,16 @@ epic: Master Data Foundation
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
   - ../../../../source-documents/discovery-phase/client-resources/master-data/
 related_stories:
   - US-009-fg-transfer-requisition.md
   - US-017-to-creation.md
 dependencies:
   - US-007-user-role-management.md
-tags: [master-data, poi, location, warehouse, depot, critical]
+tags: [master-data, poi, location, warehouse, depot, geofencing, critical]
 ---
 
 # US-005: Manage POI (Point of Interest) Master Data
@@ -51,19 +51,29 @@ Proper POI management ensures:
 
 ### AC-1: POI Registration
 - [ ] System SHALL allow creating POI with:
-  - POI Name
-  - POI Code (unique, auto-generated or manual)
-  - POI Type (Warehouse, Depot, Farm, Port, Dealer, Supplier, Other)
-  - Address (full address)
-  - City, District, Division
-  - GPS Coordinates (Latitude, Longitude)
-  - Contact Person Name
-  - Contact Phone
-  - Operational Hours (from-to time)
-  - Storage Capacity (optional, for warehouses)
-  - Geofence Radius (meters, for arrival detection)
+  - POI Name (required, unique per tenant, 3-100 characters)
+  - POI Type (required):
+    - Finished Feed Depot
+    - Feed mill
+    - Feed Dealer
+    - Silage Project
+    - Raw Material Warehouse
+    - Factory
+    - Others
+  - POI Classification (required): Inbound / Outbound / Neutral
+  - Address (full text address)
+  - GPS Coordinates (required):
+    - Latitude (required, -90 to 90)
+    - Longitude (required, -180 to 180)
+    - Manual entry or map selection
+  - Geofence Radius (required, 50-1000m range, default 100m)
+  - In-Charge Person Name (optional)
+  - Contact Number (optional, phone format validation)
+  - Total Storage Capacity (numeric in metric tons, considered 'Total Capacity' for PR stock view)
+  - Status (Active/Inactive, default Active)
 - [ ] System SHALL validate mandatory fields
-- [ ] System SHALL prevent duplicate POI codes
+- [ ] System SHALL prevent duplicate POI names per tenant
+- [ ] System SHALL auto-suggest default classification based on POI Type
 
 ### AC-2: GPS Coordinate Management
 - [ ] System SHALL allow manual GPS entry
@@ -72,28 +82,54 @@ Proper POI management ensures:
 - [ ] System SHALL display POI location on map
 - [ ] System SHALL calculate distance between POIs
 
-### AC-3: POI Type Classification
-- [ ] System SHALL categorize POIs by type
-- [ ] System SHALL allow filtering by POI type
-- [ ] System SHALL associate POI type with operational rules:
-  - Warehouse: Can be source or destination
-  - Farm: Usually source for FG
-  - Depot: Usually destination for FG
-  - Port: Source for raw materials
-  - Dealer: Destination only
-  - Supplier: Source only
+### AC-3: POI Classification (Inbound/Outbound/Neutral)
+- [ ] System SHALL classify each POI as Inbound, Outbound, or Neutral
+- [ ] Classification SHALL be mandatory field for POI Creation
+- [ ] System SHALL provide default classification based on POI Type:
+  - Factory: Default = Outbound (finished goods production)
+  - Depot: Default = Neutral (receives and distributes)
+  - Feed mill: Default = Inbound (receives raw materials primarily)
+  - Port: Default = Inbound (receives raw materials primarily)
+  - Warehouse: Default = Neutral (storage and distribution)
+  - Distribution Center: Default = Neutral (hub operations)
+- [ ] Admin SHALL be able to override default classification
+- [ ] Classification SHALL be used for routing logic and operational dashboards
+- [ ] System SHALL allow filtering POIs by classification type
 
-### AC-4: Operational Information
-- [ ] System SHALL store operational hours per POI
+### AC-4: Operational Information & Capacity Tracking
+- [ ] System SHALL store Total Storage Capacity (metric tons) per POI
+- [ ] System SHALL calculate and expose:
+  - Current Stock (from PR / TR / Trip updates)
+  - Free Capacity
+  - Projected Capacity (post-PR submission)
 - [ ] System SHALL flag POIs as active/inactive
 - [ ] System SHALL track last used date
 - [ ] System SHALL display POI utilization (number of TRs/TOs)
+- [ ] System SHALL prevent deletion of POIs with active dependencies (inventory, PRs, trips)
 
-### AC-5: POI Search & Management
+### AC-5: Geofencing & Vehicle Arrival Tracking
+- [ ] System SHALL integrate POI geofencing with live GPS vehicle tracking
+- [ ] System SHALL automatically detect vehicle entry into POI geofence ('Arrival' event)
+- [ ] System SHALL automatically detect vehicle exit from POI geofence ('Departure' event)
+- [ ] System SHALL calculate dwell time (duration between arrival and departure)
+- [ ] System SHALL log arrival and departure timestamps per trip
+- [ ] System SHALL display vehicles currently within each POI geofence
+- [ ] System SHALL track vehicle entry time and duration at POI
+
+### AC-6: POI Search & Management
 - [ ] System SHALL provide POI list with search and filter
-- [ ] System SHALL allow editing POI information
+- [ ] System SHALL support pagination (25/50/100 per page)
+- [ ] System SHALL support column sorting and full-text search
+- [ ] System SHALL allow editing POI information (with audit logging)
 - [ ] System SHALL allow viewing POI trip history
-- [ ] System SHALL prevent deleting POIs with active TRs/TOs
+- [ ] System SHALL prevent deleting POIs with active dependencies:
+  - Active inventory at POI
+  - Pending or active PRs referencing POI
+  - Active vehicle trips to/from POI
+  - Users assigned to POI
+  - Historical trip records (prevents hard delete)
+- [ ] System SHALL support soft delete (mark as Inactive) with mandatory deletion reason
+- [ ] System SHALL support hard delete (only if zero dependencies, Super Admin only)
 
 ---
 
@@ -111,15 +147,38 @@ Proper POI management ensures:
 - [High] Route visualization
 - [Medium] Geofence circle display on map
 
-### FR-003: POI Type Management
-- [Critical] POI type dropdown with predefined types
-- [High] Custom POI type addition (admin only)
+### FR-003: POI Type & Classification Management
+- [Critical] POI type dropdown with predefined types (per PRD 6.5.1)
+- [Critical] POI Classification dropdown (Inbound/Outbound/Neutral) - mandatory
+- [Critical] Default classification assignment based on POI Type
+- [Critical] Admin override capability for classification
+- [High] Filtering by POI type and classification
 - [Medium] POI type-based validation rules
 
-### FR-004: Integration
-- [Critical] API for POI lookup (by code, name, type)
+### FR-004: Geofencing & Dwell Time Tracking
+- [Critical] Geofence boundary definition (radius-based, 50-1000m range)
+- [Critical] Integration with GPS tracking for vehicle arrival/departure detection
+- [Critical] Automatic event logging (Arrival, Departure)
+- [Critical] Dwell time calculation (duration between arrival and departure)
+- [High] Dwell time display per trip and per POI
+- [High] Dwell time exception flagging (beyond configurable limits)
+- [High] Real-time vehicle presence tracking within POI geofences
+
+### FR-005: Capacity Management
+- [Critical] Total Storage Capacity tracking (metric tons)
+- [Critical] Current Stock calculation (from PR/TR/Trip updates)
+- [Critical] Free Capacity calculation
+- [High] Projected Capacity calculation (post-PR submission)
+- [High] Capacity threshold warnings (configurable, e.g., 80%, 90%)
+
+### FR-006: Integration
+- [Critical] API for POI lookup (by code, name, type, classification)
 - [Critical] API for distance calculation
+- [Critical] Integration with TO creation form (source/destination POI selection)
+- [Critical] Integration with Product Requisition (PR) form (POI pre-population)
 - [High] API for nearby POI search (within radius)
+- [High] Real-time stock level display for source POI
+- [High] Real-time capacity availability for destination POI
 
 ---
 
@@ -143,9 +202,34 @@ Proper POI management ensures:
 - **Enforcement**: API filter
 
 ### BR-POI-005: Geofence Radius
-- Default geofence radius: 500 meters
-- Minimum: 100 meters, Maximum: 2000 meters
+- Default geofence radius: 100 meters (per PRD)
+- Minimum: 50 meters, Maximum: 1000 meters (per PRD)
 - **Enforcement**: Input validation
+
+### BR-POI-006: POI Classification
+- Each POI must have a classification (Inbound/Outbound/Neutral)
+- Classification is mandatory for POI creation
+- Default classification based on POI Type (can be overridden)
+- **Enforcement**: Validation during POI creation/update
+
+### BR-POI-007: Capacity Tracking
+- Total Capacity tracked as 'Total Capacity' (not bin-level WMS)
+- POI must be active to be used in PR/TR/TO
+- Capacity changes trigger re-validation of pending PRs
+- **Enforcement**: Capacity validation during PR/TR creation
+
+### BR-POI-008: Dwell Time Tracking
+- Dwell time calculated using geofence entry and exit timestamps
+- Dwell time visible in trip and POI reports
+- Exception flagged if dwell exceeds configured threshold
+- **Enforcement**: GPS integration + event logging
+
+### BR-POI-009: Dependency Check
+- POI cannot be deactivated if referenced in open PR/TR/TO/Trip
+- POI deletion blocked if active dependencies exist
+- Soft delete (Inactive) always available
+- Hard delete only if zero dependencies (Super Admin only)
+- **Enforcement**: Pre-delete validation
 
 ---
 
@@ -156,36 +240,29 @@ POI {
   id: UUID (PK)
   tenant_id: UUID (FK)
   
-  poi_code: String (unique)
-  poi_name: String
+  poi_name: String (required, unique per tenant, 3-100 characters)
   poi_type: Enum (
-    Warehouse,
-    Depot,
-    Farm,
-    Port,
-    Dealer,
-    Supplier,
-    Other
+    Finished_Feed_Depot,
+    Feed_Mill,
+    Feed_Dealer,
+    Silage_Project,
+    Raw_Material_Warehouse,
+    Factory,
+    Others
   )
+  poi_classification: Enum (Inbound, Outbound, Neutral) (required)
   
-  address: Text
-  city: String
-  district: String
-  division: String
-  postal_code: String (nullable)
+  address: Text (full text address)
+  latitude: Decimal (required, precision: 10, scale: 8, range: -90 to 90)
+  longitude: Decimal (required, precision: 11, scale: 8, range: -180 to 180)
+  geofence_radius_meters: Integer (required, range: 50-1000, default: 100)
   
-  latitude: Decimal (precision: 10, scale: 8)
-  longitude: Decimal (precision: 11, scale: 8)
-  geofence_radius_meters: Integer (default: 500)
+  in_charge_person_name: String (nullable)
+  contact_number: String (nullable, phone format validation)
   
-  contact_person_name: String
-  contact_phone: String
-  contact_email: String (nullable)
-  
-  operational_hours_from: Time (nullable)
-  operational_hours_to: Time (nullable)
-  
-  storage_capacity_mt: Decimal (nullable, for warehouses)
+  total_storage_capacity_mt: Decimal (numeric in metric tons, considered 'Total Capacity' for PR stock view)
+  current_stock_mt: Decimal (calculated from PR/TR/Trip updates)
+  free_capacity_mt: Decimal (calculated: total_storage_capacity_mt - current_stock_mt)
   
   is_active: Boolean (default: true)
   last_used_date: Date (nullable)
@@ -196,6 +273,39 @@ POI {
   created_by: UUID (FK)
   updated_at: Timestamp
   updated_by: UUID (FK)
+}
+
+POIGeofenceEvent {
+  id: UUID (PK)
+  poi_id: UUID (FK)
+  vehicle_id: UUID (FK)
+  trip_id: UUID (FK, nullable)
+  to_id: UUID (FK, nullable)
+  
+  event_type: Enum (Arrival, Departure)
+  event_timestamp: Timestamp
+  gps_latitude: Decimal
+  gps_longitude: Decimal
+  
+  created_at: Timestamp
+}
+
+POIDwellTime {
+  id: UUID (PK)
+  poi_id: UUID (FK)
+  vehicle_id: UUID (FK)
+  trip_id: UUID (FK)
+  to_id: UUID (FK)
+  
+  arrival_timestamp: Timestamp
+  departure_timestamp: Timestamp (nullable)
+  dwell_time_minutes: Integer (calculated: departure - arrival)
+  
+  is_exception: Boolean (dwell_time > threshold)
+  threshold_minutes: Integer (configurable)
+  
+  created_at: Timestamp
+  updated_at: Timestamp
 }
 ```
 
@@ -301,6 +411,28 @@ Response: {pois: POI[]}
 // Get POI by type
 GET /api/v1/pois/by-type/{poi_type}
 Response: {pois: POI[]}
+
+// Get POI by classification
+GET /api/v1/pois/by-classification/{classification}
+Response: {pois: POI[]}
+
+// Get POI capacity information
+GET /api/v1/pois/{poi_id}/capacity
+Response: {total_capacity, current_stock, free_capacity, projected_capacity}
+
+// Get vehicles currently at POI
+GET /api/v1/pois/{poi_id}/vehicles-present
+Response: {vehicles: [{vehicle_id, entry_time, duration_minutes}]}
+
+// Get POI dwell time statistics
+GET /api/v1/pois/{poi_id}/dwell-time
+Query: ?start_date={date}&end_date={date}
+Response: {avg_dwell_time_minutes, max_dwell_time_minutes, exception_count}
+
+// Geofence events
+GET /api/v1/pois/{poi_id}/geofence-events
+Query: ?vehicle_id={id}&trip_id={id}&event_type={Arrival|Departure}
+Response: {events: POIGeofenceEvent[]}
 ```
 
 ---
@@ -351,9 +483,26 @@ Response: {pois: POI[]}
 
 ---
 
-**Story Points**: 5  
-**Estimated Hours**: 40 hours  
-**Assigned To**: Backend (15h) + Frontend (20h) + QA (5h)  
+**Story Points**: 8 (increased due to geofencing, dwell time tracking, capacity management)  
+**Estimated Hours**: 64 hours  
+**Assigned To**: Backend (25h) + Frontend (30h) + QA (9h)  
 **Sprint**: Sprint 1  
 **Priority**: Critical (Foundation for all transport workflows)
+
+---
+
+**Source Documents**:
+- PRD Section 6.5.1: Point Of Interest (POI) Setup
+- PRD Section 6.5.2: POI CRUD Operations
+- PRD Section 6.5.3: POI Classification (Inbound/Outbound/Neutral)
+- PRD Section 6.5.4: Integration & Linkage – Map Layer Integration
+- PRD Section 6.5.5: GPS Tracking & Monitoring
+- PRD Section 6.5.6: Geofencing and POI Tracking
+- PRD Section 6.5.7: POI Geofencing Boundary Management
+- PRD Section 6.5.8: Vehicle Arrival Tracking at POI
+- PRD Section 6.5.9: Dwell Time Tracking
+- PRD Section 6.5.10: GPS-Based Vehicle Maintenance Tracking (Phase 2)
+
+**Last Updated**: February 13, 2026  
+**Status**: Updated to align with PRD v1.0
 
