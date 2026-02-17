@@ -98,7 +98,7 @@ _*Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 whi
 - **[US-018: Transport Order Creation](./phase-1/user-stories/US-018-to-creation-transport-planner.md)** - Complex workflow
 - **[US-024: Vendor Bidding Portal](./phase-1/user-stories/US-024-vendor-bidding-portal.md)** - Vendor ecosystem
 - **[US-044: QC Lab Testing](./phase-1/user-stories/US-044-qc-lab-testing.md)** - QC workflow
-- **[US-052: Driver Mobile App](./phase-1/user-stories/US-052-driver-mobile-app.md)** - Mobile application
+- **[US-052: Driver Mobile Interface](./phase-1/user-stories/US-052-driver-mobile-interface.md)** - Mobile-responsive web interface
 
 #### Phase 2: Optimization (Weeks 27-39) - ⏳ Planned
 - **[Phase 2 Summary](./phase-2/phase-2-summary.md)**: High-level overview with all 14 stories

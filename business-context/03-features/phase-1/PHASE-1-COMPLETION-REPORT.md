@@ -141,7 +141,7 @@ estimated_hours: 2128
 - ✓ US-049: QC Rejection Workflow
 - ✓ US-050: QC Dashboard & Analytics
 - ✓ US-051: QC Checklist Management
-- ✓ US-052: Driver Mobile App (in QC range)
+- ✓ US-052: Driver Mobile Interface (in QC range)
 - ✓ US-053: QC Certificate Management
 - ✓ US-054: QC Audit Trail
 - ✓ US-055: QC Vendor Quality Tracking
@@ -180,9 +180,9 @@ estimated_hours: 2128
 - **Status**: COMPLETE
 
 **Stories**:
-- ✓ US-052: Driver Mobile App
+- ✓ US-052: Driver Mobile Interface
 - ✓ US-061: QC Supervisor Mobile Interface
-- ✓ US-063: Vendor Mobile Application
+- ✓ US-063: Vendor Mobile Interface
 
 ---
 
@@ -222,7 +222,7 @@ This documentation is **production-ready** and can be directly used by:
 |------|---------------|
 | **Backend Engineers** | Complete data models, API specifications, business rules |
 | **Frontend Engineers** | UI/UX mockups, user flows, acceptance criteria |
-| **Mobile Engineers** | Mobile app specifications, offline mode requirements |
+| **Frontend Engineers** | Mobile-responsive web interface specifications, offline mode requirements |
 | **QA Engineers** | Testing scenarios, acceptance criteria, edge cases |
 | **Project Managers** | Story points, estimates, dependencies, sprint planning |
 | **Product Owners** | Business context, user stories, success criteria |

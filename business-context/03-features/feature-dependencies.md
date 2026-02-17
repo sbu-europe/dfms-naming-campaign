@@ -283,19 +283,19 @@ US-060: Vendor Trip Cost Tracking
 **Phase 1, Sprint 9-10 (Weeks 17-20)**
 
 ```
-US-052: Driver Mobile Application
+US-052: Driver Mobile Interface
   └─ Depends: US-021 (Trip lifecycle APIs), US-023 (Incident APIs), US-025 (POD APIs)
-  └─ Note: Numbered in QC range but functionally a mobile app
+  └─ Note: Numbered in QC range but functionally a mobile interface
 
 US-061: QC Supervisor Mobile Interface
   └─ Depends: US-044-056 (QC workflow APIs)
   └─ Note: US-062 is duplicate of US-061, not created separately
 
-US-063: Vendor Mobile Application (Bidding & TO View)
+US-063: Vendor Mobile Interface (Bidding & TO View)
   └─ Depends: US-024 (Bidding APIs), US-031 (Vendor Portal APIs)
 ```
 
-**Note**: Mobile apps are **consumers** of backend APIs, so backend must be stable first
+**Note**: Mobile-responsive web interfaces are **consumers** of backend APIs, so backend must be stable first
 
 **Important**: US-062 was a duplicate entry for QC Supervisor Mobile and was not created separately. US-061 covers this functionality completely.
 
@@ -337,7 +337,7 @@ US-070: Fuel Consumption Tracking
   └─ Depends: US-001, US-021 (Vehicle, Trip data)
 
 US-071: Fuel Entry System
-  └─ Depends: US-052 (Driver mobile app)
+  └─ Depends: US-052 (Driver mobile interface)
 
 US-072: Fuel Performance Monitoring
   └─ Depends: US-070, US-071 (Fuel data)
@@ -495,7 +495,7 @@ Phase 3 (Enterprise)
 ### Sprint 7-9 (QC + Fleet + Costing)
 - **Team A**: QC Workflow (US-045 to US-056)
 - **Team B**: Fleet & Costing (US-057 to US-060)
-- **Team C**: Mobile Apps (US-052, US-061, US-063)
+- **Team C**: Mobile Interfaces (US-052, US-061, US-063)
 
 ---
 

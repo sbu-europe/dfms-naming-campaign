@@ -453,7 +453,7 @@ Use these as templates:
 - [US-001: Vehicle Master Data](./phase-1/user-stories/US-001-vehicle-master-data.md) - Simple CRUD
 - [US-018: TO Creation](./phase-1/user-stories/US-018-to-creation-transport-planner.md) - Complex workflow
 - [US-044: QC Lab Testing](./phase-1/user-stories/US-044-qc-lab-testing.md) - Multi-step process
-- [US-052: Driver Mobile App](./phase-1/user-stories/US-052-driver-mobile-app.md) - Mobile application
+- [US-052: Driver Mobile Interface](./phase-1/user-stories/US-052-driver-mobile-interface.md) - Mobile-responsive web interface
 - [US-059: Trip Cost Calculation](./phase-1/user-stories/US-059-trip-cost-calculation.md) - Financial feature
 
 ---

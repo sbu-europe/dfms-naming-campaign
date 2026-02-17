@@ -144,9 +144,9 @@ Deliver a fully operational DFMS platform that replaces manual processes with di
 - Vendor trip cost tracking
 
 #### Mobile Applications (3 stories)
-- Driver mobile app (US-052) - trip view, status updates, POD capture, offline mode
+- Driver mobile interface (US-052) - trip view, status updates, POD capture, offline mode
 - QC Supervisor mobile interface (US-061) - sample collection, checklist execution, photo capture
-- Vendor mobile application (US-063) - bidding, TO view, trip tracking
+- Vendor mobile interface (US-063) - bidding, TO view, trip tracking
 
 ---
 

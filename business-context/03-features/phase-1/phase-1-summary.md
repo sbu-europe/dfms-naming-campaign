@@ -230,9 +230,9 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 | ID | User Story | Priority | Story Points | Sprint | Status | Individual Story |
 |----|------------|----------|--------------|--------|--------|------------------|
-| US-061 | Driver Mobile Application | High | 8 | Sprint 9 | Pending | [✅ Available](./user-stories/US-052-driver-mobile-app.md) |
+| US-052 | Driver Mobile Interface | High | 8 | Sprint 9 | Pending | [✅ Available](./user-stories/US-052-driver-mobile-interface.md) |
 | US-062 | QC Supervisor Mobile Interface | High | 8 | Sprint 9 | Pending | _Template Available_ |
-| US-063 | Vendor Mobile Application (Bidding & TO View) | High | 8 | Sprint 10 | Pending | _Template Available_ |
+| US-063 | Vendor Mobile Interface (Bidding & TO View) | High | 8 | Sprint 10 | Pending | [✅ Available](./user-stories/US-063-vendor-mobile-interface.md) |
 
 **Module Dependencies**: 
 - Transport Management (for driver app)
@@ -391,7 +391,7 @@ The following **5 detailed user stories** demonstrate the format, depth, and str
 2. **[US-018: Transport Order Creation](./user-stories/US-018-to-creation-transport-planner.md)** - Complex workflow example
 3. **[US-024: Vendor Bidding Portal](./user-stories/US-024-vendor-bidding-portal.md)** - Vendor ecosystem example
 4. **[US-044: QC Lab Testing](./user-stories/US-044-qc-lab-testing.md)** - QC workflow example
-5. **[US-052: Driver Mobile Application](./user-stories/US-052-driver-mobile-app.md)** - Mobile app example
+5. **[US-052: Driver Mobile Interface](./user-stories/US-052-driver-mobile-interface.md)** - Mobile-responsive web interface example
 
 ### Template for Remaining 58 Stories
 
