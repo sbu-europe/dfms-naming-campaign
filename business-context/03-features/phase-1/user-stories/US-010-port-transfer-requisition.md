@@ -9,15 +9,17 @@ epic: Product Requisition Workflow
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
+  - US-073-requisition-transfer-type-configuration.md
   - US-009-fg-transfer-requisition.md
   - US-012-procurement-approval.md
 dependencies:
   - US-005-poi-master-data.md
   - US-006-product-master-data.md
+  - US-073-requisition-transfer-type-configuration.md
 tags: [requisition, port-consignment, rm, lc, critical]
 ---
 
@@ -36,31 +38,41 @@ Port Consignment TRs are created for:
 - **LC-based Shipments**: Linked to Letter of Credit documents
 - **Customs Clearance**: Requires proper documentation for customs
 
+**Note**: This story focuses on the Port Consignment Transfer Requisition creation workflow. The transfer type selection mechanism is handled by **US-073: Requisition Transfer Type Configuration**, which dynamically controls form fields (including LC and shipping document fields), approval workflow (Procurement approval), and TR generation logic based on the selected transfer type.
+
 Key differences from FG Transfer:
 - Source is always a Port
 - Products are Raw Materials (RM) only
-- Requires LC Number and shipping documents
+- Requires LC Number and shipping documents (dynamically loaded via US-073)
 - Customs clearance tracking
+- Routes to Procurement approval (not Distribution)
 
 ---
 
 ## Acceptance Criteria
 
 ### AC-1: Port TR Creation
-- [ ] System SHALL allow Procurement Manager to create Port TR with:
-  - Transfer Type: Port Consignment
+- [ ] System SHALL allow Commercial Officer to create Port TR with:
+  - Transfer Type: Port Consignment Transfer (selected via US-073: Requisition Transfer Type Configuration)
   - Source POI (Port only)
   - Destination POI (Warehouse/Factory)
   - Product (RM only)
   - Quantity
-  - LC Number (mandatory)
-  - Bill of Lading Number
-  - Container Number(s)
+  - LC Number (mandatory, dynamically required based on transfer type)
+  - Bill of Lading Number (dynamically loaded via US-073)
+  - Vessel Name, Voyage Name (dynamically loaded via US-073)
+  - Container Number(s) (dynamically loaded via US-073)
+  - C&F Agent Name (dynamically loaded via US-073)
+  - Point of Loading (POL) (dynamically loaded via US-073)
+  - Estimated Time of Arrival (ETA) (dynamically loaded via US-073)
   - Customs Status (Pending / Cleared)
   - Requested Delivery Date
   - Priority
+  - Arrival Notice Attachment (dynamically loaded via US-073)
 - [ ] System SHALL validate all mandatory fields
 - [ ] System SHALL auto-generate TR number: `TR-PORT-YYYYMMDD-XXXX`
+- [ ] System SHALL dynamically load Port Consignment-specific form fields based on selected transfer type (per US-073)
+- [ ] System SHALL route to Procurement approval workflow (per US-073 transfer type logic)
 
 ### AC-2: LC & Shipping Documentation
 - [ ] System SHALL capture LC details:

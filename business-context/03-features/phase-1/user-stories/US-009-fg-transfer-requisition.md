@@ -9,10 +9,11 @@ epic: Product Requisition Workflow
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.docx
+  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
 related_stories:
+  - US-073-requisition-transfer-type-configuration.md
   - US-011-distribution-approval.md
   - US-013-stock-validation.md
   - US-015-tr-assessment.md
@@ -20,6 +21,7 @@ dependencies:
   - US-005-poi-master-data.md
   - US-006-product-master-data.md
   - US-007-user-role-management.md
+  - US-073-requisition-transfer-type-configuration.md
 tags: [requisition, fg-transfer, tr, critical, workflow]
 ---
 
@@ -38,9 +40,11 @@ FG Transfer Requisitions are created for:
 - **Inter-warehouse Transfer**: Moving stock between warehouses
 - **Dealer Delivery**: Delivering products to dealers/customers
 
+**Note**: This story focuses on the FG Transfer Requisition creation workflow. The transfer type selection mechanism is handled by **US-073: Requisition Transfer Type Configuration**, which dynamically controls form fields, approval workflow, and TR generation logic based on the selected transfer type.
+
 The TR is the starting point of the transport workflow:
 ```
-TR Creation → Distribution Approval → TR Assessment → TO Creation → Trip Execution
+Transfer Type Selection (US-073) → TR Creation → Distribution Approval → TR Assessment → TO Creation → Trip Execution
 ```
 
 ---
@@ -49,7 +53,7 @@ TR Creation → Distribution Approval → TR Assessment → TO Creation → Trip
 
 ### AC-1: TR Creation Form
 - [ ] System SHALL allow Distribution Manager to create FG TR with:
-  - Transfer Type: FG Transfer
+  - Transfer Type: Finished Goods Transfer (selected via US-073: Requisition Transfer Type Configuration)
   - Source POI (Warehouse/Depot)
   - Destination POI (Depot/Dealer)
   - Product (FG only, filtered from product master)
@@ -60,6 +64,7 @@ TR Creation → Distribution Approval → TR Assessment → TO Creation → Trip
   - Special Instructions (optional)
 - [ ] System SHALL validate all mandatory fields
 - [ ] System SHALL auto-generate unique TR number
+- [ ] System SHALL dynamically load FG Transfer-specific form fields based on selected transfer type (per US-073)
 
 ### AC-2: Source & Destination Validation
 - [ ] System SHALL validate source POI can be a source (not Dealer-only POI)
