@@ -26,10 +26,17 @@ This folder contains reference materials to help navigate and understand the DFM
 
 ## 📁 Contents
 
+### Historical Documents
+
+- **[PRD Alignment Plan](./PRD_ALIGNMENT_PLAN.md)** - Module-by-module alignment plan (archived - alignment work completed)
+- **[PRD Alignment Summary](./PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work (archived - alignment work completed)
+
+### Reference Materials
+
 - **[version-history.md](./version-history.md)** - Complete version history of all business context documents
 - **[cross-reference-index.md](./cross-reference-index.md)** - Index of all cross-references between documents
 - **[quick-reference-guide.md](./quick-reference-guide.md)** - Quick lookup guide for common information
-- **[documentation-standards.md](./documentation-standards.md)** - Standards and conventions used in documentation
+- **[source-document-mapping.md](./source-document-mapping.md)** - Mapping to source documents
 
 ---
 

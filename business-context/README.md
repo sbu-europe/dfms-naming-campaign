@@ -79,9 +79,9 @@ This folder contains comprehensive business context documentation for the DFMS (
 
 ## 📊 Analysis & Alignment
 
-- **[PRD Alignment Plan](PRD_ALIGNMENT_PLAN.md)** - Module-by-module alignment plan
-- **[PRD Alignment Summary](PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work
-- **[PRD Implementation Comparison](PRD_IMPLEMENTATION_COMPARISON.md)** - Detailed comparison report
+Historical alignment documents are archived in [`06-reference/`](./06-reference/):
+- **[PRD Alignment Plan](./06-reference/PRD_ALIGNMENT_PLAN.md)** - Module-by-module alignment plan (archived)
+- **[PRD Alignment Summary](./06-reference/PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work (archived)
 
 ---
 
