@@ -20,6 +20,13 @@ This section documents the implementation approach for DFMS, covering:
 
 ## 📁 Documents in This Section
 
+### **[Implementation Planning](./planning/)**
+Strategic implementation planning:
+- **[Implementation Plan](./planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week roadmap
+- **[Implementation Timeline](./planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
+- Phase breakdowns, resource planning, risk management
+- Milestone tracking and critical path analysis
+
 ### **[Deployment Strategy](./deployment-strategy/)**
 Phase-wise deployment approach:
 - Phase 1 deployment plan
@@ -82,9 +89,11 @@ Ensure data integrity throughout migration.
 
 | Phase | Duration | Focus | Status |
 |-------|----------|-------|--------|
-| **Phase 1** | 3-4 months | Core modules | ⏳ Planned |
-| **Phase 2** | 2-3 months | Advanced features | ⏳ Planned |
-| **Phase 3** | 2-3 months | AI/ML, Multi-language | ⏳ Planned |
+| **Phase 1** | 26 weeks | Core modules | ⏳ Planned |
+| **Phase 2** | 13 weeks | Advanced features | ⏳ Planned |
+| **Phase 3** | 13 weeks | AI/ML, Multi-language | ⏳ Planned |
+
+> 📅 See [Implementation Timeline](./planning/IMPLEMENTATION_TIMELINE.md) for detailed week-by-week schedule
 
 ---
 

@@ -44,6 +44,8 @@ This repository serves as the **domain context and interface contract layer** fo
 - **[00-START-HERE.md](00-START-HERE.md)** - Navigation guide for all roles
 - **[01-PRODUCT_VISION.md](01-PRODUCT_VISION.md)** - Product strategy
 - **[02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md)** - Repository architecture
+- **[Implementation Plan](technical-context/03-implementation/planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week plan
+- **[Implementation Timeline](technical-context/03-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week timeline
 
 ## 📊 Status
 

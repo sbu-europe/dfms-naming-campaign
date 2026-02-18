@@ -25,6 +25,8 @@ DFMS-product-context/
 │
 ├── business-context/                            # ⏳ Needs Review
 ├── technical-context/                           # ⏳ Needs Review
+│   └── 03-implementation/
+│       └── planning/                            # Implementation plan & timeline
 ├── source-documents/                           # Original BA documents (DOCX, XLSX)
 └── change-requests/                            # Change request management
 ```
@@ -92,7 +94,8 @@ technical-context/
 │   └── exception-handling/                # 14 exception scenarios
 │
 ├── 03-implementation/                      # Implementation
-│   ├── deployment-strategy/               # Phase 1 deployment
+│   ├── planning/                          # Implementation plan & timeline
+│   ├── deployment-strategy/               # Phase-wise deployment
 │   ├── testing-approach.md                # Testing strategy
 │   ├── migration-strategy.md              # Data migration
 │   └── rollout-plan.md                    # Rollout plan
@@ -210,6 +213,13 @@ Follow this sequence to understand the repository:
 - **[Deployment Diagram](./technical-context/04-diagrams/deployment/deployment-diagram.mmd)** - Infrastructure architecture
 - [Repository Purpose](./02-REPOSITORY_PURPOSE.md) - Submodule architecture
 
+### **📅 Project Managers**
+- **[Implementation Plan](./technical-context/03-implementation/planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week plan with phases, resources, risks
+- **[Implementation Timeline](./technical-context/03-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule with sprints and milestones
+- [Phase Stories](./business-context/04-phase-stories/) - User stories organized by phase
+- [Feature Dependencies](./business-context/04-phase-stories/feature-dependencies.md) - Critical path and dependencies
+- [Deployment Strategy](./technical-context/03-implementation/deployment-strategy/) - Phase-wise deployment plans
+
 ### **🆕 New Team Members**
 - [Project Summary](./business-context/00-overview/project-summary.md) - 5-minute overview
 - [Glossary](./business-context/00-overview/glossary.md) - 50+ terms and acronyms
@@ -307,6 +317,50 @@ Follow this sequence to understand the repository:
 
 4. **Learn the terminology**
    - [Glossary](./business-context/00-overview/glossary.md) - 50+ terms (TR, TO, PIM, POI, QC, etc.)
+
+---
+
+### **"I want to plan implementation"**
+
+1. **Start with the implementation plan**
+   - **[Implementation Plan](./technical-context/03-implementation/planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week plan
+     - Phase breakdown (Phase 1: 26 weeks, Phase 2: 13 weeks, Phase 3: 13 weeks)
+     - Resource planning and team structure
+     - Risk management and mitigation strategies
+     - Success metrics and KPIs
+
+2. **Review detailed timeline**
+   - **[Implementation Timeline](./technical-context/03-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Week-by-week schedule
+     - Sprint-by-sprint breakdown (13 sprints in Phase 1)
+     - Milestone tracking (8 major milestones)
+     - Critical path analysis
+     - Resource allocation by phase
+
+3. **Understand dependencies**
+   - [Feature Dependencies](./business-context/04-phase-stories/feature-dependencies.md) - What to build first
+   - [Phase Stories](./business-context/04-phase-stories/) - User stories by phase
+
+4. **Review deployment strategy**
+   - [Deployment Strategy](./technical-context/03-implementation/deployment-strategy/) - Phase-wise deployment plans
+   - [Rollout Plan](./technical-context/03-implementation/rollout-plan.md) - Gradual rollout approach
+
+**Example**: Planning Phase 1 implementation
+```bash
+# 1. Read implementation plan
+./technical-context/03-implementation/planning/IMPLEMENTATION_PLAN.md
+# Focus on: Phase 1 section, Resource Planning, Risk Management
+
+# 2. Review timeline
+./technical-context/03-implementation/planning/IMPLEMENTATION_TIMELINE.md
+# Focus on: Phase 1 sprints, milestones, critical path
+
+# 3. Check dependencies
+./business-context/04-phase-stories/feature-dependencies.md
+# Understand: What must be built first
+
+# 4. Review deployment plan
+./technical-context/03-implementation/deployment-strategy/phase-1-deployment.md
+```
 
 ---
 
