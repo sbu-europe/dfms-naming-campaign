@@ -6,6 +6,8 @@ module: Quality Control
 priority: High
 status: Pending
 epic: QC Workflow
+epic_id: EPIC-009
+epic_name: Transport Order (TO) Management
 sprint: Sprint 14
 story_points: 5
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/04-operations-support/qc-workflow.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-044-qc-lab-testing.md
   - US-046-qc-test-configuration.md

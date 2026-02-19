@@ -6,12 +6,16 @@ module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Security & User Management
+epic_id: EPIC-012
+epic_name: Scaling / Weight Management
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-007-user-role-management.md
   - US-065-user-invitation-activation.md

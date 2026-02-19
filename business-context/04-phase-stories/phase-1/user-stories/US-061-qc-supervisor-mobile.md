@@ -6,6 +6,8 @@ module: Mobile Interfaces
 priority: High
 status: Pending
 epic: Mobile User Experiences
+epic_id: EPIC-006
+epic_name: Fleet & Vehicle Management
 sprint: Sprint 18
 story_points: 8
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/07-mobile-interfaces/qc-mobile.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-044-qc-lab-testing.md
   - US-045-qc-sample-collection.md

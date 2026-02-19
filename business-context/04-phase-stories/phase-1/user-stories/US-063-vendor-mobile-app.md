@@ -6,6 +6,8 @@ module: Mobile Applications
 priority: High
 status: Pending
 epic: Mobile User Experiences
+epic_id: EPIC-011
+epic_name: Gate Management
 sprint: Sprint 18
 story_points: 8
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/07-mobile-interfaces/vendor-mobile.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-024-vendor-bidding-portal.md
   - US-031-vendor-portal.md

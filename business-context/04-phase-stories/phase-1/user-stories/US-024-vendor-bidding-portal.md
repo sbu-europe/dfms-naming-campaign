@@ -6,6 +6,8 @@ module: Vendor Management
 priority: High
 status: Pending
 epic: Vendor Ecosystem
+epic_id: EPIC-005
+epic_name: Product Inventory Management (PIM)
 sprint: Sprint 5
 story_points: 8
 created: 2026-02-11
@@ -14,6 +16,8 @@ source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/05-vendor-management/vendor-portal.md
   - ../../../03-module-specifications/03-core-operations/trip-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-021-to-execution-vendor-fleet.md
   - US-027-vendor-registration.md

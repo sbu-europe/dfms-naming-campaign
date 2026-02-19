@@ -6,6 +6,8 @@ module: Quality Control
 priority: Critical
 status: Pending
 epic: Quality Assurance Workflow
+epic_id: EPIC-009
+epic_name: Transport Order (TO) Management
 sprint: Sprint 7
 story_points: 5
 created: 2026-02-11
@@ -15,6 +17,8 @@ source_documents:
   - ../../../03-module-specifications/04-operations-support/qc-workflow.md
   - ../../../../source-documents/discovery-phase/questionnaires/Questionnaires_DFMS_BN_2025-09-25.docx
   - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Distribution_2025-09-30.docx
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-042-qc-sampling-creation.md
   - US-045-qc-pass-fail-decision.md

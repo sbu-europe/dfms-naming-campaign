@@ -6,12 +6,16 @@ module: Master Data Management
 priority: Critical
 status: Pending
 epic: Fleet Master Data Setup
+epic_id: EPIC-001
+epic_name: System Foundation
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-002-driver-registration.md
   - US-015-fleet-health-dashboard.md

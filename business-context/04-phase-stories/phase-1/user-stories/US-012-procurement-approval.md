@@ -6,6 +6,8 @@ module: Product Requisition Management
 priority: Critical
 status: Pending
 epic: Product Requisition Workflow
+epic_id: EPIC-003
+epic_name: Master Data & Configuration
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-11
@@ -14,6 +16,8 @@ source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/03-core-operations/product-requisition-management.md
   - ../../../03-module-specifications/03-core-operations/transport-requisition-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-010-port-transfer-requisition.md
   - US-011-distribution-approval.md

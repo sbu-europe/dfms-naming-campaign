@@ -1,6 +1,8 @@
 # Business Context
 
-This folder contains comprehensive business context documentation for the DFMS (Distribution and Fleet Management System) product.
+> **⚠️ IMPORTANT**: **`source-documents/` is the source of truth**. This folder contains derived documentation based on source documents. Always refer to `source-documents/` for authoritative information.
+
+This folder contains comprehensive business context documentation for the DFMS (Distribution and Fleet Management System) product, derived from and aligned with `source-documents/`.
 
 ## 📁 Folder Structure
 
@@ -27,6 +29,8 @@ This folder contains comprehensive business context documentation for the DFMS (
 - Feature overview and dependencies
 - Phase 1, 2, 3 summaries
 - Detailed user stories organized by phase (implementation-ready)
+- **Source**: Based on `source-documents/04-wbs/stories-table.md` (94 stories: US-001 to US-094)
+- **Epic Mapping**: Stories mapped to 17 epics from `source-documents/04-wbs/epics-table.md`
 - See [04-phase-stories/README.md](04-phase-stories/README.md) for details
 
 ### `05-data-reference/` - Data Reference
@@ -42,10 +46,12 @@ This folder contains comprehensive business context documentation for the DFMS (
 ## 📊 Content Overview
 
 ### Original Business Context
-- **User Stories**: 70+ detailed user stories (Phase 1-3) in `04-phase-stories/`
+- **User Stories**: 94 stories total (US-001 to US-094) from WBS, 70 stories in Phase 1
+- **Epics**: 17 epics (EPIC-001 to EPIC-017) from WBS
 - **Business Rules**: 112+ validation rules
 - **User Personas**: 21 detailed stakeholder profiles
 - **Data Entities**: 10+ complete data dictionaries
+- **Source**: `source-documents/04-wbs/stories-table.md` and `source-documents/04-wbs/epics-table.md`
 
 ### Module Specifications (`03-module-specifications/`)
 - **Modules**: 12 modules (00-overview through 11-reference)
@@ -74,11 +80,18 @@ This folder contains comprehensive business context documentation for the DFMS (
 
 ## 🔗 Related Documentation
 
-- **[PRD Reference Content](03-module-specifications/README.md)** - PRD-extracted content organized by module
-- **[Phase Stories](04-phase-stories/README.md)** - Detailed user stories organized by phase
-- **[Source Documents](../../source-documents/README.md)** - Original BA documents (PRD, SOW, WBS, Flow Diagrams)
+### Source Documents (Source of Truth)
+- **[Source Documents](../../source-documents/README.md)** - **SOURCE OF TRUTH**: Original BA documents (PRD, SOW, WBS, Flow Diagrams)
+- **[PRD](../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Product Requirements Document
+- **[WBS Epics](../../source-documents/04-wbs/epics-table.md)** - 17 Epics (EPIC-001 to EPIC-017)
+- **[WBS Stories](../../source-documents/04-wbs/stories-table.md)** - 94 Stories (US-001 to US-094)
+- **[WBS Timeline](../../source-documents/04-wbs/timeline-table.md)** - Sprint timeline and schedule
 - **[SOW Documents](../../source-documents/03-sow/)** - Statement of Work for Phase 1, 2, 3
-- **[WBS Documents](../../source-documents/04-wbs/)** - Work Breakdown Structure (Epics, Stories, Timeline, Risks, Releases)
+
+### Derived Documentation
+- **[PRD Reference Content](03-module-specifications/README.md)** - PRD-extracted content organized by module
+- **[Phase Stories](04-phase-stories/README.md)** - Detailed user stories organized by phase (derived from WBS)
+- **[Verification Report](VERIFICATION_REPORT.md)** - Verification of business-context against source-documents
 
 ## 📊 Analysis & Alignment
 
@@ -88,6 +101,25 @@ Historical alignment documents are archived in [`06-reference/`](./06-reference/
 
 ---
 
+## ⚠️ Source of Truth Priority
+
+**`source-documents/` takes precedence over `business-context/`**
+
+1. **For authoritative information**: Always refer to `source-documents/`
+   - PRD: `source-documents/01-prd/PRD_DFMS_v1.0.md`
+   - WBS: `source-documents/04-wbs/` (epics-table.md, stories-table.md, timeline-table.md)
+   - SOW: `source-documents/03-sow/`
+
+2. **For derived documentation**: Use `business-context/`
+   - Module specifications (PRD-extracted)
+   - Phase stories (WBS-derived)
+   - Business analysis and context
+
+3. **Verification**: See [VERIFICATION_REPORT.md](VERIFICATION_REPORT.md) for alignment status
+
+---
+
 **Last Updated**: 2026-02-17  
-**Structure**: Original analysis + PRD-based content
+**Structure**: Original analysis + PRD-based content  
+**Source of Truth**: `source-documents/`
 

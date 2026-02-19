@@ -6,6 +6,8 @@ module: Fleet Management
 priority: Medium
 status: Pending
 epic: Fleet Operations
+epic_id: EPIC-006
+epic_name: Fleet & Vehicle Management
 sprint: Sprint 17
 story_points: 3
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/06-fleet-management/fuel-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-001-vehicle-master-data.md
   - US-057-vehicle-maintenance.md

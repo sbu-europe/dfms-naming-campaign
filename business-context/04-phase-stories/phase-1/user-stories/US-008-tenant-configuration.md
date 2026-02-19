@@ -6,6 +6,8 @@ module: Master Data Management
 priority: High
 status: Pending
 epic: Master Data Foundation
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/01-foundation/user-tenant-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-007-user-role-management.md
 tags: [master-data, tenant, configuration, multi-tenant, high-priority]

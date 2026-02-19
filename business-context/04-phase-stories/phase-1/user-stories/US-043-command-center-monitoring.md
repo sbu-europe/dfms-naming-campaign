@@ -6,6 +6,8 @@ module: Operations (Command Center)
 priority: High
 status: Pending
 epic: Command Center
+epic_id: EPIC-009
+epic_name: Transport Order (TO) Management
 sprint: Sprint 13
 story_points: 8
 created: 2026-02-11
@@ -14,6 +16,8 @@ source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/04-operations-support/command-center.md
   - ../../../03-module-specifications/04-operations-support/scaling-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-026-realtime-map-dashboard.md
   - US-021-trip-lifecycle.md

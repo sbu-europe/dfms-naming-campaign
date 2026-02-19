@@ -6,12 +6,16 @@ module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Tenant Onboarding
+epic_id: EPIC-011
+epic_name: Gate Management
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-008-tenant-configuration.md
   - US-065-user-invitation-activation.md

@@ -6,6 +6,8 @@ module: Master Data Management
 priority: Critical
 status: Pending
 epic: Master Data Foundation
+epic_id: EPIC-001
+epic_name: System Foundation
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-13
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/05-vendor-management/vendor-onboarding.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-027-vendor-registration.md
   - US-029-vendor-verification.md

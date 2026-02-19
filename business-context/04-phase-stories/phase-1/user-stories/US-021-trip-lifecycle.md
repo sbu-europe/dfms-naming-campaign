@@ -6,6 +6,8 @@ module: Transport Management
 priority: Critical
 status: Pending
 epic: Trip Execution
+epic_id: EPIC-004
+epic_name: POI Management & Geofencing
 sprint: Sprint 5
 story_points: 13
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/03-core-operations/trip-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-020-to-execution-own-fleet.md
   - US-025-trip-closure-pod.md

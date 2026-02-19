@@ -3,21 +3,25 @@ title: Phase 1 - MVP Core Operations
 category: features
 phase: phase-1
 duration: Weeks 1-26 (6 months)
-story_count: 63
+story_count: 70
 status: planned
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-02-17
 source_documents:
   - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../../03-module-specifications/
-  - ../../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
+  - ../../../source-documents/03-sow/SOW Phase-1.md
 tags: [phase-1, mvp, features, roadmap]
 ---
 
 # Phase 1: MVP - Core Operations
 
+> **⚠️ SOURCE OF TRUTH**: `source-documents/04-wbs/` (WBS tables)  
 > **Timeline**: Weeks 1-26 (6 months)  
-> **User Stories**: 63  
+> **User Stories**: 70 (US-001 to US-070 per WBS)  
+> **Total Stories in WBS**: 94 (US-001 to US-094)  
+> **Epics**: 17 (EPIC-001 to EPIC-017)  
 > **Objective**: Deliver a fully operational DFMS platform that replaces manual processes with digital workflows, covering end-to-end transport execution from requisition to delivery
 
 ---

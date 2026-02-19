@@ -6,6 +6,8 @@ module: Mobile Interfaces
 priority: High
 status: Pending
 epic: Mobile User Experiences
+epic_id: EPIC-010
+epic_name: Vendor Management
 sprint: Sprint 9
 story_points: 8
 created: 2026-02-11
@@ -14,6 +16,8 @@ source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/07-mobile-interfaces/driver-mobile.md
   - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Transport_Operations_2025-09-29.docx
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-020-to-execution-own-fleet.md
   - US-026-trip-lifecycle-management.md

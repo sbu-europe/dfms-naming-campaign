@@ -6,6 +6,8 @@ module: Transport Management
 priority: Critical
 status: Pending
 epic: Transport Order Execution
+epic_id: EPIC-004
+epic_name: POI Management & Geofencing
 sprint: Sprint 4
 story_points: 8
 created: 2026-02-11
@@ -14,6 +16,8 @@ source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/03-core-operations/transport-order-management.md
   - ../../../03-module-specifications/03-core-operations/trip-management.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-019-to-execution-vendor-direct.md
   - US-016-fleet-availability.md

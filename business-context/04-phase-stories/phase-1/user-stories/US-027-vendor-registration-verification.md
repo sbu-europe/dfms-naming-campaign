@@ -6,6 +6,8 @@ module: Vendor Management
 priority: Critical
 status: Pending
 epic: Vendor Onboarding
+epic_id: EPIC-007
+epic_name: Product Transfer Requisition Management
 sprint: Sprint 8
 story_points: 8
 created: 2026-02-11
@@ -13,6 +15,8 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/05-vendor-management/vendor-onboarding.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-004-vendor-master-data.md
   - US-024-vendor-bidding-portal.md

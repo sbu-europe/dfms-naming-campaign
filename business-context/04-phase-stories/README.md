@@ -2,6 +2,8 @@
 
 > Detailed, implementation-ready user stories organized by deployment phase
 
+**⚠️ IMPORTANT**: **`source-documents/` is the source of truth**. This folder contains derived documentation based on `source-documents/01-prd/` and `source-documents/04-wbs/`. Always refer to source documents for authoritative information.
+
 **Note**: This folder contains detailed user stories for implementation. For PRD reference content organized by module, see [`03-module-specifications/`](../03-module-specifications/README.md).
 
 ## 📖 Purpose
@@ -14,12 +16,14 @@ This folder contains detailed feature specifications and user stories for the DF
 
 | Phase | Duration | User Stories | Key Focus | Status |
 |-------|----------|--------------|-----------|--------|
-| [Phase 1](./phase-1/) | Weeks 1-26 | 63 (62 docs*) | MVP - Core Operations | ✅ **Complete** |
-| [Phase 2](./phase-2/) | Weeks 27-39 | 14 | Optimization & Analytics | ⏳ Planned |
-| [Phase 3](./phase-3/) | Weeks 40-52 | 14 | Enterprise & Intelligence | ⏳ Planned |
-| **Total** | **52 weeks** | **91** | **Complete Platform** | - |
+| [Phase 1](./phase-1/) | Weeks 1-26 | 70 stories* | MVP - Core Operations | ✅ **Complete** |
+| [Phase 2](./phase-2/) | Weeks 27-39 | TBD | Optimization & Analytics | ⏳ Planned |
+| [Phase 3](./phase-3/) | Weeks 40-52 | TBD | Enterprise & Intelligence | ⏳ Planned |
+| **Total** | **26 weeks** | **94** | **Phase 1 Complete** | - |
 
-_*Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 which is a duplicate of US-061)_
+**Source**: Based on `source-documents/04-wbs/stories-table.md` (94 stories total: US-001 to US-094)
+
+_*Phase 1 includes stories US-001 to US-070 (70 stories). Stories US-071 to US-094 are documented in WBS but may span Phase 1/2/3 boundaries._
 
 ---
 
@@ -196,10 +200,13 @@ _*Phase 1 has 62 documented user stories (US-001 to US-063, excluding US-062 whi
 
 | Metric | Phase 1 | Phase 2 | Phase 3 | Total |
 |--------|---------|---------|---------|-------|
-| User Stories | 63 | 14 | 14 | 91 |
-| Modules | 12 | 8 | 8 | 12 (unique) |
+| User Stories | 70* | TBD | TBD | 94** |
+| Modules | 12 | TBD | TBD | 12 (unique) |
 | Weeks | 26 | 13 | 13 | 52 |
-| Story Points (Est.) | 315 | 70 | 70 | 455 |
+| Story Points (Est.) | 536 | TBD | TBD | TBD |
+
+_*Based on WBS: US-001 to US-070 (70 stories in Phase 1)_  
+_**Total from WBS: 94 stories (US-001 to US-094)_
 
 ### By Module
 
@@ -248,16 +255,18 @@ All user stories follow this consistent format:
 ---
 title: [Story Title]
 story_id: US-XXX
+epic_id: EPIC-XXX
+epic_name: [Epic Name]
 phase: phase-1|phase-2|phase-3
 module: [Module Name]
 priority: Critical|High|Medium|Low
 status: Pending|In Progress|Completed|Blocked
-epic: [Epic Name]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 source_documents:
-  - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../03-module-specifications/
+  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-XXX-related-story.md
 dependencies:
@@ -337,21 +346,24 @@ As a [role], I want to [action] so that [benefit].
 
 ### Phase 1 (MVP)
 - **Status**: In Development
-- **Progress**: 0/63 stories completed
-- **Sprint**: Sprint 1 of 13
+- **Progress**: 0/70 stories completed (based on WBS)
+- **Sprint**: Sprint 1 of 12
 - **On Track**: Yes
+- **Source**: `source-documents/04-wbs/stories-table.md`
 
 ### Phase 2 (Optimization)
 - **Status**: Planned
-- **Progress**: 0/14 stories completed
+- **Progress**: TBD (stories US-071+ from WBS)
 - **Start Date**: Week 27
 - **Dependencies**: Phase 1 completion
+- **Note**: Story count to be confirmed from WBS
 
 ### Phase 3 (Enterprise)
 - **Status**: Planned
-- **Progress**: 0/14 stories completed
+- **Progress**: TBD (stories US-071+ from WBS)
 - **Start Date**: Week 40
 - **Dependencies**: Phase 2 completion
+- **Note**: Story count to be confirmed from WBS
 
 ---
 
@@ -363,9 +375,10 @@ This documentation is actively maintained and updated:
 - **Per Phase**: Major updates, lessons learned
 - **As Needed**: Dependency changes, priority shifts
 
-**Last Updated**: 2026-02-11  
+**Last Updated**: 2026-02-17  
 **Maintained By**: Product Team  
-**Review Cycle**: Weekly
+**Review Cycle**: Weekly  
+**Source of Truth**: `source-documents/04-wbs/` (WBS tables) and `source-documents/01-prd/` (PRD)
 
 ---
 

@@ -6,12 +6,16 @@ module: Vendor Management
 priority: Medium
 status: Pending
 epic: Vendor Compliance
+epic_id: EPIC-008
+epic_name: Distribution & Procurement Management
 sprint: Sprint 10
 story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/04-wbs/stories-table.md
+  - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-028-vendor-performance-tracking.md
 dependencies:
