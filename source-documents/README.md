@@ -14,74 +14,73 @@ These documents represent requirements gathered from **Nourish**, our launch cli
 
 ## 📂 Directory Structure
 
-### `requirements/`
+### `01-prd/`
 Product Requirements Documents (PRD) and core specifications.
 
-- `PRD_DFMS_v1.0.docx` - Primary product requirements document
+- `PRD_DFMS_v1.0.docx` - Primary product requirements document (Word format)
+- `PRD_DFMS_v1.0.md` - Product requirements document (Markdown format)
 
-### `discovery-phase/`
-Documentation and artifacts collected during the discovery phase with Nourish (Sept-Dec 2025).
+> 📖 See [PRD Documentation](../business-context/03-module-specifications/) for structured PRD content
 
-- `client-feedback/` - Reviewed questionnaires and feedback
-- `questionnaires/` - Discovery session questionnaires (English & Bengali)
-- `client-resources/` - Reference documents, samples, and master data from Nourish
-- `flow-diagrams/` - Visual workflow diagrams (v1.1 through v1.6)
-- `feature-lists/` - Evolution of feature lists during discovery
+### `02-flow-diagram/`
+Visual workflow diagrams and process flows for DFMS operations.
 
-> 📖 See [discovery-phase/README.md](discovery-phase/README.md) for detailed information about discovery phase materials
+- `DFMS_End_to_End_Operational_Flow_FG_v1.5.png` - End-to-end operational flow (v1.5)
+- `DFMS_End_to_End_Operational_Flow_FG_v1.6.png` - End-to-end operational flow (v1.6, latest)
+- `DFMS_End_to_End_Operational_Flow_v1.1.jpg` - End-to-end operational flow (v1.1)
+- `DFMS_Operation_Workflow_FG_Transfer_v1.4.png` - Finished Goods transfer workflow
+- `DFMS_Operation_Workflow_Port_Shipment_v1.4.png` - Port shipment workflow
+- `DFMS_Operation_Workflow_v1.3.drawio.png` - Operational workflow (v1.3)
+- `DFMS_Operational_Flow_End_to_End_v1.2.drawio.png` - End-to-end flow (v1.2)
+- `DFMS_Operational_Workflow_Port_Consignment_v1.5.png` - Port consignment workflow (v1.5)
+- `DFMS_Operational_Workflow_Port_Consignment_v1.6.png` - Port consignment workflow (v1.6)
+- `Flow_Diagrams.drawio` - Draw.io source file for flow diagrams
 
-### `business-proposal/`
-Business proposals from BS23 for the Logistics and Fleet Management System.
+### `03-sow/`
+Statement of Work (SOW) documents and feature specifications for all phases.
 
-- `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx` - Internal proposal version 1.2.1
-- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` - Version 1.3.1 without commercial aspects (Latest)
+#### Phase Documents
+- `SOW Phase-1.md` - Statement of Work for Phase 1 (MVP - P1)
+  - **Scope**: Core Foundation & Operational Flow
+  - Comprehensive feature breakdown by module/epic
+  - Portal type (Web/Mobile Application/Mobile Interface)
+  - Feature descriptions, sub-features, and remarks
+  - Timeline: 24-28 weeks with 2 weeks UAT
+  - Covers: System Foundation, User & Tenant Management, Master Data, POI Management, Product Inventory, Fleet Management, Transport Orders, Vendor Management, Gate Operations, QC Workflow, Mobile Interfaces
 
-> 📖 See [business-proposal/README.md](business-proposal/README.md) for deployment phases and instructions on reading binary DOCX files
+- `SOW Phase-2.md` - Statement of Work for Phase 2 (P2)
+  - **Scope**: Intermediate Enhancements
+  - Enhanced features for TO, Fleet, POI, Dashboards, Invoicing, Basic Fuel Tracking
+  - Builds upon Phase 1 foundation
 
-### `planning/`
-Project planning artifacts including features and work breakdown.
+- `SOW Phase-3.md` - Statement of Work for Phase 3 (P2 & P3)
+  - **Scope**: Intermediate Enhancements & Advanced Features
+  - Intermediate: PO/PR, QC Audits, Dashboards, Invoicing, Basic Fuel Tracking
+  - Advanced: Workshop Management, Advanced Analytics, Alerts, KPIs, Enhanced Tracking
 
-#### `planning/feature-lists/`
-Feature specifications across different versions:
-- `DFMS_Feature_List_v1.0.xlsx` - Initial feature list
-- `DFMS_Feature_List_v1.1.xlsx` - Updated feature list
-- `DFMS_Feature_List_v1.2.xlsx` - Current feature list
+#### Supporting Documents
+- `user-roles.md` - User roles and permissions matrix
+  - Tenant-level roles (Super Admin, Tenant Admin, Department Admin)
+  - Operational roles (19 roles: Product Requester, Approvers, Transport Planner, Gate Operator, QC Inspector, Driver, Vendor, etc.)
+  - Role descriptions and responsibilities
 
-#### `planning/work-breakdown/`
-Work Breakdown Structure (WBS) by project phase:
-- `WBS_Phase_1_v1.0.xlsx` - Phase 1 work breakdown
-- `WBS_Phase_2_v1.0.xlsx` - Phase 2 work breakdown
-- `WBS_Phase_3_v1.0.xlsx` - Phase 3 work breakdown
-- `WBS_Logistics_Fleet_v1.3.xlsx` - Logistics & Fleet Management breakdown
+- `DFMS - Feature List version_1.xlsx` - Feature list spreadsheet (Excel format)
+  - Detailed feature specifications across all phases
+  - Feature categorization and prioritization
 
-### `meeting-minutes/`
-Chronological record of stakeholder meetings organized by date.
+### `04-wbs/`
+Work Breakdown Structure (WBS) and project planning documents.
 
-#### `2025-07/`
-- `TMS_Contract_Discussion_2025-07-30.docx` - Transport Management System contract discussion
+- `epics-table.md` - Epic-level breakdown (17 epics)
+- `stories-table.md` - User stories table (94+ stories)
+- `timeline-table.md` - Sprint timeline and schedule (12 sprints, 26-week baseline)
+- `dependencies-table.md` - Epic dependencies and critical path analysis
+- `dashboard-table.md` - Project tracker and key metrics
+- `risks-table.md` - Risk register (17 risks with mitigation strategies)
+- `release-table.md` - Release plan (5 major releases: R1-R5)
+- `WBS_Nourish_DFMS Phase 1 v1.xlsx` - Detailed work breakdown structure spreadsheet
 
-#### `2025-09/`
-- `Transport_Operations_2025-09-29.docx` - Transport operations stakeholder meeting
-
-#### `2025-10/`
-- `Accounts_Finance_2025-10-08.docx` - Accounts & Finance operations meeting
-- `Commercial_Operations_2025-10-08.docx` - Commercial operations meeting
-- `Distribution_Sales_2025-10-06.docx` - Distribution & Sales operations meeting
-- `MIS_Operations_2025-10-08.docx` - MIS operations meeting
-- `Procurement_Operations_2025-10-06.docx` - Procurement operations meeting
-- `QA_QC_Operations_2025-10-06.docx` - Quality Assurance & Quality Control meeting
-
-#### `2025-11/`
-- `General_Meeting_2025-11-25.docx` - General DFMS discussion
-
-#### `2025-12/`
-- `General_Meeting_2025-12-01.docx` - General DFMS discussion
-- `General_Meeting_2025-12-17.docx` - General DFMS discussion
-
-### `reviews/`
-Review documents and feedback from stakeholders.
-
-- `DFMS_V2_Reviewed_BA_Team.docx` - Version 2 review by Business Analyst team
+> 📖 See [04-wbs/README.md](04-wbs/README.md) for detailed WBS documentation
 
 ## 📋 File Naming Convention
 
@@ -124,26 +123,33 @@ Key documentation milestones:
 - **MIS**: `meeting-minutes/2025-10/MIS_Operations_2025-10-08.docx`
 
 ### By Document Type
-- **Business Proposals**: `business-proposal/` (BS23 proposals, versions 1.2.1 & 1.3.1)
-- **Requirements**: `requirements/PRD_DFMS_v1.0.docx`
-- **Features**: `planning/feature-lists/` (check latest version)
-- **Project Plan**: `planning/work-breakdown/` (by phase)
-- **Processes**: `design/Flow_Diagrams.drawio`
-- **Stakeholder Input**: `meeting-minutes/` (by date)
-- **Reviews**: `reviews/DFMS_V2_Reviewed_BA_Team.docx`
+- **Requirements**: `01-prd/PRD_DFMS_v1.0.md` or `.docx`
+- **Process Flows**: `02-flow-diagram/` (latest: v1.6)
+- **Statement of Work**: 
+  - Phase 1 (MVP): `03-sow/SOW Phase-1.md`
+  - Phase 2 (Intermediate): `03-sow/SOW Phase-2.md`
+  - Phase 3 (Advanced): `03-sow/SOW Phase-3.md`
+- **User Roles**: `03-sow/user-roles.md`
+- **Feature Lists**: `03-sow/DFMS - Feature List version_1.xlsx`
+- **Work Breakdown**: `04-wbs/` (epics, stories, timeline, dependencies, risks, releases)
+- **Project Planning**: `04-wbs/WBS_Nourish_DFMS Phase 1 v1.xlsx`
 
 ## 📊 Document Status
 
-| Document Type | Latest Version | Last Updated |
-|--------------|----------------|--------------|
-| Business Proposal | v1.3.1 | Latest |
-| PRD | v1.0 | Initial |
-| Feature List | v1.2 | Latest |
-| WBS Phase 1 | v1.0 | Initial |
-| WBS Phase 2 | v1.0 | Initial |
-| WBS Phase 3 | v1.0 | Initial |
-| WBS Logistics | v1.3 | Latest |
-| Flow Diagrams | - | Current |
+| Document Type | Latest Version | Location | Status |
+|--------------|----------------|----------|--------|
+| PRD | v1.0 | `01-prd/` | Current |
+| Flow Diagrams | v1.6 | `02-flow-diagram/` | Latest |
+| SOW Phase 1 | v1 | `03-sow/SOW Phase-1.md` | Current |
+| SOW Phase 2 | v1 | `03-sow/SOW Phase-2.md` | Current |
+| SOW Phase 3 | v1 | `03-sow/SOW Phase-3.md` | Current |
+| User Roles | v1 | `03-sow/user-roles.md` | Current |
+| Feature List | v1 | `03-sow/` | Current |
+| WBS Phase 1 | v1 | `04-wbs/` | Current |
+| Epics | 17 epics | `04-wbs/epics-table.md` | Planned |
+| Stories | 94+ stories | `04-wbs/stories-table.md` | Planned |
+| Timeline | 26 weeks | `04-wbs/timeline-table.md` | Planned |
+| Releases | R1-R5 | `04-wbs/release-table.md` | Planned |
 
 ## 🎯 Next Steps
 
