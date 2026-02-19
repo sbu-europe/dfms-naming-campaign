@@ -76,6 +76,9 @@ This folder contains comprehensive business context documentation for the DFMS (
 
 - **[PRD Reference Content](03-module-specifications/README.md)** - PRD-extracted content organized by module
 - **[Phase Stories](04-phase-stories/README.md)** - Detailed user stories organized by phase
+- **[Source Documents](../../source-documents/README.md)** - Original BA documents (PRD, SOW, WBS, Flow Diagrams)
+- **[SOW Documents](../../source-documents/03-sow/)** - Statement of Work for Phase 1, 2, 3
+- **[WBS Documents](../../source-documents/04-wbs/)** - Work Breakdown Structure (Epics, Stories, Timeline, Risks, Releases)
 
 ## 📊 Analysis & Alignment
 

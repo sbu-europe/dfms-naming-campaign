@@ -256,10 +256,11 @@ TR → TO → Trip → QC
 
 ### Source Documents
 - Location: `../../source-documents/`
-- Business Proposal: `source-documents/business-proposal/`
-- Discovery Phase: `source-documents/discovery-phase/`
-- Requirements: `source-documents/requirements/`
-- Meeting Minutes: `source-documents/meeting-minutes/`
+- **PRD**: `source-documents/01-prd/PRD_DFMS_v1.0.md`
+- **SOW Documents**: `source-documents/03-sow/` (Phase 1, 2, 3)
+- **WBS Documents**: `source-documents/04-wbs/` (Epics, Stories, Timeline, Risks, Releases)
+- **Flow Diagrams**: `source-documents/02-flow-diagram/`
+- **Historical**: Business Proposal, Discovery Phase, Meeting Minutes (archived)
 
 ### Related Repositories
 - Backend: (To be created - will import this as submodule)

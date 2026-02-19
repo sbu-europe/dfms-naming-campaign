@@ -7,7 +7,7 @@ created: 2026-02-13
 updated: 2026-02-13
 source_documents:
   # PRD Source
-  - ../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   # Discovery Phase Sources
   - ../../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx
   - ../../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx
@@ -15,7 +15,7 @@ source_documents:
   - ../../../source-documents/meeting-minutes/2025-10/QA_QC_Operations_2025-10-06.docx
   - ../../../source-documents/meeting-minutes/2025-10/Accounts_Finance_2025-10-08.docx
   # ... (additional discovery sources in original files)  # PRD Source
-  - ../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   # Discovery Phase Sources
   - ../../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx
   - ../../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx

@@ -8,7 +8,7 @@ status: planned
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../03-module-specifications/
   - ../../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
 tags: [phase-3, enterprise, intelligence, multi-language, features]

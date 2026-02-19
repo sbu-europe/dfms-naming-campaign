@@ -69,7 +69,7 @@ This folder contains reference information about data structures used in DFMS, i
 
 All data structures derived from:
 - `source-documents/discovery-phase/client-resources/master-data/*.xlsx` - Sample master data
-- `source-documents/requirements/PRD_DFMS_v1.0.docx` - Data model specifications
+- `source-documents/01-prd/PRD_DFMS_v1.0.docx` - Data model specifications
 - Meeting minutes and discovery sessions - Business rules and constraints
 
 ---

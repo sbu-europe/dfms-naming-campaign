@@ -11,7 +11,7 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/07-mobile-interfaces/qc-mobile.md
 related_stories:
   - US-044-qc-lab-testing.md

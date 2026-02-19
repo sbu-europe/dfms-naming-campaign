@@ -11,7 +11,7 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/05-vendor-management/vendor-onboarding.md
 related_stories:
   - US-027-vendor-registration-verification.md

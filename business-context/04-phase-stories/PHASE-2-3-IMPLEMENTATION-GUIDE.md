@@ -6,7 +6,7 @@ status: planned
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../03-module-specifications/
 tags: [phase-2, phase-3, roadmap, guidelines, future-work]
 ---

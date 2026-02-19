@@ -6,7 +6,7 @@ This folder contains business context extracted directly from the approved Produ
 
 ## 📋 Source Document
 
-- **Source**: `source-documents/requirements/PRD_DFMS_v1.0.md`
+- **Source**: `source-documents/01-prd/PRD_DFMS_v1.0.md`
 - **Version**: 1.0
 - **Date**: November 3, 2025
 - **Status**: Approved

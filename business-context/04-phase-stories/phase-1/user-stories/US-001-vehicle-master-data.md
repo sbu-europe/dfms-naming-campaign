@@ -11,7 +11,7 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
 related_stories:
   - US-002-driver-registration.md
   - US-015-fleet-health-dashboard.md

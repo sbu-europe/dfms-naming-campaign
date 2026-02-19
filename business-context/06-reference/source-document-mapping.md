@@ -24,8 +24,10 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### project-summary.md
 **Primary Sources**:
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source**
+- `../../source-documents/07-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source** (archived)
 - `../../01-PRODUCT_VISION.md`
+
+> ⚠️ **Note**: Business proposal documents have been archived. Historical references preserved for traceability.
 
 **Content Extracted**:
 - Product overview and vision
@@ -39,9 +41,11 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### business-context.md
 **Primary Sources**:
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source**
-- `../../source-documents/discovery-phase/` (multiple files)
+- `../../source-documents/07-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ✅ **Main source** (archived)
+- `../../source-documents/02-flow-diagram/` - Flow diagrams for process understanding
 - `../../01-PRODUCT_VISION.md`
+
+> ⚠️ **Note**: Discovery phase documents have been archived. Flow diagrams moved to `02-flow-diagram/`.
 
 **Content Extracted**:
 - Industry context and market trends
@@ -52,18 +56,18 @@ This document provides a comprehensive mapping between all business-context docu
 - KPIs and integration points
 - Compliance requirements
 
-**Discovery Phase Files Used**:
-- Meeting minutes from all departments
-- Client resources and observations
-- Questionnaires and feedback
+**Flow Diagrams Used**:
+- `02-flow-diagram/DFMS_End_to_End_Operational_Flow_FG_v1.6.png` (latest)
+- `02-flow-diagram/DFMS_Operational_Workflow_Port_Consignment_v1.6.png` (latest)
 
 ---
 
 #### glossary.md
 **Primary Sources**:
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
-- `../../source-documents/requirements/PRD_DFMS_v1.0.docx` ✅ **Main source**
-- `../../source-documents/discovery-phase/` (terminology from meetings)
+- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
+- `../../source-documents/01-prd/PRD_DFMS_v1.0.docx` (Word format)
+
+> ✅ **Updated**: PRD moved from `requirements/` to `01-prd/`.
 
 **Content Extracted**:
 - 50+ domain terms and definitions
@@ -75,23 +79,17 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### stakeholders.md
 **Primary Sources**:
-- `../../source-documents/meeting-minutes/` ✅ **Main source**
-  - `2025-09/Transport_Operations_2025-09-29.docx`
-  - `2025-10/Distribution_Sales_2025-10-06.docx`
-  - `2025-10/Procurement_Operations_2025-10-06.docx`
-  - `2025-10/QA_QC_Operations_2025-10-06.docx`
-  - `2025-10/Accounts_Finance_2025-10-08.docx`
-  - `2025-10/Commercial_Operations_2025-10-08.docx`
-  - `2025-10/MIS_Operations_2025-10-08.docx`
-- `../../source-documents/discovery-phase/`
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
+- `../../source-documents/03-sow/user-roles.md` ✅ **Main source** (current)
+- Historical: Meeting minutes and discovery phase documents (archived)
+
+> ✅ **Updated**: User roles now documented in `03-sow/user-roles.md` with 19 roles.
 
 **Content Extracted**:
 - Primary stakeholders (BS23, Nourish)
-- 10+ user personas with detailed roles
+- 19 user roles (Super Admin, Tenant Admin, Department Admin, and 16 operational roles)
 - Department breakdown (Transport, Fleet, QC, Vendor, Finance, etc.)
 - External stakeholders (GPS, ERP, SMS providers)
-- Discovery phase engagement summary
+- Role descriptions and responsibilities
 
 ---
 
@@ -99,19 +97,18 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### business-objectives.md
 **Primary Sources**:
-- `../../source-documents/requirements/PRD_DFMS_v1.0.docx` ✅ **Main source**
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
-- `../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx`
-- `../../source-documents/discovery-phase/client-resources/Transport_Operations_Issues_Solutions.pptx`
-- `../../source-documents/discovery-phase/client-resources/Sample_Transport_Costing.docx`
-- `../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx`
-- `../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx`
-- `../../source-documents/meeting-minutes/2025-10/Procurement_Operations_2025-10-06.docx`
+- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
+- `../../source-documents/03-sow/SOW Phase-1.md` - Phase 1 objectives
+- `../../source-documents/03-sow/SOW Phase-2.md` - Phase 2 objectives
+- `../../source-documents/03-sow/SOW Phase-3.md` - Phase 3 objectives
+- Historical: Business proposal and meeting minutes (archived)
 - `../../01-PRODUCT_VISION.md`
+
+> ✅ **Updated**: PRD moved to `01-prd/`. SOW documents added for phase-specific objectives.
 
 **Content Extracted**:
 - 8 primary business objectives with success metrics
-- Phase-specific objectives (Phase 1-3)
+- Phase-specific objectives (Phase 1-3) from SOW documents
 - Stakeholder-specific objectives (Nourish, BS23, Future Clients)
 - Detailed KPIs (Operational, Financial, System)
 - Success criteria per phase
@@ -122,22 +119,15 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### user-personas.md
 **Primary Sources**:
-- `../../source-documents/requirements/PRD_DFMS_v1.0.docx` ✅ **Main source**
-- `../../source-documents/meeting-minutes/2025-09/Transport_Operations_2025-09-29.docx`
-- `../../source-documents/meeting-minutes/2025-10/Distribution_Sales_2025-10-06.docx`
-- `../../source-documents/meeting-minutes/2025-10/Procurement_Operations_2025-10-06.docx`
-- `../../source-documents/meeting-minutes/2025-10/QA_QC_Operations_2025-10-06.docx`
-- `../../source-documents/meeting-minutes/2025-10/Accounts_Finance_2025-10-08.docx`
-- `../../source-documents/meeting-minutes/2025-10/Commercial_Operations_2025-10-08.docx`
-- `../../source-documents/meeting-minutes/2025-10/MIS_Operations_2025-10-08.docx`
-- `../../source-documents/discovery-phase/questionnaires/Questionnaires_DFMS_EN_2025-09-25.docx`
-- `../../source-documents/discovery-phase/questionnaires/Questionnaires_DFMS_BN_2025-09-25.docx`
-- `../../source-documents/discovery-phase/questionnaires/Questionnaires_Nourish_Team_v1.0.xlsx`
-- `../../source-documents/discovery-phase/client-resources/Nourish_Bhaluka_Feedmill_Visit_Reference_2025-03-11.docx`
-- `../../source-documents/discovery-phase/client-resources/Transport_Operations_Issues_Solutions.pptx`
+- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
+- `../../source-documents/03-sow/user-roles.md` ✅ **Role definitions**
+- Historical: Meeting minutes and questionnaires (archived)
+
+> ✅ **Updated**: PRD moved to `01-prd/`. User roles consolidated in `03-sow/user-roles.md`.
 
 **Content Extracted**:
 - 21 detailed user personas
+- 19 user roles from `user-roles.md`
 - Profile information (age, education, experience, tech proficiency)
 - Roles and responsibilities per persona
 - Primary goals and pain points
@@ -150,28 +140,14 @@ This document provides a comprehensive mapping between all business-context docu
 
 ## Source Document Categories
 
-### 1. Business Proposal Documents
-**Location**: `source-documents/business-proposal/`
+> ⚠️ **Important**: Source documents have been reorganized. Old folders (business-proposal, discovery-phase, meeting-minutes, planning, reviews, requirements) have been archived. Current structure uses numbered folders (01-prd, 02-flow-diagram, 03-sow, 04-wbs).
+
+### 1. Product Requirements Documents (PRD)
+**Location**: `source-documents/01-prd/`
 
 **Files**:
-- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx` ⭐ **Most referenced**
-- `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx`
-
-**Used For**:
-- Project overview and vision
-- Problem statement and solution approach
-- Deployment phases and timeline
-- Pricing and business model
-- Technology specifications
-- High-level features and scope
-
----
-
-### 2. Requirements Documents
-**Location**: `source-documents/requirements/`
-
-**Files**:
-- `PRD_DFMS_v1.0.docx` ⭐ **Most comprehensive**
+- `PRD_DFMS_v1.0.md` ⭐ **Most comprehensive** (Markdown format)
+- `PRD_DFMS_v1.0.docx` (Word format)
 
 **Used For**:
 - Detailed functional requirements (all modules)
@@ -182,162 +158,137 @@ This document provides a comprehensive mapping between all business-context docu
 - Glossary and terminology
 - User personas and roles
 
----
-
-### 3. Meeting Minutes
-**Location**: `source-documents/meeting-minutes/`
-
-**Files by Department**:
-- `2025-09/Transport_Operations_2025-09-29.docx` ⭐
-- `2025-10/Distribution_Sales_2025-10-06.docx` ⭐
-- `2025-10/Procurement_Operations_2025-10-06.docx` ⭐
-- `2025-10/QA_QC_Operations_2025-10-06.docx` ⭐
-- `2025-10/Accounts_Finance_2025-10-08.docx`
-- `2025-10/Commercial_Operations_2025-10-08.docx`
-- `2025-10/MIS_Operations_2025-10-08.docx`
-- `2025-11/General_Meeting_2025-11-25.docx`
-- `2025-12/General_Meeting_2025-12-01.docx`
-- `2025-12/General_Meeting_2025-12-17.docx`
-- `2025-07/TMS_Contract_Discussion_2025-07-30.docx`
-
-**Used For**:
-- Stakeholder identification and roles
-- Department-specific workflows
-- Pain points and challenges
-- User expectations and requirements
-- Operational constraints
-- Integration requirements
+> ✅ **Updated**: Moved from `requirements/` to `01-prd/`.
 
 ---
 
-### 4. Discovery Phase Documents
-**Location**: `source-documents/discovery-phase/`
-
-#### 4.1 Questionnaires
-**Files**:
-- `questionnaires/Questionnaires_DFMS_EN_2025-09-25.docx`
-- `questionnaires/Questionnaires_DFMS_BN_2025-09-25.docx`
-- `questionnaires/Questionnaires_Nourish_Team_v1.0.xlsx`
-- `questionnaires/BS23_Proposed_Solution_Valuka_Visit.docx`
-
-**Used For**:
-- User needs and expectations
-- Current process documentation
-- Pain points and challenges
-- Feature prioritization
-
-#### 4.2 Client Resources
-**Files**:
-- `client-resources/Transport_Operations_Issues_Solutions.pptx` ⭐
-- `client-resources/Sample_Transport_Costing.docx`
-- `client-resources/Nourish_Bhaluka_Feedmill_Visit_Reference_2025-03-11.docx`
-- `client-resources/Nourish_TMS_PRD_v1.4_Initial_Client_Copy.docx`
-- `client-resources/Nourish_VTS_Observations_Initial_Client_Copy.docx`
-- `client-resources/DFMS_Feature_List_v1.1_Reviewed.xlsx`
-- `client-resources/DFMS_Bidding_Sample.docx`
-- `client-resources/Factory_to_CFS_Required_Documents.docx`
-- `client-resources/QA_QC_Receiving_Tracker_Bhaluka_2025-10-02.xlsx`
-
-**Used For**:
-- Current operational issues
-- Existing processes and workflows
-- Cost structures
-- Sample documents and templates
-- QC processes
-
-#### 4.3 Master Data
-**Location**: `client-resources/master-data/`
+### 2. Flow Diagrams
+**Location**: `source-documents/02-flow-diagram/`
 
 **Files**:
-- `Covered_Van_List_Bhaluka_2025-10-03.xlsx`
-- `DFMS_Sample_Depot_Tracking_Data.xlsx`
-- `Nourish_Zone_Name.xlsx`
-- `Truck_Wise_Driver_List_2025-10-03.xlsx`
-- `Unit_Info_v2.xlsx`
-
-**Used For**:
-- Understanding data structures
-- Entity relationships
-- Data volume estimates
-- Field naming conventions
-
-#### 4.4 Feature Lists
-**Files**:
-- `feature-lists/DFMS_Feature_List_v1.0.xlsx`
-- `feature-lists/DFMS_Feature_List_v1.1.xlsx`
-- `feature-lists/DFMS_Feature_List_v1.2.xlsx`
-
-**Used For**:
-- Feature evolution tracking
-- Priority changes
-- Scope refinement
-
-#### 4.5 Flow Diagrams
-**Files**:
-- `flow-diagrams/DFMS_End_to_End_Operational_Flow_FG_v1.5.png`
-- `flow-diagrams/DFMS_End_to_End_Operational_Flow_FG_v1.6.png`
-- `flow-diagrams/DFMS_Operation_Workflow_FG_Transfer_v1.4.png`
-- `flow-diagrams/DFMS_Operation_Workflow_Port_Shipment_v1.4.png`
-- `flow-diagrams/DFMS_Operational_Workflow_Port_Consignment_v1.5.png`
-- `flow-diagrams/DFMS_Operational_Workflow_Port_Consignment_v1.6.png`
+- `DFMS_End_to_End_Operational_Flow_FG_v1.6.png` ⭐ **Latest**
+- `DFMS_End_to_End_Operational_Flow_FG_v1.5.png`
+- `DFMS_End_to_End_Operational_Flow_v1.1.jpg`
+- `DFMS_Operation_Workflow_FG_Transfer_v1.4.png`
+- `DFMS_Operation_Workflow_Port_Shipment_v1.4.png`
+- `DFMS_Operation_Workflow_v1.3.drawio.png`
+- `DFMS_Operational_Flow_End_to_End_v1.2.drawio.png`
+- `DFMS_Operational_Workflow_Port_Consignment_v1.5.png`
+- `DFMS_Operational_Workflow_Port_Consignment_v1.6.png` ⭐ **Latest**
+- `Flow_Diagrams.drawio` (source file)
 
 **Used For**:
 - Process flow understanding
 - Workflow visualization
 - State transitions
 - Integration points
+- End-to-end operational flows
 
-#### 4.6 Client Feedback
-**Files**:
-- `client-feedback/Questionnaires_Nourish_Team_v1.0_Reviewed.xlsx`
-- `client-feedback/TMS_PRD_Activity_Schedule.xlsx`
-
-**Used For**:
-- Requirement validation
-- Priority feedback
-- Timeline expectations
+> ✅ **Updated**: Moved from `discovery-phase/flow-diagrams/` to `02-flow-diagram/`.
 
 ---
 
-### 5. Planning Documents
-**Location**: `source-documents/planning/`
+### 3. Statement of Work (SOW) Documents
+**Location**: `source-documents/03-sow/`
 
-#### 5.1 Feature Lists
+#### 3.1 Phase Documents
 **Files**:
-- `feature-lists/DFMS_Feature_List_v1.0.xlsx`
-- `feature-lists/DFMS_Feature_List_v1.1.xlsx`
-- `feature-lists/DFMS_Feature_List_v1.2.xlsx`
+- `SOW Phase-1.md` ⭐ **MVP (P1)** - Core Foundation & Operational Flow
+- `SOW Phase-2.md` - P2 - Intermediate Enhancements
+- `SOW Phase-3.md` - P2 & P3 - Intermediate & Advanced Features
 
 **Used For**:
-- Feature scope definition
-- Phase allocation
-- Priority tracking
+- Phase-specific feature breakdown
+- Portal type specifications (Web/Mobile)
+- Feature descriptions and sub-features
+- Timeline and scope definition
+- Phase objectives and success criteria
 
-#### 5.2 Work Breakdown
+#### 3.2 Supporting Documents
 **Files**:
-- `work-breakdown/WBS_Logistics_Fleet_v1.3.xlsx`
-- `work-breakdown/WBS_Phase_1_v1.0.xlsx`
-- `work-breakdown/WBS_Phase_2_v1.0.xlsx`
-- `work-breakdown/WBS_Phase_3_v1.0.xlsx`
+- `user-roles.md` ⭐ **19 user roles** - Role definitions and permissions
+- `DFMS - Feature List version_1.xlsx` - Feature specifications spreadsheet
 
 **Used For**:
-- Task breakdown
-- Timeline estimation
+- User role definitions (Super Admin, Tenant Admin, Department Admin, 16 operational roles)
+- Feature categorization and prioritization
+- Role-based access control (RBAC) specifications
+
+> ✅ **New**: SOW documents provide phase-specific requirements and user role definitions.
+
+---
+
+### 4. Work Breakdown Structure (WBS)
+**Location**: `source-documents/04-wbs/`
+
+#### 4.1 Planning Tables
+**Files**:
+- `epics-table.md` ⭐ **17 epics** - Epic-level breakdown
+- `stories-table.md` ⭐ **94+ stories** - User stories table
+- `timeline-table.md` - Sprint timeline (12 sprints, 26-week baseline)
+- `dependencies-table.md` - Epic dependencies and critical path
+- `dashboard-table.md` - Project tracker and metrics
+- `risks-table.md` ⭐ **17 risks** - Risk register with mitigation
+- `release-table.md` ⭐ **5 releases** - Release plan (R1-R5)
+
+**Used For**:
+- Epic and story breakdown
+- Sprint planning and timeline
+- Dependency analysis
+- Risk management
+- Release planning
+- Project tracking
+
+#### 4.2 Supporting Documents
+**Files**:
+- `WBS_Nourish_DFMS Phase 1 v1.xlsx` - Detailed WBS spreadsheet
+- `README.md` - WBS documentation overview
+
+**Used For**:
+- Detailed work breakdown
+- Task estimation
 - Resource planning
-- Dependency mapping
+
+> ✅ **Updated**: Moved from `planning/work-breakdown/` to `04-wbs/`. Enhanced with detailed tables.
 
 ---
 
-### 6. Review Documents
-**Location**: `source-documents/reviews/`
+### 5. Archived Documents (Historical Reference)
 
-**Files**:
-- `DFMS_V2_Reviewed_BA_Team.docx`
+> ⚠️ **Note**: The following document categories have been archived but are referenced in historical mappings:
 
-**Used For**:
-- Requirement validation
-- BA team feedback
-- Scope refinement
+#### 5.1 Business Proposal Documents
+**Historical Location**: `source-documents/business-proposal/` (archived)
+
+**Files** (historical):
+- `BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
+- `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx`
+
+**Used For** (historical):
+- Project overview and vision
+- Problem statement and solution approach
+- Deployment phases and timeline
+- Pricing and business model
+
+#### 5.2 Meeting Minutes
+**Historical Location**: `source-documents/meeting-minutes/` (archived)
+
+**Used For** (historical):
+- Stakeholder identification
+- Department-specific workflows
+- Pain points and challenges
+- User expectations
+
+#### 5.3 Discovery Phase Documents
+**Historical Location**: `source-documents/discovery-phase/` (archived)
+
+**Used For** (historical):
+- Questionnaires and feedback
+- Client resources and observations
+- Master data samples
+- Feature lists evolution
+
+> 📖 **See**: [Source Documents README](../../source-documents/README.md) for current structure
 
 ---
 
@@ -345,53 +296,71 @@ This document provides a comprehensive mapping between all business-context docu
 
 ### For Engineers
 When implementing features, refer to:
-1. **PRD** (`PRD_DFMS_v1.0.docx`) for detailed requirements
-2. **Flow Diagrams** for process understanding
-3. **Meeting Minutes** for context and rationale
-4. **Master Data** samples for data structure
+1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for detailed requirements
+2. **SOW Documents** (`03-sow/SOW Phase-1.md`, etc.) for phase-specific features
+3. **Flow Diagrams** (`02-flow-diagram/`) for process understanding
+4. **WBS Stories** (`04-wbs/stories-table.md`) for story details and acceptance criteria
+5. **User Roles** (`03-sow/user-roles.md`) for RBAC requirements
 
 ### For Business Analysts
 When analyzing requirements, refer to:
-1. **Business Proposal** for strategic context
-2. **Meeting Minutes** for stakeholder needs
-3. **Questionnaires** for user feedback
-4. **Feature Lists** for scope evolution
+1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for comprehensive requirements
+2. **SOW Documents** (`03-sow/`) for phase-specific scope
+3. **Feature List** (`03-sow/DFMS - Feature List version_1.xlsx`) for feature specifications
+4. **WBS Epics** (`04-wbs/epics-table.md`) for epic-level breakdown
 
 ### For Product Managers
 When making decisions, refer to:
-1. **Business Objectives** for alignment with goals
-2. **User Personas** for user-centric decisions
-3. **Meeting Minutes** for stakeholder expectations
-4. **WBS** for timeline and resource implications
+1. **Business Objectives** (from business-context) for alignment with goals
+2. **User Roles** (`03-sow/user-roles.md`) for user-centric decisions
+3. **SOW Documents** (`03-sow/`) for phase scope and timeline
+4. **WBS Timeline** (`04-wbs/timeline-table.md`) for sprint planning
+5. **WBS Risks** (`04-wbs/risks-table.md`) for risk assessment
+6. **Release Plan** (`04-wbs/release-table.md`) for release strategy
 
 ### For QA/Testers
 When creating test cases, refer to:
-1. **PRD** for acceptance criteria
-2. **Flow Diagrams** for test scenarios
-3. **User Personas** for user journey testing
-4. **Sample Documents** for test data
+1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for acceptance criteria
+2. **WBS Stories** (`04-wbs/stories-table.md`) for detailed acceptance criteria
+3. **Flow Diagrams** (`02-flow-diagram/`) for test scenarios
+4. **User Roles** (`03-sow/user-roles.md`) for role-based testing
+5. **SOW Documents** (`03-sow/`) for feature descriptions
+
+### For Project Managers
+When planning and tracking, refer to:
+1. **WBS Dashboard** (`04-wbs/dashboard-table.md`) for project metrics
+2. **WBS Timeline** (`04-wbs/timeline-table.md`) for sprint schedule
+3. **WBS Dependencies** (`04-wbs/dependencies-table.md`) for critical path
+4. **WBS Risks** (`04-wbs/risks-table.md`) for risk management
+5. **Release Plan** (`04-wbs/release-table.md`) for release milestones
 
 ---
 
 ## Document Freshness
 
-### Most Current Documents (as of 2026-02-10)
+### Most Current Documents (as of 2026-02-17)
 
 **Requirements**:
-- ✅ PRD_DFMS_v1.0.docx (Latest version)
+- ✅ `01-prd/PRD_DFMS_v1.0.md` (Latest version - Markdown)
+- ✅ `01-prd/PRD_DFMS_v1.0.docx` (Latest version - Word)
 
-**Business Proposal**:
-- ✅ BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx (Latest version)
-
-**Feature Lists**:
-- ✅ DFMS_Feature_List_v1.2.xlsx (Latest version)
+**Statement of Work**:
+- ✅ `03-sow/SOW Phase-1.md` (MVP - P1)
+- ✅ `03-sow/SOW Phase-2.md` (P2 - Intermediate)
+- ✅ `03-sow/SOW Phase-3.md` (P2 & P3 - Advanced)
+- ✅ `03-sow/user-roles.md` (19 roles defined)
+- ✅ `03-sow/DFMS - Feature List version_1.xlsx` (Current feature list)
 
 **Flow Diagrams**:
-- ✅ DFMS_End_to_End_Operational_Flow_FG_v1.6.png (Latest version)
-- ✅ DFMS_Operational_Workflow_Port_Consignment_v1.6.png (Latest version)
+- ✅ `02-flow-diagram/DFMS_End_to_End_Operational_Flow_FG_v1.6.png` (Latest)
+- ✅ `02-flow-diagram/DFMS_Operational_Workflow_Port_Consignment_v1.6.png` (Latest)
 
-**Meeting Minutes**:
-- ✅ Latest meetings from December 2025
+**Work Breakdown Structure**:
+- ✅ `04-wbs/epics-table.md` (17 epics)
+- ✅ `04-wbs/stories-table.md` (94+ stories)
+- ✅ `04-wbs/timeline-table.md` (26-week baseline)
+- ✅ `04-wbs/risks-table.md` (17 risks identified)
+- ✅ `04-wbs/release-table.md` (5 releases planned)
 
 ---
 
@@ -462,13 +431,15 @@ unzip -p "filename.pptx" ppt/slides/*.xml | sed 's/<[^>]*>//g'
 
 ## Related Documents
 
-- [Source Documents README](../../source-documents/README.md) - Overview of all source materials
-- [Business Context Plan](../../BUSINESS_CONTEXT_PLAN.md) - Documentation generation plan
-- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic context
+- **[Source Documents README](../../source-documents/README.md)** - Overview of all source materials (updated structure)
+- **[WBS README](../../source-documents/04-wbs/README.md)** - Work Breakdown Structure documentation
+- **[SOW Documents](../../source-documents/03-sow/)** - Statement of Work for all phases
+- **[Product Vision](../../01-PRODUCT_VISION.md)** - Strategic context
 
 ---
 
-**Last Updated**: 2026-02-10  
+**Last Updated**: 2026-02-17  
 **Maintained By**: Documentation Team  
-**Review Frequency**: Monthly or when new source documents added
+**Review Frequency**: Monthly or when new source documents added  
+**Structure Updated**: Reflects new source-documents organization (01-prd, 02-flow-diagram, 03-sow, 04-wbs)
 

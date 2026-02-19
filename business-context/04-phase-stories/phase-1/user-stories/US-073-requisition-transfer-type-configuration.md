@@ -11,7 +11,7 @@ story_points: 5
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
 related_stories:
   - US-012-product-requisition-creation.md
   - US-013-finished-goods-transfer-requisition.md

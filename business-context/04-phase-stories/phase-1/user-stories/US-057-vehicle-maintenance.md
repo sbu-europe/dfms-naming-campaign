@@ -11,7 +11,7 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/06-fleet-management/vehicle-management.md
 related_stories:
   - US-001-vehicle-master-data.md

@@ -6,7 +6,7 @@ status: approved
 created: 2026-02-10
 updated: 2026-02-13
 source_documents:
-  - ../../../source-documents/requirements/PRD_DFMS_v1.0.md
+  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
 tags: [business-processes, workflows, operations, end-to-end, prd-aligned]
 ---
 
