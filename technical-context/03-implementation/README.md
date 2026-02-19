@@ -20,6 +20,13 @@ This section documents the implementation approach for DFMS, covering:
 
 ## 📁 Documents in This Section
 
+### **[Phase 1 Breakdown](./phase-1-breakdown/)**
+Detailed Phase 1 implementation breakdown:
+- **[Epics](./phase-1-breakdown/EPICS.md)** - Epic-level breakdown with dependency graph (17 epics, 946 SP)
+- **[Stories](./phase-1-breakdown/STORIES.md)** - Story-level breakdown with dependency graph (94 stories, 536 SP)
+- **[Tasks](./phase-1-breakdown/TASKS.md)** - Non-technical tasks breakdown (143 tasks across 10 categories)
+- **[Timeline](./phase-1-breakdown/TIMELINE.md)** - Sprint-by-sprint implementation timeline (12 sprints, 26 weeks)
+
 ### **[Implementation Planning](./planning/)**
 Strategic implementation planning:
 - **[Implementation Plan](./planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week roadmap
@@ -35,34 +42,12 @@ Phase-wise deployment approach:
 - Infrastructure setup
 - Environment configuration
 
-### **[Technology Considerations](./technology-considerations.md)**
-Technology choices and rationale:
-- Technology stack decisions
-- Third-party integrations
-- Scalability considerations
-- Security considerations
-
-### **[Testing Approach](./testing-approach.md)**
-Comprehensive testing strategy:
-- Testing levels
-- Testing types
-- Test automation
-- Performance testing
-- Security testing
-
-### **[Migration Strategy](./migration-strategy.md)**
-Data and system migration:
-- Migration planning
-- Data migration
-- System migration
-- Rollback procedures
-
-### **[Rollout Plan](./rollout-plan.md)**
-Gradual rollout strategy:
-- Pilot deployment
-- Phased rollout
-- User training
-- Support plan
+### **[Implementation Strategies](./strategies/)**
+Implementation strategies:
+- **[Migration Strategy](./strategies/migration-strategy.md)** - Data and system migration approach
+- **[Rollout Plan](./strategies/rollout-plan.md)** - Gradual rollout strategy
+- **[Testing Approach](./strategies/testing-approach.md)** - Comprehensive testing strategy
+- **[Technology Considerations](./strategies/technology-considerations.md)** - Technology stack decisions
 
 ---
 
@@ -93,7 +78,8 @@ Ensure data integrity throughout migration.
 | **Phase 2** | 13 weeks | Advanced features | ⏳ Planned |
 | **Phase 3** | 13 weeks | AI/ML, Multi-language | ⏳ Planned |
 
-> 📅 See [Implementation Timeline](./planning/IMPLEMENTATION_TIMELINE.md) for detailed week-by-week schedule
+> 📅 See [Phase 1 Timeline](./phase-1-breakdown/TIMELINE.md) for detailed sprint-by-sprint schedule  
+> 📅 See [Implementation Timeline](./planning/IMPLEMENTATION_TIMELINE.md) for comprehensive 52-week roadmap
 
 ---
 
