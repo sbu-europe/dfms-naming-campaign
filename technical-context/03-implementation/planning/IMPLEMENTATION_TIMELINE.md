@@ -445,8 +445,8 @@ Week 25-26: Testing & Deployment (M1.8 - Go-Live)
 ## 📚 Related Documentation
 
 - **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Comprehensive implementation plan
-- **[Phase Stories](../../../business-context/04-phase-stories/)** - Detailed user stories
-- **[Feature Dependencies](../../../business-context/04-phase-stories/feature-dependencies.md)** - Dependency mapping
+- **[Phase Backlog](../../../business-context/04-phase-backlog/)** - Detailed user stories
+- **[Feature Dependencies](../../../business-context/04-phase-backlog/feature-dependencies.md)** - Dependency mapping
 - **[Deployment Strategy](../deployment-strategy/)** - Deployment plans
 
 ---

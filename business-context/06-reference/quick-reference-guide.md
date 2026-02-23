@@ -18,13 +18,13 @@ updated: 2026-02-11
 1. **[Project Summary](../00-overview/project-summary.md)** - 5-minute overview
 2. **[Glossary](../00-overview/glossary.md)** - Key terms and acronyms
 3. **[Business Context](../00-overview/business-context.md)** - Domain knowledge
-4. **[Feature Overview](../04-phase-stories/feature-overview.md)** - All features at a glance
+4. **[Feature Overview](../04-phase-backlog/feature-overview.md)** - All features at a glance
 
 ### For Developers
-1. **[Phase 1 Summary](../04-phase-stories/phase-1/phase-1-summary.md)** - All Phase 1 user stories
+1. **[Phase 1 Summary](../04-phase-backlog/phase-1/phase-1-summary.md)** - All Phase 1 user stories
 2. **[Data Dictionary](../05-data-reference/data-dictionary.md)** - Complete data model
 3. **[Business Rules](../01-business-domain/business-rules/business-rules.md)** - 112 business rules
-4. **[Feature Dependencies](../04-phase-stories/feature-dependencies.md)** - What depends on what
+4. **[Feature Dependencies](../04-phase-backlog/feature-dependencies.md)** - What depends on what
 
 ### For Product Managers
 1. **[Business Objectives](../02-requirements/business-objectives.md)** - Goals and KPIs
@@ -33,7 +33,7 @@ updated: 2026-02-11
 ### For QA
 1. **[Functional Requirements](../02-requirements/functional-requirements/functional-requirements-summary.md)** - 91 user stories
 2. **[Non-Functional Requirements](../02-requirements/non-functional-requirements/non-functional-requirements.md)** - Performance, security, etc.
-3. **[User Stories](../04-phase-stories/phase-1/user-stories/)** - Detailed acceptance criteria
+3. **[User Stories](../04-phase-backlog/phase-1/user-stories/)** - Detailed acceptance criteria
 
 ---
 
@@ -192,9 +192,9 @@ TR → TO → Trip → QC
 ## 🔍 Common Lookups
 
 ### Find a User Story
-- **By Module**: See [Phase 1 Summary](../04-phase-stories/phase-1/phase-1-summary.md)
-- **By Number**: `US-###` files in `04-phase-stories/phase-1/user-stories/`
-- **By Feature**: See [Feature Overview](../04-phase-stories/feature-overview.md)
+- **By Module**: See [Phase 1 Summary](../04-phase-backlog/phase-1/phase-1-summary.md)
+- **By Number**: `US-###` files in `04-phase-backlog/phase-1/user-stories/`
+- **By Feature**: See [Feature Overview](../04-phase-backlog/feature-overview.md)
 
 ### Find a Business Rule
 - **By Module**: See [Business Rules](../01-business-domain/business-rules/business-rules.md)

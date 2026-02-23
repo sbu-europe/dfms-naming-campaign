@@ -1,6 +1,6 @@
 # Verification Report: Business Context vs Source Documents
 
-> Verification of `business-context/04-phase-stories` and `business-context/03-module-specifications` against `source-documents/01-prd` and `source-documents/04-wbs`
+> Verification of `business-context/04-phase-backlog` and `business-context/03-module-specifications` against `source-documents/01-prd` and `source-documents/04-wbs`
 
 **Date**: February 17, 2026  
 **Status**: ⚠️ **Discrepancies Found**
@@ -27,7 +27,7 @@
 - **Epic Distribution**: 17 epics
 - **Stories per Epic**: Varies (EPIC-001: 4 stories, EPIC-014: 15+ stories, etc.)
 
-#### Business Context (Phase Stories)
+#### Business Context (Phase Backlog)
 - **Claimed Total**: 91 stories
   - Phase 1: 63 stories (US-001 to US-063)
   - Phase 2: 14 stories
@@ -64,7 +64,7 @@ Based on WBS table, stories beyond US-063 include:
 16. EPIC-016: Mobile Interface (Driver / QC) (2 stories)
 17. EPIC-017: Mobile Applications (Vendor) (1 story)
 
-#### Phase Stories Epic Mapping
+#### Phase Backlog Epic Mapping
 - **Not Explicitly Mapped**: Phase-stories do not explicitly map stories to epics
 - **Module-Based Organization**: Stories organized by functional area, not epic
 - **Recommendation**: Add epic mapping to each story file
@@ -77,7 +77,7 @@ Based on WBS table, stories beyond US-063 include:
 - **US-001** to **US-094** (94 stories total)
 - Last story: US-094 (Vendor Application Access)
 
-#### Phase Stories Story Range
+#### Phase Backlog Story Range
 - **Phase 1**: US-001 to US-063 (63 stories claimed, 70 files found)
 - **Phase 2**: Not fully documented
 - **Phase 3**: Not fully documented
@@ -87,7 +87,7 @@ Based on WBS table, stories beyond US-063 include:
    - Possible duplicates or extra files
    - Need to verify file naming consistency
 
-2. **Missing Stories**: US-064 to US-094 not fully documented in phase-stories
+2. **Missing Stories**: US-064 to US-094 not fully documented in phase-backlog
    - Phase 2 & 3 summaries exist but detailed stories missing
 
 ---
@@ -127,7 +127,7 @@ Based on WBS table, stories beyond US-063 include:
 
 **Missing Stories Identified**:
 1. **US-062** - Missing from phase-1 files (exists in WBS, EPIC-006: Fleet & Vehicle Management)
-2. **US-071 to US-094** (24 stories) - Not documented in phase-stories
+2. **US-071 to US-094** (24 stories) - Not documented in phase-backlog
    - Phase 2 & 3 claim only 28 stories total (14+14)
    - But WBS has 24 stories from US-071 onwards
    - **Gap**: 4 stories discrepancy
@@ -136,7 +136,7 @@ Based on WBS table, stories beyond US-063 include:
 1. Add US-062 to phase-1/user-stories/
 2. Verify US-071 to US-094 mapping to Phase 2/3
 3. Document missing stories (US-071, US-072, US-074 to US-094)
-4. Update phase-stories documentation with accurate counts
+4. Update phase-backlog documentation with accurate counts
 
 ---
 
@@ -147,7 +147,7 @@ Based on WBS table, stories beyond US-063 include:
 **Details**:
 - WBS organizes stories by epic
 - Phase-stories organize by functional area
-- No explicit epic mapping in phase-stories
+- No explicit epic mapping in phase-backlog
 
 **Action Required**:
 1. Add epic field to each story file frontmatter
@@ -182,7 +182,7 @@ Based on WBS table, stories beyond US-063 include:
 
 ## ✅ Verification Checklist
 
-### Phase Stories
+### Phase Backlog
 - [x] Story count documented
 - [ ] Story count matches WBS (94 stories)
 - [ ] All stories US-001 to US-094 accounted for
@@ -219,7 +219,7 @@ Based on WBS table, stories beyond US-063 include:
 1. Establish automated verification script
 2. Add epic field to story template
 3. Create traceability matrix (Epic → Story → Module)
-4. Regular sync checks between WBS and phase-stories
+4. Regular sync checks between WBS and phase-backlog
 
 ---
 
@@ -227,7 +227,7 @@ Based on WBS table, stories beyond US-063 include:
 
 ### Epic Coverage
 
-| Epic ID | Epic Name | WBS Stories | Phase Stories | Status |
+| Epic ID | Epic Name | WBS Stories | Phase Backlog | Status |
 |---------|-----------|-------------|---------------|--------|
 | EPIC-001 | System Foundation | 4 | ~4 | ✅ |
 | EPIC-002 | User & Tenant Foundation | 5 | ~5 | ✅ |
@@ -253,7 +253,7 @@ Based on WBS table, stories beyond US-063 include:
 
 - [WBS Epics Table](../../source-documents/04-wbs/epics-table.md)
 - [WBS Stories Table](../../source-documents/04-wbs/stories-table.md)
-- [Phase Stories README](./04-phase-stories/README.md)
+- [Phase Backlog README](./04-phase-backlog/README.md)
 - [Module Specifications README](./03-module-specifications/README.md)
 - [PRD Document](../../source-documents/01-prd/PRD_DFMS_v1.0.md)
 

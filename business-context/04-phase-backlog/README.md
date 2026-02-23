@@ -1,6 +1,6 @@
-# Phase User Stories
+# Phase Backlog
 
-> Detailed, implementation-ready user stories organized by deployment phase
+> Epics and implementation-ready user stories organized by deployment phase
 
 **⚠️ IMPORTANT**: **`source-documents/` is the source of truth**. This folder contains derived documentation based on `source-documents/01-prd/` and `source-documents/04-wbs/`. Always refer to source documents for authoritative information.
 
@@ -30,7 +30,7 @@ _*Phase 1 includes stories US-001 to US-070 (70 stories). Stories US-071 to US-0
 ## 📁 Folder Structure
 
 ```
-04-phase-stories/
+04-phase-backlog/
 ├── README.md (this file)
 ├── feature-overview.md (✅ created)
 ├── feature-dependencies.md (✅ created)

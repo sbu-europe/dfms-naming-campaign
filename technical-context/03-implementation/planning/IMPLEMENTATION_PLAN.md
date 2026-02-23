@@ -445,7 +445,7 @@ Testing & Deployment (Weeks 25-26)
 
 ## 📚 Related Documentation
 
-- **[Phase Stories](../../../business-context/04-phase-stories/)** - Detailed user stories by phase
+- **[Phase Backlog](../../../business-context/04-phase-backlog/)** - Detailed user stories by phase
 - **[Module Specifications](../../../business-context/03-module-specifications/)** - PRD reference content
 - **[Technical Architecture](../../01-architecture/)** - System architecture
 - **[Deployment Strategy](../deployment-strategy/)** - Detailed deployment plans

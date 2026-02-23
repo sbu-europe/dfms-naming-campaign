@@ -2,7 +2,7 @@
 
 This folder contains business context extracted directly from the approved Product Requirements Document (PRD) v1.0, organized by functional modules.
 
-**Purpose**: PRD reference and traceability (complementary to implementation stories in `04-phase-stories/`)
+**Purpose**: PRD reference and traceability (complementary to implementation stories in `04-phase-backlog/`)
 
 ## 📋 Source Document
 
@@ -37,7 +37,7 @@ Navigate to module folders (e.g., `01-foundation/`, `06-fleet-management/`) for:
 ## 🔗 Related Documentation
 
 - **[Main README](../README.md)** - Business context overview
-- **[Phase Stories](../04-phase-stories/README.md)** - Detailed user stories organized by phase
+- **[Phase Backlog](../04-phase-backlog/README.md)** - Epics and user stories organized by phase
 - **[INDEX.md](INDEX.md)** - Complete content index
 
 ---

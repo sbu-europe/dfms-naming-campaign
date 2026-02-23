@@ -216,8 +216,8 @@ Follow this sequence to understand the repository:
 ### **📅 Project Managers**
 - **[Implementation Plan](./technical-context/03-implementation/planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week plan with phases, resources, risks
 - **[Implementation Timeline](./technical-context/03-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule with sprints and milestones
-- [Phase Stories](./business-context/04-phase-stories/) - User stories organized by phase
-- [Feature Dependencies](./business-context/04-phase-stories/feature-dependencies.md) - Critical path and dependencies
+- [Phase Backlog](./business-context/04-phase-backlog/) - Epics and user stories organized by phase
+- [Feature Dependencies](./business-context/04-phase-backlog/feature-dependencies.md) - Critical path and dependencies
 - [Deployment Strategy](./technical-context/03-implementation/deployment-strategy/) - Phase-wise deployment plans
 
 ### **🆕 New Team Members**
@@ -337,8 +337,8 @@ Follow this sequence to understand the repository:
      - Resource allocation by phase
 
 3. **Understand dependencies**
-   - [Feature Dependencies](./business-context/04-phase-stories/feature-dependencies.md) - What to build first
-   - [Phase Stories](./business-context/04-phase-stories/) - User stories by phase
+   - [Feature Dependencies](./business-context/04-phase-backlog/feature-dependencies.md) - What to build first
+   - [Phase Backlog](./business-context/04-phase-backlog/) - User stories by phase
 
 4. **Review deployment strategy**
    - [Deployment Strategy](./technical-context/03-implementation/deployment-strategy/) - Phase-wise deployment plans
@@ -355,7 +355,7 @@ Follow this sequence to understand the repository:
 # Focus on: Phase 1 sprints, milestones, critical path
 
 # 3. Check dependencies
-./business-context/04-phase-stories/feature-dependencies.md
+./business-context/04-phase-backlog/feature-dependencies.md
 # Understand: What must be built first
 
 # 4. Review deployment plan

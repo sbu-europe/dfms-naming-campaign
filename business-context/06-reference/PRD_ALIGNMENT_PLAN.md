@@ -1,7 +1,7 @@
 # PRD Reference Alignment Plan
 
 **Source of Truth**: `business-context/03-module-specifications/`  
-**Target**: `business-context/04-phase-stories/`
+**Target**: `business-context/04-phase-backlog/`
 
 ## Overview
 

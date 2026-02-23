@@ -224,7 +224,7 @@ If adjustments are needed, they should be based on:
 - **[PRD](../source-documents/requirements/PRD_DFMS_v1.0.md)** - Section 7: Phase-wise Feature Structure
 - **[Implementation Plan](./IMPLEMENTATION_PLAN.md)** - Comprehensive implementation plan
 - **[Implementation Timeline](./IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
-- **[Phase Stories](../../../business-context/04-phase-stories/)** - User stories by phase
+- **[Phase Backlog](../../../business-context/04-phase-backlog/)** - User stories by phase
 
 ---
 

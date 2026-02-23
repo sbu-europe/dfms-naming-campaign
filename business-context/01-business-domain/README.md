@@ -131,7 +131,7 @@ End-to-end operational workflows from requisition to billing.
 
 - **[Overview](../../00-overview/)** - Product vision, objectives, scope
 - **[Requirements](../../02-requirements/)** - Functional and non-functional requirements
-- **[Implementation Stories](../../04-phase-stories/)** - Phase-wise feature breakdown
+- **[Phase Backlog](../../04-phase-backlog/)** - Phase-wise feature breakdown
 
 ### Outside Business Context
 
