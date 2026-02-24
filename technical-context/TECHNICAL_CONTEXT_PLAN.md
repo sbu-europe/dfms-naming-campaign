@@ -205,7 +205,7 @@ technical-context/
 - Timeline → `technical-context/03-implementation/rollout-plan.md`
 - Resource allocation → `technical-context/03-implementation/`
 
-### From `business-context/03-features/`
+### From `business-context/04-phase-backlog/`
 
 **Cross-reference**: User stories and features
 

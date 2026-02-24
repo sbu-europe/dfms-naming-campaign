@@ -82,14 +82,16 @@ Detailed work breakdown structure spreadsheet for Phase 1.
 | Mobile | 2 | 180 |
 | **Total** | **17** | **946** |
 
-### Project Metrics
+### Project Metrics (single source for story/epic counts in this repo)
 - **Total Epics**: 17
-- **Total Stories**: 94+
+- **Total Stories**: 94 (US-001 to US-094)
 - **Total Story Points**: 630-946 (varies by source)
 - **Total Sprints**: 12
 - **Duration**: 26 weeks baseline (28 weeks with buffer)
 - **Releases**: 5 major releases (R1-R5)
 - **Risks Identified**: 17
+
+> Other docs (README, 00-START-HERE, phase-backlog) should reference this file for authoritative story and epic counts.
 
 ---
 

@@ -756,7 +756,7 @@ POST   /api/v1/alerts/{id}/acknowledge
 - [Module Interactions](./module-interactions.md) - Communication patterns
 - [Container View](../container-view.md) - Technical containers
 - [Business Rules](../../../business-context/01-business-domain/business-rules/business-rules.md)
-- [User Stories](../../../business-context/03-features/phase-1/user-stories/)
+- [User Stories](../../../business-context/04-phase-backlog/phase-1/user-stories/)
 
 ---
 

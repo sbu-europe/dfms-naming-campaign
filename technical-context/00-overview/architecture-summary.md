@@ -586,7 +586,7 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 
 ### Business Context
 - [Business Processes](../../business-context/01-business-domain/business-processes/)
-- [User Stories](../../business-context/03-features/phase-1/user-stories/)
+- [User Stories](../../business-context/04-phase-backlog/phase-1/user-stories/)
 - [Business Rules](../../business-context/01-business-domain/business-rules/business-rules.md)
 
 ---
@@ -597,7 +597,7 @@ This architecture summary was created by analyzing:
 - `source-documents/requirements/PRD_DFMS_v1.0.docx`
 - `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
 - `business-context/00-overview/project-summary.md`
-- `business-context/03-features/feature-overview.md`
+- `business-context/04-phase-backlog/feature-overview.md`
 - `business-context/01-business-domain/business-processes/`
 
 ---

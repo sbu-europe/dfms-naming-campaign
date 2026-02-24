@@ -16,14 +16,14 @@ This folder contains detailed feature specifications and user stories for the DF
 
 | Phase | Duration | User Stories | Key Focus | Status |
 |-------|----------|--------------|-----------|--------|
-| [Phase 1](./phase-1/) | Weeks 1-26 | 70 stories* | MVP - Core Operations | ✅ **Complete** |
+| [Phase 1](./phase-1/) | Weeks 1-26 | 94 stories | MVP - Core Operations | ✅ **Complete** |
 | [Phase 2](./phase-2/) | Weeks 27-39 | TBD | Optimization & Analytics | ⏳ Planned |
 | [Phase 3](./phase-3/) | Weeks 40-52 | TBD | Enterprise & Intelligence | ⏳ Planned |
 | **Total** | **26 weeks** | **94** | **Phase 1 Complete** | - |
 
-**Source**: Based on `source-documents/04-wbs/stories-table.md` (94 stories total: US-001 to US-094)
+**Source**: [source-documents/04-wbs/README.md](../../source-documents/04-wbs/README.md) (single source for story/epic counts). Stories: [stories-table.md](../../source-documents/04-wbs/stories-table.md) (94 total: US-001 to US-094).
 
-_*Phase 1 includes stories US-001 to US-070 (70 stories). Stories US-071 to US-094 are documented in WBS but may span Phase 1/2/3 boundaries._
+_*Phase 1 scope: 94 stories in 26-week WBS timeline. All 94 story files live in phase-1/user-stories/._
 
 ---
 
@@ -41,8 +41,8 @@ _*Phase 1 includes stories US-001 to US-070 (70 stories). Stories US-071 to US-0
 │   ├── PHASE-1-COMPLETION-REPORT.md (✅ created - verification report)
 │   └── user-stories/
 │       ├── US-001-vehicle-master-data.md (✅ complete)
-│       ├── US-002 to US-063 (✅ 62 stories complete)
-│       └── [All Phase 1 stories documented]
+│       ├── US-002 to US-070 (✅ 70 Phase 1 stories)
+│       └── US-071 to US-094 (documented in same folder)
 │
 ├── phase-2/
 │   └── phase-2-summary.md (✅ created - high-level overview)

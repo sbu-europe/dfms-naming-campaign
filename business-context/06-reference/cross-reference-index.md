@@ -253,7 +253,7 @@ business-context/
 
 #### Phase 1 (Months 1-6)
 - **Summary**: phase-1/phase-1-summary.md
-- **User Stories**: phase-1/user-stories/ (62 stories)
+- **User Stories**: phase-1/user-stories/ (94 stories; Phase 1 scope: 70)
 - **Dependencies**: feature-dependencies.md (Phase 1 section)
 - **Success Criteria**: expectations.md (Phase 1 Success Criteria)
 

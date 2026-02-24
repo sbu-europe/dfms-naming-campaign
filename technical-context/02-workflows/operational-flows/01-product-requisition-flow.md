@@ -374,8 +374,8 @@ ProductRequisitionRejected(
 
 ### Business Context
 - [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
-- [User Story: US-006](../../../business-context/03-features/phase-1/user-stories/US-006-create-product-requisition.md)
-- [User Story: US-007](../../../business-context/03-features/phase-1/user-stories/US-007-approve-product-requisition.md)
+- [User Story: US-009](../../../business-context/04-phase-backlog/phase-1/user-stories/US-009-fg-transfer-requisition.md)
+- [User Story: US-011](../../../business-context/04-phase-backlog/phase-1/user-stories/US-011-distribution-approval.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Next step after PR approval
@@ -384,9 +384,9 @@ ProductRequisitionRejected(
 
 ## 📝 Source Documents
 
-- `source-documents/requirements/PRD_DFMS_v1.0.docx` - Section 3.2
-- `source-documents/discovery-phase/flow-diagrams/Product_Requisition_Flow.png`
-- `business-context/02-requirements/functional-requirements/functional-requirements-summary.md`
+- [source-documents/01-prd/PRD_DFMS_v1.0.md](../../../../source-documents/01-prd/PRD_DFMS_v1.0.md) - Product requirements
+- [source-documents/02-flow-diagram/](../../../../source-documents/02-flow-diagram/) - Flow diagrams
+- [business-context/02-requirements/functional-requirements/](../../../../business-context/02-requirements/functional-requirements/)
 
 ---
 

@@ -13,7 +13,7 @@
 
 ## 📁 Repository Structure
 
-- **`source-documents/`** - Original BA documents (DOCX, XLSX) - Do not modify
+- **`source-documents/`** - Source of truth (PRD, WBS, SOW, flow diagrams) - Do not modify
 - **`business-context/`** ⏳ Needs Review - Business domain knowledge (96 files, 30,000+ lines)
 - **`technical-context/`** ⏳ Needs Review - Architecture & contracts (82 files, 26,200+ lines)
 
@@ -54,6 +54,11 @@ This repository serves as the **domain context and interface contract layer** fo
 | **Business Context** | ⏳ Needs Review | 96 | 30,000+ |
 | **Technical Context** | ⏳ Needs Review | 82 | 26,200+ |
 | **Source Documents** | ✅ Current | 40+ | - |
+
+### Repository metrics (source of truth: [source-documents/04-wbs/README.md](source-documents/04-wbs/README.md))
+- **Stories**: 94 (US-001 to US-094)
+- **Epics**: 17 (EPIC-001 to EPIC-017)
+- **Phase 1**: 26 weeks, 12 sprints
 
 ## 📝 Change Requests
 

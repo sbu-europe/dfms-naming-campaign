@@ -638,7 +638,7 @@ PaymentProcessed(
 - [Module Interactions](../../01-architecture/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-059](../../../business-context/03-features/phase-1/user-stories/US-059-trip-cost-calculation.md)
+- [User Story: US-059](../../../business-context/04-phase-backlog/phase-1/user-stories/US-059-trip-cost-calculation.md)
 - [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
 
 ### Other Workflows

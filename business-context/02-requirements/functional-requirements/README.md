@@ -63,7 +63,7 @@ This folder contains all functional requirements for DFMS, organized by business
 
 For detailed, production-ready user stories with acceptance criteria, functional requirements, and business rules, see:
 
-📁 **[Phase 1 User Stories](../../04-phase-backlog/phase-1/user-stories/)** - 62 detailed stories
+📁 **[Phase 1 User Stories](../../04-phase-backlog/phase-1/user-stories/)** - 70 detailed stories
 - Each story includes: User Story, Acceptance Criteria, Functional Requirements, Business Rules, Dependencies, Data Model, API Endpoints, Testing Scenarios
 
 📄 **[Phase 1 Summary](../../04-phase-backlog/phase-1/phase-1-summary.md)** - Complete index of all Phase 1 stories

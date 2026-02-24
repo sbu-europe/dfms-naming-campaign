@@ -391,7 +391,7 @@ graph TD
 
 ### Business Context
 - [User Persona](../../../business-context/02-requirements/user-personas.md)
-- [User Stories](../../../business-context/03-features/phase-1/user-stories/)
+- [User Stories](../../../business-context/04-phase-backlog/phase-1/user-stories/)
 
 ---
 

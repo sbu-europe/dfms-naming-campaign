@@ -416,7 +416,7 @@ graph TD
 - [Gate & Operations Flow](../operational-flows/05-gate-operations-flow.md)
 
 ### Business Context
-- [User Story: US-052](../../../business-context/03-features/phase-1/user-stories/US-052-driver-mobile-app.md)
+- [User Story: US-052](../../../business-context/04-phase-backlog/phase-1/user-stories/US-052-driver-mobile-interface.md)
 - [User Persona](../../../business-context/02-requirements/user-personas.md)
 
 ---

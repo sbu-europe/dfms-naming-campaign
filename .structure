@@ -28,12 +28,15 @@ DFMS-product-context/
 │   │   ├── non-functional-requirements/
 │   │   └── constraints-assumptions.md
 │   │
-│   ├── 03-features/                             # Features & user stories
+│   ├── 03-module-specifications/                # PRD by module
+│   │   └── (00-overview … 11-reference)
+│   │
+│   ├── 04-phase-backlog/                        # Epics & user stories by phase
 │   │   ├── feature-overview.md
 │   │   ├── feature-dependencies.md
-│   │   ├── phase-1/                             # 62 user stories
-│   │   ├── phase-2/                             # High-level
-│   │   ├── phase-3/                             # High-level
+│   │   ├── phase-1/                             # 70 user stories, 17 epics
+│   │   ├── phase-2/
+│   │   ├── phase-3/
 │   │   └── PHASE-2-3-IMPLEMENTATION-GUIDE.md
 │   │
 │   ├── 05-data-reference/                       # Data models

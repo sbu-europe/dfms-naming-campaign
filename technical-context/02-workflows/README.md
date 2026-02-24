@@ -140,8 +140,10 @@ Trip Completed (event) → Notify Stakeholders (parallel)
 
 ### Business Context
 - [Business Processes](../../business-context/01-business-domain/business-processes/business-processes-overview.md)
-- [User Stories](../../business-context/03-features/phase-1/user-stories/)
+- [User Stories](../../business-context/04-phase-backlog/phase-1/user-stories/) (94 stories, US-001–US-094; WBS: [source-documents/04-wbs/](../../../source-documents/04-wbs/README.md))
 - [Business Rules](../../business-context/01-business-domain/business-rules/business-rules.md)
+
+**Note**: Story IDs in workflow narrative may use older references. Use the **Related Documents** links in each workflow for the current story files (WBS-aligned).
 
 ---
 

@@ -115,7 +115,7 @@ DFMS-product-context/
 │   ├── 00-overview/
 │   ├── 01-business-domain/
 │   ├── 02-requirements/
-│   ├── 03-features/
+│   ├── 04-phase-backlog/
 │   ├── 04-architecture/          # HIGH-LEVEL architecture only
 │   │   ├── system-overview.md
 │   │   ├── module-boundaries.md

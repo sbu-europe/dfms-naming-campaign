@@ -53,12 +53,15 @@ business-context/
 │   ├── non-functional-requirements/      # Performance, security
 │   └── constraints-assumptions.md
 │
-├── 03-features/                             # Features & user stories
+├── 03-module-specifications/               # PRD content by module
+│   └── (00-overview … 11-reference)
+│
+├── 04-phase-backlog/                        # Epics & user stories by phase (94 stories, 17 epics)
 │   ├── feature-overview.md                 # All features
 │   ├── feature-dependencies.md             # Dependencies
-│   ├── phase-1/                           # 62 user stories ✅
-│   ├── phase-2/                           # 14 stories (high-level)
-│   └── phase-3/                           # 14 stories (high-level)
+│   ├── phase-1/                            # 94 stories (US-001–US-094), 17 epics ✅
+│   ├── phase-2/                            # High-level (TBD)
+│   └── phase-3/                            # High-level (TBD)
 │
 ├── 05-data-reference/                       # Data models
 │   ├── data-dictionary.md                  # 10 entities, 200+ fields
@@ -127,13 +130,11 @@ technical-context/
 ### Other Folders
 
 ```
-source-documents/                           # Original BA documents (DOCX, XLSX)
-├── requirements/                          # Product requirements
-├── discovery-phase/                       # Discovery materials
-├── business-proposal/                      # BS23 proposals
-├── planning/                              # Feature lists, work breakdown
-├── meeting-minutes/                        # Stakeholder meetings
-└── reviews/                                # Review documents
+source-documents/                           # Source of truth (do not modify)
+├── 01-prd/                                # Product requirements (PRD)
+├── 02-flow-diagram/                        # Operational flow diagrams
+├── 03-sow/                                 # Statement of Work (Phase 1–3, user roles)
+└── 04-wbs/                                 # Work breakdown (epics, stories, timeline)
 
 change-requests/                            # Change request management
 ├── README.md                              # Change requests overview
@@ -181,14 +182,14 @@ Follow this sequence to understand the repository:
 
 ### **👔 Product Managers**
 - [Business Objectives](./business-context/02-requirements/business-objectives.md) - Goals and KPIs
-- [Feature Overview](./business-context/03-features/feature-overview.md) - All features at a glance
-- [Phase 1 Summary](./business-context/03-features/phase-1/phase-1-summary.md) - 62 user stories
+- [Feature Overview](./business-context/04-phase-backlog/feature-overview.md) - All features at a glance
+- [Phase 1 Summary](./business-context/04-phase-backlog/phase-1/phase-1-summary.md) - 70 user stories
 
 ### **💻 Engineers**
-- [Phase 1 User Stories](./business-context/03-features/phase-1/user-stories/) - 62 production-ready stories
+- [Phase 1 User Stories](./business-context/04-phase-backlog/phase-1/user-stories/) - 70 production-ready stories
 - [Data Dictionary](./business-context/05-data-reference/data-dictionary.md) - 10 entities, 200+ fields
 - [Business Rules](./business-context/01-business-domain/business-rules/business-rules.md) - 112 validation rules
-- [Feature Dependencies](./business-context/03-features/feature-dependencies.md) - What depends on what
+- [Feature Dependencies](./business-context/04-phase-backlog/feature-dependencies.md) - What depends on what
 - **[API Contracts](./technical-context/05-contracts/api/rest/)** - 10 REST APIs (OpenAPI 3.0) ready for code generation
 - **[Event Contracts](./technical-context/05-contracts/events/)** - 37 domain events (AsyncAPI 2.6.0)
 - **[Architecture Overview](./technical-context/00-overview/architecture-summary.md)** - System architecture
@@ -199,7 +200,7 @@ Follow this sequence to understand the repository:
 - [Source Document Mapping](./business-context/06-reference/source-document-mapping.md) - Traceability
 
 ### **🧪 QA/Testers**
-- [User Stories](./business-context/03-features/phase-1/user-stories/) - With acceptance criteria
+- [User Stories](./business-context/04-phase-backlog/phase-1/user-stories/) - With acceptance criteria
 - [Business Rules](./business-context/01-business-domain/business-rules/business-rules.md) - Validation logic
 - [Non-Functional Requirements](./business-context/02-requirements/non-functional-requirements/non-functional-requirements.md) - Performance, security
 
@@ -232,16 +233,16 @@ Follow this sequence to understand the repository:
 
 ### **"I want to understand a specific feature"**
 
-1. Check [Feature Overview](./business-context/03-features/feature-overview.md) for high-level summary
-2. Find the user story in [Phase 1 User Stories](./business-context/03-features/phase-1/user-stories/)
+1. Check [Feature Overview](./business-context/04-phase-backlog/feature-overview.md) for high-level summary
+2. Find the user story in [Phase 1 User Stories](./business-context/04-phase-backlog/phase-1/user-stories/)
 3. Review related [Business Rules](./business-context/01-business-domain/business-rules/business-rules.md)
-4. Check [Feature Dependencies](./business-context/03-features/feature-dependencies.md) for prerequisites
+4. Check [Feature Dependencies](./business-context/04-phase-backlog/feature-dependencies.md) for prerequisites
 
 **Example**: To understand "Transport Order Management"
 ```bash
 # Read the user stories
-./business-context/03-features/phase-1/user-stories/US-011-transport-order-creation.md
-./business-context/03-features/phase-1/user-stories/US-012-fleet-assignment.md
+./business-context/04-phase-backlog/phase-1/user-stories/US-017-to-creation-multiple.md
+   ./business-context/04-phase-backlog/phase-1/user-stories/US-018-to-creation-transport-planner.md
 # ... etc
 ```
 
@@ -250,7 +251,7 @@ Follow this sequence to understand the repository:
 ### **"I want to implement a module"**
 
 1. **Read user stories** for that module
-   - Find in [Phase 1 Summary](./business-context/03-features/phase-1/phase-1-summary.md)
+   - Find in [Phase 1 Summary](./business-context/04-phase-backlog/phase-1/phase-1-summary.md)
    - Each story has: User Story, Acceptance Criteria, Functional Requirements, Business Rules
 
 2. **Check data models**
@@ -261,7 +262,7 @@ Follow this sequence to understand the repository:
    - [Business Rules](./business-context/01-business-domain/business-rules/business-rules.md) - Filter by module
 
 4. **Check dependencies**
-   - [Feature Dependencies](./business-context/03-features/feature-dependencies.md) - What to build first
+   - [Feature Dependencies](./business-context/04-phase-backlog/feature-dependencies.md) - What to build first
 
 5. **Review technical contracts** ✅
    - [API Contracts](./technical-context/05-contracts/api/rest/) - OpenAPI 3.0 specs for your module
@@ -278,8 +279,8 @@ Follow this sequence to understand the repository:
 
 **Example**: Implementing "Product Requisition"
 ```bash
-# 1. Read user stories (US-006 to US-010)
-./business-context/03-features/phase-1/user-stories/US-006-*.md
+# 1. Read user stories (e.g. US-009, US-010, US-011 for TR/TO)
+./business-context/04-phase-backlog/phase-1/user-stories/US-009-fg-transfer-requisition.md
 
 # 2. Check data model
 ./business-context/05-data-reference/data-dictionary.md
@@ -379,7 +380,7 @@ Follow this sequence to understand the repository:
 **Example**: Tracing "Gate Management" requirements
 ```bash
 # 1. Open user story
-./business-context/03-features/phase-1/user-stories/US-035-gate-in-process.md
+./business-context/04-phase-backlog/phase-1/user-stories/US-035-gate-in-source.md
 # Check "Source Documents" section at bottom
 
 # 2. Check mapping
@@ -387,7 +388,7 @@ Follow this sequence to understand the repository:
 # Search for: "Gate Management"
 
 # 3. Read original PRD
-./source-documents/requirements/PRD_DFMS_v1.0.docx
+./source-documents/01-prd/PRD_DFMS_v1.0.md
 # Use extraction methods from source-documents/README.md
 ```
 
@@ -421,7 +422,7 @@ import { DataModel } from './context/technical-context/05-contracts/data-models/
 grep -r "transport order" business-context/
 
 # Search user stories only
-grep -r "vendor" business-context/03-features/phase-1/user-stories/
+grep -r "vendor" business-context/04-phase-backlog/phase-1/user-stories/
 
 # Find files by name
 find business-context/ -name "*vendor*"
@@ -442,7 +443,8 @@ grep -r "gate management" source-documents/
 | **Technical Context** | ⏳ Needs Review | 82 files |
 | **Source Documents** | ✅ Current | 40+ files |
 
-**For detailed metrics**, see **[README.md](./README.md#documentation-status)**
+**Story counts** (source of truth: [source-documents/04-wbs/README.md](./source-documents/04-wbs/README.md)): **94 stories**, **17 epics**, Phase 1 = 26 weeks.  
+**For full metrics**, see [README.md](./README.md).
 
 ---
 
