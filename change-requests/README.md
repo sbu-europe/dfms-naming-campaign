@@ -2,7 +2,9 @@
 
 > Centralized management of change requests for DFMS Product Context
 
-**Purpose**: Track, review, and manage changes to the product context repository
+**Purpose**: Track, review, and manage changes to the product context repository.
+
+**Quick links**: [**CR Index**](./CR-INDEX.md) (all CRs) · [**Template**](./CR-TEMPLATE.md) (new CR) · **Next number**: [CR-INDEX.md](./CR-INDEX.md#-summary-statistics) → use next sequential (e.g. CR-002)
 
 ---
 
@@ -16,11 +18,12 @@ This folder contains all change requests (CRs) submitted for modifications to th
 
 ```
 change-requests/
-├── README.md                    # This file
+├── README.md                    # This file – process and overview
+├── CR-INDEX.md                 # Index of all CRs (update when adding/ changing CRs)
 ├── CR-TEMPLATE.md              # Template for creating new CRs
-├── CR-INDEX.md                 # Index of all change requests
-├── CR-001-phase-based-architecture.md  # Example CR
-└── [future CRs...]
+├── CR-001-phase-based-architecture.md
+├── CR-001-UPDATE-CHECKLIST.md  # Optional: follow-up checklist for CR-001
+└── CR-XXX-description.md       # Future CRs
 ```
 
 ---
@@ -69,21 +72,17 @@ Change requests are categorized by their primary impact area:
 
 ## 📝 Creating a New Change Request
 
-1. **Copy the template**:
+1. **Get next number**: Check [CR-INDEX.md](./CR-INDEX.md) for the highest CR number; use next (e.g. 002).
+2. **Copy the template**:
    ```bash
-   cp change-requests/CR-TEMPLATE.md change-requests/CR-XXX-your-description.md
+   cp change-requests/CR-TEMPLATE.md change-requests/CR-002-your-description.md
    ```
-
-2. **Fill in the template** with:
-   - CR number (next sequential number)
-   - Title and description
-   - Rationale and impact
-   - Proposed changes
-   - Affected documents
-
-3. **Update CR-INDEX.md** to add the new CR
-
-4. **Submit for review** by updating status to "Pending Review"
+3. **Fill in the template** (title, rationale, impact, proposed changes, affected documents).
+4. **Update [CR-INDEX.md](./CR-INDEX.md)**:
+   - Add row in "Change Requests" table
+   - Add to "By Category" and "By Status"
+   - Add to "Recent Changes" if desired
+5. **Set status** to "Pending Review" when ready for review.
 
 ---
 
@@ -97,11 +96,23 @@ Change requests are categorized by their primary impact area:
 
 ---
 
+## ✅ Keeping CRs Manageable
+
+| Do | Don't |
+|----|--------|
+| Update **CR-INDEX.md** whenever you add or change a CR | Create a CR without adding it to the index |
+| Use the next sequential number from the index | Reuse numbers or skip without documenting |
+| If a CR affects `source-documents/`, say so and get alignment | Change WBS/PRD without a CR or traceability |
+| Optionally add "Implemented: commit abc123" when done | Leave implemented CRs without a trace to code/docs |
+
+---
+
 ## 📚 Related Documents
 
 - [Repository Purpose](../02-REPOSITORY_PURPOSE.md)
 - [Architecture Decisions](../technical-context/03-decisions/README.md)
-- [Version History](../technical-context/06-reference/version-history.md)
+- [Version History](../business-context/06-reference/version-history.md)
+- [Source documents](../source-documents/README.md) (source of truth; CRs that change scope should reference these)
 
 ---
 

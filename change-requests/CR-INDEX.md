@@ -2,7 +2,9 @@
 
 > Centralized index of all change requests
 
-**Last Updated**: 2026-02-13
+**Last Updated**: 2026-02-23
+
+**Next CR number**: **CR-002** (use when creating the next change request)
 
 ---
 
@@ -74,13 +76,13 @@
 
 ## 📝 How to Use This Index
 
-1. **Find a CR**: Use the table above to find change requests by number, category, or status
-2. **Track Status**: Check the status column to see current state
-3. **View Details**: Click on the CR number to view full details
-4. **Create New**: Use [CR-TEMPLATE.md](./CR-TEMPLATE.md) to create a new CR
+1. **Find a CR**: Use the table above (or By Category / By Status) to find change requests.
+2. **Track status**: Use the Status column; update the CR file and this index when status changes.
+3. **Create new**: Use next number above (e.g. CR-002) → copy [CR-TEMPLATE.md](./CR-TEMPLATE.md) → fill in → **add a row here** in the main table, By Category, and By Status.
+4. **When implementing**: Update the CR file with status "Implemented" and optional commit/PR link; update this index.
 
 ---
 
-**Last Updated**: 2026-02-13  
+**Last Updated**: 2026-02-23  
 **Maintained By**: DFMS Product Context Team
 
