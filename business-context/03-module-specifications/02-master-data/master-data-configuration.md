@@ -1,338 +1,695 @@
 ---
+module: 02-master-data
+specification: Master Data Configuration
+version: 1.0
+phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-source_sections: Master Data Configuration
-extracted_date: 2026-02-13
+source_sections: 6.3.1-6.3.4
+last_updated: 2026-02-26
+related_stories: US-053, US-057, US-061, US-047
 ---
 
-## Master Data Configuration
+# Master Data Configuration Specification
 
-### Entity Registration (Master Setup)
+## Overview
 
-**Version 1.0, Phase - 1**
+Master Data Configuration provides centralized management of core business entities that are referenced across all operational workflows in the DFMS platform. This specification covers entity registration, bulk data management, CRUD operations, and referential integrity controls for vehicles, drivers, helpers, vendors, routes, and other master entities.
 
-**User Story:** _As a Tenant Admin, I want to register and manage standardized master data (Drivers, Vehicles, Products, Vendors, Agents, Projects, POIs, etc.) so that all DFMS workflows operate consistently, traceably, and without manual data errors_.
+Master data serves as the foundation for consistent, traceable operations without manual data errors.
 
-**Acceptance Criteria:**
+---
 
-*   System provides master setup menus for:
-    *   Vehicles, Drivers, Helpers, Vendors
-    *   Depots / Feed mills / Warehouse / Factory / Port, POIs, Routes
-    *   Product Catalogue (from PIM)
-    *   QC Checklist templates
-*   Each master record has mandatory fields validation and unique ID generation
-*   System will support registration of the following **master entities,** aligned with real operational data:
-    *   Human & Transport Entities
-        *   **Driver Master**
-            *   Driver Name
-            *   Driving License Number, Class, Expiry
-            *   License Type
-            *   National ID
-            *   Driver Type
-                *   Permanent
-                *   Temporary
-                *   Own
-                *   Vendor
-            *   Employee ID
-            *   Experience Certificate
-            *   Biodata
-            *   Reference Contact (minimum 2 Contact Information)
-            *   Accident History
-            *   Joining Date
-            *   Contact Number
-            *   Medical Certificate
-            *   Last Training / Assessment Information
-        *   **Helper Master**
-            *   Helper Name
-            *   Employee ID
-            *   National ID
-            *   Reference from known contacts
-        *   **Driver Supervisor**
-            *   Supervisor Name
-            *   Employee ID
-            *   Contact Number
-        *   **Vehicle Master**
-            *   Vehicle Type (pre-defined)
-                *   Pickup Van
-                *   Open Truck
-                *   Covered Truck
-                *   Nosimon
-                *   Auto
-                *   Tom Tom
-                *   Tractor
-            *   Number of Wheels (Numeric Input)
-            *   Capacity (Max Load Capacity (Ton) – (Numeric Input)
-            *   Allowed Product Category (FG / RM / Both)
-*   License/Registration Number (required, unique) 
-*   Format validation: Bangladesh vehicle registration pattern 
-*   Display format: Dhaka Metro-GA-11-1234 
-*   Chassis Number (required, unique) 
-*   VIN (Vehicle Identification Number) format 
-*   Uniqueness validation 
-*   Mileage 
-*   Initial Odometer reading (numeric, KM) 
-*   Current Odometer Reading 
-*   Average Mileage 
-*   Total Distance Travelled 
-*   Purchase Information (optional) 
-*   Purchase Date 
-*   Purchase Price 
-*   Model (required) 
-*   Body Type 
-*   Open Body 
-*   Closed Body 
-*   Container 
-*   Flatbed 
-*   Tanker 
-*   Refrigerated 
-*   Fuel Type 
-*   Diesel 
-*   Petrol 
-*   CNG 
-*   Electric 
-*   Hybrid 
-*   Ownership (Own/Vendor) 
-*   Assigned Driver (Optional) 
-*   Select from active drivers 
-*   Can be assigned post-registration 
-*   GPS Tracker ID 
-*   Tracker Model and ID 
-*   Assigned POI  
-*   Vehicle operates from this POI 
-*   Assigned Garage/Workshop 
-*   Primary maintenance location
-    *   *   Transport Vendors
-            *   Contractual (Direct assignment (no bidding required))
-                *   Company Details
-                *   Contact Information
-                *   Testimonial / Reference from Truck Association
-                *   Trade License
-                *   BIN
-                *   TIN
-            *   Non-Contractual (Eligible for bidding)
-                *   Company Details
-                *   Contact Information
-                *   Testimonial / Reference from Truck Association
-                *   Trade License
-                *   BIN
-                *   TIN
-        *   Supplier Master
-            *   Supplier Name
-            *   Supplier Code
-            *   Contact Information
-            *   Address
-        *   Dealer Master
-            *   Dealer Name
-            *   Dealer Code
-            *   Contact Information
-            *   Address
-    *   Product & Material Entities
-        *   Finished Goods (FG)
-            *   FG Product Name
-            *   FG Product Item Code
-            *   Type of Packing (Pallet / Drum / Roll – Text Input)
-            *   Pack Size (Numeric Input)
-            *   Product Category
-            *   Product Sub-Category
-            *   Unit of Measure (Bag / Ton / Piece / Carton)
-            *   Standard weight per unit
-            *   Status
-        *   Raw Material (RM)
-            *   RM Product Name
-            *   RM Product Item Code
-            *   Type of Packing (Pallet / Drum / Roll)
-            *   Product Category
-            *   Product Sub-Category
-            *   Unit of Measure (Bag / Ton / Piece / Carton)
-            *   Standard weight per unit
-            *   Status
-        *   QC Checklist
-    *   Location & Operational Context
-        *   POI (Depot / Feed Mill / Factory / Warehouse with geofence)
-*   Master records support status (Active/Inactive) for safe operational control.
-*   Only Tenant Admin roles can create/update master entities (RBAC enforced).
-*   Inactive master records cannot be used in new transactions but remain available for historical reference.
-*   Any master changes must be audit-logged (who/when/what changed)
+## 1. Master Data Architecture
 
-**Functional Requirements:**
+### 1.1 Master Entity Categories
 
-*   \[Critical\] System SHALL provide a centralized **Master Date Configuration module** accessible only to authorized Tenant Admin roles.
-*   \[Critical\] System SHALL provide dedicated setup menus for the following master categories:
-    *   Vehicles
-    *   Drivers
-    *   Helpers
-    *   Transport Vendors
-    *   Suppliers
-    *   Dealers
-    *   POIs for each Projects (Depots / Feed Mills / Warehouse / Factories / Ports)
-    *   Product Catalogue (PIM)
-    *   QC Checklist
-*   \[Critical\] System SHALL validate mandatory fields before allowing submission.
-*   \[Critical\] System SHALL auto-generate unique UUID for each registered entity.
-*   \[Critical\] System SHALL
-*   \[High\] All create, update, deactivate and delete actions SHALL be audit logged with:
-    *   User ID
-    *   Timestamp
-    *   Entity Type
-    *   Field(s) changed
-    *   Old value vs new value
-*   \[High\] System SHALL detect potential duplicates and warn user before creation
-*   \[High\] System SHALL support saving draft entities for later completion
+**Human Resources**:
+- Drivers
+- Helpers  
+- Driver Supervisors
 
-### Bulk Upload & Inline Master Data Management
+**Fleet & Assets**:
+- Vehicles
+- GPS Trackers
 
-**Version 1.0, Phase - 1**
+**Business Partners**:
+- Vendors (transport contractors)
+- Suppliers
+- Dealers
 
-**User Story:** _As a Tenant Admin, I want to upload and manage large volumes of Master data (Drivers, Vehicles, Vendors, Products, etc.,) using bulk CSV upload and inline editing so that DFMS can be onboarded quickly and maintained efficiently without repetitive manual entry._
+**Operational Configuration**:
+- Routes
+- POIs (covered in poi-management.md)
+- Products (covered in product-inventory-management.md)
+- QC Checklists
 
-**Acceptance Criteria:**
+### 1.2 Common Master Data Pattern
 
-*   System provides **Bulk Upload Functionality** for all supported master entities:
-    *   Drivers
-    *   Helpers
-    *   Vehicles
-    *   Vendors (Contractual & Non-Contractual)
-    *   Suppliers
-    *   Dealers
-    *   POIs (Depot / Feed Mill / Warehouse / Factory / Port)
-    *   Products (FG / RM)
-    *   QC Checklist
-*   Bulk upload supports
-    *   Initial bulk creation
-    *   Subsequent bulk append (new records added without overwriting existing ones)
-*   Bulk upload format:
-    *   CSV file (UTF-8 encoded)
-    *   System-provided downloadable template per entity
-*   System validates each row independently and reports:
-    *   Successful rows
-    *   Failed rows with error reason
-*   Admin can:
-    *   Delete individual rows (single record delete)
-    *   Edit individual fields AT COLUMN LEVEL
-    *   Update records inline without re-uploading the file
-*   All bulk and inline operations are audit logged
+All master entities follow a common structure:
+```typescript
+MasterEntity {
+  entity_id: UUID
+  entity_type: string
+  tenant_id: UUID
+  status: enum ['Active', 'Inactive']
+  created_by: UUID
+  created_at: DateTime
+  updated_by: UUID
+  updated_at: DateTime
+}
+```
 
-**Functional Requirements:**
+---
 
-*   \[Critical\] System SHALL provide a Bulk Upload option for each master entity
-*   \[Critical\] Bulk upload SHALL support CSV file format only
-*   \[Critical\] System SHALL provide entity-specific CSV templates with
-    *   Mandatory fields marked
-    *   Date type hints
-    *   Sample values
-*   \[Critical\] Bulk upload SHALL support append-only behavior:
-    *   Existing records are NOT overwritten by default
-    *   New records are added to the existing master dataset
-*   \[Critical\] System SHALL allow uploading additional CSV files to append new master records
-*   \[Critical\] System SHALL support inline editing at:
-    *   Row level
-    *   Column (Field) level
-*   \[Critical\] Changes Shall be saved immediately or via explicit **save** action
-*   \[Critical\] All bulk upload actions SHALL be audit logged:
-    *   Entity type
-    *   File name
-    *   Uploaded by
-    *   Timestamp
-    *   Number of rows processed / success / failed
-*   \[Critical\] System SHALL allow single-row delete actions SHALL record:
-    *   Delete reason
-    *   Deleting user
-    *   Timestamp
-*   \[High\] System SHALL allow bulk upload multiple times for the same entity.
-*   \[High\] Upload progress and completion status SHALL be shown to the user
+## 2. Vehicle Master Data
 
-### Master Tables (CRUD Operation)
+### 2.1 Vehicle Entity Model
 
-**Version 1.0, Phase - 1**
+```typescript
+Vehicle {
+  vehicle_id: UUID
+  
+  // Identification
+  registration_number: string   // Unique, format: "Dhaka Metro-GA-11-1234"
+  chassis_number: string         // VIN, unique
+  
+  // Classification
+  vehicle_type: enum [
+    'PickupVan', 'OpenTruck', 'CoveredTruck',
+    'Nosimon', 'Auto', 'TomTom', 'Tractor',
+    'Trailer', 'Tanker', 'RefrigeratedTruck'
+  ]
+  body_type: enum ['OpenBody', 'ClosedBody', 'Container', 'Flatbed', 'Tanker', 'Refrigerated']
+  fuel_type: enum ['Diesel', 'Petrol', 'CNG', 'Electric', 'Hybrid']
+  
+  // Capacity
+  number_of_wheels: Integer      // 4, 6, 10, 12, etc.
+  max_load_capacity_mt: Decimal  // Metric tons
+  allowed_product_category: enum ['FG', 'RM', 'Both']
+  
+  // Specifications
+  model: string
+  manufacturer: string
+  year_of_manufacture: Integer
+  
+  // Mileage
+  initial_odometer_km: Decimal
+  current_odometer_km: Decimal
+  total_distance_travelled_km: Decimal (computed)
+  average_mileage_kmpl: Decimal
+  
+  // Ownership
+  ownership: enum ['Own', 'Vendor']
+  vendor_id: UUID (if ownership='Vendor')
+  
+  // Assignment
+  assigned_poi_id: UUID          // Home base POI
+  assigned_driver_id: UUID (nullable)
+  gps_tracker_id: string (nullable)
+  
+  // Documents
+  documents: {
+    fitness_certificate: { file_url, expiry_date }
+    tax_token: { file_url, expiry_date }
+    insurance: { file_url, expiry_date }
+    route_permit: { file_url, expiry_date }
+    registration_copy: { file_url }
+  }
+  
+  // Purchase (Optional)
+  purchase_date: Date (nullable)
+  purchase_price: Decimal (nullable)
+  
+  // Status
+  operational_status: enum ['Available', 'InTrip', 'Loading', 'Unloading', 'Idle', 'Maintenance', 'Breakdown']
+  status: enum ['Active', 'Inactive']
+  
+  // Metadata
+  tenant_id: UUID
+  created_by: UUID
+  created_at: DateTime
+  updated_at: DateTime
+}
+```
 
-**User Story:** _As a Tenant Admin, I want full CRUD capability for master data so that the system stays up to date with changing operational needs_.
+### 2.2 Vehicle Capacity Calculation
 
-**Acceptance Criteria:**
+**Capacity Derived from Wheels**:
+```typescript
+function estimateCapacityFromWheels(wheels: number): Decimal {
+    // Rule of thumb for Bangladesh market
+    switch(wheels) {
+        case 4: return 1.0;   // Pickup/Small truck (1 MT)
+        case 6: return 3.0;   // Medium truck (3 MT)
+        case 10: return 10.0; // Large truck (10 MT)
+        case 12: return 15.0; // Trailer (15 MT)
+        default: return wheels * 1.0; // Fallback estimation
+    }
+}
+```
 
-*   Admin can create/Edit/View/Delete:
-    *   Vehicles, Drivers, Helpers
-    *   Vendors
-    *   Depots/Feed mills/Warehouse/Factory, POIs
-    *   Routes
-    *   Product Categories/items (via PIM)
-*   CREATE Operations:
-    *   See [section 5.3.1](#_Entity_Registration_\(Master) Entity Registration for ‘Create’ acceptance criteria
-*   READ Operations:
-    *   Master data list view displays key columns
-    *   List view supports search, sort, pagination, and filter by status/type
-    *   Default pagination: 25 records per page (adjustable to 50, 100)
-    *   Column Sorting: Click column header to sort ascending/descending
-    *   Quick Search: Search bar at top searches across all displayed columns
-    *   Advanced search panel with filters for: Status, Type, Category, Date range, Created by, Last modified
-*   UPDATE Operations:
-    *   Inline editing: Click field value to edit simple fields (name, status, phone)
-    *   Edit form: Click ‘Edit’ button to open full form for complex operations
-    *   Field validation: Same rules as create, displayed in real-time.
-    *   Change confirmation: Dialog shown for critical field changes
-    *   Audit log entry: Every update logged with: User ID, Timestamp, Field name, Old value, New value
-    *   Cascade update: Changes propagate to dependent records where applicable
-*   DELETE Operations:
-    *   Soft delete (default): Record marked as "Inactive", not removed from database
-    *   Hard delete: Available only to Super Admin with two-step confirmation
-    *   Dependency check: System prevents delete if active dependencies exist
-    *   Delete action shows dependency warning when master is already used.
-    *   Hard delete is blocked is the entity is referenced by PR/TR/TO/Trips/QC records
-    *   Cascade delete: Option to delete entity and all dependencies (if allowed)
-    *   Delete audit log: Timestamp, admin ID, entity details, reason logged
-*   Common across all operations:
-    *   Only users with "Master Data Admin" role can perform CRUD operations
-    *   Depot Managers can only view entities in their depot
-    *   All operations respect RBAC permissions
-    *   Success/error messages displayed prominently with appropriate icons
-    *   Mobile-responsive interface for all CRUD operations
+**Load Validation**:
+```typescript
+function validateLoad(vehicle: Vehicle, loadedQuantity: Decimal): boolean {
+    if (loadedQuantity > vehicle.max_load_capacity_mt) {
+        throw new Error(
+            `Load exceeds vehicle capacity. ` +
+            `Max: ${vehicle.max_load_capacity_mt} MT, Loaded: ${loadedQuantity} MT`
+        );
+    }
+    
+    if (loadedQuantity > vehicle.max_load_capacity_mt * 1.1) {
+        // Allow 10% overload with warning
+        logWarning('Vehicle overloaded beyond recommended limit');
+    }
+    
+    return true;
+}
+```
 
-**Functional Requirements:**
+### 2.3 Vehicle Availability Tracking
 
-*   \[Critical\] Admins SHALL create, edit, delete master data for all entity types.
-*   \[Critical\] System SHALL maintain referential integrity (see section 5.3.3).
-*   \[Critical\] List view SHALL support pagination (25/50/100 per page).
-*   \[Critical\] List view SHALL support column sorting and full-text search.
-*   \[Critical\] System SHALL prevent deletion of records with active dependencies.
-*   \[Critical\] All CRUD operations SHALL be logged in audit trail.
-*   \[High\] Advanced filtering SHALL be available (status, type, date range).
-*   \[High\] Export to Excel/ CSV SHALL be available with applied filters.
-*   \[High\] Soft delete SHALL be default behavior preserving audit history.
-*   \[High\] Concurrent edit detection SHALL prevent data loss from simultaneous updates.
-*   \[Medium\] Restore function SHALL be available for soft-deleted records (90 days).
-*   \[Medium\] Approval workflow SHALL be enforced for sensitive field updates.
+**Operational Status State Machine**:
+```
+Available → (TO Assigned) → InTrip → (Arrived Source) → Loading →
+(Loading Complete) → InTrip → (Arrived Dest) → Unloading →
+(Unloading Complete) → Available
 
-### Data Consistency Rules (Referential Control)
+                    ↓ (Breakdown/Maintenance)
+                 Maintenance → (Repaired) → Available
+```
 
-**Version 1.0, Phase – 1**
+**Availability Query**:
+```typescript
+function getAvailableVehicles(
+    poi_id: UUID,
+    required_capacity_mt: Decimal,
+    product_category: string
+): Vehicle[] {
+    return db.query(`
+        SELECT * FROM vehicles
+        WHERE assigned_poi_id = :poi_id
+          AND operational_status = 'Available'
+          AND max_load_capacity_mt >= :required_capacity_mt
+          AND (allowed_product_category = :product_category OR allowed_product_category = 'Both')
+          AND status = 'Active'
+          AND ownership = 'Own'
+        ORDER BY max_load_capacity_mt ASC
+    `);
+}
+```
 
-**User Story:** _As a System Admin, I want referential integrity rules so that wrong master relationships do not break operational workflows_.
+---
 
-**Acceptance Criteria:**
+## 3. Driver Master Data
 
-*   System validates dependencies like:
-    *   Route must map to valid Source POI + Destination POI
-    *   Drivers/helpers must be valid and active before assignment
-    *   Vendor vehicle records must belong to approved vendor profiles
-    *   Vehicle must be assigned to existing active depot
-    *   Product must belong to valid category
-    *   User must have valid role assignment
-*   Dropdown/lookup fields only show valid options:
-    *   Only active entities displayed in dropdowns
-    *   Inactive/deleted entities excluded from selection lists
-    *   Depot dropdown filtered by user permissions
-    *   Vehicle dropdown shows only vehicles available for assignment
-*   System provides detailed error messages for constraint violations:
-    *   "Cannot delete Depot ABC - 5 vehicles and 12 users currently assigned"
-    *   "Cannot delete Product Category Feed - 23 products exist under this category"
-    *   "Cannot modify Route XY - 3 approved TRs currently reference this route"
-*   System prevents saving inconsistent mappings (with error message indicating root cause)
-*   A route cannot exist without valid POIs
-*   A POI cannot be deactivated if it is referenced in open PR/TR/TO/Trip
-*   Product types must match configured allowed UOM and QC mapping rules
+### 3.1 Driver Entity Model
 
-**Functional Requirements:**
+```typescript
+Driver {
+  driver_id: UUID
+  
+  // Personal Information
+  driver_name: string
+  national_id: string            // NID, unique
+  contact_number: string
+  email: string (nullable)
+  date_of_birth: Date
+  address: string
+  
+  // Employment
+  employee_id: string (nullable)
+  driver_type: enum ['Own-Permanent', 'Own-Temporary', 'Vendor']
+  vendor_id: UUID (if driver_type='Vendor')
+  joining_date: Date
+  
+  // License
+  license_number: string         // Unique
+  license_class: string          // A, B, C, etc.
+  license_type: string           // Professional, Non-Professional
+  license_expiry_date: Date
+  
+  // Experience & Training
+  years_of_experience: Integer
+  experience_certificate_url: string (nullable)
+  last_training_date: Date (nullable)
+  last_assessment_date: Date (nullable)
+  assessment_score: Decimal (nullable)
+  
+  // References
+  references: [
+    { name, contact, relationship }
+  ] (minimum 2)
+  
+  // Safety & Health
+  accident_history: [
+    { date, description, severity, fault_determination }
+  ]
+  medical_certificate_url: string (nullable)
+  medical_certificate_expiry: Date (nullable)
+  
+  // Documents
+  biodata_url: string (nullable)
+  photo_url: string (nullable)
+  
+  // Assignment
+  assigned_poi_id: UUID (nullable)
+  current_vehicle_id: UUID (nullable)
+  
+  // Performance
+  total_trips_completed: Integer
+  avg_rating: Decimal
+  
+  // Status
+  availability_status: enum ['Available', 'OnTrip', 'OnLeave', 'Sick', 'Absent']
+  status: enum ['Active', 'Inactive', 'Suspended']
+  
+  // Metadata
+  tenant_id: UUID
+  created_at: DateTime
+  updated_at: DateTime
+}
+```
 
-*   \[Critical\] System SHALL validate all foreign key relationships before saving records.
-*   \[Critical\] System SHALL prevent deletion of parent records with active child records.
-*   \[Critical\] Dropdown/lookup fields SHALL only display valid, active related entities.
-*   \[Critical\] Error messages SHALL clearly indicate constraint violations with entity details.
-*   \[Medium\] System SHALL maintain relationship history for audit purposes.
+### 3.2 Driver-Vehicle Assignment
+
+**Assignment Rules**:
+```typescript
+function assignDriverToVehicle(
+    driver_id: UUID,
+    vehicle_id: UUID
+): void {
+    const driver = getDriver(driver_id);
+    const vehicle = getVehicle(vehicle_id);
+    
+    // Validation
+    if (driver.availability_status !== 'Available') {
+        throw new Error('Driver not available for assignment');
+    }
+    
+    if (vehicle.operational_status !== 'Available') {
+        throw new Error('Vehicle not available for assignment');
+    }
+    
+    if (driver.license_expiry_date < NOW()) {
+        throw new Error('Driver license expired');
+    }
+    
+    if (vehicle.ownership === 'Vendor' && driver.driver_type !== 'Vendor') {
+        throw new Error('Own driver cannot be assigned to vendor vehicle');
+    }
+    
+    // Update assignments
+    await updateDriver(driver_id, {
+        current_vehicle_id: vehicle_id,
+        availability_status: 'OnTrip'
+    });
+    
+    await updateVehicle(vehicle_id, {
+        assigned_driver_id: driver_id,
+        operational_status: 'InTrip'
+    });
+}
+```
+
+### 3.3 Driver Performance Tracking
+
+**Performance Metrics**:
+```typescript
+DriverPerformance {
+  driver_id: UUID
+  
+  // Trip Statistics
+  total_trips: Integer
+  completed_trips: Integer
+  cancelled_trips: Integer
+  completion_rate: Decimal
+  
+  // Punctuality
+  on_time_arrivals: Integer
+  delayed_arrivals: Integer
+  avg_delay_minutes: Decimal
+  
+  // Safety
+  incidents_count: Integer
+  accidents_count: Integer
+  safety_violations: Integer
+  
+  // Ratings
+  avg_customer_rating: Decimal
+  avg_supervisor_rating: Decimal
+  
+  // Calculated monthly
+  last_calculated_at: DateTime
+}
+```
+
+---
+
+## 4. Helper Master Data
+
+### 4.1 Helper Entity Model
+
+```typescript
+Helper {
+  helper_id: UUID
+  
+  // Personal Information
+  helper_name: string
+  national_id: string (unique)
+  contact_number: string
+  
+  // Employment
+  employee_id: string (nullable)
+  helper_type: enum ['Own', 'Vendor', 'Temporary']
+  vendor_id: UUID (nullable)
+  
+  // References
+  references: [
+    { name, contact, relationship }
+  ]
+  
+  // Assignment
+  assigned_poi_id: UUID (nullable)
+  current_trip_id: UUID (nullable)
+  
+  // Status
+  availability_status: enum ['Available', 'OnTrip', 'Absent']
+  status: enum ['Active', 'Inactive']
+  
+  // Metadata
+  tenant_id: UUID
+  created_at: DateTime
+}
+```
+
+### 4.2 Helper Assignment
+
+**Trip-Level Assignment**:
+```typescript
+function assignHelperToTrip(
+    trip_id: UUID,
+    helper_id: UUID
+): void {
+    const helper = getHelper(helper_id);
+    
+    if (helper.availability_status !== 'Available') {
+        throw new Error('Helper not available');
+    }
+    
+    await updateTrip(trip_id, { helper_id });
+    await updateHelper(helper_id, {
+        current_trip_id: trip_id,
+        availability_status: 'OnTrip'
+    });
+}
+```
+
+---
+
+## 5. Vendor Master Data
+
+### 5.1 Vendor Entity Model
+
+```typescript
+Vendor {
+  vendor_id: UUID
+  
+  // Business Information
+  vendor_name: string
+  vendor_code: string (unique per tenant)
+  vendor_type: enum ['Contractual', 'Non-Contractual']
+  business_type: enum ['SoleProprietorship', 'Partnership', 'Company']
+  
+  // Contact
+  contact_person: string
+  contact_phone: string
+  contact_email: string
+  address: string
+  
+  // Legal
+  trade_license_number: string
+  trade_license_expiry: Date
+  tin_number: string
+  
+  // Banking
+  bank_name: string (nullable)
+  account_number: string (nullable)
+  account_name: string (nullable)
+  
+  // Fleet Info
+  total_vehicles: Integer
+  vehicle_types: string[] (array)
+  
+  // Performance
+  quality_rating: Decimal (0-5)
+  delivery_rating: Decimal (0-5)
+  consecutive_passes: Integer
+  total_trips_completed: Integer
+  
+  // Contract (for Contractual vendors)
+  contract_start_date: Date (nullable)
+  contract_end_date: Date (nullable)
+  contract_document_url: string (nullable)
+  rate_per_km: Decimal (nullable)
+  
+  // Verification
+  verification_status: enum ['Pending', 'Verified', 'Rejected']
+  verified_by: UUID (nullable)
+  verified_at: DateTime (nullable)
+  
+  // Status
+  blacklist_status: boolean
+  blacklist_reason: string (nullable)
+  status: enum ['Active', 'Inactive', 'Suspended']
+  
+  // Metadata
+  tenant_id: UUID
+  created_at: DateTime
+}
+```
+
+### 5.2 Vendor Verification Workflow
+
+**Verification Process**:
+```
+1. Vendor submits registration
+2. Admin reviews documents (license, TIN, bank)
+3. Admin verifies contact information (phone/email)
+4. Admin checks references
+5. Admin approves or rejects
+6. If approved: vendor_status = 'Active', verification_status = 'Verified'
+7. Welcome email sent with portal access
+```
+
+---
+
+## 6. Bulk Data Management
+
+### 6.1 Bulk Upload via CSV
+
+**Upload Process**:
+```
+1. Admin downloads CSV template
+2. Admin fills data (Excel/Google Sheets)
+3. Admin uploads CSV file
+4. System validates all rows
+5. If validation passes: Import all
+6. If validation fails: Show errors, allow correction
+7. Success: Audit log entry with import summary
+```
+
+**Validation Rules**:
+```typescript
+async function validateBulkUpload(
+    entityType: string,
+    csvData: Array<Record<string, any>>
+): Promise<ValidationResult> {
+    const errors: ValidationError[] = [];
+    
+    for (let i = 0; i < csvData.length; i++) {
+        const row = csvData[i];
+        
+        // Check required fields
+        for (const field of getRequiredFields(entityType)) {
+            if (!row[field]) {
+                errors.push({
+                    row: i + 2,  // +2 for header and 0-index
+                    field,
+                    error: 'Required field missing'
+                });
+            }
+        }
+        
+        // Check unique fields
+        const uniqueFields = getUniqueFields(entityType);
+        for (const field of uniqueFields) {
+            const duplicate = await checkDuplicate(entityType, field, row[field]);
+            if (duplicate) {
+                errors.push({
+                    row: i + 2,
+                    field,
+                    error: `Duplicate value: ${row[field]}`
+                });
+            }
+        }
+        
+        // Data type validation
+        // Format validation
+        // Business rule validation
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors,
+        rows_validated: csvData.length
+    };
+}
+```
+
+### 6.2 Inline Edit/Delete
+
+**Inline Editing**:
+- Click cell to edit
+- Auto-save on blur or Enter
+- Validation on save
+- Optimistic UI update
+- Server validation
+- Rollback on error
+
+**Soft Delete**:
+- Delete button → Confirmation dialog
+- Set status = 'Inactive'
+- Preserve historical data
+- Prevent hard delete if referenced
+
+---
+
+## 7. Referential Integrity
+
+### 7.1 Dependency Checking
+
+**Before Delete/Deactivate**:
+```typescript
+async function checkMasterDataDependencies(
+    entityType: string,
+    entityId: UUID
+): Promise<Dependencies> {
+    const deps = {
+        active_requisitions: 0,
+        active_trips: 0,
+        active_assignments: 0,
+        historical_records: 0,
+        can_delete: false,
+        can_deactivate: true
+    };
+    
+    switch(entityType) {
+        case 'Vehicle':
+            deps.active_trips = await countActiveTrips({ vehicle_id: entityId });
+            deps.historical_records = await countCompletedTrips({ vehicle_id: entityId });
+            deps.can_deactivate = deps.active_trips === 0;
+            break;
+            
+        case 'Driver':
+            deps.active_trips = await countActiveTrips({ driver_id: entityId });
+            deps.active_assignments = await countVehicleAssignments({ driver_id: entityId });
+            deps.can_deactivate = deps.active_trips === 0;
+            break;
+            
+        case 'Vendor':
+            deps.active_trips = await countActiveTrips({ vendor_id: entityId });
+            deps.active_requisitions = await countPendingBids({ vendor_id: entityId });
+            deps.can_deactivate = deps.active_trips === 0 && deps.active_requisitions === 0;
+            break;
+    }
+    
+    // Never allow hard delete if historical records exist
+    deps.can_delete = deps.historical_records === 0;
+    
+    return deps;
+}
+```
+
+### 7.2 Cascade Rules
+
+**Status Changes**:
+```
+Vehicle Deactivated:
+  → Remove from available vehicle list
+  → Cancel pending assignments
+  → Continue active trips (complete first)
+
+Driver Deactivated:
+  → Set availability = 'Absent'
+  → Remove from assignment pool
+  → Continue active trips
+
+Vendor Deactivated:
+  → Cancel pending bids
+  → Continue active trips with vendor vehicles
+  → Block new TO assignments
+```
+
+---
+
+## 8. Data Quality & Audit
+
+### 8.1 Data Quality Rules
+
+**Unique Constraints**:
+- Vehicle: registration_number, chassis_number (per tenant)
+- Driver: license_number, national_id (per tenant)
+- Vendor: vendor_code (per tenant)
+- Helper: national_id (per tenant)
+
+**Mandatory Fields**:
+- Vehicle: registration_number, vehicle_type, max_load_capacity
+- Driver: name, license_number, license_expiry
+- Vendor: vendor_name, contact_person, contact_phone
+- Helper: name, contact_number
+
+### 8.2 Audit Logging
+
+**All Changes Logged**:
+```typescript
+MasterDataAuditLog {
+  log_id: UUID
+  entity_type: string
+  entity_id: UUID
+  action: enum ['Created', 'Updated', 'Deleted', 'Deactivated']
+  changed_fields: JSON
+  changed_by: UUID
+  timestamp: DateTime
+  ip_address: string
+}
+```
+
+---
+
+## 9. Integration Points
+
+**Referenced By**:
+- Transport Orders (vehicles, drivers)
+- Trips (vehicles, drivers, helpers)
+- Vendor Portal (vendors)
+- Gate Operations (vehicles)
+- Fleet Management (vehicles, drivers, fuel)
+- Costing (vehicles, vendors)
+
+---
+
+## 10. Related Documentation
+
+- **[POI Management](poi-management.md)** - Location master data
+- **[Product Inventory Management](product-inventory-management.md)** - Product master data
+- **[Fleet Management](../06-fleet-management/README.md)** - Fleet operations using vehicle/driver data
+- **[Vendor Management](../05-vendor-management/README.md)** - Vendor lifecycle and operations
+
+**Related User Stories:**
+- US-053: Vehicle Registration & Master Data
+- US-057: Driver Master Data
+- US-061: Helper Profile
+- US-047: Vendor Registration
+
+**Source**: PRD_DFMS_v1.0.md - Sections 6.3.1-6.3.4
