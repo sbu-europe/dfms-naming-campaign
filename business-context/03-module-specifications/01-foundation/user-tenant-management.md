@@ -1,247 +1,860 @@
 ---
+module: 01-foundation
+specification: User & Tenant Management
+version: 1.0
+phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-source_sections: User & Tenant Management
-extracted_date: 2026-02-13
+source_sections: 6.2.1-6.2.8
+last_updated: 2026-02-26
+related_stories: US-005, US-006, US-007, US-008, US-009
 ---
 
-## User & Tenant Management
+# User & Tenant Management Specification
 
-### Organization Signup & Tenant Creation
+## Overview
 
-**Version 2.0**
+The DFMS platform implements comprehensive user and tenant lifecycle management designed for multi-tenant SaaS environments. This specification covers organization onboarding, tenant creation, user invitation and activation workflows, OTP verification, account management, and audit logging.
 
-**User Story:** _As a new organization, I want to register for a DFMS account so that I can start managing my transport and logistics operations digitally_.
+The system balances security requirements with usability considerations, particularly for users with varying levels of digital literacy, through features like admin-assisted password resets and multiple verification methods.
 
-**Acceptance Criteria:**
+---
 
-*   System provides web registration form capturing:
-    *   Organization Name
-    *   Admin Email
-    *   Contact Number
-    *   Business Category
-    *   Industry Type
-    *   Address
-*   Email and mobile number verified through OTP before account activation
-*   System auto-generates a unique tenant ID upon successful registration
-*   Tenant data stored in isolated schema/database ensuring multi-tenant separation
-*   Registration confirmation email sent with activation link and getting started guide
-*   OTP valid for 10 minutes with resend option after 2 minutes cooldown
-*   Failed OTP attempts (>3) temporarily block registration for 15 minutes
-*   All registration attempts logged with timestamp, IP address, device information
-*   System validates email domain uniqueness to prevent duplicate registrations
+## 1. Tenant Management Architecture
 
-**Functional Requirements:**
+### 1.1 Multi-Tenancy Model
 
-*   \[Critical\] System SHALL provide a public registration form for new organization signup.
-*   \[Critical\] Registration form SHALL collect:
-    *   Organization/Company name
-    *   Admin email
-    *   Contact number
-    *   Business category
-    *   Industry Type
-    *   Address.
-*   \[Critical\] Upon successful registration, system SHALL generate unique tenant ID and dedicated database schema.
-*   \[Critical\] System SHALL send email and SMS OTP to verify admin contact details before account activation
-*   \[High\] System SHALL create default admin user account upon OTP verification.
-*   \[High\] Verification logs SHALL be stored with timestamp and IP address for audit purposes.
+The platform uses a **hybrid multi-tenancy** approach:
 
-### Subscription Plan Selection
+**Logical Isolation**:
+- Shared database with tenant_id partitioning
+- All queries filtered by tenant context
+- Row-level security policies enforced
 
-**Version 2.0**
+**Physical Isolation** (for Enterprise tier):
+- Dedicated database schema per tenant
+- Separate backup and restore
+- Custom retention policies
 
-**User Story:** _As an organization, I want to select a subscription plan that matches my business size so that I only pay for features I need_.
+### 1.2 Tenant Entity Structure
 
-**Subscription Tiers:**
+```typescript
+Tenant {
+  tenant_id: UUID
+  organization_name: string
+  business_category: enum ['Manufacturing', 'Distribution', 'FMCG', 'Agro', 'Other']
+  industry_type: string
+  subscription_tier: enum ['Basic', 'Starter', 'Growth', 'Enterprise']
+  subscription_status: enum ['Trial', 'Active', 'Suspended', 'Cancelled']
+  
+  // Contact
+  admin_email: string
+  admin_phone: string
+  address: {
+    street: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+  }
+  
+  // Subscription limits
+  max_users: number
+  max_monthly_trips: number
+  storage_limit_gb: number
+  enabled_modules: string[]
+  
+  // Metadata
+  created_at: DateTime
+  trial_ends_at: DateTime
+  subscription_renews_at: DateTime
+  last_billing_at: DateTime
+  status: enum ['Active', 'Suspended', 'Trial']
+}
+```
 
-| Tier | Users | Trips/Month | Key Features |
-| --- | --- | --- | --- |
-| Basic | 5 | 100 | TR/TO, Fleet basics, GPS tracking |
-| Starter | 15 | 500 | All Basic + Vendor portal, QC module |
-| Growth | 50 | 2000 | All Starter + Analytics, Cost management, PR/PO |
-| Enterprise | Unlimited | Unlimited | All features + White-label, ERP integration |
+---
 
-**Acceptance Criteria:**
+## 2. Organization Signup & Onboarding
 
-*   System displays all four subscription tiers with feature comparison
-*   Admin can select plans during registration or upgrade/downgrade from settings as a request (Served by Backend Engine)
-*   System enforces plan limits on user count, trip creation, storage usage
+### 2.1 Registration Flow
 
-**Functional Requirements:**
+```
+Step 1: Organization Details
+    ↓
+Step 2: Email & Phone Verification (OTP)
+    ↓
+Step 3: Tenant Provisioning
+    ↓
+Step 4: Admin Account Creation
+    ↓
+Step 5: Subscription Plan Selection
+    ↓
+Step 6: Welcome Email & Getting Started
+```
 
-*   \[Critical\] System SHALL present four subscription tiers: Basic, Starter, Growth, Enterprise.
-*   \[Critical\] Each tier SHALL define limits for: Active users, Monthly trip capacity, Data storage (GB), Available modules.
-*   \[Critical\] System SHALL bind selected plan limits to tenant account and enforce usage metrics.
+### 2.2 Registration Form
 
-### User Invitation & Activation
+**Required Fields**:
+- Organization Name (3-100 characters, unique)
+- Business Category (dropdown)
+- Industry Type (text field)
+- Admin Email (unique, valid format)
+- Admin Phone (with country code)
+- Address (full address fields)
 
-**Version 1.0, Phase - 1**
+**Validation Rules**:
+```typescript
+{
+  organization_name: {
+    min_length: 3,
+    max_length: 100,
+    unique: true,
+    pattern: /^[a-zA-Z0-9\s\-&.,()]+$/
+  },
+  admin_email: {
+    unique: true,
+    format: 'email',
+    verify_mx_record: true  // Check valid domain
+  },
+  admin_phone: {
+    format: 'E.164',  // +8801XXXXXXXXX
+    unique: true
+  }
+}
+```
 
-**User Story:** _As an Tenant Admin, I want to invite team members so that they can access the system on assigned roles_.
+### 2.3 Email/Phone Verification
 
-**Acceptance Criteria:**
+**Dual OTP Verification**:
+- Both email AND phone must be verified before activation
+- Prevents fake registrations
+- Ensures contact reachability
 
-*   ‘Invite User’ form captures:
-    *   Full Name
-    *   Email address
-    *   Mobile Number
-    *   Role
-        *   Distribution Officer
-        *   Procurement Officer
-        *   Depot Officer
-        *   Feed Mill Officer
-        *   Command Center Officer
-        *   Gate Man
-        *   Scaling Personnel
-        *   Loading Personnel
-        *   Unloading Personnel
-    *   Department
-    *   Employment type
-    *   POI (Where applicable)
-    *   Workflow Responsibility (Requester / Approver / Executor)
-*   Invitation email with 72-hour activation link
-*   User completes profile: Set password, verify OTP, accept T&C
-*   Account active only after OTP verification
-*   Status tracked: Sent → Pending → Activated/Expired
-*   Admin can resend expired invitations
-*   Welcome email upon activation
+**OTP Specifications**:
+- **Code**: 6-digit numeric
+- **Validity**: 10 minutes
+- **Delivery**: Email (immediate), SMS (via configured gateway)
+- **Resend**: After 2-minute cooldown
+- **Max Attempts**: 3 verification attempts per session
+- **Lockout**: 15-minute block after 3 failed attempts
 
-**Functional Requirements:**
+**Verification Flow**:
+```
+1. User submits registration form
+2. System generates email_otp and sms_otp
+3. Send OTP codes via respective channels
+4. User enters both OTPs
+5. System validates codes and timestamps
+6. If valid: Provision tenant
+7. If invalid: Decrement attempts, show error
+8. If attempts exhausted: Temporary block (15 min)
+```
 
-*   \[Critical\] Admins SHALL invite users via email with role and department assignment.
-*   \[Critical\] Invited users MUST activate account via OTP and activation link.
-*   \[Critical\] System SHALL validate unique email per tenant for invited users.
-*   \[High\] Activation link SHALL expire after 72 hours for security
-*   \[High\] System SHALL log all invitation and activation events with user ID and timestamp.
-*   \[High\] Admin SHALL be able to resend or revoke pending invitations
-*   \[Medium\] System SHALL support bulk user invitation via CSV upload
-*   \[Medium\] System SHALL validate role permissions against tenant plan limits
+**OTP Validation Logic**:
+```typescript
+function validateOTP(inputOTP: string, storedOTP: string, generatedAt: DateTime): boolean {
+    // Check expiry (10 minutes)
+    if (NOW() - generatedAt > 10 * 60 * 1000) {
+        throw new Error('OTP expired. Request new code.');
+    }
+    
+    // Check match
+    if (inputOTP !== storedOTP) {
+        return false;
+    }
+    
+    return true;
+}
+```
 
-### OTP Verification System
+### 2.4 Tenant Provisioning
 
-**Version 1.0, Phase - 1**
+**Automatic Provisioning Steps**:
+```typescript
+async function provisionTenant(registrationData: RegistrationForm): Promise<Tenant> {
+    // 1. Generate unique tenant ID
+    const tenant_id = generateUUID();
+    
+    // 2. Create tenant record
+    const tenant = await createTenant({
+        tenant_id,
+        organization_name: registrationData.organization_name,
+        subscription_tier: 'Trial',  // Start with 14-day trial
+        trial_ends_at: NOW() + 14 days,
+        max_users: 5,  // Trial limits
+        max_monthly_trips: 100,
+        status: 'Trial'
+    });
+    
+    // 3. Create dedicated database schema (for Enterprise)
+    if (subscription_tier === 'Enterprise') {
+        await createTenantSchema(tenant_id);
+    }
+    
+    // 4. Create default admin user
+    const admin_user = await createUser({
+        tenant_id,
+        email: registrationData.admin_email,
+        phone: registrationData.admin_phone,
+        role: 'Tenant Admin',
+        status: 'Active'
+    });
+    
+    // 5. Send welcome email with getting started guide
+    await sendWelcomeEmail(admin_user.email, {
+        organization_name: tenant.organization_name,
+        login_url: `https://dfms.app/login`,
+        trial_info: 'Your 14-day trial has started'
+    });
+    
+    // 6. Log provisioning event
+    await auditLog({
+        event: 'TenantProvisioned',
+        tenant_id,
+        details: { subscription_tier: 'Trial' }
+    });
+    
+    return tenant;
+}
+```
 
-**User Story:** _As a system administrator, I want to verify user identity through OTP so that only legitimate users can access the system_.
+---
 
-**Acceptance Criteria:**
+## 3. Subscription Management
 
-*   Email OTP sent as 6-digit numeric code
-*   SMS OTP sent as 6-digit numeric code
-*   Both OTPs verified before account activation
-*   OTP valid for 10 minutes
-*   Resend after 2-minute cooldown
-*   Maximum 3 verification attempts
-*   Failed attempts (>3) trigger 15-minute lockout
-*   All attempts logged with timestamp, IP, device ID
-*   Logs exportable for audit
-*   Rate limiting max 5 OTP requests per hour per user
+### 3.1 Subscription Tiers
 
-### Account Deactivation
+| Tier | Users | Trips/Month | Storage | Key Features | Price (indicative) |
+|------|-------|-------------|---------|--------------|-------------------|
+| **Basic** | 5 | 100 | 1 GB | TR/TO, Fleet basics, GPS tracking | $49/month |
+| **Starter** | 15 | 500 | 5 GB | All Basic + Vendor portal, QC module | $149/month |
+| **Growth** | 50 | 2,000 | 20 GB | All Starter + Analytics, Cost mgmt, PR/PO | $499/month |
+| **Enterprise** | Unlimited | Unlimited | Unlimited | All features + White-label, ERP integration, Dedicated schema | Custom |
 
-**Version 1.0, Phase - 1**
+### 3.2 Subscription Enforcement
 
-**User Story:** _As an Admin, I want to deactivate user accounts to maintain system security._
+**Usage Limits Tracking**:
+```typescript
+TenantUsage {
+  tenant_id: UUID
+  current_month: string  // 'YYYY-MM'
+  
+  // Counters
+  active_users_count: number
+  trips_created_this_month: number
+  storage_used_gb: number
+  
+  // Limits (from subscription tier)
+  max_users: number
+  max_monthly_trips: number
+  max_storage_gb: number
+  
+  // Alerts
+  users_warning_sent: boolean    // At 80%
+  trips_warning_sent: boolean    // At 80%
+  storage_warning_sent: boolean  // At 90%
+}
+```
 
-**Acceptance Criteria:**
+**Limit Enforcement Logic**:
+```typescript
+function checkLimit(tenant: Tenant, limitType: string): boolean {
+    const usage = getTenantUsage(tenant.tenant_id);
+    
+    switch(limitType) {
+        case 'users':
+            if (usage.active_users_count >= tenant.max_users) {
+                throw new LimitExceededError(
+                    'User limit reached. Upgrade subscription to add more users.'
+                );
+            }
+            break;
+            
+        case 'trips':
+            if (usage.trips_created_this_month >= tenant.max_monthly_trips) {
+                throw new LimitExceededError(
+                    'Monthly trip limit reached. Upgrade subscription or wait for next billing cycle.'
+                );
+            }
+            break;
+            
+        case 'storage':
+            if (usage.storage_used_gb >= tenant.max_storage_gb) {
+                throw new LimitExceededError(
+                    'Storage limit reached. Delete old data or upgrade subscription.'
+                );
+            }
+            break;
+    }
+    
+    return true;
+}
+```
 
-*   Two deactivation options:
-    *   Temporary Suspension: Inactive, preserve data, reactivatable
-    *   Permanent: Disabled permanently, data archived
-*   Mandatory fields: Reason, effective date, admin remarks
-*   Immediate logout from all sessions
-*   Historical data preserved in audit trail
-*   Deactivation logged with full details
-*   Temporary accounts reactivated with approval
-*   Email notification sent to user
-*   Deactivated users blocked from new assignments
+---
 
-**Functional Requirements:**
+## 4. User Invitation & Activation
 
-*   \[Critical\] Admins CAN deactivate user accounts temporarily or permanently.
-*   \[Critical\] System SHALL preserve historical audit records for deactivated users.
-*   \[Critical\] Deactivation SHALL log timestamp, admin ID, and reason.
-*   \[High\] System SHALL prevent deactivation if user has active critical assignments.
-*   \[High\] Temporary suspension SHALL allow reactivation without data loss.
-*   \[Medium\] System SHALL support bulk deactivation with validation
-*   \[Medium\] Admin SHALL be able to view deactivation history.
+### 4.1 Invitation Workflow
 
-### Password & Account Reset
+```
+Admin → Invite User Form → Send Email → User Clicks Link →
+Complete Profile → Verify OTP → Accept T&C → Account Active
+```
 
-**Version 1.0, Phase - 1**
+### 4.2 Invitation Form
 
-**User Story:** _As a Admin User, I want to rest my password securely to regain access_.
+**Required Fields**:
+- Full Name
+- Email Address
+- Mobile Number
+- Role (from available roles)
+- Department
+- Employment Type (Permanent/Temporary/Contractor)
+- POI Assignment (if applicable, e.g., Gate Operator → specific gate)
+- Workflow Responsibility (Requester/Approver/Executor)
 
-**Acceptance Criteria:**
+**Validation**:
+```typescript
+{
+  email: {
+    unique_per_tenant: true,
+    format: 'email'
+  },
+  mobile: {
+    unique_per_tenant: true,
+    format: 'E.164'
+  },
+  role: {
+    validate: (role, tenant) => {
+      // Check if subscription tier allows this role
+      return tenant.enabled_modules.includes(role.required_module);
+    }
+  }
+}
+```
 
-*   Admin-Assisted Reset (Preferred for low literacy users of the platform):
-    *   Admin verifies identity offline
-    *   6-digit OTP generated (10-minute validity)
-    *   Admin communicates OTP
-    *   User enters OPT to reset
-    *   All assisted resets logged
-    *   Admin provides justification remarks
-*   Self-Service Reset:
-    *   Forgot password link or login
-    *   Mobile prompt
-    *   Reset link valid 15 minutes
-    *   Password complexity enforced
-    *   Reset logged with details
-    *   Confirmation email sent
-    *   All sessions are terminated
+### 4.3 Invitation Email
 
-**_Note:_** _Assisted reset option provided to support users with low digital literacy._
+**Email Content**:
+```
+Subject: You're invited to join [Organization Name] on DFMS
 
-**Functional Requirements:**
+Hi [Full Name],
 
-*   \[Critical\] System SHALL send secure password reset link valid for 10 minutes.
-*   \[Critical\] All password resets SHALL be logged with timestamp, user ID, and IP address.
-*   \[Critical\] Super Admin and Tenant admin CAN trigger assisted reset after offline verification.
-*   \[Critical\] System SHALL generate reset OTP for admin-assisted process.
-*   \[High\] Password reset SHALL terminate all active user sessions.
-*   \[High\] Audit log SHALL include method, timestamp, IP/device, success/failure for all attempts.
-*   \[Medium\] System SHALL rate-limit reset requests (max 3 per hour per user).
-*   \[Medium\] Email notification SHALL be sent after successful password change.
-*   \[Low\] System SHALL provide password strength meter during reset.
+[Admin Name] has invited you to join [Organization Name]'s DFMS account.
 
-### User Activity & Audit Logs
+Your Role: [Role Name]
+Department: [Department]
 
-**Version 1.0, Phase - 1**
+To activate your account:
+1. Click the link below (valid for 72 hours)
+2. Complete your profile and set a password
+3. Verify your email and phone with OTP
+4. Review and accept Terms & Conditions
 
-**User Story:** _As a Security Admin, I want to track all user activities for security._
+[Activate Account Button: https://dfms.app/activate/[token]]
 
-**Acceptance Criteria:**
+Need help? Reply to this email or contact your administrator.
 
-*   System logs: Login, logout, Password reset, Failed attempts, Lockout, Timeout
-*   Each log captures: User ID, Event Type, Timestamp, IP Address, Device ID, Location. Status
-*   Admin dashboard with filters: Date range, User, Event Type, Status
-*   Minimum 2-year retention for compliance
+This invitation expires on [Expiry DateTime].
+```
 
-**Functional Requirements:**
+**Invitation Token**:
+```typescript
+InvitationToken {
+  token: string  // Unique, 64-char hex
+  user_id: UUID
+  email: string
+  invited_by: UUID
+  expires_at: DateTime  // 72 hours from creation
+  status: enum ['Pending', 'Activated', 'Expired', 'Revoked']
+  created_at: DateTime
+}
+```
 
-*   \[Critical\] Each login, logout, password reset, and failed attempt SHALL be logged.
-*   \[Critical\] Audit logs SHALL include Device ID, IP Address, timestamp, user ID.
-*   \[Critical\] Audit logs SHALL be immutable and tamper-proof.
-*   \[High\] System SHALL retain audit logs for 2 years minimum.
-*   \[High\] System SHALL provide real-time audit dashboard with filtering capabilities.
+### 4.4 Account Activation Steps
 
-### Tenant Data Isolation
+**Step 1: Click Activation Link**
+- Validate token (not expired, not used, matches email)
+- Load invitation details
 
-**Version 2.0**
+**Step 2: Complete Profile**
+- Set password (meet complexity requirements)
+- Confirm password
+- Optional: Upload profile photo
 
-**User Story:** _As a platform provider, I want complete data isolation between organizations_.
+**Step 3: OTP Verification**
+- System sends OTP to email and phone
+- User enters both OTPs
+- Validates against stored codes
 
-**Acceptance Criteria:**
+**Step 4: Accept Terms**
+- Display Terms & Conditions
+- Display Privacy Policy
+- Require explicit checkbox acceptance
 
-*   Each organization’s data (user, fleet, trips, vendors) logically and physically segregated
-*   Each tenant has unique tenant ID and isolated database schema
-*   Tenant ID auto-appended to all queries
-*   No cross-tenant data in UI or API
-*   Database foreign keys enforce boundaries
-*   API endpoints validate tenant context
-*   Tenant-specific file storage folders
-*   Encrypted separate tenant backups
+**Step 5: Activation Complete**
+- Set user status to 'Active'
+- Mark invitation token as 'Activated'
+- Send welcome email
+- Log activation event
+- Redirect to login or dashboard
 
-**Functional Requirements:**
+---
 
-*   \[Critical\] System SHALL implement logical and physical tenant data isolation
-*   \[Critical\] Each tenant SHALL have a unique tenant ID and dedicated database schema.
-*   \[Critical\] All user data (users, fleet, trips, vendors) SHALL be scoped to tenant ID
+## 5. OTP Verification System
+
+### 5.1 OTP Generation
+
+**Algorithm**:
+```typescript
+function generateOTP(): string {
+    // 6-digit random number
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+```
+
+**Storage**:
+```typescript
+OTPRecord {
+  otp_id: UUID
+  user_id: UUID
+  otp_code: string  // Hashed for security
+  otp_type: enum ['Email', 'SMS', 'Both']
+  purpose: enum ['Registration', 'Activation', 'PasswordReset', 'MFA']
+  generated_at: DateTime
+  expires_at: DateTime  // 10 minutes
+  attempts: number
+  verified: boolean
+  verified_at: DateTime | null
+}
+```
+
+### 5.2 OTP Delivery
+
+**Email Delivery**:
+```
+Subject: Your DFMS Verification Code
+
+Your verification code is: [123456]
+
+This code expires in 10 minutes.
+Do not share this code with anyone.
+```
+
+**SMS Delivery**:
+```
+Your DFMS verification code is: 123456
+Valid for 10 minutes. Do not share.
+```
+
+### 5.3 OTP Verification Logic
+
+```typescript
+async function verifyOTP(userId: UUID, inputOTP: string): Promise<boolean> {
+    // 1. Load OTP record
+    const otpRecord = await getLatestOTP(userId);
+    
+    // 2. Check if expired
+    if (NOW() > otpRecord.expires_at) {
+        throw new Error('OTP expired. Please request a new code.');
+    }
+    
+    // 3. Check attempts
+    if (otpRecord.attempts >= 3) {
+        throw new Error('Maximum attempts exceeded. Please request a new code.');
+    }
+    
+    // 4. Validate code
+    const isValid = await bcrypt.compare(inputOTP, otpRecord.otp_code);
+    
+    if (!isValid) {
+        // Increment attempt counter
+        await incrementOTPAttempts(otpRecord.otp_id);
+        return false;
+    }
+    
+    // 5. Mark as verified
+    await markOTPVerified(otpRecord.otp_id);
+    
+    // 6. Log success
+    await auditLog({
+        event: 'OTPVerified',
+        user_id: userId,
+        otp_type: otpRecord.otp_type,
+        purpose: otpRecord.purpose
+    });
+    
+    return true;
+}
+```
+
+### 5.4 Resend Logic
+
+**Cooldown Period**:
+```typescript
+async function resendOTP(userId: UUID): Promise<void> {
+    const lastOTP = await getLatestOTP(userId);
+    
+    // Check 2-minute cooldown
+    if (NOW() - lastOTP.generated_at < 2 * 60 * 1000) {
+        const waitTime = 120 - Math.floor((NOW() - lastOTP.generated_at) / 1000);
+        throw new Error(`Please wait ${waitTime} seconds before requesting new code.`);
+    }
+    
+    // Check hourly limit (max 5 OTPs per hour)
+    const hourlyCount = await countOTPsLastHour(userId);
+    if (hourlyCount >= 5) {
+        throw new Error('Maximum OTP requests exceeded. Please try again later.');
+    }
+    
+    // Generate and send new OTP
+    const newOTP = generateOTP();
+    await sendOTP(userId, newOTP);
+}
+```
+
+---
+
+## 6. Account Deactivation
+
+### 6.1 Deactivation Types
+
+**Temporary Suspension**:
+- User cannot login
+- Data preserved
+- Permissions retained
+- Can be reactivated
+- Use cases: Leave of absence, security incident investigation
+
+**Permanent Deactivation**:
+- User cannot login
+- Data archived (not deleted, for audit)
+- Cannot be reactivated
+- Use cases: Employee termination, account closure
+
+### 6.2 Deactivation Process
+
+**Admin-Initiated Deactivation**:
+```typescript
+async function deactivateUser(
+    userId: UUID,
+    deactivationType: 'Temporary' | 'Permanent',
+    reason: string,
+    effectiveDate: DateTime,
+    adminId: UUID
+): Promise<void> {
+    // 1. Validate admin has permission
+    await checkPermission(adminId, 'User.Deactivate');
+    
+    // 2. Check for active assignments
+    const activeAssignments = await getActiveAssignments(userId);
+    if (activeAssignments.length > 0) {
+        throw new Error(
+            'Cannot deactivate user with active assignments. ' +
+            'Reassign the following: ' + activeAssignments.map(a => a.description).join(', ')
+        );
+    }
+    
+    // 3. Terminate all active sessions
+    await terminateAllSessions(userId);
+    
+    // 4. Update user status
+    await updateUser(userId, {
+        status: deactivationType === 'Temporary' ? 'Suspended' : 'Inactive',
+        deactivation_reason: reason,
+        deactivated_at: effectiveDate,
+        deactivated_by: adminId
+    });
+    
+    // 5. Send notification email
+    await sendDeactivationEmail(userId, deactivationType, reason);
+    
+    // 6. Archive data (if permanent)
+    if (deactivationType === 'Permanent') {
+        await archiveUserData(userId);
+    }
+    
+    // 7. Audit log
+    await auditLog({
+        event: 'UserDeactivated',
+        user_id: userId,
+        actor_id: adminId,
+        details: { type: deactivationType, reason, effectiveDate }
+    });
+}
+```
+
+### 6.3 Reactivation (Temporary Suspension Only)
+
+```typescript
+async function reactivateUser(userId: UUID, adminId: UUID): Promise<void> {
+    const user = await getUser(userId);
+    
+    // Can only reactivate temporarily suspended users
+    if (user.status !== 'Suspended') {
+        throw new Error('Only suspended users can be reactivated.');
+    }
+    
+    // Update status
+    await updateUser(userId, {
+        status: 'Active',
+        reactivated_at: NOW(),
+        reactivated_by: adminId
+    });
+    
+    // Send notification
+    await sendReactivationEmail(userId);
+    
+    // Audit
+    await auditLog({
+        event: 'UserReactivated',
+        user_id: userId,
+        actor_id: adminId
+    });
+}
+```
+
+---
+
+## 7. Password & Account Reset
+
+### 7.1 Reset Methods
+
+**Method 1: Admin-Assisted Reset** (Preferred for low-literacy users):
+```
+User contacts Admin → Admin verifies identity offline →
+Admin generates reset OTP → Admin communicates OTP →
+User enters OTP → User sets new password
+```
+
+**Method 2: Self-Service Reset**:
+```
+User clicks "Forgot Password" → Enters email/phone →
+System sends reset link → User clicks link (15 min validity) →
+User sets new password → Confirmation
+```
+
+### 7.2 Admin-Assisted Reset
+
+**Workflow**:
+```typescript
+async function adminAssistedReset(
+    userId: UUID,
+    adminId: UUID,
+    verificationMethod: 'Phone' | 'Email' | 'InPerson',
+    justification: string
+): Promise<string> {
+    // 1. Validate admin permission
+    await checkPermission(adminId, 'User.ResetPassword');
+    
+    // 2. Generate 6-digit OTP
+    const resetOTP = generateOTP();
+    
+    // 3. Store OTP with metadata
+    await createPasswordResetOTP({
+        user_id: userId,
+        otp_code: await bcrypt.hash(resetOTP, 10),
+        expires_at: NOW() + 10 * 60 * 1000,  // 10 minutes
+        assisted_by: adminId,
+        verification_method: verificationMethod,
+        justification: justification
+    });
+    
+    // 4. Audit log
+    await auditLog({
+        event: 'AdminAssistedPasswordReset',
+        user_id: userId,
+        actor_id: adminId,
+        details: { verificationMethod, justification }
+    });
+    
+    // 5. Return OTP to admin (display on screen, not logged)
+    return resetOTP;
+}
+```
+
+### 7.3 Self-Service Reset
+
+**Reset Link Generation**:
+```typescript
+async function generateResetLink(email: string): Promise<string> {
+    const user = await getUserByEmail(email);
+    
+    if (!user) {
+        // Don't reveal if email exists (security)
+        return 'success';
+    }
+    
+    // Generate secure token
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    // Store token
+    await createPasswordResetToken({
+        user_id: user.user_id,
+        token: await bcrypt.hash(token, 10),
+        expires_at: NOW() + 15 * 60 * 1000,  // 15 minutes
+        ip_address: request.ip
+    });
+    
+    // Send email
+    await sendPasswordResetEmail(user.email, token);
+    
+    return 'success';
+}
+```
+
+### 7.4 Password Change Enforcement
+
+**Post-Reset Actions**:
+```typescript
+async function completePasswordReset(
+    userId: UUID,
+    newPassword: string
+): Promise<void> {
+    // 1. Validate password complexity
+    validatePasswordStrength(newPassword);
+    
+    // 2. Check password history (last 3 passwords)
+    await checkPasswordHistory(userId, newPassword);
+    
+    // 3. Hash and store new password
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(userId, passwordHash);
+    
+    // 4. Terminate all active sessions (force re-login)
+    await terminateAllSessions(userId);
+    
+    // 5. Update password metadata
+    await updateUser(userId, {
+        last_password_change: NOW(),
+        password_must_change: false
+    });
+    
+    // 6. Send confirmation email
+    await sendPasswordChangedEmail(userId);
+    
+    // 7. Audit log
+    await auditLog({
+        event: 'PasswordChanged',
+        user_id: userId,
+        method: 'Reset'
+    });
+}
+```
+
+---
+
+## 8. Audit Logging
+
+### 8.1 Audit Log Entity
+
+```typescript
+UserAuditLog {
+  log_id: UUID
+  tenant_id: UUID
+  user_id: UUID | null
+  actor_id: UUID | null  // For admin actions
+  event_type: enum [
+    'TenantRegistered', 'UserInvited', 'UserActivated',
+    'Login', 'Logout', 'LoginFailed', 'AccountLocked',
+    'PasswordReset', 'PasswordChanged', 'OTPGenerated',
+    'OTPVerified', 'UserDeactivated', 'UserReactivated',
+    'RoleChanged', 'PermissionGranted', 'PermissionRevoked'
+  ]
+  event_details: JSON
+  ip_address: string
+  user_agent: string
+  timestamp: DateTime
+  session_id: UUID | null
+}
+```
+
+### 8.2 Logged Events
+
+**User Lifecycle Events**:
+- User invitation sent
+- User activation completed
+- User deactivated/reactivated
+- Role assigned/changed
+
+**Authentication Events**:
+- Login attempts (success/failure)
+- Account lockouts
+- MFA verifications
+- Session creation/termination
+
+**Security Events**:
+- Password resets (admin-assisted and self-service)
+- Password changes
+- OTP generations and verifications
+- Permission changes
+
+**Administrative Actions**:
+- User management actions by admins
+- Role assignments
+- Permission modifications
+
+### 8.3 Audit Log Query & Reporting
+
+**Admin Dashboard Filters**:
+- Date range
+- User
+- Event type
+- Status (success/failure)
+- IP address
+
+**Retention Policy**:
+- Standard: 2 years
+- Financial/Compliance: 7 years
+- Configurable per tenant
+
+---
+
+## 9. Data Isolation & Security
+
+### 9.1 Tenant Data Isolation
+
+**Every query includes tenant context**:
+```sql
+SELECT * FROM users
+WHERE tenant_id = :current_tenant_id
+  AND email = :email;
+```
+
+**Row-Level Security**:
+```sql
+CREATE POLICY tenant_isolation ON users
+    USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+```
+
+### 9.2 Cross-Tenant Prevention
+
+**Application-Level Checks**:
+```typescript
+function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
+    const user = getUser(userId);
+    
+    if (user.tenant_id !== resourceTenantId) {
+        throw new SecurityError('Cross-tenant access denied');
+    }
+}
+```
+
+---
+
+## 10. Related Documentation
+
+- **[Authentication & Security](authentication-security.md)** - Login, session, MFA
+- **[RBAC](rbac.md)** - Role-based access control
+- **[System Foundation](system-foundation.md)** - Overall architecture
+
+**Related User Stories:**
+- US-005: User Invitation & Activation
+- US-006: OTP Verification
+- US-007: Account Deactivation
+- US-008: Password & Account Reset
+- US-009: User Activity & Audit Logs
+
+**Source**: PRD_DFMS_v1.0.md - Sections 6.2.1-6.2.8

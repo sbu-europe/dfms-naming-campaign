@@ -1,244 +1,458 @@
 ---
+module: 01-foundation
+specification: System Foundation Overview
+version: 1.0
+phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-source_sections: System Foundation, System Foundation & Security
-extracted_date: 2026-02-13
+source_sections: 6.1, 6.2
+last_updated: 2026-02-26
+related_stories: US-001 through US-009
 ---
 
-## System Foundation
+# System Foundation Overview
 
-### Authentication & Security
+## Overview
 
-**Version 1.0, Phase - 1**
+This document provides a high-level overview of the DFMS platform's foundational layer, which encompasses all core system capabilities required for secure, multi-tenant SaaS operations. The foundation layer serves as the bedrock upon which all operational modules are built, providing authentication, authorization, user management, and compliance capabilities.
 
-**User Story:** _As a system user, I want to log in securely with my credentials so that I can access system features appropriate to my role while protecting against unauthorized access_.
+For detailed specifications, refer to the individual foundation module documents.
 
-**Acceptance Criteria:**
+---
 
-*   Login with unique credentials
-*   Password field masked with show/hide toggle
-*   Failed login attempts trigger lockout after 3 tries within 15 minutes
-*   Account temporarily locked for 30 minutes after 3 failed attempts
-*   Admin can access ‘Locked Users’ view listing all locked accounts
-*   Admin can manually unlock user account after offline/phone verification
-*   Upon unlock, failed-attempt counter resets to zero
-*   User can immediately attempt login after admin unlock
-*   All unlock actions logged in audit trail with admin ID and justification
+## 1. Foundation Layer Architecture
 
-**Functional Requirements:**
+### 1.1 Core Components
 
-*   \[Critical\] System SHALL require unique username and password for all user logins
-*   \[Critical\] System SHALL implement automatic account lockout after 3 consecutive failed login attempts
-*   \[Critical\] Admin users SHALL have access to a "Locked Users" view listing all locked accounts with lock timestamp and reason.
-*   \[High\] Admin users SHALL be able to unlock user accounts after offline identity verification, with mandatory remarks documenting verification method.
-*   \[High\] Upon manual unlock, the system SHALL reset failed login attempt counters and allow immediate login.
-*   \[Critical\] System SHALL log all login attempts (successful and failed) with timestamp, user ID, IP address, and device ID.
+The foundation layer consists of three primary components:
 
-### Multi-Factor Authentication (2FA)
+```
+┌─────────────────────────────────────────────────────┐
+│                 Foundation Layer                     │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────────────┐  ┌────────────────────┐  │
+│  │ Authentication &     │  │ Role-Based Access  │  │
+│  │ Security            │  │ Control (RBAC)     │  │
+│  │ - Login/Logout      │  │ - Role Hierarchy   │  │
+│  │ - Account Lockout   │  │ - Permissions      │  │
+│  │ - MFA (2FA)         │  │ - Authorization    │  │
+│  │ - Session Mgmt      │  │ - Dynamic Roles    │  │
+│  └──────────────────────┘  └────────────────────┘  │
+│                                                      │
+│  ┌─────────────────────────────────────────────┐   │
+│  │ User & Tenant Management                    │   │
+│  │ - Organization Onboarding                   │   │
+│  │ - Tenant Provisioning                       │   │
+│  │ - User Invitation & Activation              │   │
+│  │ - OTP Verification                          │   │
+│  │ - Account Lifecycle                         │   │
+│  │ - Audit Logging                             │   │
+│  └─────────────────────────────────────────────┘   │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+                          ↓
+        ┌─────────────────────────────────┐
+        │ All Operational Modules Depend  │
+        │ on Foundation Layer              │
+        └─────────────────────────────────┘
+```
 
-**Version 1.0, Phase - 1**
+### 1.2 Dependency Model
 
-**User Story:** _As an Tenant Admin user, I want to use 2FA so that my account has an extra layer of security beyond just password_.
+**Foundation Layer is Required By**:
+- Master Data Management (02-master-data)
+- Core Operations (03-core-operations)
+- Operations Support (04-operations-support)
+- Vendor Management (05-vendor-management)
+- Fleet Management (06-fleet-management)
+- Mobile Interfaces (07-mobile-interfaces)
+- Reporting & Analytics (08-reporting-analytics)
 
-**Acceptance Criteria:**
+**Foundation Layer Depends On**:
+- None (this is the base layer)
+- External services: Email gateway, SMS gateway, Payment processor
 
-*   Admin users are required to verify identity using one-time password (OTP)
-*   2FA verification required after password validation
+---
 
-**Functional Requirements:**
+## 2. Authentication & Security
 
-*   \[Critical\] System SHALL require Multi-Factor Authentication (MFA) for Admin user roles.
-*   \[Critical\] System SHALL support OTP (One-Time Password) delivery via email or SMS for MFA.
-*   \[High\] MFA verification SHALL be required after successful password validation.
-*   \[Low\] The system SHALL remember trusted devices for 30 days to reduce MFA frequency.
+### 2.1 Capabilities
 
-### Session Control
+**User Authentication**:
+- Secure login with username/password
+- Password complexity enforcement
+- Account lockout after failed attempts (3 attempts → 30 min lock)
+- Admin override for unlocking accounts
 
-**Version 1.0, Phase - 1**
+**Multi-Factor Authentication**:
+- OTP delivery via email/SMS
+- Required for admin and privileged roles
+- Trusted device management (30-day remember)
 
-**User Story:** _As an System Admin user, I want to control user sessions so that inactive sessions do not pose security risks_.
+**Session Management**:
+- JWT-based access tokens (30 min validity)
+- Refresh tokens (7-day validity)
+- Idle timeout (30 minutes)
+- Concurrent session limits (2 per user)
+- Manual logout and logout-all-devices
 
-**Acceptance Criteria:**
+**Security Features**:
+- Password masking with show/hide toggle
+- CSRF protection
+- Rate limiting
+- Security headers (HSTS, X-Frame-Options, CSP)
 
-*   System tracks active sessions (IP, Device) per user
-*   System auto-logout idle users after 30 minutes of inactivity
-*   Any user action (click, scroll, keyboard input) resets inactivity timer
+### 2.2 Key Workflows
 
-**Functional Requirements:**
+**Login Flow**:
+```
+Username/Password → Validation → MFA (if required) →
+Session Creation → Token Generation → Dashboard
+```
 
-*   \[Critical\] System SHALL track all active user sessions with IP address and device identifier.
-*   \[Critical\] System SHALL support OTP (One-Time Password) delivery via email or SMS for MFA.
+**Account Lockout Flow**:
+```
+Failed Login (3x in 15 min) → Account Locked (30 min) →
+Admin Dashboard Alert → Offline Verification → Admin Unlock
+```
 
-### Role-based Access Control (Role Hierarchy)
+---
 
-**Version 1.0, Phase - 1**
+## 3. Role-Based Access Control (RBAC)
 
-**User Story:** _As a system, I want to enforce role-based permissions so that users can only access features relevant to their department._
+### 3.1 Role Hierarchy
 
-**System Roles:**
+**Three-Tier Structure**:
+1. **Super Admin**: Platform-level access (cross-tenant)
+2. **Administrative Roles**: Tenant Admin, Department Admin
+3. **Operational Roles**: Department-specific task roles
 
-**Administrative Roles:**
+### 3.2 Permission Model
 
-| Role | Key Permissions |
-| --- | --- |
-| Super Admin | Manages global configurations, plans, billing, subscription plans, billing, and tenant-level controls across all organizations |
-| Tenant Admin (Organization Admin) | Manage users, roles, master data, depots, Product Catalogue, Vehicle, Driver and Helper, vendors within their organization. |
-| Department Admin | Department-level admin for Transport, Distribution, QA / QC, Fleet, Accounts, Commercial, Procurement, Depot, and Feed Mill departments |
+**Module-Level Permissions**:
+```
+Module → Feature → Action (Create, Read, Update, Delete, Approve, etc.)
+```
 
-**Operational Roles:**
+**Example**:
+- `Fleet.Vehicle.Create`
+- `TransportOrder.Approve`
+- `Reports.Export`
 
-Operational roles perform **day-to-day execution** and **cannot manage users or system configurations.**
+**Permission Enforcement**:
+- **UI Level**: Hide/disable unauthorized features
+- **API Level**: Validate permissions on every request
+- **Database Level**: Row-level security policies
 
-| Role | Key Responsibilities |
-| --- | --- |
-| Product Transfer Requester (Depot / Feed Mill) | Create FG Transfer Request (Depot/Factory/Feed mill) |
-| Product Transfer Requester (Commercial Officer) | Create RM Transfer Request (Commercial Officer) |
-| Distribution Officer (DO) | Creates Transport Request (TR) and forwards to Distribution Manager for Approval |
-| Approver – Distribution Manager (DM) | Approves TRs and validates capacity per POI |
-| Approver – Procurement | Create Transport Request (TR) and approves Port Transfer requisition and makes distribution breakdown plan |
-| Transport Planner (TP) | Create TOs with Vehicle Quantity, C&F Clearance Note, and type of vehicle required, assigns fleet (Own vs Vendor), manages trips |
-| Transport Distribution Officer (TDO) | Manages Vehicle, Driver, and Helper Assignment process and Estimated time of arrival (ETA) |
-| Gate Operation (Gate man) | Manages gate-in/gate-out entries |
-| Scaling Operator (Weighbridge Operator) | Enters Scale-in/Scale-out weights and prints queue token |
-| Command Center Officer | Assign loading/unloading lines based on product type and urgency |
-| Loading Operator | Logs loading start/end times, Quantity Loaded, and Seal Number |
-| Unloading Operator | Logs unloading start/end times |
-| QC Inspector - Physical | Performs physical QC checks, sampling and approval |
-| QC Lab Technician | Performs lab testing and updates reports |
-| Driver Supervisor | Responsible for managing driver-vehicle handover checklist, Driver and helper attendance and availability status input |
-| Driver | Uses mobile interface for trip updates |
-| Helper | Optional – associated with the drivers |
-| Vendors | Manages bidding, vehicle information submission, invoice submissions |
-| Accounts/Finance Officer | Utilizes platform reports like trip costing. Vendor invoices & Billings |
+### 3.3 Predefined Roles (Phase 1)
 
-**Acceptance Criteria:**
+**Administrative**:
+- Super Admin
+- Tenant Admin (Organization Admin)
+- Department Admin
 
-*   System defines **hierarchical role structure** with pre-defined roles
-*   Roles categorized into:
-    *   Administrative and
-    *   Operational roles
-*   Each role has specific permission scope and access rights defined at system level
-*   Department Admin can assign the following operational roles under their department:
-    *   Depot / Feed Mill / Commercial
-        *   Depot Manager (Requester)
-        *   Feed Mill Manager (Requester)
-        *   Commercial Officer (Requester)
-    *   Procurement
-        *   Procurement Officer (Approver)
-    *   Distribution
-        *   Distribution Officer (DO)
-        *   Distribution Manager (DM) (Approver)
-    *   Transport
-        *   Transport Planner (TP)
-        *   Transport Distribution Officer (TDO)
-    *   Quality Assurance / Quality Control (QA / QC)
-        *   QC Inspector – Physical
-        *   QC Lab Technician
-    *   Operations
-        *   Command Center Officer
-        *   Unloading Personnel
-        *   Loading Personnel
-        *   Driver Supervisor
-        *   Driver Helper
-        *   Nominated Vendors
-*   Admin can assign Functional Role Type
-    *   Requester
-    *   Approver
-    *   Executor
-*   Super Admin controls global configurations across all tenants
-*   Operational toles have task-specific access (e.g., Gate Operator only access gate operations)
-*   Role permissions organized by module (Fleet Management, Trip Management, QC, Gate, Etc.)
-*   System enforces permissions at UI level (menu visibility, button access)
-*   System enforces permissions at API level endpoint access validation)
-*   System enforces permissions at database level (row-level security where applicable)
-*   Operational roles HSALL have task-specific access only.
-    *   Example: Gate Operator can only access gate operations
-*   A department-level manager without Approver role cannot approve requisitions
-*   Same user cannot approve their own requisition.
+**Operational** (by department):
+- **Distribution**: Distribution Officer, Distribution Manager
+- **Procurement**: Procurement Officer
+- **Transport**: Transport Planner, Transport Distribution Officer
+- **QC**: QC Inspector, QC Lab Technician
+- **Operations**: Gate Operator, Scaling Operator, Command Center Officer, Loading/Unloading Operator
+- **Fleet**: Driver Supervisor, Driver, Helper
+- **Vendor**: Vendor Admin
+- **Finance**: Accounts Officer
 
-**Functional Requirements:**
+### 3.4 Dynamic Role Builder (Phase 2)
 
-*   \[Critical\] System SHALL implement hierarchical role structure with pre-defined roles:
-    *   Super Admin,
-    *   Tenant Admin (Organization Admin)
-    *   Department Admin
-    *   Operational Roles including
-        *   Distribution Officer
-        *   Distribution Manager
-        *   Procurement Officer
-        *   Commercial Officer
-        *   Depot Manager
-        *   Feed Mill Manager
-        *   Transport Planner
-        *   Transport Distribution Officer
-        *   QC Inspector - Physical
-        *   QC Lab Technician
-        *   Finance/Accounts Manager
-        *   Gate Man
-        *   Scaling Officer
-        *   Command Center Officer
-        *   Loading Operator
-        *   Unloading Operator
-        *   Driver Supervisor
-        *   Driver
-        *   Helper
-        *   Vendor Admin
-*   \[Critical\] Each role SHALL have defined permission scope covering specific modules and operations.
-*   \[High\] System SHALL allow department assignment during user creation
-*   \[High\] System SHALL support role flags: Requester/Approver.
+- Create custom roles beyond predefined roles
+- Granular permission selection from matrix
+- Clone existing roles
+- Deactivate/delete custom roles
 
-### Dynamic Role Builder
+---
 
-**Version 2.0**
+## 4. User & Tenant Management
 
-**User Story:** _As a Super Admin, I want to create new roles with specific permissions so that I can accommodate unique organizational needs beyond pre-defined roles_.
+### 4.1 Multi-Tenancy
 
-**Acceptance Criteria:**
+**Tenant Isolation**:
+- Unique tenant_id for each organization
+- Logical data partitioning (shared database)
+- Physical isolation for Enterprise tier (dedicated schema)
+- Row-level security enforcement
 
-*   Admin can configure CRUD (Create/Read/Update/Delete) permission per role per module
-*   Permission matrix organized by modules: User Management, Fleet Management, Trip Management, QC, Gate, Scaling, Loading/Unloading, Product Requisition, etc.
-*   Admin selects permissions from available permission matrix during role creation
-*   System validates role name uniqueness within tenant
-*   Newly created role immediately available for user assignment
-*   Admin can clone existing role permissions after creation
-*   Admin can deactivate (not delete) custom roles only if no users are assigned to them
-*   Admin can delete custom roles only if no users are currently assigned
-*   System prevents modification of pre-defined system roles (only custom roles can be edited)
+**Subscription Tiers**:
+- **Basic**: 5 users, 100 trips/month
+- **Starter**: 15 users, 500 trips/month
+- **Growth**: 50 users, 2,000 trips/month
+- **Enterprise**: Unlimited users/trips, dedicated infrastructure
 
-**Functional Requirements:**
+### 4.2 Organization Onboarding
 
-*   \[Critical\] Super Admin SHALL be able to create custom roles with granular permissions at runtime using Dynamic Role Builder.
-*   \[Critical\] Admins SHALL configure CRUD (Create, Read, Update, Delete) permission per role per module.
+**Registration Flow**:
+```
+Organization Details → Email/Phone Verification (OTP) →
+Tenant Provisioning → Admin Account Creation →
+Subscription Selection → Welcome Email
+```
 
-### Multi-Tenant Separation in RBAC
+**Verification**:
+- Dual OTP (email + SMS)
+- 10-minute validity
+- 3 attempts max
+- 15-minute lockout after failed attempts
 
-**Version 2.0**
+### 4.3 User Lifecycle
 
-**User Story:** _As a system, I want to enforce tenant-level isolation in role-based access control so that roles and permissions are scoped to individual organizations_.
+**Invitation**:
+- Admin invites users with role, department, workflow type
+- Invitation email sent with 72-hour activation link
+- User completes profile, sets password, verifies OTP
+- Account activated after T&C acceptance
 
-**Acceptance Criteria:**
+**Deactivation**:
+- **Temporary**: Suspended status, can be reactivated
+- **Permanent**: Inactive status, data archived
 
-*   All roles (pre-defined and custom) scoped to tenant level.
-*   Tenant Admin can only view and manage roles within their tenant
-*   User assigned to a role can only access data within their tenant
-*   Tenant ID automatically validated in all permission checks
-*   Custom roles created by one tenant not visible to other tenants
-*   Super Admin can view roles across all tenants for platform management
-*   Role-based queries automatically filter data by tenant context
-*   No cross-tenant role assignments possible (User from Tenant A cannot be assigned role from Tenant B)
+**Password Reset**:
+- **Admin-Assisted**: For low-literacy users, admin generates OTP after offline verification
+- **Self-Service**: User requests reset link via email (15 min validity)
 
-**Functional Requirements:**
+### 4.4 OTP Verification System
 
-*   \[Critical\] System SHALL implement logical and physical tenant data isolation
-*   \[Critical\] Each tenant SHALL have a unique tenant ID and dedicated database schema.
-*   \[Critical\] All user data (users, fleet, trips, vendors) SHALL be scoped to tenant ID.
-*   \[High\] The system SHALL prevent tenant ID tampering through request validation.
+**Specifications**:
+- 6-digit numeric code
+- 10-minute validity
+- Email and SMS delivery
+- 2-minute resend cooldown
+- Max 5 OTPs per hour per user
+- 3 verification attempts max
 
+### 4.5 Audit Logging
 
-## System Foundation & Security
+**Logged Events**:
+- All login/logout attempts
+- Account lockouts and unlocks
+- Password resets and changes
+- User invitation and activation
+- Role and permission changes
+- MFA and OTP verifications
 
-*   Multi-tenant organization signup and tenant isolation
-*   Organization Onboarding and tenant isolation
-*   User Authentication (login, session control, lockout policy)
-*   Role-Based Access Control (RBAC) with predefined roles
-*   User-role assignment by department (Transport, Distribution, Procurement, QC, Gate, Command Center)
-*   Audit Logging for user actions
+**Retention**:
+- Standard: 2 years
+- Compliance: 7 years (configurable)
+
+**Audit Log Access**:
+- Admin dashboard with filters
+- Export capabilities
+- Immutable records
+- Encrypted storage
+
+---
+
+## 5. Security & Compliance
+
+### 5.1 Security Standards
+
+**Password Security**:
+- Minimum 8 characters
+- Complexity requirements (uppercase, lowercase, number, special char)
+- Bcrypt hashing with tenant-specific salt
+- Password history (last 3 cannot be reused)
+- 90-day expiration (configurable)
+
+**Session Security**:
+- JWT tokens with short expiry
+- Refresh token rotation
+- Session binding to IP/device
+- Secure cookie storage (HttpOnly, Secure flags)
+
+**Data Security**:
+- Encryption at rest (AES-256)
+- Encryption in transit (TLS 1.3)
+- PII encryption
+- Secure key management
+
+### 5.2 Compliance Features
+
+**Audit Trail**:
+- Complete action history
+- Immutable logs
+- Timestamp and actor tracking
+- Exportable for compliance reporting
+
+**Data Privacy**:
+- GDPR-ready architecture
+- User data export
+- Right to deletion (with retention rules)
+- Data minimization
+
+**Access Control**:
+- Principle of least privilege
+- Separation of duties (cannot approve own requests)
+- Regular access reviews
+
+---
+
+## 6. Integration Points
+
+### 6.1 Internal Integrations
+
+The foundation layer provides services to all modules:
+
+**Authentication Service**:
+```
+authenticate(credentials) → { user, token, permissions }
+validateToken(token) → { user, permissions }
+refreshToken(refresh_token) → { new_access_token }
+```
+
+**Authorization Service**:
+```
+hasPermission(user, permission) → boolean
+getRolePermissions(role_id) → permissions[]
+validateTenantAccess(user, resource) → boolean
+```
+
+**Audit Service**:
+```
+logEvent(event_type, user_id, details) → audit_log_id
+queryAuditLogs(filters) → audit_logs[]
+```
+
+### 6.2 External Integrations
+
+**Email Gateway**:
+- Invitation emails
+- OTP delivery
+- Password reset links
+- Notification emails
+
+**SMS Gateway**:
+- OTP delivery
+- Alert notifications
+
+**Payment Processor** (Phase 2):
+- Subscription billing
+- Payment processing
+- Invoice generation
+
+---
+
+## 7. Performance & Scalability
+
+### 7.1 Performance Targets
+
+**Authentication**:
+- Login response: < 500ms
+- Token validation: < 50ms
+- Session refresh: < 200ms
+
+**Authorization**:
+- Permission check: < 10ms (cached)
+- Role load: < 100ms
+
+**User Management**:
+- User invitation: < 2s
+- OTP generation: < 1s
+- Account activation: < 3s
+
+### 7.2 Scalability
+
+**Horizontal Scaling**:
+- Stateless authentication (JWT)
+- Distributed session storage (Redis)
+- Load-balanced API servers
+
+**Caching Strategy**:
+- User permissions cached (5 min TTL)
+- Role definitions cached (1 hour TTL)
+- Tenant configuration cached (15 min TTL)
+
+**Database Optimization**:
+- Indexed tenant_id on all tables
+- Partitioned audit logs by month
+- Read replicas for reporting
+
+---
+
+## 8. Phase-wise Implementation
+
+### Phase 1 (MVP - Current)
+✅ User Login & Account Lockout  
+✅ Multi-Factor Authentication  
+✅ Session Control  
+✅ Role Hierarchy (Predefined Roles)  
+✅ User Invitation & Activation  
+✅ OTP Verification  
+✅ Account Deactivation  
+✅ Password Reset (Admin-Assisted + Self-Service)  
+✅ User Activity & Audit Logs  
+✅ Tenant Data Isolation  
+
+### Phase 2 (Enhancements)
+🔄 Dynamic Role Builder  
+🔄 Custom Permissions  
+🔄 Advanced Audit Analytics  
+🔄 SAML/SSO Integration  
+🔄 Advanced MFA (Authenticator apps)  
+
+### Phase 3 (Advanced)
+⏳ Passwordless Authentication  
+⏳ Biometric Authentication  
+⏳ Risk-Based Authentication  
+⏳ Advanced Threat Detection  
+
+---
+
+## 9. Related Documentation
+
+### Foundation Module Specifications
+- **[Authentication & Security](authentication-security.md)** - Detailed authentication spec
+- **[RBAC](rbac.md)** - Complete RBAC specification
+- **[User & Tenant Management](user-tenant-management.md)** - User lifecycle management
+
+### Related User Stories
+- US-001: User Login & Account Lockout
+- US-002: Multi-Factor Authentication
+- US-003: Session Control
+- US-004: Role Hierarchy & RBAC
+- US-005: User Invitation & Activation
+- US-006: OTP Verification
+- US-007: Account Deactivation
+- US-008: Password & Account Reset
+- US-009: User Activity & Audit Logs
+
+### Downstream Modules
+- [02-master-data](../02-master-data/README.md) - Master data management
+- [03-core-operations](../03-core-operations/README.md) - Core business operations
+- All other operational modules
+
+---
+
+## 10. Key Design Decisions
+
+### Multi-Tenancy Approach
+**Decision**: Hybrid model (logical isolation + physical for Enterprise)  
+**Rationale**: Balance between resource efficiency and data isolation needs
+
+### Authentication Method
+**Decision**: JWT-based stateless authentication  
+**Rationale**: Horizontal scalability, microservices-friendly
+
+### Permission Model
+**Decision**: Hierarchical module-feature-action structure  
+**Rationale**: Granular control with manageable complexity
+
+### Admin-Assisted Reset
+**Decision**: Support both self-service and admin-assisted password reset  
+**Rationale**: Accommodate users with varying digital literacy levels
+
+### Audit Retention
+**Decision**: 2-year standard, 7-year for compliance  
+**Rationale**: Balance storage costs with regulatory requirements
+
+---
+
+**Source**: PRD_DFMS_v1.0.md - Sections 6.1, 6.2  
+**Last Updated**: 2026-02-26  
+**Status**: Phase 1 - Core Foundation Complete
