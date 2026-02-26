@@ -15,12 +15,16 @@ This module defines the primary business workflows for the DFMS platform, coveri
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [product-requisition-management.md](product-requisition-management.md) | PR creation, approval workflows, capacity validation | 6.6 | US-010, US-011, US-012, US-013, US-014 |
-| [transport-requisition-management.md](transport-requisition-management.md) | TR assessment, TR-to-TO mapping, planner assignment | 6.7 | US-015, US-016 |
-| [transport-order-management.md](transport-order-management.md) | TO creation, fleet assignment, vendor/own fleet execution | 6.8 | US-017, US-018, US-019, US-020 |
-| [trip-management.md](trip-management.md) | Trip lifecycle (12 states), incident handling, trip closure, costing | 6.8 (partial) | US-021, US-022, US-023, US-025 |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [product-requisition-management.md](product-requisition-management.md) | Demand initiation layer for product transfers, dual workflow support (FG/Port), requester context, approval workflows (Distribution/Procurement), automatic TR generation, stock/capacity validation, destination breakdown planning | 6.6 | US-013, US-014, US-015, US-016, US-017 | 688 |
+| [transport-requisition-management.md](transport-requisition-management.md) | Orchestration layer between PR and TO, multi-stage review (DO→DM→TP), flexible fulfillment (partial allocations, multiple TRs per PR), transport input completion, C&F clearance for port transfers, TR-to-TO conversion strategies | 6.7 | US-017, US-018, US-019 | 803 |
+| [transport-order-management.md](transport-order-management.md) | Operational execution layer, single vehicle work orders, multiple allocation strategies (own fleet/vendor bidding/vendor contractual), bid management, vehicle-driver-helper assignment, TO-to-Trip conversion, resource validation | 6.8 | US-019, US-020, US-021, US-022, US-023, US-024, US-025 | 849 |
+| [trip-management.md](trip-management.md) | Field execution layer, complete journey lifecycle (assigned→completed), gate tracking, loading/unloading confirmation, GPS tracking, geofencing, POD capture, automatic trip closure (QC+POD+gate-out), trip costing (own fleet vs vendor), incident management, vendor portal visibility | 6.8 (partial) | US-025, US-026, US-027, US-028, US-029, US-030, US-031, US-032 | 935 |
+
+**Total Documentation**: ~3,275 lines of comprehensive technical specifications
 
 ---
 

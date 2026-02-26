@@ -9,11 +9,11 @@
 
 | Status | Files | Percentage |
 |--------|-------|------------|
-| ✅ Completed | 7 | 18% |
+| ✅ Completed | 11 | 29% |
 | 🔄 In Progress | 0 | 0% |
-| ⏳ Remaining | 31 | 82% |
+| ⏳ Remaining | 27 | 71% |
 
-**Total Lines Transformed**: ~4,900 lines of comprehensive technical documentation
+**Total Lines Transformed**: ~8,175 lines of comprehensive technical documentation
 
 ---
 
@@ -55,27 +55,40 @@
    - Bulk data management, referential integrity
    - Data quality and audit logging
 
+### ✅ 03-core-operations (4 files - 3,275 lines)
+1. **product-requisition-management.md** (688 lines)
+   - Demand initiation layer, dual workflow (FG/Port)
+   - Stock/capacity validation, approval workflows
+   - Automatic TR generation, destination breakdown
+
+2. **transport-requisition-management.md** (803 lines)
+   - Orchestration layer (PR→TR→TO)
+   - Multi-stage review (DO→DM→TP), flexible fulfillment
+   - C&F clearance, TR-to-TO conversion strategies
+
+3. **transport-order-management.md** (849 lines)
+   - Operational execution layer, single vehicle work orders
+   - Multiple allocation strategies (own fleet/vendor bidding/contractual)
+   - Bid management, TO-to-Trip conversion
+
+4. **trip-management.md** (935 lines)
+   - Field execution layer, complete journey lifecycle
+   - Gate tracking, GPS, geofencing, POD capture
+   - Automatic closure, trip costing, incident management
+
 ---
 
-## Remaining Modules (31 files)
+## Remaining Modules (27 files)
 
 ### 🎯 High Priority - Critical Workflows
 
-#### 03-core-operations (4 files)
-- product-requisition-management.md (29 lines current - needs expansion)
-- transport-requisition-management.md (177 lines current - needs transformation)
-- transport-order-management.md (86 lines current - needs transformation)
-- trip-management.md (large file - needs transformation)
-
-**Status**: Started, 0 files completed
-
-#### 04-operations-support (4 files)
+#### 04-operations-support (4 files) - NEXT
 - gate-management.md
 - scaling-management.md
 - command-center.md
 - qc-workflow.md
 
-**Status**: Not started
+**Status**: Ready to start
 
 #### 09-non-functional (3 files)
 - non-functional-requirements.md
