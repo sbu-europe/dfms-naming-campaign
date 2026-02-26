@@ -15,10 +15,14 @@ Business intelligence, reports, dashboards, and KPIs
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [reporting.md](reporting.md) | Standard reports: Trip, Fleet, Vendor, Financial | 6.13.1 | Integrated |
-| [analytics.md](analytics.md) | Dashboards, KPIs, trend analysis | 6.13.2 | Integrated |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [reporting.md](reporting.md) | Pre-built operational reports for transport managers (Trip Summary, Trip Delay, Trip Turnaround Time, Vendor Performance, Fleet Utilization) with filters, exports (CSV/Excel/PDF), scheduled delivery, role-based access, SLA breach tracking, bottleneck identification through milestone analysis | 6.13.1 | US-098, US-099, US-100, US-101, US-102 | 544 |
+| [analytics.md](analytics.md) | Interactive analytics dashboards with real-time visualizations (Executive Dashboard for C-level KPIs, Operations Dashboard for real-time monitoring, Vendor Analytics for performance trends, Fleet Analytics for utilization/maintenance, QC Analytics for quality trends), WebSocket updates, drill-down capability, role-based views | 6.13.2 | US-103, US-104, US-105, US-106, US-107 | 380 |
+
+**Total Documentation**: ~924 lines of comprehensive technical specifications
 
 ---
 
