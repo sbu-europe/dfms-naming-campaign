@@ -56,8 +56,8 @@ Mobile Interface (Driver / QC) provides essential functionality for the DFMS pla
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Mobile for TO + QC
-- **EPIC-014**: [See EPIC-014](./epic-014-quality-control-and-quality-assurance-workflow.md) - Mobile for TO + QC
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md) - Mobile for TO + QC
+- **EPIC-014**: [See EPIC-014](./EPIC-014-quality-control-and-quality-assurance-workflow.md) - Mobile for TO + QC
 
 ### Blocks
 - **None** - This epic does not block other epics
@@ -71,6 +71,9 @@ This epic includes **2 user stories**:
 | [US-092](../user-stories/US-092-trip-management-driver-interface.md) | Trip Management - Driver Interface |
 | [US-093](../user-stories/US-093-qc-interface.md) | QC Interface |
 
+**Total**: 90 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

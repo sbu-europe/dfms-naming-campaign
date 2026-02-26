@@ -56,12 +56,12 @@ Product Transfer Requisition Management provides essential functionality for the
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md) - PR needs master data
-- **EPIC-005**: [See EPIC-005](./epic-005-product-inventory-management-pim.md) - PR needs product data
+- **EPIC-003**: [See EPIC-003](./EPIC-003-master-data-and-configuration.md) - PR needs master data
+- **EPIC-005**: [See EPIC-005](./EPIC-005-product-inventory-management-pim.md) - PR needs product data
 
 
 ### Blocks
-- **EPIC-008**: [See EPIC-008](./epic-008-distribution-and-procurement-management.md)
+- **EPIC-008**: [See EPIC-008](./EPIC-008-distribution-and-procurement-management.md)
 
 ### Critical Path
 This epic is on the critical path: **EPIC-001 → EPIC-002 → EPIC-003 → EPIC-007 → EPIC-008 → EPIC-009 → EPIC-014**
@@ -74,11 +74,14 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-026](../user-stories/US-026-requisition-transfer-type-configuration.md) | Requisition Transfer Type Configuration |
-| [US-027](../user-stories/US-027-unified-product-requisition-pr-creation-by-requester-team.md) | Unified Product Requisition (PR) Creation by Requester Team |
-| [US-028](../user-stories/US-028-finished-goods-transfer-requisition-creation-depot-feed-mill.md) | Finished Goods Transfer Requisition Creation (Depot / Feed Mill → Distribution) |
-| [US-029](../user-stories/US-029-port-lc-based-transfer-requisition-creation-commercial-procu.md) | Port (LC-Based) Transfer Requisition Creation (Commercial → Procurement) |
+| [US-026](../user-stories/US-026-realtime-map-dashboard.md) | Requisition Transfer Type Configuration |
+| [US-027](../user-stories/US-027-vendor-registration-verification.md) | Unified Product Requisition (PR) Creation by Requester Team |
+| [US-028](../user-stories/US-028-vendor-performance-tracking.md) | Finished Goods Transfer Requisition Creation (Depot / Feed Mill → Distribution) |
+| [US-029](../user-stories/US-029-vendor-payment-management.md) | Port (LC-Based) Transfer Requisition Creation (Commercial → Procurement) |
 
+**Total**: 50 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

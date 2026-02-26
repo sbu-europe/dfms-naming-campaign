@@ -56,14 +56,14 @@ Master Data & Configuration provides essential functionality for the DFMS platfo
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-001**: [See EPIC-001](./epic-001-system-foundation.md) - Master data needs user access
-- **EPIC-002**: [See EPIC-002](./epic-002-user-and-tenant-foundation.md) - Master data needs user access
+- **EPIC-001**: [See EPIC-001](./EPIC-001-system-foundation.md) - Master data needs user access
+- **EPIC-002**: [See EPIC-002](./EPIC-002-user-and-tenant-foundation.md) - Master data needs user access
 
 ### Blocks
-- **EPIC-004**: [See EPIC-004](./epic-004-poi-management-and-geofencing.md)
-- **EPIC-005**: [See EPIC-005](./epic-005-product-inventory-management-pim.md)
-- **EPIC-006**: [See EPIC-006](./epic-006-fleet-and-vehicle-management.md)
-- **EPIC-007**: [See EPIC-007](./epic-007-product-transfer-requisition-management.md)
+- **EPIC-004**: [See EPIC-004](./EPIC-004-poi-management-and-geofencing.md)
+- **EPIC-005**: [See EPIC-005](./EPIC-005-product-inventory-management-pim.md)
+- **EPIC-006**: [See EPIC-006](./EPIC-006-fleet-and-vehicle-management.md)
+- **EPIC-007**: [See EPIC-007](./EPIC-007-product-transfer-requisition-management.md)
 
 ### Critical Path
 This epic is on the critical path: **EPIC-001 → EPIC-002 → EPIC-003 → EPIC-007 → EPIC-008 → EPIC-009 → EPIC-014**
@@ -76,11 +76,14 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-010](../user-stories/US-010-master-entity-registration.md) | Master Entity Registration |
-| [US-011](../user-stories/US-011-bulk-upload-inline-master-data-management.md) | Bulk Upload & Inline Master Data Management |
-| [US-012](../user-stories/US-012-master-crud-operations.md) | Master CRUD Operations |
-| [US-013](../user-stories/US-013-data-consistency-referential-control.md) | Data Consistency Referential Control |
+| [US-010](../user-stories/US-010-port-transfer-requisition.md) | Master Entity Registration |
+| [US-011](../user-stories/US-011-distribution-approval.md) | Bulk Upload & Inline Master Data Management |
+| [US-012](../user-stories/US-012-procurement-approval.md) | Master CRUD Operations |
+| [US-013](../user-stories/US-013-stock-validation.md) | Data Consistency Referential Control |
 
+**Total**: 50 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

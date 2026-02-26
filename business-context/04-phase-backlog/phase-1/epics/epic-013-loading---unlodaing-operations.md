@@ -56,12 +56,12 @@ Loading / Unlodaing Operations provides essential functionality for the DFMS pla
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Loading after gate+weigh
-- **EPIC-011**: [See EPIC-011](./epic-011-gate-management.md) - Loading after gate+weigh
-- **EPIC-012**: [See EPIC-012](./epic-012-scaling---weight-management.md) - Loading after gate+weigh
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md) - Loading after gate+weigh
+- **EPIC-011**: [See EPIC-011](./EPIC-011-gate-management.md) - Loading after gate+weigh
+- **EPIC-012**: [See EPIC-012](./EPIC-012-scaling---weight-management.md) - Loading after gate+weigh
 
 ### Blocks
-- **EPIC-014**: [See EPIC-014](./epic-014-quality-control-and-quality-assurance-workflow.md)
+- **EPIC-014**: [See EPIC-014](./EPIC-014-quality-control-and-quality-assurance-workflow.md)
 
 ---
 
@@ -72,6 +72,9 @@ This epic includes **2 user stories**:
 | [US-075](../user-stories/US-075-load-start-end-time-entry.md) | Load Start/End Date & Time Entry |
 | [US-076](../user-stories/US-076-unload-start-end-time-entry.md) | Unload Start/End Date & Time Entry |
 
+**Total**: 20 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

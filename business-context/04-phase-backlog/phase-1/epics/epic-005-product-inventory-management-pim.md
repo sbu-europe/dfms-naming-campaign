@@ -56,11 +56,11 @@ Product Inventory Management (PIM) provides essential functionality for the DFMS
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md) - Products require master data
+- **EPIC-003**: [See EPIC-003](./EPIC-003-master-data-and-configuration.md) - Products require master data
 
 ### Blocks
-- **EPIC-007**: [See EPIC-007](./epic-007-product-transfer-requisition-management.md)
-- **EPIC-014**: [See EPIC-014](./epic-014-quality-control-and-quality-assurance-workflow.md)
+- **EPIC-007**: [See EPIC-007](./EPIC-007-product-transfer-requisition-management.md)
+- **EPIC-014**: [See EPIC-014](./EPIC-014-quality-control-and-quality-assurance-workflow.md)
 
 ---
 
@@ -68,10 +68,13 @@ Product Inventory Management (PIM) provides essential functionality for the DFMS
 
 This epic includes **3 user stories**:
 
-| [US-023](../user-stories/US-023-product-master-data.md) | Product Master Data |
-| [US-024](../user-stories/US-024-catalogue-design.md) | Catalogue Design |
-| [US-025](../user-stories/US-025-product-configuration-transport-qc-attribute-mapping.md) | Product Configuration – Transport & QC Attribute Mapping |
+| [US-023](../user-stories/US-023-incident-management.md) | Product Master Data |
+| [US-024](../user-stories/US-024-vendor-bidding-portal.md) | Catalogue Design |
+| [US-025](../user-stories/US-025-trip-closure-pod.md) | Product Configuration – Transport & QC Attribute Mapping |
 
+**Total**: 30 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

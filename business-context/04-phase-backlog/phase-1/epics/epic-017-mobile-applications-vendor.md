@@ -56,8 +56,8 @@ Mobile Applications (Vendor) provides essential functionality for the DFMS platf
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-010**: [See EPIC-010](./epic-010-vendor-management.md) - Vendor mobile for TO
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Vendor mobile for TO
+- **EPIC-010**: [See EPIC-010](./EPIC-010-vendor-management.md) - Vendor mobile for TO
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md) - Vendor mobile for TO
 
 ### Blocks
 - **None** - This epic does not block other epics
@@ -70,6 +70,9 @@ This epic includes **1 user stories**:
 
 | [US-094](../user-stories/US-094-vendor-application-access.md) | Vendor Application Access |
 
+**Total**: 90 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

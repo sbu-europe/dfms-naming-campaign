@@ -57,15 +57,15 @@ Transport Order (TO) Management provides essential functionality for the DFMS pl
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-006**: [See EPIC-006](./epic-006-fleet-and-vehicle-management.md) - TO needs TR + Fleet
-- **EPIC-007**: [See EPIC-007](./epic-007-product-transfer-requisition-management.md) - TO needs TR + Fleet
-- **EPIC-008**: [See EPIC-008](./epic-008-distribution-and-procurement-management.md) - TO needs TR + Fleet
+- **EPIC-006**: [See EPIC-006](./EPIC-006-fleet-and-vehicle-management.md) - TO needs TR + Fleet
+- **EPIC-007**: [See EPIC-007](./EPIC-007-product-transfer-requisition-management.md) - TO needs TR + Fleet
+- **EPIC-008**: [See EPIC-008](./EPIC-008-distribution-and-procurement-management.md) - TO needs TR + Fleet
 
 ### Blocks
-- **EPIC-011**: [See EPIC-011](./epic-011-gate-management.md)
-- **EPIC-012**: [See EPIC-012](./epic-012-scaling---weight-management.md)
-- **EPIC-013**: [See EPIC-013](./epic-013-loading---unlodaing-operations.md)
-- **EPIC-014**: [See EPIC-014](./epic-014-quality-control-and-quality-assurance-workflow.md)
+- **EPIC-011**: [See EPIC-011](./EPIC-011-gate-management.md)
+- **EPIC-012**: [See EPIC-012](./EPIC-012-scaling---weight-management.md)
+- **EPIC-013**: [See EPIC-013](./EPIC-013-loading---unlodaing-operations.md)
+- **EPIC-014**: [See EPIC-014](./EPIC-014-quality-control-and-quality-assurance-workflow.md)
 
 ### Critical Path
 This epic is on the critical path: **EPIC-001 → EPIC-002 → EPIC-003 → EPIC-007 → EPIC-008 → EPIC-009 → EPIC-014**
@@ -78,19 +78,22 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **12 user stories**:
 
-| [US-035](../user-stories/US-035-tr-transport-request-assessment.md) | TR (transport Request) Assessment |
-| [US-036](../user-stories/US-036-create-transport-order-to-for-fg-transfer.md) | Create Transport Order (TO) for FG Transfer |
-| [US-037](../user-stories/US-037-create-transport-order-to-for-port-consignment-transfer.md) | Create Transport Order (TO) for Port Consignment Transfer |
-| [US-038](../user-stories/US-038-to-execution-own-fleet-tdo-own-fleet.md) | TO Execution - Own Fleet (TDO - Own Fleet) |
-| [US-039](../user-stories/US-039-to-execution-vendor-fleet-tdo-vendor-fleet-contractual-vendo.md) | TO Execution - Vendor Fleet (TDO - Vendor Fleet) - Contractual vendor |
-| [US-040](../user-stories/US-040-to-execution-vendor-fleet-tdo-vendor-fleet-non-contractual-v.md) | TO Execution - Vendor Fleet (TDO - Vendor Fleet) - Non-Contractual vendor |
-| [US-041](../user-stories/US-041-vendor-execution-confirmation.md) | Vendor Execution & Confirmation |
-| [US-042](../user-stories/US-042-fleet-availability-validation-own-fleet.md) | Fleet Availability Validation (Own Fleet) |
-| [US-043](../user-stories/US-043-to-lifecycle-management.md) | TO Lifecycle Management |
-| [US-044](../user-stories/US-044-transport-dashboard-map-based-dashboard.md) | Transport Dashboard - Map-Based Dashboard |
-| [US-045](../user-stories/US-045-trip-closure-proof-of-delivery.md) | Trip Closure & Proof of Delivery |
-| [US-046](../user-stories/US-046-trip-costing.md) | Trip Costing |
+| [US-035](../user-stories/US-035-gate-in-source.md) | TR (Transport Request) Assessment |
+| [US-036](../user-stories/US-036-gate-out-source.md) | Create Transport Order (TO) for FG Transfer |
+| [US-037](../user-stories/US-037-gate-in-destination.md) | Create Transport Order (TO) for Port Consignment Transfer |
+| [US-038](../user-stories/US-038-gate-out-destination.md) | TO Execution - Own Fleet (TDO - Own Fleet) |
+| [US-039](../user-stories/US-039-scaling-source.md) | TO Execution - Vendor Fleet (TDO - Vendor Fleet) - Contractual vendor |
+| [US-040](../user-stories/US-040-scaling-destination.md) | TO Execution - Vendor Fleet (TDO - Vendor Fleet) - Non-Contractual vendor |
+| [US-041](../user-stories/US-041-loading-operations.md) | Vendor Execution & Confirmation |
+| [US-042](../user-stories/US-042-unloading-operations.md) | Fleet Availability Validation (Own Fleet) |
+| [US-043](../user-stories/US-043-command-center-monitoring.md) | TO Lifecycle Management |
+| [US-044](../user-stories/US-044-qc-lab-testing.md) | Transport Dashboard - Map-Based Dashboard |
+| [US-045](../user-stories/US-045-qc-sample-collection.md) | Trip Closure & Proof of Delivery |
+| [US-046](../user-stories/US-046-qc-test-configuration.md) | Trip Costing |
 
+**Total**: 90 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

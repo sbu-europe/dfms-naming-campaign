@@ -56,11 +56,11 @@ Scaling / Weight Management provides essential functionality for the DFMS platfo
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Weighing after gate
-- **EPIC-011**: [See EPIC-011](./epic-011-gate-management.md) - Weighing after gate
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md) - Weighing after gate
+- **EPIC-011**: [See EPIC-011](./EPIC-011-gate-management.md) - Weighing after gate
 
 ### Blocks
-- **EPIC-013**: [See EPIC-013](./epic-013-loading---unlodaing-operations.md)
+- **EPIC-013**: [See EPIC-013](./EPIC-013-loading---unlodaing-operations.md)
 
 ---
 
@@ -72,6 +72,9 @@ This epic includes **3 user stories**:
 | [US-069](../user-stories/US-069-queue-token-generation.md) | Queue Token Generation |
 | [US-070](../user-stories/US-070-weight-exit.md) | Weight Exit |
 
+**Total**: 25 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

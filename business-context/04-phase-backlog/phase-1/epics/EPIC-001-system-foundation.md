@@ -59,9 +59,9 @@ System Foundation provides essential functionality for the DFMS platform. This e
 - **None** - This epic has no dependencies
 
 ### Blocks
-- **EPIC-002**: [See EPIC-002](./epic-002-user-and-tenant-foundation.md)
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md)
-- **EPIC-006**: [See EPIC-006](./epic-006-fleet-and-vehicle-management.md)
+- **EPIC-002**: [See EPIC-002](./EPIC-002-user-and-tenant-foundation.md)
+- **EPIC-003**: [See EPIC-003](./EPIC-003-master-data-and-configuration.md)
+- **EPIC-006**: [See EPIC-006](./EPIC-006-fleet-and-vehicle-management.md)
 ### Critical Path
 This epic is on the critical path: **EPIC-001 → EPIC-002 → EPIC-003 → EPIC-007 → EPIC-008 → EPIC-009 → EPIC-014**
 
@@ -78,6 +78,9 @@ This epic includes **4 user stories**:
 | [US-003](../user-stories/US-003-session-control.md) | Session Control |
 | [US-004](../user-stories/US-004-role-hierarchy.md) | Role Hierarchy |
 
+**Total**: 40 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

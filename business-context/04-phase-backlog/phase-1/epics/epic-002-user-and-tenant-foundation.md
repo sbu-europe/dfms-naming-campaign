@@ -56,10 +56,10 @@ User & Tenant Foundation provides essential functionality for the DFMS platform.
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-001**: [See EPIC-001](./epic-001-system-foundation.md) - User management requires authentication
+- **EPIC-001**: [See EPIC-001](./EPIC-001-system-foundation.md) - User management requires authentication
 
 ### Blocks
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md)
+- **EPIC-003**: [See EPIC-003](./EPIC-003-master-data-and-configuration.md)
 
 ### Critical Path
 This epic is on the critical path: **EPIC-001 → EPIC-002 → EPIC-003 → EPIC-007 → EPIC-008 → EPIC-009 → EPIC-014**
@@ -78,6 +78,9 @@ This epic includes **5 user stories**:
 | [US-008](../user-stories/US-008-password-account-reset.md) | Password & Account Reset |
 | [US-009](../user-stories/US-009-user-activity-audit-logs.md) | User Activity & Audit Logs |
 
+**Total**: 40 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

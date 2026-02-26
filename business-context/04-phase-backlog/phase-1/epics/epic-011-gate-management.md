@@ -56,10 +56,10 @@ Gate Management provides essential functionality for the DFMS platform. This epi
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Gate tracks TOs
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md) - Gate tracks TOs
 
 ### Blocks
-- **EPIC-012**: [See EPIC-012](./epic-012-scaling---weight-management.md)
+- **EPIC-012**: [See EPIC-012](./EPIC-012-scaling---weight-management.md)
 
 ---
 
@@ -73,6 +73,9 @@ This epic includes **5 user stories**:
 | [US-066](../user-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
 | [US-067](../user-stories/US-067-remarks-logging.md) | Remarks Logging |
 
+**Total**: 35 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 

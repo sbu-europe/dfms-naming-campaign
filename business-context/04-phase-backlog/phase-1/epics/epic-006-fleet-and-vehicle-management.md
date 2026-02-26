@@ -56,11 +56,11 @@ Fleet & Vehicle Management provides essential functionality for the DFMS platfor
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-001**: [See EPIC-001](./epic-001-system-foundation.md) - Fleet requires master data
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md) - Fleet requires master data
+- **EPIC-001**: [See EPIC-001](./EPIC-001-system-foundation.md) - Fleet requires master data
+- **EPIC-003**: [See EPIC-003](./EPIC-003-master-data-and-configuration.md) - Fleet requires master data
 
 ### Blocks
-- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md)
+- **EPIC-009**: [See EPIC-009](./EPIC-009-transport-order-to-management.md)
 
 ---
 
@@ -69,16 +69,19 @@ Fleet & Vehicle Management provides essential functionality for the DFMS platfor
 This epic includes **10 user stories**:
 
 | [US-053](../user-stories/US-053-vehicle-registration-master-data.md) | Vehicle Registration & Master Data Management |
-| [US-054](../user-stories/US-054-vehicle-license-health-management.md) | Vehicle License & Health Management |
-| [US-055](../user-stories/US-055-vehicle-status-matrix-availability.md) | Vehicle Status Matrix & Availability |
-| [US-056](../user-stories/US-056-vehicle-and-resource-assignement.md) | Vehicle and Resource Assignement |
+| [US-054](../user-stories/US-054-qc-audit-trail.md) | Vehicle License & Health Management |
+| [US-055](../user-stories/US-055-qc-vendor-quality-tracking.md) | Vehicle Status Matrix & Availability |
+| [US-056](../user-stories/US-056-qc-compliance-reporting.md) | Vehicle and Resource Assignment |
 | [US-057](../user-stories/US-057-driver-master-data.md) | Driver Master Data |
-| [US-058](../user-stories/US-058-driver-vehicle-assignment.md) | Driver-Vehicle Assignment |
-| [US-059](../user-stories/US-059-driver-state-tracking.md) | Driver State Tracking |
-| [US-060](../user-stories/US-060-driver-availability-status-tracking.md) | Driver Availability Status Tracking |
+| [US-058](../user-stories/US-058-fuel-management.md) | Driver-Vehicle Assignment |
+| [US-059](../user-stories/US-059-trip-cost-calculation.md) | Driver State Tracking |
+| [US-060](../user-stories/US-060-profitability-analysis.md) | Driver Availability Status Tracking |
 | [US-061](../user-stories/US-061-helper-profile.md) | Helper Profile |
 | [US-062](../user-stories/US-062-helper-assignment.md) | Helper Assignment |
 
+**Total**: 80 Story Points
+
+---
 
 ## Epic Acceptance Criteria
 
