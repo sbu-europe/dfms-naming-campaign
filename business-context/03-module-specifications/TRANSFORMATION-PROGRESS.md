@@ -9,11 +9,11 @@
 
 | Status | Files | Percentage |
 |--------|-------|------------|
-| ✅ Completed | 15 | 39% |
+| ✅ Completed | 18 | 47% |
 | 🔄 In Progress | 0 | 0% |
-| ⏳ Remaining | 23 | 61% |
+| ⏳ Remaining | 20 | 53% |
 
-**Total Lines Transformed**: ~11,635 lines of comprehensive technical documentation
+**Total Lines Transformed**: ~13,900 lines of comprehensive technical documentation
 
 ---
 
@@ -97,17 +97,35 @@
    - Real-time queue management, task assignment
    - On-demand TO creation, exception handling, performance dashboards
 
+### ✅ 05-vendor-management (3 files - 2,265 lines)
+1. **vendor-onboarding.md** (715 lines)
+   - Vendor lifecycle entry point, self-registration
+   - Vendor type differentiation (Contractual/Non-Contractual)
+   - Document verification, admin approval workflow
+   - Profile management (vehicles/drivers), access control
+
+2. **vendor-bidding.md** (786 lines)
+   - Competitive procurement layer for Non-Contractual vendors
+   - TO publication, structured bid submission
+   - Side-by-side bid comparison, automated ranking
+   - Blind bidding, immutable bids, bid award notifications
+
+3. **vendor-portal.md** (764 lines)
+   - Vendor-facing web/mobile interface
+   - Available bids view, assigned TOs, trip tracking
+   - Post-award vehicle/driver assignment
+   - Real-time notifications, profile management
+
 ---
 
-## Remaining Modules (23 files)
+## Remaining Modules (20 files)
 
 ### 🎯 High Priority - Critical Workflows
 
-#### 05-vendor-management (4 files) - NEXT
-- vendor-bidding.md
-- vendor-portal.md
-- vendor-performance.md
-- vendor-billing.md
+#### 06-fleet-management (3 files) - NEXT
+- fleet-allocation.md
+- driver-assignment.md
+- vehicle-maintenance.md
 
 **Status**: Ready to start
 

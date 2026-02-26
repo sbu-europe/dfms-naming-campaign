@@ -15,11 +15,15 @@ Vendor ecosystem management including onboarding, bidding, and portal operations
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [vendor-onboarding.md](vendor-onboarding.md) | Vendor registration, verification, document management | 6.11.1-6.11.2 | US-027, US-047 |
-| [vendor-bidding.md](vendor-bidding.md) | Bidding portal, bid submission, evaluation, allocation | 6.11.3-6.11.4 | US-024 |
-| [vendor-portal.md](vendor-portal.md) | Vendor self-service portal, TO visibility, trip tracking | 6.11.5-6.11.7 | US-031, US-094 |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [vendor-onboarding.md](vendor-onboarding.md) | Vendor lifecycle entry point, self-registration via web/mobile, vendor type differentiation (Contractual/Non-Contractual), document verification (Trade License/BIN/TIN), admin approval workflow, profile management (vehicles/drivers), access control, resubmission support, audit trail | 6.11.1-6.11.2 | US-064, US-065, US-066, US-067, US-068, US-069 | 715 |
+| [vendor-bidding.md](vendor-bidding.md) | Competitive procurement layer for Non-Contractual vendors, TO publication by Transport Planners, structured bid submission (rate/vehicle availability), side-by-side bid comparison, automated ranking (rate + performance), blind bidding (confidentiality), immutable bids, bid award notifications, winning log tracking | 6.11.3-6.11.4 | US-070, US-071, US-072, US-073, US-074 | 786 |
+| [vendor-portal.md](vendor-portal.md) | Vendor-facing web/mobile interface, centralized dashboard, available bids view (Non-Contractual), assigned TOs view (Contractual/winners), post-award vehicle/driver assignment, real-time trip tracking, completed trips history, profile management, real-time TO/Trip notifications, mobile responsive | 6.11.5-6.11.7 | US-075, US-076, US-077, US-078, US-079, US-080, US-081 | 764 |
+
+**Total Documentation**: ~2,265 lines of comprehensive technical specifications
 
 ---
 
