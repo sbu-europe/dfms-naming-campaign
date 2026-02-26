@@ -1,212 +1,366 @@
-# DFMS Business Context - Complete Index
+# DFMS Module Specifications - Complete Index
 
-This index provides a comprehensive mapping of all PRD content organized by module and feature area.
+This index provides a comprehensive mapping of all module specifications, cross-references, dependencies, and user story mappings.
 
-## 📊 Extraction Status
+**Last Updated**: 2026-02-26
 
-- **Total Folders**: 12
-- **Total Files**: ~40+ markdown files
+---
+
+## 📊 Overview Statistics
+
+- **Total Modules**: 12
+- **Total Specification Files**: 41 markdown files
+- **Module README Files**: 12 (one per module)
 - **Source**: PRD_DFMS_v1.0.md (5,362 lines)
-- **Extraction Date**: 2026-02-13
-
-## 🗂️ Complete Folder Structure
-
-### 00-overview/
-**Purpose**: Product vision, scope, objectives, stakeholders
-
-- `product-vision.md` - Document purpose, product vision, value proposition
-- `scope.md` - In-scope, out-of-scope, assumptions, dependencies
-- `business-objectives.md` - Primary objectives, challenges, business impact
-- `user-personas.md` - Internal users, external users, role framework
-
-**PRD Sections**: 1-4
+- **Related User Stories**: 95 stories in Phase-1 backlog
 
 ---
 
-### 01-foundation/
-**Purpose**: System foundation, authentication, RBAC, tenant management
+## 🗂️ Complete Module Structure
 
-- `system-foundation.md` - System Foundation overview
-- `authentication-security.md` - Authentication, 2FA, Session Control
-- `rbac.md` - Role-based Access Control, Dynamic Role Builder, Multi-Tenant RBAC
-- `user-tenant-management.md` - User & Tenant Management
+### [00-overview/](00-overview/README.md) - Product Overview & Context
+**Purpose**: Product vision, scope, objectives, stakeholders  
+**PRD Sections**: 1-4  
+**Phase**: All  
+**Dependencies**: None (foundational documentation)
 
-**PRD Sections**: 6.1, 6.2
+#### Specifications
+- [product-vision.md](00-overview/product-vision.md) - Document purpose, product vision, value proposition
+- [scope.md](00-overview/scope.md) - In-scope, out-of-scope, assumptions, dependencies
+- [business-objectives.md](00-overview/business-objectives.md) - Primary objectives, challenges, business impact
+- [user-personas.md](00-overview/user-personas.md) - Internal users, external users, role framework
 
-**Dependencies**: None (Foundation layer)
-
----
-
-### 02-master-data/
-**Purpose**: Master data configuration and management
-
-- `master-data-configuration.md` - Master Data Configuration
-- `product-inventory-management.md` - Product Inventory Management (PIM)
-- `poi-management.md` - POI Management & Geofencing
-
-**PRD Sections**: 6.3, 6.4, 6.5
-
-**Dependencies**: 01-foundation/
+#### Cross-References
+- **Informs**: All modules (provides business context)
+- **Referenced by**: `01-foundation/` (user roles), `10-phases/` (roadmap)
 
 ---
 
-### 03-core-operations/
-**Purpose**: Core business workflows (PRM, TR, TO, Trip)
+### [01-foundation/](01-foundation/README.md) - System Foundation
+**Purpose**: Authentication, security, RBAC, tenant management  
+**PRD Sections**: 6.1, 6.2  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: None (foundation layer)
 
-- `product-requisition-management.md` - Product Requisition Management
-- `transport-requisition-management.md` - Transport Requisition (TR) Management
-- `transport-order-management.md` - Transport Order (TO) Management
-- `trip-management.md` - Trip Management, Trip Closure, Trip Costing
+#### Specifications
+- [authentication-security.md](01-foundation/authentication-security.md) - Authentication, 2FA, Session Control
+- [rbac.md](01-foundation/rbac.md) - Role-based Access Control, Dynamic Role Builder
+- [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
+- [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 
-**PRD Sections**: 6.6, 6.7, 6.8
+#### Related User Stories
+- US-001: User Login & Account Lockout
+- US-002: Multi-Factor Authentication
+- US-003: Session Control
+- US-004: Role Hierarchy & RBAC
+- US-005: User Invitation & Activation
+- US-006: OTP Verification
+- US-007: Account Deactivation
+- US-008: Password & Account Reset
+- US-009: User Activity & Audit Logs
 
-**Dependencies**: 02-master-data/
-
----
-
-### 04-operations-support/
-**Purpose**: Supporting operational workflows
-
-- `gate-management.md` - Gate-In, Gate-Out, On-Demand TO Creation
-- `scaling-management.md` - Scale-In, Scale-Out, Queue Token
-- `command-center.md` - Command Center Operations
-- `qc-workflow.md` - Quality Control Workflow
-
-**PRD Sections**: 6.9, 6.10
-
-**Dependencies**: 03-core-operations/
-
----
-
-### 05-vendor-management/
-**Purpose**: Vendor ecosystem management
-
-- `vendor-onboarding.md` - Vendor Onboarding & Registration
-- `vendor-bidding.md` - Vendor Bidding Portal, Bid Evaluation
-- `vendor-portal.md` - Vendor Portal, Real-time TO Updates
-
-**PRD Sections**: 6.11
-
-**Dependencies**: 03-core-operations/
+#### Cross-References
+- **Required by**: All operational modules
+- **Provides**: User context, authentication, authorization, audit trail
 
 ---
 
-### 06-fleet-management/
-**Purpose**: Fleet, vehicle, driver, helper management
+### [02-master-data/](02-master-data/README.md) - Master Data Management
+**Purpose**: Core master data configuration and management  
+**PRD Sections**: 6.3, 6.4, 6.5  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: `01-foundation/`
 
-- `vehicle-management.md` - Fleet & Vehicle Management
-- `driver-management.md` - Driver Registration & Management
-- `helper-management.md` - Helper Profile & Assignment
-- `fuel-management.md` - Fuel Management System
+#### Specifications
+- [master-data-configuration.md](02-master-data/master-data-configuration.md) - Master Data Configuration
+- [product-inventory-management.md](02-master-data/product-inventory-management.md) - Product Inventory Management (PIM)
+- [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
 
-**PRD Sections**: 6.6 (partial), 6.10 (partial)
+#### Related User Stories
+- US-014: Capacity Checking and Warnings
+- US-053: Vehicle Registration & Master Data
+- US-057: Driver Master Data
+- US-061: Helper Profile
+- US-047: Vendor Registration
 
-**Dependencies**: 02-master-data/
-
----
-
-### 07-mobile-interfaces/
-**Purpose**: Mobile applications and interfaces
-
-- `driver-mobile.md` - Driver Mobile Interface
-- `qc-mobile.md` - QC Supervisor Mobile Interface
-- `vendor-mobile.md` - Vendor Mobile Application
-
-**PRD Sections**: 6.12
-
-**Dependencies**: 03-core-operations/, 04-operations-support/, 05-vendor-management/
+#### Cross-References
+- **Depends on**: `01-foundation/` (RBAC, audit)
+- **Referenced by**: `03-core-operations/`, `04-operations-support/`, `05-vendor-management/`, `06-fleet-management/`
+- **Provides**: POI, Product, Vehicle, Driver, Vendor master data
 
 ---
 
-### 08-reporting-analytics/
-**Purpose**: Reports, dashboards, analytics
+### [03-core-operations/](03-core-operations/README.md) - Core Business Operations
+**Purpose**: End-to-end transport and logistics workflow management  
+**PRD Sections**: 6.6, 6.7, 6.8  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: `01-foundation/`, `02-master-data/`
 
-- `reporting.md` - Reporting & Analytics, Transport & Trip Reports
-- `analytics.md` - Vendor Reports, Fleet Performance Reports
+#### Specifications
+- [product-requisition-management.md](03-core-operations/product-requisition-management.md) - Product Requisition Management
+- [transport-requisition-management.md](03-core-operations/transport-requisition-management.md) - Transport Requisition (TR) Management
+- [transport-order-management.md](03-core-operations/transport-order-management.md) - Transport Order (TO) Management
+- [trip-management.md](03-core-operations/trip-management.md) - Trip Management, Trip Closure, Trip Costing
 
-**PRD Sections**: 6.13
+#### Related User Stories
+- US-010 to US-025: PR, TR, TO, Trip workflows
+- Key workflows: Requisition → Approval → TR → TO → Trip → Closure
 
+#### Cross-References
+- **Depends on**: `01-foundation/` (RBAC), `02-master-data/` (POI, Product, Vehicle)
+- **Drives**: `04-operations-support/` (gate, scaling, QC), `05-vendor-management/` (bidding), `06-fleet-management/` (fleet assignment)
+- **Provides**: PR/TR/TO/Trip entities and workflows
+
+---
+
+### [04-operations-support/](04-operations-support/README.md) - Operations Support
+**Purpose**: Supporting operational workflows (gate, scaling, QC, command center)  
+**PRD Sections**: 6.9, 6.10, 6.13  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: `03-core-operations/`
+
+#### Specifications
+- [gate-management.md](04-operations-support/gate-management.md) - Gate-In, Gate-Out, On-Demand TO Creation
+- [scaling-management.md](04-operations-support/scaling-management.md) - Scale-In, Scale-Out, Queue Token
+- [command-center.md](04-operations-support/command-center.md) - Command Center Operations
+- [qc-workflow.md](04-operations-support/qc-workflow.md) - Quality Control Workflow
+
+#### Related User Stories
+- US-026, US-035-046: Gate, Scaling, Loading operations
+- US-044-056, US-077-090: QC workflows
+- US-063-070: Gate & Scaling management
+- US-071-076: Command Center, Loading/Unloading
+
+#### Cross-References
+- **Depends on**: `03-core-operations/` (Trip entity and state)
+- **Integrates with**: `02-master-data/` (POI), `06-fleet-management/` (Vehicle)
+- **Provides**: Gate logs, weight data, QC results, loading/unloading timestamps
+
+---
+
+### [05-vendor-management/](05-vendor-management/README.md) - Vendor Management
+**Purpose**: Vendor ecosystem and lifecycle management  
+**PRD Sections**: 6.11  
+**Phase**: Phase 1 (High)  
+**Dependencies**: `03-core-operations/`, `02-master-data/`
+
+#### Specifications
+- [vendor-onboarding.md](05-vendor-management/vendor-onboarding.md) - Vendor Onboarding & Registration
+- [vendor-bidding.md](05-vendor-management/vendor-bidding.md) - Vendor Bidding Portal, Bid Evaluation
+- [vendor-portal.md](05-vendor-management/vendor-portal.md) - Vendor Portal, Real-time TO Updates
+
+#### Related User Stories
+- US-024: Vendor Bidding Portal
+- US-027-034: Vendor operations (registration, performance, payment, contracts)
+- US-047: Vendor Registration
+- US-094: Vendor Application Access
+
+#### Cross-References
+- **Depends on**: `03-core-operations/` (TO entity), `02-master-data/` (Vendor master)
+- **Integrates with**: `07-mobile-interfaces/` (Vendor mobile app)
+- **Provides**: Vendor bidding, TO assignment, vendor performance tracking
+
+---
+
+### [06-fleet-management/](06-fleet-management/README.md) - Fleet Management
+**Purpose**: Fleet, vehicle, driver, and helper lifecycle management  
+**PRD Sections**: 6.6 (partial), 6.10 (partial)  
+**Phase**: Phase 1 (High)  
+**Dependencies**: `02-master-data/`
+
+#### Specifications
+- [vehicle-management.md](06-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
+- [driver-management.md](06-fleet-management/driver-management.md) - Driver Registration & Management
+- [helper-management.md](06-fleet-management/helper-management.md) - Helper Profile & Assignment
+- [fuel-management.md](06-fleet-management/fuel-management.md) - Fuel Management System
+
+#### Related User Stories
+- US-053: Vehicle Registration & Master Data
+- US-057: Driver Master Data
+- US-058: Fuel Management
+- US-061-062: Helper Profile & Assignment
+
+#### Cross-References
+- **Depends on**: `02-master-data/` (Vehicle, Driver, Helper masters)
+- **Referenced by**: `03-core-operations/` (TO/Trip assignment)
+- **Provides**: Fleet availability, vehicle/driver assignment, fuel tracking
+
+---
+
+### [07-mobile-interfaces/](07-mobile-interfaces/README.md) - Mobile Interfaces
+**Purpose**: Mobile applications for drivers, vendors, and QC supervisors  
+**PRD Sections**: 11, 12  
+**Phase**: Phase 1 (High)  
+**Dependencies**: `03-core-operations/`, `04-operations-support/`, `05-vendor-management/`
+
+#### Specifications
+- [driver-mobile.md](07-mobile-interfaces/driver-mobile.md) - Driver Mobile Interface
+- [qc-mobile.md](07-mobile-interfaces/qc-mobile.md) - QC Supervisor Mobile Interface
+- [vendor-mobile.md](07-mobile-interfaces/vendor-mobile.md) - Vendor Mobile Application
+
+#### Related User Stories
+- US-052: Driver Mobile Interface
+- US-092: Trip Management Driver Interface
+- US-093: QC Interface
+- US-094: Vendor Application Access
+
+#### Cross-References
+- **Depends on**: `03-core-operations/` (Trip), `04-operations-support/` (QC, Gate), `05-vendor-management/` (Vendor TO)
+- **Provides**: Mobile access for field users
+
+---
+
+### [08-reporting-analytics/](08-reporting-analytics/README.md) - Reporting & Analytics
+**Purpose**: Business intelligence, reports, dashboards, and KPIs  
+**PRD Sections**: 6.13 (Reporting)  
+**Phase**: Phase 1-2 (Medium)  
 **Dependencies**: All operational modules
 
----
+#### Specifications
+- [reporting.md](08-reporting-analytics/reporting.md) - Standard Reports
+- [analytics.md](08-reporting-analytics/analytics.md) - Dashboards, KPIs, Analytics
 
-### 09-non-functional/
-**Purpose**: Non-functional requirements, security, integration
+#### Related User Stories
+- Integrated across operational modules (no dedicated stories)
 
-- `non-functional-requirements.md` - Performance, Scalability, Availability, Usability
-- `security-compliance.md` - Security & Compliance, Data Security, Access Control
-- `integration-requirements.md` - GPS/VTS Integration, Map & Routing APIs
-
-**PRD Sections**: Non-Functional Requirements, Integration Requirements, Security & Compliance
-
-**Dependencies**: Cross-cutting concerns
+#### Cross-References
+- **Depends on**: All operational modules (data sources)
+- **Provides**: Reports, dashboards, KPIs for decision-making
 
 ---
 
-### 10-phases/
-**Purpose**: Phase-wise feature breakdown
+### [09-non-functional/](09-non-functional/README.md) - Non-Functional Requirements
+**Purpose**: Cross-cutting concerns (performance, security, integration)  
+**PRD Sections**: 7, 9, 10  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: Cross-cutting (applies to all modules)
 
-- `phase-1.md` - Phase 1: Core Foundation & Operational Enablement
-- `phase-2.md` - Phase 2: Intermediate Enhancements & Analytics
-- `phase-3.md` - Phase 3: Workshop, Advanced Analytics, Alerts
+#### Specifications
+- [non-functional-requirements.md](09-non-functional/non-functional-requirements.md) - Performance, Scalability, Availability
+- [security-compliance.md](09-non-functional/security-compliance.md) - Security & Compliance
+- [integration-requirements.md](09-non-functional/integration-requirements.md) - GPS/VTS Integration, Map APIs
 
-**PRD Sections**: Phase-wise Feature Structure
+#### Related User Stories
+- Cross-cutting requirements integrated into all modules
+- Security: US-001-009
+- Integration: Embedded in operational stories
 
+#### Cross-References
+- **Applies to**: All modules
+- **Provides**: Performance standards, security requirements, integration patterns
+
+---
+
+### [10-phases/](10-phases/README.md) - Implementation Phases
+**Purpose**: Phase-wise feature rollout plan and roadmap  
+**PRD Sections**: Phase-wise Feature Structure  
+**Phase**: All Phases  
 **Dependencies**: All modules (organizational)
 
+#### Specifications
+- [phase-1.md](10-phases/phase-1.md) - Phase 1: Core Foundation & Operational Enablement (MVP)
+- [phase-2.md](10-phases/phase-2.md) - Phase 2: Intermediate Enhancements & Analytics
+- [phase-3.md](10-phases/phase-3.md) - Phase 3: Workshop, Advanced Analytics, Alerts
+
+#### Related User Stories
+- Phase 1: US-001 to US-094
+- Phase 2-3: Future enhancements
+
+#### Cross-References
+- **Organizes**: All modules by implementation phase
+- **Referenced by**: Project planning, roadmap documentation
+
 ---
 
-### 11-reference/
-**Purpose**: Reference materials
+### [11-reference/](11-reference/README.md) - Reference Materials
+**Purpose**: Glossary, terminology, acronyms, and reference documentation  
+**PRD Sections**: Glossary & Terminology, Appendix A  
+**Phase**: All Phases (Reference)  
+**Dependencies**: None (reference only)
 
-- `glossary.md` - Glossary & Terminology, Acronyms, Domain Terms
+#### Specifications
+- [glossary.md](11-reference/glossary.md) - Glossary, Domain Terms, Acronyms
 
-**PRD Sections**: Glossary & Terminology, Appendix A
+#### Cross-References
+- **Referenced by**: All modules for terminology
 
 ---
 
-## 🔍 Finding Content
+## 🔍 Navigation Guide
 
 ### By Module
-Navigate to the relevant folder (e.g., `03-core-operations/` for Transport Order)
+Each module folder contains:
+- **README.md** - Module overview, specifications list, dependencies
+- **Specification files** - Detailed technical specifications
+
+### By Dependency
+Use the dependency information in each module's README to understand:
+- **Upstream**: What this module depends on
+- **Downstream**: What depends on this module
+- **Cross-module**: How modules interact
+
+### By User Story
+Use the "Related User Stories" sections to map stories to specifications.  
+All stories are located in: `../04-phase-backlog/phase-1/user-stories/`
 
 ### By Phase
-Check `10-phases/` for phase-specific features
-
-### By Role
-Check `00-overview/user-personas.md` for role-specific requirements
-
-### By Feature
-Use folder README files for feature indexes
+See `10-phases/` for phase-wise organization of features.
 
 ### By PRD Section
-Each file includes source section references in the frontmatter
-
-## 📝 Notes
-
-- All content is extracted directly from PRD_DFMS_v1.0.md
-- Each file includes source references in frontmatter
-- Content maintains dependency order
-- Some files may need manual review for completeness
-- Missing content can be found by searching PRD directly using section references
-
-## 🔗 Quick Links
-
-- [Main README](README.md)
-- [00-overview/](00-overview/)
-- [01-foundation/](01-foundation/)
-- [02-master-data/](02-master-data/)
-- [03-core-operations/](03-core-operations/)
-- [04-operations-support/](04-operations-support/)
-- [05-vendor-management/](05-vendor-management/)
-- [06-fleet-management/](06-fleet-management/)
-- [07-mobile-interfaces/](07-mobile-interfaces/)
-- [08-reporting-analytics/](08-reporting-analytics/)
-- [09-non-functional/](09-non-functional/)
-- [10-phases/](10-phases/)
-- [11-reference/](11-reference/)
+Each specification file includes PRD section references in frontmatter.
 
 ---
 
-**Last Updated**: 2026-02-13
+## 📊 Dependency Matrix
+
+| Module | Depends On | Required By |
+|--------|-----------|-------------|
+| 00-overview | None | All (context) |
+| 01-foundation | None | All operational modules |
+| 02-master-data | 01-foundation | 03, 04, 05, 06 |
+| 03-core-operations | 01, 02 | 04, 05, 06, 07, 08 |
+| 04-operations-support | 03 | 08 |
+| 05-vendor-management | 02, 03 | 07, 08 |
+| 06-fleet-management | 02 | 03, 08 |
+| 07-mobile-interfaces | 03, 04, 05 | - |
+| 08-reporting-analytics | All operational | - |
+| 09-non-functional | Cross-cutting | All |
+| 10-phases | All (organizational) | - |
+| 11-reference | None | All (reference) |
+
+---
+
+## 🔗 Related Documentation
+
+- **[Main README](README.md)** - Module specifications overview
+- **[Phase Backlog](../04-phase-backlog/README.md)** - Implementation user stories
+- **[Source PRD](../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[WBS Differences](../04-phase-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
+- **[PRD Alignment](../04-phase-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD alignment validation
+
+---
+
+## 🎯 Quick Reference
+
+### Critical Path Modules (Phase 1)
+1. **01-foundation** - Authentication, RBAC (US-001-009)
+2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057, US-061)
+3. **03-core-operations** - PR, TR, TO, Trip (US-010-025)
+4. **04-operations-support** - Gate, Scaling, QC, Command Center (US-026, US-035-090)
+5. **09-non-functional** - Security, Performance, Integration
+
+### High Priority Modules (Phase 1)
+6. **05-vendor-management** - Vendor onboarding, bidding (US-024, US-027-034, US-047, US-094)
+7. **06-fleet-management** - Fleet, Vehicle, Driver (US-053, US-057-062)
+8. **07-mobile-interfaces** - Driver, QC, Vendor apps (US-052, US-092-094)
+
+### Medium Priority (Phase 1-2)
+9. **08-reporting-analytics** - Reports, Dashboards
+
+---
+
+**Last Updated**: 2026-02-26  
+**Total Modules**: 12  
+**Total Specifications**: 41 files  
+**Coverage**: 100% of PRD Phase-1 features
 
