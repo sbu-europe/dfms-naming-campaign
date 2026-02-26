@@ -1,85 +1,102 @@
 ---
 source_document: PRD_DFMS_v1.0.md
-source_sections: Document Purpose, Product Overview, Purpose of the Document, Product Vision, DFMS Value Proposition, What DFMS Is NOT
+source_sections: Product Vision, Product Overview, DFMS Value Proposition
 extracted_date: 2026-02-13
+last_updated: 2026-02-26
+document_type: domain_specification
 ---
 
-## Document Purpose
+# Product Vision
 
-This Product Requirements Document (PRD) defines the comprehensive requirements for the Distribution and Fleet Management System (DFMS), a multi-tenant SaaS platform designed to digitize and optimize transport and logistics operations for manufacturing, distribution, and supply chain organizations.
+## Vision Statement
 
-This document serves as the authoritative reference for:
+DFMS is a **unified, enterprise-grade SaaS platform** designed to digitize, standardize, and optimize end-to-end transport, quality control, and logistics operations across complex supply chain environments.
 
-*   Business stakeholders to understand the strategic value and business drivers
-*   Product and engineering teams to design, develop, and implement the system
-*   Quality assurance teams to develop test plans and validate requirements
-*   Project management teams to plan resources, timelines, and deliverables
-*   Executive management to make informed investment and go-to-market decisions
-
-The Distribution and Fleet Management System (DFMS) is a comprehensive, multi-tenant SaaS platform designed to revolutionize transport and logistics operations for manufacturing, distribution, and supply chain companies in emerging markets. DFMS provides end-to-end visibility and control over the complete logistics lifecycle—from transport requisition creation to final delivery confirmation and billing—while supporting both owned and vendor fleet operations.
-
+---
 
 ## Product Overview
 
+The Distribution and Fleet Management System (DFMS) is a comprehensive, multi-tenant SaaS platform that revolutionizes transport and logistics operations for manufacturing, distribution, and supply chain companies in emerging markets.
 
-## Purpose of the Document
+DFMS provides **end-to-end visibility and control** over the complete logistics lifecycle—from transport requisition creation to final delivery confirmation and billing—while supporting both owned and vendor fleet operations.
 
-DFMS is a centralized, role-driven digital platform designed to plan, execute, monitor and optimize Transport, fleet, and distribution operations across distributed supply chain locations such as feed mills, depots, warehouses, ports, and factories.
+---
 
+## Core Value Proposition
 
-## Product Vision
+DFMS replaces **fragmented manual processes** (Excel sheets, WhatsApp coordination, paper challans, siloed systems) with a **single source of operational truth** covering:
 
-DFMS) is a unified, enterprise-grade platform designed to digitize, standardize, and optimize end-to-end transport, quality control, and logistics operations across complex supply chain environments.
+- **Product Movement:** PR → TR → TO → Trip → Delivery
+- **Fleet Utilization:** Real-time vehicle tracking, availability, assignments
+- **Vendor Coordination:** Bidding, performance tracking, payments
+- **Quality Assurance:** Physical inspection, lab testing, evidence capture
+- **Costing & Billing:** Trip costing, vendor invoicing, reconciliation
+- **Compliance & Auditability:** Digital trails, role-based access, reporting
 
-DFMS aims to replace fragmented manual processes (Excel sheets, WhatsApp coordination, paper challans, siloed systems) with a single source of operational truth covering:
+---
 
-*   Product movement
-*   Fleet utilization
-*   Vendor coordination
-*   Quality assurance
-*   Costing and billing
-*   Compliance and auditability
+## Target Market
 
-The platform is designed to support organizations operating mixed fleet models (own + vendor), multi-location POIs, QC-heavy workflows, and high-volume daily transport operations.
+**Primary:**
+- Manufacturing companies (FMCG, cement, feed mills)
+- Distribution companies (multi-depot operations)
+- Logistics service providers (3PL/4PL)
 
+**Geographic Focus:**
+- Bangladesh (Phase 1)
+- South Asian emerging markets (Phase 2+)
 
-## DFMS Value Proposition
+**Company Size:**
+- Mid-market: 50-500 vehicles
+- Enterprise: 500+ vehicles, multi-location
 
-DFMS value proposition includes:
+---
 
-*   Organizations operating large-scale logistics and distribution networks face challenges including:
-*   Fragmented transport planning across departments
-*   Manual gate, scaling, and QC processes
-*   No real-time visibility into trips, delays, or incidents
-*   Limited accountability across own and vendor fleets
-*   Disconnected costing, invoicing, and audit trails
-*   DFMS eliminates these gaps by providing a single operational backbone from
+## Key Differentiators
 
-Product Requisition → Transport → Delivery → QC → Costing.
+1. **Multi-Tenant SaaS:** One platform, multiple customers, subscription-based
+2. **Hybrid Fleet Support:** Seamless own fleet + vendor fleet management
+3. **QC-Centric:** Built-in quality control workflows (physical + lab testing)
+4. **Mobile-First Field Operations:** Driver app, QC app, vendor app
+5. **Real-Time GPS Integration:** Live tracking, geofencing, ETA updates
+6. **Vendor Bidding Ecosystem:** Competitive bidding for non-contractual vendors
+7. **Comprehensive Yard Operations:** Gate, scaling, command center, loading/unloading
+8. **Emerging Market Focus:** Local language support, offline capability, low-bandwidth optimization
 
+---
 
 ## What DFMS Is NOT
 
-*   Not a Warehouse Management System (no bin-level inventory)
-*   Not an ERP replacement
-*   Not a GPS hardware provider
-*   Not a CRM or Dealer Sales System
+- **Not a Warehouse Management System (WMS):** No bin-level inventory, SKU tracking
+- **Not an ERP Replacement:** Focused on transport/logistics, not full enterprise management
+- **Not a GPS Hardware Provider:** Integrates with existing GPS/VTS providers
+- **Not a CRM:** No customer relationship or sales management
+- **Not a Manufacturing System (MES):** No production planning or shop floor control
 
-DFMS in an enterprise-grade, cloud-based platform that provides end-to-end management of transport and logistics, encompassing:
+---
 
-| Capability Domain | Description |
-| --- | --- |
-| Transport Planning & Execution | Manages the complete logistics lifecycle from Product Requisition (PR) → Transport Requisition (TR) → Transport Order (TO) → Trip → Proof of Delivery (POD). Includes configurable approval workflows (Depot/Feed Mill/Commercial → Distribution/Procurement → Transport), TR review dashboards, TO creation with quantity split, own vs vendor fleet assignment, incident handling (halt, partial delivery, re-delivery), and full auditability across all stages. |
-| Fleet Operations (Own Vehicles) | Provides centralized management of own fleet vehicles including registration, capacity (derived from wheel count), ownership, depot/POI assignment, GPS tracker linkage, and document repository (fitness, tax token, insurance). Supports real-time vehicle status (Available, In-Trip, Loading/Unloading, Idle, Maintenance), utilization tracking, and automated availability filtering during TO and trip assignment. |
-| Driver & Helper Management | Maintains structured master data for drivers and helpers with license details, NID, driver type (own, permanent/temporary), experience, references, accident history, medical and training records. Supports dynamic driver–vehicle–helper pairing, driver state tracking (on-trip, available, absent), and eligibility validation during trip assignment. |
-| Gate, Scaling & Command Center Operations | Digitize yard Digitizes yard operations through standardized Gate-In → Scale-In → Queue → Load/Unload → Scale-Out → Gate-Out workflows. Captures vehicle, driver, party type (Supplier/Dealer/Internal), PO/DO/TO/Challan details, manual scale weights, queue token generation, discrepancy logging, and Command Center assignment of vehicles to loading/unloading points with full timestamp tracking. |
-| Trip Management & GPS Workflow | Controls trip creation, scheduling, monitoring, and closure. Trips are created after TO approval with assigned vehicle, driver, helper, and route. Integrates GPS/VTS for near real-time location tracking, POI geofence entry/exit detection, dwell time calculation, map-based visualization, and auto-closure after QC Pass and POD confirmation. |
-| Quality Assurance/Quality Control Workflow | Supports end-to-end QC operations for raw materials and finished goods across ports, feed mills, warehouses, and depots. Includes pre-QC context display, physical inspection, sampling with QR-based labeling, lab test request and result tracking, QC Pass/Fail/Auto-pass decisions, recheck escalation, evidence capture (photos/videos), and turnaround time measurement at each QC stage. |
-| Product Requisition & Inventory Capacity View | Enables depots, feed mills, and commercial/procurement users to raise product requisitions for finished goods or port transfers with product, quantity, urgency, and source/destination POIs. Displays real-time POI capacity snapshots (total capacity, current stock, free capacity) and projected utilization after requisition, with threshold warnings to support capacity-aware planning. |
-| Vendor Ecosystem & Bidding | Provides a vendor portal for transport vendors to onboard (contractual or non-contractual), manage compliance documents, receive TO-based bid invitations, submit rates and available vehicles, share truck/driver details, track trip execution, and submit invoices. Supports transparent bid evaluation, partial allocation across vendors, and vendor performance tracking. |
-| Fuel, Workshop & Maintenance | Tracks vehicle operating health and costs through fuel consumption monitoring (fuel entries, mileage, receipts), fuel efficiency analytics, workshop job management (maintenance category, estimated vs actual time and cost), parts and service logging, downtime tracking, and automated vehicle status updates affecting availability for trip planning. |
-| Gate/Depot/POI Inventory Visibility | Maintains POI master data (Factory, Feed Mill, Depot, Warehouse, Port) with GPS coordinates, geofence radius, and operational role (inbound/outbound/neutral). Tracks total storage capacity, current stock level, free capacity, and in-transit stock, updated at loading completion (source) and QC-passed unloading (destination). |
-| Financial & Costing Management | Enables trip-level cost capture and analysis, including fuel, driver/helper cost, maintenance cost, and vendor rates. Supports manual cost entry, own vs vendor cost comparison, trip cost summaries, and integration hooks for ERP-based invoicing and vendor payment processing. |
-| Mobility & Field Applications | Includes mobile and responsive interfaces for field execution: Driver app (trip view, route info, POD capture, offline staging), Vendor app (bidding, trip management, invoice submission), and QC mobile/web interface for on-site inspections, sampling, and evidence capture |
-| Analytics, Reporting & Alerts | Delivers operational dashboards and standard reports covering trips, fleet utilization, vendor performance, QC turnaround, and costing. Provides KPI tracking, delay and exception analysis, exportable reports, and configurable alerts for key events (TO updates, delays, incidents, QC outcomes). |
-| Security, Audit & Multi-tenancy | Implements enterprise-grade security with role-based access control (RBAC), configurable permissions per module, account lockout and admin override, password reset flows suitable for mixed digital literacy, and comprehensive audit logs for all sensitive actions. Multi-tenant architecture ensures strict data isolation per organization for secure SaaS deployment.. |
+## Platform Architecture
+
+**Deployment Model:** Cloud-native SaaS (AWS/Azure)
+
+**Access Channels:**
+- **Web Application:** Desktop for operations teams, managers, admins
+- **Mobile Apps:** Native Android/iOS for drivers, QC supervisors, vendors
+- **API Integration:** REST APIs for ERP, GPS, payment gateway integration
+
+**Tenancy:** Multi-tenant with logical isolation (shared database) and physical isolation option (enterprise customers)
+
+---
+
+## Strategic Roadmap
+
+**Phase 1 (MVP):** Core transport operations, fleet management, QC workflow, vendor bidding
+**Phase 2:** Fuel management, predictive analytics, advanced reporting
+**Phase 3:** AI-powered route optimization, demand forecasting, IoT integration
+**Phase 4:** Regional expansion, industry-specific modules, ecosystem partnerships
+
+---
+
+## Summary
+
+DFMS is the **operational backbone** for modern logistics operations, digitizing the entire transport lifecycle from requisition to delivery. By unifying transport planning, fleet operations, quality control, and vendor management in one platform, DFMS enables organizations to achieve **operational excellence, cost efficiency, and supply chain visibility** at scale.

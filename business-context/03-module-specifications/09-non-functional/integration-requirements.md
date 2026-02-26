@@ -1,21 +1,199 @@
 ---
 source_document: PRD_DFMS_v1.0.md
-source_sections: # Integration Requirements
+source_sections: Integration Requirements
 extracted_date: 2026-02-13
+last_updated: 2026-02-26
+document_type: domain_specification
+related_modules: [trip-management, gate-management, vendor-portal]
 ---
 
 # Integration Requirements
 
+## Overview
+
+Integration Requirements define the **external system integrations** that enable DFMS to connect with GPS/VTS providers, mapping services, ERP systems, payment gateways, and other third-party platforms for seamless data exchange and extended functionality.
+
+### Purpose
+
+- **GPS/VTS Integration:** Real-time vehicle location tracking
+- **Map & Routing APIs:** Geocoding, navigation, ETA calculation
+- **ERP Integration:** Sync master data, financial transactions
+- **Payment Gateway Integration:** Vendor payments, driver incentives
+- **SMS/Email Gateway:** Notifications, alerts, OTP delivery
+
+---
+
 ## GPS/VTS Integration
 
-*   Real-time location data pull every 30 seconds
-*   Historical track data retrieval for playback
-*   Support multiple GPS providers with configurable data mapping
-*   Geofence definition sync with GPS devices
+### Purpose
+Enable real-time vehicle tracking, geofencing, and historical route playback for trip monitoring.
+
+### Integration Requirements
+
+**Data Pull Frequency:**
+- **Real-time:** Location updates every 30 seconds
+- **Historical:** Track data retrieval for playback (last 7 days)
+
+**Supported GPS Providers (Bangladesh Market):**
+- Track & Trace BD
+- Fleet Management BD
+- GPS BD
+
+**Integration Method:**
+```typescript
+interface GPSIntegration {
+  // REST API pull
+  endpoint: string;                 // e.g., https://gps-provider.com/api/v1/location
+  auth_method: 'API_KEY' | 'OAUTH2';
+  api_key?: string;
+  
+  // Webhook push (preferred)
+  webhook_url: string;              // DFMS receives real-time updates
+  
+  // Data mapping
+  field_mapping: {
+    vehicle_id: string;             // GPS provider's vehicle identifier
+    latitude: string;
+    longitude: string;
+    speed: string;
+    timestamp: string;
+  };
+}
+```
+
+**Geofence Sync:**
+- DFMS sends POI geofence definitions to GPS devices
+- GPS device triggers alert when vehicle enters/exits geofence
+
+---
 
 ## Map & Routing APIs
 
-*   Google Maps / OpenStreetMap for geocoding and routing
-*   Route optimization based on distance, traffic, tolls
-*   ETA calculation and dynamic updates
-*   Geofence visualization on maps
+### Purpose
+Provide geocoding, route optimization, ETA calculation, and map visualization.
+
+### Supported Providers
+
+**Google Maps API:**
+- Geocoding (address → lat/lng)
+- Directions API (route calculation)
+- Distance Matrix API (ETA calculation)
+
+**OpenStreetMap (OSM):**
+- Free alternative for cost optimization
+- Suitable for Bangladesh road network
+
+### Integration Features
+
+**Route Optimization:**
+```typescript
+interface RouteOptimization {
+  origin: { lat: number; lng: number };
+  destination: { lat: number; lng: number };
+  waypoints?: { lat: number; lng: number }[];
+  
+  optimization_factors: {
+    distance: boolean;
+    traffic: boolean;
+    tolls: boolean;
+  };
+  
+  // Response
+  optimized_route: {
+    distance_km: number;
+    duration_minutes: number;
+    polyline: string;               // Encoded route for map display
+  };
+}
+```
+
+**ETA Calculation:**
+- Dynamic ETA updates based on real-time traffic
+- Recalculate ETA every 5 minutes during trip
+
+---
+
+## ERP System Integration
+
+### Purpose
+Sync master data (products, POIs, cost centers) and financial transactions (trip costs, vendor invoices) between DFMS and enterprise ERP systems.
+
+### Supported ERP Systems
+
+**Pre-Built Connectors:**
+- SAP Business One, SAP S/4HANA
+- Oracle ERP Cloud, Oracle NetSuite
+- Microsoft Dynamics 365
+
+### Integration Methods
+
+**1. REST API Integration:**
+```typescript
+interface ERPIntegration {
+  sync_direction: 'BIDIRECTIONAL' | 'ERP_TO_DFMS' | 'DFMS_TO_ERP';
+  
+  // Master data sync (ERP → DFMS)
+  sync_entities: ['products', 'cost_centers', 'vendors'];
+  sync_frequency: 'DAILY' | 'HOURLY' | 'REAL_TIME';
+  
+  // Transaction sync (DFMS → ERP)
+  export_entities: ['trip_costs', 'vendor_invoices'];
+}
+```
+
+**2. File-Based Integration:**
+- CSV/XML file exchange via SFTP
+- Daily batch export/import
+
+---
+
+## Payment Gateway Integration
+
+### Purpose
+Enable digital payments for vendor settlements and driver incentives.
+
+### Supported Gateways (Bangladesh)
+
+- **bKash:** Mobile financial service
+- **Nagad:** Digital wallet
+- **Rocket:** Mobile banking
+
+### Integration Flow
+
+```
+1. DFMS generates payment request (vendor invoice, driver incentive)
+2. Payment request sent to gateway API
+3. Gateway processes payment
+4. Gateway sends webhook notification (success/failure)
+5. DFMS updates payment status
+```
+
+---
+
+## SMS/Email Gateway
+
+### Purpose
+Send notifications, alerts, and OTP codes to users.
+
+### Providers
+
+**SMS:** Twilio, BulkSMS BD
+**Email:** SendGrid, AWS SES
+
+### Use Cases
+
+- OTP delivery for login
+- Trip assignment notifications to drivers
+- Bid alerts to vendors
+- Delay alerts to managers
+
+---
+
+## Summary
+
+Integration Requirements provide:
+- **GPS/VTS:** Real-time tracking, geofencing, historical playback
+- **Maps & Routing:** Geocoding, route optimization, ETA calculation
+- **ERP:** Master data sync, financial transaction export
+- **Payment Gateway:** Digital payments for vendors/drivers
+- **SMS/Email:** Notifications, alerts, OTP delivery

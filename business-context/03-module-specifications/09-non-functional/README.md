@@ -15,11 +15,15 @@ Cross-cutting concerns including performance, security, and integration
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [non-functional-requirements.md](non-functional-requirements.md) | Performance, scalability, availability, usability | 7 | Cross-cutting |
-| [security-compliance.md](security-compliance.md) | Data security, access control, audit, compliance | 10 | Integrated in US-001-009 |
-| [integration-requirements.md](integration-requirements.md) | GPS/VTS integration, Map APIs, ERP hooks | 9 | Integrated |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [non-functional-requirements.md](non-functional-requirements.md) | System quality attributes with performance targets (3s page load, 500ms API response, 500 concurrent users), scalability strategy (100+ tenants, 10M+ trips/year, horizontal auto-scaling), availability SLA (99.5% uptime, daily backups, 1-hour RPO, 4-hour RTO), security standards (MFA, TLS 1.3, AES-256, 2-year audit logs), usability requirements (responsive design, WCAG 2.1 AA, 2-hour training time), compatibility (GPS providers, ERP connectors, payment gateways) | 7 | Cross-cutting | 439 |
+| [security-compliance.md](security-compliance.md) | Security architecture with layered defense (network, application, data, audit layers), data protection mechanisms (AES-256 encryption, data masking, secure deletion), RBAC implementation with least privilege principle, regulatory compliance (ISO 27001, GDPR/data privacy), incident response procedures, multi-tenant data isolation, vendor security controls | 10 | Integrated in US-001-009 | 198 |
+| [integration-requirements.md](integration-requirements.md) | External system integration requirements including GPS/VTS integration (real-time tracking every 30s, geofencing, historical playback), map & routing APIs (Google Maps, OSM for geocoding, route optimization, ETA calculation), ERP system connectors (SAP, Oracle, Dynamics for master data sync and financial export), payment gateway integration (bKash, Nagad, Rocket for vendor/driver payments), SMS/email gateway for notifications and OTP delivery | 9 | Integrated | 198 |
+
+**Total Documentation**: ~835 lines of comprehensive technical specifications
 
 ---
 

@@ -15,12 +15,16 @@ This module provides high-level product vision, scope, business objectives, and 
 
 ### 📄 Specifications
 
-| File | Description | PRD Section |
-|------|-------------|-------------|
-| [product-vision.md](product-vision.md) | Product vision, value proposition, and what DFMS is/is not | Section 2.1-2.4 |
-| [scope.md](scope.md) | In-scope features, out-of-scope, assumptions, and dependencies | Section 2.5 |
-| [business-objectives.md](business-objectives.md) | Primary objectives, current challenges, business impact | Section 3.1 |
-| [user-personas.md](user-personas.md) | Internal users, external users, role framework | Section 4 |
+**Note**: All specification files are written in **domain knowledge format**, explaining the product vision, scope, and stakeholder context with clear business objectives and user role definitions.
+
+| File | Description | PRD Section | Lines |
+|------|-------------|-------------|-------|
+| [product-vision.md](product-vision.md) | Unified enterprise-grade SaaS platform vision, core value proposition (single operational backbone from requisition to delivery), target market (manufacturing/distribution in emerging markets), key differentiators (multi-tenant, hybrid fleet, QC-centric, mobile-first), what DFMS is NOT (no WMS, ERP replacement, GPS hardware), strategic roadmap across 4 phases | 2.1-2.4 | 106 |
+| [scope.md](scope.md) | Comprehensive in-scope features (transport lifecycle, fleet management, POI operations, QC workflow, master data, vendor ecosystem), explicit out-of-scope boundaries (no WMS, ERP functionality, manufacturing systems, CRM, customs), assumptions (infrastructure, data configuration, organizational readiness), dependencies (external: GPS/ERP/maps; internal: DevOps/business teams; technical: API/integration), Phase 1 MVP scope definition | 2.5 | 177 |
+| [business-objectives.md](business-objectives.md) | Primary objectives (digitize operations, real-time visibility, optimize fleet, improve on-time delivery, enable data-driven decisions), current challenges (manual processes, no visibility, ad-hoc vendor management, disconnected QC), business impact analysis, stakeholder-specific objectives (executive to operations), success metrics (30% turnaround reduction, 80% on-time delivery, 20% cost reduction, 95% QC pass rate) | 3.1 | 84 |
+| [user-personas.md](user-personas.md) | Internal users (20+ operational roles: transport, distribution, POI operations, QC, fleet, finance), external users (vendors, vendor drivers/helpers), mobile app users (driver, QC supervisor, vendor), role framework (admin, operations, compliance, finance, external), detailed user journey examples (transport planner, driver, QC supervisor, vendor), RBAC-enforced task-specific access | 4 | 120 |
+
+**Total Documentation**: ~487 lines of comprehensive business context and stakeholder documentation
 
 ---
 
