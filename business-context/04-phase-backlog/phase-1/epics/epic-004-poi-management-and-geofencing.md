@@ -67,15 +67,15 @@ POI Management & Geofencing provides essential functionality for the DFMS platfo
 
 This epic includes **9 user stories**:
 
-| [US-014](../user-stories/US-014-capacity-checking.md) | POI Definition |
-| [US-015](../user-stories/US-015-tr-assessment.md) | POI CRUD Operation |
-| [US-016](../user-stories/US-016-fleet-availability.md) | POI Classification (Type Tagging) |
-| [US-017](../user-stories/US-017-to-creation-multiple.md) | Map Layer Integration |
-| [US-018](../user-stories/US-018-to-creation-transport-planner.md) | Real-time Location Tracking |
-| [US-019](../user-stories/US-019-to-execution-vendor-direct.md) | Geofencing & POI Tracking |
-| [US-020](../user-stories/US-020-to-execution-own-fleet.md) | Geofencing Boundary |
-| [US-021](../user-stories/US-021-trip-lifecycle.md) | Vehicle Arrival Tracking |
-| [US-022](../user-stories/US-022-partial-delivery.md) | Dwell Time Tracking |
+| [US-014](../user-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
+| [US-015](../user-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
+| [US-016](../user-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
+| [US-017](../user-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
+| [US-018](../user-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
+| [US-019](../user-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
+| [US-020](../user-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
+| [US-021](../user-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
+| [US-022](../user-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
 
 **Total**: 65 Story Points
 

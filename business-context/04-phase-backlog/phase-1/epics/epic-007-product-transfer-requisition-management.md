@@ -74,10 +74,10 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-026](../user-stories/US-026-realtime-map-dashboard.md) | Requisition Transfer Type Configuration |
-| [US-027](../user-stories/US-027-vendor-registration-verification.md) | Unified Product Requisition (PR) Creation by Requester Team |
-| [US-028](../user-stories/US-028-vendor-performance-tracking.md) | Finished Goods Transfer Requisition Creation (Depot / Feed Mill → Distribution) |
-| [US-029](../user-stories/US-029-vendor-payment-management.md) | Port (LC-Based) Transfer Requisition Creation (Commercial → Procurement) |
+| [US-026](../user-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
+| [US-027](../user-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
+| [US-028](../user-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
+| [US-029](../user-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
 
 **Total**: 50 Story Points
 

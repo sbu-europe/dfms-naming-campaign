@@ -72,11 +72,11 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **5 user stories**:
 
-| [US-030](../user-stories/US-030-vendor-fleet-management.md) | TR Creation by Distribution Officer |
-| [US-031](../user-stories/US-031-vendor-portal.md) | TR Approval by Distribution Manager |
-| [US-032](../user-stories/US-032-vendor-rating-reviews.md) | TR Creation by Procurement |
-| [US-033](../user-stories/US-033-vendor-contract-management.md) | Source Stock Validation |
-| [US-034](../user-stories/US-034-vendor-blacklist.md) | Destination Capacity Validation |
+| [US-030](../user-stories/US-030-vendor-fleet-management.md) | Vendor Fleet Management |
+| [US-031](../user-stories/US-031-vendor-portal.md) | Vendor Portal (Self-Service) |
+| [US-032](../user-stories/US-032-vendor-rating-reviews.md) | Vendor Rating & Reviews |
+| [US-033](../user-stories/US-033-vendor-contract-management.md) | Vendor Contract Management |
+| [US-034](../user-stories/US-034-vendor-blacklist.md) | Vendor Blacklist Management |
 
 **Total**: 45 Story Points
 

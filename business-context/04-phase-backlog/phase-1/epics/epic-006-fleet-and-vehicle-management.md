@@ -68,15 +68,15 @@ Fleet & Vehicle Management provides essential functionality for the DFMS platfor
 
 This epic includes **10 user stories**:
 
-| [US-053](../user-stories/US-053-vehicle-registration-master-data.md) | Vehicle Registration & Master Data Management |
-| [US-054](../user-stories/US-054-qc-audit-trail.md) | Vehicle License & Health Management |
-| [US-055](../user-stories/US-055-qc-vendor-quality-tracking.md) | Vehicle Status Matrix & Availability |
-| [US-056](../user-stories/US-056-qc-compliance-reporting.md) | Vehicle and Resource Assignment |
-| [US-057](../user-stories/US-057-driver-master-data.md) | Driver Master Data |
-| [US-058](../user-stories/US-058-fuel-management.md) | Driver-Vehicle Assignment |
-| [US-059](../user-stories/US-059-trip-cost-calculation.md) | Driver State Tracking |
-| [US-060](../user-stories/US-060-profitability-analysis.md) | Driver Availability Status Tracking |
-| [US-061](../user-stories/US-061-helper-profile.md) | Helper Profile |
+| [US-053](../user-stories/US-053-vehicle-registration-master-data.md) | Vehicle Master Data Management |
+| [US-054](../user-stories/US-054-qc-audit-trail.md) | QC Audit Trail & History |
+| [US-055](../user-stories/US-055-qc-vendor-quality-tracking.md) | QC Vendor Quality Tracking |
+| [US-056](../user-stories/US-056-qc-compliance-reporting.md) | QC Compliance & Regulatory Reporting |
+| [US-057](../user-stories/US-057-driver-master-data.md) | Manage Driver Master Data |
+| [US-058](../user-stories/US-058-fuel-management.md) | Fuel Management & Tracking |
+| [US-059](../user-stories/US-059-trip-cost-calculation.md) | Trip Cost Calculation & Analysis |
+| [US-060](../user-stories/US-060-profitability-analysis.md) | Trip Profitability Analysis & Revenue Tracking |
+| [US-061](../user-stories/US-061-helper-profile.md) | Manage Helper Master Data |
 | [US-062](../user-stories/US-062-helper-assignment.md) | Helper Assignment |
 
 **Total**: 80 Story Points
