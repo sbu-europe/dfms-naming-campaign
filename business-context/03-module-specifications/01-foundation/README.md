@@ -15,12 +15,16 @@ This module defines the foundational layer of the DFMS platform, including authe
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [authentication-security.md](authentication-security.md) | User login, account lockout, 2FA, session control | 6.1.1-6.1.3 | US-001, US-002, US-003 |
-| [rbac.md](rbac.md) | Role-based access control, dynamic role builder, multi-tenant RBAC | 6.1.4-6.1.6 | US-004 |
-| [user-tenant-management.md](user-tenant-management.md) | Organization signup, user invitation, OTP, account management | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 |
-| [system-foundation.md](system-foundation.md) | Overall system foundation overview, audit logging | 6.1, 6.2.7 | US-009 |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [authentication-security.md](authentication-security.md) | Authentication architecture, account lockout, MFA/2FA, session management, security features | 6.1.1-6.1.3 | US-001, US-002, US-003 | 446 |
+| [rbac.md](rbac.md) | Role hierarchy, permission model, enforcement layers, dynamic role builder, multi-tenant isolation | 6.1.4-6.1.6 | US-004 | 592 |
+| [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
+| [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
+
+**Total Documentation**: ~2,400 lines of comprehensive technical specifications
 
 ---
 
