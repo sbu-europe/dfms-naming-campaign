@@ -15,11 +15,15 @@ This module defines master data configuration and management for the DFMS platfo
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [master-data-configuration.md](master-data-configuration.md) | Entity registration, bulk upload, CRUD operations, data consistency | 6.3.1-6.3.4 | US-010, US-011, US-012, US-013 (partial) |
-| [product-inventory-management.md](product-inventory-management.md) | Product catalog, product configuration, transport & QC attributes | 6.4.1-6.4.3 | Integrated in requisition workflows |
-| [poi-management.md](poi-management.md) | POI definition, CRUD, classification, geofencing, capacity tracking | 6.5.1-6.5.8 | US-014, Integrated in workflows |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
+| [product-inventory-management.md](product-inventory-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
+| [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, drivers, helpers, vendors), vehicle capacity calculation, driver-vehicle assignment, bulk upload/management, referential integrity, data quality controls | 6.3.1-6.3.4 | US-053, US-057, US-061, US-047 | 513 |
+
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications
 
 ---
 
