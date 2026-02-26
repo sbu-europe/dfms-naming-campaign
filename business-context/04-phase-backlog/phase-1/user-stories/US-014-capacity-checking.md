@@ -22,7 +22,7 @@ related_stories:
   - US-013-stock-validation.md
 dependencies:
   - US-009-fg-transfer-requisition.md
-  - US-001-vehicle-master-data.md
+  - US-053-vehicle-registration-master-data.md
 tags: [requisition, capacity, vehicle, validation, high-priority]
 ---
 

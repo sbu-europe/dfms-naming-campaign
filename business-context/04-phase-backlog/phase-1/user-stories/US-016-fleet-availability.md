@@ -21,8 +21,8 @@ related_stories:
   - US-015-tr-assessment.md
   - US-017-to-creation.md
 dependencies:
-  - US-001-vehicle-master-data.md
-  - US-002-driver-master-data.md
+  - US-053-vehicle-registration-master-data.md
+  - US-057-driver-master-data.md
 tags: [transport, fleet, availability, validation, high-priority]
 ---
 

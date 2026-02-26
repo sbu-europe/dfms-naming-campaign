@@ -73,7 +73,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 | ID | User Story | Priority | Story Points | Sprint | Status | Individual Story |
 |----|------------|----------|--------------|--------|--------|------------------|
-| US-001 | Manage Vehicle Master Data | Critical | 5 | Sprint 1 | Pending | [✅ Available](./user-stories/US-001-vehicle-master-data.md) |
+| US-001 | User Login & Account Lockout | Critical | 10 | Sprint 1 | Pending | [✅ Available](./user-stories/US-001-user-login-account-lockout.md) |
 | US-002 | Manage Driver Master Data | Critical | 5 | Sprint 1 | Pending | _Template Available_ |
 | US-003 | Manage Helper Master Data | Critical | 3 | Sprint 1 | Pending | _Template Available_ |
 | US-004 | Manage Vendor Master Data | Critical | 5 | Sprint 1 | Pending | _Template Available_ |
@@ -392,7 +392,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 The following **5 detailed user stories** demonstrate the format, depth, and structure that all 63 stories will follow:
 
 ### Available Samples (Detailed Documentation)
-1. **[US-001: Manage Vehicle Master Data](./user-stories/US-001-vehicle-master-data.md)** - Master data example
+1. **[US-001: User Login & Account Lockout](./user-stories/US-001-user-login-account-lockout.md)** - System Foundation example
 2. **[US-018: Transport Order Creation](./user-stories/US-018-to-creation-transport-planner.md)** - Complex workflow example
 3. **[US-024: Vendor Bidding Portal](./user-stories/US-024-vendor-bidding-portal.md)** - Vendor ecosystem example
 4. **[US-044: QC Lab Testing](./user-stories/US-044-qc-lab-testing.md)** - QC workflow example

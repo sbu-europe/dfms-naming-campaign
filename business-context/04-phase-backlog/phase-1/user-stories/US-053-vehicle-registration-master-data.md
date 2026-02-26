@@ -1,13 +1,12 @@
 ---
 title: Vehicle Master Data Management
-story_id: US-001
+story_id: US-053
 phase: phase-1
-module: Master Data Management
+module: Fleet & Vehicle Management
 priority: Critical
 status: Pending
-epic: Fleet Master Data Setup
-epic_id: EPIC-001
-epic_name: System Foundation
+epic_id: EPIC-006
+epic_name: Fleet & Vehicle Management
 sprint: Sprint 1
 story_points: 5
 created: 2026-02-11
@@ -24,7 +23,7 @@ dependencies: []
 tags: [master-data, vehicle, fleet, mvp, critical]
 ---
 
-# US-001: Vehicle Master Data Management
+# US-053: Vehicle Registration & Master Data Management
 
 ## User Story
 

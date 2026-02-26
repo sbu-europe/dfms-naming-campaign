@@ -19,9 +19,9 @@ source_documents:
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-044-qc-lab-testing.md
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 dependencies:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 tags: [qc, dashboard, analytics, medium-priority]
 ---
 

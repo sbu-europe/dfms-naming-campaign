@@ -1,13 +1,13 @@
 ---
 title: User Invitation & Activation
-story_id: US-065
+story_id: US-005
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Tenant Onboarding
-epic_id: EPIC-011
-epic_name: Gate Management
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 8
 created: 2026-02-13
@@ -17,15 +17,14 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-007-user-role-management.md
-  - US-008-tenant-configuration.md
-  - US-064-subscription-plan-selection.md
-  - US-066-otp-verification.md
+  - US-006-otp-verification.md
+  - US-007-account-deactivation.md
+  - US-008-password-account-reset.md
 dependencies: []
 tags: [user-management, invitation, activation, onboarding, critical]
 ---
 
-# US-065: User Invitation & Activation
+# US-005: User Invitation & Activation
 
 ## User Story
 
@@ -301,7 +300,7 @@ UserActivation:
 - **US-007**: User and Role Management (roles must exist)
 - **US-008**: Tenant Configuration (tenant must exist)
 - **US-064**: Subscription Plan Selection (plan limits enforced)
-- **US-066**: OTP Verification System (OTP functionality)
+- **US-006**: OTP Verification System (OTP functionality)
 
 ## Definition of Done
 

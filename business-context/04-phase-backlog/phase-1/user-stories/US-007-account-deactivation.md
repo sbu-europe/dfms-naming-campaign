@@ -1,13 +1,13 @@
 ---
 title: Account Deactivation
-story_id: US-068
+story_id: US-007
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Security & User Management
-epic_id: EPIC-012
-epic_name: Scaling / Weight Management
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-13
@@ -17,13 +17,12 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-007-user-role-management.md
-  - US-065-user-invitation-activation.md
+  - US-005-user-invitation-activation.md
 dependencies: []
 tags: [user-management, deactivation, security, critical]
 ---
 
-# US-068: Account Deactivation
+# US-007: Account Deactivation
 
 ## User Story
 

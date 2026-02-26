@@ -73,10 +73,10 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-001](../user-stories/US-001-*.md) | User Login & Account Lockout... |
-| [US-002](../user-stories/US-002-*.md) | Multi-Factor Auth (2FA)... |
-| [US-003](../user-stories/US-003-*.md) | Session Control... |
-| [US-004](../user-stories/US-004-*.md) | Role Hierarchy... |
+| [US-001](../user-stories/US-001-user-login-account-lockout.md) | User Login & Account Lockout |
+| [US-002](../user-stories/US-002-multi-factor-auth.md) | Multi-Factor Auth (2FA) |
+| [US-003](../user-stories/US-003-session-control.md) | Session Control |
+| [US-004](../user-stories/US-004-role-hierarchy.md) | Role Hierarchy |
 
 **Total**: 40 Story Points
 

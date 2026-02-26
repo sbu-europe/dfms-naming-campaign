@@ -40,7 +40,7 @@ _*Phase 1 scope: 94 stories in 26-week WBS timeline. All 94 story files live in 
 │   ├── phase-1-summary.md (✅ created - complete phase overview)
 │   ├── PHASE-1-COMPLETION-REPORT.md (✅ created - verification report)
 │   └── user-stories/
-│       ├── US-001-vehicle-master-data.md (✅ complete)
+│       ├── US-001-user-login-account-lockout.md (✅ complete)
 │       ├── US-002 to US-070 (✅ 70 Phase 1 stories)
 │       └── US-071 to US-094 (documented in same folder)
 │
@@ -100,7 +100,7 @@ _*Phase 1 scope: 94 stories in 26-week WBS timeline. All 94 story files live in 
   - Success criteria and deliverables
 
 **Sample User Stories** (Demonstrating full documentation standard):
-- **[US-001: Vehicle Master Data](./phase-1/user-stories/US-001-vehicle-master-data.md)** - Master data example
+- **[US-001: User Login & Account Lockout](./phase-1/user-stories/US-001-user-login-account-lockout.md)** - System Foundation example
 - **[US-018: Transport Order Creation](./phase-1/user-stories/US-018-to-creation-transport-planner.md)** - Complex workflow
 - **[US-024: Vendor Bidding Portal](./phase-1/user-stories/US-024-vendor-bidding-portal.md)** - Vendor ecosystem
 - **[US-044: QC Lab Testing](./phase-1/user-stories/US-044-qc-lab-testing.md)** - QC workflow

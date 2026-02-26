@@ -18,11 +18,11 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-001-vehicle-master-data.md
+  - US-053-vehicle-registration-master-data.md
   - US-057-vehicle-maintenance.md
   - US-060-trip-costing.md
 dependencies:
-  - US-001-vehicle-master-data.md
+  - US-053-vehicle-registration-master-data.md
   - US-021-trip-lifecycle.md
 tags: [fleet, fuel, tracking, medium-priority]
 ---

@@ -21,7 +21,7 @@ related_stories:
   - US-028-vendor-performance-tracking.md
   - US-050-qc-dashboard.md
 dependencies:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 tags: [qc, vendor, quality-tracking, medium-priority]
 ---
 

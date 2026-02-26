@@ -23,8 +23,8 @@ related_stories:
   - US-016-fleet-availability.md
 dependencies:
   - US-017-to-creation-multiple.md
-  - US-001-vehicle-master-data.md
-  - US-002-driver-master-data.md
+  - US-053-vehicle-registration-master-data.md
+  - US-057-driver-master-data.md
 tags: [transport, own-fleet, assignment, critical]
 ---
 

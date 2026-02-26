@@ -69,8 +69,8 @@ Loading / Unlodaing Operations provides essential functionality for the DFMS pla
 
 This epic includes **2 user stories**:
 
-| [US-075](../user-stories/US-075-*.md) | Load Start/End Date & Time Entry<br>... |
-| [US-076](../user-stories/US-076-*.md) | Unload Start/End Date & Time Entry<br>... |
+| [US-075](../user-stories/US-075-load-start-end-time-entry.md) | Load Start/End Date & Time Entry |
+| [US-076](../user-stories/US-076-unload-start-end-time-entry.md) | Unload Start/End Date & Time Entry |
 
 **Total**: 20 Story Points
 

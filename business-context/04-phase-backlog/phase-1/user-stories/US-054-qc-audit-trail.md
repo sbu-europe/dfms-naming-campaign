@@ -18,9 +18,9 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 dependencies:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 tags: [qc, audit, compliance, medium-priority]
 ---
 

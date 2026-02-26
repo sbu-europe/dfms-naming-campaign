@@ -17,7 +17,7 @@ source_documents:
   - ../../../../source-documents/04-wbs/epics-table.md
   - ../../../../source-documents/04-wbs/stories-table.md
   - ../../../../source-documents/04-wbs/dependencies-table.md
-dependencies: ["EPIC-003"]
+dependencies: ["EPIC-009"]
 blocks: ["EPIC-017"]
 tags: [vendor, p2, standard]
 ---
@@ -56,7 +56,7 @@ Vendor Management provides essential functionality for the DFMS platform. This e
 ## Epic Dependencies
 
 ### Depends On
-- **EPIC-003**: [See EPIC-003](./epic-003-master-data-and-configuration.md) - Vendor requires master data
+- **EPIC-009**: [See EPIC-009](./epic-009-transport-order-to-management.md) - Vendor management requires transport order workflows
 
 ### Blocks
 - **EPIC-017**: [See EPIC-017](./epic-017-mobile-applications-vendor.md)
@@ -67,12 +67,12 @@ Vendor Management provides essential functionality for the DFMS platform. This e
 
 This epic includes **6 user stories**:
 
-| [US-047](../user-stories/US-047-*.md) | Vendor Registration... |
-| [US-048](../user-stories/US-048-*.md) | Vendor Verification Workflow... |
-| [US-049](../user-stories/US-049-*.md) | Vendor Biiding Portal... |
-| [US-050](../user-stories/US-050-*.md) | Vendor Bid Evaluation... |
-| [US-051](../user-stories/US-051-*.md) | Vehicle & Driver Information Submission... |
-| [US-052](../user-stories/US-052-*.md) | Real-time TO Updates (Vendor Portal)... |
+| [US-047](../user-stories/US-047-vendor-registration.md) | Vendor Registration |
+| [US-048](../user-stories/US-048-qc-report-generation.md) | Vendor Verification Workflow |
+| [US-049](../user-stories/US-049-qc-rejection-workflow.md) | Vendor Bidding Portal |
+| [US-050](../user-stories/US-050-qc-dashboard.md) | Vendor Bid Evaluation |
+| [US-051](../user-stories/US-051-qc-checklist-management.md) | Vehicle & Driver Information Submission |
+| [US-052](../user-stories/US-052-driver-mobile-interface.md) | Real-time TO Updates (Vendor Portal) |
 
 **Total**: 55 Story Points
 

@@ -17,13 +17,13 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-073-requisition-transfer-type-configuration.md
+  - US-026-realtime-map-dashboard.md
   - US-009-fg-transfer-requisition.md
   - US-012-procurement-approval.md
 dependencies:
   - US-005-poi-master-data.md
   - US-006-product-master-data.md
-  - US-073-requisition-transfer-type-configuration.md
+  - US-026-realtime-map-dashboard.md
 tags: [requisition, port-consignment, rm, lc, critical]
 ---
 

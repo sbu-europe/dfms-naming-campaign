@@ -1,13 +1,13 @@
 ---
 title: User Activity & Audit Logs
-story_id: US-069
+story_id: US-009
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Security & Compliance
-epic_id: EPIC-012
-epic_name: Scaling / Weight Management
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 8
 created: 2026-02-13
@@ -17,13 +17,12 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-007-user-role-management.md
-  - US-068-account-deactivation.md
+  - US-007-account-deactivation.md
 dependencies: []
 tags: [security, audit, logging, compliance, critical]
 ---
 
-# US-069: User Activity & Audit Logs
+# US-009: User Activity & Audit Logs
 
 ## User Story
 

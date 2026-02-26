@@ -24,7 +24,7 @@ related_stories:
   - US-021-to-execution-vendor-fleet.md
 dependencies:
   - US-015-pr-approval-distribution.md (Must have approved TRs)
-  - US-001-vehicle-master-data.md (Must have vehicle data)
+  - US-053-vehicle-registration-master-data.md (Must have vehicle data)
 tags: [transport, to-creation, critical, workflow]
 ---
 

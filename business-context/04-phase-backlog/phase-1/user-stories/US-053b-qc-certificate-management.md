@@ -1,6 +1,6 @@
 ---
 title: QC Certificate Management
-story_id: US-053
+story_id: US-053b
 phase: phase-1
 module: Quality Control
 priority: Low
@@ -20,7 +20,7 @@ source_documents:
 related_stories:
   - US-048-qc-report-generation.md
 dependencies:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 tags: [qc, certificate, documentation, low-priority]
 ---
 

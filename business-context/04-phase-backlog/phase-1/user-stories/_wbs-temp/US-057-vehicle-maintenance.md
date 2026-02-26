@@ -18,10 +18,10 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-001-vehicle-master-data.md
+  - US-053-vehicle-registration-master-data.md
   - US-058-fuel-management.md
 dependencies:
-  - US-001-vehicle-master-data.md
+  - US-053-vehicle-registration-master-data.md
 tags: [fleet, maintenance, vehicle, high-priority]
 ---
 

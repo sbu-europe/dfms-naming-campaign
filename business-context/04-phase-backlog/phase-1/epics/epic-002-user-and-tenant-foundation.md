@@ -72,11 +72,11 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **5 user stories**:
 
-| [US-005](../user-stories/US-005-*.md) | User Invitation & Activation... |
-| [US-006](../user-stories/US-006-*.md) | OTP Verification... |
-| [US-007](../user-stories/US-007-*.md) | Account Deactivation... |
-| [US-008](../user-stories/US-008-*.md) | Password & Account Reset... |
-| [US-009](../user-stories/US-009-*.md) | User Activity & Audit Logs... |
+| [US-005](../user-stories/US-005-user-invitation-activation.md) | User Invitation & Activation |
+| [US-006](../user-stories/US-006-otp-verification.md) | OTP Verification |
+| [US-007](../user-stories/US-007-account-deactivation.md) | Account Deactivation |
+| [US-008](../user-stories/US-008-password-account-reset.md) | Password & Account Reset |
+| [US-009](../user-stories/US-009-user-activity-audit-logs.md) | User Activity & Audit Logs |
 
 **Total**: 40 Story Points
 

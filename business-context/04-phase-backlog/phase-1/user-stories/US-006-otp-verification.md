@@ -1,13 +1,13 @@
 ---
 title: OTP Verification System
-story_id: US-066
+story_id: US-006
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Security & Authentication
-epic_id: EPIC-011
-epic_name: Gate Management
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-13
@@ -17,13 +17,13 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-065-user-invitation-activation.md
-  - US-067-password-account-reset.md
+  - US-005-user-invitation-activation.md
+  - US-008-password-account-reset.md
 dependencies: []
 tags: [security, otp, verification, authentication, critical]
 ---
 
-# US-066: OTP Verification System
+# US-006: OTP Verification System
 
 ## User Story
 
@@ -289,8 +289,8 @@ OTPVerificationLog:
 
 - **Email Service**: For email OTP delivery
 - **SMS Gateway**: For SMS OTP delivery
-- **US-065**: User Invitation & Activation (uses OTP)
-- **US-067**: Password & Account Reset (uses OTP)
+- **US-005**: User Invitation & Activation (uses OTP)
+- **US-008**: Password & Account Reset (uses OTP)
 
 ## Definition of Done
 

@@ -23,7 +23,7 @@ related_stories:
   - US-024-vendor-bidding-portal.md
 dependencies:
   - US-017-to-creation-multiple.md
-  - US-004-vendor-master-data.md
+  - US-047-vendor-registration.md
 tags: [transport, vendor, direct-assignment, critical]
 ---
 

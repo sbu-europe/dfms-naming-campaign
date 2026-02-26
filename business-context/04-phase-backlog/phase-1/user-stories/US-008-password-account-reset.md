@@ -1,13 +1,13 @@
 ---
 title: Password & Account Reset
-story_id: US-067
+story_id: US-008
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
 status: Pending
 epic: Security & Authentication
-epic_id: EPIC-011
-epic_name: Gate Management
+epic_id: EPIC-002
+epic_name: User & Tenant Foundation
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-13
@@ -17,13 +17,13 @@ source_documents:
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:
-  - US-066-otp-verification.md
-  - US-068-account-deactivation.md
+  - US-006-otp-verification.md
+  - US-007-account-deactivation.md
 dependencies: []
 tags: [security, password, reset, authentication, critical]
 ---
 
-# US-067: Password & Account Reset
+# US-008: Password & Account Reset
 
 ## User Story
 
@@ -294,7 +294,7 @@ PasswordResetLog:
 
 ## Dependencies
 
-- **US-066**: OTP Verification System (uses OTP)
+- **US-006**: OTP Verification System (uses OTP)
 - **Email Service**: For reset link delivery
 - **SMS Gateway**: For OTP delivery
 

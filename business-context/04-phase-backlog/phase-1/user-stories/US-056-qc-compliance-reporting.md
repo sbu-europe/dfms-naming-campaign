@@ -21,7 +21,7 @@ related_stories:
   - US-048-qc-report-generation.md
   - US-054-qc-audit-trail.md
 dependencies:
-  - US-047-qc-pass-fail-decision.md
+  - _wbs-temp/US-047-qc-pass-fail-decision.md
 tags: [qc, compliance, regulatory, reporting, medium-priority]
 ---
 
