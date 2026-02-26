@@ -72,9 +72,6 @@ This epic includes **3 user stories**:
 | [US-069](../user-stories/US-069-queue-token-generation.md) | Queue Token Generation |
 | [US-070](../user-stories/US-070-weight-exit.md) | Weight Exit |
 
-**Total**: 25 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

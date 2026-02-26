@@ -67,19 +67,16 @@ POI Management & Geofencing provides essential functionality for the DFMS platfo
 
 This epic includes **9 user stories**:
 
-| [US-014](../user-stories/US-014-capacity-checking.md) | POI Definition |
-| [US-015](../user-stories/US-015-tr-assessment.md) | POI CRUD Operation |
-| [US-016](../user-stories/US-016-fleet-availability.md) | POI Classification (Type Tagging) |
-| [US-017](../user-stories/US-017-to-creation-multiple.md) | Map Layer Integration |
-| [US-018](../user-stories/US-018-to-creation-transport-planner.md) | Real-time Location Tracking |
-| [US-019](../user-stories/US-019-to-execution-vendor-direct.md) | Geofencing & POI Tracking |
-| [US-020](../user-stories/US-020-to-execution-own-fleet.md) | Geofencing Boundary |
-| [US-021](../user-stories/US-021-trip-lifecycle.md) | Vehicle Arrival Tracking |
-| [US-022](../user-stories/US-022-partial-delivery.md) | Dwell Time Tracking |
+| [US-014](../user-stories/US-014-poi-definition.md) | POI Definition |
+| [US-015](../user-stories/US-015-poi-crud-operation.md) | POI CRUD Operation |
+| [US-016](../user-stories/US-016-poi-classification-type-tagging.md) | POI Classification (Type Tagging) |
+| [US-017](../user-stories/US-017-map-layer-intergration.md) | Map Layer Intergration |
+| [US-018](../user-stories/US-018-real-time-location-tracking.md) | Real-time Location Tracking |
+| [US-019](../user-stories/US-019-geofencing-poi-tracking.md) | Geofencing & POI Tracking |
+| [US-020](../user-stories/US-020-geofencing-boundary.md) | Geofencing Boundary |
+| [US-021](../user-stories/US-021-vehicle-arrival-tracking.md) | Vehicle Arrival Tracking |
+| [US-022](../user-stories/US-022-dwell-time-tracking.md) | Dwell Time Tracking |
 
-**Total**: 65 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

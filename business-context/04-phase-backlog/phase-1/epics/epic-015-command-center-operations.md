@@ -73,9 +73,6 @@ This epic includes **4 user stories**:
 | [US-073](../user-stories/US-073-assignment-alert.md) | Assignment Alert |
 | [US-074](../user-stories/US-074-assign-waiting-serial.md) | Assign Waiting Serial |
 
-**Total**: 35 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

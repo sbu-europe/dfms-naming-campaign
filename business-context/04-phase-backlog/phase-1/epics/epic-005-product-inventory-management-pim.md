@@ -68,13 +68,10 @@ Product Inventory Management (PIM) provides essential functionality for the DFMS
 
 This epic includes **3 user stories**:
 
-| [US-023](../user-stories/US-023-incident-management.md) | Product Master Data |
-| [US-024](../user-stories/US-024-vendor-bidding-portal.md) | Catalogue Design |
-| [US-025](../user-stories/US-025-trip-closure-pod.md) | Product Configuration – Transport & QC Attribute Mapping |
+| [US-023](../user-stories/US-023-product-master-data.md) | Product Master Data |
+| [US-024](../user-stories/US-024-catalogue-design.md) | Catalogue Design |
+| [US-025](../user-stories/US-025-product-configuration-transport-qc-attribute-mapping.md) | Product Configuration – Transport & QC Attribute Mapping |
 
-**Total**: 30 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

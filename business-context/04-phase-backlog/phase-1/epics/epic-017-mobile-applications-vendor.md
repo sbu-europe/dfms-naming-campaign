@@ -70,9 +70,6 @@ This epic includes **1 user stories**:
 
 | [US-094](../user-stories/US-094-vendor-application-access.md) | Vendor Application Access |
 
-**Total**: 90 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

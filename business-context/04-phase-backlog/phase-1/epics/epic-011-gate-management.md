@@ -73,9 +73,6 @@ This epic includes **5 user stories**:
 | [US-066](../user-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
 | [US-067](../user-stories/US-067-remarks-logging.md) | Remarks Logging |
 
-**Total**: 35 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

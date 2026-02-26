@@ -76,14 +76,11 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-010](../user-stories/US-010-port-transfer-requisition.md) | Master Entity Registration |
-| [US-011](../user-stories/US-011-distribution-approval.md) | Bulk Upload & Inline Master Data Management |
-| [US-012](../user-stories/US-012-procurement-approval.md) | Master CRUD Operations |
-| [US-013](../user-stories/US-013-stock-validation.md) | Data Consistency Referential Control |
+| [US-010](../user-stories/US-010-master-entity-registration.md) | Master Entity Registration |
+| [US-011](../user-stories/US-011-bulk-upload-inline-master-data-management.md) | Bulk Upload & Inline Master Data Management |
+| [US-012](../user-stories/US-012-master-crud-operations.md) | Master CRUD Operations |
+| [US-013](../user-stories/US-013-data-consistency-referential-control.md) | Data Consistency Referential Control |
 
-**Total**: 50 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

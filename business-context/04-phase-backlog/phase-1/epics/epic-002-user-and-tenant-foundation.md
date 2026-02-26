@@ -78,9 +78,6 @@ This epic includes **5 user stories**:
 | [US-008](../user-stories/US-008-password-account-reset.md) | Password & Account Reset |
 | [US-009](../user-stories/US-009-user-activity-audit-logs.md) | User Activity & Audit Logs |
 
-**Total**: 40 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

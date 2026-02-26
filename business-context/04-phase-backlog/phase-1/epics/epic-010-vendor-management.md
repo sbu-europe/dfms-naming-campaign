@@ -68,15 +68,12 @@ Vendor Management provides essential functionality for the DFMS platform. This e
 This epic includes **6 user stories**:
 
 | [US-047](../user-stories/US-047-vendor-registration.md) | Vendor Registration |
-| [US-048](../user-stories/US-048-qc-report-generation.md) | Vendor Verification Workflow |
-| [US-049](../user-stories/US-049-qc-rejection-workflow.md) | Vendor Bidding Portal |
-| [US-050](../user-stories/US-050-qc-dashboard.md) | Vendor Bid Evaluation |
-| [US-051](../user-stories/US-051-qc-checklist-management.md) | Vehicle & Driver Information Submission |
-| [US-052](../user-stories/US-052-driver-mobile-interface.md) | Real-time TO Updates (Vendor Portal) |
+| [US-048](../user-stories/US-048-vendor-verification-workflow.md) | Vendor Verification Workflow |
+| [US-049](../user-stories/US-049-vendor-biiding-portal.md) | Vendor Biiding Portal |
+| [US-050](../user-stories/US-050-vendor-bid-evaluation.md) | Vendor Bid Evaluation |
+| [US-051](../user-stories/US-051-vehicle-driver-information-submission.md) | Vehicle & Driver Information Submission |
+| [US-052](../user-stories/US-052-real-time-to-updates-vendor-portal.md) | Real-time TO Updates (Vendor Portal) |
 
-**Total**: 55 Story Points
-
----
 
 ## Epic Acceptance Criteria
 

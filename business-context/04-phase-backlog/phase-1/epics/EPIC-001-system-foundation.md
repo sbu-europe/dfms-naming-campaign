@@ -78,9 +78,6 @@ This epic includes **4 user stories**:
 | [US-003](../user-stories/US-003-session-control.md) | Session Control |
 | [US-004](../user-stories/US-004-role-hierarchy.md) | Role Hierarchy |
 
-**Total**: 40 Story Points
-
----
 
 ## Epic Acceptance Criteria
 
