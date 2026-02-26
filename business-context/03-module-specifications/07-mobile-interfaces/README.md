@@ -15,11 +15,15 @@ Mobile applications and responsive interfaces for field users
 
 ### 📄 Specifications
 
-| File | Description | PRD Section | Related Stories |
-|------|-------------|-------------|-----------------|
-| [driver-mobile.md](driver-mobile.md) | Driver mobile app for trip execution and POD | 12.1 | US-052, US-092 |
-| [qc-mobile.md](qc-mobile.md) | QC supervisor mobile interface for inspections | 12.2 | US-093 |
-| [vendor-mobile.md](vendor-mobile.md) | Vendor mobile app for bidding and trip management | 11.1 | US-094 |
+**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance. They maintain traceability to user stories while focusing on architecture and mechanisms rather than requirements.
+
+| File | Description | PRD Section | Related Stories | Lines |
+|------|-------------|-------------|-----------------|-------|
+| [driver-mobile.md](driver-mobile.md) | Field execution interface for drivers with real-time trip visibility, turn-by-turn navigation, trip status updates (Assigned→Dispatched→In Transit→Completed), digital POD capture (signature + photos), fuel logging with receipt/odometer photos, offline operation for low-connectivity environments, background GPS tracking, emergency support | 12.1 | US-065, US-066, US-067, US-068, US-069 | 629 |
+| [qc-mobile.md](qc-mobile.md) | Mobile inspection interface for QC supervisors with QC event queue management, configurable inspection checklists by product category, sample creation with QR labeling for traceability, lab test request and result tracking, high-quality evidence capture (photo/video with GPS metadata), pass/fail/recheck decisions with justification, time tracking for QC efficiency, tablet-optimized responsive web app | 12.2 | US-070, US-071, US-072, US-073, US-074, US-075 | 527 |
+| [vendor-mobile.md](vendor-mobile.md) | Vendor-facing mobile interface with available bids view for competitive opportunities, bid submission with pricing and vehicle details, assigned TOs management (won bids + contractual), post-award driver/vehicle/helper assignment, real-time active trip tracking with GPS, completed trip history for invoicing, vendor profile management (drivers/vehicles), push notifications for bids and assignments | 11.1 | US-076, US-077, US-078, US-079, US-080, US-081 | 378 |
+
+**Total Documentation**: ~1,534 lines of comprehensive technical specifications
 
 ---
 
