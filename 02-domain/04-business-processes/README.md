@@ -20,6 +20,10 @@ This folder contains detailed documentation for all 7 core business processes:
 
 - **[Business Processes Overview](./business-processes-overview.md)** - Process architecture, integration matrix, and performance metrics (references all separate files)
 
+### Visual Diagrams
+
+- **[Logistics Flow Diagrams](./logistics-flow-diagrams.md)** - Complete visual workflow diagrams for distribution operations
+
 ---
 
 ## 🎯 Quick Start

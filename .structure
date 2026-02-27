@@ -178,14 +178,14 @@ DFMS-product-context/
 │           ├── feature-overview.md
 │           └── feature-dependencies.md
 │
-├── 05-architecture/                             # ⏳ System architecture (in progress)
+├── 05-architecture/                             # ✅ System & implementation architecture
 │   ├── README.md
 │   ├── 00-overview/                             # Architecture foundation
 │   │   ├── architecture-summary.md
 │   │   ├── design-principles.md
 │   │   └── technology-stack-overview.md
 │   │
-│   ├── 01-system-design/                        # C4 Level 1-2
+│   ├── 01-system-design/                        # C4 Level 1-2 (technology-agnostic)
 │   │   ├── system-overview.md
 │   │   ├── container-view.md
 │   │   ├── diagrams/
@@ -209,13 +209,28 @@ DFMS-product-context/
 │   │   ├── strategies/
 │   │   └── phase-1-breakdown/
 │   │
+│   ├── 05-backend-architecture/                 # Django/Python implementation architecture
+│   │   ├── README.md
+│   │   ├── django-system-architecture.md
+│   │   ├── authentication-implementation.md
+│   │   ├── authorization-implementation.md
+│   │   ├── code-organization.md
+│   │   ├── database-implementation.md
+│   │   └── error-handling.md
+│   │
 │   ├── 06-diagrams/                             # Technical diagrams
+│   │   ├── README.md
 │   │   ├── diagrams-index.md
-│   │   ├── sequences/
-│   │   ├── deployment/
-│   │   ├── integration/
-│   │   ├── states/
-│   │   └── data/
+│   │   ├── sequences/                           # Sequence diagrams
+│   │   ├── deployment/                          # Deployment diagrams
+│   │   ├── integration/                         # Integration diagrams
+│   │   ├── states/                              # State diagrams
+│   │   ├── data/                                # ER diagrams
+│   │   └── 07-django-implementation/            # Django implementation diagrams
+│   │       ├── README.md
+│   │       ├── architecture-overview.md
+│   │       ├── django-components.md
+│   │       └── data-flow.md
 │   │
 │   ├── 07-reference/                            # Architecture reference
 │   │   ├── cross-reference-index.md
@@ -288,6 +303,65 @@ DFMS-product-context/
     ├── CR-INDEX.md                              # Change requests index
     └── CR-001-phase-based-architecture.md
 
+└── 09-development-guides/                      # ✅ Implementation guides
+    ├── README.md                                # Development guides overview
+    │
+    └── 01-backend/                              # Django/Python implementation
+        ├── README.md
+        ├── DOCUMENTATION_STATUS.md
+        ├── TECHNICAL_DOCUMENTATION_PLAN.md
+        ├── SUBMODULE_ADJUSTMENTS.md
+        │
+        ├── 01-setup/                            # Development environment
+        │   └── development-setup.md
+        │
+        ├── 02-api/                              # Django REST Framework
+        │   ├── api-reference.md
+        │   ├── serializers.md
+        │   ├── viewsets.md
+        │   ├── permissions.md
+        │   └── pagination.md
+        │
+        ├── 03-database/                         # PostgreSQL & Django ORM
+        │   ├── models.md
+        │   ├── migrations.md
+        │   └── queries.md
+        │
+        ├── 04-security/                         # Security implementation
+        │   ├── authentication-implementation.md
+        │   ├── authorization-implementation.md
+        │   ├── data-encryption.md
+        │   └── security-checklist.md
+        │
+        ├── 05-services/                         # Background services
+        │   ├── background-tasks.md
+        │   ├── caching.md
+        │   ├── notifications.md
+        │   └── integrations.md
+        │
+        ├── 06-testing/                          # Testing guides
+        │   ├── testing-strategy.md
+        │   ├── unit-tests.md
+        │   ├── integration-tests.md
+        │   ├── e2e-tests.md
+        │   └── test-fixtures.md
+        │
+        ├── 07-deployment/                       # Deployment configs
+        │   ├── docker.md
+        │   ├── aws-setup.md
+        │   ├── environment-variables.md
+        │   ├── monitoring.md
+        │   └── backup-recovery.md
+        │
+        ├── 08-guides/                           # Developer guides
+        │   ├── contributing.md
+        │   ├── code-style.md
+        │   ├── security-testing.md
+        │   └── troubleshooting.md
+        │
+        └── 09-reference/                        # Quick reference
+            └── README.md
+
 ---
 
 ## Summary Statistics
@@ -300,19 +374,21 @@ DFMS-product-context/
 - **02-domain**: 60+ files (~15,000 lines)
 - **03-module-specifications**: 34 files (~20,000 lines)
 - **04-backlog**: 114 files (97 stories, 17 epics, ~25,000 lines)
-- **05-architecture**: 30+ files (~10,000 lines)
+- **05-architecture**: 36+ files (~12,000 lines) - includes Django architecture
 - **06-contracts**: 20+ files (API/event contracts)
 - **07-reference**: 10+ files (data dictionaries, reports)
 - **08-change-requests**: 5+ files
+- **09-development-guides**: 46 files (~8,000 lines) - backend implementation
 
 ### Key Metrics:
 - **User Stories**: 97 (US-001 to US-094+)
 - **Epics**: 17 (EPIC-001 to EPIC-017)
 - **Phase 1**: 70 stories, 26 weeks
 - **Module Specifications**: 34 files, 9 modules, ~20,000 lines
+- **Development Guides**: 46 files (Backend: 46, Frontend: 0, Mobile: 0)
 
 ---
 
 **Last Updated**: February 27, 2026
 **Structure**: Optimized for LLM efficiency and human navigation
-**Organization**: Numbered folders (01-08) with consistent double-digit prefixes
+**Organization**: Numbered folders (01-09) with consistent double-digit prefixes

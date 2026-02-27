@@ -17,10 +17,11 @@
 - **`02-domain/`** - Business domain context (overview, requirements, rules, processes, industry)
 - **`03-module-specifications/`** - Technical module specifications (34 files, ~20,000 lines)
 - **`04-backlog/`** - Product backlog (epics, stories, phases)
-- **`05-architecture/`** - System architecture & technical decisions
+- **`05-architecture/`** - System & implementation architecture (high-level + Django)
 - **`06-contracts/`** - API contracts & integration specifications
 - **`07-reference/`** - Reference materials, data dictionaries, reports
 - **`08-change-requests/`** - Change request management
+- **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
@@ -41,6 +42,7 @@ This repository serves as the **domain context and interface contract layer** fo
 ### Documentation Scope
 - **Business Context**: Requirements, features, business processes
 - **Technical Context**: High-level architecture (C4 Level 1-2), workflows, ADRs, interface contracts
+- **Implementation Guides**: Django/Python development, testing, deployment guides
 
 > 💡 See [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) for product strategy and [02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md) for architecture
 
@@ -59,7 +61,8 @@ This repository serves as the **domain context and interface contract layer** fo
 | **Module Specifications** | ✅ Complete | 34 | ~20,000 |
 | **Domain Context** | ✅ Complete | 60+ | ~15,000 |
 | **Product Backlog** | ✅ Complete | 114 | ~25,000 |
-| **Architecture** | ⏳ In Progress | 30+ | ~10,000 |
+| **Architecture** | ✅ Complete | 36+ | ~12,000 |
+| **Development Guides** | ✅ Complete | 46 | ~8,000 |
 | **Source Documents** | ✅ Current | 40+ | - |
 
 ### Repository metrics (source of truth: [01-source/04-wbs/README.md](01-source/04-wbs/README.md))
