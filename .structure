@@ -232,13 +232,11 @@ DFMS-product-context/
 │   │   ├── states/                              # State diagrams
 │   │   └── data/                                # ER diagrams
 │   │
-│   ├── 07-reference/                            # Architecture reference
-│   │   ├── cross-reference-index.md
-│   │   ├── source-document-mapping.md
-│   │   └── version-history.md
-│   │
-│   └── legacy-contracts/                        # Archived contracts folder
-│       └── README.md
+│   └── 07-reference/                            # Architecture reference
+│       ├── README.md
+│       ├── cross-reference-index.md
+│       ├── source-document-mapping.md
+│       └── version-history.md
 │
 ├── 06-contracts/                                # ✅ Integration contracts
 │   ├── README.md
