@@ -77,8 +77,8 @@ This document serves as an overview and index for detailed business objectives d
 
 ## 🔗 Related Documents
 
-- **[Business Objectives](../../../00-overview/business-objectives.md)** - High-level strategic goals
-- **[Product Vision](../../../00-overview/product-vision.md)** - Product vision and value proposition
+- **[Business Objectives](../../01-overview/business-objectives.md)** - High-level strategic goals
+- **[Product Vision](../../01-overview/product-vision.md)** - Product vision and value proposition
 - **[Constraints & Assumptions](./constraints-assumptions/constraints-assumptions.md)** - Project constraints and assumptions
 
 ## 📝 Source

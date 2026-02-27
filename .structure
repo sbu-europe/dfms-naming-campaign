@@ -300,7 +300,7 @@ DFMS-product-context/
 ### By Section:
 - **01-source**: 40+ files (source documents)
 - **02-domain**: 60+ files (~15,000 lines)
-- **03-module-specifications**: 38 files (~20,500 lines)
+- **03-module-specifications**: 34 files (~20,000 lines)
 - **04-backlog**: 114 files (97 stories, 17 epics, ~25,000 lines)
 - **05-architecture**: 30+ files (~10,000 lines)
 - **06-contracts**: 20+ files (API/event contracts)
@@ -311,7 +311,7 @@ DFMS-product-context/
 - **User Stories**: 97 (US-001 to US-094+)
 - **Epics**: 17 (EPIC-001 to EPIC-017)
 - **Phase 1**: 70 stories, 26 weeks
-- **Module Specifications**: 38 files, 10 modules, ~20,500 lines
+- **Module Specifications**: 34 files, 9 modules, ~20,000 lines
 
 ---
 

@@ -4,7 +4,7 @@
 
 ## Overview
 
-This folder contains **38 specification files** (~20,539 lines) that document how DFMS features work, combining:
+This folder contains **34 specification files** (~20,000 lines) that document how DFMS features work, combining:
 - **Business domain knowledge**: Conceptual workflows, business rules, feature behavior
 - **Technical design details**: Data models, APIs, state machines, integration points
 - **Implementation guidance**: Validation rules, edge cases, performance considerations
@@ -21,7 +21,6 @@ These are **module specifications** (not just business requirements or just tech
 
 | Module | Files | Lines | Description |
 |--------|-------|-------|-------------|
-| [00-overview/](00-overview/) | 4 | 487 | Business objectives, product vision, scope, user personas |
 | [01-foundation/](01-foundation/) | 4 | 2,357 | Authentication, RBAC, user/tenant management, system foundation |
 | [02-master-data/](02-master-data/) | 3 | 1,650 | POI management, product inventory, master data configuration |
 | [03-operations/](03-operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
@@ -32,7 +31,9 @@ These are **module specifications** (not just business requirements or just tech
 | [08-reporting/](08-reporting/) | 2 | 924 | Reports and analytics dashboards |
 | [09-cross-cutting/](09-cross-cutting/) | 3 | 835 | Non-functional requirements, security, integrations |
 
-**Total**: 38 files, 20,539 lines of comprehensive technical documentation
+**Total**: 34 files, ~20,000 lines of comprehensive technical documentation
+
+**Note**: Business context (objectives, vision, scope, personas) is in [02-domain/01-overview/](../../02-domain/01-overview/)
 
 ## Documentation Format
 

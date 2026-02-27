@@ -7,7 +7,7 @@ created: 2026-02-13
 updated: 2026-02-13
 source_documents:
   - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../03-module-specifications/00-overview/product-vision.md
+  - ./product-vision.md
 tags: [value-proposition, overview, prd-aligned]
 ---
 

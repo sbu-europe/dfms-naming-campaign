@@ -119,7 +119,7 @@ tags: [business-objectives, risk, mitigation, objectives]
 ## Related Documents
 
 - [Business Objectives Overview](./business-objectives.md) - Complete objectives index
-- [Business Objectives](../../../00-overview/business-objectives.md) - Strategic goals
+- [Business Objectives](../../01-overview/business-objectives.md) - Strategic goals
 
 ---
 

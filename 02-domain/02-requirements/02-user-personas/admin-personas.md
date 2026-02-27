@@ -87,7 +87,7 @@ tags: [user-personas, admin, personas]
 ## Related Documents
 
 - [User Personas Overview](./user-personas.md) - Complete personas index
-- [Stakeholders](../../../00-overview/stakeholders.md) - Stakeholder mapping
+- [Stakeholders](../../01-overview/stakeholders.md) - Stakeholder mapping
 
 ---
 

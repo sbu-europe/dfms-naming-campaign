@@ -15,7 +15,7 @@
 
 - **`01-source/`** - Source documents (PRD, WBS, SOW, flow diagrams, proposals) - Do not modify
 - **`02-domain/`** - Business domain context (overview, requirements, rules, processes, industry)
-- **`03-module-specifications/`** - Technical module specifications (~20,500 lines)
+- **`03-module-specifications/`** - Technical module specifications (34 files, ~20,000 lines)
 - **`04-backlog/`** - Product backlog (epics, stories, phases)
 - **`05-architecture/`** - System architecture & technical decisions
 - **`06-contracts/`** - API contracts & integration specifications
@@ -56,7 +56,7 @@ This repository serves as the **domain context and interface contract layer** fo
 
 | Section | Status | Files | Lines |
 |---------|--------|-------|-------|
-| **Module Specifications** | ✅ Complete | 38 | ~20,500 |
+| **Module Specifications** | ✅ Complete | 34 | ~20,000 |
 | **Domain Context** | ✅ Complete | 60+ | ~15,000 |
 | **Product Backlog** | ✅ Complete | 114 | ~25,000 |
 | **Architecture** | ⏳ In Progress | 30+ | ~10,000 |
