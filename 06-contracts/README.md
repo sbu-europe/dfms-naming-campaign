@@ -1,4 +1,4 @@
-# 6-contracts - Integration Contracts
+# 06-contracts - Integration Contracts
 
 > Machine-readable API specifications, data schemas, and integration contracts
 
@@ -12,16 +12,16 @@ This folder contains formal contracts for system integration:
 
 ## Structure
 
-### `apis/` - REST API Specifications
+### `01-apis/` - REST API Specifications
 OpenAPI/Swagger specs for all REST endpoints.
 
-### `data-models/` - Database Schemas
+### `02-data-models/` - Database Schemas
 Database table definitions, ERDs, migration scripts.
 
-### `events/` - Event Schemas
+### `03-events/` - Event Schemas
 Event-driven architecture message schemas.
 
-### `integration/` - External Integration Contracts
+### `04-integration/` - External Integration Contracts
 Third-party integration specifications (GPS, ERP, payment gateways).
 
 ## Usage

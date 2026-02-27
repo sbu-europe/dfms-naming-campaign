@@ -1,4 +1,4 @@
-# 3-module-specifications - Module Specifications
+# 03-module-specifications - Module Specifications
 
 > **Comprehensive domain knowledge and technical design specifications organized by functional modules**
 
@@ -21,16 +21,16 @@ These are **module specifications** (not just business requirements or just tech
 
 | Module | Files | Lines | Description |
 |--------|-------|-------|-------------|
-| [overview/](overview/) | 4 | 487 | Business objectives, product vision, scope, user personas |
-| [foundation/](foundation/) | 4 | 2,357 | Authentication, RBAC, user/tenant management, system foundation |
-| [master-data/](master-data/) | 3 | 1,650 | POI management, product inventory, master data configuration |
-| [operations/](operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
-| [poi-operations/](poi-operations/) | 4 | 3,460 | Gate management, scaling, QC workflow, command center |
-| [vendor-management/](vendor-management/) | 3 | 2,265 | Vendor onboarding, bidding system, vendor portal |
-| [fleet-management/](fleet-management/) | 4 | 1,501 | Vehicles, drivers, helpers, fuel management |
-| [mobile-apps/](mobile-apps/) | 3 | 1,534 | Driver mobile, QC mobile, vendor mobile applications |
-| [reporting/](reporting/) | 2 | 924 | Reports and analytics dashboards |
-| [cross-cutting/](cross-cutting/) | 3 | 835 | Non-functional requirements, security, integrations |
+| [00-overview/](00-overview/) | 4 | 487 | Business objectives, product vision, scope, user personas |
+| [01-foundation/](01-foundation/) | 4 | 2,357 | Authentication, RBAC, user/tenant management, system foundation |
+| [02-master-data/](02-master-data/) | 3 | 1,650 | POI management, product inventory, master data configuration |
+| [03-operations/](03-operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
+| [04-poi-operations/](04-poi-operations/) | 4 | 3,460 | Gate management, scaling, QC workflow, command center |
+| [05-vendor-management/](05-vendor-management/) | 3 | 2,265 | Vendor onboarding, bidding system, vendor portal |
+| [06-fleet-management/](06-fleet-management/) | 4 | 1,501 | Vehicles, drivers, helpers, fuel management |
+| [07-mobile-apps/](07-mobile-apps/) | 3 | 1,534 | Driver mobile, QC mobile, vendor mobile applications |
+| [08-reporting/](08-reporting/) | 2 | 924 | Reports and analytics dashboards |
+| [09-cross-cutting/](09-cross-cutting/) | 3 | 835 | Non-functional requirements, security, integrations |
 
 **Total**: 38 files, 20,539 lines of comprehensive technical documentation
 

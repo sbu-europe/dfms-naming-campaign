@@ -20,7 +20,7 @@ Product Requirements Documents (PRD) and core specifications.
 - `PRD_DFMS_v1.0.docx` - Primary product requirements document (Word format)
 - `PRD_DFMS_v1.0.md` - Product requirements document (Markdown format)
 
-> 📖 See [PRD Documentation](../business-context/03-module-specifications/) for structured PRD content
+> 📖 See [Module Specifications](../03-module-specifications/) for structured technical documentation
 
 ### `02-flow-diagram/`
 Visual workflow diagrams and process flows for DFMS operations.
@@ -81,6 +81,11 @@ Work Breakdown Structure (WBS) and project planning documents.
 - `WBS_Nourish_DFMS Phase 1 v1.xlsx` - Detailed work breakdown structure spreadsheet
 
 > 📖 See [04-wbs/README.md](04-wbs/README.md) for detailed WBS documentation
+
+### `05-proposals/`
+Project proposals and business case documents.
+
+- `BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.md` - Internal proposal for Nourish LFMS project
 
 ## 📋 File Naming Convention
 

@@ -1,4 +1,4 @@
-# 2-domain - Business Domain Context
+# 02-domain - Business Domain Context
 
 > High-level business context, requirements, and domain knowledge
 
@@ -8,35 +8,46 @@ This folder contains business-focused documentation that provides context for un
 
 ## Structure
 
-### `overview/` - Product Overview
+### `01-overview/` - Product Overview
 Product vision, business objectives, scope, and user personas.
 - What is DFMS?
 - Why does it exist?
 - Who uses it?
 
-### `requirements/` - Requirements
+### `02-requirements/` - Requirements
 High-level functional and non-functional requirements.
-- Business requirements
-- User needs
-- Constraints and assumptions
 
-### `business-rules/` - Business Rules
+#### Subfolders:
+- `01-business-objectives/` - Business goals and success criteria
+- `02-user-personas/` - User roles and persona definitions
+- `03-functional-requirements/` - High-level functional requirements
+- `04-non-functional-requirements/` - Performance, security, scalability
+- `05-constraints-assumptions/` - Project constraints and assumptions
+
+### `03-business-rules/` - Business Rules
 Business validation rules, constraints, and policies.
 - Approval workflows
 - Validation logic
 - Business constraints
 
-### `business-processes/` - Business Processes
+### `04-business-processes/` - Business Processes
 End-to-end business process flows.
 - Transport lifecycle
 - Procurement workflows
 - Operational procedures
 
+### `05-industry-context/` - Industry Context
+Industry-specific knowledge and market context.
+- Industry overview and trends
+- Competitive landscape
+- Regulatory requirements
+- Market strategy
+
 ## Related Documentation
 
-- **Detailed Specifications**: See `../3-module-specifications/` for technical implementation details
-- **User Stories**: See `../4-backlog/stories/` for implementation-ready requirements
-- **Source Documents**: See `../1-source/prd/` for original requirements
+- **Detailed Specifications**: See `../03-module-specifications/` for technical implementation details
+- **User Stories**: See `../04-backlog/02-stories/` for implementation-ready requirements
+- **Source Documents**: See `../01-source/01-prd/` for original requirements
 
 ---
 
