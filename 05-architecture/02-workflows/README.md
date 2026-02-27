@@ -134,9 +134,9 @@ Trip Completed (event) → Notify Stakeholders (parallel)
 ## 🔗 Related Documents
 
 ### Architecture
-- [System Overview](../01-architecture/system-overview.md) - System context
-- [Module Boundaries](../01-architecture/modules/module-boundaries.md) - Module responsibilities
-- [Module Interactions](../01-architecture/modules/module-interactions.md) - Communication patterns
+- [System Overview](../01-system-design/system-overview.md) - System context
+- [Module Boundaries](../01-system-design/modules/module-boundaries.md) - Module responsibilities
+- [Module Interactions](../01-system-design/modules/module-interactions.md) - Communication patterns
 
 ### Business Context
 - [Business Processes](../../02-domain/business-processes/business-processes-overview.md)

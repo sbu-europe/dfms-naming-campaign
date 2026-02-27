@@ -16,13 +16,13 @@ This document provides a complete index of all diagrams in the technical context
 ## 🏗️ Architecture Diagrams (C4 Model)
 
 ### C4 Level 1: System Context
-- **Location**: `01-architecture/diagrams/system-context-diagram.mmd`
-- **Document**: [system-overview.md](../01-architecture/system-overview.md)
+- **Location**: `01-system-design/diagrams/system-context-diagram.mmd`
+- **Document**: [system-overview.md](../01-system-design/system-overview.md)
 - **Description**: High-level system context showing DFMS and its external actors
 
 ### C4 Level 2: Container View
-- **Location**: `01-architecture/diagrams/container-diagram.mmd`
-- **Document**: [container-view.md](../01-architecture/container-view.md)
+- **Location**: `01-system-design/diagrams/container-diagram.mmd`
+- **Document**: [container-view.md](../01-system-design/container-view.md)
 - **Description**: Container-level architecture showing 10 containers and their interactions
 
 ---
@@ -123,7 +123,7 @@ Located in `04-diagrams/sequences/`:
 
 ## 🔗 Data Flow Diagrams
 
-- **Location**: `01-architecture/data-architecture/data-flow.md`
+- **Location**: `01-system-design/data-architecture/data-flow.md`
 - **Type**: Data flow diagram
 - **Description**: Data flow patterns within DFMS
 
@@ -210,7 +210,7 @@ Located in `04-diagrams/states/`:
 
 ## 🔗 Related Documents
 
-- [Architecture Overview](../01-architecture/system-overview.md)
+- [Architecture Overview](../01-system-design/system-overview.md)
 - [Workflows](../02-workflows/README.md)
 - [C4 Model Documentation](https://c4model.com/)
 

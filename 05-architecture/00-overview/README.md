@@ -51,7 +51,7 @@ High-level technology choices and rationale:
 
 ### **For Architects**
 1. Read [Architecture Summary](./architecture-summary.md)
-2. Review [System Overview](../01-architecture/system-overview.md) (C4 Level 1)
+2. Review [System Overview](../01-system-design/system-overview.md) (C4 Level 1)
 3. Study [Design Principles](./design-principles.md)
 4. Explore [Architectural Decisions](../04-decisions/adr/)
 
@@ -63,8 +63,8 @@ High-level technology choices and rationale:
 
 ### **For Technical Product Managers**
 1. Read [Architecture Summary](./architecture-summary.md)
-2. Review [System Overview](../01-architecture/system-overview.md)
-3. Understand [Module Boundaries](../01-architecture/modules/module-boundaries.md)
+2. Review [System Overview](../01-system-design/system-overview.md)
+3. Understand [Module Boundaries](../01-system-design/modules/module-boundaries.md)
 4. Check [Deployment Strategy](../03-implementation/deployment-strategy/)
 
 ---
@@ -75,8 +75,8 @@ This technical context follows the **C4 Model** for architecture documentation:
 
 | Level | Scope | Documents |
 |-------|-------|-----------|
-| **Level 1** | System Context | [System Overview](../01-architecture/system-overview.md), [System Context Diagram](../01-architecture/diagrams/system-context-diagram.mmd) |
-| **Level 2** | Containers | [Container View](../01-architecture/container-view.md), [Module Boundaries](../01-architecture/modules/module-boundaries.md) |
+| **Level 1** | System Context | [System Overview](../01-system-design/system-overview.md), [System Context Diagram](../01-system-design/diagrams/system-context-diagram.mmd) |
+| **Level 2** | Containers | [Container View](../01-system-design/container-view.md), [Module Boundaries](../01-system-design/modules/module-boundaries.md) |
 | **Level 3-4** | Components & Code | ❌ Not in this repo (implementation repos) |
 
 **Why C4 Level 1-2 Only?**
@@ -167,7 +167,7 @@ Modules communicate via events:
 ### **Diagrams**
 - **Format**: Mermaid (`.mmd` files)
 - **Style**: C4 Model conventions
-- **Location**: `../01-architecture/diagrams/`
+- **Location**: `../01-system-design/diagrams/`
 
 ### **Contracts**
 - **APIs**: OpenAPI 3.0 (`.yaml` files)
@@ -186,15 +186,15 @@ Modules communicate via events:
 
 ### **"I want to understand the system architecture"**
 → Start with [Architecture Summary](./architecture-summary.md)  
-→ Then read [System Overview](../01-architecture/system-overview.md)
+→ Then read [System Overview](../01-system-design/system-overview.md)
 
 ### **"I want to understand module structure"**
-→ Read [Module Boundaries](../01-architecture/modules/module-boundaries.md)  
-→ Check [Module Interactions](../01-architecture/modules/module-interactions.md)
+→ Read [Module Boundaries](../01-system-design/modules/module-boundaries.md)  
+→ Check [Module Interactions](../01-system-design/modules/module-interactions.md)
 
 ### **"I want to understand integration patterns"**
-→ Read [Integration Patterns](../01-architecture/integration/integration-patterns.md)  
-→ Check [External Systems](../01-architecture/integration/external-systems.md)
+→ Read [Integration Patterns](../01-system-design/integration/integration-patterns.md)  
+→ Check [External Systems](../01-system-design/integration/external-systems.md)
 
 ### **"I want to see API contracts"**
 → Browse [API Contracts](../05-contracts/api/rest/)  

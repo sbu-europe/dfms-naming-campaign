@@ -8,8 +8,8 @@
 
 The high-level architecture diagrams are maintained in the DFMS Product Context submodule:
 
-- **[System Context Diagram](../../DFMS-product-context/technical-context/01-architecture/diagrams/system-context-diagram.mmd)** - C4 Level 1
-- **[Container Diagram](../../DFMS-product-context/technical-context/01-architecture/diagrams/container-diagram.mmd)** - C4 Level 2
+- **[System Context Diagram](../../DFMS-product-context/technical-context/01-system-design/diagrams/system-context-diagram.mmd)** - C4 Level 1
+- **[Container Diagram](../../DFMS-product-context/technical-context/01-system-design/diagrams/container-diagram.mmd)** - C4 Level 2
 - **[Deployment Diagram](../../DFMS-product-context/technical-context/04-diagrams/deployment/deployment-diagram.mmd)** - Infrastructure architecture
 - **[Sequence Diagrams](../../DFMS-product-context/technical-context/04-diagrams/sequences/)** - Interaction flows
 - **[State Diagrams](../../DFMS-product-context/technical-context/04-diagrams/states/)** - State machines

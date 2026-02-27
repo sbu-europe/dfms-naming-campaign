@@ -63,7 +63,7 @@ DFMS-product-context/
 │
 ├── 05-architecture/                   # System architecture
 │   ├── 00-overview/                   # Architecture summary
-│   ├── 01-architecture/               # C4 architecture
+│   ├── 01-system-design/               # C4 architecture
 │   ├── 02-workflows/                  # Technical workflows
 │   ├── 03-decisions/                  # ADRs
 │   ├── 03-implementation/             # Implementation planning

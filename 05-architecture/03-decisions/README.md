@@ -93,7 +93,7 @@ Template for creating new ADRs.
 - [Design Principles](../00-overview/design-principles.md)
 - [Architecture Summary](../00-overview/architecture-summary.md)
 - [Technology Stack](../00-overview/technology-stack-overview.md)
-- [Integration Patterns](../01-architecture/integration/integration-patterns.md)
+- [Integration Patterns](../01-system-design/integration/integration-patterns.md)
 
 ---
 

@@ -81,9 +81,9 @@ Data model visualizations:
 ## 📊 Diagram Locations
 
 ### Architecture Diagrams
-- **C4 Level 1-2**: `01-architecture/diagrams/`
-- **System Context**: `01-architecture/diagrams/system-context-diagram.mmd`
-- **Container View**: `01-architecture/diagrams/container-diagram.mmd`
+- **C4 Level 1-2**: `01-system-design/diagrams/`
+- **System Context**: `01-system-design/diagrams/system-context-diagram.mmd`
+- **Container View**: `01-system-design/diagrams/container-diagram.mmd`
 
 ### Workflow Diagrams
 - **Operational Flows**: `02-workflows/operational-flows/` (embedded in documents)
@@ -128,7 +128,7 @@ Data model visualizations:
 
 ## 🔗 Related Documents
 
-- [Architecture Overview](../01-architecture/system-overview.md)
+- [Architecture Overview](../01-system-design/system-overview.md)
 - [Workflows](../02-workflows/README.md)
 - [C4 Model](https://c4model.com/)
 - [Mermaid Documentation](https://mermaid.js.org/)

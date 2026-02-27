@@ -35,14 +35,14 @@ This repository documents architecture at **C4 Level 1-2** only:
 #### **Level 1: System Context**
 - **What**: DFMS as a black box
 - **Shows**: Users, external systems, data flows
-- **Document**: [System Overview](../01-architecture/system-overview.md)
-- **Diagram**: [System Context Diagram](../01-architecture/diagrams/system-context-diagram.mmd)
+- **Document**: [System Overview](../01-system-design/system-overview.md)
+- **Diagram**: [System Context Diagram](../01-system-design/diagrams/system-context-diagram.mmd)
 
 #### **Level 2: Container View**
 - **What**: High-level technical building blocks
 - **Shows**: Web app, mobile apps, API layer, database, message queue
-- **Document**: [Container View](../01-architecture/container-view.md) *(coming)*
-- **Diagram**: [Container Diagram](../01-architecture/diagrams/container-diagram.mmd) *(coming)*
+- **Document**: [Container View](../01-system-design/container-view.md) *(coming)*
+- **Diagram**: [Container Diagram](../01-system-design/diagrams/container-diagram.mmd) *(coming)*
 
 #### **Level 3-4: Components & Code**
 - **What**: Detailed implementation
@@ -574,10 +574,10 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 ## 🔗 Related Documents
 
 ### Architecture Details
-- [System Overview](../01-architecture/system-overview.md) - C4 Level 1
-- [Container View](../01-architecture/container-view.md) - C4 Level 2 *(coming)*
-- [Module Boundaries](../01-architecture/modules/module-boundaries.md) *(coming)*
-- [Integration Patterns](../01-architecture/integration/integration-patterns.md) *(coming)*
+- [System Overview](../01-system-design/system-overview.md) - C4 Level 1
+- [Container View](../01-system-design/container-view.md) - C4 Level 2 *(coming)*
+- [Module Boundaries](../01-system-design/modules/module-boundaries.md) *(coming)*
+- [Integration Patterns](../01-system-design/integration/integration-patterns.md) *(coming)*
 
 ### Design & Implementation
 - [Design Principles](./design-principles.md)
