@@ -42,8 +42,7 @@ DFMS-product-context/
 │   ├── 04-business-processes/         # Business processes
 │   └── 05-industry-context/           # Industry context
 │
-├── 03-module-specifications/          # Technical specifications (~20,500 lines)
-│   ├── 00-overview/                   # Business objectives, vision, scope
+├── 03-module-specifications/          # Technical specifications (~20,000 lines)
 │   ├── 01-foundation/                 # Auth, RBAC, user management
 │   ├── 02-master-data/                # POI, products, master data
 │   ├── 03-operations/                 # PRM, TRM, TO, trip management
@@ -114,7 +113,7 @@ Follow this sequence to understand the repository:
 5. **[03-module-specifications/](./03-module-specifications/)** *(Technical deep dive)*
    - Domain knowledge + technical design
    - Data models, APIs, workflows
-   - 38 files, ~20,500 lines
+   - 34 files, ~20,000 lines
 
 ---
 
