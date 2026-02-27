@@ -4,139 +4,317 @@ DFMS-product-context/
 ├── 01-PRODUCT_VISION.md                         # Product vision and strategy
 ├── 02-REPOSITORY_PURPOSE.md                     # Repository architecture
 │
-├── business-context/                            # ⏳ Needs Review (v1.0.0)
-│   ├── README.md
-│   ├── BUSINESS_CONTEXT_PLAN.md                 # Business context plan
-│   ├── BUSINESS_CONTEXT_COMPLETION_REPORT.md    # Completion report
-│   ├── BUSINESS_CONTEXT_STATUS.md               # Status report
+├── 01-source/                                   # ✅ Source documents (do not modify)
+│   ├── README.md                                # Source documents guide
+│   ├── 01-prd/                                  # Product Requirements Documents
+│   │   ├── PRD_DFMS_v1.0.docx                  # Original PRD (Word)
+│   │   └── PRD_DFMS_v1.0.md                    # PRD (Markdown)
 │   │
-│   ├── 00-overview/                             # Foundation documents
+│   ├── 02-flow-diagram/                         # Operational flow diagrams
+│   │   └── (8 flow diagrams v1.1-v1.6)
+│   │
+│   ├── 03-sow/                                  # Statement of Work
+│   │   ├── SOW Phase-1.md                       # Phase 1 SOW (26 weeks)
+│   │   ├── SOW Phase-2.md                       # Phase 2 SOW
+│   │   ├── SOW Phase-3.md                       # Phase 3 SOW
+│   │   ├── user-roles.md                        # User roles matrix
+│   │   └── DFMS - Feature List version_1.xlsx
+│   │
+│   ├── 04-wbs/                                  # Work Breakdown Structure
+│   │   ├── README.md                            # WBS documentation
+│   │   ├── epics-table.md                       # 17 epics
+│   │   ├── stories-table.md                     # 94+ stories
+│   │   ├── timeline-table.md                    # 12 sprints, 26 weeks
+│   │   ├── dependencies-table.md                # Dependencies
+│   │   ├── risks-table.md                       # Risk register
+│   │   ├── release-table.md                     # Release plan
+│   │   └── WBS_Nourish_DFMS Phase 1 v1.xlsx
+│   │
+│   └── 05-proposals/                            # Project proposals
+│       └── BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.md
+│
+├── 02-domain/                                   # ✅ Business domain context
+│   ├── README.md
+│   ├── 01-overview/                             # Product overview
 │   │   ├── project-summary.md
 │   │   ├── business-context.md
+│   │   ├── product-vision.md
+│   │   ├── scope.md
 │   │   ├── stakeholders.md
+│   │   ├── value-proposition.md
+│   │   ├── business-objectives.md
+│   │   ├── current-challenges.md
 │   │   └── glossary.md
 │   │
-│   ├── 01-business-domain/                      # Domain knowledge
-│   │   ├── industry-context/
-│   │   ├── business-processes/
-│   │   └── business-rules/
-│   │
 │   ├── 02-requirements/                         # Requirements
+│   │   ├── README.md
+│   │   ├── 01-business-objectives/              # Business goals & KPIs
+│   │   ├── 02-user-personas/                    # 21 personas
+│   │   ├── 03-functional-requirements/          # High-level requirements
+│   │   ├── 04-non-functional-requirements/      # Performance, security
+│   │   └── 05-constraints-assumptions/          # Constraints & assumptions
+│   │
+│   ├── 03-business-rules/                       # Business validation rules
+│   │   ├── README.md
+│   │   ├── business-rules.md
+│   │   ├── requisition-rules.md
+│   │   ├── transport-rules.md
+│   │   ├── operations-rules.md
+│   │   ├── qc-rules.md
+│   │   ├── vendor-rules.md
+│   │   ├── master-data-rules.md
+│   │   ├── financial-rules.md
+│   │   └── system-rules.md
+│   │
+│   ├── 04-business-processes/                   # End-to-end workflows
+│   │   ├── README.md
+│   │   ├── business-processes-overview.md
+│   │   ├── product-requisition-process.md
+│   │   ├── transport-planning-process.md
+│   │   ├── gate-management-process.md
+│   │   ├── qc-process.md
+│   │   ├── vendor-management-process.md
+│   │   ├── trip-costing-process.md
+│   │   └── command-center-process.md
+│   │
+│   └── 05-industry-context/                     # Industry knowledge
+│       ├── README.md
+│       ├── industry-context.md
+│       ├── industry-overview.md
+│       ├── industry-trends.md
+│       ├── industry-challenges.md
+│       ├── industry-regulations.md
+│       ├── industry-requirements.md
+│       ├── competitive-landscape.md
+│       ├── market-strategy.md
+│       ├── target-market.md
+│       ├── success-factors.md
+│       └── future-outlook.md
+│
+├── 03-module-specifications/                    # ✅ Technical specifications (~20,500 lines)
+│   ├── README.md                                # Module specifications overview
+│   ├── 00-overview/                             # Foundation (4 files, 487 lines)
 │   │   ├── business-objectives.md
-│   │   ├── user-personas.md
-│   │   ├── functional-requirements/
-│   │   ├── non-functional-requirements/
-│   │   └── constraints-assumptions.md
+│   │   ├── product-vision.md
+│   │   ├── scope.md
+│   │   └── user-personas.md
 │   │
-│   ├── 03-module-specifications/                # PRD by module
-│   │   └── (00-overview … 11-reference)
+│   ├── 01-foundation/                           # Auth, RBAC, user mgmt (4 files, 2,357 lines)
+│   │   ├── system-foundation.md
+│   │   ├── authentication-security.md
+│   │   ├── rbac.md
+│   │   └── user-tenant-management.md
 │   │
-│   ├── 04-phase-backlog/                        # Epics & user stories by phase
-│   │   ├── feature-overview.md
-│   │   ├── feature-dependencies.md
-│   │   ├── phase-1/                             # 70 user stories, 17 epics
-│   │   ├── phase-2/
-│   │   ├── phase-3/
-│   │   └── PHASE-2-3-IMPLEMENTATION-GUIDE.md
+│   ├── 02-master-data/                          # POI, products (3 files, 1,650 lines)
+│   │   ├── poi-management.md
+│   │   ├── product-inventory-management.md
+│   │   └── master-data-configuration.md
 │   │
-│   ├── 05-data-reference/                       # Data models
-│   │   ├── data-dictionary.md
-│   │   ├── master-data/
-│   │   └── transactional-data/
+│   ├── 03-operations/                           # PRM, TRM, TO, trips (4 files, 3,275 lines)
+│   │   ├── product-requisition-management.md
+│   │   ├── transport-requisition-management.md
+│   │   ├── transport-order-management.md
+│   │   └── trip-management.md
 │   │
-│   └── 06-reference/                            # Reference materials
-│       ├── version-history.md
-│       ├── quick-reference-guide.md
-│       ├── cross-reference-index.md
-│       └── source-document-mapping.md
+│   ├── 04-poi-operations/                       # Gate, scaling, QC (4 files, 3,460 lines)
+│   │   ├── gate-management.md
+│   │   ├── scaling-management.md
+│   │   ├── qc-workflow.md
+│   │   └── command-center.md
+│   │
+│   ├── 05-vendor-management/                    # Vendor ecosystem (3 files, 2,265 lines)
+│   │   ├── vendor-onboarding.md
+│   │   ├── vendor-bidding.md
+│   │   └── vendor-portal.md
+│   │
+│   ├── 06-fleet-management/                     # Vehicles, drivers (4 files, 1,501 lines)
+│   │   ├── vehicle-management.md
+│   │   ├── driver-management.md
+│   │   ├── helper-management.md
+│   │   └── fuel-management.md
+│   │
+│   ├── 07-mobile-apps/                          # Mobile applications (3 files, 1,534 lines)
+│   │   ├── driver-mobile.md
+│   │   ├── qc-mobile.md
+│   │   └── vendor-mobile.md
+│   │
+│   ├── 08-reporting/                            # Reports & analytics (2 files, 924 lines)
+│   │   ├── reporting.md
+│   │   └── analytics.md
+│   │
+│   └── 09-cross-cutting/                        # NFRs, security (3 files, 835 lines)
+│       ├── non-functional-requirements.md
+│       ├── security-compliance.md
+│       └── integration-requirements.md
 │
-├── source-documents/                            # Original BA documents
+├── 04-backlog/                                  # ✅ Product backlog (97 stories, 17 epics)
+│   ├── README.md                                # Backlog overview
+│   │
+│   ├── 01-epics/                                # Strategic themes (17 epics)
+│   │   ├── EPIC-001-system-foundation.md
+│   │   ├── EPIC-002-user-and-tenant-foundation.md
+│   │   ├── EPIC-003-master-data-and-configuration.md
+│   │   ├── ...
+│   │   └── EPIC-017-mobile-applications-vendor.md
+│   │
+│   ├── 02-stories/                              # Implementation tasks (97 stories, flat list)
+│   │   ├── US-001-user-login-account-lockout.md
+│   │   ├── US-002-multi-factor-auth.md
+│   │   ├── ...
+│   │   └── US-094-vendor-application-access.md
+│   │
+│   └── 03-phases/                               # Phase planning & tracking
+│       ├── phase-1/                             # 70 stories (26 weeks)
+│       │   ├── story-list.md                    # Stories organized by epic
+│       │   ├── phase-1-summary.md
+│       │   ├── PRD-ALIGNMENT-REPORT.md
+│       │   ├── WBS-DIFFERENCES.md
+│       │   └── PHASE-1-COMPLETION-REPORT.md
+│       │
+│       ├── phase-2/                             # 16 stories (planning)
+│       │   ├── story-list.md
+│       │   └── phase-2-summary.md
+│       │
+│       ├── phase-3/                             # 8 stories (planning)
+│       │   ├── story-list.md
+│       │   └── phase-3-summary.md
+│       │
+│       └── planning-docs/                       # Planning documents
+│           ├── PHASE-2-3-IMPLEMENTATION-GUIDE.md
+│           ├── feature-overview.md
+│           └── feature-dependencies.md
+│
+├── 05-architecture/                             # ⏳ System architecture (in progress)
 │   ├── README.md
-│   ├── requirements/
-│   │   └── PRD_DFMS_v1.0.docx
+│   ├── 00-overview/                             # Architecture foundation
+│   │   ├── architecture-summary.md
+│   │   ├── design-principles.md
+│   │   └── technology-stack-overview.md
 │   │
-│   ├── discovery-phase/
-│   │   ├── README.md
-│   │   ├── client-feedback/
-│   │   ├── questionnaires/
-│   │   ├── client-resources/
-│   │   │   └── master-data/
-│   │   ├── flow-diagrams/
-│   │   └── feature-lists/
+│   ├── 01-architecture/                         # C4 Level 1-2
+│   │   ├── system-overview.md
+│   │   ├── container-view.md
+│   │   ├── diagrams/
+│   │   ├── modules/
+│   │   ├── data-architecture/
+│   │   └── integration/
 │   │
-│   ├── business-proposal/
-│   │   ├── README.md
-│   │   ├── BS23_Proposal_Nourish_LFMS_v1.2.1_Internal.docx
-│   │   └── BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
+│   ├── 02-workflows/                            # Technical workflows
+│   │   ├── operational-flows/
+│   │   ├── user-workflows/
+│   │   └── exception-handling/
 │   │
-│   ├── planning/
-│   │   ├── feature-lists/
-│   │   └── work-breakdown/
+│   ├── 03-decisions/                            # ADRs
+│   │   ├── adr-template.md
+│   │   ├── adr-001-microservices-architecture.md
+│   │   └── ...
 │   │
-│   ├── meeting-minutes/
-│   │   ├── 2025-07/
-│   │   ├── 2025-09/
-│   │   ├── 2025-10/
-│   │   ├── 2025-11/
-│   │   └── 2025-12/
+│   ├── 03-implementation/                       # Implementation planning
+│   │   ├── planning/
+│   │   ├── deployment-strategy/
+│   │   ├── testing-approach.md
+│   │   ├── migration-strategy.md
+│   │   └── rollout-plan.md
 │   │
-│   └── reviews/
+│   ├── 04-diagrams/                             # Technical diagrams
+│   │   ├── diagrams-index.md
+│   │   ├── sequences/
+│   │   ├── deployment/
+│   │   ├── integration/
+│   │   ├── states/
+│   │   └── data/
+│   │
+│   ├── 05-contracts/                            # Legacy contracts location
+│   └── 06-reference/                            # Architecture reference
 │
-└── technical-context/                           # ⏳ Needs Review (v1.0.0)
-    ├── README.md                                # Technical context overview
-    ├── TECHNICAL_CONTEXT_PLAN.md                # Technical context plan
-    ├── TECHNICAL_CONTEXT_STATUS.md              # Status report
-    │
-    ├── 00-overview/                             # Foundation
-    │   ├── architecture-summary.md
-    │   ├── design-principles.md
-    │   └── technology-stack-overview.md
-    │
-    ├── 01-architecture/                        # Architecture (C4 Level 1-2)
-    │   ├── system-overview.md
-    │   ├── container-view.md
-    │   ├── diagrams/                           # C4 diagrams
-    │   ├── modules/                            # Module boundaries & interactions
-    │   ├── data-architecture/                  # Data model & flow
-    │   └── integration/                        # Integration patterns
-    │
-    ├── 02-workflows/                           # Technical workflows
-    │   ├── operational-flows/                  # 7 operational flows
-    │   ├── user-workflows/                     # 5 user workflows
-    │   └── exception-handling/                 # 14 exception scenarios
-    │
-    ├── 03-implementation/                      # Implementation approach
-    │   ├── deployment-strategy/
-    │   ├── testing-approach.md
-    │   ├── migration-strategy.md
-    │   └── rollout-plan.md
-    │
-    ├── 03-decisions/                           # Architecture Decision Records
-    │   ├── adr-template.md
-    │   ├── adr-001-microservices-architecture.md
-    │   ├── adr-002-event-driven-communication.md
-    │   ├── adr-003-api-first-design.md
-    │   ├── adr-100-technology-stack.md
-    │   └── adr-200-integration-patterns.md
-    │
-    ├── 04-diagrams/                            # Technical diagrams (37 diagrams)
-    │   ├── diagrams-index.md                  # Complete index
-    │   ├── sequences/                         # 3 sequence diagrams
-    │   ├── deployment/                        # Deployment diagram
-    │   ├── integration/                       # Integration diagram
-    │   ├── states/                           # 2 state diagrams
-    │   └── data/                             # ER diagram
-    │
-    └── 05-contracts/                          # Interface contracts
-        ├── api/rest/                          # 10 REST APIs (OpenAPI 3.0)
-        ├── api/schemas/                       # Common schemas
-        ├── events/                            # 37 domain events (AsyncAPI 2.6.0)
-        ├── data-models/                       # Entities, enums, value objects
-        └── integration/                      # 6 external integration contracts
+├── 06-contracts/                                # ✅ Integration contracts
+│   ├── README.md
+│   │
+│   ├── 01-apis/                                 # REST API specifications
+│   │   ├── README.md
+│   │   ├── rest/                                # OpenAPI 3.0 specs
+│   │   │   ├── master-data-management.yaml
+│   │   │   ├── product-requisition.yaml
+│   │   │   ├── transport-management.yaml
+│   │   │   ├── operations-management.yaml
+│   │   │   ├── quality-control.yaml
+│   │   │   ├── vendor-management.yaml
+│   │   │   ├── mobile.yaml
+│   │   │   ├── reporting.yaml
+│   │   │   ├── trip-costing.yaml
+│   │   │   └── notifications.yaml
+│   │   └── schemas/
+│   │       └── common-schemas.yaml
+│   │
+│   ├── 02-data-models/                          # Data schemas
+│   │   ├── README.md
+│   │   ├── common-entities.yaml
+│   │   ├── enums-constants.yaml
+│   │   └── value-objects.yaml
+│   │
+│   ├── 03-events/                               # Event schemas
+│   │   ├── README.md
+│   │   ├── event-catalog.md
+│   │   └── event-specifications.yaml
+│   │
+│   └── 04-integration/                          # External integrations
+│       ├── README.md
+│       ├── erp-integration.yaml
+│       ├── gps-vts-integration.yaml
+│       ├── maps-service-integration.yaml
+│       ├── payment-gateway-integration.yaml
+│       ├── sms-gateway-integration.yaml
+│       └── iot-devices-integration.yaml
 │
-└── change-requests/                           # Change request management
-    ├── README.md                              # Change requests overview
-    ├── CR-TEMPLATE.md                         # CR template
-    ├── CR-INDEX.md                            # Change requests index
-    └── CR-001-phase-based-architecture.md     # Change requests
+├── 07-reference/                                # ✅ Reference materials
+│   ├── README.md
+│   │
+│   ├── archive/                                 # Archived documents
+│   │   ├── README.md
+│   │   └── (old structure artifacts)
+│   │
+│   ├── data-reference/                          # Data dictionaries
+│   │   ├── README.md
+│   │   ├── data-dictionary.md                   # 10 entities, 200+ fields
+│   │   ├── master-data/
+│   │   │   └── master-data-overview.md
+│   │   └── transactional-data/
+│   │       └── transactional-data-overview.md
+│   │
+│   └── reports/                                 # Project reports
+│       └── VERIFICATION_REPORT.md
+│
+└── 08-change-requests/                          # ✅ Change management
+    ├── README.md                                # Change requests overview
+    ├── CR-TEMPLATE.md                           # CR template
+    ├── CR-INDEX.md                              # Change requests index
+    └── CR-001-phase-based-architecture.md
 
+---
+
+## Summary Statistics
+
+**Total Files**: ~300+ markdown files
+**Total Lines**: ~70,000+ lines of documentation
+
+### By Section:
+- **01-source**: 40+ files (source documents)
+- **02-domain**: 60+ files (~15,000 lines)
+- **03-module-specifications**: 38 files (~20,500 lines)
+- **04-backlog**: 114 files (97 stories, 17 epics, ~25,000 lines)
+- **05-architecture**: 30+ files (~10,000 lines)
+- **06-contracts**: 20+ files (API/event contracts)
+- **07-reference**: 10+ files (data dictionaries, reports)
+- **08-change-requests**: 5+ files
+
+### Key Metrics:
+- **User Stories**: 97 (US-001 to US-094+)
+- **Epics**: 17 (EPIC-001 to EPIC-017)
+- **Phase 1**: 70 stories, 26 weeks
+- **Module Specifications**: 38 files, 10 modules, ~20,500 lines
+
+---
+
+**Last Updated**: February 27, 2026
+**Structure**: Optimized for LLM efficiency and human navigation
+**Organization**: Numbered folders (01-08) with consistent double-digit prefixes
