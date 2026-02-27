@@ -91,14 +91,8 @@ DFMS-product-context/
 │       ├── success-factors.md
 │       └── future-outlook.md
 │
-├── 03-module-specifications/                    # ✅ Technical specifications (~20,500 lines)
+├── 03-module-specifications/                    # ✅ Technical specifications (~20,000 lines)
 │   ├── README.md                                # Module specifications overview
-│   ├── 00-overview/                             # Foundation (4 files, 487 lines)
-│   │   ├── business-objectives.md
-│   │   ├── product-vision.md
-│   │   ├── scope.md
-│   │   └── user-personas.md
-│   │
 │   ├── 01-foundation/                           # Auth, RBAC, user mgmt (4 files, 2,357 lines)
 │   │   ├── system-foundation.md
 │   │   ├── authentication-security.md
