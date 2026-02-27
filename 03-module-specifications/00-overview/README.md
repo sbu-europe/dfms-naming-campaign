@@ -110,7 +110,7 @@ User personas and business objectives defined here inform:
 
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
 
 ---
 

@@ -90,9 +90,9 @@ This technical context follows the **C4 Model** for architecture documentation:
 ## 🔗 Related Documentation
 
 ### **Business Context**
-- [Business Context Overview](../../business-context/00-overview/)
-- [Business Processes](../../business-context/01-business-domain/business-processes/)
-- [User Stories](../../business-context/04-phase-backlog/phase-1/user-stories/)
+- [Business Context Overview](../../02-domain/01-overview/)
+- [Business Processes](../../02-domain/business-processes/)
+- [User Stories](../../04-backlog/02-stories/)
 
 ### **Strategic Documents**
 - [Product Vision](../../01-PRODUCT_VISION.md)

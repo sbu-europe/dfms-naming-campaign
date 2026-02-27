@@ -68,8 +68,8 @@ This folder contains reference information about data structures used in DFMS, i
 ## 📊 Data Sources
 
 All data structures derived from:
-- `source-documents/discovery-phase/client-resources/master-data/*.xlsx` - Sample master data
-- `source-documents/01-prd/PRD_DFMS_v1.0.docx` - Data model specifications
+- `01-source/discovery-phase/client-resources/master-data/*.xlsx` - Sample master data
+- `01-source/01-prd/PRD_DFMS_v1.0.docx` - Data model specifications
 - Meeting minutes and discovery sessions - Business rules and constraints
 
 ---
@@ -78,7 +78,7 @@ All data structures derived from:
 
 - [Business Rules](../01-business-domain/business-rules/business-rules.md) - Rules governing data
 - [User Stories](../04-phase-backlog/) - Features using this data
-- [Technical Context](../../../technical-context/) - API contracts and schemas
+- [Technical Context](../../../05-architecture/) - API contracts and schemas
 
 ---
 

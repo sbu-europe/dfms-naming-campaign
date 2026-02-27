@@ -102,7 +102,7 @@ This folder contains:
 
 ## 🔗 Related Documentation
 
-- **[Business Context](../business-context/)** - ✅ Complete business documentation
+- **[Business Context](../02-domain/)** - ✅ Complete business documentation
 - **[Technical Context Plan](./TECHNICAL_CONTEXT_PLAN.md)** - Detailed plan for this folder
 - **[Repository Purpose](../02-REPOSITORY_PURPOSE.md)** - How this repo fits in architecture
 

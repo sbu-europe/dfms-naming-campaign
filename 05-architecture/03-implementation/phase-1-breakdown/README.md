@@ -9,7 +9,7 @@
 
 ## 📋 Overview
 
-This folder contains the detailed Phase 1 implementation breakdown based on the WBS (Work Breakdown Structure) from `source-documents/04-wbs/`. These documents provide:
+This folder contains the detailed Phase 1 implementation breakdown based on the WBS (Work Breakdown Structure) from `01-source/04-wbs/`. These documents provide:
 
 - Epic-level breakdown with dependencies
 - Story-level breakdown with dependencies
@@ -80,13 +80,13 @@ Sprint-by-sprint implementation timeline:
 ## 🔗 Related Documents
 
 ### Source Documents
-- **[WBS Epics Table](../../../source-documents/04-wbs/epics-table.md)**
-- **[WBS Stories Table](../../../source-documents/04-wbs/stories-table.md)**
-- **[WBS Dependencies](../../../source-documents/04-wbs/dependencies-table.md)**
-- **[WBS Timeline](../../../source-documents/04-wbs/timeline-table.md)**
-- **[WBS Risks](../../../source-documents/04-wbs/risks-table.md)**
-- **[SOW Phase 1](../../../source-documents/03-sow/SOW%20Phase-1.md)**
-- **[PRD](../../../source-documents/01-prd/PRD_DFMS_v1.0.md)**
+- **[WBS Epics Table](../../../01-source/04-wbs/epics-table.md)**
+- **[WBS Stories Table](../../../01-source/04-wbs/stories-table.md)**
+- **[WBS Dependencies](../../../01-source/04-wbs/dependencies-table.md)**
+- **[WBS Timeline](../../../01-source/04-wbs/timeline-table.md)**
+- **[WBS Risks](../../../01-source/04-wbs/risks-table.md)**
+- **[SOW Phase 1](../../../01-source/03-sow/SOW%20Phase-1.md)**
+- **[PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)**
 
 ### Implementation Documents
 - **[Implementation Planning](../planning/)** - Strategic planning documents

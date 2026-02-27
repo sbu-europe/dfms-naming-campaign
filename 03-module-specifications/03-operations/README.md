@@ -342,7 +342,7 @@ GET /api/v1/trips/{trip_id}/cost-breakdown
 
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
 - **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---

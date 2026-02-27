@@ -83,7 +83,7 @@ Strong consistency within modules, eventual consistency across modules.
 - [Data Model Overview](./data-model-overview.md)
 - [Data Flow](./data-flow.md)
 - [Module Boundaries](../modules/module-boundaries.md)
-- [Data Dictionary](../../../business-context/05-data-reference/data-dictionary.md)
+- [Data Dictionary](../../../07-reference/data-reference/data-dictionary.md)
 
 ---
 

@@ -91,8 +91,8 @@ Ensure data integrity throughout migration.
 - [Design Principles](../00-overview/design-principles.md)
 
 ### Business Context
-- [Business Objectives](../../business-context/02-requirements/business-objectives.md)
-- [Deployment Phases](../../business-context/00-overview/project-summary.md)
+- [Business Objectives](../../02-domain/02-requirements/business-objectives.md)
+- [Deployment Phases](../../02-domain/01-overview/project-summary.md)
 
 ---
 

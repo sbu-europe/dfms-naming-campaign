@@ -199,7 +199,7 @@ This folder contains foundational documents that provide a comprehensive introdu
 **Next Steps**:
 - Review [Requirements](../02-requirements/) for detailed specifications
 - Study [Features](../04-phase-backlog/) for implementation scope
-- Check [Technical Context](../../technical-context/) for architecture
+- Check [Technical Context](../../05-architecture/) for architecture
 
 ---
 
@@ -236,8 +236,8 @@ All documents in order:
 
 ### Outside Business Context
 
-- **[Technical Context](../../technical-context/)** - Architecture, workflows, and contracts
-- **[Source Documents](../../source-documents/)** - Original BA documents
+- **[Technical Context](../../05-architecture/)** - Architecture, workflows, and contracts
+- **[Source Documents](../../01-source/)** - Original BA documents
 - **[Product Vision](../../01-PRODUCT_VISION.md)** - Strategic vision and principles
 
 ---
@@ -320,7 +320,7 @@ If you have questions about these documents or suggestions for improvement:
 
 1. **For Content**: Contact the Business Context Team
 2. **For Structure**: Refer to [BUSINESS_CONTEXT_PLAN.md](../../BUSINESS_CONTEXT_PLAN.md)
-3. **For Technical Details**: See [Technical Context](../../technical-context/)
+3. **For Technical Details**: See [Technical Context](../../05-architecture/)
 
 ---
 

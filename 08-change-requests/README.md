@@ -102,7 +102,7 @@ Change requests are categorized by their primary impact area:
 |----|--------|
 | Update **CR-INDEX.md** whenever you add or change a CR | Create a CR without adding it to the index |
 | Use the next sequential number from the index | Reuse numbers or skip without documenting |
-| If a CR affects `source-documents/`, say so and get alignment | Change WBS/PRD without a CR or traceability |
+| If a CR affects `01-source/`, say so and get alignment | Change WBS/PRD without a CR or traceability |
 | Optionally add "Implemented: commit abc123" when done | Leave implemented CRs without a trace to code/docs |
 
 ---
@@ -110,9 +110,9 @@ Change requests are categorized by their primary impact area:
 ## 📚 Related Documents
 
 - [Repository Purpose](../02-REPOSITORY_PURPOSE.md)
-- [Architecture Decisions](../technical-context/03-decisions/README.md)
-- [Version History](../business-context/06-reference/version-history.md)
-- [Source documents](../source-documents/README.md) (source of truth; CRs that change scope should reference these)
+- [Architecture Decisions](../05-architecture/03-decisions/README.md)
+- [Version History](../07-reference/archive/version-history.md)
+- [Source documents](../01-source/README.md) (source of truth; CRs that change scope should reference these)
 
 ---
 

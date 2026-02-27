@@ -6,7 +6,7 @@ status: approved
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
-  - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../01-source/01-prd/PRD_DFMS_v1.0.md
 tags: [requirements, overview, prd-aligned]
 ---
 
@@ -105,7 +105,7 @@ Detailed content comes from discovery phase materials:
 
 ## 📝 Source Documents
 
-- **PRD**: `source-documents/01-prd/PRD_DFMS_v1.0.md`
+- **PRD**: `01-source/01-prd/PRD_DFMS_v1.0.md`
 - **Discovery Materials**: Meeting minutes, questionnaires, business proposals (see individual file frontmatter)
 - **Last Updated**: 2026-02-13
 - **Status**: Approved - PRD-aligned with discovery phase enhancements

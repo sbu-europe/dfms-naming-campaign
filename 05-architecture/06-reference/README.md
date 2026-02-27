@@ -30,7 +30,7 @@ Comprehensive index of all documents with cross-references.
 
 - [Technical Context Plan](../TECHNICAL_CONTEXT_PLAN.md)
 - [Technical Context Status](../TECHNICAL_CONTEXT_STATUS.md)
-- [Business Context Source Mapping](../../business-context/06-reference/source-document-mapping.md)
+- [Business Context Source Mapping](../../07-reference/source-document-mapping.md)
 
 ---
 

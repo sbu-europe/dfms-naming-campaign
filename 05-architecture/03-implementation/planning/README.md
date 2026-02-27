@@ -89,9 +89,9 @@ Validation report confirming implementation timeline alignment with PRD:
 - [Technology Considerations](../technology-considerations.md) - Technology choices
 
 ### Business Context
-- [Phase Backlog](../../../business-context/04-phase-backlog/) - User stories by phase
-- [Feature Dependencies](../../../business-context/04-phase-backlog/feature-dependencies.md) - Dependency mapping
-- [Business Objectives](../../../business-context/02-requirements/business-objectives.md) - Goals and KPIs
+- [Phase Backlog](../../../04-backlog/) - User stories by phase
+- [Feature Dependencies](../../../04-backlog/feature-dependencies.md) - Dependency mapping
+- [Business Objectives](../../../02-domain/02-requirements/business-objectives.md) - Goals and KPIs
 
 ### Architecture
 - [Architecture Summary](../../00-overview/architecture-summary.md) - System architecture

@@ -107,7 +107,7 @@ Operations  QC Inspection
 ## 🔗 Related Documents
 
 - [Module Interactions](../../01-architecture/modules/module-interactions.md)
-- [Business Processes](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
+- [Business Processes](../../../02-domain/business-processes/business-processes-overview.md)
 - [User Workflows](../user-workflows/)
 
 ---
