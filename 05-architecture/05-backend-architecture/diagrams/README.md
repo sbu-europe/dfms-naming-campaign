@@ -7,7 +7,7 @@
 This folder contains Django-specific implementation diagrams that complement the high-level architecture diagrams.
 
 **Relationship to Other Diagrams**:
-- **[High-Level Diagrams](../)** - System context, sequences, states, deployment (technology-agnostic)
+- **[High-Level Diagrams](../../06-diagrams/)** - System context, sequences, states, deployment (technology-agnostic)
 - **This folder** - Django components, data flows, implementation details
 
 ## 📁 Contents
@@ -29,8 +29,8 @@ These diagrams show:
 ## 🔗 Related Documentation
 
 - **[System-Level Diagrams](../../01-system-design/diagrams/)** - C4 Level 1-2 diagrams
-- **[Backend Architecture](../../05-backend-architecture/)** - Django architecture documentation
-- **[All Diagrams Index](../diagrams-index.md)** - Complete catalog of all diagrams
+- **[Backend Architecture](../)** - Django architecture documentation
+- **[All Diagrams Index](../../06-diagrams/diagrams-index.md)** - Complete catalog of all diagrams
 
 ---
 

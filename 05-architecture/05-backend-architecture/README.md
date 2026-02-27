@@ -12,6 +12,8 @@ This folder contains Django-specific architectural documentation that complement
 
 ## 📁 Contents
 
+### Architecture Documents
+
 | File | Description |
 |------|-------------|
 | **django-system-architecture.md** | Django modular monolith structure, apps, and components |
@@ -20,6 +22,14 @@ This folder contains Django-specific architectural documentation that complement
 | **code-organization.md** | Django app structure and module boundaries |
 | **database-implementation.md** | PostgreSQL schemas, Django ORM, migrations |
 | **error-handling.md** | Error handling patterns in Django |
+
+### Diagrams
+
+| Diagram | Description |
+|---------|-------------|
+| **diagrams/architecture-overview.md** | Complete Django system architecture with all components |
+| **diagrams/django-components.md** | Django apps, middleware, and component interactions |
+| **diagrams/data-flow.md** | Data flow through Django layers (views, serializers, models) |
 
 ## 🎯 Purpose
 
@@ -33,7 +43,7 @@ This documentation focuses on **how** the high-level architecture is implemented
 - **[High-Level Architecture](../01-system-design/)** - System overview and container view
 - **[Development Guides](../../09-development-guides/01-backend/)** - Setup, deployment, testing guides
 - **[Architecture Decisions](../03-decisions/)** - ADRs explaining architectural choices
-- **[Django Implementation Diagrams](../06-diagrams/07-django-implementation/)** - Visual diagrams
+- **[High-Level Diagrams](../06-diagrams/)** - Technology-agnostic system diagrams
 
 ---
 

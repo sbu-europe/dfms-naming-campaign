@@ -216,21 +216,21 @@ DFMS-product-context/
 │   │   ├── authorization-implementation.md
 │   │   ├── code-organization.md
 │   │   ├── database-implementation.md
-│   │   └── error-handling.md
+│   │   ├── error-handling.md
+│   │   └── diagrams/                            # Django implementation diagrams
+│   │       ├── README.md
+│   │       ├── architecture-overview.md
+│   │       ├── django-components.md
+│   │       └── data-flow.md
 │   │
-│   ├── 06-diagrams/                             # Technical diagrams
+│   ├── 06-diagrams/                             # Technical diagrams (high-level)
 │   │   ├── README.md
 │   │   ├── diagrams-index.md
 │   │   ├── sequences/                           # Sequence diagrams
 │   │   ├── deployment/                          # Deployment diagrams
 │   │   ├── integration/                         # Integration diagrams
 │   │   ├── states/                              # State diagrams
-│   │   ├── data/                                # ER diagrams
-│   │   └── 07-django-implementation/            # Django implementation diagrams
-│   │       ├── README.md
-│   │       ├── architecture-overview.md
-│   │       ├── django-components.md
-│   │       └── data-flow.md
+│   │   └── data/                                # ER diagrams
 │   │
 │   ├── 07-reference/                            # Architecture reference
 │   │   ├── cross-reference-index.md
