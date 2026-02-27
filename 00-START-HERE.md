@@ -296,7 +296,7 @@ find 04-backlog/02-stories/ -name "*vendor*"
 
 | Section | Status | Files |
 |---------|--------|-------|
-| **Module Specifications** | ✅ Complete | 38 files (~20,500 lines) |
+| **Module Specifications** | ✅ Complete | 34 files (~20,000 lines) |
 | **Domain Context** | ✅ Complete | 60+ files |
 | **Product Backlog** | ✅ Complete | 114 files (97 stories, 17 epics) |
 | **Architecture** | ⏳ In Progress | 30+ files |
