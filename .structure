@@ -185,7 +185,7 @@ DFMS-product-context/
 │   │   ├── design-principles.md
 │   │   └── technology-stack-overview.md
 │   │
-│   ├── 01-architecture/                         # C4 Level 1-2
+│   ├── 01-system-design/                        # C4 Level 1-2
 │   │   ├── system-overview.md
 │   │   ├── container-view.md
 │   │   ├── diagrams/
@@ -203,14 +203,13 @@ DFMS-product-context/
 │   │   ├── adr-001-microservices-architecture.md
 │   │   └── ...
 │   │
-│   ├── 03-implementation/                       # Implementation planning
+│   ├── 04-implementation/                       # Implementation planning
 │   │   ├── planning/
 │   │   ├── deployment-strategy/
-│   │   ├── testing-approach.md
-│   │   ├── migration-strategy.md
-│   │   └── rollout-plan.md
+│   │   ├── strategies/
+│   │   └── phase-1-breakdown/
 │   │
-│   ├── 04-diagrams/                             # Technical diagrams
+│   ├── 06-diagrams/                             # Technical diagrams
 │   │   ├── diagrams-index.md
 │   │   ├── sequences/
 │   │   ├── deployment/
@@ -218,8 +217,13 @@ DFMS-product-context/
 │   │   ├── states/
 │   │   └── data/
 │   │
-│   ├── 05-contracts/                            # Legacy contracts location
-│   └── 06-reference/                            # Architecture reference
+│   ├── 07-reference/                            # Architecture reference
+│   │   ├── cross-reference-index.md
+│   │   ├── source-document-mapping.md
+│   │   └── version-history.md
+│   │
+│   └── legacy-contracts/                        # Archived contracts folder
+│       └── README.md
 │
 ├── 06-contracts/                                # ✅ Integration contracts
 │   ├── README.md

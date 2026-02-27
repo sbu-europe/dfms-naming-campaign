@@ -29,7 +29,7 @@ Foundation documents (4 files)
 - Design principles
 - Technology stack overview
 
-### 01-architecture/
+### 01-system-design/
 High-level system architecture (17 files)
 - ✅ System context (C4 Level 1)
 - ✅ Container view (C4 Level 2)
@@ -43,19 +43,19 @@ Technical workflows (16 files)
 - ✅ 5 user workflows
 - ✅ 14 exception scenarios
 
-### 03-implementation/
+### 03-decisions/
+Architecture Decision Records (7 files)
+- ✅ ADR template
+- ✅ 5 key architectural decisions
+
+### 04-implementation/
 Implementation approach (7 files)
 - ✅ Deployment strategy
 - ✅ Testing approach
 - ✅ Migration strategy
 - ✅ Rollout plan
 
-### 03-decisions/
-Architecture Decision Records (7 files)
-- ✅ ADR template
-- ✅ 5 key architectural decisions
-
-### 04-diagrams/
+### 06-diagrams/
 Technical diagrams (37 diagrams)
 - ✅ Diagrams index
 - ✅ 3 sequence diagrams
@@ -64,12 +64,16 @@ Technical diagrams (37 diagrams)
 - ✅ 2 state diagrams
 - ✅ ER diagram
 
-### 05-contracts/
-Interface contracts (26 files)
-- ✅ 10 REST API contracts (OpenAPI 3.0)
-- ✅ 37 domain events (AsyncAPI 2.6.0)
-- ✅ Data models (entities, enums, value objects)
-- ✅ 6 external integration contracts
+### 07-reference/
+Cross-references & version history (3 files)
+- ✅ Cross-reference index
+- ✅ Source document mapping
+- ✅ Version history
+
+### legacy-contracts/
+Archived contracts folder (1 file)
+- Legacy contract documentation
+- _Note: Main contracts are now in root `06-contracts/` folder_
 
 ---
 
