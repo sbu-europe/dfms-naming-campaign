@@ -47,7 +47,7 @@ Reports documenting completed work, verification results, and analysis of reposi
 - Phase completion reports
 - Cleanup reports
 - Verification reports
-- Alignment reports
+- Alignment reports (detailed & summary)
 
 ### `tracking/` - Status & Progress
 

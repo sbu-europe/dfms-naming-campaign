@@ -9,10 +9,11 @@ This folder contains reference materials, archived documents, and supporting doc
 ## Structure
 
 ### `archive/` - Archived Documentation
-Older versions of documents, deprecated specs, and historical records.
-- Previous documentation versions
-- Legacy structure artifacts
-- Superseded documents
+Reference materials for navigating and understanding the documentation:
+- Version history and document changelog
+- Cross-reference indexes
+- Quick lookup guides
+- Source document mapping
 
 ### `data-reference/` - Data Dictionaries
 Data definitions, field specifications, and data reference guides.
@@ -26,10 +27,12 @@ Reports have been moved to [`../10-meta/reports/`](../10-meta/reports/) for bett
 ## Usage
 
 This folder serves as:
-- Historical record of documentation evolution
 - Reference for data structures and definitions
-- Repository for project reports and status documents
-- Archive for deprecated but potentially useful content
+- Version history and document evolution tracking
+- Cross-reference indexes for navigation
+- Quick lookup guides
+
+**For operational docs** (plans, reports, tracking), see [`../10-meta/`](../10-meta/)
 
 ## Related Documentation
 

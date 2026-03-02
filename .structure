@@ -371,6 +371,7 @@ DFMS-product-context/
 │   │   ├── cleanup-report.md
 │   │   ├── phase-1-completion-report.md
 │   │   ├── prd-alignment-report.md
+│   │   ├── prd-alignment-summary.md
 │   │   └── verification-report.md
 │   │
 │   └── tracking/                                # Status tracking

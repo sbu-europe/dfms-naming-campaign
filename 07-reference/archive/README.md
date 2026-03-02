@@ -28,9 +28,7 @@ This folder contains reference materials to help navigate and understand the DFM
 
 ### Historical Documents
 
-Plans have been moved to [`../../10-meta/plans/`](../../10-meta/plans/) for better organization.
-
-- **[PRD Alignment Summary](./PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work (archived - alignment work completed)
+This folder previously contained operational plans and reports. Those have been moved to [`../../10-meta/`](../../10-meta/) for better organization.
 
 ### Reference Materials
 
