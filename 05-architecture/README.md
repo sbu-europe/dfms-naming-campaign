@@ -84,10 +84,10 @@ Cross-references & version history (4 files)
 
 This folder contains:
 - ✅ **High-level Architecture**: C4 Level 1-2 diagrams (not detailed implementation)
-- ✅ **Interface Contracts**: APIs, Events, Data Models for system integration
 - ✅ **Technical Workflows**: How different parts of the system interact
 - ✅ **Architecture Decisions**: Why we chose specific approaches
-- ✅ **Integration Specifications**: How to integrate with DFMS
+- ✅ **Implementation Strategy**: Deployment, testing, migration approaches
+- ✅ **Backend Architecture**: Django/Python implementation patterns
 
 **What's NOT here**:
 - Detailed implementation code (goes in implementation repos)
@@ -97,13 +97,12 @@ This folder contains:
 
 ## 📊 Key Deliverables
 
-- ✅ **10 REST API Contracts** - Complete OpenAPI 3.0 specifications ready for code generation
-- ✅ **37 Domain Events** - AsyncAPI 2.6.0 event catalog with schemas
-- ✅ **12 Core Entities** - JSON Schema data models
-- ✅ **5 Architectural Decisions** - Documented ADRs with alternatives
-- ✅ **37 Technical Diagrams** - Architecture, workflows, sequences, states, ER
-- ✅ **7 Operational Flows** - Complete technical workflows
-- ✅ **6 Integration Contracts** - External system integrations
+- ✅ **C4 Architecture Diagrams** - System context & container views (Level 1-2)
+- ✅ **10 Mermaid Diagrams** - Sequences, states, deployment, integration, data
+- ✅ **7 Architecture Decision Records** - Documented ADRs with alternatives
+- ✅ **12 Technical Workflows** - Operational flows & user workflows
+- ✅ **Django Architecture** - Backend implementation patterns & organization
+- ✅ **Implementation Strategy** - Deployment, testing, migration plans
 
 ---
 
