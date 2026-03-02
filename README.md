@@ -19,9 +19,10 @@
 - **`04-backlog/`** - Product backlog (epics, stories, phases)
 - **`05-architecture/`** - System & implementation architecture (high-level + Django)
 - **`06-contracts/`** - API contracts & integration specifications
-- **`07-reference/`** - Reference materials, data dictionaries, reports
+- **`07-reference/`** - Reference materials, data dictionaries
 - **`08-change-requests/`** - Change request management
 - **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
+- **`10-meta/`** - Repository meta-documentation (plans, reports, tracking)
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
