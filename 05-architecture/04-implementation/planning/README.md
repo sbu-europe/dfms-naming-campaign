@@ -15,19 +15,13 @@ This folder contains the strategic implementation planning documents for DFMS, p
 
 ## 📁 Documents
 
-### **[Implementation Plan](./IMPLEMENTATION_PLAN.md)**
-Comprehensive implementation plan covering:
-- **52-week roadmap** across 3 phases
-- **Phase breakdowns** with objectives and success criteria
-- **Resource planning** - Team structure and allocation by phase
-- **Risk management** - High-risk areas and mitigation strategies
-- **Dependencies** and critical path analysis
-- **Success metrics** and KPIs for each phase
-- **Deployment strategy** overview
+### **[Implementation Plan](../../10-meta/plans/implementation-plan.md)** 📦 Moved
+Comprehensive implementation plan moved to [`10-meta/plans/`](../../10-meta/plans/)
 
-**Best for**: Project managers, stakeholders, team leads
-
----
+Original content covered:
+- 52-week roadmap across 3 phases
+- Phase breakdowns with objectives
+- Resource planning and risk management
 
 ### **[Implementation Timeline](./IMPLEMENTATION_TIMELINE.md)**
 Detailed week-by-week implementation schedule:
@@ -89,7 +83,8 @@ Validation report confirming implementation timeline alignment with PRD:
 - [Technology Considerations](../technology-considerations.md) - Technology choices
 
 ### Business Context
-- [Phase Backlog](../../../04-backlog/) - User stories by phase
+- [Meta Documentation](../../../../10-meta/) - Plans, reports, tracking
+- [Phase Backlog](../../../../04-backlog/) - User stories by phase
 - [Feature Dependencies](../../../04-backlog/feature-dependencies.md) - Dependency mapping
 - [Business Objectives](../../../02-domain/02-requirements/business-objectives.md) - Goals and KPIs
 

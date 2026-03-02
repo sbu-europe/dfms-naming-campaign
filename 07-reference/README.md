@@ -21,8 +21,7 @@ Data definitions, field specifications, and data reference guides.
 - `transactional-data/` - Transactional data specifications
 
 ### `reports/` - Project Reports
-Verification reports, status updates, and project documentation.
-- `VERIFICATION_REPORT.md` - Documentation verification and validation report
+Reports have been moved to [`../10-meta/reports/`](../10-meta/reports/) for better organization.
 
 ## Usage
 

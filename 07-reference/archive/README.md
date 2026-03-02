@@ -28,7 +28,8 @@ This folder contains reference materials to help navigate and understand the DFM
 
 ### Historical Documents
 
-- **[PRD Alignment Plan](./PRD_ALIGNMENT_PLAN.md)** - Module-by-module alignment plan (archived - alignment work completed)
+Plans have been moved to [`../../10-meta/plans/`](../../10-meta/plans/) for better organization.
+
 - **[PRD Alignment Summary](./PRD_ALIGNMENT_SUMMARY.md)** - Overview of alignment work (archived - alignment work completed)
 
 ### Reference Materials
