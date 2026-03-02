@@ -38,6 +38,7 @@ Strategic plans for repository work, implementation approaches, and documentatio
 - Documentation strategies
 - Alignment plans
 - Technical planning documents
+- Transformation guides
 
 ### `reports/` - Completion Reports & Analysis
 
@@ -48,6 +49,8 @@ Reports documenting completed work, verification results, and analysis of reposi
 - Cleanup reports
 - Verification reports
 - Alignment reports (detailed & summary)
+- Reorganization and transformation reports
+- Submodule adjustment reports
 
 ### `tracking/` - Status & Progress
 

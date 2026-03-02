@@ -111,8 +111,8 @@ frontmatter: (metadata, source references)
 ## Supporting Files
 
 - **[INDEX.md](INDEX.md)** - Comprehensive searchable content index
-- **[TRANSFORMATION-GUIDE.md](TRANSFORMATION-GUIDE.md)** - Documentation standards and format guide
-- **[TRANSFORMATION-PROGRESS.md](TRANSFORMATION-PROGRESS.md)** - Transformation completion status
+
+For transformation guide and progress reports, see [`../10-meta/`](../10-meta/)
 
 ---
 
