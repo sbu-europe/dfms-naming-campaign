@@ -187,6 +187,208 @@ type TOStatus =
 
 ---
 
+## On-Demand TO Creation (Gate Scenarios)
+
+### Purpose
+
+In some operational scenarios, vehicles arrive at the gate **without a pre-existing TO**. This can occur when:
+- Dealer vehicles arrive with Delivery Orders (DO) for finished goods pickup
+- Supplier vehicles arrive with Purchase Orders (PO) for raw material delivery
+- Urgent/emergency deliveries that bypass normal TR/TO planning
+
+On-demand TO creation enables gate officers to **initiate transport workflows at the point of arrival**, ensuring operations proceed smoothly even without advance planning.
+
+### When On-Demand TOs Are Created
+
+| Scenario | Document | Transfer Type | Flow Direction |
+|----------|----------|---------------|----------------|
+| **Dealer Pickup** | Delivery Order (DO) | Dealer Outbound – Finished Goods | Outbound from POI |
+| **Supplier Delivery** | Purchase Order (PO) | Supplier Inbound – Raw Material | Inbound to POI |
+| **Emergency Transport** | Manual Entry | Ad-hoc | Either direction |
+
+### Workflow: On-Demand TO Creation
+
+```
+1. Vehicle arrives at gate without TO
+   ↓
+2. Gate officer performs challan/vehicle lookup (US-063)
+   - System searches for existing TO
+   - Result: "No matching TO found"
+   ↓
+3. System displays "Create On-Demand TO" option
+   ↓
+4. Gate officer selects document type:
+   - Dealer (DO copy) → US-064
+   - Supplier (PO copy) → US-065
+   ↓
+5. Gate officer enters required information:
+   - Document number (DO/PO number)
+   - Party name (Dealer/Supplier)
+   - Product details (code, description)
+   - Planned quantity
+   - Source/Destination POI
+   ↓
+6. System creates on-demand TO:
+   - TO ID: Auto-generated
+   - Status: "On-Demand - Pending Approval"
+   - Source: "Gate" (tagged for traceability)
+   - Transfer Type: Set based on document category
+   ↓
+7. System links TO to gate-in record
+   ↓
+8. TO routes to Transport Planner/Manager for approval
+   ↓
+9. Once approved → Proceeds to standard TO workflow:
+   - Vehicle/driver assignment (if not already at gate)
+   - Trip creation
+   - Gate-in → Scaling → QC → Loading/Unloading
+```
+
+### On-Demand TO Validation Rules
+
+| Rule ID | Description | Enforcement |
+|---------|-------------|-------------|
+| **BR-TO-OD-001** | On-demand TOs SHALL require admin/planner approval before proceeding | Mandatory |
+| **BR-TO-OD-002** | System SHALL NOT create on-demand TO if matching TO already exists for same challan/document | Mandatory |
+| **BR-TO-OD-003** | Source/Destination POI SHALL match gate location where TO is created | Mandatory |
+| **BR-TO-OD-004** | Document number (DO/PO) SHALL be unique within transfer type and date range | Mandatory |
+| **BR-TO-OD-005** | On-demand TOs SHALL be tagged with "Source: Gate" for reporting/analytics | Mandatory |
+| **BR-TO-OD-006** | Gate officer SHALL capture vehicle details (plate, driver) at TO creation | Mandatory |
+
+### Data Model: On-Demand TO Extensions
+
+```typescript
+interface TransportOrder {
+  // Standard TO fields...
+  
+  // On-Demand Specific Fields
+  is_on_demand: boolean;                    // TRUE for on-demand TOs
+  on_demand_source?: 'gate' | 'manual';     // Where on-demand TO originated
+  on_demand_document_type?: 'DO' | 'PO' | 'Other';  // Source document type
+  on_demand_document_number?: string;       // DO/PO number from physical copy
+  on_demand_party_name?: string;            // Dealer/Supplier name
+  on_demand_created_by?: User;              // Gate officer who created
+  on_demand_created_at_poi?: POI;           // Gate location
+  on_demand_approval_status?: 'pending' | 'approved' | 'rejected';
+  on_demand_approved_by?: User;             // Transport Planner/Manager
+  on_demand_approved_at?: Date;
+  on_demand_rejection_reason?: string;
+}
+```
+
+### On-Demand TO States
+
+```
+On-Demand - Pending Approval  →  [Planner Reviews]
+    ↓ (If Approved)
+Ready for Trip (merges into standard TO lifecycle)
+    ↓
+Trip Created → In Progress → Completed
+
+    ↓ (If Rejected)
+On-Demand - Rejected
+    ↓
+Vehicle turned away at gate OR reassigned
+```
+
+### Approval Workflow
+
+**Automatic Triggers:**
+- On-demand TO creation sends notification to Transport Planner
+- Planner reviews:
+  - Document authenticity (DO/PO legitimacy)
+  - Quantity feasibility
+  - POI capacity availability
+  - Vehicle suitability
+
+**Approval Criteria:**
+- Document number valid and matches records (if pre-registered)
+- Quantity within acceptable range
+- No duplicate TO exists
+- POI has capacity for processing
+
+**Rejection Reasons:**
+- Invalid document
+- Duplicate TO exists
+- POI at capacity
+- Security concerns
+
+### Integration with Standard TO Workflow
+
+Once an on-demand TO is **approved**, it merges seamlessly into the standard TO lifecycle:
+
+| Standard TO Flow | On-Demand TO Adaptation |
+|------------------|-------------------------|
+| TR Creation → TO Creation | ❌ Skipped (no TR exists) |
+| TO Creation → Vehicle Assignment | ✅ Vehicle already at gate (captured during on-demand creation) |
+| TO → Trip Creation | ✅ Same process |
+| Trip → Gate-in | ✅ Already gate-in (concurrent with TO creation) |
+| Gate-in → Scaling → QC → Loading | ✅ Same process |
+
+**Key Difference**: On-demand TOs **start at the gate** and work backwards to formalize the transport record, whereas standard TOs are **planned first** and then executed.
+
+### Business Rules for On-Demand Scenarios
+
+#### Dealer Outbound (Finished Goods)
+
+**BR-TO-OD-DEALER-001**: Dealer on-demand TOs SHALL:
+- Transfer Type: "Dealer Outbound – Finished Goods"
+- Direction: Outbound from POI
+- QC Requirement: Pre-dispatch QC (if configured)
+- Loading: At POI loading bay
+
+**BR-TO-OD-DEALER-002**: System SHALL validate:
+- Dealer is registered in system
+- Product is finished goods category
+- POI has inventory availability (if inventory-tracked)
+
+#### Supplier Inbound (Raw Materials)
+
+**BR-TO-OD-SUPPLIER-001**: Supplier on-demand TOs SHALL:
+- Transfer Type: "Supplier Inbound – Raw Material"
+- Direction: Inbound to POI
+- QC Requirement: Receiving QC (mandatory)
+- Unloading: At POI unloading bay
+
+**BR-TO-OD-SUPPLIER-002**: System SHALL validate:
+- Supplier is registered and active
+- Product is raw material category
+- POI has unloading capacity
+- Lab testing scheduled (if required by product)
+
+### Security and Audit Considerations
+
+**Audit Trail:**
+- All on-demand TOs logged with full audit trail
+- Gate officer identity recorded
+- Document copies scanned/photographed (future enhancement)
+- Approval/rejection logged with reasons
+- Vehicle photos captured at gate (future enhancement)
+
+**Security Controls:**
+- On-demand TO creation requires specific permission: "create_ondemand_to"
+- Approval requires separate permission: "approve_ondemand_to"
+- System flags unusual patterns (e.g., same gate officer creates multiple on-demand TOs in short time)
+- Daily/weekly reports of on-demand TOs for management review
+
+### Reporting and Analytics
+
+**On-Demand TO Metrics:**
+- Count of on-demand TOs per day/week/month
+- Approval vs rejection rate
+- Average approval time
+- Top reasons for on-demand TOs (dealer vs supplier vs emergency)
+- Gate officers creating most on-demand TOs (identify training needs)
+- On-demand TOs by POI (identify locations with frequent unplanned arrivals)
+
+**Use Cases:**
+- Identify process gaps (why are TOs not being pre-created?)
+- Optimize gate operations (reduce wait times)
+- Training: Gate officers with low approval rates
+- Strategic: POIs with high on-demand volumes may need better planning
+
+---
+
 ## Allocation Strategy 1: Own Fleet
 
 ### Use Case
