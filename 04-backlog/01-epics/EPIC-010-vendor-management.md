@@ -8,10 +8,10 @@ priority: P2
 status: Planned
 target_sprint: Sprint 8
 duration: 3 Weeks
-story_points: 55
+story_points: 63
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [vendor, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 8  
 **Duration**: 3 Weeks  
-**Story Points**: 55 SP  
+**Story Points**: 63 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [vendor, p2, standard]
 
 ## Business Context
 
-Vendor Management provides essential functionality for the DFMS platform. This epic includes 6 user stories covering key features and capabilities.
+Vendor Management provides essential functionality for the DFMS platform. This epic includes **7 user stories** covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages vendor registration, verification, performance tracking, and vendor portal. Enables vendor-based transport operations.

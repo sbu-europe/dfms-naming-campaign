@@ -6,12 +6,12 @@ phase: phase-1
 module_category: Core Data
 priority: P1
 status: Planned
-target_sprint: Sprint 4
-duration: 3 Weeks
-story_points: 30
+target_sprint: Sprint 2
+duration: 2 Weeks
+story_points: 13
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -27,9 +27,9 @@ tags: [core-data, p1, standard]
 ## Epic Overview
 
 **Priority**: P1  
-**Sprint**: Sprint 4  
-**Duration**: 3 Weeks  
-**Story Points**: 30 SP  
+**Sprint**: Sprint 2  
+**Duration**: 2 Weeks  
+**Story Points**: 13 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,16 +40,16 @@ tags: [core-data, p1, standard]
 
 ## Business Context
 
-Product Inventory Management (PIM) provides essential functionality for the DFMS platform. This epic includes 3 user stories covering key features and capabilities.
+Product Inventory Management (PIM) provides the **foundational product catalog** for the DFMS platform. This epic includes **1 critical user story** that establishes product master data management (CRUD operations for Finished Goods and Raw Materials).
 
 **Why This Epic Matters**:
-- **Business Value**: Manages product catalog and inventory data. Essential for product requisitions, transport orders, and quality control workflows.
+- **Business Value**: Creates and manages the product catalog. **Blocks all product-dependent workflows** (requisitions, transport orders, quality control).
 - **Key Benefits**:
-  - Centralizes product master data management
+  - Centralizes product master data management (FG & RM)
   - Enables product catalog design and configuration
   - Maps transport and QC attributes to products
-  - Supports product requisition and QC workflows
-- **Impact on Operations**: Blocks EPIC-007 (Product Requisition) and EPIC-014 (QC Workflow) as these require product data. Critical for product-related operations.
+  - Provides foundation for requisition, TO, and QC workflows
+- **Impact on Operations**: **CRITICAL** - Blocks EPIC-007 (Product Requisition) and EPIC-014 (QC Workflow). Requisitions (US-010/011/012) cannot function without product catalog.
 
 ---
 
@@ -66,13 +66,18 @@ Product Inventory Management (PIM) provides essential functionality for the DFMS
 
 ## User Stories
 
-This epic includes **3 user stories**:
+This epic includes **1 user story**:
 
-| [US-023](../02-stories/US-023-incident-management.md) | Incident Management |
-| [US-024](../02-stories/US-024-vendor-bidding-portal.md) | Vendor Bidding Portal for Non-Contractual TOs |
-| [US-025](../02-stories/US-025-trip-closure-pod.md) | Trip Closure with Proof of Delivery (POD) |
+| Story ID | Title | Story Points |
+|----------|-------|--------------|
+| [US-095](../02-stories/US-095-product-master-data-management.md) | Product Master Data Management (CRUD) | 13 SP |
 
-**Total**: 30 Story Points
+**Total**: 13 Story Points
+
+**Note**: Previously, US-023, US-024, and US-025 were incorrectly assigned to this epic. They have been reassigned:
+- US-023 (Incident Management) → EPIC-009 (Transport Order Management)
+- US-024 (Vendor Bidding Portal) → EPIC-010 (Vendor Management)
+- US-025 (Trip Closure with POD) → EPIC-009 (Transport Order Management)
 
 ---
 

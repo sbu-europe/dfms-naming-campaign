@@ -5,9 +5,9 @@ phase: phase-1
 module: Transport Management
 priority: Critical
 status: Pending
-epic: Trip Execution
-epic_id: EPIC-005
-epic_name: Product Inventory Management (PIM)
+epic: Transport Order Management
+epic_id: EPIC-009
+epic_name: Transport Order (TO) Management
 sprint: Sprint 6
 story_points: 8
 created: 2026-02-11

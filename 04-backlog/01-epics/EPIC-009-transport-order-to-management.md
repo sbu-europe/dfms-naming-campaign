@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 6-7
 duration: 3 Weeks
-story_points: 90
+story_points: 103
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p1, critical-path]
 **Priority**: P1  
 **Sprint**: Sprint 6-7  
 **Duration**: 3 Weeks  
-**Story Points**: 90 SP  
+**Story Points**: 103 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p1, critical-path]
 
 ## Business Context
 
-Transport Order (TO) Management provides essential functionality for the DFMS platform. This epic includes 12 user stories covering key features and capabilities.
+Transport Order (TO) Management provides essential functionality for the DFMS platform. This epic includes **14 user stories** covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Core transport order management epic. Enables creation, execution, and lifecycle management of transport orders. Central to all transport operations.
