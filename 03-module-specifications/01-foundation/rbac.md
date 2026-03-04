@@ -17,6 +17,10 @@ The DFMS platform implements a comprehensive Role-Based Access Control (RBAC) sy
 
 The system supports both predefined operational roles (for standardized workflows) and custom roles (via Dynamic Role Builder in Phase 2) to accommodate diverse organizational structures while maintaining security and auditability.
 
+**Key Acceptance Criteria**:
+- **AC-1**: System SHALL allow Department Admins to assign operational roles within their departments
+- **AC-2**: Super Admin controls global configurations across all tenants
+
 ---
 
 ## 1. Role Hierarchy Architecture
@@ -65,16 +69,19 @@ The RBAC system implements a four-tier hierarchical structure:
 ```
 Super Admin (Brainstation 23)
  └─ creates → Tenant Admin (Nourish)
-               └─ creates → Department Admin (Depot Admin)
-               │             └─ oversees → Operational Users in Depot
-               └─ creates → Department Admin (Transport Admin)
-               │             └─ oversees → Driver Supervisor, Drivers, Helpers
-               └─ creates → Department Admin (QC Admin)
-               │             └─ oversees → QC Inspectors, Lab Technicians
-               └─ creates → Department Admin (Procurement Admin)
-               │             └─ oversees → Procurement Officers
-               └─ creates → Department Admin (Distribution Admin)
-                             └─ oversees → Distribution Officers
+               ├─ creates → Dept Admin (Depot / Feed Mill / Commercial)
+               │             └─ Depot Manager, Feed Mill Manager, Commercial Officer
+               ├─ creates → Dept Admin (Procurement)
+               │             └─ Procurement Officer
+               ├─ creates → Dept Admin (Distribution)
+               │             └─ Distribution Officer, Distribution Manager
+               ├─ creates → Dept Admin (Transport)
+               │             └─ Transport Planner, Transport Distribution Officer
+               ├─ creates → Dept Admin (QA / QC)
+               │             └─ QC Inspector – Physical, QA Lab Technician
+               └─ creates → Dept Admin (Operations)
+                             └─ Command Center Officer, Loading Personnel,
+                                Unloading Personnel, Driver Supervisor, Driver Helper
 ```
 
 ### 1.3 Tier 1: Super Admin
@@ -84,7 +91,7 @@ Super Admin (Brainstation 23)
 - **Example**: Brainstation 23 (the platform provider company)
 - **Capabilities**:
   - Create, suspend, and manage Tenant Admins
-  - Manage global platform configurations
+  - Control global configurations across all tenants (AC-2)
   - Control subscription plans and billing
   - Access all tenant data (for support/compliance)
   - Monitor platform health and usage
@@ -104,6 +111,7 @@ Super Admin (Brainstation 23)
   - Access all modules and features per subscription tier
   - View organization-wide reports and analytics
   - Configure tenant-specific settings (business rules, workflows)
+  - Assign Functional Role Types (Requester / Approver / Executor) to users
 - **Restrictions**: Cannot access other tenants' data; cannot create Super Admins
 - **Typical Users**: Organization IT admin, System administrator, Operations Head
 
@@ -111,69 +119,77 @@ Super Admin (Brainstation 23)
 
 - **Scope**: Single department within tenant
 - **Creation**: Created by Tenant Admin
-- **Departments**:
-  - **Depot** - Manages depot/warehouse operations and staff
-  - **Procurement** - Manages procurement workflows and approvals
-  - **Distribution** - Manages distribution planning and officer assignments
-  - **Transport** - Manages fleet, drivers, helpers, and transport operations
-  - **QC (Quality Control)** - Manages QC inspectors and lab technicians
 - **Capabilities**:
+  - Assign operational roles within their department (AC-1)
+  - Assign Functional Role Types (Requester / Approver / Executor) to department members
   - Manage Operational Users within assigned department
-  - Assign operational roles to department members
   - Configure department-specific settings
   - View department-level reports
   - Approve department-specific workflows
 - **Restrictions**: Cannot access other departments' data; cannot create Tenant Admins or other Department Admins
-- **Typical Users**: Depot Manager, Transport Manager, QC Manager, Procurement Head, Distribution Head
+
+**Departments and their operational roles:**
+
+| Department | Operational Roles | Default Functional Role |
+|-----------|-------------------|----------------------|
+| **Depot / Feed Mill / Commercial** | Depot Manager, Feed Mill Manager, Commercial Officer | Requester |
+| **Procurement** | Procurement Officer | Approver |
+| **Distribution** | Distribution Officer (DO), Distribution Manager (DM) | DM = Approver |
+| **Transport** | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor |
+| **QA / QC** | QC Inspector – Physical, QA Lab Technician | Executor |
+| **Operations** | Command Center Officer, Unloading Personnel, Loading Personnel, Driver Supervisor, Driver Helper | Executor |
+
+**Nominated Vendors** are external users managed separately through the Vendor Portal (see Vendor Management module).
 
 ### 1.6 Tier 4: Operational User
 
 Operational users perform day-to-day execution and **cannot manage users or system configurations**.
 
-**Requisition & Approval Roles**:
+**Depot / Feed Mill / Commercial**:
+- Depot Manager – Create FG Transfer Requests (Requester)
+- Feed Mill Manager – Create FG Transfer Requests (Requester)
+- Commercial Officer – Create RM Transfer Requests from Port (Requester)
 
-| Role | Department | Responsibilities | Workflow Type |
-|------|-----------|------------------|---------------|
-| Depot Manager | Depot | Create FG Transfer Requests | Requester |
-| Feed Mill Manager | Depot | Create FG Transfer Requests | Requester |
-| Commercial Officer | Procurement | Create RM Transfer Requests (Port) | Requester |
-| Distribution Officer (DO) | Distribution | Create Transport Requisitions (TR) | Requester |
-| Distribution Manager (DM) | Distribution | Approve TRs, validate capacity | Approver |
-| Procurement Officer | Procurement | Approve Port TRs, distribution breakdown | Approver |
+**Procurement**:
+- Procurement Officer – Approve Port TRs, distribution breakdown (Approver)
 
-**Transport Operations Roles**:
+**Distribution**:
+- Distribution Officer (DO) – Create Transport Requisitions (TR)
+- Distribution Manager (DM) – Approve TRs, validate capacity (Approver)
 
-| Role | Department | Responsibilities |
-|------|-----------|------------------|
-| Transport Planner (TP) | Transport | Create TOs, assign fleet (Own/Vendor), manage trips |
-| Transport Distribution Officer (TDO) | Transport | Vehicle/driver/helper assignment, ETA management |
-| Driver Supervisor | Transport | Driver availability, handover checklist, attendance |
-| Driver | Transport | Trip execution via mobile app |
-| Driver Helper | Transport | Assist driver during loading/unloading |
+**Transport**:
+- Transport Planner (TP) – Create TOs, assign fleet (Own/Vendor), manage trips
+- Transport Distribution Officer (TDO) – Vehicle/driver/helper assignment, ETA management
 
-**Gate & POI Operations Roles**:
+**Quality Assurance / Quality Control (QA / QC)**:
+- QC Inspector – Physical – Physical QC checks, sampling, approval
+- QA Lab Technician – Lab testing, update test reports
 
-| Role | Department | Responsibilities |
-|------|-----------|------------------|
-| Gate Operator (Gate Man) | Depot | Gate-in/gate-out vehicle entry |
-| Scaling Operator (Weighbridge) | Depot | Scale-in/scale-out weights, queue tokens |
-| Command Center Officer | Depot | Assign loading/unloading lines, manage bay queues |
-| Loading Person | Depot | Log loading start/end, quantity, seal number |
-| Unloading Person | Depot | Log unloading start/end, quantity verification |
+**Operations**:
+- Command Center Officer – Assign loading/unloading lines, manage bay queues
+- Unloading Personnel – Log unloading start/end, quantity verification
+- Loading Personnel – Log loading start/end, quantity, seal number
+- Driver Supervisor – Driver availability, handover checklist, attendance
+- Driver Helper – Assist driver during loading/unloading
 
-**Quality Control Roles**:
+**Nominated Vendors** (External):
+- Vendor Admin – Bidding, vehicle info, invoice submission via Vendor Portal
 
-| Role | Department | Responsibilities |
-|------|-----------|------------------|
-| QC Inspector - Physical | QC | Physical QC checks, sampling, approval |
-| QC Lab Technician | QC | Lab testing, update test reports |
+### 1.7 Functional Role Types
 
-**Vendor & Finance Roles**:
+Admin (Tenant Admin or Department Admin) can assign one or more functional role types to any operational user:
 
-| Role | Department | Responsibilities |
-|------|-----------|------------------|
-| Vendor Admin | External | Bidding, vehicle info, invoice submission |
-| Accounts/Finance Officer | Procurement | Trip costing reports, vendor invoices/billing |
+| Functional Role | Description | Workflow Behavior |
+|----------------|-------------|-------------------|
+| **Requester** | Can create requisitions and requests | Subject to approval workflow; cannot approve own requests |
+| **Approver** | Can approve or reject requests | Cannot approve own requests (separation of duties enforced) |
+| **Executor** | Executes approved tasks | Cannot modify approval status; task-specific permissions only |
+
+**Assignment Rules**:
+- A user can hold multiple functional roles (e.g., Requester + Executor)
+- Requester and Approver for the same request must be different users
+- Department Admin without Approver flag cannot approve workflows
+- Functional role assignment is scoped to the user's department
 
 ---
 
@@ -266,24 +282,9 @@ Role: Transport Planner {
 
 ### 3.2 Functional Role Types
 
-Users can be flagged with workflow-specific types:
+See Section 1.7 for full Functional Role Type definitions (Requester / Approver / Executor).
 
-**Requester**:
-- Can create requisitions
-- Cannot approve own requests
-- Subject to approval workflow
-
-**Approver**:
-- Can approve/reject requests
-- Cannot approve own requests (enforced by system)
-- Requires approval authority permission
-
-**Executor**:
-- Executes approved tasks
-- Cannot modify approval status
-- Task-specific permissions only
-
-**Business Rule**:
+**Self-Approval Prevention Rule**:
 ```
 IF user.role.has_flag('Approver') AND
    requisition.requester_id == user.id:
