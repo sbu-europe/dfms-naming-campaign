@@ -68,9 +68,9 @@ Scaling / Weight Management provides essential functionality for the DFMS platfo
 
 This epic includes **3 user stories**:
 
-| [US-068](../user-stories/US-068-weight-entry.md) | Weight Entry |
-| [US-069](../user-stories/US-069-queue-token-generation.md) | Queue Token Generation |
-| [US-070](../user-stories/US-070-weight-exit.md) | Weight Exit |
+| [US-068](../02-stories/US-068-weight-entry.md) | Weight Entry |
+| [US-069](../02-stories/US-069-queue-token-generation.md) | Queue Token Generation |
+| [US-070](../02-stories/US-070-weight-exit.md) | Weight Exit |
 
 **Total**: 25 Story Points
 

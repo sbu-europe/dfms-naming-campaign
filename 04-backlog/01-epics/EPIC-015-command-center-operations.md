@@ -68,10 +68,10 @@ Command Center Operations provides essential functionality for the DFMS platform
 
 This epic includes **4 user stories**:
 
-| [US-071](../user-stories/US-071-view-all-waiting-vehicles.md) | View All Waiting Vehicles |
-| [US-072](../user-stories/US-072-assign-loading-unloading-point.md) | Assign Loading/Unloading Point |
-| [US-073](../user-stories/US-073-assignment-alert.md) | Assignment Alert |
-| [US-074](../user-stories/US-074-assign-waiting-serial.md) | Assign Waiting Serial |
+| [US-071](../02-stories/US-071-view-all-waiting-vehicles.md) | View All Waiting Vehicles |
+| [US-072](../02-stories/US-072-assign-loading-unloading-point.md) | Assign Loading/Unloading Point |
+| [US-073](../02-stories/US-073-assignment-alert.md) | Assignment Alert |
+| [US-074](../02-stories/US-074-assign-waiting-serial.md) | Assign Waiting Serial |
 
 **Total**: 35 Story Points
 

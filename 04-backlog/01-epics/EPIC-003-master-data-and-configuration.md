@@ -76,10 +76,10 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-010](../user-stories/US-010-port-transfer-requisition.md) | Create Port Consignment Transfer Requisition (TR) |
-| [US-011](../user-stories/US-011-distribution-approval.md) | Distribution Approval Workflow (FG TR) |
-| [US-012](../user-stories/US-012-procurement-approval.md) | Procurement Approval Workflow (Port TR) |
-| [US-013](../user-stories/US-013-stock-validation.md) | Stock Validation (Source & Destination) |
+| [US-010](../02-stories/US-010-port-transfer-requisition.md) | Create Port Consignment Transfer Requisition (TR) |
+| [US-011](../02-stories/US-011-distribution-approval.md) | Distribution Approval Workflow (FG TR) |
+| [US-012](../02-stories/US-012-procurement-approval.md) | Procurement Approval Workflow (Port TR) |
+| [US-013](../02-stories/US-013-stock-validation.md) | Stock Validation (Source & Destination) |
 
 **Total**: 50 Story Points
 

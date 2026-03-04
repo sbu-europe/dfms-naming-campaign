@@ -78,18 +78,18 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **12 user stories**:
 
-| [US-035](../user-stories/US-035-gate-in-source.md) | Gate-In Entry at Source POI |
-| [US-036](../user-stories/US-036-gate-out-source.md) | Gate-Out Entry at Source POI |
-| [US-037](../user-stories/US-037-gate-in-destination.md) | Gate-In Entry at Destination POI |
-| [US-038](../user-stories/US-038-gate-out-destination.md) | Gate-Out Entry at Destination POI |
-| [US-039](../user-stories/US-039-scaling-source.md) | Scaling/Weighing at Source POI |
-| [US-040](../user-stories/US-040-scaling-destination.md) | Scaling/Weighing at Destination POI |
-| [US-041](../user-stories/US-041-loading-operations.md) | Loading Operations Management |
-| [US-042](../user-stories/US-042-unloading-operations.md) | Unloading Operations Management |
-| [US-043](../user-stories/US-043-command-center-monitoring.md) | Command Center Operations Monitoring |
-| [US-044](../user-stories/US-044-qc-lab-testing.md) | QC Lab Testing Workflow |
-| [US-045](../user-stories/US-045-qc-sample-collection.md) | QC Sample Collection |
-| [US-046](../user-stories/US-046-qc-test-configuration.md) | QC Test Configuration & Checklist Management |
+| [US-035](../02-stories/US-035-gate-in-source.md) | Gate-In Entry at Source POI |
+| [US-036](../02-stories/US-036-gate-out-source.md) | Gate-Out Entry at Source POI |
+| [US-037](../02-stories/US-037-gate-in-destination.md) | Gate-In Entry at Destination POI |
+| [US-038](../02-stories/US-038-gate-out-destination.md) | Gate-Out Entry at Destination POI |
+| [US-039](../02-stories/US-039-scaling-source.md) | Scaling/Weighing at Source POI |
+| [US-040](../02-stories/US-040-scaling-destination.md) | Scaling/Weighing at Destination POI |
+| [US-041](../02-stories/US-041-loading-operations.md) | Loading Operations Management |
+| [US-042](../02-stories/US-042-unloading-operations.md) | Unloading Operations Management |
+| [US-043](../02-stories/US-043-command-center-monitoring.md) | Command Center Operations Monitoring |
+| [US-044](../02-stories/US-044-qc-lab-testing.md) | QC Lab Testing Workflow |
+| [US-045](../02-stories/US-045-qc-sample-collection.md) | QC Sample Collection |
+| [US-046](../02-stories/US-046-qc-test-configuration.md) | QC Test Configuration & Checklist Management |
 
 **Total**: 90 Story Points
 

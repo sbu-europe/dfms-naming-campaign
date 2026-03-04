@@ -76,21 +76,21 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **15 user stories**:
 
-| [US-077](../user-stories/US-077-pre-qc-context-display.md) | Pre-QC Context Display |
-| [US-078](../user-stories/US-078-sample-creation.md) | Sample Creation |
-| [US-079](../user-stories/US-079-sample-labeling.md) | Sample Labeling |
-| [US-080](../user-stories/US-080-exception-recording.md) | Exception Recording |
-| [US-081](../user-stories/US-081-qc-context-display.md) | QC Context Display |
-| [US-082](../user-stories/US-082-sample-collection-event.md) | Sample Collection Event |
-| [US-083](../user-stories/US-083-configurable-form-checklist-sampling.md) | Configurable Form (Checklist & Sampling) |
-| [US-084](../user-stories/US-084-qr-barcode-label.md) | QR/Barcode Label |
-| [US-085](../user-stories/US-085-sampling-timestamp.md) | Sampling Timestamp |
-| [US-086](../user-stories/US-086-create-lab-request.md) | Create Lab Request |
-| [US-087](../user-stories/US-087-lab-estimated-completion.md) | Lab Estimated Completion |
-| [US-088](../user-stories/US-088-lab-report-upload.md) | Lab Report Upload |
-| [US-089](../user-stories/US-089-lab-status-monitoring.md) | Lab Status Monitoring |
-| [US-090](../user-stories/US-090-qc-pass-fail-aut-pass-tracking.md) | QC Pass/Fail/Auto-pass Tracking |
-| [US-091](../user-stories/US-091-escalation-workflow.md) | Escalation Workflow |
+| [US-077](../02-stories/US-077-pre-qc-context-display.md) | Pre-QC Context Display |
+| [US-078](../02-stories/US-078-sample-creation.md) | Sample Creation |
+| [US-079](../02-stories/US-079-sample-labeling.md) | Sample Labeling |
+| [US-080](../02-stories/US-080-exception-recording.md) | Exception Recording |
+| [US-081](../02-stories/US-081-qc-context-display.md) | QC Context Display |
+| [US-082](../02-stories/US-082-sample-collection-event.md) | Sample Collection Event |
+| [US-083](../02-stories/US-083-configurable-form-checklist-sampling.md) | Configurable Form (Checklist & Sampling) |
+| [US-084](../02-stories/US-084-qr-barcode-label.md) | QR/Barcode Label |
+| [US-085](../02-stories/US-085-sampling-timestamp.md) | Sampling Timestamp |
+| [US-086](../02-stories/US-086-create-lab-request.md) | Create Lab Request |
+| [US-087](../02-stories/US-087-lab-estimated-completion.md) | Lab Estimated Completion |
+| [US-088](../02-stories/US-088-lab-report-upload.md) | Lab Report Upload |
+| [US-089](../02-stories/US-089-lab-status-monitoring.md) | Lab Status Monitoring |
+| [US-090](../02-stories/US-090-qc-pass-fail-aut-pass-tracking.md) | QC Pass/Fail/Auto-pass Tracking |
+| [US-091](../02-stories/US-091-escalation-workflow.md) | Escalation Workflow |
 
 **Total**: 110 Story Points
 

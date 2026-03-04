@@ -68,7 +68,7 @@ Mobile Applications (Vendor) provides essential functionality for the DFMS platf
 
 This epic includes **1 user stories**:
 
-| [US-094](../user-stories/US-094-vendor-application-access.md) | Vendor Application Access |
+| [US-094](../02-stories/US-094-vendor-application-access.md) | Vendor Application Access |
 
 **Total**: 90 Story Points
 

@@ -74,10 +74,10 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **4 user stories**:
 
-| [US-026](../user-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
-| [US-027](../user-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
-| [US-028](../user-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
-| [US-029](../user-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
+| [US-026](../02-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
+| [US-027](../02-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
+| [US-028](../02-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
+| [US-029](../02-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
 
 **Total**: 50 Story Points
 

@@ -67,15 +67,15 @@ POI Management & Geofencing provides essential functionality for the DFMS platfo
 
 This epic includes **9 user stories**:
 
-| [US-014](../user-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
-| [US-015](../user-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
-| [US-016](../user-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
-| [US-017](../user-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
-| [US-018](../user-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
-| [US-019](../user-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
-| [US-020](../user-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
-| [US-021](../user-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
-| [US-022](../user-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
+| [US-014](../02-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
+| [US-015](../02-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
+| [US-016](../02-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
+| [US-017](../02-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
+| [US-018](../02-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
+| [US-019](../02-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
+| [US-020](../02-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
+| [US-021](../02-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
+| [US-022](../02-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
 
 **Total**: 65 Story Points
 

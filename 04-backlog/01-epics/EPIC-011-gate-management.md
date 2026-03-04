@@ -67,11 +67,11 @@ Gate Management provides essential functionality for the DFMS platform. This epi
 
 This epic includes **5 user stories**:
 
-| [US-063](../user-stories/US-063-gate-in-challan-lookup.md) | Gate-in TO/Challan Lookup |
-| [US-064](../user-stories/US-064-on-demand-to-dealer-entry.md) | On Demand Third Party TO Creation against DO copy for Dealer Entry |
-| [US-065](../user-stories/US-065-on-demand-to-supplier-entry.md) | On Demand Third Party TO Creation against PO copy for Supplier Entry |
-| [US-066](../user-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
-| [US-067](../user-stories/US-067-remarks-logging.md) | Remarks Logging |
+| [US-063](../02-stories/US-063-gate-in-challan-lookup.md) | Gate-in TO/Challan Lookup |
+| [US-064](../02-stories/US-064-on-demand-to-dealer-entry.md) | On Demand Third Party TO Creation against DO copy for Dealer Entry |
+| [US-065](../02-stories/US-065-on-demand-to-supplier-entry.md) | On Demand Third Party TO Creation against PO copy for Supplier Entry |
+| [US-066](../02-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
+| [US-067](../02-stories/US-067-remarks-logging.md) | Remarks Logging |
 
 **Total**: 35 Story Points
 

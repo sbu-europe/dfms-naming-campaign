@@ -68,9 +68,9 @@ Product Inventory Management (PIM) provides essential functionality for the DFMS
 
 This epic includes **3 user stories**:
 
-| [US-023](../user-stories/US-023-incident-management.md) | Incident Management |
-| [US-024](../user-stories/US-024-vendor-bidding-portal.md) | Vendor Bidding Portal for Non-Contractual TOs |
-| [US-025](../user-stories/US-025-trip-closure-pod.md) | Trip Closure with Proof of Delivery (POD) |
+| [US-023](../02-stories/US-023-incident-management.md) | Incident Management |
+| [US-024](../02-stories/US-024-vendor-bidding-portal.md) | Vendor Bidding Portal for Non-Contractual TOs |
+| [US-025](../02-stories/US-025-trip-closure-pod.md) | Trip Closure with Proof of Delivery (POD) |
 
 **Total**: 30 Story Points
 

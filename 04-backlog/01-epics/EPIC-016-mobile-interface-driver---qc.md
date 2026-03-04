@@ -68,8 +68,8 @@ Mobile Interface (Driver / QC) provides essential functionality for the DFMS pla
 
 This epic includes **2 user stories**:
 
-| [US-092](../user-stories/US-092-trip-management-driver-interface.md) | Trip Management - Driver Interface |
-| [US-093](../user-stories/US-093-qc-interface.md) | QC Interface |
+| [US-092](../02-stories/US-092-trip-management-driver-interface.md) | Trip Management - Driver Interface |
+| [US-093](../02-stories/US-093-qc-interface.md) | QC Interface |
 
 **Total**: 90 Story Points
 
