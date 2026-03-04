@@ -74,33 +74,88 @@ Tenant {
 
 ---
 
-## 2. Organization Signup & Onboarding
+## 2. User Hierarchy & Management Chain
 
-### 2.1 Registration Flow
+### 2.1 System User Types
+
+The DFMS platform has four distinct user types in a strict management hierarchy:
 
 ```
-Step 1: Organization Details
-    ↓
-Step 2: Email & Phone Verification (OTP)
-    ↓
-Step 3: Tenant Provisioning
-    ↓
-Step 4: Admin Account Creation
-    ↓
-Step 5: Subscription Plan Selection
-    ↓
-Step 6: Welcome Email & Getting Started
+1. Super Admin (e.g., Brainstation 23)
+   ├─ Created: Manually (database seed / CLI)
+   ├─ Manages: Tenant Admins
+   └─ Scope: Platform-wide, cross-tenant
+
+2. Tenant Admin (e.g., Nourish)
+   ├─ Created: By Super Admin
+   ├─ Manages: Department Admins + Operational Users
+   └─ Scope: Organization-wide, single tenant
+
+3. Department Admin (e.g., Depot, Procurement, Distribution, Transport, QC)
+   ├─ Created: By Tenant Admin
+   ├─ Manages: Operational Users within department
+   └─ Scope: Single department within tenant
+
+4. Operational User (e.g., Command Center Officer, Loading Person,
+                     Unloading Person, Driver Supervisor, Driver Helper)
+   ├─ Created: By Tenant Admin or Department Admin
+   ├─ Manages: Nothing (execution-only)
+   └─ Scope: Assigned tasks/workflows only
 ```
 
-### 2.2 Registration Form
+### 2.2 Super Admin Creation
+
+Super Admins are **never created through the UI**. They are provisioned manually:
+
+```typescript
+// Database seed or CLI command — executed during initial deployment
+async function seedSuperAdmin(): Promise<void> {
+    const superAdmin = await createUser({
+        email: 'admin@brainstation-23.com',
+        phone: '+8801XXXXXXXXX',
+        role: 'Super Admin',
+        status: 'Active',
+        tenant_id: null,  // Platform-level, no tenant
+        created_via: 'manual_seed'
+    });
+
+    await auditLog({
+        event: 'SuperAdminCreated',
+        user_id: superAdmin.user_id,
+        details: { method: 'database_seed' }
+    });
+}
+```
+
+### 2.3 Tenant Onboarding (by Super Admin)
+
+Super Admin creates a new tenant and its Tenant Admin through the platform admin panel:
+
+```
+Step 1: Super Admin fills Organization Details
+    ↓
+Step 2: Super Admin sets Subscription Plan & Limits
+    ↓
+Step 3: System provisions Tenant
+    ↓
+Step 4: Super Admin creates Tenant Admin account
+    ↓
+Step 5: System sends invitation to Tenant Admin (email + OTP)
+    ↓
+Step 6: Tenant Admin activates account and sets password
+```
+
+**Tenant Creation Form (Super Admin Panel)**:
 
 **Required Fields**:
 - Organization Name (3-100 characters, unique)
 - Business Category (dropdown)
 - Industry Type (text field)
-- Admin Email (unique, valid format)
-- Admin Phone (with country code)
-- Address (full address fields)
+- Subscription Plan (Basic / Starter / Growth / Enterprise)
+- Tenant Admin Email (unique, valid format)
+- Tenant Admin Phone (with country code)
+- Tenant Admin Full Name
+- Organization Address (full address fields)
 
 **Validation Rules**:
 ```typescript
@@ -114,7 +169,7 @@ Step 6: Welcome Email & Getting Started
   admin_email: {
     unique: true,
     format: 'email',
-    verify_mx_record: true  // Check valid domain
+    verify_mx_record: true
   },
   admin_phone: {
     format: 'E.164',  // +8801XXXXXXXXX
@@ -123,100 +178,88 @@ Step 6: Welcome Email & Getting Started
 }
 ```
 
-### 2.3 Email/Phone Verification
-
-**Dual OTP Verification**:
-- Both email AND phone must be verified before activation
-- Prevents fake registrations
-- Ensures contact reachability
-
-**OTP Specifications**:
-- **Code**: 6-digit numeric
-- **Validity**: 10 minutes
-- **Delivery**: Email (immediate), SMS (via configured gateway)
-- **Resend**: After 2-minute cooldown
-- **Max Attempts**: 3 verification attempts per session
-- **Lockout**: 15-minute block after 3 failed attempts
-
-**Verification Flow**:
-```
-1. User submits registration form
-2. System generates email_otp and sms_otp
-3. Send OTP codes via respective channels
-4. User enters both OTPs
-5. System validates codes and timestamps
-6. If valid: Provision tenant
-7. If invalid: Decrement attempts, show error
-8. If attempts exhausted: Temporary block (15 min)
-```
-
-**OTP Validation Logic**:
-```typescript
-function validateOTP(inputOTP: string, storedOTP: string, generatedAt: DateTime): boolean {
-    // Check expiry (10 minutes)
-    if (NOW() - generatedAt > 10 * 60 * 1000) {
-        throw new Error('OTP expired. Request new code.');
-    }
-    
-    // Check match
-    if (inputOTP !== storedOTP) {
-        return false;
-    }
-    
-    return true;
-}
-```
-
 ### 2.4 Tenant Provisioning
 
-**Automatic Provisioning Steps**:
 ```typescript
-async function provisionTenant(registrationData: RegistrationForm): Promise<Tenant> {
-    // 1. Generate unique tenant ID
+async function provisionTenant(
+    superAdminId: UUID,
+    tenantData: TenantCreationForm
+): Promise<Tenant> {
+    // 1. Validate Super Admin permission
+    await checkPermission(superAdminId, 'Tenant.Create');
+
+    // 2. Generate unique tenant ID
     const tenant_id = generateUUID();
-    
-    // 2. Create tenant record
+
+    // 3. Create tenant record
     const tenant = await createTenant({
         tenant_id,
-        organization_name: registrationData.organization_name,
-        subscription_tier: 'Trial',  // Start with 14-day trial
-        trial_ends_at: NOW() + 14 days,
-        max_users: 5,  // Trial limits
-        max_monthly_trips: 100,
-        status: 'Trial'
+        organization_name: tenantData.organization_name,
+        subscription_tier: tenantData.subscription_plan,
+        max_users: getSubscriptionLimits(tenantData.subscription_plan).max_users,
+        max_monthly_trips: getSubscriptionLimits(tenantData.subscription_plan).max_trips,
+        storage_limit_gb: getSubscriptionLimits(tenantData.subscription_plan).storage_gb,
+        status: 'Active',
+        created_by: superAdminId
     });
-    
-    // 3. Create dedicated database schema (for Enterprise)
-    if (subscription_tier === 'Enterprise') {
+
+    // 4. Create dedicated database schema (for Enterprise)
+    if (tenantData.subscription_plan === 'Enterprise') {
         await createTenantSchema(tenant_id);
     }
-    
-    // 4. Create default admin user
-    const admin_user = await createUser({
+
+    // 5. Create Tenant Admin user
+    const tenantAdmin = await createUser({
         tenant_id,
-        email: registrationData.admin_email,
-        phone: registrationData.admin_phone,
+        email: tenantData.admin_email,
+        phone: tenantData.admin_phone,
+        full_name: tenantData.admin_name,
         role: 'Tenant Admin',
-        status: 'Active'
+        status: 'Pending',  // Pending until activation
+        created_by: superAdminId
     });
-    
-    // 5. Send welcome email with getting started guide
-    await sendWelcomeEmail(admin_user.email, {
+
+    // 6. Send activation invitation to Tenant Admin
+    await sendInvitationEmail(tenantAdmin.email, {
         organization_name: tenant.organization_name,
-        login_url: `https://dfms.app/login`,
-        trial_info: 'Your 14-day trial has started'
+        activation_url: `https://dfms.app/activate/${generateActivationToken(tenantAdmin)}`,
+        invited_by: 'DFMS Platform Admin'
     });
-    
-    // 6. Log provisioning event
+
+    // 7. Log provisioning event
     await auditLog({
         event: 'TenantProvisioned',
         tenant_id,
-        details: { subscription_tier: 'Trial' }
+        actor_id: superAdminId,
+        details: {
+            subscription_tier: tenantData.subscription_plan,
+            tenant_admin_email: tenantData.admin_email
+        }
     });
-    
+
     return tenant;
 }
 ```
+
+### 2.5 Department Admin & User Creation (by Tenant Admin)
+
+Once the Tenant Admin activates their account, they can create Department Admins and Operational Users:
+
+```
+Tenant Admin → User Management → Invite User →
+  Select Role (Department Admin / Operational User) →
+  Assign Department (Depot, Procurement, Distribution, Transport, QC) →
+  Send Invitation → User Activates Account
+```
+
+**Who Can Create Whom**:
+
+| Creator | Can Create | Notes |
+|---------|-----------|-------|
+| Super Admin | Tenant Admin | During tenant onboarding |
+| Tenant Admin | Department Admin | Assigns to specific department |
+| Tenant Admin | Operational User | Direct creation for any department |
+| Department Admin | Operational User | Only within their own department |
 
 ---
 
@@ -298,9 +341,13 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 ### 4.1 Invitation Workflow
 
 ```
-Admin → Invite User Form → Send Email → User Clicks Link →
-Complete Profile → Verify OTP → Accept T&C → Account Active
+Admin (Tenant Admin or Department Admin) → Invite User Form → Send Email →
+User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account Active
 ```
+
+**Permission-Based Invitation**:
+- **Tenant Admin** can invite: Department Admins, Operational Users (any department)
+- **Department Admin** can invite: Operational Users (own department only)
 
 ### 4.2 Invitation Form
 
@@ -308,8 +355,9 @@ Complete Profile → Verify OTP → Accept T&C → Account Active
 - Full Name
 - Email Address
 - Mobile Number
-- Role (from available roles)
-- Department
+- User Type (Department Admin / Operational User)
+- Role (from available roles per user type)
+- Department (Depot / Procurement / Distribution / Transport / QC)
 - Employment Type (Permanent/Temporary/Contractor)
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate)
 - Workflow Responsibility (Requester/Approver/Executor)

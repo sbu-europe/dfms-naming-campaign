@@ -141,8 +141,8 @@ Administrators can manually unlock locked accounts after offline verification:
 Multi-Factor Authentication adds an additional security layer for privileged roles by requiring a time-based one-time password (OTP) after successful password validation.
 
 **Applicability:**
-- **Required for**: Tenant Admin, System Admin, Financial roles
-- **Optional for**: Other roles (configurable per tenant)
+- **Required for**: Super Admin, Tenant Admin, Department Admin
+- **Optional for**: Operational Users (configurable per tenant by Tenant Admin)
 - **Delivery Methods**: Email, SMS
 
 ### 3.2 OTP Generation

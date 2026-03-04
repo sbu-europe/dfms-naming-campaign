@@ -21,116 +21,159 @@ The system supports both predefined operational roles (for standardized workflow
 
 ## 1. Role Hierarchy Architecture
 
-### 1.1 Three-Tier Role Structure
+### 1.1 Four-Tier Role Structure
 
-The RBAC system implements a three-tier hierarchical structure:
+The RBAC system implements a four-tier hierarchical structure:
 
 ```
-┌─────────────────────────────────────────┐
-│ Tier 1: Super Admin                    │
-│ (Platform-level, cross-tenant)         │
-└─────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────┐
-│ Tier 2: Administrative Roles            │
-│ - Tenant Admin (Organization Admin)    │
-│ - Department Admin                      │
-└─────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────┐
-│ Tier 3: Operational Roles               │
-│ - Department-specific roles             │
-│ - Task-specific roles                   │
-└─────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ Tier 1: Super Admin                                         │
+│ (Platform-level, cross-tenant)                              │
+│ Example: Brainstation 23 (platform provider)                │
+│ Created: Manually (database seed / CLI)                     │
+│ Manages: Tenant Admins                                      │
+└──────────────────────────────────────────────────────────────┘
+              ↓ creates & manages
+┌──────────────────────────────────────────────────────────────┐
+│ Tier 2: Tenant Admin                                        │
+│ (Organization-level, single tenant)                         │
+│ Example: Nourish Poultry (client organization)              │
+│ Created: By Super Admin                                     │
+│ Manages: Department Admins + Operational Users              │
+└──────────────────────────────────────────────────────────────┘
+              ↓ creates & manages
+┌──────────────────────────────────────────────────────────────┐
+│ Tier 3: Department Admin                                    │
+│ (Department-level, within tenant)                           │
+│ Examples: Depot, Procurement, Distribution, Transport, QC   │
+│ Created: By Tenant Admin                                    │
+│ Manages: Operational Users within department                │
+└──────────────────────────────────────────────────────────────┘
+              ↓ oversees
+┌──────────────────────────────────────────────────────────────┐
+│ Tier 4: Operational User                                    │
+│ (Task-level, day-to-day execution)                          │
+│ Examples: Command Center Officer, Loading Person,           │
+│           Unloading Person, Driver Supervisor, Driver Helper │
+│ Created: By Tenant Admin or Department Admin                │
+│ Manages: Nothing (execution-only)                           │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 Administrative Roles
+### 1.2 Management Chain
 
-**Super Admin (Platform Level)**:
+```
+Super Admin (Brainstation 23)
+ └─ creates → Tenant Admin (Nourish)
+               └─ creates → Department Admin (Depot Admin)
+               │             └─ oversees → Operational Users in Depot
+               └─ creates → Department Admin (Transport Admin)
+               │             └─ oversees → Driver Supervisor, Drivers, Helpers
+               └─ creates → Department Admin (QC Admin)
+               │             └─ oversees → QC Inspectors, Lab Technicians
+               └─ creates → Department Admin (Procurement Admin)
+               │             └─ oversees → Procurement Officers
+               └─ creates → Department Admin (Distribution Admin)
+                             └─ oversees → Distribution Officers
+```
+
+### 1.3 Tier 1: Super Admin
+
 - **Scope**: Cross-tenant, platform-wide access
+- **Creation**: Manually via database seed or CLI (not through UI registration)
+- **Example**: Brainstation 23 (the platform provider company)
 - **Capabilities**:
-  - Manage global configurations
+  - Create, suspend, and manage Tenant Admins
+  - Manage global platform configurations
   - Control subscription plans and billing
   - Access all tenant data (for support/compliance)
-  - Create and modify system-wide settings
-- **Restrictions**: Cannot be assigned to tenant users
-- **Typical Users**: Platform operators, DevOps team
+  - Monitor platform health and usage
+  - Manage system-wide settings and feature flags
+- **Restrictions**: Cannot be created through the UI; no self-registration
+- **Typical Users**: Platform provider team (Brainstation 23 staff)
 
-**Tenant Admin (Organization Admin)**:
+### 1.4 Tier 2: Tenant Admin
+
 - **Scope**: Single tenant, organization-wide access
+- **Creation**: Created by Super Admin during tenant onboarding
+- **Example**: Nourish Poultry admin user
 - **Capabilities**:
-  - Manage users, roles, and permissions within tenant
+  - Manage all users within the tenant (Department Admins + Operational Users)
+  - Create and assign Department Admins
   - Configure master data (POIs, products, vehicles, vendors)
   - Access all modules and features per subscription tier
   - View organization-wide reports and analytics
-- **Restrictions**: Cannot access other tenants' data
-- **Typical Users**: Organization IT admin, System administrator
+  - Configure tenant-specific settings (business rules, workflows)
+- **Restrictions**: Cannot access other tenants' data; cannot create Super Admins
+- **Typical Users**: Organization IT admin, System administrator, Operations Head
 
-**Department Admin**:
+### 1.5 Tier 3: Department Admin
+
 - **Scope**: Single department within tenant
+- **Creation**: Created by Tenant Admin
+- **Departments**:
+  - **Depot** - Manages depot/warehouse operations and staff
+  - **Procurement** - Manages procurement workflows and approvals
+  - **Distribution** - Manages distribution planning and officer assignments
+  - **Transport** - Manages fleet, drivers, helpers, and transport operations
+  - **QC (Quality Control)** - Manages QC inspectors and lab technicians
 - **Capabilities**:
-  - Manage users within assigned department
+  - Manage Operational Users within assigned department
   - Assign operational roles to department members
   - Configure department-specific settings
   - View department-level reports
-- **Restrictions**: Cannot access other departments' operational data
-- **Departments**:
-  - Transport Department
-  - Distribution Department
-  - Procurement Department
-  - QA/QC Department
-  - Fleet Department
-  - Accounts/Finance Department
-  - Commercial Department
+  - Approve department-specific workflows
+- **Restrictions**: Cannot access other departments' data; cannot create Tenant Admins or other Department Admins
+- **Typical Users**: Depot Manager, Transport Manager, QC Manager, Procurement Head, Distribution Head
 
-### 1.3 Operational Roles
+### 1.6 Tier 4: Operational User
 
-Operational roles perform day-to-day execution and **cannot manage users or system configurations**.
+Operational users perform day-to-day execution and **cannot manage users or system configurations**.
 
 **Requisition & Approval Roles**:
 
 | Role | Department | Responsibilities | Workflow Type |
 |------|-----------|------------------|---------------|
-| Depot Manager | Depot/Feed Mill | Create FG Transfer Requests | Requester |
-| Feed Mill Manager | Feed Mill | Create FG Transfer Requests | Requester |
-| Commercial Officer | Commercial | Create RM Transfer Requests (Port) | Requester |
+| Depot Manager | Depot | Create FG Transfer Requests | Requester |
+| Feed Mill Manager | Depot | Create FG Transfer Requests | Requester |
+| Commercial Officer | Procurement | Create RM Transfer Requests (Port) | Requester |
 | Distribution Officer (DO) | Distribution | Create Transport Requisitions (TR) | Requester |
 | Distribution Manager (DM) | Distribution | Approve TRs, validate capacity | Approver |
 | Procurement Officer | Procurement | Approve Port TRs, distribution breakdown | Approver |
 
 **Transport Operations Roles**:
 
-| Role | Responsibilities | Module Access |
-|------|-----------------|---------------|
-| Transport Planner (TP) | Create TOs, assign fleet (Own/Vendor), manage trips | TR, TO, Trip |
-| Transport Distribution Officer (TDO) | Vehicle/driver/helper assignment, ETA management | TO, Fleet, Trip |
-| Driver Supervisor | Driver availability, handover checklist, attendance | Fleet, Driver |
-| Driver | Trip execution via mobile app | Mobile App, Trip |
-| Helper | Assist driver (optional) | Mobile App |
+| Role | Department | Responsibilities |
+|------|-----------|------------------|
+| Transport Planner (TP) | Transport | Create TOs, assign fleet (Own/Vendor), manage trips |
+| Transport Distribution Officer (TDO) | Transport | Vehicle/driver/helper assignment, ETA management |
+| Driver Supervisor | Transport | Driver availability, handover checklist, attendance |
+| Driver | Transport | Trip execution via mobile app |
+| Driver Helper | Transport | Assist driver during loading/unloading |
 
-**Gate & Operations Roles**:
+**Gate & POI Operations Roles**:
 
-| Role | Responsibilities | Module Access |
-|------|-----------------|---------------|
-| Gate Operator (Gate Man) | Gate-in/gate-out entry | Gate |
-| Scaling Operator (Weighbridge) | Scale-in/scale-out weights, queue tokens | Scaling |
-| Command Center Officer | Assign loading/unloading lines | Command Center |
-| Loading Operator | Log loading start/end, quantity, seal number | Loading |
-| Unloading Operator | Log unloading start/end times | Unloading |
+| Role | Department | Responsibilities |
+|------|-----------|------------------|
+| Gate Operator (Gate Man) | Depot | Gate-in/gate-out vehicle entry |
+| Scaling Operator (Weighbridge) | Depot | Scale-in/scale-out weights, queue tokens |
+| Command Center Officer | Depot | Assign loading/unloading lines, manage bay queues |
+| Loading Person | Depot | Log loading start/end, quantity, seal number |
+| Unloading Person | Depot | Log unloading start/end, quantity verification |
 
 **Quality Control Roles**:
 
-| Role | Responsibilities | Module Access |
-|------|-----------------|---------------|
-| QC Inspector - Physical | Physical QC checks, sampling, approval | QC |
-| QC Lab Technician | Lab testing, update test reports | QC Lab |
+| Role | Department | Responsibilities |
+|------|-----------|------------------|
+| QC Inspector - Physical | QC | Physical QC checks, sampling, approval |
+| QC Lab Technician | QC | Lab testing, update test reports |
 
 **Vendor & Finance Roles**:
 
-| Role | Responsibilities | Module Access |
-|------|-----------------|---------------|
-| Vendor Admin | Bidding, vehicle info, invoice submission | Vendor Portal |
-| Accounts/Finance Officer | Trip costing reports, vendor invoices/billing | Reports, Finance |
+| Role | Department | Responsibilities |
+|------|-----------|------------------|
+| Vendor Admin | External | Bidding, vehicle info, invoice submission |
+| Accounts/Finance Officer | Procurement | Trip costing reports, vendor invoices/billing |
 
 ---
 
@@ -472,20 +515,20 @@ ORDER BY created_at DESC;
 Higher-level roles inherit lower-level permissions:
 
 ```
-Super Admin
-    ↓ (inherits all)
-Tenant Admin
-    ↓ (inherits operational)
-Department Admin
-    ↓ (inherits department-specific)
-Operational Roles
+Super Admin (Brainstation 23)
+    ↓ inherits all
+Tenant Admin (Nourish)
+    ↓ inherits all within tenant
+Department Admin (Depot, Procurement, Distribution, Transport, QC)
+    ↓ inherits department-specific
+Operational User (Command Center Officer, Loading Person, etc.)
 ```
 
 **Inheritance Rules**:
-- Super Admin: All permissions across all tenants
-- Tenant Admin: All permissions within tenant
-- Department Admin: All permissions within department
-- Operational Roles: Specific task permissions only
+- Super Admin: All permissions across all tenants (platform-wide)
+- Tenant Admin: All permissions within their tenant
+- Department Admin: All permissions within their department
+- Operational User: Specific task permissions only (no management access)
 
 ### 7.2 Wildcard Permissions
 
