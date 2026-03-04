@@ -68,11 +68,11 @@ Scaling / Weight Management provides essential functionality for the DFMS platfo
 
 This epic includes **5 user stories**:
 
-| [US-039](../02-stories/US-039-scaling-source.md) | Scaling/Weighing at Source POI |
-| [US-040](../02-stories/US-040-scaling-destination.md) | Scaling/Weighing at Destination POI |
-| [US-068](../02-stories/US-068-weight-entry.md) | Weight Entry |
-| [US-069](../02-stories/US-069-queue-token-generation.md) | Queue Token Generation |
-| [US-070](../02-stories/US-070-weight-exit.md) | Weight Exit |
+- [US-039](../02-stories/US-039-scaling-source.md) - Scaling/Weighing at Source POI
+- [US-040](../02-stories/US-040-scaling-destination.md) - Scaling/Weighing at Destination POI
+- [US-068](../02-stories/US-068-weight-entry.md) - Weight Entry
+- [US-069](../02-stories/US-069-queue-token-generation.md) - Queue Token Generation
+- [US-070](../02-stories/US-070-weight-exit.md) - Weight Exit
 
 **Note**: Scaling operation stories (US-039, US-040) have been consolidated from EPIC-009 (Transport Order Management).
 

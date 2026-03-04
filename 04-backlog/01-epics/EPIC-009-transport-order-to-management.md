@@ -78,16 +78,16 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **10 user stories**:
 
-| [US-015](../02-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
-| [US-016](../02-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
-| [US-017](../02-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
-| [US-018](../02-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
-| [US-019](../02-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
-| [US-020](../02-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
-| [US-021](../02-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
-| [US-022](../02-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
-| [US-023](../02-stories/US-023-incident-management.md) | Incident Management |
-| [US-025](../02-stories/US-025-trip-closure-pod.md) | Trip Closure with POD (Proof of Delivery) |
+- [US-015](../02-stories/US-015-tr-assessment.md) - Transport Requisition (TR) Assessment by Transport Planner
+- [US-016](../02-stories/US-016-fleet-availability.md) - Fleet Availability Validation
+- [US-017](../02-stories/US-017-to-creation-multiple.md) - Transport Order (TO) Creation - Multiple TOs per TR
+- [US-018](../02-stories/US-018-to-creation-transport-planner.md) - Transport Order (TO) Creation by Transport Planner
+- [US-019](../02-stories/US-019-to-execution-vendor-direct.md) - TO Execution - Vendor Fleet (Direct Assignment)
+- [US-020](../02-stories/US-020-to-execution-own-fleet.md) - TO Execution - Own Fleet (Vehicle/Driver Assignment)
+- [US-021](../02-stories/US-021-trip-lifecycle.md) - Trip Lifecycle Management (12 States, Sub-states)
+- [US-022](../02-stories/US-022-partial-delivery.md) - Partial Delivery Handling
+- [US-023](../02-stories/US-023-incident-management.md) - Incident Management
+- [US-025](../02-stories/US-025-trip-closure-pod.md) - Trip Closure with POD (Proof of Delivery)
 
 **Note**: Operational stories (gate, scaling, loading, QC, command center) have been moved to their specialized epics (EPIC-011, EPIC-012, EPIC-013, EPIC-014, EPIC-015).
 

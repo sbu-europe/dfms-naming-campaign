@@ -68,11 +68,11 @@ Command Center Operations provides essential functionality for the DFMS platform
 
 This epic includes **5 user stories**:
 
-| [US-026](../02-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
-| [US-071](../02-stories/US-071-view-all-waiting-vehicles.md) | View All Waiting Vehicles |
-| [US-072](../02-stories/US-072-assign-loading-unloading-point.md) | Assign Loading/Unloading Point |
-| [US-073](../02-stories/US-073-assignment-alert.md) | Assignment Alert |
-| [US-074](../02-stories/US-074-assign-waiting-serial.md) | Assign Waiting Serial |
+- [US-026](../02-stories/US-026-realtime-map-dashboard.md) - Real-time Map Dashboard (Command Center)
+- [US-071](../02-stories/US-071-view-all-waiting-vehicles.md) - View All Waiting Vehicles
+- [US-072](../02-stories/US-072-assign-loading-unloading-point.md) - Assign Loading/Unloading Point
+- [US-073](../02-stories/US-073-assignment-alert.md) - Assignment Alert
+- [US-074](../02-stories/US-074-assign-waiting-serial.md) - Assign Waiting Serial
 
 **Note**: Real-time map dashboard story (US-026) has been consolidated from EPIC-007 (Product Transfer Requisition Management).
 

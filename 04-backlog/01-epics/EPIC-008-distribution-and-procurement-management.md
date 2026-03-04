@@ -72,8 +72,8 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **2 user stories**:
 
-| [US-011](../02-stories/US-011-distribution-approval.md) | Distribution Approval Workflow (FG TR) |
-| [US-012](../02-stories/US-012-procurement-approval.md) | Procurement Approval Workflow (Port TR) |
+- [US-011](../02-stories/US-011-distribution-approval.md) - Distribution Approval Workflow (FG TR)
+- [US-012](../02-stories/US-012-procurement-approval.md) - Procurement Approval Workflow (Port TR)
 
 **Note**: Vendor management stories (US-030, US-031, US-032, US-033, US-034) have been moved to EPIC-010 (Vendor Management).
 

@@ -67,16 +67,16 @@ Vendor Management provides essential functionality for the DFMS platform. This e
 
 This epic includes **10 user stories**:
 
-| [US-024](../02-stories/US-024-vendor-bidding-portal.md) | Vendor Bidding Portal |
-| [US-027](../02-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
-| [US-028](../02-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
-| [US-029](../02-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
-| [US-030](../02-stories/US-030-vendor-fleet-management.md) | Vendor Fleet Management |
-| [US-031](../02-stories/US-031-vendor-portal.md) | Vendor Portal (Self-Service) |
-| [US-032](../02-stories/US-032-vendor-rating-reviews.md) | Vendor Rating & Reviews |
-| [US-033](../02-stories/US-033-vendor-contract-management.md) | Vendor Contract Management |
-| [US-034](../02-stories/US-034-vendor-blacklist.md) | Vendor Blacklist Management |
-| [US-047](../02-stories/US-047-vendor-registration.md) | Manage Vendor Master Data |
+- [US-024](../02-stories/US-024-vendor-bidding-portal.md) - Vendor Bidding Portal
+- [US-027](../02-stories/US-027-vendor-registration-verification.md) - Vendor Registration & Verification Workflow
+- [US-028](../02-stories/US-028-vendor-performance-tracking.md) - Vendor Performance Tracking & Metrics
+- [US-029](../02-stories/US-029-vendor-payment-management.md) - Vendor Payment Management
+- [US-030](../02-stories/US-030-vendor-fleet-management.md) - Vendor Fleet Management
+- [US-031](../02-stories/US-031-vendor-portal.md) - Vendor Portal (Self-Service)
+- [US-032](../02-stories/US-032-vendor-rating-reviews.md) - Vendor Rating & Reviews
+- [US-033](../02-stories/US-033-vendor-contract-management.md) - Vendor Contract Management
+- [US-034](../02-stories/US-034-vendor-blacklist.md) - Vendor Blacklist Management
+- [US-047](../02-stories/US-047-vendor-registration.md) - Manage Vendor Master Data
 
 **Note**: QC stories (US-048, US-049, US-050, US-051) moved to EPIC-014; Driver mobile (US-052) moved to EPIC-016.
 

@@ -74,9 +74,9 @@ Any delay in this epic will delay the entire project completion.
 
 This epic includes **3 user stories**:
 
-| [US-010](../02-stories/US-010-port-transfer-requisition.md) | Create Port Consignment Transfer Requisition (TR) |
-| [US-013](../02-stories/US-013-stock-validation.md) | Stock Validation (Source & Destination) |
-| [US-014](../02-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
+- [US-010](../02-stories/US-010-port-transfer-requisition.md) - Create Port Consignment Transfer Requisition (TR)
+- [US-013](../02-stories/US-013-stock-validation.md) - Stock Validation (Source & Destination)
+- [US-014](../02-stories/US-014-capacity-checking.md) - Capacity Checking and Warnings
 
 **Note**: Vendor management stories (US-026, US-027, US-028, US-029) have been moved to appropriate epics (EPIC-010 and EPIC-015).
 

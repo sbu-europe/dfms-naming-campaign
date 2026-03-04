@@ -67,15 +67,15 @@ Gate Management provides essential functionality for the DFMS platform. This epi
 
 This epic includes **9 user stories**:
 
-| [US-035](../02-stories/US-035-gate-in-source.md) | Gate-In Entry at Source POI |
-| [US-036](../02-stories/US-036-gate-out-source.md) | Gate-Out Entry at Source POI |
-| [US-037](../02-stories/US-037-gate-in-destination.md) | Gate-In Entry at Destination POI |
-| [US-038](../02-stories/US-038-gate-out-destination.md) | Gate-Out Entry at Destination POI |
-| [US-063](../02-stories/US-063-gate-in-challan-lookup.md) | Gate-in TO/Challan Lookup |
-| [US-064](../02-stories/US-064-on-demand-to-dealer-entry.md) | On Demand Third Party TO Creation against DO copy for Dealer Entry |
-| [US-065](../02-stories/US-065-on-demand-to-supplier-entry.md) | On Demand Third Party TO Creation against PO copy for Supplier Entry |
-| [US-066](../02-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
-| [US-067](../02-stories/US-067-remarks-logging.md) | Remarks Logging |
+- [US-035](../02-stories/US-035-gate-in-source.md) - Gate-In Entry at Source POI
+- [US-036](../02-stories/US-036-gate-out-source.md) - Gate-Out Entry at Source POI
+- [US-037](../02-stories/US-037-gate-in-destination.md) - Gate-In Entry at Destination POI
+- [US-038](../02-stories/US-038-gate-out-destination.md) - Gate-Out Entry at Destination POI
+- [US-063](../02-stories/US-063-gate-in-challan-lookup.md) - Gate-in TO/Challan Lookup
+- [US-064](../02-stories/US-064-on-demand-to-dealer-entry.md) - On Demand Third Party TO Creation against DO copy for Dealer Entry
+- [US-065](../02-stories/US-065-on-demand-to-supplier-entry.md) - On Demand Third Party TO Creation against PO copy for Supplier Entry
+- [US-066](../02-stories/US-066-gate-out-entry.md) - Gate-Out Entry
+- [US-067](../02-stories/US-067-remarks-logging.md) - Remarks Logging
 
 **Note**: Gate operation stories (US-035 to US-038) have been consolidated from EPIC-009 (Transport Order Management).
 

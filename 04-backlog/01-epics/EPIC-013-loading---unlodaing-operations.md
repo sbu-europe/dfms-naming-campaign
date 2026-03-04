@@ -69,10 +69,10 @@ Loading / Unlodaing Operations provides essential functionality for the DFMS pla
 
 This epic includes **4 user stories**:
 
-| [US-041](../02-stories/US-041-loading-operations.md) | Loading Operations Management |
-| [US-042](../02-stories/US-042-unloading-operations.md) | Unloading Operations Management |
-| [US-075](../02-stories/US-075-load-start-end-time-entry.md) | Load Start/End Date & Time Entry |
-| [US-076](../02-stories/US-076-unload-start-end-time-entry.md) | Unload Start/End Date & Time Entry |
+- [US-041](../02-stories/US-041-loading-operations.md) - Loading Operations Management
+- [US-042](../02-stories/US-042-unloading-operations.md) - Unloading Operations Management
+- [US-075](../02-stories/US-075-load-start-end-time-entry.md) - Load Start/End Date & Time Entry
+- [US-076](../02-stories/US-076-unload-start-end-time-entry.md) - Unload Start/End Date & Time Entry
 
 **Note**: Loading operation stories (US-041, US-042) have been consolidated from EPIC-009 (Transport Order Management).
 

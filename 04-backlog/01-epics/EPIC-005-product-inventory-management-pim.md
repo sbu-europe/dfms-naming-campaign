@@ -70,7 +70,7 @@ This epic includes **1 user story**:
 
 | Story ID | Title | Story Points |
 |----------|-------|--------------|
-| [US-095](../02-stories/US-095-product-master-data-management.md) | Product Master Data Management (CRUD) | 13 SP |
+- [US-095](../02-stories/US-095-product-master-data-management.md) - Product Master Data Management (CRUD) | 13 SP
 
 **Total**: 13 Story Points
 

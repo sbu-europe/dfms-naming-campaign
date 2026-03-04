@@ -68,13 +68,13 @@ Fleet & Vehicle Management provides essential functionality for the DFMS platfor
 
 This epic includes **7 user stories**:
 
-| [US-053](../02-stories/US-053-vehicle-registration-master-data.md) | Vehicle Master Data Management |
-| [US-057](../02-stories/US-057-driver-master-data.md) | Manage Driver Master Data |
-| [US-058](../02-stories/US-058-fuel-management.md) | Fuel Management & Tracking |
-| [US-059](../02-stories/US-059-trip-cost-calculation.md) | Trip Cost Calculation & Analysis |
-| [US-060](../02-stories/US-060-profitability-analysis.md) | Trip Profitability Analysis & Revenue Tracking |
-| [US-061](../02-stories/US-061-helper-profile.md) | Manage Helper Master Data |
-| [US-062](../02-stories/US-062-helper-assignment.md) | Helper Assignment |
+- [US-053](../02-stories/US-053-vehicle-registration-master-data.md) - Vehicle Master Data Management
+- [US-057](../02-stories/US-057-driver-master-data.md) - Manage Driver Master Data
+- [US-058](../02-stories/US-058-fuel-management.md) - Fuel Management & Tracking
+- [US-059](../02-stories/US-059-trip-cost-calculation.md) - Trip Cost Calculation & Analysis
+- [US-060](../02-stories/US-060-profitability-analysis.md) - Trip Profitability Analysis & Revenue Tracking
+- [US-061](../02-stories/US-061-helper-profile.md) - Manage Helper Master Data
+- [US-062](../02-stories/US-062-helper-assignment.md) - Helper Assignment
 
 **Note**: QC-related stories (US-053b, US-054, US-055, US-056) have been moved to EPIC-014 (Quality Control & Quality Assurance).
 

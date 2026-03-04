@@ -68,9 +68,9 @@ Mobile Interface (Driver / QC) provides essential functionality for the DFMS pla
 
 This epic includes **3 user stories**:
 
-| [US-052](../02-stories/US-052-driver-mobile-interface.md) | Driver Mobile Interface |
-| [US-092](../02-stories/US-092-trip-management-driver-interface.md) | Trip Management - Driver Interface |
-| [US-093](../02-stories/US-093-qc-interface.md) | QC Interface |
+- [US-052](../02-stories/US-052-driver-mobile-interface.md) - Driver Mobile Interface
+- [US-092](../02-stories/US-092-trip-management-driver-interface.md) - Trip Management - Driver Interface
+- [US-093](../02-stories/US-093-qc-interface.md) - QC Interface
 
 **Note**: Driver mobile interface story (US-052) has been consolidated from EPIC-010 (Vendor Management).
 

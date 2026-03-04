@@ -77,36 +77,36 @@ Any delay in this epic will delay the entire project completion.
 This epic includes **26 user stories** (the largest epic):
 
 ### QC Workflow Stories (from EPIC-009, EPIC-010)
-| [US-044](../02-stories/US-044-qc-lab-testing.md) | QC Lab Testing Workflow |
-| [US-045](../02-stories/US-045-qc-sample-collection.md) | QC Sample Collection |
-| [US-046](../02-stories/US-046-qc-test-configuration.md) | QC Test Configuration & Checklist Management |
-| [US-048](../02-stories/US-048-qc-report-generation.md) | QC Report Generation |
-| [US-049](../02-stories/US-049-qc-rejection-workflow.md) | QC Rejection Workflow |
-| [US-050](../02-stories/US-050-qc-dashboard.md) | QC Dashboard & Analytics |
-| [US-051](../02-stories/US-051-qc-checklist-management.md) | QC Checklist Management (Visual Inspection) |
+- [US-044](../02-stories/US-044-qc-lab-testing.md) - QC Lab Testing Workflow
+- [US-045](../02-stories/US-045-qc-sample-collection.md) - QC Sample Collection
+- [US-046](../02-stories/US-046-qc-test-configuration.md) - QC Test Configuration & Checklist Management
+- [US-048](../02-stories/US-048-qc-report-generation.md) - QC Report Generation
+- [US-049](../02-stories/US-049-qc-rejection-workflow.md) - QC Rejection Workflow
+- [US-050](../02-stories/US-050-qc-dashboard.md) - QC Dashboard & Analytics
+- [US-051](../02-stories/US-051-qc-checklist-management.md) - QC Checklist Management (Visual Inspection)
 
 ### QC Compliance & Tracking Stories (from EPIC-006)
-| [US-053b](../02-stories/US-053b-qc-certificate-management.md) | QC Certificate Management |
-| [US-054](../02-stories/US-054-qc-audit-trail.md) | QC Audit Trail & History |
-| [US-055](../02-stories/US-055-qc-vendor-quality-tracking.md) | QC Vendor Quality Tracking |
-| [US-056](../02-stories/US-056-qc-compliance-reporting.md) | QC Compliance & Regulatory Reporting |
+- [US-053b](../02-stories/US-053b-qc-certificate-management.md) - QC Certificate Management
+- [US-054](../02-stories/US-054-qc-audit-trail.md) - QC Audit Trail & History
+- [US-055](../02-stories/US-055-qc-vendor-quality-tracking.md) - QC Vendor Quality Tracking
+- [US-056](../02-stories/US-056-qc-compliance-reporting.md) - QC Compliance & Regulatory Reporting
 
 ### QC Sampling & Lab Testing Stories (Original)
-| [US-077](../02-stories/US-077-pre-qc-context-display.md) | Pre-QC Context Display |
-| [US-078](../02-stories/US-078-sample-creation.md) | Sample Creation |
-| [US-079](../02-stories/US-079-sample-labeling.md) | Sample Labeling |
-| [US-080](../02-stories/US-080-exception-recording.md) | Exception Recording |
-| [US-081](../02-stories/US-081-qc-context-display.md) | QC Context Display |
-| [US-082](../02-stories/US-082-sample-collection-event.md) | Sample Collection Event |
-| [US-083](../02-stories/US-083-configurable-form-checklist-sampling.md) | Configurable Form (Checklist & Sampling) |
-| [US-084](../02-stories/US-084-qr-barcode-label.md) | QR/Barcode Label |
-| [US-085](../02-stories/US-085-sampling-timestamp.md) | Sampling Timestamp |
-| [US-086](../02-stories/US-086-create-lab-request.md) | Create Lab Request |
-| [US-087](../02-stories/US-087-lab-estimated-completion.md) | Lab Estimated Completion |
-| [US-088](../02-stories/US-088-lab-report-upload.md) | Lab Report Upload |
-| [US-089](../02-stories/US-089-lab-status-monitoring.md) | Lab Status Monitoring |
-| [US-090](../02-stories/US-090-qc-pass-fail-aut-pass-tracking.md) | QC Pass/Fail/Auto-pass Tracking |
-| [US-091](../02-stories/US-091-escalation-workflow.md) | Escalation Workflow |
+- [US-077](../02-stories/US-077-pre-qc-context-display.md) - Pre-QC Context Display
+- [US-078](../02-stories/US-078-sample-creation.md) - Sample Creation
+- [US-079](../02-stories/US-079-sample-labeling.md) - Sample Labeling
+- [US-080](../02-stories/US-080-exception-recording.md) - Exception Recording
+- [US-081](../02-stories/US-081-qc-context-display.md) - QC Context Display
+- [US-082](../02-stories/US-082-sample-collection-event.md) - Sample Collection Event
+- [US-083](../02-stories/US-083-configurable-form-checklist-sampling.md) - Configurable Form (Checklist & Sampling)
+- [US-084](../02-stories/US-084-qr-barcode-label.md) - QR/Barcode Label
+- [US-085](../02-stories/US-085-sampling-timestamp.md) - Sampling Timestamp
+- [US-086](../02-stories/US-086-create-lab-request.md) - Create Lab Request
+- [US-087](../02-stories/US-087-lab-estimated-completion.md) - Lab Estimated Completion
+- [US-088](../02-stories/US-088-lab-report-upload.md) - Lab Report Upload
+- [US-089](../02-stories/US-089-lab-status-monitoring.md) - Lab Status Monitoring
+- [US-090](../02-stories/US-090-qc-pass-fail-aut-pass-tracking.md) - QC Pass/Fail/Auto-pass Tracking
+- [US-091](../02-stories/US-091-escalation-workflow.md) - Escalation Workflow
 
 **Note**: This epic has consolidated all QC-related stories from EPIC-006 (Fleet), EPIC-009 (TO Management), and EPIC-010 (Vendor Management), creating the largest and most comprehensive QC workflow epic.
 
