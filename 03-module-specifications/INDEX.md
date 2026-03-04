@@ -85,22 +85,22 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (RBAC, audit)
-- **Referenced by**: `03-core-operations/`, `04-operations-support/`, `05-vendor-management/`, `06-fleet-management/`
+- **Referenced by**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`, `06-fleet-management/`
 - **Provides**: POI, Product, Vehicle, Driver, Vendor master data
 
 ---
 
-### [03-core-operations/](03-core-operations/README.md) - Core Business Operations
+### [03-operations/](03-operations/README.md) - Core Business Operations
 **Purpose**: End-to-end transport and logistics workflow management  
 **PRD Sections**: 6.6, 6.7, 6.8  
 **Phase**: Phase 1 (Critical)  
 **Dependencies**: `01-foundation/`, `02-master-data/`
 
 #### Specifications
-- [product-requisition-management.md](03-core-operations/product-requisition-management.md) - Product Requisition Management
-- [transport-requisition-management.md](03-core-operations/transport-requisition-management.md) - Transport Requisition (TR) Management
-- [transport-order-management.md](03-core-operations/transport-order-management.md) - Transport Order (TO) Management
-- [trip-management.md](03-core-operations/trip-management.md) - Trip Management, Trip Closure, Trip Costing
+- [product-requisition-management.md](03-operations/product-requisition-management.md) - Product Requisition Management
+- [transport-requisition-management.md](03-operations/transport-requisition-management.md) - Transport Requisition (TR) Management
+- [transport-order-management.md](03-operations/transport-order-management.md) - Transport Order (TO) Management
+- [trip-management.md](03-operations/trip-management.md) - Trip Management, Trip Closure, Trip Costing
 
 #### Related User Stories
 - US-010 to US-025: PR, TR, TO, Trip workflows
@@ -108,22 +108,22 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (RBAC), `02-master-data/` (POI, Product, Vehicle)
-- **Drives**: `04-operations-support/` (gate, scaling, QC), `05-vendor-management/` (bidding), `06-fleet-management/` (fleet assignment)
+- **Drives**: `04-poi-operations/` (gate, scaling, QC), `05-vendor-management/` (bidding), `06-fleet-management/` (fleet assignment)
 - **Provides**: PR/TR/TO/Trip entities and workflows
 
 ---
 
-### [04-operations-support/](04-operations-support/README.md) - Operations Support
+### [04-poi-operations/](04-poi-operations/README.md) - Operations Support
 **Purpose**: Supporting operational workflows (gate, scaling, QC, command center)  
 **PRD Sections**: 6.9, 6.10, 6.13  
 **Phase**: Phase 1 (Critical)  
-**Dependencies**: `03-core-operations/`
+**Dependencies**: `03-operations/`
 
 #### Specifications
-- [gate-management.md](04-operations-support/gate-management.md) - Gate-In, Gate-Out, On-Demand TO Creation
-- [scaling-management.md](04-operations-support/scaling-management.md) - Scale-In, Scale-Out, Queue Token
-- [command-center.md](04-operations-support/command-center.md) - Command Center Operations
-- [qc-workflow.md](04-operations-support/qc-workflow.md) - Quality Control Workflow
+- [gate-management.md](04-poi-operations/gate-management.md) - Gate-In, Gate-Out, On-Demand TO Creation
+- [scaling-management.md](04-poi-operations/scaling-management.md) - Scale-In, Scale-Out, Queue Token
+- [command-center.md](04-poi-operations/command-center.md) - Command Center Operations
+- [qc-workflow.md](04-poi-operations/qc-workflow.md) - Quality Control Workflow
 
 #### Related User Stories
 - US-026, US-035-046: Gate, Scaling, Loading operations
@@ -132,7 +132,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-071-076: Command Center, Loading/Unloading
 
 #### Cross-References
-- **Depends on**: `03-core-operations/` (Trip entity and state)
+- **Depends on**: `03-operations/` (Trip entity and state)
 - **Integrates with**: `02-master-data/` (POI), `06-fleet-management/` (Vehicle)
 - **Provides**: Gate logs, weight data, QC results, loading/unloading timestamps
 
@@ -142,7 +142,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 **Purpose**: Vendor ecosystem and lifecycle management  
 **PRD Sections**: 6.11  
 **Phase**: Phase 1 (High)  
-**Dependencies**: `03-core-operations/`, `02-master-data/`
+**Dependencies**: `03-operations/`, `02-master-data/`
 
 #### Specifications
 - [vendor-onboarding.md](05-vendor-management/vendor-onboarding.md) - Vendor Onboarding & Registration
@@ -156,8 +156,8 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-094: Vendor Application Access
 
 #### Cross-References
-- **Depends on**: `03-core-operations/` (TO entity), `02-master-data/` (Vendor master)
-- **Integrates with**: `07-mobile-interfaces/` (Vendor mobile app)
+- **Depends on**: `03-operations/` (TO entity), `02-master-data/` (Vendor master)
+- **Integrates with**: `07-mobile-apps/` (Vendor mobile app)
 - **Provides**: Vendor bidding, TO assignment, vendor performance tracking
 
 ---
@@ -182,21 +182,21 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Cross-References
 - **Depends on**: `02-master-data/` (Vehicle, Driver, Helper masters)
-- **Referenced by**: `03-core-operations/` (TO/Trip assignment)
+- **Referenced by**: `03-operations/` (TO/Trip assignment)
 - **Provides**: Fleet availability, vehicle/driver assignment, fuel tracking
 
 ---
 
-### [07-mobile-interfaces/](07-mobile-interfaces/README.md) - Mobile Interfaces
+### [07-mobile-apps/](07-mobile-apps/README.md) - Mobile Interfaces
 **Purpose**: Mobile applications for drivers, vendors, and QC supervisors  
 **PRD Sections**: 11, 12  
 **Phase**: Phase 1 (High)  
-**Dependencies**: `03-core-operations/`, `04-operations-support/`, `05-vendor-management/`
+**Dependencies**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`
 
 #### Specifications
-- [driver-mobile.md](07-mobile-interfaces/driver-mobile.md) - Driver Mobile Interface
-- [qc-mobile.md](07-mobile-interfaces/qc-mobile.md) - QC Supervisor Mobile Interface
-- [vendor-mobile.md](07-mobile-interfaces/vendor-mobile.md) - Vendor Mobile Application
+- [driver-mobile.md](07-mobile-apps/driver-mobile.md) - Driver Mobile Interface
+- [qc-mobile.md](07-mobile-apps/qc-mobile.md) - QC Supervisor Mobile Interface
+- [vendor-mobile.md](07-mobile-apps/vendor-mobile.md) - Vendor Mobile Application
 
 #### Related User Stories
 - US-052: Driver Mobile Interface
@@ -205,20 +205,20 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-094: Vendor Application Access
 
 #### Cross-References
-- **Depends on**: `03-core-operations/` (Trip), `04-operations-support/` (QC, Gate), `05-vendor-management/` (Vendor TO)
+- **Depends on**: `03-operations/` (Trip), `04-poi-operations/` (QC, Gate), `05-vendor-management/` (Vendor TO)
 - **Provides**: Mobile access for field users
 
 ---
 
-### [08-reporting-analytics/](08-reporting-analytics/README.md) - Reporting & Analytics
+### [08-reporting/](08-reporting/README.md) - Reporting & Analytics
 **Purpose**: Business intelligence, reports, dashboards, and KPIs  
 **PRD Sections**: 6.13 (Reporting)  
 **Phase**: Phase 1-2 (Medium)  
 **Dependencies**: All operational modules
 
 #### Specifications
-- [reporting.md](08-reporting-analytics/reporting.md) - Standard Reports
-- [analytics.md](08-reporting-analytics/analytics.md) - Dashboards, KPIs, Analytics
+- [reporting.md](08-reporting/reporting.md) - Standard Reports
+- [analytics.md](08-reporting/analytics.md) - Dashboards, KPIs, Analytics
 
 #### Related User Stories
 - Integrated across operational modules (no dedicated stories)
@@ -229,16 +229,16 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-### [09-non-functional/](09-non-functional/README.md) - Non-Functional Requirements
+###  [09-cross-cutting/](09-cross-cutting/README.md) - Non-Functional Requirements
 **Purpose**: Cross-cutting concerns (performance, security, integration)  
 **PRD Sections**: 7, 9, 10  
 **Phase**: Phase 1 (Critical)  
 **Dependencies**: Cross-cutting (applies to all modules)
 
 #### Specifications
-- [non-functional-requirements.md](09-non-functional/non-functional-requirements.md) - Performance, Scalability, Availability
-- [security-compliance.md](09-non-functional/security-compliance.md) - Security & Compliance
-- [integration-requirements.md](09-non-functional/integration-requirements.md) - GPS/VTS Integration, Map APIs
+- [non-functional-requirements.md](09-cross-cutting/non-functional-requirements.md) - Performance, Scalability, Availability
+- [security-compliance.md](09-cross-cutting/security-compliance.md) - Security & Compliance
+- [integration-requirements.md](09-cross-cutting/integration-requirements.md) - GPS/VTS Integration, Map APIs
 
 #### Related User Stories
 - Cross-cutting requirements integrated into all modules
@@ -318,13 +318,13 @@ Each specification file includes PRD section references in frontmatter.
 | 00-overview | None | All (context) |
 | 01-foundation | None | All operational modules |
 | 02-master-data | 01-foundation | 03, 04, 05, 06 |
-| 03-core-operations | 01, 02 | 04, 05, 06, 07, 08 |
-| 04-operations-support | 03 | 08 |
+| 03-operations | 01, 02 | 04, 05, 06, 07, 08 |
+| 04-poi-operations | 03 | 08 |
 | 05-vendor-management | 02, 03 | 07, 08 |
 | 06-fleet-management | 02 | 03, 08 |
-| 07-mobile-interfaces | 03, 04, 05 | - |
-| 08-reporting-analytics | All operational | - |
-| 09-non-functional | Cross-cutting | All |
+| 07-mobile-apps | 03, 04, 05 | - |
+| 08-reporting | All operational | - |
+| 09-cross-cutting | Cross-cutting | All |
 | 10-phases | All (organizational) | - |
 | 11-reference | None | All (reference) |
 
@@ -345,17 +345,17 @@ Each specification file includes PRD section references in frontmatter.
 ### Critical Path Modules (Phase 1)
 1. **01-foundation** - Authentication, RBAC (US-001-009)
 2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057, US-061)
-3. **03-core-operations** - PR, TR, TO, Trip (US-010-025)
-4. **04-operations-support** - Gate, Scaling, QC, Command Center (US-026, US-035-090)
-5. **09-non-functional** - Security, Performance, Integration
+3. **03-operations** - PR, TR, TO, Trip (US-010-025)
+4. **04-poi-operations** - Gate, Scaling, QC, Command Center (US-026, US-035-090)
+5. **09-cross-cutting** - Security, Performance, Integration
 
 ### High Priority Modules (Phase 1)
 6. **05-vendor-management** - Vendor onboarding, bidding (US-024, US-027-034, US-047, US-094)
 7. **06-fleet-management** - Fleet, Vehicle, Driver (US-053, US-057-062)
-8. **07-mobile-interfaces** - Driver, QC, Vendor apps (US-052, US-092-094)
+8. **07-mobile-apps** - Driver, QC, Vendor apps (US-052, US-092-094)
 
 ### Medium Priority (Phase 1-2)
-9. **08-reporting-analytics** - Reports, Dashboards
+9. **08-reporting** - Reports, Dashboards
 
 ---
 
