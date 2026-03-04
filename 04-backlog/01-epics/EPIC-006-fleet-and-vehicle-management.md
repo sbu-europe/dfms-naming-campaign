@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 4
 duration: 3 Weeks
-story_points: 80
+story_points: 29
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p1, standard]
 **Priority**: P1  
 **Sprint**: Sprint 4  
 **Duration**: 3 Weeks  
-**Story Points**: 80 SP  
+**Story Points**: 29 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p1, standard]
 
 ## Business Context
 
-Fleet & Vehicle Management provides essential functionality for the DFMS platform. This epic includes 10 user stories covering key features and capabilities.
+Fleet & Vehicle Management provides essential functionality for the DFMS platform. This epic includes 7 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages fleet, vehicles, drivers, and helpers. Essential for transport order execution and fleet availability management.
@@ -66,12 +66,9 @@ Fleet & Vehicle Management provides essential functionality for the DFMS platfor
 
 ## User Stories
 
-This epic includes **10 user stories**:
+This epic includes **7 user stories**:
 
 | [US-053](../02-stories/US-053-vehicle-registration-master-data.md) | Vehicle Master Data Management |
-| [US-054](../02-stories/US-054-qc-audit-trail.md) | QC Audit Trail & History |
-| [US-055](../02-stories/US-055-qc-vendor-quality-tracking.md) | QC Vendor Quality Tracking |
-| [US-056](../02-stories/US-056-qc-compliance-reporting.md) | QC Compliance & Regulatory Reporting |
 | [US-057](../02-stories/US-057-driver-master-data.md) | Manage Driver Master Data |
 | [US-058](../02-stories/US-058-fuel-management.md) | Fuel Management & Tracking |
 | [US-059](../02-stories/US-059-trip-cost-calculation.md) | Trip Cost Calculation & Analysis |
@@ -79,14 +76,16 @@ This epic includes **10 user stories**:
 | [US-061](../02-stories/US-061-helper-profile.md) | Manage Helper Master Data |
 | [US-062](../02-stories/US-062-helper-assignment.md) | Helper Assignment |
 
-**Total**: 80 Story Points
+**Note**: QC-related stories (US-053b, US-054, US-055, US-056) have been moved to EPIC-014 (Quality Control & Quality Assurance).
+
+**Total**: 29 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 10 user stories completed and tested
+- [ ] All 7 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -102,7 +101,7 @@ This epic includes **10 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 10 user stories
+- System SHALL implement all features defined in the 7 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -124,7 +123,7 @@ This epic includes **10 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 10 user stories completed
+- ✅ All 7 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -170,7 +169,7 @@ This epic includes **10 user stories**:
 
 ## Definition of Done
 
-- [ ] All 10 user stories completed
+- [ ] All 7 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -186,5 +185,5 @@ This epic includes **10 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

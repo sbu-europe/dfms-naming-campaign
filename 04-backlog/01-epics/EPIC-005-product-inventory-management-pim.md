@@ -184,5 +184,5 @@ This epic includes **1 user story**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

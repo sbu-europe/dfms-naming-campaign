@@ -8,7 +8,7 @@ priority: P2
 status: Planned
 target_sprint: Sprint 8
 duration: 3 Weeks
-story_points: 63
+story_points: 56
 progress: 0%
 created: 2026-02-17
 updated: 2026-02-27
@@ -29,7 +29,7 @@ tags: [vendor, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 8  
 **Duration**: 3 Weeks  
-**Story Points**: 63 SP  
+**Story Points**: 56 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [vendor, p2, standard]
 
 ## Business Context
 
-Vendor Management provides essential functionality for the DFMS platform. This epic includes **7 user stories** covering key features and capabilities.
+Vendor Management provides essential functionality for the DFMS platform. This epic includes **10 user stories** covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages vendor registration, verification, performance tracking, and vendor portal. Enables vendor-based transport operations.
@@ -65,23 +65,29 @@ Vendor Management provides essential functionality for the DFMS platform. This e
 
 ## User Stories
 
-This epic includes **6 user stories**:
+This epic includes **10 user stories**:
 
+| [US-024](../02-stories/US-024-vendor-bidding-portal.md) | Vendor Bidding Portal |
+| [US-027](../02-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
+| [US-028](../02-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
+| [US-029](../02-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
+| [US-030](../02-stories/US-030-vendor-fleet-management.md) | Vendor Fleet Management |
+| [US-031](../02-stories/US-031-vendor-portal.md) | Vendor Portal (Self-Service) |
+| [US-032](../02-stories/US-032-vendor-rating-reviews.md) | Vendor Rating & Reviews |
+| [US-033](../02-stories/US-033-vendor-contract-management.md) | Vendor Contract Management |
+| [US-034](../02-stories/US-034-vendor-blacklist.md) | Vendor Blacklist Management |
 | [US-047](../02-stories/US-047-vendor-registration.md) | Manage Vendor Master Data |
-| [US-048](../02-stories/US-048-qc-report-generation.md) | QC Report Generation |
-| [US-049](../02-stories/US-049-qc-rejection-workflow.md) | QC Rejection Workflow |
-| [US-050](../02-stories/US-050-qc-dashboard.md) | QC Dashboard & Analytics |
-| [US-051](../02-stories/US-051-qc-checklist-management.md) | QC Checklist Management (Visual Inspection) |
-| [US-052](../02-stories/US-052-driver-mobile-interface.md) | Driver Mobile Interface |
 
-**Total**: 55 Story Points
+**Note**: QC stories (US-048, US-049, US-050, US-051) moved to EPIC-014; Driver mobile (US-052) moved to EPIC-016.
+
+**Total**: 56 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 6 user stories completed and tested
+- [ ] All 10 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -97,7 +103,7 @@ This epic includes **6 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 6 user stories
+- System SHALL implement all features defined in the 10 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -119,7 +125,7 @@ This epic includes **6 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 6 user stories completed
+- ✅ All 10 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -165,7 +171,7 @@ This epic includes **6 user stories**:
 
 ## Definition of Done
 
-- [ ] All 6 user stories completed
+- [ ] All 10 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)

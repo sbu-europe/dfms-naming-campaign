@@ -8,10 +8,10 @@ priority: P2
 status: Planned
 target_sprint: Sprint 9
 duration: 3 Weeks
-story_points: 25
+story_points: 31
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 9  
 **Duration**: 3 Weeks  
-**Story Points**: 25 SP  
+**Story Points**: 31 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p2, standard]
 
 ## Business Context
 
-Scaling / Weight Management provides essential functionality for the DFMS platform. This epic includes 3 user stories covering key features and capabilities.
+Scaling / Weight Management provides essential functionality for the DFMS platform. This epic includes 5 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages vehicle weighing operations (scale-in, scale-out) for accurate load calculation. Essential for weight-based operations.
@@ -66,20 +66,24 @@ Scaling / Weight Management provides essential functionality for the DFMS platfo
 
 ## User Stories
 
-This epic includes **3 user stories**:
+This epic includes **5 user stories**:
 
+| [US-039](../02-stories/US-039-scaling-source.md) | Scaling/Weighing at Source POI |
+| [US-040](../02-stories/US-040-scaling-destination.md) | Scaling/Weighing at Destination POI |
 | [US-068](../02-stories/US-068-weight-entry.md) | Weight Entry |
 | [US-069](../02-stories/US-069-queue-token-generation.md) | Queue Token Generation |
 | [US-070](../02-stories/US-070-weight-exit.md) | Weight Exit |
 
-**Total**: 25 Story Points
+**Note**: Scaling operation stories (US-039, US-040) have been consolidated from EPIC-009 (Transport Order Management).
+
+**Total**: 31 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 3 user stories completed and tested
+- [ ] All 5 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -95,7 +99,7 @@ This epic includes **3 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 3 user stories
+- System SHALL implement all features defined in the 5 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -117,7 +121,7 @@ This epic includes **3 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 3 user stories completed
+- ✅ All 5 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -163,7 +167,7 @@ This epic includes **3 user stories**:
 
 ## Definition of Done
 
-- [ ] All 3 user stories completed
+- [ ] All 5 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -179,5 +183,5 @@ This epic includes **3 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

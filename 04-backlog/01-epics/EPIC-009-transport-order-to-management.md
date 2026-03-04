@@ -8,7 +8,7 @@ priority: P1
 status: Planned
 target_sprint: Sprint 6-7
 duration: 3 Weeks
-story_points: 103
+story_points: 68
 progress: 0%
 created: 2026-02-17
 updated: 2026-02-27
@@ -29,7 +29,7 @@ tags: [operations, p1, critical-path]
 **Priority**: P1  
 **Sprint**: Sprint 6-7  
 **Duration**: 3 Weeks  
-**Story Points**: 103 SP  
+**Story Points**: 68 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p1, critical-path]
 
 ## Business Context
 
-Transport Order (TO) Management provides essential functionality for the DFMS platform. This epic includes **14 user stories** covering key features and capabilities.
+Transport Order (TO) Management provides essential functionality for the DFMS platform. This epic includes **10 user stories** covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Core transport order management epic. Enables creation, execution, and lifecycle management of transport orders. Central to all transport operations.
@@ -76,29 +76,29 @@ Any delay in this epic will delay the entire project completion.
 
 ## User Stories
 
-This epic includes **12 user stories**:
+This epic includes **10 user stories**:
 
-| [US-035](../02-stories/US-035-gate-in-source.md) | Gate-In Entry at Source POI |
-| [US-036](../02-stories/US-036-gate-out-source.md) | Gate-Out Entry at Source POI |
-| [US-037](../02-stories/US-037-gate-in-destination.md) | Gate-In Entry at Destination POI |
-| [US-038](../02-stories/US-038-gate-out-destination.md) | Gate-Out Entry at Destination POI |
-| [US-039](../02-stories/US-039-scaling-source.md) | Scaling/Weighing at Source POI |
-| [US-040](../02-stories/US-040-scaling-destination.md) | Scaling/Weighing at Destination POI |
-| [US-041](../02-stories/US-041-loading-operations.md) | Loading Operations Management |
-| [US-042](../02-stories/US-042-unloading-operations.md) | Unloading Operations Management |
-| [US-043](../02-stories/US-043-command-center-monitoring.md) | Command Center Operations Monitoring |
-| [US-044](../02-stories/US-044-qc-lab-testing.md) | QC Lab Testing Workflow |
-| [US-045](../02-stories/US-045-qc-sample-collection.md) | QC Sample Collection |
-| [US-046](../02-stories/US-046-qc-test-configuration.md) | QC Test Configuration & Checklist Management |
+| [US-015](../02-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
+| [US-016](../02-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
+| [US-017](../02-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
+| [US-018](../02-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
+| [US-019](../02-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
+| [US-020](../02-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
+| [US-021](../02-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
+| [US-022](../02-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
+| [US-023](../02-stories/US-023-incident-management.md) | Incident Management |
+| [US-025](../02-stories/US-025-trip-closure-pod.md) | Trip Closure with POD (Proof of Delivery) |
 
-**Total**: 90 Story Points
+**Note**: Operational stories (gate, scaling, loading, QC, command center) have been moved to their specialized epics (EPIC-011, EPIC-012, EPIC-013, EPIC-014, EPIC-015).
+
+**Total**: 68 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 12 user stories completed and tested
+- [ ] All 10 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -114,7 +114,7 @@ This epic includes **12 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 12 user stories
+- System SHALL implement all features defined in the 10 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -136,7 +136,7 @@ This epic includes **12 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 12 user stories completed
+- ✅ All 10 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -182,7 +182,7 @@ This epic includes **12 user stories**:
 
 ## Definition of Done
 
-- [ ] All 12 user stories completed
+- [ ] All 10 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)

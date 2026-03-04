@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 11
 duration: 2 Weeks
-story_points: 90
+story_points: 24
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [mobile, p1, standard]
 **Priority**: P1  
 **Sprint**: Sprint 11  
 **Duration**: 2 Weeks  
-**Story Points**: 90 SP  
+**Story Points**: 24 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [mobile, p1, standard]
 
 ## Business Context
 
-Mobile Interface (Driver / QC) provides essential functionality for the DFMS platform. This epic includes 2 user stories covering key features and capabilities.
+Mobile Interface (Driver / QC) provides essential functionality for the DFMS platform. This epic includes 3 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Provides mobile interfaces for drivers and QC personnel. Enables field operations and mobile access to system features.
@@ -66,19 +66,22 @@ Mobile Interface (Driver / QC) provides essential functionality for the DFMS pla
 
 ## User Stories
 
-This epic includes **2 user stories**:
+This epic includes **3 user stories**:
 
+| [US-052](../02-stories/US-052-driver-mobile-interface.md) | Driver Mobile Interface |
 | [US-092](../02-stories/US-092-trip-management-driver-interface.md) | Trip Management - Driver Interface |
 | [US-093](../02-stories/US-093-qc-interface.md) | QC Interface |
 
-**Total**: 90 Story Points
+**Note**: Driver mobile interface story (US-052) has been consolidated from EPIC-010 (Vendor Management).
+
+**Total**: 24 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 2 user stories completed and tested
+- [ ] All 3 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -94,7 +97,7 @@ This epic includes **2 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 2 user stories
+- System SHALL implement all features defined in the 3 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -116,7 +119,7 @@ This epic includes **2 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 2 user stories completed
+- ✅ All 3 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -162,7 +165,7 @@ This epic includes **2 user stories**:
 
 ## Definition of Done
 
-- [ ] All 2 user stories completed
+- [ ] All 3 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -178,5 +181,5 @@ This epic includes **2 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

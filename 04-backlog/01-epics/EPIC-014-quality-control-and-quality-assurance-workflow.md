@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 10-11
 duration: 2 Weeks
-story_points: 110
+story_points: 97
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [quality, p1, critical-path]
 **Priority**: P1  
 **Sprint**: Sprint 10-11  
 **Duration**: 2 Weeks  
-**Story Points**: 110 SP  
+**Story Points**: 97 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [quality, p1, critical-path]
 
 ## Business Context
 
-Quality Control & Quality Assurance Workflow provides essential functionality for the DFMS platform. This epic includes 15 user stories covering key features and capabilities.
+Quality Control & Quality Assurance Workflow provides essential functionality for the DFMS platform. This epic includes 26 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Comprehensive quality control and quality assurance workflow. Manages QC inspections, sampling, lab testing, and QC decisions. Critical for product quality.
@@ -74,8 +74,24 @@ Any delay in this epic will delay the entire project completion.
 
 ## User Stories
 
-This epic includes **15 user stories**:
+This epic includes **26 user stories** (the largest epic):
 
+### QC Workflow Stories (from EPIC-009, EPIC-010)
+| [US-044](../02-stories/US-044-qc-lab-testing.md) | QC Lab Testing Workflow |
+| [US-045](../02-stories/US-045-qc-sample-collection.md) | QC Sample Collection |
+| [US-046](../02-stories/US-046-qc-test-configuration.md) | QC Test Configuration & Checklist Management |
+| [US-048](../02-stories/US-048-qc-report-generation.md) | QC Report Generation |
+| [US-049](../02-stories/US-049-qc-rejection-workflow.md) | QC Rejection Workflow |
+| [US-050](../02-stories/US-050-qc-dashboard.md) | QC Dashboard & Analytics |
+| [US-051](../02-stories/US-051-qc-checklist-management.md) | QC Checklist Management (Visual Inspection) |
+
+### QC Compliance & Tracking Stories (from EPIC-006)
+| [US-053b](../02-stories/US-053b-qc-certificate-management.md) | QC Certificate Management |
+| [US-054](../02-stories/US-054-qc-audit-trail.md) | QC Audit Trail & History |
+| [US-055](../02-stories/US-055-qc-vendor-quality-tracking.md) | QC Vendor Quality Tracking |
+| [US-056](../02-stories/US-056-qc-compliance-reporting.md) | QC Compliance & Regulatory Reporting |
+
+### QC Sampling & Lab Testing Stories (Original)
 | [US-077](../02-stories/US-077-pre-qc-context-display.md) | Pre-QC Context Display |
 | [US-078](../02-stories/US-078-sample-creation.md) | Sample Creation |
 | [US-079](../02-stories/US-079-sample-labeling.md) | Sample Labeling |
@@ -92,14 +108,16 @@ This epic includes **15 user stories**:
 | [US-090](../02-stories/US-090-qc-pass-fail-aut-pass-tracking.md) | QC Pass/Fail/Auto-pass Tracking |
 | [US-091](../02-stories/US-091-escalation-workflow.md) | Escalation Workflow |
 
-**Total**: 110 Story Points
+**Note**: This epic has consolidated all QC-related stories from EPIC-006 (Fleet), EPIC-009 (TO Management), and EPIC-010 (Vendor Management), creating the largest and most comprehensive QC workflow epic.
+
+**Total**: 97 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 15 user stories completed and tested
+- [ ] All 26 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -115,7 +133,7 @@ This epic includes **15 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 15 user stories
+- System SHALL implement all features defined in the 26 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -137,7 +155,7 @@ This epic includes **15 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 15 user stories completed
+- ✅ All 26 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -183,7 +201,7 @@ This epic includes **15 user stories**:
 
 ## Definition of Done
 
-- [ ] All 15 user stories completed
+- [ ] All 26 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -199,5 +217,5 @@ This epic includes **15 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

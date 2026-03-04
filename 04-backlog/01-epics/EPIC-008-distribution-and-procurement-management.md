@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 5
 duration: 3 Weeks
-story_points: 45
+story_points: 10
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p1, critical-path]
 **Priority**: P1  
 **Sprint**: Sprint 5  
 **Duration**: 3 Weeks  
-**Story Points**: 45 SP  
+**Story Points**: 10 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p1, critical-path]
 
 ## Business Context
 
-Distribution & Procurement Management provides essential functionality for the DFMS platform. This epic includes 5 user stories covering key features and capabilities.
+Distribution & Procurement Management provides essential functionality for the DFMS platform. This epic includes 2 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages approval workflows for distribution and procurement. Ensures proper authorization before transport order creation.
@@ -70,22 +70,21 @@ Any delay in this epic will delay the entire project completion.
 
 ## User Stories
 
-This epic includes **5 user stories**:
+This epic includes **2 user stories**:
 
-| [US-030](../02-stories/US-030-vendor-fleet-management.md) | Vendor Fleet Management |
-| [US-031](../02-stories/US-031-vendor-portal.md) | Vendor Portal (Self-Service) |
-| [US-032](../02-stories/US-032-vendor-rating-reviews.md) | Vendor Rating & Reviews |
-| [US-033](../02-stories/US-033-vendor-contract-management.md) | Vendor Contract Management |
-| [US-034](../02-stories/US-034-vendor-blacklist.md) | Vendor Blacklist Management |
+| [US-011](../02-stories/US-011-distribution-approval.md) | Distribution Approval Workflow (FG TR) |
+| [US-012](../02-stories/US-012-procurement-approval.md) | Procurement Approval Workflow (Port TR) |
 
-**Total**: 45 Story Points
+**Note**: Vendor management stories (US-030, US-031, US-032, US-033, US-034) have been moved to EPIC-010 (Vendor Management).
+
+**Total**: 10 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 5 user stories completed and tested
+- [ ] All 2 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -101,7 +100,7 @@ This epic includes **5 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 5 user stories
+- System SHALL implement all features defined in the 2 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -123,7 +122,7 @@ This epic includes **5 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 5 user stories completed
+- ✅ All 2 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -169,7 +168,7 @@ This epic includes **5 user stories**:
 
 ## Definition of Done
 
-- [ ] All 5 user stories completed
+- [ ] All 2 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -185,5 +184,5 @@ This epic includes **5 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

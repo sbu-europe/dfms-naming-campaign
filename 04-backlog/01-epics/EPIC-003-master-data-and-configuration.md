@@ -8,10 +8,10 @@ priority: P0
 status: Planned
 target_sprint: Sprint 2
 duration: 2 Weeks
-story_points: 50
+story_points: 0
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [foundation, p0, critical-path]
 **Priority**: P0  
 **Sprint**: Sprint 2  
 **Duration**: 2 Weeks  
-**Story Points**: 50 SP  
+**Story Points**: 0 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,9 @@ tags: [foundation, p0, critical-path]
 
 ## Business Context
 
-Master Data & Configuration provides essential functionality for the DFMS platform. This epic includes 4 user stories covering key features and capabilities.
+Master Data & Configuration was originally intended to provide essential master data management for the DFMS platform. However, all 4 stories previously assigned to this epic have been reassigned to their correct functional epics (EPIC-007 and EPIC-008) based on story content analysis.
+
+**Reassignment Note**: This epic is currently empty. All stories originally assigned here (US-010, US-011, US-012, US-013) were transfer requisition and approval workflow stories that have been moved to their proper epics.
 
 **Why This Epic Matters**:
 - **Business Value**: Provides standardized master data management for all operational entities (vehicles, drivers, products, vendors, POIs). Ensures data consistency across all workflows.
@@ -74,21 +76,22 @@ Any delay in this epic will delay the entire project completion.
 
 ## User Stories
 
-This epic includes **4 user stories**:
+This epic currently includes **0 user stories**.
 
-| [US-010](../02-stories/US-010-port-transfer-requisition.md) | Create Port Consignment Transfer Requisition (TR) |
-| [US-011](../02-stories/US-011-distribution-approval.md) | Distribution Approval Workflow (FG TR) |
-| [US-012](../02-stories/US-012-procurement-approval.md) | Procurement Approval Workflow (Port TR) |
-| [US-013](../02-stories/US-013-stock-validation.md) | Stock Validation (Source & Destination) |
+**Note**: All stories originally assigned to this epic have been reassigned:
+- US-010 → EPIC-007 (Product Transfer Requisition Management)
+- US-011 → EPIC-008 (Distribution & Procurement Management)
+- US-012 → EPIC-008 (Distribution & Procurement Management)
+- US-013 → EPIC-007 (Product Transfer Requisition Management)
 
-**Total**: 50 Story Points
+**Total**: 0 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 4 user stories completed and tested
+- [ ] All 0 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -104,7 +107,7 @@ This epic includes **4 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 4 user stories
+- System SHALL implement all features defined in the 0 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -126,7 +129,7 @@ This epic includes **4 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 4 user stories completed
+- ✅ All 0 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -172,7 +175,7 @@ This epic includes **4 user stories**:
 
 ## Definition of Done
 
-- [ ] All 4 user stories completed
+- [ ] All 0 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -188,5 +191,5 @@ This epic includes **4 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

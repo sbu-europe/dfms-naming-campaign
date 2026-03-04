@@ -8,10 +8,10 @@ priority: P2
 status: Planned
 target_sprint: Sprint 11
 duration: 2 Weeks
-story_points: 35
+story_points: 18
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [monitoring, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 11  
 **Duration**: 2 Weeks  
-**Story Points**: 35 SP  
+**Story Points**: 18 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [monitoring, p2, standard]
 
 ## Business Context
 
-Command Center Operations provides essential functionality for the DFMS platform. This epic includes 4 user stories covering key features and capabilities.
+Command Center Operations provides essential functionality for the DFMS platform. This epic includes 5 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Provides command center operations for centralized monitoring and vehicle assignment. Enables efficient operational coordination.
@@ -66,21 +66,24 @@ Command Center Operations provides essential functionality for the DFMS platform
 
 ## User Stories
 
-This epic includes **4 user stories**:
+This epic includes **5 user stories**:
 
+| [US-026](../02-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
 | [US-071](../02-stories/US-071-view-all-waiting-vehicles.md) | View All Waiting Vehicles |
 | [US-072](../02-stories/US-072-assign-loading-unloading-point.md) | Assign Loading/Unloading Point |
 | [US-073](../02-stories/US-073-assignment-alert.md) | Assignment Alert |
 | [US-074](../02-stories/US-074-assign-waiting-serial.md) | Assign Waiting Serial |
 
-**Total**: 35 Story Points
+**Note**: Real-time map dashboard story (US-026) has been consolidated from EPIC-007 (Product Transfer Requisition Management).
+
+**Total**: 18 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 4 user stories completed and tested
+- [ ] All 5 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -96,7 +99,7 @@ This epic includes **4 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 4 user stories
+- System SHALL implement all features defined in the 5 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -118,7 +121,7 @@ This epic includes **4 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 4 user stories completed
+- ✅ All 5 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -164,7 +167,7 @@ This epic includes **4 user stories**:
 
 ## Definition of Done
 
-- [ ] All 4 user stories completed
+- [ ] All 5 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -180,5 +183,5 @@ This epic includes **4 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 5
 duration: 3 Weeks
-story_points: 50
+story_points: 11
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p1, critical-path]
 **Priority**: P1  
 **Sprint**: Sprint 5  
 **Duration**: 3 Weeks  
-**Story Points**: 50 SP  
+**Story Points**: 11 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p1, critical-path]
 
 ## Business Context
 
-Product Transfer Requisition Management provides essential functionality for the DFMS platform. This epic includes 4 user stories covering key features and capabilities.
+Product Transfer Requisition Management provides essential functionality for the DFMS platform. This epic includes 3 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Enables creation and management of product transfer requisitions (PR). Core workflow for initiating transport operations.
@@ -72,21 +72,22 @@ Any delay in this epic will delay the entire project completion.
 
 ## User Stories
 
-This epic includes **4 user stories**:
+This epic includes **3 user stories**:
 
-| [US-026](../02-stories/US-026-realtime-map-dashboard.md) | Real-time Map Dashboard (Command Center) |
-| [US-027](../02-stories/US-027-vendor-registration-verification.md) | Vendor Registration & Verification Workflow |
-| [US-028](../02-stories/US-028-vendor-performance-tracking.md) | Vendor Performance Tracking & Metrics |
-| [US-029](../02-stories/US-029-vendor-payment-management.md) | Vendor Payment Management |
+| [US-010](../02-stories/US-010-port-transfer-requisition.md) | Create Port Consignment Transfer Requisition (TR) |
+| [US-013](../02-stories/US-013-stock-validation.md) | Stock Validation (Source & Destination) |
+| [US-014](../02-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
 
-**Total**: 50 Story Points
+**Note**: Vendor management stories (US-026, US-027, US-028, US-029) have been moved to appropriate epics (EPIC-010 and EPIC-015).
+
+**Total**: 11 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 4 user stories completed and tested
+- [ ] All 3 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -102,7 +103,7 @@ This epic includes **4 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 4 user stories
+- System SHALL implement all features defined in the 3 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -124,7 +125,7 @@ This epic includes **4 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 4 user stories completed
+- ✅ All 3 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -170,7 +171,7 @@ This epic includes **4 user stories**:
 
 ## Definition of Done
 
-- [ ] All 4 user stories completed
+- [ ] All 3 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -186,5 +187,5 @@ This epic includes **4 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

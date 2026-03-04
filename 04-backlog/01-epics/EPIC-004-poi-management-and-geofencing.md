@@ -8,10 +8,10 @@ priority: P1
 status: Planned
 target_sprint: Sprint 3
 duration: 2 Weeks
-story_points: 65
+story_points: 0
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [core-data, p1, standard]
 **Priority**: P1  
 **Sprint**: Sprint 3  
 **Duration**: 2 Weeks  
-**Story Points**: 65 SP  
+**Story Points**: 0 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,16 +40,9 @@ tags: [core-data, p1, standard]
 
 ## Business Context
 
-POI Management & Geofencing provides essential functionality for the DFMS platform. This epic includes 9 user stories covering key features and capabilities.
+POI Management & Geofencing was originally intended to provide location-based operations through POI management and geofencing. However, all 9 stories previously assigned to this epic have been reassigned to their correct functional epics (EPIC-007 and EPIC-009) based on story content analysis.
 
-**Why This Epic Matters**:
-- **Business Value**: Enables location-based operations through POI (Point of Interest) management and geofencing. Critical for real-time tracking and vehicle arrival detection.
-- **Key Benefits**:
-  - Enables real-time vehicle location tracking
-  - Automates vehicle arrival detection through geofencing
-  - Tracks dwell time at POIs for operational efficiency
-  - Provides map-based visualization of operations
-- **Impact on Operations**: Blocks EPIC-007 (Product Requisition) as requisitions require POI references. Critical for location-based operations and tracking.
+**Reassignment Note**: This epic is currently empty. All stories originally assigned here (US-014 to US-022) were transfer requisition and transport order execution stories that have been moved to their proper epics.
 
 ---
 
@@ -65,26 +58,27 @@ POI Management & Geofencing provides essential functionality for the DFMS platfo
 
 ## User Stories
 
-This epic includes **9 user stories**:
+This epic currently includes **0 user stories**.
 
-| [US-014](../02-stories/US-014-capacity-checking.md) | Capacity Checking and Warnings |
-| [US-015](../02-stories/US-015-tr-assessment.md) | Transport Requisition (TR) Assessment by Transport Planner |
-| [US-016](../02-stories/US-016-fleet-availability.md) | Fleet Availability Validation |
-| [US-017](../02-stories/US-017-to-creation-multiple.md) | Transport Order (TO) Creation - Multiple TOs per TR |
-| [US-018](../02-stories/US-018-to-creation-transport-planner.md) | Transport Order (TO) Creation by Transport Planner |
-| [US-019](../02-stories/US-019-to-execution-vendor-direct.md) | TO Execution - Vendor Fleet (Direct Assignment) |
-| [US-020](../02-stories/US-020-to-execution-own-fleet.md) | TO Execution - Own Fleet (Vehicle/Driver Assignment) |
-| [US-021](../02-stories/US-021-trip-lifecycle.md) | Trip Lifecycle Management (12 States, Sub-states) |
-| [US-022](../02-stories/US-022-partial-delivery.md) | Partial Delivery Handling |
+**Note**: All stories originally assigned to this epic have been reassigned:
+- US-014 → EPIC-007 (Product Transfer Requisition Management)
+- US-015 → EPIC-009 (Transport Order (TO) Management)
+- US-016 → EPIC-009 (Transport Order (TO) Management)
+- US-017 → EPIC-009 (Transport Order (TO) Management)
+- US-018 → EPIC-009 (Transport Order (TO) Management)
+- US-019 → EPIC-009 (Transport Order (TO) Management)
+- US-020 → EPIC-009 (Transport Order (TO) Management)
+- US-021 → EPIC-009 (Transport Order (TO) Management)
+- US-022 → EPIC-009 (Transport Order (TO) Management)
 
-**Total**: 65 Story Points
+**Total**: 0 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 9 user stories completed and tested
+- [ ] All 0 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -100,7 +94,7 @@ This epic includes **9 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 9 user stories
+- System SHALL implement all features defined in the 0 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -122,7 +116,7 @@ This epic includes **9 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 9 user stories completed
+- ✅ All 0 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -168,7 +162,7 @@ This epic includes **9 user stories**:
 
 ## Definition of Done
 
-- [ ] All 9 user stories completed
+- [ ] All 0 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -184,5 +178,5 @@ This epic includes **9 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

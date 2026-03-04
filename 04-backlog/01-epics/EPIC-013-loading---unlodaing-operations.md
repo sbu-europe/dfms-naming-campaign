@@ -8,10 +8,10 @@ priority: P2
 status: Planned
 target_sprint: Sprint 9
 duration: 3 Weeks
-story_points: 20
+story_points: 16
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 9  
 **Duration**: 3 Weeks  
-**Story Points**: 20 SP  
+**Story Points**: 16 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p2, standard]
 
 ## Business Context
 
-Loading / Unlodaing Operations provides essential functionality for the DFMS platform. This epic includes 2 user stories covering key features and capabilities.
+Loading / Unlodaing Operations provides essential functionality for the DFMS platform. This epic includes 4 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages loading and unloading operations. Tracks loading/unloading times and details for operational efficiency.
@@ -67,19 +67,23 @@ Loading / Unlodaing Operations provides essential functionality for the DFMS pla
 
 ## User Stories
 
-This epic includes **2 user stories**:
+This epic includes **4 user stories**:
 
+| [US-041](../02-stories/US-041-loading-operations.md) | Loading Operations Management |
+| [US-042](../02-stories/US-042-unloading-operations.md) | Unloading Operations Management |
 | [US-075](../02-stories/US-075-load-start-end-time-entry.md) | Load Start/End Date & Time Entry |
 | [US-076](../02-stories/US-076-unload-start-end-time-entry.md) | Unload Start/End Date & Time Entry |
 
-**Total**: 20 Story Points
+**Note**: Loading operation stories (US-041, US-042) have been consolidated from EPIC-009 (Transport Order Management).
+
+**Total**: 16 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 2 user stories completed and tested
+- [ ] All 4 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -95,7 +99,7 @@ This epic includes **2 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 2 user stories
+- System SHALL implement all features defined in the 4 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -117,7 +121,7 @@ This epic includes **2 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 2 user stories completed
+- ✅ All 4 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -163,7 +167,7 @@ This epic includes **2 user stories**:
 
 ## Definition of Done
 
-- [ ] All 2 user stories completed
+- [ ] All 4 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -179,5 +183,5 @@ This epic includes **2 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)

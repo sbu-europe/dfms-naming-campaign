@@ -8,10 +8,10 @@ priority: P2
 status: Planned
 target_sprint: Sprint 8
 duration: 3 Weeks
-story_points: 35
+story_points: 48
 progress: 0%
 created: 2026-02-17
-updated: 2026-02-17
+updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/epics-table.md
@@ -29,7 +29,7 @@ tags: [operations, p2, standard]
 **Priority**: P2  
 **Sprint**: Sprint 8  
 **Duration**: 3 Weeks  
-**Story Points**: 35 SP  
+**Story Points**: 48 SP  
 **Status**: Planned  
 **Progress**: 0%
 
@@ -40,7 +40,7 @@ tags: [operations, p2, standard]
 
 ## Business Context
 
-Gate Management provides essential functionality for the DFMS platform. This epic includes 5 user stories covering key features and capabilities.
+Gate Management provides essential functionality for the DFMS platform. This epic includes 9 user stories covering key features and capabilities.
 
 **Why This Epic Matters**:
 - **Business Value**: Manages gate operations (gate-in, gate-out) at source and destination POIs. Tracks vehicle entry and exit for operational control.
@@ -65,22 +65,28 @@ Gate Management provides essential functionality for the DFMS platform. This epi
 
 ## User Stories
 
-This epic includes **5 user stories**:
+This epic includes **9 user stories**:
 
+| [US-035](../02-stories/US-035-gate-in-source.md) | Gate-In Entry at Source POI |
+| [US-036](../02-stories/US-036-gate-out-source.md) | Gate-Out Entry at Source POI |
+| [US-037](../02-stories/US-037-gate-in-destination.md) | Gate-In Entry at Destination POI |
+| [US-038](../02-stories/US-038-gate-out-destination.md) | Gate-Out Entry at Destination POI |
 | [US-063](../02-stories/US-063-gate-in-challan-lookup.md) | Gate-in TO/Challan Lookup |
 | [US-064](../02-stories/US-064-on-demand-to-dealer-entry.md) | On Demand Third Party TO Creation against DO copy for Dealer Entry |
 | [US-065](../02-stories/US-065-on-demand-to-supplier-entry.md) | On Demand Third Party TO Creation against PO copy for Supplier Entry |
 | [US-066](../02-stories/US-066-gate-out-entry.md) | Gate-Out Entry |
 | [US-067](../02-stories/US-067-remarks-logging.md) | Remarks Logging |
 
-**Total**: 35 Story Points
+**Note**: Gate operation stories (US-035 to US-038) have been consolidated from EPIC-009 (Transport Order Management).
+
+**Total**: 48 Story Points
 
 ---
 
 ## Epic Acceptance Criteria
 
 ### AC-1: Core Functionality
-- [ ] All 5 user stories completed and tested
+- [ ] All 9 user stories completed and tested
 - [ ] Epic objectives met
 - [ ] Integration with dependent epics working
 - [ ] All acceptance criteria from individual stories met
@@ -96,7 +102,7 @@ This epic includes **5 user stories**:
 ## Functional Requirements
 
 ### FR-1: Epic-Specific Requirements
-- System SHALL implement all features defined in the 5 user stories
+- System SHALL implement all features defined in the 9 user stories
 - System SHALL enforce data validation and business rules
 - System SHALL maintain audit trail for all operations
 - System SHALL integrate with dependent epics as specified
@@ -118,7 +124,7 @@ This epic includes **5 user stories**:
 ## Success Criteria
 
 ### Must Have
-- ✅ All 5 user stories completed
+- ✅ All 9 user stories completed
 - ✅ Epic objectives met
 - ✅ Integration with dependencies working
 - ✅ All acceptance criteria met
@@ -164,7 +170,7 @@ This epic includes **5 user stories**:
 
 ## Definition of Done
 
-- [ ] All 5 user stories completed
+- [ ] All 9 user stories completed
 - [ ] Epic objectives met
 - [ ] All acceptance criteria met
 - [ ] Unit tests pass (80%+ coverage)
@@ -180,5 +186,5 @@ This epic includes **5 user stories**:
 
 ---
 
-**Last Updated**: 2026-02-17  
+**Last Updated**: 2026-02-27  
 **Source**: `source-documents/04-wbs/epics-table.md` (WBS - Source of Truth)
