@@ -5,9 +5,9 @@ phase: phase-1
 module: Product Requisition Management
 priority: Critical
 status: Pending
-epic: Product Requisition Workflow
-epic_id: EPIC-003
-epic_name: Master Data & Configuration
+epic: Distribution & Procurement Management
+epic_id: EPIC-008
+epic_name: Distribution & Procurement Management
 sprint: Sprint 2
 story_points: 5
 created: 2026-02-11

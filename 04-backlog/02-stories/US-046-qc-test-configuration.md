@@ -5,9 +5,9 @@ phase: phase-1
 module: Quality Control
 priority: Medium
 status: Pending
-epic: QC Configuration
-epic_id: EPIC-009
-epic_name: Transport Order (TO) Management
+epic: Quality Control & Quality Assurance Workflow
+epic_id: EPIC-014
+epic_name: Quality Control & Quality Assurance Workflow
 sprint: Sprint 14
 story_points: 3
 created: 2026-02-11

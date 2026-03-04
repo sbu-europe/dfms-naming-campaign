@@ -5,9 +5,9 @@ phase: phase-1
 module: Quality Control
 priority: Medium
 status: Pending
-epic: QC Documentation
-epic_id: EPIC-010
-epic_name: Vendor Management
+epic: Quality Control & Quality Assurance Workflow
+epic_id: EPIC-014
+epic_name: Quality Control & Quality Assurance Workflow
 sprint: Sprint 15
 story_points: 3
 created: 2026-02-11

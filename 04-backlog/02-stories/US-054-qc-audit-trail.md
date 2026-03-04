@@ -5,9 +5,9 @@ phase: phase-1
 module: Quality Control
 priority: Medium
 status: Pending
-epic: QC Compliance
-epic_id: EPIC-006
-epic_name: Fleet & Vehicle Management
+epic: Quality Control & Quality Assurance Workflow
+epic_id: EPIC-014
+epic_name: Quality Control & Quality Assurance Workflow
 sprint: Sprint 16
 story_points: 2
 created: 2026-02-11

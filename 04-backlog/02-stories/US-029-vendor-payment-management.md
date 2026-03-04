@@ -5,9 +5,9 @@ phase: phase-1
 module: Vendor Management
 priority: High
 status: Pending
-epic: Vendor Financial Management
-epic_id: EPIC-007
-epic_name: Product Transfer Requisition Management
+epic: Vendor Management
+epic_id: EPIC-010
+epic_name: Vendor Management
 sprint: Sprint 9
 story_points: 8
 created: 2026-02-11

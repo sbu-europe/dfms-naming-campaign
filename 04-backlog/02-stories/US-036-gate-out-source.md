@@ -5,9 +5,9 @@ phase: phase-1
 module: Operations (Gate Management)
 priority: Critical
 status: Pending
-epic: Gate Operations
-epic_id: EPIC-009
-epic_name: Transport Order (TO) Management
+epic: Gate Management
+epic_id: EPIC-011
+epic_name: Gate Management
 sprint: Sprint 11
 story_points: 3
 created: 2026-02-11

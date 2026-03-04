@@ -5,9 +5,9 @@ phase: phase-1
 module: Mobile Interfaces
 priority: High
 status: Pending
-epic: Mobile User Experiences
-epic_id: EPIC-010
-epic_name: Vendor Management
+epic: Mobile Interface (Driver / QC)
+epic_id: EPIC-016
+epic_name: Mobile Interface (Driver / QC)
 sprint: Sprint 9
 story_points: 8
 created: 2026-02-11

@@ -5,9 +5,9 @@ phase: phase-1
 module: Operations (Loading/Unloading)
 priority: Critical
 status: Pending
-epic: Loading Operations
-epic_id: EPIC-009
-epic_name: Transport Order (TO) Management
+epic: Loading / Unloading Operations
+epic_id: EPIC-013
+epic_name: Loading / Unloading Operations
 sprint: Sprint 13
 story_points: 5
 created: 2026-02-11

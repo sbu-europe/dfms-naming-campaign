@@ -5,9 +5,9 @@ phase: phase-1
 module: Transport Management
 priority: High
 status: Pending
-epic: Command Center
-epic_id: EPIC-007
-epic_name: Product Transfer Requisition Management
+epic: Command Center Operations
+epic_id: EPIC-015
+epic_name: Command Center Operations
 sprint: Sprint 7
 story_points: 8
 created: 2026-02-11

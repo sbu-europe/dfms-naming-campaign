@@ -5,9 +5,9 @@ phase: phase-1
 module: Product Requisition Management
 priority: High
 status: Pending
-epic: Product Requisition Workflow
-epic_id: EPIC-003
-epic_name: Master Data & Configuration
+epic: Product Transfer Requisition Management
+epic_id: EPIC-007
+epic_name: Product Transfer Requisition Management
 sprint: Sprint 3
 story_points: 3
 created: 2026-02-11

@@ -5,9 +5,9 @@ phase: phase-1
 module: Vendor Management
 priority: Medium
 status: Pending
-epic: Vendor Performance
-epic_id: EPIC-008
-epic_name: Distribution & Procurement Management
+epic: Vendor Management
+epic_id: EPIC-010
+epic_name: Vendor Management
 sprint: Sprint 10
 story_points: 3
 created: 2026-02-11

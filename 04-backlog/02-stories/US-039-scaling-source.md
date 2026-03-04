@@ -5,9 +5,9 @@ phase: phase-1
 module: Operations (Scaling)
 priority: High
 status: Pending
-epic: Weighing Operations
-epic_id: EPIC-009
-epic_name: Transport Order (TO) Management
+epic: Scaling / Weight Management
+epic_id: EPIC-012
+epic_name: Scaling / Weight Management
 sprint: Sprint 12
 story_points: 5
 created: 2026-02-11
