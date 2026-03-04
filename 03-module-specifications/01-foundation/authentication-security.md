@@ -19,22 +19,119 @@ The DFMS platform implements a comprehensive authentication and security framewo
 
 ## 1. Authentication Architecture
 
-### 1.1 Authentication Flow
+### 1.1 Login Flow (3-Step)
 
-The authentication system follows a layered security approach:
+All users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
 
-1. **Primary Authentication**: Username/password validation against securely hashed credentials
-2. **Multi-Factor Authentication**: OTP verification for admin and privileged roles
-3. **Session Creation**: JWT-based session token generation with refresh tokens
-4. **Authorization**: Role-based access control (RBAC) validation
+```
+Step 1: Enter Email or Phone Number
+    ↓ System validates identity exists
+Step 2: OTP Verification
+    ↓ System sends 6-digit OTP to email/SMS
+    ↓ User enters OTP code
+Step 3: Enter Password
+    ↓ System validates password
+    ↓ Session created → Redirect to dashboard
+```
 
-### 1.2 Credential Management
+**Login Credentials**:
+- **Identity**: Registered email address OR phone number (unique per tenant)
+- **OTP**: 6-digit code sent to the registered email/phone
+- **Password**: User's account password
 
-**Username Requirements:**
-- Unique per tenant
-- 3-50 characters
-- Alphanumeric with allowed special characters: underscore, hyphen, dot
-- Case-insensitive for login (stored as lowercase)
+**Why 3-Step?**
+- OTP before password prevents brute-force password attacks
+- Confirms the user has access to the registered email/phone
+- Every login is inherently multi-factor (identity + OTP + password)
+
+### 1.2 Login Flow Detail
+
+```typescript
+async function loginFlow(identifier: string): Promise<LoginSession> {
+    // Step 1: Identify user by email or phone
+    const user = await findUserByEmailOrPhone(identifier);
+    if (!user) {
+        throw new Error('No account found with this email/phone.');
+    }
+    if (user.status !== 'Active') {
+        throw new Error('Account is inactive or suspended.');
+    }
+
+    // Step 2: Send OTP for verification
+    const otp = generateOTP();  // 6-digit code
+    await sendOTP(user, otp);   // Via email or SMS based on identifier type
+    // User enters OTP on verification screen
+    const otpValid = await verifyOTP(user.user_id, inputOTP);
+    if (!otpValid) {
+        throw new Error('Invalid OTP. Please try again.');
+    }
+
+    // Step 3: Validate password
+    const passwordValid = await bcrypt.compare(inputPassword, user.password_hash);
+    if (!passwordValid) {
+        await incrementFailedAttempts(user.user_id);
+        throw new Error('Invalid password.');
+    }
+
+    // Success: Create session
+    return await createSession(user);
+}
+```
+
+### 1.3 Tenant Admin First Login
+
+When Super Admin creates a new tenant, the Tenant Admin receives:
+1. **Admin Portal URL** (e.g., `https://admin.dfms.app`)
+2. **Account credentials** via email:
+   - Registered email address
+   - Temporary password (must be changed on first login)
+
+**First Login Flow**:
+```
+1. Tenant Admin opens Admin Portal URL from email
+2. Enters registered email address
+3. Receives OTP on the registered email
+4. Enters OTP code
+5. Enters temporary password (from email)
+6. System prompts: "Change your password"
+7. Sets new permanent password
+8. Redirected to Admin Dashboard
+```
+
+**First Login Email Template**:
+```
+Subject: Your DFMS Admin Account is Ready
+
+Welcome to DFMS!
+
+Your organization [Organization Name] has been set up on the DFMS platform.
+
+Login Details:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Portal URL: https://admin.dfms.app
+Email: [admin@nourish.com]
+Temporary Password: [auto-generated]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+To log in:
+1. Open the portal URL above
+2. Enter your email address
+3. Enter the OTP sent to your email
+4. Enter the temporary password above
+5. You will be asked to set a new password
+
+This temporary password expires in 72 hours.
+
+If you did not request this account, please ignore this email.
+```
+
+### 1.4 Credential Management
+
+**Identity (Email / Phone)**:
+- Email or phone number serves as the login identifier
+- Must be unique per tenant
+- Case-insensitive for email (stored as lowercase)
+- Phone format: E.164 (e.g., +8801XXXXXXXXX)
 
 **Password Requirements:**
 - Minimum 8 characters
@@ -42,6 +139,7 @@ The authentication system follows a layered security approach:
 - Hashed using bcrypt with tenant-specific salt
 - Password history: Last 3 passwords cannot be reused
 - Expiration: 90 days (configurable per tenant)
+- First login with temporary password forces immediate change
 
 **Password Storage:**
 ```typescript
@@ -49,6 +147,7 @@ The authentication system follows a layered security approach:
   password_hash: string,        // bcrypt hash
   password_salt: string,        // tenant-specific salt
   last_password_change: DateTime,
+  password_must_change: boolean, // true for first login / admin reset
   password_history: Array<{hash: string, changed_at: DateTime}>
 }
 ```
@@ -134,48 +233,48 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ---
 
-## 3. Multi-Factor Authentication (MFA/2FA)
+## 3. OTP Verification (Built into Login)
 
-### 3.1 MFA Overview
+### 3.1 OTP Overview
 
-Multi-Factor Authentication adds an additional security layer for privileged roles by requiring a time-based one-time password (OTP) after successful password validation.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
 
 **Applicability:**
-- **Required for**: Super Admin, Tenant Admin, Department Admin
-- **Optional for**: Operational Users (configurable per tenant by Tenant Admin)
-- **Delivery Methods**: Email, SMS
+- **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
+- **Delivery Methods**: Email (if logged in via email), SMS (if logged in via phone)
 
 ### 3.2 OTP Generation
 
 **OTP Specifications:**
-- **Algorithm**: Time-based OTP (TOTP) - RFC 6238
 - **Code Length**: 6 digits
 - **Validity**: 5 minutes (300 seconds)
-- **Hash Function**: HMAC-SHA256
-- **Delivery**: Email (primary), SMS (fallback/secondary)
+- **Delivery**: Email (if identifier is email), SMS (if identifier is phone)
+- **Resend Cooldown**: 2 minutes between resend requests
+- **Max Resends**: 3 per login session
 
 **OTP Generation Logic:**
-```
-OTP = TOTP(secret_key, current_timestamp, validity_window)
+```typescript
+function generateOTP(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 ```
 
-### 3.3 MFA Flow
+### 3.3 OTP Verification Flow
 
-1. User enters username/password
-2. System validates credentials
-3. If user role requires MFA:
-   - Generate 6-digit OTP
-   - Send OTP via email/SMS
-   - Present OTP verification screen
+```
+1. User enters email/phone (Step 1 of login)
+2. System generates 6-digit OTP
+3. System sends OTP to email or SMS (based on identifier type)
 4. User enters OTP within 5 minutes
-5. System validates OTP
-6. On success: Create session, redirect to dashboard
-7. On failure (3 attempts): Restart from step 1
+5. If valid: Proceed to password step (Step 3)
+6. If invalid: Decrement attempts, show error
+7. After 3 failed OTP attempts: Block for 15 minutes
+```
 
 **Retry Policy:**
-- Maximum 3 OTP attempts per session
-- User can request OTP resend (max 3 resends per 10 minutes)
-- After 3 failed attempts: Return to login screen
+- Maximum 3 OTP verification attempts per login session
+- User can request OTP resend after 2-minute cooldown (max 3 resends)
+- After 3 failed attempts: 15-minute lockout before retry
 
 ### 3.4 Trusted Devices
 
