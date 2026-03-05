@@ -7,7 +7,7 @@ phase: phase-1
 module: Quality Control
 priority: Medium
 status: Pending
-sprint: Sprint 10-11
+sprint: Sprint 15
 story_points: 5
 created: 2026-02-17
 updated: 2026-02-17

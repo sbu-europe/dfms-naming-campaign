@@ -8,7 +8,7 @@ status: Pending
 epic: Scaling / Weight Management
 epic_id: EPIC-012
 epic_name: Scaling / Weight Management
-sprint: Sprint 9
+sprint: Sprint 11
 story_points: 8
 created: 2026-02-23
 updated: 2026-02-23

@@ -8,7 +8,7 @@ status: Pending
 epic: Mobile Interface (Driver / QC)
 epic_id: EPIC-016
 epic_name: Mobile Interface (Driver / QC)
-sprint: Sprint 9
+sprint: Sprint 12
 story_points: 8
 created: 2026-02-11
 updated: 2026-02-13

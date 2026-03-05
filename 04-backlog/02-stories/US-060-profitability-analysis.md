@@ -8,7 +8,7 @@ status: Pending
 epic: Financial Management
 epic_id: EPIC-006
 epic_name: Fleet & Vehicle Management
-sprint: Sprint 17
+sprint: Sprint 18
 story_points: 3
 created: 2026-02-11
 updated: 2026-02-11

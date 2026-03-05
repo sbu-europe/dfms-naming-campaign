@@ -8,7 +8,7 @@ status: Pending
 epic: Quality Control & Quality Assurance Workflow
 epic_id: EPIC-014
 epic_name: Quality Control & Quality Assurance Workflow
-sprint: Sprint 14
+sprint: Sprint 13
 story_points: 5
 created: 2026-02-11
 updated: 2026-02-11

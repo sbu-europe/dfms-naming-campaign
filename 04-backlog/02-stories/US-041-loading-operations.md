@@ -8,7 +8,7 @@ status: Pending
 epic: Loading / Unloading Operations
 epic_id: EPIC-013
 epic_name: Loading / Unloading Operations
-sprint: Sprint 13
+sprint: Sprint 12
 story_points: 5
 created: 2026-02-11
 updated: 2026-02-11

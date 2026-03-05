@@ -3,12 +3,12 @@ title: Phase 1 - MVP Core Operations
 category: features
 phase: phase-1
 duration: Weeks 1-36 (18 sprints, ~9 months)
-story_count: 71
-total_story_points: 397
-epic_count: 12
+story_count: 96
+total_story_points: 504
+epic_count: 17
 status: planned
 created: 2026-02-11
-updated: 2026-03-04
+updated: 2026-02-23
 source_documents:
   - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
@@ -19,11 +19,11 @@ tags: [phase-1, mvp, features, roadmap]
 
 # Phase 1: MVP - Core Operations
 
-> **⚠️ SOURCE OF TRUTH**: This document accurately reflects Phase 1 backlog  
 > **Timeline**: Weeks 1-36 (18 sprints, ~9 months)  
-> **User Stories**: 71 (US-001 to US-070 + US-053b)  
-> **Total Story Points**: 397  
-> **Epics**: 12 (EPIC-001 to EPIC-012)  
+> **User Stories**: 96 (US-001 to US-095 + US-053b)  
+> **Total Story Points**: 504  
+> **Epics**: 17 (EPIC-001 to EPIC-017)  
+> **Sprint Plan**: [Detailed Sprint Plan](./sprint-plan.md)  
 > **Objective**: Deliver a fully operational DFMS platform that replaces manual processes with digital workflows, covering end-to-end transport execution from requisition to delivery
 
 ---
@@ -581,7 +581,8 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 ## Related Documents
 
-- [Complete Story List](./story-list.md) - Full list of 71 Phase 1 stories
+- [Sprint Plan](./sprint-plan.md) - Detailed sprint-by-sprint breakdown with dependencies
+- [Complete Story List](./story-list.md) - Full list of Phase 1 stories
 - [Epic-Wise Story List](../epic-wise-story-list.md) - Stories organized by epic
 - [Phase 2 Summary](../phase-2/phase-2-summary.md) - Optimization features
 - [Phase 3 Summary](../phase-3/phase-3-summary.md) - Enterprise features

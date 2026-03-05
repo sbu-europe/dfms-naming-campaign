@@ -7,7 +7,7 @@ phase: phase-1
 module: Operations (Command Center)
 priority: Low
 status: Pending
-sprint: Sprint 11
+sprint: Sprint 13
 story_points: 2
 created: 2026-02-17
 updated: 2026-02-17

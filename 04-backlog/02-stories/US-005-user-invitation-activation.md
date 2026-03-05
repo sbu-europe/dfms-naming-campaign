@@ -8,7 +8,7 @@ status: Pending
 epic: Tenant Onboarding
 epic_id: EPIC-002
 epic_name: User & Tenant Foundation
-sprint: Sprint 2
+sprint: Sprint 3
 story_points: 8
 created: 2026-02-13
 updated: 2026-02-13

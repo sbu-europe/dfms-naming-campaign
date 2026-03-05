@@ -8,7 +8,7 @@ status: Pending
 epic: Gate Management
 epic_id: EPIC-011
 epic_name: Gate Management
-sprint: Sprint 11
+sprint: Sprint 12
 story_points: 5
 created: 2026-02-11
 updated: 2026-02-11

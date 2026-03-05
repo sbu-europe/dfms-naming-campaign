@@ -8,7 +8,7 @@ status: Pending
 epic: Master Data Foundation
 epic_id: EPIC-006
 epic_name: Fleet & Vehicle Management
-sprint: Sprint 1
+sprint: Sprint 2
 story_points: 5
 created: 2026-02-11
 updated: 2026-02-13

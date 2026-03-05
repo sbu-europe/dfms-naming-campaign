@@ -8,7 +8,7 @@ status: Pending
 epic: Vendor Management
 epic_id: EPIC-010
 epic_name: Vendor Management
-sprint: Sprint 5
+sprint: Sprint 8
 story_points: 8
 created: 2026-02-11
 updated: 2026-02-11

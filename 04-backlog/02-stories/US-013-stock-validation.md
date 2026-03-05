@@ -8,7 +8,7 @@ status: Pending
 epic: Product Transfer Requisition Management
 epic_id: EPIC-007
 epic_name: Product Transfer Requisition Management
-sprint: Sprint 3
+sprint: Sprint 4
 story_points: 3
 created: 2026-02-11
 updated: 2026-02-11

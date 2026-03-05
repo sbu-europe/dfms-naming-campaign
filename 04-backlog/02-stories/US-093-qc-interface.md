@@ -7,7 +7,7 @@ phase: phase-1
 module: Mobile Applications
 priority: Medium
 status: Pending
-sprint: Sprint 11
+sprint: Sprint 17
 story_points: 8
 created: 2026-02-17
 updated: 2026-02-17

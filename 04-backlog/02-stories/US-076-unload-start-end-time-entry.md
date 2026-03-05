@@ -7,7 +7,7 @@ phase: phase-1
 module: Operations (Unloading)
 priority: Medium
 status: Pending
-sprint: Sprint 9
+sprint: Sprint 14
 story_points: 3
 created: 2026-02-17
 updated: 2026-02-17
