@@ -39,8 +39,8 @@ Comprehensive review of module specifications and user stories reveals **90-95% 
 
 | INDEX.md Reference | Actual Folder Name | Match |
 |-------------------|-------------------|-------|
-| `03-core-operations/` | `03-operations/` | ❌ |
-| `04-operations-support/` | `04-poi-operations/` | ❌ |
+| `03-operations/` | `03-operations/` | ❌ |
+| `04-poi-operations/` | `04-poi-operations/` | ❌ |
 | `07-mobile-interfaces/` | `07-mobile-apps/` | ❌ |
 | `08-reporting-analytics/` | `08-reporting/` | ❌ |
 | `09-non-functional/` | `09-cross-cutting/` | ❌ |
@@ -284,7 +284,7 @@ When vehicles arrive at gate without pre-existing TR/TO (unexpected deliveries)
 
 **Recommendation**:
 1. Verify if US-053b exists in `04-backlog/02-stories/`
-2. If exists: Map to `04-operations-support/qc-workflow.md` specification
+2. If exists: Map to `04-poi-operations/qc-workflow.md` specification
 3. If missing: Clarify if certificate management is part of US-044 (QC Lab Testing) or separate
 
 **Effort**: 1-2 hours
@@ -404,7 +404,7 @@ Implement ONLY features with explicit acceptance criteria in stories unless:
 **Problem**: INDEX.md describes modules but some actual specification file names are unclear
 
 **Example**: Gate Management
-- INDEX: "04-operations-support/" covers gate operations
+- INDEX: "04-poi-operations/" covers gate operations
 - Actual spec file: Unknown (could be `gate-management.md` or `gate-operations.md`)
 - Stories: US-063, US-035 reference gate functionality
 
@@ -412,12 +412,12 @@ Implement ONLY features with explicit acceptance criteria in stories unless:
 
 **Recommendation**: Update INDEX.md to include explicit file paths:
 ```markdown
-### [04-operations-support/](04-operations-support/README.md)
+### [04-poi-operations/](04-poi-operations/README.md)
 #### Specifications
-- [gate-management.md](04-operations-support/gate-management.md)
-- [scaling-management.md](04-operations-support/scaling-management.md)
-- [qc-workflow.md](04-operations-support/qc-workflow.md)
-- [command-center.md](04-operations-support/command-center.md)
+- [gate-management.md](04-poi-operations/gate-management.md)
+- [scaling-management.md](04-poi-operations/scaling-management.md)
+- [qc-workflow.md](04-poi-operations/qc-workflow.md)
+- [command-center.md](04-poi-operations/command-center.md)
 ```
 
 **Effort**: 2 hours

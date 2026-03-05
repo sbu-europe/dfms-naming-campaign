@@ -155,8 +155,8 @@ We will use **event-driven communication** as the primary pattern for inter-serv
 - [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md) - Phase 2+ vision
 - [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 approach
 - [ADR-003: API-First Design](./adr-003-api-first-design.md)
-- [Event Catalog](../../05-contracts/events/event-catalog.md)
-- [Event Specifications](../../05-contracts/events/event-specifications.yaml)
+- [Event Catalog](../../06-contracts/events/event-catalog.md)
+- [Event Specifications](../../06-contracts/events/event-specifications.yaml)
 
 ---
 
@@ -165,7 +165,7 @@ We will use **event-driven communication** as the primary pattern for inter-serv
 - [Event-Driven Architecture Patterns](https://martinfowler.com/articles/201701-event-driven.html)
 - [AsyncAPI Specification](https://www.asyncapi.com/)
 - [Event Sourcing](https://martinfowler.com/eaaDev/EventSourcing.html)
-- [Integration Patterns](../../01-architecture/integration/integration-patterns.md)
+- [Integration Patterns](../../01-system-design/integration/integration-patterns.md)
 
 ---
 

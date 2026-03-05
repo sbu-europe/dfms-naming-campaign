@@ -15,7 +15,7 @@ updated: 2026-02-11
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/05-vendor-management/vendor-portal.md
-  - ../../../03-module-specifications/03-core-operations/trip-management.md
+  - ../../../03-module-specifications/03-operations/trip-management.md
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:

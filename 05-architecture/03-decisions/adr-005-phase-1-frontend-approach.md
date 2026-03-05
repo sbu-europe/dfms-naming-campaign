@@ -131,7 +131,7 @@ We will implement Phase 1 frontend using **Django Templates + Bootstrap 5** with
 - [Django Templates Documentation](https://docs.djangoproject.com/en/stable/topics/templates/)
 - [Bootstrap 5 Documentation](https://getbootstrap.com/docs/5.0/)
 - [Alpine.js Documentation](https://alpinejs.dev/)
-- [Container View](../../01-architecture/container-view.md)
+- [Container View](../../01-system-design/container-view.md)
 
 ---
 

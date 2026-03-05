@@ -2,7 +2,7 @@
 
 **Date**: 2026-02-17  
 **Source**: `business-context/03-module-specifications/` (66 user stories)  
-**Target**: `business-context/04-phase-backlog/` (70 Phase 1 user stories; 94 total)
+**Target**: `business-context/04-backlog/` (70 Phase 1 user stories; 94 total)
 
 ## Overview
 

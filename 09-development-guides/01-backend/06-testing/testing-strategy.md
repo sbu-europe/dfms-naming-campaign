@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Testing Approach](../../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)** - High-level testing strategy
+- **[Testing Approach](../../../05-architecture/04-implementation/strategies/testing-approach.md)** - High-level testing strategy
 - **[User Stories](../../DFMS-product-context/business-context/03-features/phase-1/user-stories/)** - Acceptance criteria
 
 This document provides **Django-specific testing implementation** (pytest-django, test patterns, fixtures).
@@ -529,7 +529,7 @@ pytest tests/e2e/ -m e2e
 
 ## Related Documentation
 
-- **[Testing Approach](../../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)** - High-level testing strategy
+- **[Testing Approach](../../../05-architecture/04-implementation/strategies/testing-approach.md)** - High-level testing strategy
 - **[Unit Tests](./unit-tests.md)** - Detailed unit testing (to be created)
 - **[Integration Tests](./integration-tests.md)** - Detailed integration testing (to be created)
 

@@ -40,7 +40,7 @@ business-context/
 │   ├── non-functional-requirements/→ Referenced by: user-stories
 │   └── constraints-assumptions.md  → Referenced by: all planning documents
 │
-├── 04-phase-backlog/                    [Features Layer]
+├── 04-backlog/                    [Features Layer]
 │   ├── feature-overview.md         → References: all user-stories
 │   ├── feature-dependencies.md     → References: all user-stories
 │   ├── phase-1/                    → References: requirements, business-rules

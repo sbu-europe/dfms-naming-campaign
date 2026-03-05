@@ -634,12 +634,12 @@ PaymentProcessed(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#9-trip-costing--finance)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#9-trip-costing--finance)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-059](../../../business-context/04-phase-backlog/phase-1/user-stories/US-059-trip-cost-calculation.md)
-- [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
+- [User Story: US-059](../../../02-domain/04-backlog/phase-1/user-stories/US-059-trip-cost-calculation.md)
+- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
 
 ### Other Workflows
 - [Trip Execution Flow](./03-trip-execution-flow.md) - Previous step

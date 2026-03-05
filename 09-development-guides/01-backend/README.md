@@ -5,20 +5,20 @@
 ## 📖 Documentation Structure
 
 ### High-Level Architecture & Contracts
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../05-architecture/)
 
 The high-level architecture, contracts, workflows, and architectural decisions are maintained in the DFMS Product Context submodule:
 
-- **[Architecture Summary](../DFMS-product-context/technical-context/00-overview/architecture-summary.md)** - Overall system architecture
-- **[Container View](../DFMS-product-context/technical-context/01-architecture/container-view.md)** - High-level technical building blocks
-- **[Architecture Decision Records (ADRs)](../DFMS-product-context/technical-context/03-decisions/)** - Why we chose specific approaches
-  - [ADR-004: Phase 1 Modular Monolith](../DFMS-product-context/technical-context/03-decisions/adr-004-phase-1-modular-monolith.md)
-  - [ADR-005: Phase 1 Frontend Approach](../DFMS-product-context/technical-context/03-decisions/adr-005-phase-1-frontend-approach.md)
-- **[API Contracts (OpenAPI 3.0)](../DFMS-product-context/technical-context/05-contracts/api/)** - Complete API specifications
-- **[Event Contracts (AsyncAPI 2.6.0)](../DFMS-product-context/technical-context/05-contracts/events/)** - Domain events
-- **[Data Models](../DFMS-product-context/technical-context/05-contracts/data-models/)** - Shared data entities
-- **[Technical Workflows](../DFMS-product-context/technical-context/02-workflows/)** - Operational and user workflows
-- **[Deployment Strategy](../DFMS-product-context/technical-context/03-implementation/deployment-strategy/)** - Phase 1 deployment approach
+- **[Architecture Summary](../05-architecture/00-overview/architecture-summary.md)** - Overall system architecture
+- **[Container View](../05-architecture/01-architecture/container-view.md)** - High-level technical building blocks
+- **[Architecture Decision Records (ADRs)](../05-architecture/03-decisions/)** - Why we chose specific approaches
+  - [ADR-004: Phase 1 Modular Monolith](../05-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
+  - [ADR-005: Phase 1 Frontend Approach](../05-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)
+- **[API Contracts (OpenAPI 3.0)](../06-contracts/api/)** - Complete API specifications
+- **[Event Contracts (AsyncAPI 2.6.0)](../06-contracts/events/)** - Domain events
+- **[Data Models](../06-contracts/data-models/)** - Shared data entities
+- **[Technical Workflows](../05-architecture/02-workflows/)** - Operational and user workflows
+- **[Deployment Strategy](../05-architecture/03-implementation/deployment-strategy/)** - Phase 1 deployment approach
 
 ### Implementation-Specific Documentation
 > **Source**: This `docs/` directory
@@ -35,28 +35,28 @@ This directory contains Django/Python implementation-specific documentation:
 ## 🎯 Quick Links
 
 ### Architecture
-- **High-Level**: [Architecture Summary](../DFMS-product-context/technical-context/00-overview/architecture-summary.md)
+- **High-Level**: [Architecture Summary](../05-architecture/00-overview/architecture-summary.md)
 - **Django Implementation**: [System Architecture](./architecture/system-architecture.md)
-- **Phase 1 ADR**: [ADR-004: Phase 1 Modular Monolith](../DFMS-product-context/technical-context/03-decisions/adr-004-phase-1-modular-monolith.md)
+- **Phase 1 ADR**: [ADR-004: Phase 1 Modular Monolith](../05-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ### APIs & Contracts
-- **API Contracts**: [OpenAPI Specifications](../DFMS-product-context/technical-context/05-contracts/api/)
+- **API Contracts**: [OpenAPI Specifications](../06-contracts/api/)
 - **Django API Implementation**: [API Reference](./api/api-reference.md)
-- **Event Contracts**: [AsyncAPI Specifications](../DFMS-product-context/technical-context/05-contracts/events/)
+- **Event Contracts**: [AsyncAPI Specifications](../06-contracts/events/)
 
 ### Development
 - **Development Setup**: [Development Guide](./guides/development-setup.md)
 - **Database Schema**: [Database Design](./architecture/database-design.md)
-- **Testing**: [Testing Approach](../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)
+- **Testing**: [Testing Approach](../05-architecture/03-implementation/strategies/testing-approach.md)
 
 ### Deployment
-- **Deployment Strategy**: [Phase 1 Deployment](../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)
+- **Deployment Strategy**: [Phase 1 Deployment](../05-architecture/03-implementation/deployment-strategy/phase-1-deployment.md)
 
 ## 📋 Documentation Principles
 
 ### Single Source of Truth
 
-**Submodule (`DFMS-product-context/technical-context/`)** contains:
+**Submodule (`05-architecture/`)** contains:
 - ✅ High-level architecture (C4 Level 1-2)
 - ✅ Architecture Decision Records (ADRs)
 - ✅ API contracts (OpenAPI 3.0)

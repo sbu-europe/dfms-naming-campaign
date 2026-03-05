@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Design Principles](../../DFMS-product-context/technical-context/00-overview/design-principles.md)** - High-level design principles
+- **[Design Principles](../../../05-architecture/00-overview/design-principles.md)** - High-level design principles
 - **[Contributing Guidelines](./contributing.md)** - Contribution guidelines
 
 This document provides **Django code style guide** (PEP 8, Django conventions, formatting).

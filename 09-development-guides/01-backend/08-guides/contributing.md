@@ -4,11 +4,11 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Architecture Summary](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md)** - System architecture
-- **[Design Principles](../../DFMS-product-context/technical-context/00-overview/design-principles.md)** - Design principles
-- **[API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/)** - API specifications
+- **[Architecture Summary](../../../05-architecture/00-overview/architecture-summary.md)** - System architecture
+- **[Design Principles](../../../05-architecture/00-overview/design-principles.md)** - Design principles
+- **[API Contracts](../../../06-contracts/api/)** - API specifications
 
 This document provides **contribution guidelines** for this backend repository.
 
@@ -286,7 +286,7 @@ class TestTransportOrder:
 
 All APIs must follow contracts defined in submodule:
 
-- **[API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/)** - OpenAPI 3.0 specs
+- **[API Contracts](../../../06-contracts/api/)** - OpenAPI 3.0 specs
 
 ### API Implementation Checklist
 
@@ -302,7 +302,7 @@ All APIs must follow contracts defined in submodule:
 
 ```python
 # 1. Check submodule contract
-# See: DFMS-product-context/technical-context/05-contracts/api/rest/transport-management.yaml
+# See: 06-contracts/api/rest/transport-management.yaml
 
 # 2. Implement serializer
 class TransportOrderSerializer(serializers.ModelSerializer):

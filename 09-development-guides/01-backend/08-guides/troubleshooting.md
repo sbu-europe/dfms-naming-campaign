@@ -4,7 +4,7 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
 This document provides **troubleshooting guide** (common issues, debugging, solutions).
 

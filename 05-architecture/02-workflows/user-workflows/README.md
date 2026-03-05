@@ -103,7 +103,7 @@ Mobile workflows are optimized for field users.
 
 ### Architecture
 - [User Personas](../../../02-domain/02-requirements/user-personas.md)
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md)
 
 ### Operational Flows
 - [Operational Flows](../operational-flows/) - System-level processes

@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Security Architecture](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#6-security-first)** - High-level security
+- **[Security Architecture](../../../05-architecture/00-overview/architecture-summary.md#6-security-first)** - High-level security
 - **[Authorization Requirements](../../DFMS-product-context/business-context/02-requirements/non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
 
 This document provides **DRF permission class implementation** (code, patterns, usage).

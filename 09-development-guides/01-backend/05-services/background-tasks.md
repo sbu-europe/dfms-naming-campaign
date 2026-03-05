@@ -4,11 +4,11 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Workflows](../../DFMS-product-context/technical-context/02-workflows/)** - High-level workflows
-- **[Event-Driven Architecture](../../DFMS-product-context/technical-context/03-decisions/adr-002-event-driven-communication.md)** - Event-driven approach
-- **[Testing Approach](../../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)** - Testing strategy
+- **[Workflows](../../../05-architecture/02-workflows/)** - High-level workflows
+- **[Event-Driven Architecture](../../../05-architecture/03-decisions/adr-002-event-driven-communication.md)** - Event-driven approach
+- **[Testing Approach](../../../05-architecture/04-implementation/strategies/testing-approach.md)** - Testing strategy
 
 This document provides **Celery-specific background task implementation** (task definitions, scheduling, monitoring).
 
@@ -413,8 +413,8 @@ class TestTasks:
 
 ## Related Documentation
 
-- **[Event-Driven Communication](../../DFMS-product-context/technical-context/03-decisions/adr-002-event-driven-communication.md)** - High-level event approach
-- **[Workflows](../../DFMS-product-context/technical-context/02-workflows/)** - Technical workflows
+- **[Event-Driven Communication](../../../05-architecture/03-decisions/adr-002-event-driven-communication.md)** - High-level event approach
+- **[Workflows](../../../05-architecture/02-workflows/)** - Technical workflows
 
 ---
 

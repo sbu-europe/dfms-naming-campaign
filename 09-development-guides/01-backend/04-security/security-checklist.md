@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Security Architecture](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#6-security-first)** - High-level security
+- **[Security Architecture](../../../05-architecture/00-overview/architecture-summary.md#6-security-first)** - High-level security
 
 This document provides **security checklist** (authentication, authorization, data protection, infrastructure).
 

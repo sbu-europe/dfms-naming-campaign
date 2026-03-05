@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Data Architecture](../../DFMS-product-context/technical-context/01-architecture/data-architecture/)** - High-level data architecture
+- **[Data Architecture](../../../05-architecture/01-architecture/data-architecture/)** - High-level data architecture
 - **[Database Design](../architecture/database-design.md)** - PostgreSQL schema
 
 This document provides **Django ORM query optimization** (patterns, techniques, performance).

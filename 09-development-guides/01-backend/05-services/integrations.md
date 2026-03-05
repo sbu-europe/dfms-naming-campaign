@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Integration Contracts](../../DFMS-product-context/technical-context/05-contracts/integration/)** - External integration contracts
-- **[External Systems](../../DFMS-product-context/technical-context/01-architecture/integration/external-systems.md)** - High-level integration overview
+- **[Integration Contracts](../../../06-contracts/integration/)** - External integration contracts
+- **[External Systems](../../../05-architecture/01-architecture/integration/external-systems.md)** - High-level integration overview
 
 This document provides **Django-specific integration implementation** (GPS, ERP, SMS, Maps, Payment).
 
@@ -431,7 +431,7 @@ def sync_to_erp(data):
 
 ## Related Documentation
 
-- **[Integration Contracts](../../DFMS-product-context/technical-context/05-contracts/integration/)** - Integration specifications
+- **[Integration Contracts](../../../06-contracts/integration/)** - Integration specifications
 - **[Background Tasks](./background-tasks.md)** - Async integration tasks
 
 ---

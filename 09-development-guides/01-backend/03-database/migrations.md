@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Data Model Overview](../../DFMS-product-context/technical-context/01-architecture/data-architecture/data-model-overview.md)** - High-level data model
+- **[Data Model Overview](../../../05-architecture/01-architecture/data-architecture/data-model-overview.md)** - High-level data model
 - **[Database Design](../architecture/database-design.md)** - PostgreSQL schema design
 
 This document provides **Django migration implementation** (migration files, data migrations, multi-tenant migrations).

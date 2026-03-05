@@ -35,8 +35,8 @@
 
 **Changes Made**:
 - Updated INDEX.md to use actual folder names:
-  - `03-core-operations/` → `03-operations/`
-  - `04-operations-support/` → `04-poi-operations/`
+  - `03-operations/` → `03-operations/`
+  - `04-poi-operations/` → `04-poi-operations/`
   - `07-mobile-interfaces/` → `07-mobile-apps/`
   - `08-reporting-analytics/` → `08-reporting/`
   - `09-non-functional/` → `09-cross-cutting/`

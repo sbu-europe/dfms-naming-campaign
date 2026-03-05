@@ -60,8 +60,8 @@ None - This is the foundation layer
 ### Downstream
 **All modules depend on this foundation**:
 - `02-master-data/` - Requires auth/RBAC for data access
-- `03-core-operations/` - Requires user context and permissions
-- `04-operations-support/` - Requires role-based access for gate, QC
+- `03-operations/` - Requires user context and permissions
+- `04-poi-operations/` - Requires role-based access for gate, QC
 - `05-vendor-management/` - Requires vendor user authentication
 - `06-fleet-management/` - Requires role-based fleet access
 - `07-mobile-interfaces/` - Requires mobile authentication
@@ -88,7 +88,7 @@ None - This is the foundation layer
 | US-008 | Password & Account Reset | Security |
 | US-009 | User Activity & Audit Logs | Compliance |
 
-**Location**: `../../04-phase-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`
+**Location**: `../../04-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`
 
 ---
 
@@ -236,7 +236,7 @@ PUT /api/v1/roles/{role_id}/permissions
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
+- **[User Stories](../../04-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---
 

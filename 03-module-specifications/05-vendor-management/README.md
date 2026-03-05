@@ -7,7 +7,7 @@ Vendor ecosystem management including onboarding, bidding, and portal operations
 **Purpose**: Vendor ecosystem management including onboarding, bidding, and portal operations  
 **PRD Sections**: 6.11  
 **Phase**: Phase 1 (High)  
-**Dependencies**: `03-core-operations/`, `02-master-data/`
+**Dependencies**: `03-operations/`, `02-master-data/`
 
 ---
 
@@ -30,7 +30,7 @@ Vendor ecosystem management including onboarding, bidding, and portal operations
 ## Related User Stories
 
 **Primary Stories**: 24, 27-34, 47, 94  
-**Location**: `../../04-phase-backlog/phase-1/user-stories/`
+**Location**: `../../04-backlog/phase-1/user-stories/`
 
 For detailed story information, see individual specification files above.
 
@@ -39,7 +39,7 @@ For detailed story information, see individual specification files above.
 ## Dependencies
 
 ### Upstream Dependencies
-`03-core-operations/`, `02-master-data/`
+`03-operations/`, `02-master-data/`
 
 ### Downstream Dependencies
 Check individual specification files for detailed cross-module references.
@@ -51,7 +51,7 @@ Check individual specification files for detailed cross-module references.
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
+- **[User Stories](../../04-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---
 

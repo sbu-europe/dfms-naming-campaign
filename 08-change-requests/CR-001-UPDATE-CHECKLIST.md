@@ -1,6 +1,6 @@
 # CR-001 Update Checklist: Documents Needing Phase Annotations
 
-> Documents in `technical-context/` that still need updates after CR-001 implementation
+> Documents in `05-architecture/` that still need updates after CR-001 implementation
 
 **Status**: 🔍 Review Needed  
 **Created**: 2026-02-13  

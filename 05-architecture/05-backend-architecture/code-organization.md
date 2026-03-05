@@ -4,11 +4,11 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../)
 
-- **[Module Boundaries](../../DFMS-product-context/technical-context/01-architecture/modules/module-boundaries.md)** - High-level module organization
-- **[Module Interactions](../../DFMS-product-context/technical-context/01-architecture/modules/module-interactions.md)** - How modules interact
-- **[Architecture Summary](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#2-modularity)** - Modularity approach
+- **[Module Boundaries](../01-system-design/modules/module-boundaries.md)** - High-level module organization
+- **[Module Interactions](../01-system-design/modules/module-interactions.md)** - How modules interact
+- **[Architecture Summary](../00-overview/architecture-summary.md#2-modularity)** - Modularity approach
 
 This document provides **Django-specific code organization** (app structure, service layer, utilities).
 
@@ -466,7 +466,7 @@ def user(tenant):
 ## Related Documentation
 
 - **[System Architecture](./system-architecture.md)** - Overall Django architecture
-- **[Module Boundaries](../../DFMS-product-context/technical-context/01-architecture/modules/module-boundaries.md)** - High-level module organization
+- **[Module Boundaries](../01-system-design/modules/module-boundaries.md)** - High-level module organization
 
 ---
 

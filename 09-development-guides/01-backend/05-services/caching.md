@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Architecture Summary](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#3-scalability)** - Caching strategy
-- **[Container View](../../DFMS-product-context/technical-context/01-architecture/container-view.md#7-cache)** - Cache container
+- **[Architecture Summary](../../../05-architecture/00-overview/architecture-summary.md#3-scalability)** - Caching strategy
+- **[Container View](../../../05-architecture/01-architecture/container-view.md#7-cache)** - Cache container
 
 This document provides **Redis-specific caching implementation** (cache patterns, invalidation, configuration).
 

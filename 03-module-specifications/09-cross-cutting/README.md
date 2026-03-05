@@ -30,7 +30,7 @@ Cross-cutting concerns including performance, security, and integration
 ## Related User Stories
 
 **Primary Stories**: Cross-cutting requirements  
-**Location**: `../../04-phase-backlog/phase-1/user-stories/`
+**Location**: `../../04-backlog/phase-1/user-stories/`
 
 For detailed story information, see individual specification files above.
 
@@ -51,7 +51,7 @@ Check individual specification files for detailed cross-module references.
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
+- **[User Stories](../../04-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---
 

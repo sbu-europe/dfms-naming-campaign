@@ -4,18 +4,18 @@
 
 ## 📖 High-Level Architecture Diagrams
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/04-diagrams/`](../../DFMS-product-context/technical-context/04-diagrams/)
+> **Source of Truth**: [`05-architecture/06-diagrams/`](../../04-diagrams/)
 
 The high-level architecture diagrams are maintained in the DFMS Product Context submodule:
 
-- **[System Context Diagram](../../DFMS-product-context/technical-context/01-system-design/diagrams/system-context-diagram.mmd)** - C4 Level 1
-- **[Container Diagram](../../DFMS-product-context/technical-context/01-system-design/diagrams/container-diagram.mmd)** - C4 Level 2
-- **[Deployment Diagram](../../DFMS-product-context/technical-context/04-diagrams/deployment/deployment-diagram.mmd)** - Infrastructure architecture
-- **[Sequence Diagrams](../../DFMS-product-context/technical-context/04-diagrams/sequences/)** - Interaction flows
-- **[State Diagrams](../../DFMS-product-context/technical-context/04-diagrams/states/)** - State machines
-- **[ER Diagram](../../DFMS-product-context/technical-context/04-diagrams/data/entity-relationship-diagram.mmd)** - Entity relationships
-- **[Integration Diagram](../../DFMS-product-context/technical-context/04-diagrams/integration/integration-architecture-diagram.mmd)** - External integrations
-- **[Diagrams Index](../../DFMS-product-context/technical-context/04-diagrams/diagrams-index.md)** - Complete list of all diagrams
+- **[System Context Diagram](../../01-system-design/diagrams/system-context-diagram.mmd)** - C4 Level 1
+- **[Container Diagram](../../01-system-design/diagrams/container-diagram.mmd)** - C4 Level 2
+- **[Deployment Diagram](../../04-diagrams/deployment/deployment-diagram.mmd)** - Infrastructure architecture
+- **[Sequence Diagrams](../../04-diagrams/sequences/)** - Interaction flows
+- **[State Diagrams](../../04-diagrams/states/)** - State machines
+- **[ER Diagram](../../04-diagrams/data/entity-relationship-diagram.mmd)** - Entity relationships
+- **[Integration Diagram](../../04-diagrams/integration/integration-architecture-diagram.mmd)** - External integrations
+- **[Diagrams Index](../../04-diagrams/diagrams-index.md)** - Complete list of all diagrams
 
 This document contains **Django-specific component diagrams** showing implementation details.
 

@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Phase 1 Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment approach
-- **[Technology Stack](../../DFMS-product-context/technical-context/00-overview/technology-stack-overview.md)** - Technology choices
+- **[Phase 1 Deployment Strategy](../../../05-architecture/04-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment approach
+- **[Technology Stack](../../../05-architecture/00-overview/technology-stack-overview.md)** - Technology choices
 
 This document provides **Docker-specific configuration** (Dockerfile, docker-compose, container setup).
 
@@ -504,7 +504,7 @@ COPY . .
 ## Related Documentation
 
 - **[AWS Setup](./aws-setup.md)** - AWS deployment configuration
-- **[Phase 1 Deployment](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment strategy
+- **[Phase 1 Deployment](../../../05-architecture/04-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment strategy
 
 ---
 

@@ -600,7 +600,7 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 
 - [Architecture Summary](./architecture-summary.md)
 - [Design Principles](./design-principles.md)
-- [System Overview](../01-architecture/system-overview.md)
+- [System Overview](../01-system-design/system-overview.md)
 
 ---
 

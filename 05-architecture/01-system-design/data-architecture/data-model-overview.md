@@ -9,7 +9,7 @@
 
 ## 📋 Overview
 
-This document provides a high-level overview of DFMS data entities. **Note**: Detailed schemas, field definitions, and constraints are in implementation repositories and the [Data Dictionary](../../../business-context/05-data-reference/data-dictionary.md).
+This document provides a high-level overview of DFMS data entities. **Note**: Detailed schemas, field definitions, and constraints are in implementation repositories and the [Data Dictionary](../../../02-domain/05-data-reference/data-dictionary.md).
 
 ---
 
@@ -342,7 +342,7 @@ trips = Trip.objects.using('read_replica').filter(...)
 
 ## 🔗 Related Documents
 
-- [Data Dictionary](../../../business-context/05-data-reference/data-dictionary.md) - Detailed entity definitions
+- [Data Dictionary](../../../02-domain/05-data-reference/data-dictionary.md) - Detailed entity definitions
 - [Data Flow](./data-flow.md) - How data moves
 - [Module Boundaries](../modules/module-boundaries.md) - Module data ownership
 - [Container View](../container-view.md) - Database container

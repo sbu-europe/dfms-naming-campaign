@@ -8,14 +8,14 @@
 
 ## API reference
 
-- **Contracts (source of truth)**: [DFMS-product-context/technical-context/05-contracts/api/](../../DFMS-product-context/technical-context/05-contracts/api/) — OpenAPI 3.0 specs
+- **Contracts (source of truth)**: [06-contracts/api/](../../../06-contracts/api/) — OpenAPI 3.0 specs
 - **Django implementation**: [API Reference](../api/api-reference.md) — DRF endpoints, auth, examples
 
 ---
 
 ## App / code structure reference
 
-- **High-level modules**: [Module boundaries](../../DFMS-product-context/technical-context/01-architecture/modules/module-boundaries.md) — logical modules
+- **High-level modules**: [Module boundaries](../../../05-architecture/01-architecture/modules/module-boundaries.md) — logical modules
 - **Django apps**: [Code organization](../architecture/code-organization.md) — app layout, models, services
 
 ---
@@ -30,10 +30,10 @@ Do **not** add .docx or .xlsx copies here. Use the submodule:
 
 ## Phase backlog (user stories)
 
-- [04-phase-backlog/](../../DFMS-product-context/business-context/04-phase-backlog/) — Phase 1–3 user stories, acceptance criteria, and phase summaries
+- [04-backlog/](../../DFMS-product-context/business-context/04-backlog/) — Phase 1–3 user stories, acceptance criteria, and phase summaries
 
 ---
 
 ## Submodule reference docs
 
-- [Technical context reference](../../DFMS-product-context/technical-context/06-reference/) — version history, source mapping, cross-reference index
+- [Technical context reference](../../../05-architecture/06-reference/) — version history, source mapping, cross-reference index

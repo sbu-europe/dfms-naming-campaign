@@ -4,16 +4,16 @@
 
 ## 📖 High-Level Data Model
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../)
 
 The high-level data model and entities are defined in the DFMS Product Context submodule:
 
-- **[Data Model Overview](../../DFMS-product-context/technical-context/01-architecture/data-architecture/data-model-overview.md)** - High-level entities and relationships
-- **[Data Models (JSON Schema)](../../DFMS-product-context/technical-context/05-contracts/data-models/)** - Contract definitions
-  - [Common Entities](../../DFMS-product-context/technical-context/05-contracts/data-models/common-entities.yaml)
-  - [Enums & Constants](../../DFMS-product-context/technical-context/05-contracts/data-models/enums-constants.yaml)
-  - [Value Objects](../../DFMS-product-context/technical-context/05-contracts/data-models/value-objects.yaml)
-- **[Business Context Data Dictionary](../../DFMS-product-context/business-context/05-data-reference/data-dictionary.md)** - Complete business data dictionary
+- **[Data Model Overview](../01-system-design/data-architecture/data-model-overview.md)** - High-level entities and relationships
+- **[Data Models (JSON Schema)](../../06-contracts/data-models/)** - Contract definitions
+  - [Common Entities](../../06-contracts/data-models/common-entities.yaml)
+  - [Enums & Constants](../../06-contracts/data-models/enums-constants.yaml)
+  - [Value Objects](../../06-contracts/data-models/value-objects.yaml)
+- **[Business Context Data Dictionary](../../DFMS-product-context/02-domain/05-data-reference/data-dictionary.md)** - Complete business data dictionary
 
 This document provides **PostgreSQL-specific schemas and Django ORM models** for these entities.
 

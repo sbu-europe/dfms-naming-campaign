@@ -515,12 +515,12 @@ UnloadingCompleted(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#5-operations-management)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#5-operations-management)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
-- [User Story: US-035](../../../business-context/04-phase-backlog/phase-1/user-stories/US-035-gate-in-source.md)
+- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
+- [User Story: US-035](../../../02-domain/04-backlog/phase-1/user-stories/US-035-gate-in-source.md)
 
 ### Other Workflows
 - [Trip Execution Flow](./03-trip-execution-flow.md) - Part of trip execution

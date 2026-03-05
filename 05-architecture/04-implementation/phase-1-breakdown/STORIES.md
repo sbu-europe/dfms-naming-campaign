@@ -637,7 +637,7 @@ graph TD
 - **[WBS Stories Table](../../source-documents/04-wbs/stories-table.md)** - Source story breakdown
 - **[Epic Breakdown](./EPICS.md)** - Epic-level breakdown
 - **[Implementation Timeline](./TIMELINE.md)** - Sprint-by-sprint timeline
-- **[Feature Dependencies](../../business-context/04-phase-backlog/feature-dependencies.md)** - Detailed dependency analysis
+- **[Feature Dependencies](../../02-domain/04-backlog/feature-dependencies.md)** - Detailed dependency analysis
 - **[SOW Phase 1](../../source-documents/03-sow/SOW%20Phase-1.md)** - Statement of Work
 
 ---

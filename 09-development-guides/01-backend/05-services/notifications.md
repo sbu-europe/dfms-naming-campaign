@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Notification Contracts](../../DFMS-product-context/technical-context/05-contracts/api/rest/notifications.yaml)** - Notification API contract
-- **[Event Contracts](../../DFMS-product-context/technical-context/05-contracts/events/)** - Event specifications
+- **[Notification Contracts](../../../06-contracts/api/rest/notifications.yaml)** - Notification API contract
+- **[Event Contracts](../../../06-contracts/events/)** - Event specifications
 
 This document provides **Django-specific notification implementation** (email, SMS, push notifications).
 
@@ -312,7 +312,7 @@ class NotificationService:
 ## Related Documentation
 
 - **[Background Tasks](./background-tasks.md)** - Celery tasks
-- **[Event Contracts](../../DFMS-product-context/technical-context/05-contracts/events/)** - Event specifications
+- **[Event Contracts](../../../06-contracts/events/)** - Event specifications
 
 ---
 

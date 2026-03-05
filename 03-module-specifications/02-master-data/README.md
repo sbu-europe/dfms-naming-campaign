@@ -61,8 +61,8 @@ This module defines master data configuration and management for the DFMS platfo
 
 ### Downstream Dependencies
 **Modules that depend on this master data**:
-- **`03-core-operations/`**: Requisitions, TRs, TOs, Trips all reference master data
-- **`04-operations-support/`**: Gate, scaling, QC operations use POI and product data
+- **`03-operations/`**: Requisitions, TRs, TOs, Trips all reference master data
+- **`04-poi-operations/`**: Gate, scaling, QC operations use POI and product data
 - **`05-vendor-management/`**: Vendor onboarding creates vendor master records
 - **`06-fleet-management/`**: Vehicle, driver, helper registration
 - **All operational modules**: Reference master data for entities
@@ -90,7 +90,7 @@ Master data creation is integrated into workflow stories:
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
 
-**Location**: `../../04-phase-backlog/phase-1/user-stories/`
+**Location**: `../../04-backlog/phase-1/user-stories/`
 
 ---
 
@@ -247,11 +247,11 @@ GET /api/v1/master-data/validation-rules
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
+- **[User Stories](../../04-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---
 
 **Last Updated**: 2026-02-26  
 **Status**: Complete  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
-**Next Module**: [03-core-operations/](../03-core-operations/README.md) - Core Operations
+**Next Module**: [03-operations/](../03-operations/README.md) - Core Operations

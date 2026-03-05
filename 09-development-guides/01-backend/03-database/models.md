@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Data Model Overview](../../DFMS-product-context/technical-context/01-architecture/data-architecture/data-model-overview.md)** - High-level entity definitions
-- **[Data Models (JSON Schema)](../../DFMS-product-context/technical-context/05-contracts/data-models/)** - Contract definitions
+- **[Data Model Overview](../../../05-architecture/01-architecture/data-architecture/data-model-overview.md)** - High-level entity definitions
+- **[Data Models (JSON Schema)](../../../06-contracts/data-models/)** - Contract definitions
 - **[Data Dictionary](../../DFMS-product-context/business-context/05-data-reference/data-dictionary.md)** - Complete business data dictionary
 
 This document provides **Django ORM model implementation** (code, relationships, methods, managers).
@@ -619,7 +619,7 @@ class TestTransportOrder:
 ## Related Documentation
 
 - **[Database Design](../architecture/database-design.md)** - PostgreSQL schema design
-- **[Data Model Overview](../../DFMS-product-context/technical-context/01-architecture/data-architecture/data-model-overview.md)** - High-level entities
+- **[Data Model Overview](../../../05-architecture/01-architecture/data-architecture/data-model-overview.md)** - High-level entities
 
 ---
 

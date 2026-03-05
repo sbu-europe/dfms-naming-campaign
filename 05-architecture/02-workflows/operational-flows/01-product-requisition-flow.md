@@ -264,7 +264,7 @@ else:
 | PR-009 | Rejected PR cannot be resubmitted | Business logic |
 | PR-010 | Approved PR generates TR automatically | System automation |
 
-**Reference**: [Business Rules](../../../business-context/01-business-domain/business-rules/business-rules.md)
+**Reference**: [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
 
 ---
 
@@ -369,13 +369,13 @@ ProductRequisitionRejected(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#2-product-requisition-management)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#2-product-requisition-management)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
-- [User Story: US-009](../../../business-context/04-phase-backlog/phase-1/user-stories/US-009-fg-transfer-requisition.md)
-- [User Story: US-011](../../../business-context/04-phase-backlog/phase-1/user-stories/US-011-distribution-approval.md)
+- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
+- [User Story: US-009](../../../02-domain/04-backlog/phase-1/user-stories/US-009-fg-transfer-requisition.md)
+- [User Story: US-011](../../../02-domain/04-backlog/phase-1/user-stories/US-011-distribution-approval.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Next step after PR approval
@@ -386,7 +386,7 @@ ProductRequisitionRejected(
 
 - [source-documents/01-prd/PRD_DFMS_v1.0.md](../../../../source-documents/01-prd/PRD_DFMS_v1.0.md) - Product requirements
 - [source-documents/02-flow-diagram/](../../../../source-documents/02-flow-diagram/) - Flow diagrams
-- [business-context/02-requirements/functional-requirements/](../../../../business-context/02-requirements/functional-requirements/)
+- [02-domain/02-requirements/functional-requirements/](../../../../02-domain/02-requirements/functional-requirements/)
 
 ---
 

@@ -4,14 +4,14 @@
 
 ## 📖 High-Level Architecture
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../)
 
 This Django backend implementation follows the high-level architecture defined in the DFMS Product Context submodule:
 
-- **[Architecture Summary](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md)** - Overall system architecture
-- **[Container View](../../DFMS-product-context/technical-context/01-architecture/container-view.md)** - High-level technical building blocks
-- **[ADR-004: Phase 1 Modular Monolith](../../DFMS-product-context/technical-context/03-decisions/adr-004-phase-1-modular-monolith.md)** - Phase 1 architecture decision
-- **[Phase 1 Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)** - Deployment approach
+- **[Architecture Summary](../00-overview/architecture-summary.md)** - Overall system architecture
+- **[Container View](../01-system-design/container-view.md)** - High-level technical building blocks
+- **[ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)** - Phase 1 architecture decision
+- **[Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)** - Deployment approach
 
 **Current Phase**: **Phase 1 - Modular Monolith** (as per ADR-004)
 
@@ -21,7 +21,7 @@ This document focuses on **Django-specific implementation details**. For high-le
 
 ### Multi-Tenancy Implementation
 
-**High-Level Strategy**: See [Architecture Summary](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#1-multi-tenancy)
+**High-Level Strategy**: See [Architecture Summary](../00-overview/architecture-summary.md#1-multi-tenancy)
 
 **Django Implementation**:
 - **Schema Separation**: Each tenant gets isolated schema in PostgreSQL
@@ -32,7 +32,7 @@ This document focuses on **Django-specific implementation details**. For high-le
 
 ### Django Modular Monolith Structure
 
-**Architecture Decision**: See [ADR-004: Phase 1 Modular Monolith](../../DFMS-product-context/technical-context/03-decisions/adr-004-phase-1-modular-monolith.md)
+**Architecture Decision**: See [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)
 
 This Django implementation maintains clear module boundaries using Django apps, enabling future extraction to microservices (Phase 2+).
 ```
@@ -72,7 +72,7 @@ This Django implementation maintains clear module boundaries using Django apps, 
 
 ## Technology Stack
 
-> **High-Level Technology Stack**: See [Technology Stack Overview](../../DFMS-product-context/technical-context/00-overview/technology-stack-overview.md)
+> **High-Level Technology Stack**: See [Technology Stack Overview](../00-overview/technology-stack-overview.md)
 
 ### Django-Specific Stack
 
@@ -90,7 +90,7 @@ This Django implementation maintains clear module boundaries using Django apps, 
 - **CSS**: Bootstrap 5 + Custom CSS
 - **Build Tools**: Django Compressor for asset optimization
 
-> **Note**: Phase 2 will migrate to Vue.js 3 SPA (see [ADR-005](../../DFMS-product-context/technical-context/03-decisions/adr-005-phase-1-frontend-approach.md))
+> **Note**: Phase 2 will migrate to Vue.js 3 SPA (see [ADR-005](../03-decisions/adr-005-phase-1-frontend-approach.md))
 
 **Database**:
 - **Primary**: PostgreSQL 15+
@@ -109,11 +109,11 @@ This Django implementation maintains clear module boundaries using Django apps, 
   - S3 for static files and backups
   - CloudWatch for monitoring
 
-> **Deployment Details**: See [Phase 1 Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)
+> **Deployment Details**: See [Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)
 
 ## Deployment Architecture
 
-> **High-Level Deployment Strategy**: See [Phase 1 Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)
+> **High-Level Deployment Strategy**: See [Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)
 
 ### Django-Specific Deployment
 
@@ -132,7 +132,7 @@ services:
 ```
 
 **Production Environment (AWS)**:
-- See [Phase 1 Deployment Diagram](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md#architecture-diagram)
+- See [Phase 1 Deployment Diagram](../04-implementation/deployment-strategy/phase-1-deployment.md#architecture-diagram)
 - Single EC2 instance with Docker Compose
 - Nginx as reverse proxy (no separate API Gateway in Phase 1)
 
@@ -213,7 +213,7 @@ tenant_001.trips
 
 ## Testing Strategy
 
-> **High-Level Testing Approach**: See [Testing Approach](../../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)
+> **High-Level Testing Approach**: See [Testing Approach](../04-implementation/strategies/testing-approach.md)
 
 ### Django-Specific Testing
 
@@ -263,18 +263,18 @@ LOGGING = {
 
 ## Architecture Evolution
 
-> **High-Level Evolution Path**: See [Architecture Summary - Implementation Phases](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#-implementation-phases)
+> **High-Level Evolution Path**: See [Architecture Summary - Implementation Phases](../00-overview/architecture-summary.md#-implementation-phases)
 
 ### Django Implementation Evolution
 
 **Phase 1 (Current)**: Modular Monolith
 - Django apps with clear module boundaries
-- See [ADR-004](../../DFMS-product-context/technical-context/03-decisions/adr-004-phase-1-modular-monolith.md) for details
+- See [ADR-004](../03-decisions/adr-004-phase-1-modular-monolith.md) for details
 
 **Phase 2 Migration Considerations**:
 - Extract Django apps to microservices
-- Maintain API contracts (see [API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/))
-- Migrate to event-driven architecture (see [Event Contracts](../../DFMS-product-context/technical-context/05-contracts/events/))
+- Maintain API contracts (see [API Contracts](../../06-contracts/api/))
+- Migrate to event-driven architecture (see [Event Contracts](../../06-contracts/events/))
 
 ### Django-Specific Scalability (Within Phase 1)
 1. **Vertical scaling**: Larger EC2/RDS instances

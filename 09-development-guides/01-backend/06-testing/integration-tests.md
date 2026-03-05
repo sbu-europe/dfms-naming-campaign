@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Testing Approach](../../DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md)** - High-level testing strategy
+- **[Testing Approach](../../../05-architecture/04-implementation/strategies/testing-approach.md)** - High-level testing strategy
 - **[Testing Strategy](./testing-strategy.md)** - Django testing strategy
 
 This document provides **pytest integration test implementation** (API endpoints, database, external services).

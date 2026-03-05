@@ -553,12 +553,12 @@ VendorAssigned(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#4-vendor-management)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#4-vendor-management)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-024](../../../business-context/04-phase-backlog/phase-1/user-stories/US-024-vendor-bidding-portal.md)
-- [User Story: US-063](../../../business-context/04-phase-backlog/phase-1/user-stories/US-063-vendor-mobile-app.md)
+- [User Story: US-024](../../../02-domain/04-backlog/phase-1/user-stories/US-024-vendor-bidding-portal.md)
+- [User Story: US-063](../../../02-domain/04-backlog/phase-1/user-stories/US-063-vendor-mobile-app.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Previous step

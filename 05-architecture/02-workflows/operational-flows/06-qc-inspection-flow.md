@@ -605,12 +605,12 @@ QCInspectionRejected(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#6-quality-control)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#6-quality-control)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-061](../../../business-context/04-phase-backlog/phase-1/user-stories/_wbs-temp/US-061-qc-supervisor-mobile.md)
-- [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
+- [User Story: US-061](../../../02-domain/04-backlog/phase-1/user-stories/_wbs-temp/US-061-qc-supervisor-mobile.md)
+- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
 
 ### Other Workflows
 - [Gate & Operations Flow](./05-gate-operations-flow.md) - Previous step

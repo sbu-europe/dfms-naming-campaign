@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../)
 
-- **[Exception Handling](../../DFMS-product-context/technical-context/02-workflows/exception-handling/)** - High-level exception scenarios
-- **[Design Principles](../../DFMS-product-context/technical-context/00-overview/design-principles.md)** - Error handling principles
+- **[Exception Handling](../02-workflows/exception-handling/)** - High-level exception scenarios
+- **[Design Principles](../00-overview/design-principles.md)** - Error handling principles
 
 This document provides **Django-specific error handling implementation** (exception classes, error responses, logging).
 
@@ -427,7 +427,7 @@ class TestErrorHandling:
 
 ## Related Documentation
 
-- **[Exception Scenarios](../../DFMS-product-context/technical-context/02-workflows/exception-handling/exception-scenarios.md)** - High-level exception scenarios
+- **[Exception Scenarios](../02-workflows/exception-handling/exception-scenarios.md)** - High-level exception scenarios
 - **[API Reference](../api/api-reference.md)** - API error responses
 
 ---

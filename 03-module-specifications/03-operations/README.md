@@ -109,7 +109,7 @@ QC → POD → Closed
 
 ### Downstream Dependencies
 **Modules that depend on core operations**:
-- **`04-operations-support/`**: Gate, scaling, loading, QC operations execute on trips
+- **`04-poi-operations/`**: Gate, scaling, loading, QC operations execute on trips
 - **`05-vendor-management/`**: Vendor bidding and execution for non-contractual TOs
 - **`06-fleet-management/`**: Fleet availability, driver assignment, fuel tracking
 - **`07-mobile-interfaces/`**: Driver app shows trip details, vendor app shows TO status
@@ -142,7 +142,7 @@ QC → POD → Closed
 | US-023 | Incident Management | Trip Management |
 | US-025 | Trip Closure with Proof of Delivery (POD) | Trip Management |
 
-**Location**: `../../04-phase-backlog/phase-1/user-stories/`
+**Location**: `../../04-backlog/phase-1/user-stories/`
 
 ---
 
@@ -343,11 +343,11 @@ GET /api/v1/trips/{trip_id}/cost-breakdown
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../04-phase-backlog/phase-1/user-stories/)** - Implementation stories
+- **[User Stories](../../04-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---
 
 **Last Updated**: 2026-02-26  
 **Status**: Complete  
 **Previous Module**: [02-master-data/](../02-master-data/README.md) - Master Data Management  
-**Next Module**: [04-operations-support/](../04-operations-support/README.md) - Operations Support
+**Next Module**: [04-poi-operations/](../04-poi-operations/README.md) - Operations Support

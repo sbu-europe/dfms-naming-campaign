@@ -84,7 +84,7 @@ Step-by-step recovery procedures for each exception type.
 - [User Workflows](../user-workflows/) - User actions
 
 ### Architecture
-- [Integration Patterns](../../01-architecture/integration/integration-patterns.md) - Error handling patterns
+- [Integration Patterns](../../01-system-design/integration/integration-patterns.md) - Error handling patterns
 
 ---
 

@@ -508,12 +508,12 @@ TripCreated(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#3-transport-management)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#3-transport-management)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-017](../../../business-context/04-phase-backlog/phase-1/user-stories/US-017-to-creation-multiple.md)
-- [User Story: US-018](../../../business-context/04-phase-backlog/phase-1/user-stories/US-018-to-creation-transport-planner.md)
+- [User Story: US-017](../../../02-domain/04-backlog/phase-1/user-stories/US-017-to-creation-multiple.md)
+- [User Story: US-018](../../../02-domain/04-backlog/phase-1/user-stories/US-018-to-creation-transport-planner.md)
 
 ### Other Workflows
 - [Product Requisition Flow](./01-product-requisition-flow.md) - Previous step

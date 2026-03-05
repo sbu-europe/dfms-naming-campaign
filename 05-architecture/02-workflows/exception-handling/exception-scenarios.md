@@ -777,7 +777,7 @@ graph TD
 - [Vendor Bidding Flow](../operational-flows/04-vendor-bidding-flow.md)
 
 ### Architecture
-- [Integration Patterns](../../01-architecture/integration/integration-patterns.md)
+- [Integration Patterns](../../01-system-design/integration/integration-patterns.md)
 - [Design Principles](../../00-overview/design-principles.md)
 
 ---

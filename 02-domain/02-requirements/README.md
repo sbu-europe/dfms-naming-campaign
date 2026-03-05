@@ -83,7 +83,7 @@ See [Constraints & Assumptions README](./constraints-assumptions/README.md) for 
 - **[Overview](../00-overview/)** - High-level project summary and product vision
 - **[Business Domain](../01-business-domain/)** - Industry context, business rules, and processes
 - **[PRD Reference](../03-module-specifications/)** - Direct PRD content for detailed reference
-- **[Phase Backlog](../04-phase-backlog/)** - Epics and user stories organized by phase
+- **[Phase Backlog](../04-backlog/)** - Epics and user stories organized by phase
 
 ## 📝 Content Source
 

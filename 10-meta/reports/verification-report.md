@@ -65,7 +65,7 @@
 
 - [WBS Epics Table](../../source-documents/04-wbs/epics-table.md)
 - [WBS Stories Table](../../source-documents/04-wbs/stories-table.md)
-- [Phase Backlog README](./04-phase-backlog/README.md)
+- [Phase Backlog README](./04-backlog/README.md)
 - [Module Specifications README](./03-module-specifications/README.md)
 - [PRD Document](../../source-documents/01-prd/PRD_DFMS_v1.0.md)
 

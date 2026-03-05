@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/)** - OpenAPI 3.0 specifications
+- **[API Contracts](../../../06-contracts/api/)** - OpenAPI 3.0 specifications
 - **[API Reference](./api-reference.md)** - API endpoints
 
 This document provides **Django REST Framework ViewSet implementation** (code, actions, filtering).
@@ -378,7 +378,7 @@ class TransportOrderViewSet(viewsets.ModelViewSet):
 
 ## Related Documentation
 
-- **[API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/)** - OpenAPI specifications
+- **[API Contracts](../../../06-contracts/api/)** - OpenAPI specifications
 - **[Serializers](./serializers.md)** - Serializer implementation
 - **[Permissions](./permissions.md)** - Permission classes
 

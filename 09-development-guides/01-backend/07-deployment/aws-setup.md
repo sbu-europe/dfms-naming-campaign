@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Phase 1 Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment approach
-- **[Container View](../../DFMS-product-context/technical-context/01-architecture/container-view.md)** - Infrastructure components
+- **[Phase 1 Deployment Strategy](../../../05-architecture/04-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment approach
+- **[Container View](../../../05-architecture/01-architecture/container-view.md)** - Infrastructure components
 
 This document provides **AWS-specific deployment configuration** (EC2, RDS, ElastiCache, S3 setup).
 
@@ -446,7 +446,7 @@ SENTRY_DSN=<sentry-dsn>
 ## Related Documentation
 
 - **[Docker Configuration](./docker.md)** - Docker setup
-- **[Phase 1 Deployment](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment strategy
+- **[Phase 1 Deployment](../../../05-architecture/04-implementation/deployment-strategy/phase-1-deployment.md)** - High-level deployment strategy
 
 ---
 

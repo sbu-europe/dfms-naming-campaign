@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[Deployment Strategy](../../DFMS-product-context/technical-context/03-implementation/deployment-strategy/)** - High-level deployment approach
+- **[Deployment Strategy](../../../05-architecture/04-implementation/deployment-strategy/)** - High-level deployment approach
 
 This document provides **backup and recovery implementation** (database backups, file backups, recovery procedures).
 

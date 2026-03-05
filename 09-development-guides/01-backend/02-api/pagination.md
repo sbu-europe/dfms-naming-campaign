@@ -4,9 +4,9 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../../05-architecture/)
 
-- **[API Contracts](../../DFMS-product-context/technical-context/05-contracts/api/)** - OpenAPI specifications with pagination
+- **[API Contracts](../../../06-contracts/api/)** - OpenAPI specifications with pagination
 
 This document provides **DRF pagination implementation** (code, configuration, patterns).
 

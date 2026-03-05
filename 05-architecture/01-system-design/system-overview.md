@@ -354,7 +354,7 @@ Report Generation → Escalation (if fail)
 - **Phase 1**: Docker Compose, Single EC2 instance
 - **Phase 2+**: Kubernetes (for scaling and orchestration)
 
-**See**: [Phase 1 Deployment](../03-implementation/deployment-strategy/phase-1-deployment.md)
+**See**: [Phase 1 Deployment](../04-implementation/deployment-strategy/phase-1-deployment.md)
 
 ### Data
 - **Primary Database**: PostgreSQL (relational data)
@@ -391,9 +391,9 @@ Report Generation → Escalation (if fail)
 - [User Workflows](../02-workflows/user-workflows/) - User journeys
 
 ### Business Context
-- [Business Context Overview](../../business-context/00-overview/business-context.md)
-- [Stakeholders](../../business-context/00-overview/stakeholders.md)
-- [Business Processes](../../business-context/01-business-domain/business-processes/)
+- [Business Context Overview](../../02-domain/00-overview/business-context.md)
+- [Stakeholders](../../02-domain/00-overview/stakeholders.md)
+- [Business Processes](../../02-domain/01-business-domain/business-processes/)
 
 ---
 
@@ -402,9 +402,9 @@ Report Generation → Escalation (if fail)
 This document was created by analyzing:
 - `source-documents/requirements/PRD_DFMS_v1.0.docx`
 - `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
-- `business-context/00-overview/project-summary.md`
-- `business-context/00-overview/stakeholders.md`
-- `business-context/04-phase-backlog/feature-overview.md`
+- `02-domain/00-overview/project-summary.md`
+- `02-domain/00-overview/stakeholders.md`
+- `02-domain/04-backlog/feature-overview.md`
 
 ---
 

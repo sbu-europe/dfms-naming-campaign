@@ -4,11 +4,11 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../)
 
-- **[Security Architecture](../../DFMS-product-context/technical-context/00-overview/architecture-summary.md#6-security-first)** - High-level security approach
-- **[Non-Functional Requirements](../../DFMS-product-context/business-context/02-requirements/non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
-- **[User Story US-007](../../DFMS-product-context/business-context/03-features/phase-1/user-stories/US-007-user-role-management.md)** - RBAC requirements
+- **[Security Architecture](../00-overview/architecture-summary.md#6-security-first)** - High-level security approach
+- **[Non-Functional Requirements](../../DFMS-product-context/02-domain/02-requirements/non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
+- **[User Story US-007](../../DFMS-product-context/02-domain/03-features/phase-1/user-stories/US-007-user-role-management.md)** - RBAC requirements
 
 This document provides **Django-specific authorization implementation** (permission classes, RBAC code, middleware).
 

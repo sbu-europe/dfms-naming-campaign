@@ -301,7 +301,7 @@ Use the dependency information in each module's README to understand:
 
 ### By User Story
 Use the "Related User Stories" sections to map stories to specifications.  
-All stories are located in: `../04-phase-backlog/phase-1/user-stories/`
+All stories are located in: `../04-backlog/phase-1/user-stories/`
 
 ### By Phase
 See `10-phases/` for phase-wise organization of features.
@@ -333,10 +333,10 @@ Each specification file includes PRD section references in frontmatter.
 ## 🔗 Related Documentation
 
 - **[Main README](README.md)** - Module specifications overview
-- **[Phase Backlog](../04-phase-backlog/README.md)** - Implementation user stories
+- **[Phase Backlog](../04-backlog/README.md)** - Implementation user stories
 - **[Source PRD](../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[WBS Differences](../04-phase-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
-- **[PRD Alignment](../04-phase-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD alignment validation
+- **[WBS Differences](../04-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
+- **[PRD Alignment](../04-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD alignment validation
 
 ---
 

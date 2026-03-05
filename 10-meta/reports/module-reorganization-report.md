@@ -26,8 +26,8 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 1. ✅ 00-overview/README.md - Product Overview & Context
 2. ✅ 01-foundation/README.md - System Foundation
 3. ✅ 02-master-data/README.md - Master Data Management
-4. ✅ 03-core-operations/README.md - Core Business Operations
-5. ✅ 04-operations-support/README.md - Operations Support
+4. ✅ 03-operations/README.md - Core Business Operations
+5. ✅ 04-poi-operations/README.md - Operations Support
 6. ✅ 05-vendor-management/README.md - Vendor Management
 7. ✅ 06-fleet-management/README.md - Fleet Management
 8. ✅ 07-mobile-interfaces/README.md - Mobile Interfaces
@@ -77,14 +77,14 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 │   ├── product-inventory-management.md
 │   └── poi-management.md              # US-014
 │
-├── 03-core-operations/
+├── 03-operations/
 │   ├── README.md                      # Module overview with cross-refs
 │   ├── product-requisition-management.md  # US-010, US-011, US-012, US-013, US-014
 │   ├── transport-requisition-management.md  # US-015, US-016
 │   ├── transport-order-management.md      # US-017, US-018, US-019, US-020
 │   └── trip-management.md                 # US-021, US-022, US-023, US-025
 │
-├── 04-operations-support/
+├── 04-poi-operations/
 │   ├── README.md                      # Module overview with cross-refs
 │   ├── gate-management.md             # US-035-038, US-063-067
 │   ├── scaling-management.md          # US-039-040, US-068-070
@@ -211,8 +211,8 @@ Each module README includes:
 ### Created
 - `01-foundation/README.md` (new)
 - `02-master-data/README.md` (new)
-- `03-core-operations/README.md` (new)
-- `04-operations-support/README.md` (new)
+- `03-operations/README.md` (new)
+- `04-poi-operations/README.md` (new)
 - `05-vendor-management/README.md` (new)
 - `06-fleet-management/README.md` (new)
 - `07-mobile-interfaces/README.md` (new)
@@ -243,9 +243,9 @@ Each module README includes:
 
 - **[Root README](README.md)** - Module specifications overview
 - **[Complete Index](INDEX.md)** - Full content index with dependencies
-- **[Phase Backlog](../04-phase-backlog/README.md)** - User stories
-- **[WBS Differences](../04-phase-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
-- **[PRD Alignment](../04-phase-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD validation
+- **[Phase Backlog](../04-backlog/README.md)** - User stories
+- **[WBS Differences](../04-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
+- **[PRD Alignment](../04-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD validation
 
 ---
 

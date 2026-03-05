@@ -41,8 +41,8 @@ This repository documents architecture at **C4 Level 1-2** only:
 #### **Level 2: Container View**
 - **What**: High-level technical building blocks
 - **Shows**: Web app, mobile apps, API layer, database, message queue
-- **Document**: [Container View](../01-system-design/container-view.md) *(coming)*
-- **Diagram**: [Container Diagram](../01-system-design/diagrams/container-diagram.mmd) *(coming)*
+- **Document**: [Container View](../01-system-design/container-view.md)
+- **Diagram**: [Container Diagram](../01-system-design/diagrams/container-diagram.mmd)
 
 #### **Level 3-4: Components & Code**
 - **What**: Detailed implementation
@@ -564,10 +564,13 @@ DFMS architecture evolves through distinct phases to balance cost, complexity, a
 
 Key architectural decisions are documented as Architecture Decision Records (ADRs):
 
-1. **[ADR-0001](../04-decisions/adr/0001-record-architecture-decisions.md)**: Record Architecture Decisions *(coming)*
-2. **[ADR-0002](../04-decisions/adr/0002-multi-tenant-architecture.md)**: Multi-Tenant Architecture *(coming)*
-3. **[ADR-0003](../04-decisions/adr/0003-modular-monolith-first.md)**: Modular Monolith First *(coming)*
-4. **[ADR-0004](../04-decisions/adr/0004-event-driven-communication.md)**: Event-Driven Communication *(coming)*
+1. **[ADR-001](../03-decisions/adr-001-microservices-architecture.md)**: Microservices Architecture
+2. **[ADR-002](../03-decisions/adr-002-event-driven-communication.md)**: Event-Driven Communication
+3. **[ADR-003](../03-decisions/adr-003-api-first-design.md)**: API-First Design
+4. **[ADR-004](../03-decisions/adr-004-phase-1-modular-monolith.md)**: Phase 1 Modular Monolith
+5. **[ADR-005](../03-decisions/adr-005-phase-1-frontend-approach.md)**: Phase 1 Frontend Approach
+6. **[ADR-100](../03-decisions/adr-100-technology-stack.md)**: Technology Stack
+7. **[ADR-200](../03-decisions/adr-200-integration-patterns.md)**: Integration Patterns
 
 ---
 
@@ -575,19 +578,19 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 
 ### Architecture Details
 - [System Overview](../01-system-design/system-overview.md) - C4 Level 1
-- [Container View](../01-system-design/container-view.md) - C4 Level 2 *(coming)*
-- [Module Boundaries](../01-system-design/modules/module-boundaries.md) *(coming)*
-- [Integration Patterns](../01-system-design/integration/integration-patterns.md) *(coming)*
+- [Container View](../01-system-design/container-view.md) - C4 Level 2
+- [Module Boundaries](../01-system-design/modules/module-boundaries.md)
+- [Integration Patterns](../01-system-design/integration/integration-patterns.md)
 
 ### Design & Implementation
 - [Design Principles](./design-principles.md)
 - [Technology Stack Overview](./technology-stack-overview.md)
-- [Implementation Approach](../03-implementation/)
+- [Implementation Approach](../04-implementation/)
 
 ### Business Context
-- [Business Processes](../../business-context/01-business-domain/business-processes/)
-- [User Stories](../../business-context/04-phase-backlog/phase-1/user-stories/)
-- [Business Rules](../../business-context/01-business-domain/business-rules/business-rules.md)
+- [Business Processes](../../02-domain/01-business-domain/business-processes/)
+- [User Stories](../../02-domain/04-backlog/phase-1/user-stories/)
+- [Business Rules](../../02-domain/01-business-domain/business-rules/business-rules.md)
 
 ---
 
@@ -596,9 +599,9 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 This architecture summary was created by analyzing:
 - `source-documents/requirements/PRD_DFMS_v1.0.docx`
 - `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
-- `business-context/00-overview/project-summary.md`
-- `business-context/04-phase-backlog/feature-overview.md`
-- `business-context/01-business-domain/business-processes/`
+- `02-domain/00-overview/project-summary.md`
+- `02-domain/04-backlog/feature-overview.md`
+- `02-domain/01-business-domain/business-processes/`
 
 ---
 

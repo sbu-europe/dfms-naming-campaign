@@ -36,8 +36,8 @@ Some stories also reference additional module specifications:
 ```yaml
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../../03-module-specifications/03-core-operations/product-requisition-management.md
-  - ../../../03-module-specifications/03-core-operations/transport-requisition-management.md
+  - ../../../03-module-specifications/03-operations/product-requisition-management.md
+  - ../../../03-module-specifications/03-operations/transport-requisition-management.md
 ```
 
 ---

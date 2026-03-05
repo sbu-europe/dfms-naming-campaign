@@ -541,8 +541,8 @@ Distributed tracing for:
 
 - [Architecture Summary](./architecture-summary.md)
 - [Technology Stack Overview](./technology-stack-overview.md)
-- [System Overview](../01-architecture/system-overview.md)
-- [Architectural Decisions](../04-decisions/adr/)
+- [System Overview](../01-system-design/system-overview.md)
+- [Architectural Decisions](../03-decisions/adr/)
 
 ---
 

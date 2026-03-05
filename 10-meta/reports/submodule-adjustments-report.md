@@ -22,7 +22,7 @@ The submodule structure has evolved. Key path differences:
 
 ### 1. Testing Approach Path
 
-**Correct path**: `DFMS-product-context/technical-context/03-implementation/strategies/testing-approach.md`
+**Correct path**: `DFMS-product-context/05-architecture/04-implementation/strategies/testing-approach.md`
 
 **Files to update** (replace `03-implementation/testing-approach` with `03-implementation/strategies/testing-approach`):
 
@@ -38,7 +38,7 @@ The submodule structure has evolved. Key path differences:
 
 ### 2. Design Principles Path
 
-**Correct path**: `DFMS-product-context/technical-context/00-overview/design-principles.md`
+**Correct path**: `DFMS-product-context/05-architecture/00-overview/design-principles.md`
 
 **Files to update** (replace `01-architecture/design-principles/` with `00-overview/design-principles.md`):
 
@@ -56,7 +56,7 @@ The submodule structure has evolved. Key path differences:
 ```
 DFMS-product-context/
 ├── business-context/
-├── technical-context/
+├── 05-architecture/
 │   ├── 00-overview/
 │   │   ├── architecture-summary.md
 │   │   ├── design-principles.md      ← file, not folder

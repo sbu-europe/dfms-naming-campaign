@@ -12,7 +12,7 @@
 
 ## 📋 Executive Summary
 
-During implementation of the Nourish Backend repository, we identified several architectural conflicts between the high-level technical context in `DFMS-product-context/technical-context/` and our Phase 1 implementation approach. This change request proposes documenting a **phase-based architecture** that acknowledges both the current cost-optimized Phase 1 implementation and the future microservices-ready Phase 2+ vision.
+During implementation of the Nourish Backend repository, we identified several architectural conflicts between the high-level technical context in `DFMS-product-context/05-architecture/` and our Phase 1 implementation approach. This change request proposes documenting a **phase-based architecture** that acknowledges both the current cost-optimized Phase 1 implementation and the future microservices-ready Phase 2+ vision.
 
 **Impact**: This change will align the submodule documentation with actual Phase 1 implementation while preserving the long-term architectural vision.
 
@@ -67,7 +67,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 1: Create New ADR for Phase 1 Architecture
 
-**File**: `technical-context/03-decisions/adr-004-phase-1-modular-monolith.md`
+**File**: `05-architecture/03-decisions/adr-004-phase-1-modular-monolith.md`
 
 **Status**: ✅ Implemented
 
@@ -77,7 +77,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 2: Create ADR for Phase 1 Frontend Approach
 
-**File**: `technical-context/03-decisions/adr-005-phase-1-frontend-approach.md`
+**File**: `05-architecture/03-decisions/adr-005-phase-1-frontend-approach.md`
 
 **Status**: ✅ Implemented
 
@@ -87,7 +87,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 3: Update Architecture Summary
 
-**File**: `technical-context/00-overview/architecture-summary.md`
+**File**: `05-architecture/00-overview/architecture-summary.md`
 
 **Status**: ✅ Implemented
 
@@ -97,7 +97,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 4: Update Container View
 
-**File**: `technical-context/01-architecture/container-view.md`
+**File**: `05-architecture/01-system-design/container-view.md`
 
 **Status**: ✅ Implemented
 
@@ -107,7 +107,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 5: Update Technology Stack Overview
 
-**File**: `technical-context/00-overview/technology-stack-overview.md`
+**File**: `05-architecture/00-overview/technology-stack-overview.md`
 
 **Status**: ✅ Implemented
 
@@ -117,7 +117,7 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ### Change 6: Update Deployment Architecture
 
-**File**: `technical-context/03-implementation/deployment-strategy/phase-1-deployment.md`
+**File**: `05-architecture/04-implementation/deployment-strategy/phase-1-deployment.md`
 
 **Status**: ✅ Implemented
 
@@ -208,10 +208,10 @@ This phase-based approach allows implementation repositories to correctly follow
 
 ## 🔗 Related Documents
 
-- [ADR-001: Microservices Architecture](../technical-context/03-decisions/adr-001-microservices-architecture.md)
-- [ADR-004: Phase 1 Modular Monolith](../technical-context/03-decisions/adr-004-phase-1-modular-monolith.md)
-- [ADR-005: Phase 1 Frontend Approach](../technical-context/03-decisions/adr-005-phase-1-frontend-approach.md)
-- [Architecture Summary](../technical-context/00-overview/architecture-summary.md)
+- [ADR-001: Microservices Architecture](../05-architecture/03-decisions/adr-001-microservices-architecture.md)
+- [ADR-004: Phase 1 Modular Monolith](../05-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
+- [ADR-005: Phase 1 Frontend Approach](../05-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)
+- [Architecture Summary](../05-architecture/00-overview/architecture-summary.md)
 
 ---
 

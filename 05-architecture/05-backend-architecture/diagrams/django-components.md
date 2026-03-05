@@ -4,7 +4,7 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`DFMS-product-context/technical-context/`](../../DFMS-product-context/technical-context/)
+> **Source of Truth**: [`05-architecture/`](../../)
 
 - **[High-Level Diagrams](./architecture-overview.md)** - System context and container diagrams
 - **[System Architecture](../architecture/system-architecture.md)** - Django system architecture

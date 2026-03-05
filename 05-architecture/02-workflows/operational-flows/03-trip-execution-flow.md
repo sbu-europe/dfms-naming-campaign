@@ -645,12 +645,12 @@ TripCompleted(
 ## 🔗 Related Documents
 
 ### Architecture
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md#3-transport-management)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md#3-transport-management)
+- [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-052](../../../business-context/04-phase-backlog/phase-1/user-stories/US-052-driver-mobile-interface.md)
-- [Business Process](../../../business-context/01-business-domain/business-processes/business-processes-overview.md)
+- [User Story: US-052](../../../02-domain/04-backlog/phase-1/user-stories/US-052-driver-mobile-interface.md)
+- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Previous step

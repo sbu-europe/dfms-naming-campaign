@@ -53,7 +53,7 @@ This repository serves as the **central domain knowledge and interface contract 
 DFMS-backend/
 ├── domain/  (git submodule → DFMS-product-context)
 │   ├── business-context/
-│   └── technical-context/
+│   └── 05-architecture/
 │       └── 05-contracts/
 ├── src/
 ├── tests/
@@ -63,7 +63,7 @@ DFMS-backend/
 DFMS-frontend/
 ├── domain/  (git submodule → DFMS-product-context)
 │   ├── business-context/
-│   └── technical-context/
+│   └── 05-architecture/
 │       └── 05-contracts/
 ├── src/
 ├── public/
@@ -73,7 +73,7 @@ DFMS-frontend/
 DFMS-mobile/
 ├── domain/  (git submodule → DFMS-product-context)
 │   ├── business-context/
-│   └── technical-context/
+│   └── 05-architecture/
 │       └── 05-contracts/
 ├── src/
 └── app.json
@@ -115,7 +115,7 @@ DFMS-product-context/
 │   ├── 00-overview/
 │   ├── 01-business-domain/
 │   ├── 02-requirements/
-│   ├── 04-phase-backlog/
+│   ├── 04-backlog/
 │   ├── 04-architecture/          # HIGH-LEVEL architecture only
 │   │   ├── system-overview.md
 │   │   ├── module-boundaries.md
@@ -427,9 +427,9 @@ git submodule update --remote domain
 - [PRODUCT_VISION.md](PRODUCT_VISION.md) - Product strategy and vision
 - [BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md) - Plan for building business domain knowledge
 - [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md) - Plan for building technical architecture & contracts
-- [technical-context/01-system-design/](technical-context/01-system-design/) - High-level architecture (C4 Level 1-2)
-- [technical-context/05-contracts/](technical-context/05-contracts/) - API & Event contracts (OpenAPI/AsyncAPI)
-- [technical-context/03-decisions/](technical-context/03-decisions/) - Architecture Decision Records (ADRs)
+- [05-architecture/01-system-design/](05-architecture/01-system-design/) - High-level architecture (C4 Level 1-2)
+- [06-contracts/](06-contracts/) - API & Event contracts (OpenAPI/AsyncAPI)
+- [05-architecture/03-decisions/](05-architecture/03-decisions/) - Architecture Decision Records (ADRs)
 
 ---
 

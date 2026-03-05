@@ -174,8 +174,8 @@ We will adopt a **microservices architecture** with the following characteristic
 
 - [Microservices Patterns](https://microservices.io/patterns/index.html)
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-- [Container View](../../01-architecture/container-view.md)
-- [Module Boundaries](../../01-architecture/modules/module-boundaries.md)
+- [Container View](../../01-system-design/container-view.md)
+- [Module Boundaries](../../01-system-design/modules/module-boundaries.md)
 
 ---
 
