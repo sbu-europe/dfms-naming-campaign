@@ -1,6 +1,6 @@
 # Django System Architecture
 
-> Implementation-specific architecture for Nourish Backend (Django/Python)
+> Implementation-specific architecture for DFMS Backend (Django/Python)
 
 ## 📖 High-Level Architecture
 

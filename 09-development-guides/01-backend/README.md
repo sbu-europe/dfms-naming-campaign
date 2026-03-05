@@ -1,6 +1,6 @@
 # Backend Documentation
 
-> Implementation-specific documentation for Nourish Backend (Django/Python)
+> Implementation-specific documentation for DFMS Backend (Django/Python)
 
 ## 📖 Documentation Structure
 

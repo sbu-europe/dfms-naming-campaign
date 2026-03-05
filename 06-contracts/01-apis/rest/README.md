@@ -12,58 +12,83 @@ This directory contains OpenAPI 3.0 specifications for all DFMS REST API endpoin
 
 ## 📁 API Contracts
 
+### Foundation Modules
+
+1. **[Authentication](./authentication.yaml)** ✅
+   - 3-step login flow (Identity → OTP → Password)
+   - OTP generation and verification
+   - Session management and heartbeat
+   - Account lockout and unlock
+   - Password reset (self-service)
+
+2. **[User Management](./users.yaml)** ✅
+   - User invitation and activation
+   - Deactivation and reactivation
+   - Admin-assisted password reset
+   - Audit log querying and export
+
+3. **[Tenant Management](./tenants.yaml)** ✅
+   - Tenant provisioning (Super Admin)
+   - Subscription and usage management
+   - Tenant suspension and reactivation
+
+4. **[Roles & Permissions](./roles.yaml)** ✅
+   - Role listing and assignment
+   - Permission querying and validation
+   - Permission catalog
+
 ### Core Modules (Phase 1)
 
-1. **[Master Data Management](./master-data-management.yaml)**
+5. **[Master Data Management](./master-data-management.yaml)**
    - Vehicle management
    - Driver management
    - Vendor master data
    - POI management
    - Product management
 
-2. **[Product Requisition](./product-requisition.yaml)**
+6. **[Product Requisition](./product-requisition.yaml)**
    - PR creation and management
    - Approval workflows
    - TR generation
 
-3. **[Transport Management](./transport-management.yaml)** ✅
+7. **[Transport Management](./transport-management.yaml)** ✅
    - Transport Request (TR) management
    - Transport Order (TO) management
    - Trip lifecycle
 
-4. **[Vendor Management](./vendor-management.yaml)**
+8. **[Vendor Management](./vendor-management.yaml)**
    - Vendor onboarding
    - Bidding portal
    - Vendor assignment
 
-5. **[Operations Management](./operations-management.yaml)**
+9. **[Operations Management](./operations-management.yaml)**
    - Gate management
    - Weighing operations
    - Loading/unloading
 
-6. **[Quality Control](./quality-control.yaml)**
-   - QC inspections
-   - Sampling and lab tests
-   - Pass/fail decisions
+10. **[Quality Control](./quality-control.yaml)**
+    - QC inspections
+    - Sampling and lab tests
+    - Pass/fail decisions
 
-7. **[Trip Costing](./trip-costing.yaml)**
-   - Cost calculation
-   - Invoice generation
-   - ERP synchronization
+11. **[Trip Costing](./trip-costing.yaml)**
+    - Cost calculation
+    - Invoice generation
+    - ERP synchronization
 
 ### Supporting Modules
 
-8. **[Reporting](./reporting.yaml)**
-   - Dashboards
-   - Reports
-   - KPIs
+12. **[Reporting](./reporting.yaml)**
+    - Dashboards
+    - Reports
+    - KPIs
 
-9. **[Mobile APIs](./mobile.yaml)**
-   - Driver mobile APIs
-   - QC mobile APIs
-   - Vendor mobile APIs
+13. **[Mobile APIs](./mobile.yaml)**
+    - Driver mobile APIs
+    - QC mobile APIs
+    - Vendor mobile APIs
 
-10. **[Notifications](./notifications.yaml)**
+14. **[Notifications](./notifications.yaml)**
     - Notification management
     - Preferences
     - Alerts
@@ -144,10 +169,10 @@ validate_response(response, spec)
 ## 🔗 Related Documents
 
 - [Common Schemas](../schemas/)
-- [Module Boundaries](../../../01-architecture/modules/module-boundaries.md)
+- [Architecture Overview](../../../05-architecture/00-overview/technology-stack-overview.md)
 
 ---
 
 **Last Updated**: February 13, 2026  
-**Status**: 🚧 In Progress
+**Status**: Foundation APIs complete, Domain APIs in progress
 

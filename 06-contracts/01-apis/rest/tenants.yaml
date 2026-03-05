@@ -1,0 +1,645 @@
+openapi: 3.0.3
+info:
+  title: DFMS Tenant Management API
+  description: |
+    API contract for Tenant Management module in DFMS.
+
+    This contract defines the interface for:
+    - Tenant creation and provisioning (Super Admin)
+    - Tenant configuration and settings
+    - Subscription management
+    - Tenant usage monitoring
+
+    **Note**: Tenant management is a Super Admin operation. Tenant-scoped
+    user management is in the Users API contract.
+
+    **Related Stories**: US-005 (tenant provisioning context)
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+  - url: https://api-staging.dfms.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Tenants
+    description: Tenant CRUD and provisioning
+  - name: Subscriptions
+    description: Subscription and usage management
+
+paths:
+  /admin/tenants:
+    get:
+      tags:
+        - Tenants
+      summary: List all tenants
+      description: Super Admin retrieves paginated list of all tenants
+      operationId: listTenants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, suspended, trial, cancelled]
+        - name: subscription_tier
+          in: query
+          schema:
+            type: string
+            enum: [basic, starter, growth, enterprise]
+        - name: search
+          in: query
+          description: Search by organization name
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of tenants
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TenantSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags:
+        - Tenants
+      summary: Create a new tenant
+      description: |
+        Super Admin provisions a new tenant. This:
+        1. Creates the tenant record
+        2. Creates the dedicated PostgreSQL schema
+        3. Creates the Tenant Admin user
+        4. Sends invitation email to Tenant Admin
+      operationId: createTenant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreateRequest'
+      responses:
+        '201':
+          description: Tenant provisioned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenant:
+                    $ref: '#/components/schemas/Tenant'
+                  tenant_admin:
+                    type: object
+                    properties:
+                      user_id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                      invitation_sent:
+                        type: boolean
+                  schema_created:
+                    type: boolean
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Organization name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/tenants/{tenant_id}:
+    get:
+      tags:
+        - Tenants
+      summary: Get tenant details
+      operationId: getTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '404':
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Tenants
+      summary: Update tenant details
+      description: Update tenant organization details and settings
+      operationId: updateTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdateRequest'
+      responses:
+        '200':
+          description: Tenant updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/tenants/{tenant_id}/suspend:
+    post:
+      tags:
+        - Tenants
+      summary: Suspend a tenant
+      description: |
+        Suspends a tenant account. All tenant users are logged out
+        and cannot access the system until reactivated.
+      operationId: suspendTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  minLength: 10
+      responses:
+        '200':
+          description: Tenant suspended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  active_sessions_terminated:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/tenants/{tenant_id}/reactivate:
+    post:
+      tags:
+        - Tenants
+      summary: Reactivate a suspended tenant
+      operationId: reactivateTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Tenant reactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Tenant is not suspended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/tenants/{tenant_id}/subscription:
+    get:
+      tags:
+        - Subscriptions
+      summary: Get tenant subscription details
+      operationId: getTenantSubscription
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Subscription details with usage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionDetails'
+
+    put:
+      tags:
+        - Subscriptions
+      summary: Update tenant subscription
+      description: Change subscription tier and limits
+      operationId: updateSubscription
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subscription_tier
+              properties:
+                subscription_tier:
+                  type: string
+                  enum: [basic, starter, growth, enterprise]
+                custom_limits:
+                  type: object
+                  description: Override default tier limits (Enterprise only)
+                  properties:
+                    max_users:
+                      type: integer
+                    max_monthly_trips:
+                      type: integer
+                    storage_limit_gb:
+                      type: number
+                enabled_modules:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Subscription updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionDetails'
+
+  /admin/tenants/{tenant_id}/usage:
+    get:
+      tags:
+        - Subscriptions
+      summary: Get tenant usage statistics
+      description: Current month usage against subscription limits
+      operationId: getTenantUsage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantUsage'
+
+  /admin/subscription-plans:
+    get:
+      tags:
+        - Subscriptions
+      summary: List available subscription plans
+      operationId: listSubscriptionPlans
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Available plans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubscriptionPlan'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TenantIdParam:
+      name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    Forbidden:
+      description: Insufficient permissions (Super Admin required)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+    TenantCreateRequest:
+      type: object
+      required:
+        - organization_name
+        - business_category
+        - subscription_tier
+        - admin_email
+        - admin_phone
+        - admin_name
+      properties:
+        organization_name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          pattern: '^[a-zA-Z0-9\s\-&.,()]+$'
+        business_category:
+          type: string
+          enum: [manufacturing, distribution, fmcg, agro, other]
+        industry_type:
+          type: string
+        subscription_tier:
+          type: string
+          enum: [basic, starter, growth, enterprise]
+        admin_email:
+          type: string
+          format: email
+        admin_phone:
+          type: string
+          description: E.164 format
+          example: "+8801XXXXXXXXX"
+        admin_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        address:
+          $ref: '#/components/schemas/Address'
+
+    TenantUpdateRequest:
+      type: object
+      properties:
+        organization_name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        business_category:
+          type: string
+          enum: [manufacturing, distribution, fmcg, agro, other]
+        industry_type:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+
+    TenantSummary:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+          format: uuid
+        organization_name:
+          type: string
+        subscription_tier:
+          type: string
+        status:
+          type: string
+          enum: [active, suspended, trial, cancelled]
+        active_users:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Tenant:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+          format: uuid
+        organization_name:
+          type: string
+        business_category:
+          type: string
+        industry_type:
+          type: string
+        subscription_tier:
+          type: string
+        subscription_status:
+          type: string
+          enum: [trial, active, suspended, cancelled]
+        admin_email:
+          type: string
+        admin_phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        max_users:
+          type: integer
+        max_monthly_trips:
+          type: integer
+        storage_limit_gb:
+          type: number
+        enabled_modules:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        trial_ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [active, suspended, trial]
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+
+    SubscriptionDetails:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+          format: uuid
+        tier:
+          type: string
+          enum: [basic, starter, growth, enterprise]
+        status:
+          type: string
+          enum: [trial, active, suspended, cancelled]
+        limits:
+          type: object
+          properties:
+            max_users:
+              type: integer
+            max_monthly_trips:
+              type: integer
+            storage_limit_gb:
+              type: number
+        enabled_modules:
+          type: array
+          items:
+            type: string
+        trial_ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        renews_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    TenantUsage:
+      type: object
+      properties:
+        tenant_id:
+          type: string
+          format: uuid
+        current_month:
+          type: string
+          example: "2026-03"
+        active_users:
+          type: integer
+        max_users:
+          type: integer
+        users_percentage:
+          type: number
+          format: float
+        trips_this_month:
+          type: integer
+        max_monthly_trips:
+          type: integer
+        trips_percentage:
+          type: number
+          format: float
+        storage_used_gb:
+          type: number
+          format: float
+        storage_limit_gb:
+          type: number
+          format: float
+        storage_percentage:
+          type: number
+          format: float
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Active limit warnings (e.g., "Users at 80% capacity")
+
+    SubscriptionPlan:
+      type: object
+      properties:
+        plan_id:
+          type: string
+        name:
+          type: string
+          enum: [Basic, Starter, Growth, Enterprise]
+        max_users:
+          type: integer
+        max_monthly_trips:
+          type: integer
+        storage_limit_gb:
+          type: number
+        features:
+          type: array
+          items:
+            type: string
+        price_monthly:
+          type: number
+          nullable: true
+          description: Null for Enterprise (custom pricing)

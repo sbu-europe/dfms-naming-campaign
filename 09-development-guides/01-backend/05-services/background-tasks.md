@@ -31,7 +31,7 @@ import os
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('nourish_backend')
+app = Celery('dfms_backend')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Celery Configuration
@@ -63,7 +63,7 @@ from celery import Celery
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('nourish_backend')
+app = Celery('dfms_backend')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 ```

@@ -625,6 +625,7 @@ Every module checks permissions before operations:
 
 ## 10. Related Documentation
 
+- **[Permission Catalog (Phase 1)](permission-catalog-phase1.md)** - Complete enumeration of 135 permissions across 13 modules
 - **[Authentication & Security](authentication-security.md)** - Login, session, MFA
 - **[User & Tenant Management](user-tenant-management.md)** - User lifecycle, invitations
 - **[System Foundation](system-foundation.md)** - Overall system architecture

@@ -1,0 +1,566 @@
+openapi: 3.0.3
+info:
+  title: DFMS Roles & Permissions API
+  description: |
+    API contract for Role-Based Access Control (RBAC) module in DFMS.
+
+    This contract defines the interface for:
+    - Role listing and details
+    - Role assignment to users
+    - Permission querying and validation
+    - Role CRUD (Phase 2: Dynamic Role Builder)
+
+    **Related Stories**: US-004
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+  - url: https://api-staging.dfms.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Roles
+    description: Role management operations
+  - name: Permissions
+    description: Permission querying and validation
+  - name: Role Assignment
+    description: Assigning roles to users
+
+paths:
+  /roles:
+    get:
+      tags:
+        - Roles
+      summary: List available roles
+      description: |
+        Returns roles available in the current tenant context.
+        Super Admin sees all system roles; Tenant/Department Admins see
+        roles they can assign.
+      operationId: listRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          description: Filter by role category
+          schema:
+            type: string
+            enum: [administrative, operational]
+        - name: department
+          in: query
+          description: Filter by department
+          schema:
+            type: string
+            enum: [depot, feed_mill, commercial, procurement, distribution, transport, qa_qc, operations]
+        - name: assignable_only
+          in: query
+          description: Only return roles the current user can assign
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /roles/{role_id}:
+    get:
+      tags:
+        - Roles
+      summary: Get role details with permissions
+      operationId: getRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Role details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleDetail'
+        '404':
+          description: Role not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /roles/{role_id}/permissions:
+    get:
+      tags:
+        - Permissions
+      summary: Get permissions for a role
+      operationId: getRolePermissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: module
+          in: query
+          description: Filter permissions by module
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  role_id:
+                    type: string
+                    format: uuid
+                  role_name:
+                    type: string
+                  permissions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Permission'
+                  inherited_from:
+                    type: string
+                    nullable: true
+                    description: Parent role if permissions are inherited
+
+    put:
+      tags:
+        - Permissions
+      summary: Update role permissions
+      description: |
+        Update permissions assigned to a role.
+        Only Tenant Admin can modify role permissions.
+        System roles (Super Admin, Tenant Admin) cannot be modified.
+      operationId: updateRolePermissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permissions
+              properties:
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    description: "Permission key in Module.Feature.Action format"
+                  example:
+                    - "Fleet.Vehicle.Create"
+                    - "Fleet.Vehicle.Read"
+                    - "Fleet.Vehicle.Update"
+                    - "Reports.Export"
+      responses:
+        '200':
+          description: Permissions updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  role_id:
+                    type: string
+                    format: uuid
+                  permissions_count:
+                    type: integer
+                  message:
+                    type: string
+        '400':
+          description: Invalid permissions or system role modification attempted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /users/{user_id}/roles:
+    get:
+      tags:
+        - Role Assignment
+      summary: Get user's assigned roles
+      operationId: getUserRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role_id:
+                          type: string
+                          format: uuid
+                        role_name:
+                          type: string
+                        department_id:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        department_name:
+                          type: string
+                          nullable: true
+                        assigned_at:
+                          type: string
+                          format: date-time
+                        assigned_by:
+                          type: string
+                          format: uuid
+
+  /admin/users/{user_id}/roles:
+    post:
+      tags:
+        - Role Assignment
+      summary: Assign role to user
+      description: |
+        Assign a role to a user. Department Admins can only assign
+        operational roles within their department.
+      operationId: assignRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+              properties:
+                role_id:
+                  type: string
+                  format: uuid
+                department_id:
+                  type: string
+                  format: uuid
+                  description: Required for department-scoped roles
+      responses:
+        '200':
+          description: Role assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  effective_permissions:
+                    type: array
+                    items:
+                      type: string
+                    description: User's updated permission set
+        '400':
+          description: Invalid role/department combination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    delete:
+      tags:
+        - Role Assignment
+      summary: Remove role from user
+      operationId: removeRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+              properties:
+                role_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Role removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Cannot remove last role or system role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /permissions/check:
+    get:
+      tags:
+        - Permissions
+      summary: Check current user's permission
+      description: Returns whether the current user has a specific permission
+      operationId: checkPermission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: resource
+          in: query
+          required: true
+          description: "Module.Feature format (e.g., Fleet.Vehicle)"
+          schema:
+            type: string
+        - name: action
+          in: query
+          required: true
+          description: "Action to check (e.g., Create, Read, Update, Delete, Approve)"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Permission check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  permitted:
+                    type: boolean
+                  permission:
+                    type: string
+                    description: Full permission key checked
+                    example: "Fleet.Vehicle.Create"
+
+  /permissions/catalog:
+    get:
+      tags:
+        - Permissions
+      summary: List all available permissions
+      description: Returns the full permission catalog organized by module
+      operationId: getPermissionCatalog
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Permission catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModulePermissions'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+    Role:
+      type: object
+      properties:
+        role_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+          enum: [administrative, operational]
+        tier:
+          type: string
+          enum: [super_admin, tenant_admin, department_admin, operational]
+        department:
+          type: string
+          nullable: true
+          enum: [depot, feed_mill, commercial, procurement, distribution, transport, qa_qc, operations, fleet, vendor, finance, null]
+        is_system_role:
+          type: boolean
+          description: System roles cannot be modified or deleted
+        permissions_count:
+          type: integer
+
+    RoleDetail:
+      type: object
+      properties:
+        role_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [administrative, operational]
+        tier:
+          type: string
+          enum: [super_admin, tenant_admin, department_admin, operational]
+        department:
+          type: string
+          nullable: true
+        is_system_role:
+          type: boolean
+        workflow_flags:
+          type: object
+          properties:
+            can_request:
+              type: boolean
+            can_approve:
+              type: boolean
+            can_execute:
+              type: boolean
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        users_count:
+          type: integer
+          description: Number of users assigned to this role
+
+    Permission:
+      type: object
+      properties:
+        permission_key:
+          type: string
+          description: "Module.Feature.Action format"
+          example: "Fleet.Vehicle.Create"
+        module:
+          type: string
+        feature:
+          type: string
+        action:
+          type: string
+          enum: [Create, Read, Update, Delete, Approve, Export, Assign, Configure]
+        description:
+          type: string
+
+    ModulePermissions:
+      type: object
+      properties:
+        module:
+          type: string
+          example: "Fleet"
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              feature:
+                type: string
+                example: "Vehicle"
+              actions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    action:
+                      type: string
+                      example: "Create"
+                    permission_key:
+                      type: string
+                      example: "Fleet.Vehicle.Create"
+                    description:
+                      type: string

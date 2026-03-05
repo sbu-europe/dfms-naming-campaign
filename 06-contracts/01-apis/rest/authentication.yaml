@@ -1,0 +1,1007 @@
+openapi: 3.0.3
+info:
+  title: DFMS Authentication API
+  description: |
+    API contract for Authentication & Security module in DFMS.
+
+    This contract defines the interface for:
+    - 3-step login flow (Identity → OTP → Password)
+    - OTP generation and verification
+    - Session management (heartbeat, termination)
+    - Account lockout and unlock
+    - Token refresh
+    - Password reset (self-service)
+
+    **Related Stories**: US-001, US-002, US-003, US-006, US-008
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+  - url: https://api-staging.dfms.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Login
+    description: 3-step login flow operations
+  - name: OTP
+    description: OTP generation, verification, and resend
+  - name: Sessions
+    description: Session management and monitoring
+  - name: Account Lockout
+    description: Locked account management
+  - name: Password Reset
+    description: Self-service password reset flow
+
+paths:
+  /auth/login/identify:
+    post:
+      tags:
+        - Login
+      summary: Step 1 - Identify user
+      description: |
+        Accepts email or phone number, validates the account exists and is active,
+        then triggers OTP delivery to the registered contact method.
+      operationId: loginIdentify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identifier
+              properties:
+                identifier:
+                  type: string
+                  description: Email address or phone number (E.164 format)
+                  example: "admin@nourish.com"
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  login_session_id:
+                    type: string
+                    format: uuid
+                    description: Temporary session ID for the login flow
+                  otp_delivery_method:
+                    type: string
+                    enum: [email, sms]
+                    description: Where the OTP was sent
+                  otp_expires_at:
+                    type: string
+                    format: date-time
+                  masked_contact:
+                    type: string
+                    description: Masked email/phone for display (e.g., a***@nourish.com)
+        '404':
+          description: No account found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '423':
+          description: Account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLockedError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/login/verify-otp:
+    post:
+      tags:
+        - Login
+      summary: Step 2 - Verify OTP
+      description: |
+        Validates the OTP code entered by the user. On success, returns a
+        verification token needed for the password step.
+      operationId: loginVerifyOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login_session_id
+                - otp_code
+              properties:
+                login_session_id:
+                  type: string
+                  format: uuid
+                otp_code:
+                  type: string
+                  pattern: '^\d{6}$'
+                  description: 6-digit OTP code
+                  example: "123456"
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                    example: true
+                  otp_verified_token:
+                    type: string
+                    description: Token proving OTP was verified, needed for password step
+        '400':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid OTP code"
+                  attempts_remaining:
+                    type: integer
+                    example: 2
+        '423':
+          description: Too many failed OTP attempts (15-minute lockout)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLockedError'
+
+  /auth/login/password:
+    post:
+      tags:
+        - Login
+      summary: Step 3 - Validate password and create session
+      description: |
+        Final login step. Validates the password and creates a session with
+        JWT access and refresh tokens.
+      operationId: loginPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login_session_id
+                - otp_verified_token
+                - password
+              properties:
+                login_session_id:
+                  type: string
+                  format: uuid
+                otp_verified_token:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                remember_device:
+                  type: boolean
+                  default: false
+                  description: Trust this device for 30 days (skip OTP on next login)
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccess'
+        '401':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid password"
+                  attempts_remaining:
+                    type: integer
+                  password_must_change:
+                    type: boolean
+                    description: True if this is a temporary password requiring change
+        '423':
+          description: Account locked after 3 failed attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLockedError'
+
+  /auth/token/refresh:
+    post:
+      tags:
+        - Sessions
+      summary: Refresh access token
+      description: Exchange a valid refresh token for a new access token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: New tokens issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                    description: Access token TTL in seconds
+                    example: 1800
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Sessions
+      summary: Logout current session
+      description: Revokes the current access and refresh tokens
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout-all:
+    post:
+      tags:
+        - Sessions
+      summary: Logout from all devices
+      description: Revokes all active sessions for the current user
+      operationId: logoutAll
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All sessions terminated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  sessions_terminated:
+                    type: integer
+
+  /auth/password/change:
+    post:
+      tags:
+        - Password Reset
+      summary: Change password (authenticated)
+      description: Change password for the currently authenticated user
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+                - confirm_password
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 8
+                confirm_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+        '400':
+          description: Validation error (complexity, history, mismatch)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/password/reset/request:
+    post:
+      tags:
+        - Password Reset
+      summary: Request password reset (self-service)
+      description: |
+        Sends a password reset link to the user's email. Always returns success
+        to prevent email enumeration.
+      operationId: requestPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identifier
+              properties:
+                identifier:
+                  type: string
+                  description: Email or phone number
+      responses:
+        '200':
+          description: Reset instructions sent (always returns success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "If an account exists, a reset link has been sent"
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/password/reset/verify:
+    post:
+      tags:
+        - Password Reset
+      summary: Verify password reset token and OTP
+      description: Validates the reset token and OTP before allowing password change
+      operationId: verifyPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reset_token
+                - otp_code
+              properties:
+                reset_token:
+                  type: string
+                otp_code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: Verification successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                  password_reset_token:
+                    type: string
+                    description: Token to use in the final reset step
+        '400':
+          description: Invalid or expired token/OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/password/reset:
+    post:
+      tags:
+        - Password Reset
+      summary: Set new password after reset verification
+      description: Completes the password reset flow with a new password
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password_reset_token
+                - new_password
+                - confirm_password
+              properties:
+                password_reset_token:
+                  type: string
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 8
+                confirm_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password reset successful. Please login with your new password."
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /otp/generate:
+    post:
+      tags:
+        - OTP
+      summary: Generate and send OTP
+      description: |
+        Generates a 6-digit OTP and delivers it via email or SMS.
+        Used for account activation, password reset, and other verification flows.
+        Login OTP is handled automatically by /auth/login/identify.
+      operationId: generateOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identifier
+                - purpose
+              properties:
+                identifier:
+                  type: string
+                  description: Email or phone number
+                purpose:
+                  type: string
+                  enum: [activation, password_reset, verification]
+      responses:
+        '200':
+          description: OTP generated and sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  otp_id:
+                    type: string
+                    format: uuid
+                  expires_at:
+                    type: string
+                    format: date-time
+                  delivery_method:
+                    type: string
+                    enum: [email, sms]
+        '429':
+          description: Cooldown period not elapsed (2-minute minimum between requests)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Please wait before requesting a new code"
+                  retry_after_seconds:
+                    type: integer
+                    example: 90
+
+  /otp/{otp_id}/verify:
+    post:
+      tags:
+        - OTP
+      summary: Verify OTP code
+      description: Validates an OTP code. Maximum 3 attempts per OTP.
+      operationId: verifyOTP
+      parameters:
+        - name: otp_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - otp_code
+              properties:
+                otp_code:
+                  type: string
+                  pattern: '^\d{6}$'
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                  verification_token:
+                    type: string
+                    description: Proof of verification for downstream operations
+        '400':
+          description: Invalid OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  attempts_remaining:
+                    type: integer
+        '410':
+          description: OTP expired (10-minute validity)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /otp/{otp_id}/resend:
+    post:
+      tags:
+        - OTP
+      summary: Resend OTP
+      description: |
+        Resends a new OTP. Subject to 2-minute cooldown and max 3 resends per session.
+        Max 5 OTPs per hour per user.
+      operationId: resendOTP
+      parameters:
+        - name: otp_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                delivery_method:
+                  type: string
+                  enum: [email, sms]
+                  description: Override delivery method
+      responses:
+        '200':
+          description: New OTP sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  new_otp_id:
+                    type: string
+                    format: uuid
+                  expires_at:
+                    type: string
+                    format: date-time
+        '429':
+          description: Cooldown or hourly limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  retry_after_seconds:
+                    type: integer
+
+  /sessions/me:
+    get:
+      tags:
+        - Sessions
+      summary: Get current session info
+      description: Returns details about the current authenticated session
+      operationId: getCurrentSession
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /sessions/heartbeat:
+    post:
+      tags:
+        - Sessions
+      summary: Session heartbeat
+      description: Updates last_activity_at to prevent idle timeout (30 minutes)
+      operationId: sessionHeartbeat
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Heartbeat acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_activity_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
+
+  /admin/locked-accounts:
+    get:
+      tags:
+        - Account Lockout
+      summary: List locked accounts
+      description: Returns all currently locked accounts for the tenant
+      operationId: listLockedAccounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: List of locked accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: string
+                          format: uuid
+                        email:
+                          type: string
+                        full_name:
+                          type: string
+                        locked_until:
+                          type: string
+                          format: date-time
+                        failed_attempt_count:
+                          type: integer
+                        last_failed_at:
+                          type: string
+                          format: date-time
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{user_id}/unlock:
+    post:
+      tags:
+        - Account Lockout
+      summary: Unlock a locked account
+      description: |
+        Admin unlocks a locked account after offline identity verification.
+        Requires UserManagement.Unlock permission.
+      operationId: unlockAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - justification
+                - verification_method
+              properties:
+                justification:
+                  type: string
+                  minLength: 10
+                  description: Reason for unlocking (min 10 characters)
+                verification_method:
+                  type: string
+                  enum: [phone, email, in_person]
+      responses:
+        '200':
+          description: Account unlocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account unlocked successfully"
+                  user_id:
+                    type: string
+                    format: uuid
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found or not locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/users/{user_id}/sessions:
+    get:
+      tags:
+        - Sessions
+      summary: List user sessions (admin)
+      description: Returns all active sessions for a specific user
+      operationId: listUserSessions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Session'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{user_id}/sessions/terminate:
+    post:
+      tags:
+        - Sessions
+      summary: Terminate user sessions (admin)
+      description: Terminates one or all sessions for a user
+      operationId: terminateUserSessions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_id:
+                  type: string
+                  format: uuid
+                  description: Specific session to terminate. Omit to terminate all.
+      responses:
+        '200':
+          description: Sessions terminated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions_terminated:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Rate limit exceeded"
+              retry_after:
+                type: integer
+                description: Seconds to wait before retrying
+                example: 60
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+    LoginSuccess:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token (30-minute validity)
+        refresh_token:
+          type: string
+          description: Refresh token (7-day validity)
+        expires_in:
+          type: integer
+          description: Access token TTL in seconds
+          example: 1800
+        user:
+          type: object
+          properties:
+            user_id:
+              type: string
+              format: uuid
+            email:
+              type: string
+            full_name:
+              type: string
+            role:
+              type: string
+            tenant_id:
+              type: string
+              format: uuid
+            permissions:
+              type: array
+              items:
+                type: string
+              description: "Module.Feature.Action format"
+        password_must_change:
+          type: boolean
+          description: True for first login with temporary password
+
+    AccountLockedError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Account locked"
+        locked_until:
+          type: string
+          format: date-time
+        lockout_duration_minutes:
+          type: integer
+          example: 30
+
+    Session:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        device:
+          type: string
+          description: Device description (e.g., "Chrome on Windows")
+        ip_address:
+          type: string
+        last_activity_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, expired, revoked]
+        is_current:
+          type: boolean

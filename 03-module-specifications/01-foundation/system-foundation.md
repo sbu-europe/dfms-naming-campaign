@@ -78,15 +78,16 @@ The foundation layer consists of three primary components:
 
 ### 2.1 Capabilities
 
-**User Authentication**:
-- Secure login with username/password
-- Password complexity enforcement
+**User Authentication (3-Step Login)**:
+- Step 1: Enter email or phone number (identity verification)
+- Step 2: OTP verification (6-digit code via email/SMS)
+- Step 3: Enter password
 - Account lockout after failed attempts (3 attempts → 30 min lock)
 - Admin override for unlocking accounts
 
-**Multi-Factor Authentication**:
-- OTP delivery via email/SMS
-- Required for admin and privileged roles
+**OTP Verification (Built into Login)**:
+- OTP delivery via email/SMS, mandatory for all users on every login
+- 10-minute validity, 3 verification attempts max
 - Trusted device management (30-day remember)
 
 **Session Management**:
@@ -104,9 +105,9 @@ The foundation layer consists of three primary components:
 
 ### 2.2 Key Workflows
 
-**Login Flow**:
+**Login Flow (3-Step)**:
 ```
-Username/Password → Validation → MFA (if required) →
+Email/Phone → OTP Verification → Password →
 Session Creation → Token Generation → Dashboard
 ```
 
@@ -122,10 +123,11 @@ Admin Dashboard Alert → Offline Verification → Admin Unlock
 
 ### 3.1 Role Hierarchy
 
-**Three-Tier Structure**:
-1. **Super Admin**: Platform-level access (cross-tenant)
-2. **Administrative Roles**: Tenant Admin, Department Admin
-3. **Operational Roles**: Department-specific task roles
+**Four-Tier Structure**:
+1. **Super Admin** (e.g., Brainstation 23): Platform-level access, cross-tenant, manages Tenant Admins
+2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages Department Admins and Operational Users
+3. **Department Admin** (e.g., Depot Manager, Procurement Head): Department-scoped, manages Operational Users within their department
+4. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
 
 ### 3.2 Permission Model
 
@@ -175,10 +177,10 @@ Module → Feature → Action (Create, Read, Update, Delete, Approve, etc.)
 ### 4.1 Multi-Tenancy
 
 **Tenant Isolation**:
-- Unique tenant_id for each organization
-- Logical data partitioning (shared database)
-- Physical isolation for Enterprise tier (dedicated schema)
-- Row-level security enforcement
+- Dedicated PostgreSQL schema per tenant (all tiers)
+- Shared `public` schema for platform-level entities only
+- django-tenants library manages schema routing
+- No cross-tenant query risk at the database level
 
 **Subscription Tiers**:
 - **Basic**: 5 users, 100 trips/month
@@ -186,20 +188,19 @@ Module → Feature → Action (Create, Read, Update, Delete, Approve, etc.)
 - **Growth**: 50 users, 2,000 trips/month
 - **Enterprise**: Unlimited users/trips, dedicated infrastructure
 
-### 4.2 Organization Onboarding
+### 4.2 Organization Onboarding (by Super Admin)
 
-**Registration Flow**:
+**Onboarding Flow**:
 ```
-Organization Details → Email/Phone Verification (OTP) →
-Tenant Provisioning → Admin Account Creation →
-Subscription Selection → Welcome Email
+Super Admin fills Organization Details → Sets Subscription Plan →
+System provisions Tenant (schema creation) → Super Admin creates Tenant Admin →
+System sends invitation email → Tenant Admin activates account
 ```
 
-**Verification**:
-- Dual OTP (email + SMS)
-- 10-minute validity
-- 3 attempts max
-- 15-minute lockout after failed attempts
+**Tenant Admin First Login**:
+- Receives Admin Portal URL and temporary password via email
+- Logs in using 3-step flow (email → OTP → temporary password)
+- System forces password change on first login
 
 ### 4.3 User Lifecycle
 
@@ -432,8 +433,8 @@ queryAuditLogs(filters) → audit_logs[]
 ## 10. Key Design Decisions
 
 ### Multi-Tenancy Approach
-**Decision**: Hybrid model (logical isolation + physical for Enterprise)  
-**Rationale**: Balance between resource efficiency and data isolation needs
+**Decision**: Schema-per-tenant for all tiers (PostgreSQL dedicated schemas)  
+**Rationale**: Strong data isolation, independent backup/restore, no cross-tenant leakage risk, managed via django-tenants
 
 ### Authentication Method
 **Decision**: JWT-based stateless authentication  

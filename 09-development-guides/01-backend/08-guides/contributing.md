@@ -1,6 +1,6 @@
 # Contributing Guide
 
-> Guidelines for contributing to Nourish Backend
+> Guidelines for contributing to DFMS Backend
 
 ## 📖 High-Level Context
 
@@ -483,7 +483,7 @@ def has_object_permission(self, request, view, obj):
 ## Related Documentation
 
 - **[Development Setup](./development-setup.md)** - Local development guide
-- **[Code Style Guide](./code-style.md)** - Detailed code style (to be created)
+- **[Code Style Guide](./code-style.md)** - Detailed code style guide
 - **[API Reference](../api/api-reference.md)** - API implementation details
 
 ---

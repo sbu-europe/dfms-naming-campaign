@@ -25,7 +25,7 @@ DFMS backend is organized as a modular monolith using Django apps. Each app repr
 ### App Organization
 
 ```
-nourish_backend/
+dfms_backend/
 ├── config/                    # Django project settings
 │   ├── settings/
 │   │   ├── base.py

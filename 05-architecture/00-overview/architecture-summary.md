@@ -172,7 +172,7 @@ This repository documents architecture at **C4 Level 1-2** only:
 
 DFMS architecture evolves through distinct phases to balance cost, complexity, and scalability:
 
-### Phase 1: Modular Monolith (Current - Nourish Launch)
+### Phase 1: Modular Monolith (Current - DFMS Launch)
 **Approach**: Cost-optimized monolithic implementation
 
 **Characteristics**:

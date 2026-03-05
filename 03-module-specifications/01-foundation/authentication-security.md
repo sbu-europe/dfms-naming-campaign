@@ -247,7 +247,7 @@ OTP verification is **mandatory for all users** as part of the 3-step login flow
 
 **OTP Specifications:**
 - **Code Length**: 6 digits
-- **Validity**: 5 minutes (300 seconds)
+- **Validity**: 10 minutes (600 seconds)
 - **Delivery**: Email (if identifier is email), SMS (if identifier is phone)
 - **Resend Cooldown**: 2 minutes between resend requests
 - **Max Resends**: 3 per login session
@@ -265,7 +265,7 @@ function generateOTP(): string {
 1. User enters email/phone (Step 1 of login)
 2. System generates 6-digit OTP
 3. System sends OTP to email or SMS (based on identifier type)
-4. User enters OTP within 5 minutes
+4. User enters OTP within 10 minutes
 5. If valid: Proceed to password step (Step 3)
 6. If invalid: Decrement attempts, show error
 7. After 3 failed OTP attempts: Block for 15 minutes

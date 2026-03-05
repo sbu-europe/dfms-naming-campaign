@@ -2,7 +2,7 @@
 title: Phase 1 - MVP Core Operations
 category: features
 phase: phase-1
-duration: Weeks 1-34 (17 sprints, ~8 months)
+duration: Weeks 1-36 (18 sprints, ~9 months)
 story_count: 71
 total_story_points: 397
 epic_count: 12
@@ -20,7 +20,7 @@ tags: [phase-1, mvp, features, roadmap]
 # Phase 1: MVP - Core Operations
 
 > **⚠️ SOURCE OF TRUTH**: This document accurately reflects Phase 1 backlog  
-> **Timeline**: Weeks 1-34 (17 sprints, ~8 months)  
+> **Timeline**: Weeks 1-36 (18 sprints, ~9 months)  
 > **User Stories**: 71 (US-001 to US-070 + US-053b)  
 > **Total Story Points**: 397  
 > **Epics**: 12 (EPIC-001 to EPIC-012)  
@@ -82,7 +82,8 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 ### By Sprint
 | Sprint | Story Count | Story Points | Focus Areas |
 |--------|-------------|--------------|-------------|
-| Sprint 1 | 7 | 58 | System Foundation, Master Data |
+| Sprint 1 | 4 | 40 | System Foundation (Auth, RBAC, Sessions) |
+| Sprint 1B | 4 | 18 | Master Data (Vendor, Vehicle, Driver, Helper) |
 | Sprint 2 | 8 | 46 | User Management, Requisition Workflows |
 | Sprint 3 | 6 | 35 | Transport Planning, TO Creation |
 | Sprint 4 | 4 | 26 | TO Execution, Helper Assignment |
@@ -329,10 +330,10 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 ## Critical Path Dependencies
 
-### Foundation Layer (Sprint 1)
+### Foundation Layer (Sprint 1 + 1B)
 **Blockers**: Nothing can proceed without these
-- ✅ EPIC-001: System Foundation (US-001 to US-004)
-- ✅ EPIC-006: Master Data (US-047, US-053, US-057, US-061)
+- ✅ EPIC-001: System Foundation (US-001 to US-004) — Sprint 1
+- ✅ EPIC-006/EPIC-010: Master Data (US-047, US-053, US-057, US-061) — Sprint 1B
 
 ### Core Workflows (Sprint 2-3)
 **Blockers**: Transport operations depend on these
@@ -364,35 +365,33 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 ## Technology Stack (Phase 1)
 
 ### Backend
-- **Framework**: Node.js with Express / NestJS
-- **Database**: PostgreSQL (primary), Redis (caching, sessions)
-- **API**: RESTful APIs with OpenAPI/Swagger documentation
-- **Authentication**: JWT with role-based access control (RBAC)
-- **File Storage**: AWS S3 / Azure Blob Storage
-- **Real-time**: WebSockets for dashboard updates and notifications
-- **Queue**: Redis / RabbitMQ for background jobs
+- **Language**: Python 3.11+
+- **Framework**: Django 5.x + Django REST Framework 3.14+
+- **Database**: PostgreSQL 14+ (schema-per-tenant via django-tenants)
+- **Cache/Queue**: Redis 6+ (sessions, caching, Celery broker)
+- **API**: RESTful with OpenAPI 3.0 contracts
+- **Authentication**: JWT (SimpleJWT) with RBAC
+- **File Storage**: AWS S3
+- **Async Tasks**: Celery with Redis broker
 
-### Frontend (Web)
-- **Framework**: React 18+ with TypeScript
-- **State Management**: Redux Toolkit / Zustand
-- **UI Library**: Material-UI (MUI) / Ant Design
-- **Maps**: Google Maps SDK / Leaflet + OpenStreetMap
-- **Charts**: Recharts / Apache ECharts
-- **Forms**: React Hook Form + Zod validation
+### Frontend (Web) - Phase 1
+- **Templates**: Django Templates + Bootstrap 5
+- **Interactivity**: Alpine.js for reactive UI components
+- **Maps**: Leaflet + OpenStreetMap
+- **Charts**: Chart.js
 
 ### Mobile
-- **Framework**: Flutter (iOS & Android) / React Native
+- **Framework**: Flutter (iOS & Android)
 - **Local Storage**: SQLite / Hive
 - **Offline Support**: Background sync queue
 - **Push Notifications**: Firebase Cloud Messaging (FCM)
-- **Camera**: Image/video capture for QC
 
 ### DevOps
-- **Hosting**: AWS / Azure Cloud
-- **Containers**: Docker + Kubernetes
+- **Hosting**: AWS (EC2, RDS, ElastiCache, S3)
+- **Containers**: Docker + Docker Compose (Phase 1)
 - **CI/CD**: GitHub Actions / GitLab CI
-- **Monitoring**: Sentry (errors), DataDog / New Relic (APM)
-- **Logging**: ELK Stack (Elasticsearch, Logstash, Kibana)
+- **Monitoring**: CloudWatch (Phase 1), Prometheus + Grafana (Phase 2)
+- **Error Tracking**: Sentry
 - **Backup**: Automated daily PostgreSQL backups
 
 ---
@@ -413,79 +412,84 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 ## Sprint Planning Details
 
-### Sprint 1 (Weeks 1-2): Foundation - 58 SP
-**Focus**: System security, authentication, master data foundation
+### Sprint 1 (Weeks 1-2): System Foundation - 40 SP
+**Focus**: Authentication, authorization, session management, RBAC
 - US-001, US-002, US-003, US-004 (System Foundation)
-- US-047, US-053, US-057, US-061 (Master Data)
+- Infrastructure setup: DB schema, Redis, JWT, CI/CD pipeline
 
-### Sprint 2 (Weeks 3-4): User Mgmt & Requisitions - 46 SP
+### Sprint 1B (Weeks 3-4): Master Data Foundation - 18 SP
+**Focus**: Core master data entities needed by all operational modules
+- US-047 (Vendor Master Data), US-053 (Vehicle Master Data)
+- US-057 (Driver Master Data), US-061 (Helper Master Data)
+
+### Sprint 2 (Weeks 5-6): User Mgmt & Requisitions - 46 SP
 **Focus**: User onboarding, product requisition workflows
 - US-005 to US-009 (User & Tenant Foundation)
 - US-010 to US-012 (Product Requisition)
 
-### Sprint 3 (Weeks 5-6): Transport Planning - 35 SP
+### Sprint 3 (Weeks 7-8): Transport Planning - 35 SP
 **Focus**: TR assessment, TO creation, fleet validation
 - US-013 to US-018 (Transport Planning)
 
-### Sprint 4 (Weeks 7-8): TO Execution - 26 SP
+### Sprint 4 (Weeks 9-10): TO Execution - 26 SP
 **Focus**: Own fleet and vendor fleet execution
 - US-019, US-020 (TO Execution)
 - US-062 (Helper Assignment)
 
-### Sprint 5 (Weeks 9-10): Trip Lifecycle - 21 SP
+### Sprint 5 (Weeks 11-12): Trip Lifecycle - 21 SP
 **Focus**: Complete trip state management
 - US-021 (Trip Lifecycle)
 - US-024 (Vendor Bidding)
 
-### Sprint 6 (Weeks 11-12): Trip Management - 18 SP
+### Sprint 6 (Weeks 13-14): Trip Management - 18 SP
 **Focus**: Partial delivery, incidents, trip closure
 - US-022, US-023, US-025
 
-### Sprint 7 (Weeks 13-14): Command Center & QC Start - 16 SP
+### Sprint 7 (Weeks 15-16): Command Center & QC Start - 16 SP
 **Focus**: Real-time tracking, QC lab testing
 - US-026 (Map Dashboard)
 - US-044 (QC Lab Testing)
 
-### Sprint 8 (Weeks 15-16): Vendor & Gate Mgmt - 53 SP
+### Sprint 8 (Weeks 17-18): Vendor & Gate Mgmt - 53 SP
 **Focus**: Vendor ecosystem, gate operations
 - US-027, US-028 (Vendor Registration & Performance)
 - US-063 to US-067 (Gate Management)
 
-### Sprint 9 (Weeks 17-18): Vendor Payment & Weight - 40 SP
+### Sprint 9 (Weeks 19-20): Vendor Payment & Weight - 40 SP
 **Focus**: Payment workflows, weight management, driver app
 - US-029, US-030, US-031 (Vendor Management)
 - US-052 (Driver Mobile)
 - US-068 to US-070 (Weight Management)
 
-### Sprint 10 (Weeks 19-20): Vendor Contracts - 11 SP
+### Sprint 10 (Weeks 21-22): Vendor Contracts - 11 SP
 **Focus**: Contract management, ratings, blacklist
 - US-032, US-033, US-034
 
-### Sprint 11 (Weeks 21-22): Gate Operations - 13 SP
+### Sprint 11 (Weeks 23-24): Gate Operations - 13 SP
 **Focus**: Gate in/out at source and destination
 - US-035, US-036, US-037
 
-### Sprint 12 (Weeks 23-24): Scaling Operations - 13 SP
+### Sprint 12 (Weeks 25-26): Scaling Operations - 13 SP
 **Focus**: Weighing at source and destination
 - US-038, US-039, US-040
 
-### Sprint 13 (Weeks 25-26): Loading & Command Center - 18 SP
+### Sprint 13 (Weeks 27-28): Loading & Command Center - 18 SP
 **Focus**: Loading/unloading operations, monitoring
 - US-041, US-042, US-043
 
-### Sprint 14 (Weeks 27-28): QC Sample & Config - 8 SP
+### Sprint 14 (Weeks 29-30): QC Sample & Config - 8 SP
 **Focus**: QC sample collection, test configuration
 - US-045, US-046
 
-### Sprint 15 (Weeks 29-30): QC Workflows - 21 SP
+### Sprint 15 (Weeks 31-32): QC Workflows - 21 SP
 **Focus**: QC reports, rejection workflow, dashboard
 - US-048 to US-051
 
-### Sprint 16 (Weeks 31-32): QC Advanced - 10 SP
+### Sprint 16 (Weeks 33-34): QC Advanced - 10 SP
 **Focus**: Certificates, audit trail, vendor quality
 - US-053b, US-054, US-055, US-056
 
-### Sprint 17 (Weeks 33-34): Trip Costing - 11 SP
+### Sprint 17 (Weeks 35-36): Trip Costing - 11 SP
 **Focus**: Fuel management, cost calculation, profitability
 - US-058, US-059, US-060
 

@@ -21,7 +21,7 @@ related_stories:
   - US-057-driver-master-data.md
   - US-018-to-execution-own-fleet.md
 dependencies:
-  - US-007-user-role-management.md
+  - US-004-role-hierarchy.md
 tags: [master-data, helper, registration, critical]
 ---
 

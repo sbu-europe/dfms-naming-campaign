@@ -21,7 +21,7 @@ related_stories:
   - US-027-vendor-registration.md
   - US-029-vendor-verification.md
 dependencies:
-  - US-007-user-role-management.md
+  - US-004-role-hierarchy.md
 tags: [master-data, vendor, registration, critical]
 ---
 

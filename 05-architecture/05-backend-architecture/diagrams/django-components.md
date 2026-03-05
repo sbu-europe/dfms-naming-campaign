@@ -22,7 +22,7 @@ This document contains component-level diagrams showing Django apps, models, vie
 ## Django Apps Structure
 
 ```
-nourish-backend/
+dfms-backend/
 ├── apps/
 │   ├── core/                    # Core functionality
 │   │   ├── models.py            # Base models

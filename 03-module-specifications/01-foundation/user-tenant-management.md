@@ -23,17 +23,29 @@ The system balances security requirements with usability considerations, particu
 
 ### 1.1 Multi-Tenancy Model
 
-The platform uses a **hybrid multi-tenancy** approach:
+The platform uses a **schema-per-tenant** approach for all tenants:
 
-**Logical Isolation**:
-- Shared database with tenant_id partitioning
-- All queries filtered by tenant context
-- Row-level security policies enforced
+**Tenant Isolation**:
+- Dedicated PostgreSQL schema per tenant (e.g., `tenant_001`, `tenant_002`)
+- Shared `public` schema for platform-level entities (tenants, subscription plans, system settings)
+- All tenant-specific data (users, vehicles, trips, etc.) resides in the tenant's schema
+- django-tenants library manages schema routing automatically
 
-**Physical Isolation** (for Enterprise tier):
-- Dedicated database schema per tenant
-- Separate backup and restore
-- Custom retention policies
+**Shared Public Schema**:
+- `tenants` table (tenant registry, subscription info)
+- `subscription_plans` table
+- `system_settings` table
+
+**Per-Tenant Schema** (e.g., `tenant_001`):
+- `users`, `roles`, `permissions`
+- All domain entities (vehicles, drivers, trips, etc.)
+- Audit logs
+
+**Benefits**:
+- Strong data isolation without application-level filtering
+- Independent backup and restore per tenant
+- Easier compliance and data residency management
+- No risk of cross-tenant data leakage at the query level
 
 ### 1.2 Tenant Entity Structure
 
@@ -203,10 +215,8 @@ async function provisionTenant(
         created_by: superAdminId
     });
 
-    // 4. Create dedicated database schema (for Enterprise)
-    if (tenantData.subscription_plan === 'Enterprise') {
-        await createTenantSchema(tenant_id);
-    }
+    // 4. Create dedicated database schema (all tenants get their own schema)
+    await createTenantSchema(tenant_id);
 
     // 5. Create Tenant Admin user
     const tenantAdmin = await createUser({
@@ -864,22 +874,30 @@ UserAuditLog {
 
 ### 9.1 Tenant Data Isolation
 
-**Every query includes tenant context**:
-```sql
-SELECT * FROM users
-WHERE tenant_id = :current_tenant_id
-  AND email = :email;
+**Schema-per-tenant isolation** ensures that each tenant's data resides in its own PostgreSQL schema. The `django-tenants` library automatically routes queries to the correct schema based on the current tenant context:
+
+```python
+# django-tenants automatically sets the schema search path
+# All queries within a request are scoped to the tenant's schema
+# No tenant_id filtering needed in application queries
+
+# Example: This query only returns users from the current tenant's schema
+User.objects.filter(email=email)
+# Equivalent SQL: SET search_path TO tenant_001; SELECT * FROM users WHERE email = :email;
 ```
 
-**Row-Level Security**:
-```sql
-CREATE POLICY tenant_isolation ON users
-    USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+**Platform-level queries** (Super Admin operations) use the `public` schema:
+```python
+# Switch to public schema for cross-tenant operations
+from django_tenants.utils import schema_context
+with schema_context('public'):
+    tenants = Tenant.objects.all()
 ```
 
 ### 9.2 Cross-Tenant Prevention
 
-**Application-Level Checks**:
+**Schema-level isolation** prevents cross-tenant access at the database level. Additional application-level checks provide defense-in-depth:
+
 ```typescript
 function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
     const user = getUser(userId);

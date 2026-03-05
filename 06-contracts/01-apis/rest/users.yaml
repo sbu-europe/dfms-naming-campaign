@@ -1,0 +1,1028 @@
+openapi: 3.0.3
+info:
+  title: DFMS User Management API
+  description: |
+    API contract for User Management module in DFMS.
+
+    This contract defines the interface for:
+    - User invitation and activation
+    - User deactivation and reactivation
+    - Admin-assisted password reset
+    - Audit log querying and export
+
+    **Related Stories**: US-005, US-007, US-008, US-009
+  version: 1.0.0
+  contact:
+    name: DFMS Technical Team
+    email: Mahfuzur.rahman@brainstation-23.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.dfms.example.com/v1
+    description: Production server
+  - url: https://api-staging.dfms.example.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Invitations
+    description: User invitation and activation workflows
+  - name: User Lifecycle
+    description: User deactivation, reactivation, and status management
+  - name: Admin Password Reset
+    description: Admin-assisted password reset operations
+  - name: Audit Logs
+    description: User activity and audit log management
+
+paths:
+  /tenants/{tenant_id}/users/invitations:
+    post:
+      tags:
+        - Invitations
+      summary: Invite a new user
+      description: |
+        Tenant Admin or Department Admin invites a new user.
+        Sends invitation email with 72-hour activation link.
+      operationId: inviteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationRequest'
+      responses:
+        '201':
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invitation_id:
+                    type: string
+                    format: uuid
+                  invitation_token:
+                    type: string
+                  email:
+                    type: string
+                  expires_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error (duplicate email, invalid role, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: User limit reached for subscription tier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Invitations
+      summary: List invitations
+      description: Returns paginated list of invitations for the tenant
+      operationId: listInvitations
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, activated, expired, revoked]
+        - name: role_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: department_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of invitations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Invitation'
+
+  /tenants/{tenant_id}/users/invitations/bulk:
+    post:
+      tags:
+        - Invitations
+      summary: Bulk invite users via CSV
+      description: Upload a CSV file to invite multiple users at once
+      operationId: bulkInviteUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file with columns - email, full_name, mobile, role, department
+      responses:
+        '200':
+          description: Bulk processing result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  success_count:
+                    type: integer
+                  failure_count:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        row:
+                          type: integer
+                        email:
+                          type: string
+                        error:
+                          type: string
+
+  /users/invitations/{invitation_token}/activate:
+    post:
+      tags:
+        - Invitations
+      summary: Activate user account
+      description: |
+        User completes activation by setting password and verifying OTP.
+        The invitation token is from the activation email link.
+      operationId: activateUser
+      parameters:
+        - name: invitation_token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - otp_code
+                - password
+                - confirm_password
+                - accept_terms
+              properties:
+                otp_code:
+                  type: string
+                  pattern: '^\d{6}$'
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                confirm_password:
+                  type: string
+                  format: password
+                accept_terms:
+                  type: boolean
+                  description: Must be true
+      responses:
+        '200':
+          description: Account activated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                    example: "Account activated successfully"
+        '400':
+          description: Invalid token, expired, or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/invitations/{invitation_token}/resend:
+    post:
+      tags:
+        - Invitations
+      summary: Resend invitation email
+      operationId: resendInvitation
+      parameters:
+        - name: invitation_token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invitation resent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Invitation not found or already activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/invitations/{invitation_id}:
+    delete:
+      tags:
+        - Invitations
+      summary: Revoke invitation
+      description: Cancel a pending invitation
+      operationId: revokeInvitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: invitation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Invitation revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Invitation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/users/{user_id}/deactivate:
+    post:
+      tags:
+        - User Lifecycle
+      summary: Deactivate a user
+      description: |
+        Temporarily suspend or permanently deactivate a user.
+        Terminates all active sessions. Checks for active assignments.
+      operationId: deactivateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - deactivation_type
+                - reason
+              properties:
+                deactivation_type:
+                  type: string
+                  enum: [temporary, permanent]
+                reason:
+                  type: string
+                  minLength: 10
+                admin_remarks:
+                  type: string
+                effective_date:
+                  type: string
+                  format: date-time
+                  description: Defaults to now if not specified
+      responses:
+        '200':
+          description: User deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deactivation_id:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  sessions_terminated:
+                    type: integer
+        '400':
+          description: User has active assignments that must be reassigned first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  active_assignments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        assignment_type:
+                          type: string
+                        description:
+                          type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{user_id}/reactivate:
+    post:
+      tags:
+        - User Lifecycle
+      summary: Reactivate a suspended user
+      description: Only temporarily suspended users can be reactivated
+      operationId: reactivateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reactivation_reason
+              properties:
+                reactivation_reason:
+                  type: string
+                  minLength: 10
+      responses:
+        '200':
+          description: User reactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: User is not in suspended state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{user_id}/deactivation-history:
+    get:
+      tags:
+        - User Lifecycle
+      summary: Get deactivation history for a user
+      operationId: getUserDeactivationHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: Deactivation history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeactivationRecord'
+
+  /admin/users/deactivations:
+    get:
+      tags:
+        - User Lifecycle
+      summary: List all deactivations
+      description: Returns paginated list of deactivation records
+      operationId: listDeactivations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [suspended, inactive, reactivated]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [temporary, permanent]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated deactivation records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeactivationRecord'
+
+  /admin/users/{user_id}/password/reset:
+    post:
+      tags:
+        - Admin Password Reset
+      summary: Admin-assisted password reset
+      description: |
+        Admin generates a reset OTP after offline identity verification.
+        The OTP is displayed to the admin (not emailed) to communicate to the user.
+      operationId: adminPasswordReset
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - justification
+                - verification_method
+              properties:
+                justification:
+                  type: string
+                  minLength: 10
+                verification_method:
+                  type: string
+                  enum: [phone, email, in_person]
+      responses:
+        '200':
+          description: Reset OTP generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  otp_code:
+                    type: string
+                    description: 6-digit OTP to communicate to the user
+                  expires_at:
+                    type: string
+                    format: date-time
+                    description: OTP valid for 10 minutes
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/password-reset/logs:
+    get:
+      tags:
+        - Admin Password Reset
+      summary: List password reset logs
+      operationId: listPasswordResetLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: method
+          in: query
+          schema:
+            type: string
+            enum: [admin_assisted, self_service]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Password reset logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        log_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        user_email:
+                          type: string
+                        method:
+                          type: string
+                          enum: [admin_assisted, self_service]
+                        admin_id:
+                          type: string
+                          format: uuid
+                          nullable: true
+                        verification_method:
+                          type: string
+                          nullable: true
+                        timestamp:
+                          type: string
+                          format: date-time
+
+  /admin/audit-logs:
+    get:
+      tags:
+        - Audit Logs
+      summary: Query audit logs
+      description: Returns paginated, filterable audit logs for the tenant
+      operationId: queryAuditLogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: event_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - Login
+              - Logout
+              - LoginFailed
+              - AccountLocked
+              - AccountUnlocked
+              - OTPGenerated
+              - OTPVerified
+              - UserInvited
+              - UserActivated
+              - UserDeactivated
+              - UserReactivated
+              - PasswordChanged
+              - PasswordReset
+              - RoleChanged
+              - PermissionGranted
+              - PermissionRevoked
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [success, failure]
+        - name: ip_address
+          in: query
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/audit-logs/{log_id}:
+    get:
+      tags:
+        - Audit Logs
+      summary: Get audit log detail
+      operationId: getAuditLog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: log_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Audit log detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+
+  /admin/audit-logs/export:
+    post:
+      tags:
+        - Audit Logs
+      summary: Export audit logs
+      description: Export filtered audit logs as CSV or JSON
+      operationId: exportAuditLogs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - format
+              properties:
+                format:
+                  type: string
+                  enum: [csv, json]
+                filters:
+                  type: object
+                  properties:
+                    user_id:
+                      type: string
+                      format: uuid
+                    event_type:
+                      type: string
+                    date_from:
+                      type: string
+                      format: date
+                    date_to:
+                      type: string
+                      format: date
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /admin/audit-logs/statistics:
+    get:
+      tags:
+        - Audit Logs
+      summary: Get audit log statistics
+      description: Aggregated statistics of audit events
+      operationId: getAuditStatistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Audit statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_events:
+                    type: integer
+                  by_type:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  by_user:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: string
+                          format: uuid
+                        user_email:
+                          type: string
+                        event_count:
+                          type: integer
+                  failed_logins:
+                    type: integer
+                  account_lockouts:
+                    type: integer
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TenantIdParam:
+      name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserIdParam:
+      name: user_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    PageSizeParam:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+    InvitationRequest:
+      type: object
+      required:
+        - email
+        - full_name
+        - mobile
+        - user_type
+        - role_id
+        - department_id
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        mobile:
+          type: string
+          description: E.164 format (e.g., +8801XXXXXXXXX)
+        user_type:
+          type: string
+          enum: [department_admin, operational_user]
+        role_id:
+          type: string
+          format: uuid
+        department_id:
+          type: string
+          format: uuid
+        employment_type:
+          type: string
+          enum: [permanent, temporary, contractor]
+          default: permanent
+        workflow_responsibility:
+          type: string
+          enum: [requester, approver, executor]
+        poi_assignment_id:
+          type: string
+          format: uuid
+          description: Point of Interest assignment (e.g., specific gate)
+        custom_message:
+          type: string
+          description: Custom message included in invitation email
+
+    Invitation:
+      type: object
+      properties:
+        invitation_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        full_name:
+          type: string
+        mobile:
+          type: string
+        role:
+          type: object
+          properties:
+            role_id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        department:
+          type: object
+          properties:
+            department_id:
+              type: string
+              format: uuid
+            name:
+              type: string
+        status:
+          type: string
+          enum: [pending, activated, expired, revoked]
+        invited_by:
+          type: string
+          format: uuid
+        invited_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    DeactivationRecord:
+      type: object
+      properties:
+        deactivation_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        user_email:
+          type: string
+        deactivation_type:
+          type: string
+          enum: [temporary, permanent]
+        reason:
+          type: string
+        admin_remarks:
+          type: string
+        deactivated_by:
+          type: string
+          format: uuid
+        deactivated_at:
+          type: string
+          format: date-time
+        reactivated_at:
+          type: string
+          format: date-time
+          nullable: true
+        reactivated_by:
+          type: string
+          format: uuid
+          nullable: true
+
+    AuditLog:
+      type: object
+      properties:
+        log_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        user_email:
+          type: string
+          nullable: true
+        actor_id:
+          type: string
+          format: uuid
+          nullable: true
+        actor_email:
+          type: string
+          nullable: true
+        ip_address:
+          type: string
+        user_agent:
+          type: string
+        event_details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+        session_id:
+          type: string
+          format: uuid
+          nullable: true

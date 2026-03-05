@@ -22,7 +22,7 @@ related_stories:
   - US-003-helper-master-data.md
   - US-018-to-execution-own-fleet.md
 dependencies:
-  - US-007-user-role-management.md (For user account creation)
+  - US-004-role-hierarchy.md (For user account creation)
 tags: [master-data, driver, registration, critical]
 ---
 
