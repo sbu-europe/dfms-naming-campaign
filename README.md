@@ -23,6 +23,7 @@
 - **`08-change-requests/`** - Change request management
 - **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
 - **`10-meta/`** - Repository meta-documentation (plans, reports, tracking)
+- **`11-design-system/`** - UI design system (colors, typography, spacing, components, platform guides)
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
