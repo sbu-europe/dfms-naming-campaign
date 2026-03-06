@@ -70,6 +70,34 @@
 
 ---
 
+## EPIC-003: Master Data Configuration (Routes, Suppliers & Dealers)
+
+**Epic Name:** Master Data Configuration
+**Epic ID:** EPIC-003
+
+### User Stories:
+- **US-096**: Route, Supplier & Dealer Master Data Configuration
+  - Module: Master Data Management
+  - Priority: Critical
+  - Sprint: Sprint 2
+  - Story Points: 5
+
+---
+
+## EPIC-004: POI Management & Geofencing
+
+**Epic Name:** POI Management & Geofencing
+**Epic ID:** EPIC-004
+
+### User Stories:
+- **US-097**: POI Management & Geofencing
+  - Module: Master Data Management
+  - Priority: Critical
+  - Sprint: Sprint 3
+  - Story Points: 13
+
+---
+
 ## EPIC-005: Product Inventory Management (PIM)
 
 **Epic Name:** Product Inventory Management  
@@ -90,6 +118,12 @@
 **Epic ID:** EPIC-006
 
 ### User Stories:
+- **US-047**: Vendor Master Data Configuration (Admin CRUD & Bulk Upload)
+  - Module: Master Data Management
+  - Priority: Critical
+  - Sprint: Sprint 2
+  - Story Points: 5
+
 - **US-053**: Vehicle Registration & Master Data Management
   - Module: Fleet & Vehicle Management
   - Priority: Critical
@@ -656,6 +690,12 @@
 **Epic ID:** EPIC-016
 
 ### User Stories:
+- **US-052**: Driver Mobile Interface
+  - Module: Mobile Interfaces
+  - Priority: High
+  - Sprint: Sprint 12
+  - Story Points: 8
+
 - **US-092**: Trip Management (Driver Interface)
   - Module: Mobile Applications
   - Priority: Critical
@@ -712,8 +752,10 @@
 |---------|-----------|-------------|-------------------|
 | EPIC-001 | System Foundation | 1 | 10 |
 | EPIC-002 | User & Tenant Foundation | 8 | 57 |
+| EPIC-003 | Master Data Configuration (Routes, Suppliers & Dealers) | 1 | 5 |
+| EPIC-004 | POI Management & Geofencing | 1 | 13 |
 | EPIC-005 | Product Inventory Management | 1 | 13 |
-| EPIC-006 | Fleet & Vehicle Management | 5 | 19 |
+| EPIC-006 | Fleet & Vehicle Management | 6 | 24 |
 | EPIC-007 | Product Transfer Requisition Management | 4 | 26 |
 | EPIC-008 | Transport Capacity & Fleet Planning | 2 | 10 |
 | EPIC-009 | Transport Order Management | 12 | 99 |
@@ -723,11 +765,11 @@
 | EPIC-013 | Loading / Unloading Operations | 8 | 36 |
 | EPIC-014 | Quality Control & QA Workflow | 27 | 116 |
 | EPIC-015 | Command Center & Monitoring | 1 | 13 |
-| EPIC-016 | Mobile Interface (Driver / QC) | 2 | 21 |
+| EPIC-016 | Mobile Interface (Driver / QC) | 3 | 29 |
 | EPIC-017 | Mobile Applications (Vendor) | 1 | 8 |
 | EPIC-018 | Financial Management | 2 | 13 |
 
-**Total:** 96 User Stories across 16 Epics
+**Total:** 100 User Stories across 18 Epics
 
 ### Priority Distribution:
 - **Critical**: 42 stories
