@@ -2,8 +2,8 @@
 
 > How data moves through the system
 
-**Status**: 🚧 Draft  
-**Last Updated**: February 13, 2026
+**Status**: Active
+**Last Updated**: March 2026
 
 ---
 
@@ -60,7 +60,7 @@ This document describes how data flows through DFMS, from creation to consumptio
    ├─ Gate-in: Records entry
    ├─ Weighing: Records weight
    ├─ Loading: Records loading details
-   └─ Storage: gate_entries, weighing_records, loading_operations tables
+   └─ Storage: gate_entries, scale_in_entries, scale_out_entries, gate_passes tables
 
 8. Trip Completion
    ├─ Driver: Completes trip (mobile app)
@@ -113,45 +113,54 @@ This document describes how data flows through DFMS, from creation to consumptio
 ### Flow 3: QC Inspection → Trip Costing
 
 ```
-1. Unloading Complete
-   ├─ Operations: Marks unloading complete
-   ├─ Event: UnloadingCompleted
-   └─ Storage: unloading_operations table
+1. Gate Scale-Out Complete
+   ├─ Operations: Records final net weight
+   ├─ Event: ScaleOutComplete
+   └─ Storage: scale_out_entries table (gate_pass_token issued)
 
-2. QC Inspection Created
-   ├─ QC Module: Receives UnloadingCompleted event
-   ├─ System: Auto-creates QC inspection
-   └─ Storage: qc_inspections table
+2. QC Event Created
+   ├─ QC Module: Receives ScaleOutComplete event
+   ├─ System: Auto-creates QC event linked to gate_entry
+   └─ Storage: qc_events table (status = event_created)
 
-3. QC Execution
-   ├─ QC Supervisor: Performs inspection (mobile app)
-   ├─ Data: Inspection results, photos, videos
-   ├─ File Upload: Photos/videos to S3
-   └─ Storage: qc_inspections table + S3
+3. Sample Collection
+   ├─ QC Inspector: Collects physical sample
+   ├─ Data: Sample type, quantity, QR label
+   └─ Storage: qc_samples table (status = collected)
 
-4. QC Completion
-   ├─ QC Supervisor: Submits inspection
-   ├─ Event: QCInspectionCompleted
-   └─ Storage: qc_inspections table (status = completed)
+4. Physical Inspection
+   ├─ QC Inspector: Executes checklist on mobile app
+   ├─ Data: Per-item results, photos, videos
+   ├─ File Upload: Evidence to S3
+   └─ Storage: qc_inspections + qc_inspection_results + qc_evidence tables
 
-5. Trip Cost Calculation
-   ├─ Costing Module: Receives QCInspectionCompleted event
+5. Lab Test (if required)
+   ├─ QC Supervisor: Requests lab test
+   ├─ Lab Tech: Records measurements
+   └─ Storage: lab_test_requests + lab_test_results tables
+
+6. QC Decision
+   ├─ QC Supervisor: Records final_decision (pass/fail/recheck)
+   ├─ Event: QCEventCompleted
+   └─ Storage: qc_events table (status = qc_complete)
+
+7. Trip Cost Entry
+   ├─ Finance/Logistics: Enters cost breakdown
    ├─ API Calls:
-   │   ├─ GET /trips/{id} (trip details)
-   │   ├─ GET /weighing-records (weight data)
-   │   └─ GET /vendor-bids/{id} (vendor rate)
-   ├─ Calculation: Distance × rate + additional charges
+   │   ├─ GET /trips/{id} (distance, vehicle, driver)
+   │   └─ GET /vendor-bids/{id} (awarded bid amount)
+   ├─ Calculation: Distance × rate + fuel + tolls + vendor charges
    └─ Storage: trip_costs table
 
-6. Invoice Generation
-   ├─ System: Generates invoice
+8. Vendor Invoice Generation (vendor fleet only)
+   ├─ System: Generates invoice from approved trip cost
    ├─ Event: InvoiceGenerated
-   └─ Storage: invoices table
+   └─ Storage: vendor_invoices table (status = draft → submitted)
 
-7. ERP Sync
-   ├─ Background Worker: Syncs to ERP
+9. ERP Sync
+   ├─ Background Worker (Celery): Syncs approved invoices to ERP
    ├─ API Call: POST to ERP system
-   └─ Storage: erp_sync_logs table
+   └─ Storage: vendor_invoices.erp_sync_status updated
 ```
 
 ---
@@ -323,7 +332,7 @@ def calculate_cost(event):
 
 ---
 
-**Document Status**: 🚧 Draft  
-**Next Steps**: Monitor actual volumes, adjust estimates  
+**Document Status**: Active
+**Last Updated**: March 2026
 **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 

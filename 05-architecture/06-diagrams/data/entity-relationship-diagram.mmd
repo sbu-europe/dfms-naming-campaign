@@ -1,153 +1,595 @@
-%% DFMS High-Level Entity Relationship Diagram
-%% Shows relationships between core entities
+%% DFMS Full Entity Relationship Diagram — Phase 1
+%% Schema-per-tenant: all entities below reside in the tenant schema
+%% Public schema entities: tenants, subscription_plans, audit_logs
 
 erDiagram
-    VEHICLE ||--o{ TRIP : "assigned to"
-    DRIVER ||--o{ TRIP : "assigned to"
-    VENDOR ||--o{ VEHICLE : "owns"
-    VENDOR ||--o{ TRIP : "provides"
-    
-    PRODUCT ||--o{ PRODUCT_REQUISITION : "requested in"
-    PRODUCT ||--o{ TRANSPORT_REQUEST : "transported in"
-    
-    POI ||--o{ PRODUCT_REQUISITION : "origin"
-    POI ||--o{ PRODUCT_REQUISITION : "destination"
-    POI ||--o{ TRANSPORT_REQUEST : "origin"
-    POI ||--o{ TRANSPORT_REQUEST : "destination"
-    POI ||--o{ TRIP : "origin"
-    POI ||--o{ TRIP : "destination"
-    
-    PRODUCT_REQUISITION ||--o| TRANSPORT_REQUEST : "generates"
-    TRANSPORT_REQUEST ||--o{ TRANSPORT_ORDER : "creates"
-    TRANSPORT_ORDER ||--|| TRIP : "executes"
-    
-    TRIP ||--o| QC_INSPECTION : "requires"
-    TRIP ||--o| TRIP_COST : "has"
-    TRIP ||--o| INVOICE : "generates"
-    
-    VENDOR ||--o{ INVOICE : "receives"
-    VENDOR ||--o{ VENDOR_BID : "submits"
-    TRANSPORT_ORDER ||--o{ VENDOR_BID : "receives"
-    
-    VEHICLE {
+
+    %% ─────────────────────────────────────────────
+    %% PUBLIC SCHEMA
+    %% ─────────────────────────────────────────────
+    TENANTS {
         uuid id PK
-        string registration_number
-        string type
-        decimal capacity
-        string status
-        string owner_type
-        uuid vendor_id FK
-    }
-    
-    DRIVER {
-        uuid id PK
+        string schema_name
         string name
-        string contact_number
-        string license_number
-        string status
-        decimal rating
+        string subdomain
+        uuid subscription_plan_id FK
+        boolean is_active
     }
-    
-    VENDOR {
-        uuid id PK
-        string name
-        string contact_number
-        string type
-        string status
-        decimal rating
-    }
-    
-    PRODUCT {
+
+    SUBSCRIPTION_PLANS {
         uuid id PK
         string name
         string code
-        string category
-        string unit_of_measure
+        int max_users
+        int max_vehicles
+        jsonb features
     }
-    
-    POI {
+
+    AUDIT_LOGS {
+        bigint id PK
+        string tenant_schema
+        string table_name
+        uuid record_id
+        string action
+        uuid user_id
+        jsonb old_values
+        jsonb new_values
+        timestamptz timestamp
+    }
+
+    TENANTS ||--o{ SUBSCRIPTION_PLANS : "uses"
+
+    %% ─────────────────────────────────────────────
+    %% FOUNDATION — AUTH & RBAC
+    %% ─────────────────────────────────────────────
+    USERS {
+        uuid id PK
+        string email
+        string first_name
+        string last_name
+        string phone
+        string tier
+        string department
+        string status
+        int failed_login_attempts
+        timestamptz locked_until
+        timestamptz password_changed_at
+    }
+
+    ROLES {
         uuid id PK
         string name
-        string address
-        float latitude
-        float longitude
-        string type
+        string code
+        string tier
+        string department
+        uuid tenant_id
+        boolean is_system_role
+        boolean is_active
     }
-    
-    PRODUCT_REQUISITION {
+
+    PERMISSIONS {
+        uuid id PK
+        string code
+        string module
+        string feature
+        string action
+    }
+
+    ROLE_PERMISSIONS {
+        uuid role_id FK
+        uuid permission_id FK
+        timestamptz granted_at
+    }
+
+    USER_ROLES {
+        uuid id PK
+        uuid user_id FK
+        uuid role_id FK
+        boolean is_requester
+        boolean is_approver
+        boolean is_executor
+    }
+
+    OTP_RECORDS {
+        uuid id PK
+        uuid user_id FK
+        string identifier
+        string purpose
+        timestamptz expires_at
+        int attempts
+        boolean is_used
+    }
+
+    USER_SESSIONS {
+        uuid id PK
+        uuid user_id FK
+        string jti
+        string status
+        timestamptz expires_at
+    }
+
+    INVITATION_TOKENS {
+        uuid id PK
+        string token
+        string invited_email
+        uuid invited_by FK
+        uuid role_id FK
+        string status
+        timestamptz expires_at
+    }
+
+    USERS ||--o{ USER_ROLES : "assigned"
+    ROLES ||--o{ USER_ROLES : "given to"
+    ROLES ||--o{ ROLE_PERMISSIONS : "has"
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : "in"
+    USERS ||--o{ OTP_RECORDS : "receives"
+    USERS ||--o{ USER_SESSIONS : "has"
+    USERS ||--o{ INVITATION_TOKENS : "sends"
+    ROLES ||--o{ INVITATION_TOKENS : "for"
+
+    %% ─────────────────────────────────────────────
+    %% MASTER DATA
+    %% ─────────────────────────────────────────────
+    PRODUCT_CATEGORIES {
+        uuid id PK
+        string code
+        string name
+        uuid parent_id FK
+        boolean is_active
+    }
+
+    PRODUCTS {
+        uuid id PK
+        string sku
+        string name
+        uuid category_id FK
+        string unit_of_measure
+        boolean is_active
+    }
+
+    POIS {
+        uuid id PK
+        string code
+        string name
+        string type
+        point location
+        polygon geofence_shape
+        int geofence_radius
+        boolean is_active
+    }
+
+    VEHICLES {
+        uuid id PK
+        string registration_no
+        string type
+        string ownership_type
+        string status
+        uuid vendor_id FK
+        uuid current_driver_id FK
+        point current_location
+        boolean is_active
+    }
+
+    DRIVERS {
+        uuid id PK
+        string employee_id
+        string first_name
+        string last_name
+        string license_number
+        date license_expiry
+        string status
+        uuid vendor_id FK
+        boolean is_active
+    }
+
+    HELPERS {
+        uuid id PK
+        string employee_id
+        string first_name
+        string last_name
+        string availability_status
+        uuid vendor_id FK
+        boolean is_active
+    }
+
+    VENDORS {
+        uuid id PK
+        string vendor_code
+        string company_name
+        string vendor_type
+        string registration_status
+        decimal rating
+        boolean is_active
+    }
+
+    VENDOR_DOCUMENTS {
+        uuid id PK
+        uuid vendor_id FK
+        string document_type
+        string file_url
+        boolean is_verified
+    }
+
+    SUPPLIERS {
+        uuid id PK
+        string supplier_code
+        string supplier_name
+        uuid poi_id FK
+        string status
+    }
+
+    DEALERS {
+        uuid id PK
+        string dealer_code
+        string dealer_name
+        uuid poi_id FK
+        string status
+    }
+
+    ROUTES {
+        uuid id PK
+        string route_name
+        uuid source_poi_id FK
+        uuid destination_poi_id FK
+        decimal distance_km
+        decimal rate_per_km
+        decimal rate_per_trip
+        boolean is_active
+    }
+
+    PRODUCT_CATEGORIES ||--o{ PRODUCTS : "categorizes"
+    PRODUCT_CATEGORIES ||--o| PRODUCT_CATEGORIES : "parent"
+    VENDORS ||--o{ VEHICLES : "owns"
+    VENDORS ||--o{ DRIVERS : "employs"
+    VENDORS ||--o{ HELPERS : "employs"
+    VENDORS ||--o{ VENDOR_DOCUMENTS : "has"
+    VEHICLES ||--o| DRIVERS : "assigned"
+    POIS ||--o| SUPPLIERS : "location"
+    POIS ||--o| DEALERS : "location"
+    POIS ||--o{ ROUTES : "source"
+    POIS ||--o{ ROUTES : "destination"
+
+    %% ─────────────────────────────────────────────
+    %% TRANSPORT WORKFLOW
+    %% ─────────────────────────────────────────────
+    PRODUCT_REQUISITIONS {
         uuid id PK
         string pr_number
-        uuid product_id FK
-        decimal quantity
+        uuid requester_id FK
         uuid origin_poi_id FK
         uuid destination_poi_id FK
+        date required_date
+        string priority
         string status
-        uuid tr_id FK
     }
-    
-    TRANSPORT_REQUEST {
+
+    PR_LINE_ITEMS {
+        uuid id PK
+        uuid pr_id FK
+        uuid product_id FK
+        decimal quantity
+        string unit_of_measure
+    }
+
+    TRANSPORT_REQUISITIONS {
         uuid id PK
         string tr_number
         uuid pr_id FK
-        uuid product_id FK
+        uuid origin_poi_id FK
+        uuid destination_poi_id FK
+        string vehicle_type_required
+        string priority
+        string status
+    }
+
+    TRANSPORT_ORDERS {
+        uuid id PK
+        string order_number
+        uuid requisition_id FK
         uuid origin_poi_id FK
         uuid destination_poi_id FK
         string status
+        string priority
+        uuid assigned_vehicle_id FK
+        uuid assigned_driver_id FK
     }
-    
-    TRANSPORT_ORDER {
+
+    BIDDING_PARAMETERS {
         uuid id PK
-        string to_number
-        uuid tr_id FK
+        uuid transport_order_id FK
+        timestamptz bid_open_at
+        timestamptz bid_close_at
+        string status
+        uuid awarded_bid_id FK
+    }
+
+    VENDOR_BIDS {
+        uuid id PK
+        uuid transport_order_id FK
+        uuid vendor_id FK
+        decimal bid_amount
         uuid vehicle_id FK
         uuid driver_id FK
-        uuid vendor_id FK
-        string fleet_type
         string status
     }
-    
-    TRIP {
+
+    TRIPS {
         uuid id PK
         string trip_number
-        uuid to_id FK
         uuid vehicle_id FK
         uuid driver_id FK
-        uuid origin_poi_id FK
-        uuid destination_poi_id FK
+        uuid helper_id FK
         string status
-        datetime start_time
-        datetime end_time
+        timestamptz actual_start
+        timestamptz actual_end
+        decimal total_distance
     }
-    
-    QC_INSPECTION {
+
+    TRIP_INCIDENTS {
         uuid id PK
         uuid trip_id FK
-        string inspection_type
+        string incident_type
         string status
+        timestamptz reported_at
+    }
+
+    GPS_TRACKING {
+        bigint id PK
+        uuid vehicle_id FK
+        uuid trip_id FK
+        timestamptz timestamp
+        point location
+        decimal speed
+    }
+
+    USERS ||--o{ PRODUCT_REQUISITIONS : "creates"
+    PRODUCT_REQUISITIONS ||--o{ PR_LINE_ITEMS : "contains"
+    PRODUCTS ||--o{ PR_LINE_ITEMS : "in"
+    PRODUCT_REQUISITIONS ||--o{ TRANSPORT_REQUISITIONS : "spawns"
+    TRANSPORT_REQUISITIONS ||--o{ TRANSPORT_ORDERS : "fulfilled by"
+    TRANSPORT_ORDERS ||--o| BIDDING_PARAMETERS : "has"
+    TRANSPORT_ORDERS ||--o{ VENDOR_BIDS : "receives"
+    VENDORS ||--o{ VENDOR_BIDS : "submits"
+    VEHICLES ||--o{ VENDOR_BIDS : "offered in"
+    TRANSPORT_ORDERS ||--o{ TRIPS : "executed as"
+    VEHICLES ||--o{ TRIPS : "used in"
+    DRIVERS ||--o{ TRIPS : "drives"
+    HELPERS ||--o| TRIPS : "assists"
+    TRIPS ||--o{ TRIP_INCIDENTS : "may have"
+    VEHICLES ||--o{ GPS_TRACKING : "tracked by"
+    TRIPS ||--o{ GPS_TRACKING : "tracked in"
+    POIS ||--o{ PRODUCT_REQUISITIONS : "origin"
+    POIS ||--o{ PRODUCT_REQUISITIONS : "destination"
+    POIS ||--o{ TRANSPORT_REQUISITIONS : "origin"
+    POIS ||--o{ TRANSPORT_REQUISITIONS : "destination"
+    POIS ||--o{ TRANSPORT_ORDERS : "origin"
+    POIS ||--o{ TRANSPORT_ORDERS : "destination"
+
+    %% ─────────────────────────────────────────────
+    %% GATE & WEIGHING OPERATIONS
+    %% ─────────────────────────────────────────────
+    TEMPORARY_PARTIES {
+        uuid id PK
+        string party_type
+        string party_name
+        string status
+        uuid converted_to_supplier_id FK
+        uuid converted_to_dealer_id FK
+    }
+
+    GATE_ENTRIES {
+        uuid id PK
+        string gate_in_number
+        uuid poi_id FK
+        string vehicle_number
+        string document_category
+        string party_type
+        timestamptz gate_in_time
+        string status
+        string routed_workflow
+        uuid transport_order_id FK
+        uuid trip_id FK
+    }
+
+    GATE_EXITS {
+        uuid id PK
+        uuid gate_in_id FK
+        uuid poi_id FK
+        timestamptz gate_out_time
+        string gate_pass_token
+        int dwell_time_minutes
+    }
+
+    SCALE_IN_ENTRIES {
+        uuid id PK
+        uuid gate_in_id FK
+        decimal gross_weight_kg
+        string material_code
+        timestamptz scale_in_time
+        uuid operator_id FK
+        string status
+    }
+
+    SCALE_OUT_ENTRIES {
+        uuid id PK
+        uuid scale_in_id FK
+        uuid gate_in_id FK
+        decimal tare_weight_kg
+        decimal net_weight_kg
+        string gate_pass_token
+        timestamptz scale_out_time
+        string status
+    }
+
+    GATE_PASSES {
+        uuid id PK
+        string gate_pass_token
+        uuid gate_in_id FK
+        uuid scale_out_id FK
+        decimal net_weight_kg
+        timestamptz clearance_date
+    }
+
+    POIS ||--o{ GATE_ENTRIES : "at"
+    TRANSPORT_ORDERS ||--o| GATE_ENTRIES : "linked"
+    TRIPS ||--o| GATE_ENTRIES : "linked"
+    TEMPORARY_PARTIES ||--o| GATE_ENTRIES : "referenced"
+    SUPPLIERS ||--o| TEMPORARY_PARTIES : "converted from"
+    DEALERS ||--o| TEMPORARY_PARTIES : "converted from"
+    GATE_ENTRIES ||--o| GATE_EXITS : "exited via"
+    GATE_ENTRIES ||--o{ SCALE_IN_ENTRIES : "weighed in"
+    SCALE_IN_ENTRIES ||--o| SCALE_OUT_ENTRIES : "weighed out"
+    SCALE_OUT_ENTRIES ||--o| GATE_PASSES : "issues"
+    GATE_ENTRIES ||--o| GATE_PASSES : "cleared by"
+
+    %% ─────────────────────────────────────────────
+    %% QC INSPECTION
+    %% ─────────────────────────────────────────────
+    QC_CHECKLISTS {
+        uuid id PK
+        string checklist_name
+        uuid product_id FK
+        uuid product_category_id FK
+        string version
+        boolean is_active
+    }
+
+    QC_CHECKLIST_ITEMS {
+        uuid id PK
+        uuid checklist_id FK
+        string item_name
+        string item_category
+        boolean is_critical
+        int sort_order
+    }
+
+    QC_EVENTS {
+        uuid id PK
+        string qc_event_number
+        uuid gate_in_id FK
+        uuid scale_in_id FK
+        string vehicle_number
+        string status
+        string final_decision
+        uuid assigned_inspector_id FK
+        uuid poi_id FK
+        uuid trip_id FK
+    }
+
+    QC_SAMPLES {
+        uuid id PK
+        uuid qc_event_id FK
+        string sample_type
+        string qr_code
+        string status
+        uuid collected_by FK
+    }
+
+    QC_INSPECTIONS {
+        uuid id PK
+        uuid qc_event_id FK
+        uuid sample_id FK
+        uuid checklist_id FK
+        int total_items
+        int passed_items
+        int failed_items
+        decimal score_percentage
+        string status
+    }
+
+    QC_INSPECTION_RESULTS {
+        uuid id PK
+        uuid inspection_id FK
+        uuid item_id FK
         string result
+        string remarks
     }
-    
-    TRIP_COST {
+
+    LAB_TEST_REQUESTS {
+        uuid id PK
+        uuid qc_event_id FK
+        uuid sample_id FK
+        string priority
+        string status
+        uuid assigned_lab_technician FK
+    }
+
+    LAB_TEST_RESULTS {
+        uuid id PK
+        uuid test_request_id FK
+        string test_type
+        decimal result_value
+        string result_unit
+        string pass_fail_status
+    }
+
+    QC_EVIDENCE {
+        uuid id PK
+        uuid qc_event_id FK
+        uuid inspection_id FK
+        string evidence_type
+        string file_url
+        uuid captured_by FK
+    }
+
+    GATE_ENTRIES ||--o{ QC_EVENTS : "triggers"
+    SCALE_IN_ENTRIES ||--o| QC_EVENTS : "linked"
+    TRIPS ||--o| QC_EVENTS : "linked"
+    POIS ||--o{ QC_EVENTS : "at"
+    QC_CHECKLISTS ||--o{ QC_CHECKLIST_ITEMS : "contains"
+    PRODUCTS ||--o| QC_CHECKLISTS : "template for"
+    PRODUCT_CATEGORIES ||--o| QC_CHECKLISTS : "template for"
+    QC_EVENTS ||--o{ QC_SAMPLES : "collects"
+    QC_EVENTS ||--o{ QC_INSPECTIONS : "has"
+    QC_EVENTS ||--o{ LAB_TEST_REQUESTS : "may need"
+    QC_EVENTS ||--o{ QC_EVIDENCE : "evidenced by"
+    QC_SAMPLES ||--o{ QC_INSPECTIONS : "used in"
+    QC_CHECKLISTS ||--o{ QC_INSPECTIONS : "guides"
+    QC_INSPECTIONS ||--o{ QC_INSPECTION_RESULTS : "yields"
+    QC_CHECKLIST_ITEMS ||--o{ QC_INSPECTION_RESULTS : "checked in"
+    LAB_TEST_REQUESTS ||--o{ LAB_TEST_RESULTS : "produces"
+    QC_SAMPLES ||--o{ LAB_TEST_REQUESTS : "tested in"
+
+    %% ─────────────────────────────────────────────
+    %% TRIP COSTING & INVOICING
+    %% ─────────────────────────────────────────────
+    TRIP_COSTS {
         uuid id PK
         uuid trip_id FK
-        decimal total_cost
-        string status
+        string fleet_type
+        decimal total_distance_km
+        decimal vendor_trip_charge
+        decimal total_trip_cost
+        string currency
+        uuid entered_by FK
+        uuid approved_by FK
     }
-    
-    INVOICE {
+
+    VENDOR_INVOICES {
         uuid id PK
         string invoice_number
         uuid vendor_id FK
         uuid trip_id FK
-        decimal amount
+        uuid trip_cost_id FK
+        decimal total_amount
+        string currency
         string status
-    }
-    
-    VENDOR_BID {
-        uuid id PK
-        uuid to_id FK
-        uuid vendor_id FK
-        decimal bid_amount
-        string status
+        string erp_sync_status
     }
 
+    NOTIFICATIONS {
+        uuid id PK
+        uuid recipient_user_id FK
+        uuid recipient_vendor_id FK
+        string channel
+        string notification_type
+        string status
+        timestamptz sent_at
+    }
+
+    TRIPS ||--o| TRIP_COSTS : "costed by"
+    VENDOR_INVOICES ||--|| TRIPS : "for"
+    VENDORS ||--o{ VENDOR_INVOICES : "billed via"
+    TRIP_COSTS ||--o| VENDOR_INVOICES : "basis for"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    VENDORS ||--o{ NOTIFICATIONS : "receives"
