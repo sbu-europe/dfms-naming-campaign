@@ -1,15 +1,29 @@
 # DFMS Module Boundaries
 
-> Detailed definition of all 12 DFMS modules
+> Detailed definition of all 13 DFMS modules
 
-**Status**: 🚧 Draft  
-**Last Updated**: February 13, 2026
+**Status**: Active  
+**Last Updated**: March 2026
 
 ---
 
 ## 📋 Overview
 
-This document defines the boundaries, responsibilities, and interfaces for all 12 DFMS modules. Each module is a logical grouping of related functionality with clear ownership and well-defined interfaces.
+This document defines the boundaries, responsibilities, and interfaces for all 13 DFMS modules. Each module is a logical grouping of related functionality with clear ownership and well-defined interfaces.
+
+### Multi-Tenancy Architecture Note
+
+All modules run within a **schema-per-tenant** PostgreSQL architecture managed by the `django-tenants` library. Each tenant gets a dedicated PostgreSQL schema; no `tenant_id` column is needed in application queries. The `django-tenants` middleware sets `search_path` automatically per request based on the subdomain.
+
+### Role Model Note
+
+DFMS uses a **4-tier role hierarchy** for access control (enforced at API, service, and query layers):
+1. **Super Admin** — platform-level; manages tenants and subscription plans (public schema only)
+2. **Tenant Admin** — full access within their tenant; manages users, master data, configuration
+3. **Department Admin / Manager** — manages workflows within a department (approvals, assignments)
+4. **Operational User** — field-level access; executes assigned tasks (driver, gate operator, QC inspector, etc.)
+
+Functional role flags (`is_requester`, `is_approver`, `is_executor`) further control workflow participation and prevent self-approval.
 
 ---
 
@@ -21,53 +35,131 @@ Manage all master data entities that are referenced across the system.
 ### Responsibilities
 - Vehicle management (CRUD)
 - Driver management (CRUD)
-- Helper management (CRUD)
-- Vendor master data (CRUD)
-- POI (Point of Interest) management (CRUD)
-- Product inventory management (CRUD)
+- Helper management (CRUD, bulk upload)
+- Vendor master data (admin CRUD, bulk upload; vendor self-onboarding in Vendor Management module)
+- POI (Point of Interest) management (CRUD, geofence configuration)
+- Product Category management (CRUD)
+- Product management (CRUD, bulk upload)
+- Supplier management (CRUD, bulk upload)
+- Dealer management (CRUD, bulk upload)
+- Route management (CRUD)
 - Zone management (CRUD)
 
 ### Data Owned
 - `vehicles` table
 - `drivers` table
 - `helpers` table
-- `vendors_master` table
+- `vendors` table (master record; Vendor Management module owns operational bid/invoice data)
 - `pois` table
+- `product_categories` table
 - `products` table
+- `suppliers` table
+- `dealers` table
+- `routes` table
 - `zones` table
 
 ### API Surface
 ```
+# Vehicles
 GET    /api/v1/vehicles
 POST   /api/v1/vehicles
 GET    /api/v1/vehicles/{id}
 PUT    /api/v1/vehicles/{id}
 DELETE /api/v1/vehicles/{id}
 
+# Drivers
 GET    /api/v1/drivers
 POST   /api/v1/drivers
 GET    /api/v1/drivers/{id}
 PUT    /api/v1/drivers/{id}
+DELETE /api/v1/drivers/{id}
 
-... (similar for helpers, vendors, pois, products, zones)
+# Helpers
+GET    /api/v1/helpers
+POST   /api/v1/helpers          (also accepts multipart/form-data for bulk CSV upload)
+GET    /api/v1/helpers/{id}
+PUT    /api/v1/helpers/{id}
+DELETE /api/v1/helpers/{id}
+
+# Vendors (admin CRUD)
+GET    /api/v1/master-data/vendors
+POST   /api/v1/master-data/vendors    (also accepts multipart/form-data for bulk CSV upload)
+GET    /api/v1/master-data/vendors/{id}
+PUT    /api/v1/master-data/vendors/{id}
+DELETE /api/v1/master-data/vendors/{id}
+
+# POIs
+GET    /api/v1/pois
+POST   /api/v1/pois
+GET    /api/v1/pois/{id}
+PUT    /api/v1/pois/{id}
+DELETE /api/v1/pois/{id}
+PUT    /api/v1/pois/{id}/geofence
+
+# Product Categories
+GET    /api/v1/product-categories
+POST   /api/v1/product-categories
+GET    /api/v1/product-categories/{id}
+PUT    /api/v1/product-categories/{id}
+DELETE /api/v1/product-categories/{id}
+
+# Products
+GET    /api/v1/products
+POST   /api/v1/products
+GET    /api/v1/products/{id}
+PUT    /api/v1/products/{id}
+DELETE /api/v1/products/{id}
+
+# Suppliers
+GET    /api/v1/suppliers
+POST   /api/v1/suppliers          (also accepts multipart/form-data for bulk CSV upload)
+GET    /api/v1/suppliers/{id}
+PUT    /api/v1/suppliers/{id}
+DELETE /api/v1/suppliers/{id}
+
+# Dealers
+GET    /api/v1/dealers
+POST   /api/v1/dealers            (also accepts multipart/form-data for bulk CSV upload)
+GET    /api/v1/dealers/{id}
+PUT    /api/v1/dealers/{id}
+DELETE /api/v1/dealers/{id}
+
+# Routes
+GET    /api/v1/routes
+POST   /api/v1/routes
+GET    /api/v1/routes/{id}
+PUT    /api/v1/routes/{id}
+DELETE /api/v1/routes/{id}
+
+# Zones
+GET    /api/v1/zones
+POST   /api/v1/zones
+GET    /api/v1/zones/{id}
+PUT    /api/v1/zones/{id}
+DELETE /api/v1/zones/{id}
 ```
 
 ### Events Published
-- `VehicleCreated`
-- `VehicleUpdated`
-- `VehicleDeleted`
-- `DriverCreated`
-- `DriverUpdated`
-- `DriverStatusChanged`
-- (similar for other entities)
+- `VehicleCreated`, `VehicleUpdated`, `VehicleDeleted`, `VehicleStatusChanged`
+- `DriverCreated`, `DriverUpdated`, `DriverStatusChanged`
+- `HelperCreated`, `HelperUpdated`, `HelperStatusChanged`
+- `VendorMasterCreated`, `VendorMasterUpdated`, `VendorRegistrationStatusChanged`
+- `POICreated`, `POIUpdated`, `GeofenceConfigured`
+- `ProductCreated`, `ProductUpdated`
+- `SupplierCreated`, `SupplierUpdated`
+- `DealerCreated`, `DealerUpdated`
+- `RouteCreated`, `RouteUpdated`
 
 ### Dependencies
-- None (core module)
+- None (core foundation module)
 
 ### Business Rules
 - VR-001 to VR-010 (Vehicle rules)
 - DR-001 to DR-008 (Driver rules)
 - HR-001 to HR-005 (Helper rules)
+- VND-001 to VND-010 (Vendor master data rules)
+- SUP-001 to SUP-005 (Supplier rules)
+- DLR-001 to DLR-005 (Dealer rules)
 - See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
 
 ---
@@ -274,33 +366,52 @@ Manage on-ground operations: gate, scaling, command center, loading/unloading.
 - Operational status tracking
 
 ### Data Owned
-- `gate_entries` table
-- `gate_exits` table
-- `weighing_records` table
+- `gate_entries` table (13-state: pending → gate_in → loading → loading_complete → scale_in → in_transit → gate_out → unloading → scale_out → qc_pending → completed / on_hold / cancelled)
+- `scale_in_entries` table (tare weight at origin)
+- `scale_out_entries` table (gross/net weight at destination)
+- `gate_passes` table (one-time token issued after scale-out)
+- `temporary_parties` table (walk-in vendors/contractors)
 - `loading_operations` table
 - `unloading_operations` table
-- `command_center_events` table
 
 ### API Surface
 ```
-# Gate Management
+# Gate Entries
+GET    /api/v1/operations/gate-entries
+GET    /api/v1/operations/gate-entries/{id}
+PATCH  /api/v1/operations/gate-entries/{id}
 POST   /api/v1/operations/gate-in
 POST   /api/v1/operations/gate-out
-GET    /api/v1/operations/gate-entries
 
-# Scaling
-POST   /api/v1/operations/weighing
-GET    /api/v1/operations/weighing-records
+# Scale Operations (replaces generic /weighing)
+POST   /api/v1/operations/scale-in
+GET    /api/v1/operations/scale-in/{id}
+PATCH  /api/v1/operations/scale-in/{id}       (correction — supervisor only)
+POST   /api/v1/operations/scale-out
+GET    /api/v1/operations/scale-out/{id}
+PATCH  /api/v1/operations/scale-out/{id}      (correction — supervisor only)
+
+# Gate Passes
+POST   /api/v1/operations/gate-passes
+GET    /api/v1/operations/gate-passes/{id}
+POST   /api/v1/operations/gate-passes/{id}/validate
+
+# Temporary Parties
+GET    /api/v1/operations/temporary-parties
+POST   /api/v1/operations/temporary-parties
+GET    /api/v1/operations/temporary-parties/{id}
 
 # Loading/Unloading
 POST   /api/v1/operations/loading/start
 POST   /api/v1/operations/loading/complete
+GET    /api/v1/operations/loading/{id}
 POST   /api/v1/operations/unloading/start
 POST   /api/v1/operations/unloading/complete
+GET    /api/v1/operations/unloading/{id}
 
-# Command Center
-GET    /api/v1/operations/command-center/dashboard
-GET    /api/v1/operations/command-center/active-trips
+# Command Centre
+GET    /api/v1/operations/command-centre/dashboard
+GET    /api/v1/operations/command-centre/active-trips
 ```
 
 ### Events Published
@@ -732,21 +843,114 @@ POST   /api/v1/alerts/{id}/acknowledge
 
 ---
 
+## 13. User Management & Authentication
+
+### Purpose
+Manage tenant users, roles, permissions, and all authentication flows. This is the foundational security module that all other modules depend on.
+
+### Responsibilities
+- User account creation, invitation, and lifecycle management
+- 3-step authentication flow (email/phone → OTP → password)
+- JWT issuance and refresh with tenant context embedded in token
+- Session management (idle timeout, concurrent session limits)
+- Role and permission management (4-tier hierarchy)
+- OTP generation and verification (account lockout after failed attempts)
+- Multi-tenant context enforcement: `django-tenants` middleware sets `search_path` per request based on JWT's `tenant_schema` claim
+
+### Data Owned
+- `users` table
+- `roles` table
+- `permissions` table
+- `role_permissions` table
+- `user_roles` table
+- `otp_records` table
+- `user_sessions` table
+- `invitation_tokens` table
+
+### API Surface
+```
+# Authentication
+POST   /api/v1/auth/request-otp
+POST   /api/v1/auth/verify-otp
+POST   /api/v1/auth/login
+POST   /api/v1/auth/token/refresh
+POST   /api/v1/auth/logout
+
+# User Management
+GET    /api/v1/users
+POST   /api/v1/users/invite
+GET    /api/v1/users/{id}
+PUT    /api/v1/users/{id}
+DELETE /api/v1/users/{id}
+POST   /api/v1/users/{id}/activate
+POST   /api/v1/users/{id}/deactivate
+
+# Roles & Permissions
+GET    /api/v1/roles
+POST   /api/v1/roles
+GET    /api/v1/roles/{id}
+PUT    /api/v1/roles/{id}
+DELETE /api/v1/roles/{id}
+GET    /api/v1/permissions
+POST   /api/v1/users/{id}/roles
+DELETE /api/v1/users/{id}/roles/{role_id}
+
+# Profile
+GET    /api/v1/auth/me
+PUT    /api/v1/auth/me
+POST   /api/v1/auth/change-password
+```
+
+### Events Published
+- `UserCreated`
+- `UserInvited`
+- `UserActivated`
+- `UserDeactivated`
+- `UserLoggedIn`
+- `UserLoggedOut`
+- `RoleAssigned`
+- `RoleRevoked`
+- `AccountLocked`
+- `PasswordChanged`
+
+### Events Consumed
+- None (upstream module)
+
+### Dependencies
+- **Tenant Registry** (public schema): Validates tenant context during login
+- **Email / SMS Gateway**: OTP and invitation delivery
+
+### Business Rules
+- AUTH-001: 3-step login: email/phone → OTP (5 min TTL) → password
+- AUTH-002: Account locked after 5 consecutive failed login attempts (30 min lock)
+- AUTH-003: JWT contains `tenant_schema`, `user_id`, `roles`, `permissions`
+- AUTH-004: Session idle timeout configurable per tenant (default 30 min)
+- AUTH-005: Maximum concurrent sessions per user configurable (default 3)
+- RBAC-001: Super Admin has implicit access to all resources
+- RBAC-002: Permissions follow `Module.Feature.Action` dot-notation
+- RBAC-003: Wildcard `Module.*` grants all permissions for a module
+- RBAC-004: `is_approver` flag prevents self-approval in workflows
+- See [Authentication Spec](../../../03-module-specifications/01-foundation/authentication-security.md)
+- See [RBAC Spec](../../../03-module-specifications/01-foundation/rbac.md)
+
+---
+
 ## 📊 Module Dependency Matrix
 
 | Module | Depends On |
 |--------|------------|
-| Master Data | None |
-| Product Requisition | Master Data |
-| Transport | Master Data, Product Requisition |
-| Vendor | Master Data, Transport |
-| Operations | Transport, Master Data |
-| Quality Control | Operations, Transport |
-| Fleet | Master Data, Transport |
-| Fuel | Fleet, Transport |
+| User Management & Auth | Tenant Registry only |
+| Master Data | User Management (auth) |
+| Product Requisition | Master Data, User Management |
+| Transport | Master Data, Product Requisition, User Management |
+| Vendor | Master Data, Transport, User Management |
+| Operations | Transport, Master Data, User Management |
+| Quality Control | Operations, Transport, User Management |
+| Fleet (Phase 2) | Master Data, Transport |
+| Fuel (Phase 2) | Fleet, Transport |
 | Trip Costing | Transport, Vendor, Operations, QC |
 | Reporting | All modules (read-only) |
-| Mobile | Transport, QC, Vendor |
+| Mobile | Transport, QC, Vendor, User Management |
 | Notifications | All modules (event consumers) |
 
 ---
@@ -760,7 +964,7 @@ POST   /api/v1/alerts/{id}/acknowledge
 
 ---
 
-**Document Status**: 🚧 Draft  
-**Next Steps**: Review with team, refine boundaries  
+**Document Status**: Active  
+**Last Updated**: March 2026  
 **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 

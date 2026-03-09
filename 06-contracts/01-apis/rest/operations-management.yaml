@@ -2,10 +2,16 @@ openapi: 3.0.3
 info:
   title: DFMS Operations Management API
   description: |
-    API contract for Operations Management module.
+    API contract for Gate & Weighing Operations module in DFMS.
     
-    Handles gate management, weighing, loading/unloading operations.
-  version: 1.0.0
+    Handles the full operational lifecycle at a POI:
+    - Gate entry/exit with 13-state trip progression
+    - Scale-in (tare weight at origin) and scale-out (gross/net weight at destination)
+    - Gate pass issuance and validation
+    - Temporary party registration (walk-in vendors/contractors)
+    - Loading and unloading operations
+    - Command centre dashboard for real-time monitoring
+  version: 1.1.0
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com
@@ -15,108 +21,29 @@ servers:
 
 tags:
   - name: Gate Operations
-    description: Gate entry/exit operations
-  - name: Weighing
-    description: Vehicle weighing operations
+    description: Gate entry/exit and trip state progression
+  - name: Scale Operations
+    description: Weighing (scale-in at origin, scale-out at destination)
+  - name: Gate Passes
+    description: Gate pass issuance and validation
+  - name: Temporary Parties
+    description: Walk-in vendor or contractor registration
   - name: Loading
-    description: Loading operations
+    description: Loading operations at origin POI
   - name: Unloading
-    description: Unloading operations
+    description: Unloading operations at destination POI
+  - name: Command Centre
+    description: Real-time operational dashboard and monitoring
 
 paths:
-  # Gate Operations
-  /operations/gate-in:
-    post:
-      tags: [Gate Operations]
-      summary: Record gate entry
-      operationId: gateIn
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                trip_id:
-                  type: string
-                  format: uuid
-                vehicle_registration:
-                  type: string
-                poi_id:
-                  type: string
-                  format: uuid
-                entry_time:
-                  type: string
-                  format: date-time
-              required:
-                - trip_id
-                - vehicle_registration
-                - poi_id
-      responses:
-        '201':
-          description: Gate entry recorded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GateEntry'
-  
-  /operations/gate-out:
-    post:
-      tags: [Gate Operations]
-      summary: Record gate exit
-      operationId: gateOut
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                trip_id:
-                  type: string
-                  format: uuid
-                poi_id:
-                  type: string
-                  format: uuid
-                exit_time:
-                  type: string
-                  format: date-time
-              required:
-                - trip_id
-                - poi_id
-      responses:
-        '201':
-          description: Gate exit recorded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GateExit'
-  
-  # Weighing
-  /operations/weighing:
-    post:
-      tags: [Weighing]
-      summary: Record weighing
-      operationId: recordWeighing
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WeighingCreate'
-      responses:
-        '201':
-          description: Weighing recorded
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Weighing'
-  
-  /operations/weighing-records:
+  # ─────────────────────────────────────────────
+  # Gate Entries
+  # ─────────────────────────────────────────────
+  /operations/gate-entries:
     get:
-      tags: [Weighing]
-      summary: List weighing records
-      operationId: listWeighingRecords
+      tags: [Gate Operations]
+      summary: List gate entries
+      operationId: listGateEntries
       parameters:
         - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
         - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
@@ -125,9 +52,25 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: poi_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, gate_in, loading, loading_complete, scale_in, in_transit, gate_out, unloading, scale_out, qc_pending, completed, on_hold, cancelled]
+        - name: date
+          in: query
+          description: Filter by entry date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
       responses:
         '200':
-          description: List of weighing records
+          description: List of gate entries
           content:
             application/json:
               schema:
@@ -138,9 +81,367 @@ paths:
                       results:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Weighing'
-  
+                          $ref: '#/components/schemas/GateEntry'
+
+  /operations/gate-in:
+    post:
+      tags: [Gate Operations]
+      summary: Record gate entry (vehicle arrives at origin POI)
+      operationId: gateIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateInRequest'
+      responses:
+        '201':
+          description: Gate entry recorded; trip moves to gate_in state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEntry'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  /operations/gate-entries/{id}:
+    get:
+      tags: [Gate Operations]
+      summary: Get gate entry by ID
+      operationId: getGateEntry
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Gate entry details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    patch:
+      tags: [Gate Operations]
+      summary: Update gate entry (e.g. add notes or correct operator)
+      operationId: updateGateEntry
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateEntryUpdate'
+      responses:
+        '200':
+          description: Gate entry updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  /operations/gate-out:
+    post:
+      tags: [Gate Operations]
+      summary: Record gate exit (vehicle departs destination POI after scale-out)
+      operationId: gateOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateOutRequest'
+      responses:
+        '201':
+          description: Gate exit recorded; gate pass may be issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateExitResponse'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Scale Operations
+  # ─────────────────────────────────────────────
+  /operations/scale-in:
+    post:
+      tags: [Scale Operations]
+      summary: Record scale-in (tare weight of empty vehicle at origin)
+      operationId: recordScaleIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaleInCreate'
+      responses:
+        '201':
+          description: Scale-in recorded; trip moves to scale_in state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleEntry'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /operations/scale-in/{id}:
+    get:
+      tags: [Scale Operations]
+      summary: Get scale-in record by ID
+      operationId: getScaleIn
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Scale-in record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    patch:
+      tags: [Scale Operations]
+      summary: Correct a scale-in reading (supervisor action)
+      operationId: correctScaleIn
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaleCorrection'
+      responses:
+        '200':
+          description: Scale-in corrected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  /operations/scale-out:
+    post:
+      tags: [Scale Operations]
+      summary: Record scale-out (gross/net weight at destination after unloading)
+      operationId: recordScaleOut
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaleOutCreate'
+      responses:
+        '201':
+          description: Scale-out recorded; net weight calculated; trip moves to scale_out state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleOutEntry'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /operations/scale-out/{id}:
+    get:
+      tags: [Scale Operations]
+      summary: Get scale-out record by ID
+      operationId: getScaleOut
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Scale-out record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleOutEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    patch:
+      tags: [Scale Operations]
+      summary: Correct a scale-out reading (supervisor action)
+      operationId: correctScaleOut
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaleCorrection'
+      responses:
+        '200':
+          description: Scale-out corrected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScaleOutEntry'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Gate Passes
+  # ─────────────────────────────────────────────
+  /operations/gate-passes:
+    post:
+      tags: [Gate Passes]
+      summary: Issue a gate pass for a completed scale-out
+      operationId: issueGatePass
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GatePassCreate'
+      responses:
+        '201':
+          description: Gate pass issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatePass'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /operations/gate-passes/{id}:
+    get:
+      tags: [Gate Passes]
+      summary: Get gate pass by ID
+      operationId: getGatePass
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Gate pass details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GatePass'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  /operations/gate-passes/{id}/validate:
+    post:
+      tags: [Gate Passes]
+      summary: Validate a gate pass token at the exit gate
+      operationId: validateGatePass
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: The gate_pass_token issued at scale-out
+              required:
+                - token
+      responses:
+        '200':
+          description: Gate pass valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  gate_pass:
+                    $ref: '#/components/schemas/GatePass'
+        '400':
+          description: Invalid or expired gate pass token
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/common-schemas.yaml#/components/schemas/ErrorResponse'
+
+  # ─────────────────────────────────────────────
+  # Temporary Parties
+  # ─────────────────────────────────────────────
+  /operations/temporary-parties:
+    get:
+      tags: [Temporary Parties]
+      summary: List temporary party registrations
+      operationId: listTemporaryParties
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: date
+          in: query
+          description: Filter by registration date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of temporary party registrations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TemporaryParty'
+
+    post:
+      tags: [Temporary Parties]
+      summary: Register a temporary party (walk-in vendor/contractor)
+      operationId: registerTemporaryParty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemporaryPartyCreate'
+      responses:
+        '201':
+          description: Temporary party registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryParty'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /operations/temporary-parties/{id}:
+    get:
+      tags: [Temporary Parties]
+      summary: Get temporary party registration by ID
+      operationId: getTemporaryParty
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Temporary party details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryParty'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
   # Loading
+  # ─────────────────────────────────────────────
   /operations/loading/start:
     post:
       tags: [Loading]
@@ -159,16 +460,17 @@ paths:
                 start_time:
                   type: string
                   format: date-time
+                  nullable: true
               required:
                 - trip_id
       responses:
         '201':
-          description: Loading started
+          description: Loading started; trip moves to loading state
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoadingOperation'
-  
+
   /operations/loading/complete:
     post:
       tags: [Loading]
@@ -190,18 +492,38 @@ paths:
                 end_time:
                   type: string
                   format: date-time
+                  nullable: true
               required:
                 - loading_id
                 - quantity_loaded
       responses:
         '200':
-          description: Loading completed
+          description: Loading completed; trip moves to loading_complete state
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoadingOperation'
-  
+
+  /operations/loading/{id}:
+    get:
+      tags: [Loading]
+      summary: Get loading operation by ID
+      operationId: getLoadingOperation
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Loading operation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadingOperation'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
   # Unloading
+  # ─────────────────────────────────────────────
   /operations/unloading/start:
     post:
       tags: [Unloading]
@@ -220,16 +542,17 @@ paths:
                 start_time:
                   type: string
                   format: date-time
+                  nullable: true
               required:
                 - trip_id
       responses:
         '201':
-          description: Unloading started
+          description: Unloading started; trip moves to unloading state
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnloadingOperation'
-  
+
   /operations/unloading/complete:
     post:
       tags: [Unloading]
@@ -251,6 +574,7 @@ paths:
                 end_time:
                   type: string
                   format: date-time
+                  nullable: true
               required:
                 - unloading_id
                 - quantity_unloaded
@@ -262,8 +586,82 @@ paths:
               schema:
                 $ref: '#/components/schemas/UnloadingOperation'
 
+  /operations/unloading/{id}:
+    get:
+      tags: [Unloading]
+      summary: Get unloading operation by ID
+      operationId: getUnloadingOperation
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Unloading operation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnloadingOperation'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Command Centre
+  # ─────────────────────────────────────────────
+  /operations/command-centre/dashboard:
+    get:
+      tags: [Command Centre]
+      summary: Real-time operations dashboard summary
+      operationId: getCommandCentreDashboard
+      parameters:
+        - name: poi_id
+          in: query
+          description: Filter dashboard to a specific POI
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+  /operations/command-centre/active-trips:
+    get:
+      tags: [Command Centre]
+      summary: List all trips currently in an active gate/operations state
+      operationId: listActiveTrips
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: poi_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [gate_in, loading, loading_complete, scale_in, in_transit, gate_out, unloading, scale_out, qc_pending, on_hold]
+      responses:
+        '200':
+          description: List of active trips
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ActiveTripSummary'
+
 components:
   schemas:
+    # ── Gate Operations ───────────────────────────
     GateEntry:
       type: object
       properties:
@@ -278,25 +676,81 @@ components:
           format: uuid
         vehicle_registration:
           type: string
+        driver_id:
+          type: string
+          format: uuid
+          nullable: true
+        party_type:
+          type: string
+          enum: [own_fleet, vendor_fleet, temporary]
+          description: Distinguishes own-fleet, vendor-fleet, and walk-in temporary vehicles
+        temporary_party_id:
+          type: string
+          format: uuid
+          nullable: true
         entry_time:
           type: string
           format: date-time
+        status:
+          type: string
+          enum: [pending, gate_in, loading, loading_complete, scale_in, in_transit, gate_out, unloading, scale_out, qc_pending, completed, on_hold, cancelled]
+        notes:
+          type: string
+          nullable: true
         operator_id:
           type: string
           format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       required:
         - id
-        - trip_id
         - poi_id
+        - vehicle_registration
         - entry_time
-    
-    GateExit:
+        - status
+
+    GateInRequest:
       type: object
       properties:
-        id:
+        trip_id:
           type: string
           format: uuid
-        trip_id:
+          nullable: true
+          description: Required for scheduled trips; omit for temporary parties
+        vehicle_registration:
+          type: string
+        poi_id:
+          type: string
+          format: uuid
+        party_type:
+          type: string
+          enum: [own_fleet, vendor_fleet, temporary]
+        temporary_party_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Required when party_type is temporary
+        entry_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: Defaults to server time if omitted
+        notes:
+          type: string
+          nullable: true
+      required:
+        - vehicle_registration
+        - poi_id
+        - party_type
+
+    GateOutRequest:
+      type: object
+      properties:
+        gate_entry_id:
           type: string
           format: uuid
         poi_id:
@@ -305,60 +759,291 @@ components:
         exit_time:
           type: string
           format: date-time
-        operator_id:
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - gate_entry_id
+        - poi_id
+
+    GateExitResponse:
+      type: object
+      properties:
+        gate_entry:
+          $ref: '#/components/schemas/GateEntry'
+        gate_pass:
+          $ref: '#/components/schemas/GatePass'
+          nullable: true
+          description: Auto-issued gate pass if all conditions are met (scale-out complete)
+
+    GateEntryUpdate:
+      type: object
+      properties:
+        notes:
+          type: string
+          nullable: true
+
+    # ── Scale Operations ──────────────────────────
+    ScaleEntry:
+      type: object
+      description: Scale-in record (tare weight at origin)
+      properties:
+        id:
           type: string
           format: uuid
+        gate_entry_id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+          nullable: true
+        tare_weight_kg:
+          type: number
+          format: decimal
+          description: Empty vehicle weight in kilograms
+        scale_id:
+          type: string
+          description: Identifier of the weighbridge used
+          nullable: true
+        weighed_at:
+          type: string
+          format: date-time
+        weighed_by:
+          type: string
+          format: uuid
+        corrected:
+          type: boolean
+          default: false
+        correction_reason:
+          type: string
+          nullable: true
       required:
         - id
-        - trip_id
-        - poi_id
-        - exit_time
-    
-    Weighing:
+        - gate_entry_id
+        - tare_weight_kg
+        - weighed_at
+        - weighed_by
+
+    ScaleInCreate:
+      type: object
+      properties:
+        gate_entry_id:
+          type: string
+          format: uuid
+        tare_weight_kg:
+          type: number
+          format: decimal
+        scale_id:
+          type: string
+          nullable: true
+        weighed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - gate_entry_id
+        - tare_weight_kg
+
+    ScaleOutEntry:
+      type: object
+      description: Scale-out record (gross weight at destination; net weight calculated)
+      properties:
+        id:
+          type: string
+          format: uuid
+        gate_entry_id:
+          type: string
+          format: uuid
+        trip_id:
+          type: string
+          format: uuid
+          nullable: true
+        gross_weight_kg:
+          type: number
+          format: decimal
+          description: Loaded vehicle weight in kilograms
+        tare_weight_kg:
+          type: number
+          format: decimal
+          description: Copied from scale-in record for reference
+        net_weight_kg:
+          type: number
+          format: decimal
+          description: Calculated as gross_weight_kg - tare_weight_kg
+        scale_id:
+          type: string
+          nullable: true
+        weighed_at:
+          type: string
+          format: date-time
+        weighed_by:
+          type: string
+          format: uuid
+        gate_pass_token:
+          type: string
+          nullable: true
+          description: Auto-generated token included in the issued gate pass
+        corrected:
+          type: boolean
+          default: false
+        correction_reason:
+          type: string
+          nullable: true
+      required:
+        - id
+        - gate_entry_id
+        - gross_weight_kg
+        - tare_weight_kg
+        - net_weight_kg
+        - weighed_at
+        - weighed_by
+
+    ScaleOutCreate:
+      type: object
+      properties:
+        gate_entry_id:
+          type: string
+          format: uuid
+        gross_weight_kg:
+          type: number
+          format: decimal
+        scale_id:
+          type: string
+          nullable: true
+        weighed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - gate_entry_id
+        - gross_weight_kg
+
+    ScaleCorrection:
+      type: object
+      properties:
+        corrected_weight_kg:
+          type: number
+          format: decimal
+        reason:
+          type: string
+          description: Mandatory explanation for the correction
+      required:
+        - corrected_weight_kg
+        - reason
+
+    # ── Gate Passes ───────────────────────────────
+    GatePass:
       type: object
       properties:
         id:
           type: string
           format: uuid
+        gate_entry_id:
+          type: string
+          format: uuid
         trip_id:
           type: string
           format: uuid
-        weighing_type:
+          nullable: true
+        token:
           type: string
-          enum: [empty, loaded]
-        weight:
+          description: One-time-use token; presented at exit gate for validation
+        net_weight_kg:
           type: number
           format: decimal
-        weighing_time:
+        issued_at:
           type: string
           format: date-time
-        operator_id:
+        issued_by:
+          type: string
+          format: uuid
+        validated_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [issued, validated, expired]
+      required:
+        - id
+        - gate_entry_id
+        - token
+        - net_weight_kg
+        - issued_at
+        - status
+
+    GatePassCreate:
+      type: object
+      properties:
+        gate_entry_id:
+          type: string
+          format: uuid
+        scale_out_id:
+          type: string
+          format: uuid
+      required:
+        - gate_entry_id
+        - scale_out_id
+
+    # ── Temporary Parties ─────────────────────────
+    TemporaryParty:
+      type: object
+      description: Walk-in vendor, contractor, or unregistered visitor at the gate
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        vehicle_registration:
+          type: string
+        contact_number:
+          type: string
+          nullable: true
+        purpose:
+          type: string
+          description: Reason for gate entry
+        poi_id:
+          type: string
+          format: uuid
+        registered_at:
+          type: string
+          format: date-time
+        registered_by:
           type: string
           format: uuid
       required:
         - id
-        - trip_id
-        - weighing_type
-        - weight
-        - weighing_time
-    
-    WeighingCreate:
+        - name
+        - vehicle_registration
+        - purpose
+        - poi_id
+        - registered_at
+
+    TemporaryPartyCreate:
       type: object
       properties:
-        trip_id:
+        name:
+          type: string
+        vehicle_registration:
+          type: string
+        contact_number:
+          type: string
+          nullable: true
+        purpose:
+          type: string
+        poi_id:
           type: string
           format: uuid
-        weighing_type:
-          type: string
-          enum: [empty, loaded]
-        weight:
-          type: number
-          format: decimal
       required:
-        - trip_id
-        - weighing_type
-        - weight
-    
+        - name
+        - vehicle_registration
+        - purpose
+        - poi_id
+
+    # ── Loading / Unloading ───────────────────────
     LoadingOperation:
       type: object
       properties:
@@ -382,11 +1067,15 @@ components:
         loaded_by:
           type: string
           format: uuid
+        status:
+          type: string
+          enum: [in_progress, completed]
       required:
         - id
         - trip_id
         - start_time
-    
+        - status
+
     UnloadingOperation:
       type: object
       properties:
@@ -410,10 +1099,80 @@ components:
         unloaded_by:
           type: string
           format: uuid
+        status:
+          type: string
+          enum: [in_progress, completed]
       required:
         - id
         - trip_id
         - start_time
+        - status
+
+    # ── Command Centre ────────────────────────────
+    DashboardSummary:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date-time
+        total_active_trips:
+          type: integer
+        trips_by_status:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            gate_in: 5
+            loading: 3
+            in_transit: 12
+            unloading: 2
+            on_hold: 1
+        pending_gate_passes:
+          type: integer
+        on_hold_trips:
+          type: integer
+        todays_completed_trips:
+          type: integer
+        todays_total_net_weight_kg:
+          type: number
+          format: decimal
+      required:
+        - as_of
+        - total_active_trips
+        - trips_by_status
+
+    ActiveTripSummary:
+      type: object
+      properties:
+        trip_id:
+          type: string
+          format: uuid
+        trip_number:
+          type: string
+        vehicle_registration:
+          type: string
+        driver_name:
+          type: string
+        current_status:
+          type: string
+        current_poi_name:
+          type: string
+          nullable: true
+        status_since:
+          type: string
+          format: date-time
+        product_name:
+          type: string
+          nullable: true
+        quantity:
+          type: number
+          format: decimal
+          nullable: true
+      required:
+        - trip_id
+        - trip_number
+        - vehicle_registration
+        - current_status
 
   securitySchemes:
     bearerAuth:
@@ -421,4 +1180,3 @@ components:
 
 security:
   - bearerAuth: []
-

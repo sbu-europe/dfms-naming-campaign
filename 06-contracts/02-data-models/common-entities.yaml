@@ -12,9 +12,21 @@ definitions:
       id:
         type: string
         format: uuid
+      vehicle_code:
+        type: string
+        description: Internal business code (e.g., VH-0001)
       registration_number:
         type: string
         pattern: '^[A-Z0-9-]+$'
+      make:
+        type: string
+        nullable: true
+      model:
+        type: string
+        nullable: true
+      year:
+        type: integer
+        nullable: true
       type:
         type: string
         enum: [covered_van, open_truck, container, refrigerated]
@@ -59,11 +71,23 @@ definitions:
       contact_number:
         type: string
         pattern: '^\+?[0-9]{10,15}$'
+      nid_number:
+        type: string
+        description: National Identity Document number
+        nullable: true
       license_number:
         type: string
       license_valid_until:
         type: string
         format: date
+      address:
+        $ref: '#/definitions/Address'
+        nullable: true
+      vendor_id:
+        type: string
+        format: uuid
+        nullable: true
+        description: Set when driver belongs to a vendor fleet
       status:
         type: string
         enum: [available, assigned, on_leave, inactive]
@@ -92,18 +116,51 @@ definitions:
       id:
         type: string
         format: uuid
+      vendor_code:
+        type: string
+        description: Unique business identifier (e.g., VND-0001)
       name:
         type: string
         minLength: 1
         maxLength: 200
+      registration_number:
+        type: string
+        description: Business registration or TIN number
+        nullable: true
+      registration_status:
+        type: string
+        enum: [pending_verification, verified, rejected]
       contact_number:
         type: string
       email:
         type: string
         format: email
+        nullable: true
+      address:
+        $ref: '#/definitions/Address'
+        nullable: true
+      bank_details:
+        type: object
+        nullable: true
+        properties:
+          bank_name:
+            type: string
+          account_number:
+            type: string
+          routing_number:
+            type: string
+            nullable: true
       type:
         type: string
         enum: [contractual, non_contractual]
+      contract_start_date:
+        type: string
+        format: date
+        nullable: true
+      contract_end_date:
+        type: string
+        format: date
+        nullable: true
       status:
         type: string
         enum: [active, inactive, suspended]
@@ -115,9 +172,15 @@ definitions:
       created_at:
         type: string
         format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
       - id
+      - vendor_code
       - name
+      - registration_status
+      - contact_number
       - type
       - status
   
@@ -161,8 +224,14 @@ definitions:
         type: string
       code:
         type: string
-      category:
+      sku:
         type: string
+        nullable: true
+      category_id:
+        type: string
+        format: uuid
+        description: FK to ProductCategory
+        nullable: true
       unit_of_measure:
         type: string
         enum: [kg, ton, piece, bag]
@@ -170,7 +239,14 @@ definitions:
         type: number
         format: decimal
         nullable: true
+      status:
+        type: string
+        enum: [active, inactive]
+        default: active
       created_at:
+        type: string
+        format: date-time
+      updated_at:
         type: string
         format: date-time
     required:
@@ -178,6 +254,7 @@ definitions:
       - name
       - code
       - unit_of_measure
+      - status
   
   # Transactional Entities
   ProductRequisition:
@@ -343,6 +420,11 @@ definitions:
       driver_id:
         type: string
         format: uuid
+      helper_id:
+        type: string
+        format: uuid
+        nullable: true
+        description: FK to Helper assigned to this trip
       scheduled_date:
         type: string
         format: date
@@ -368,7 +450,7 @@ definitions:
         nullable: true
       status:
         type: string
-        enum: [pending, in_transit, completed, cancelled]
+        enum: [pending, assigned, gate_in, loading, loading_complete, scale_in, in_transit, gate_out, unloading, scale_out, qc_pending, completed, on_hold, cancelled]
       created_at:
         type: string
         format: date-time
@@ -465,6 +547,326 @@ definitions:
       - amount
       - status
   
+  # New Master Data Entities
+  Helper:
+    type: object
+    description: Loading/unloading helper assigned to vehicles or trips
+    properties:
+      id:
+        type: string
+        format: uuid
+      helper_code:
+        type: string
+        description: Unique business identifier (e.g., HLP-0001)
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+      nid_number:
+        type: string
+        nullable: true
+      contact_number:
+        type: string
+        pattern: '^\+?[0-9]{10,15}$'
+      address:
+        $ref: '#/definitions/Address'
+        nullable: true
+      assigned_vehicle_id:
+        type: string
+        format: uuid
+        nullable: true
+      status:
+        type: string
+        enum: [available, assigned, inactive]
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - helper_code
+      - name
+      - contact_number
+      - status
+
+  Supplier:
+    type: object
+    description: Raw material or product supplier (origin party)
+    properties:
+      id:
+        type: string
+        format: uuid
+      supplier_code:
+        type: string
+        description: Unique business identifier (e.g., SUP-0001)
+      name:
+        type: string
+        minLength: 1
+        maxLength: 200
+      contact:
+        $ref: '#/definitions/Contact'
+      address:
+        $ref: '#/definitions/Address'
+        nullable: true
+      status:
+        type: string
+        enum: [active, inactive]
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - supplier_code
+      - name
+      - status
+
+  Dealer:
+    type: object
+    description: Distribution dealer or end-customer (destination party)
+    properties:
+      id:
+        type: string
+        format: uuid
+      dealer_code:
+        type: string
+        description: Unique business identifier (e.g., DLR-0001)
+      name:
+        type: string
+        minLength: 1
+        maxLength: 200
+      contact:
+        $ref: '#/definitions/Contact'
+      address:
+        $ref: '#/definitions/Address'
+        nullable: true
+      zone_id:
+        type: string
+        format: uuid
+        nullable: true
+        description: FK to Zone for territory grouping
+      status:
+        type: string
+        enum: [active, inactive]
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - dealer_code
+      - name
+      - status
+
+  Route:
+    type: object
+    description: Predefined route between two POIs
+    properties:
+      id:
+        type: string
+        format: uuid
+      route_code:
+        type: string
+        description: Unique business identifier (e.g., RTE-0001)
+      name:
+        type: string
+      origin_poi_id:
+        type: string
+        format: uuid
+      destination_poi_id:
+        type: string
+        format: uuid
+      distance_km:
+        type: number
+        format: decimal
+        minimum: 0
+        nullable: true
+      estimated_duration_min:
+        type: integer
+        minimum: 0
+        nullable: true
+      status:
+        type: string
+        enum: [active, inactive]
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - route_code
+      - name
+      - origin_poi_id
+      - destination_poi_id
+      - status
+
+  ProductCategory:
+    type: object
+    description: Category grouping for products
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+        minLength: 1
+        maxLength: 100
+      code:
+        type: string
+        description: Short unique code (e.g., POULTRY, FEED)
+      description:
+        type: string
+        nullable: true
+      is_active:
+        type: boolean
+        default: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - code
+
+  Zone:
+    type: object
+    description: Geographic or administrative zone for territory management
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      code:
+        type: string
+      boundary_coordinates:
+        type: array
+        description: GeoJSON-style polygon coordinate array [[lng, lat], ...]
+        items:
+          type: array
+          items:
+            type: number
+        nullable: true
+      is_active:
+        type: boolean
+        default: true
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - code
+
+  VendorBid:
+    type: object
+    description: Bid submitted by a vendor for a transport requisition
+    properties:
+      id:
+        type: string
+        format: uuid
+      bid_number:
+        type: string
+        pattern: '^BID-[0-9]{8}-[0-9]{4}$'
+      tr_id:
+        type: string
+        format: uuid
+        description: FK to TransportRequest
+      vendor_id:
+        type: string
+        format: uuid
+      proposed_vehicle_id:
+        type: string
+        format: uuid
+        nullable: true
+      proposed_driver_id:
+        type: string
+        format: uuid
+        nullable: true
+      bid_amount:
+        $ref: '#/definitions/Money'
+      notes:
+        type: string
+        nullable: true
+      status:
+        type: string
+        enum: [submitted, under_review, accepted, rejected, withdrawn]
+      submitted_at:
+        type: string
+        format: date-time
+      responded_at:
+        type: string
+        format: date-time
+        nullable: true
+    required:
+      - id
+      - bid_number
+      - tr_id
+      - vendor_id
+      - bid_amount
+      - status
+
+  TripCost:
+    type: object
+    description: Calculated cost breakdown for a completed trip
+    properties:
+      id:
+        type: string
+        format: uuid
+      trip_id:
+        type: string
+        format: uuid
+      base_fare:
+        $ref: '#/definitions/Money'
+      distance_charge:
+        $ref: '#/definitions/Money'
+        nullable: true
+      waiting_charge:
+        $ref: '#/definitions/Money'
+        nullable: true
+      loading_charge:
+        $ref: '#/definitions/Money'
+        nullable: true
+      toll_charge:
+        $ref: '#/definitions/Money'
+        nullable: true
+      other_charges:
+        $ref: '#/definitions/Money'
+        nullable: true
+      total_cost:
+        $ref: '#/definitions/Money'
+      calculated_at:
+        type: string
+        format: date-time
+      approved_by:
+        type: string
+        format: uuid
+        nullable: true
+      approved_at:
+        type: string
+        format: date-time
+        nullable: true
+      status:
+        type: string
+        enum: [draft, pending_approval, approved, rejected]
+    required:
+      - id
+      - trip_id
+      - base_fare
+      - total_cost
+      - status
+
   # Value Objects
   Location:
     type: object

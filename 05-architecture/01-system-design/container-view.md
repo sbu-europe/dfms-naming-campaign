@@ -2,8 +2,8 @@
 
 > High-level technical building blocks (C4 Level 2)
 
-**Status**: 🚧 Draft  
-**Last Updated**: February 13, 2026  
+**Status**: Active  
+**Last Updated**: March 2026  
 **Architecture Level**: C4 Level 2 - Container View
 
 ---
@@ -22,7 +22,7 @@ This document provides a **container view** of the DFMS system, showing the high
 
 DFMS consists of the following containers:
 
-1. **Web Application** (Vue.js SPA)
+1. **Web Application** (Django Templates + Bootstrap 5 in Phase 1; Vue.js SPA in Phase 2+)
 2. **Mobile Applications** (Flutter - iOS/Android)
 3. **API Server** (Django REST Framework)
 4. **Background Worker** (Celery)
@@ -112,34 +112,42 @@ DFMS consists of the following containers:
 
 ### 3. API Server
 
-**Technology**: Python + Django + Django REST Framework
+**Technology**: Python + Django + Django REST Framework + `django-tenants`
 
 **Purpose**: Core business logic and API endpoints
+
+**Multi-Tenancy**: The `django-tenants` middleware is the first middleware in the Django stack. On each incoming request it:
+1. Reads the subdomain (or `X-Tenant-Domain` header for mobile/API clients)
+2. Looks up the matching tenant in the `public.tenants` table
+3. Sets `search_path = <tenant_schema>, public` on the database connection
+4. All subsequent ORM queries within the request automatically target the correct tenant schema — no `tenant_id` filtering needed in application code
 
 **Responsibilities**:
 - REST API endpoints
 - Business logic execution
-- Authentication & authorization
+- Authentication (3-step: OTP → JWT issuance with `tenant_schema` embedded in token)
+- Authorization (RBAC middleware — role/permission check on every request)
 - Request validation
-- Data persistence (via ORM)
+- Data persistence (via Django ORM + `django-tenants`)
 - Event publishing
-- Real-time updates (WebSocket)
+- Real-time updates (WebSocket / Django Channels in Phase 2)
 
 **Modules** (Logical Organization):
 ```
 api_server/
-├── master_data/          # Master Data Management
+├── core/                 # User Management, Auth, RBAC
+├── master_data/          # Master Data Management (vehicles, drivers, helpers, vendors, suppliers, dealers, routes, zones, POIs, products)
 ├── product_requisition/  # Product Requisition
 ├── transport/            # Transport Management
 ├── vendor/               # Vendor Management
-├── operations/           # Operations Management
+├── operations/           # Gate & Weighing Operations
 ├── quality_control/      # Quality Control
-├── fleet/                # Fleet Management
-├── fuel/                 # Fuel Management
-├── costing/              # Trip Costing
+├── fleet/                # Fleet Management (Phase 2)
+├── fuel/                 # Fuel Management (Phase 2)
+├── costing/              # Trip Costing & Finance
 ├── reporting/            # Reporting & Analytics
 ├── mobile/               # Mobile-specific APIs
-└── notifications/        # Notifications
+└── notifications/        # Notifications & Alerts
 ```
 
 **Communication**:
@@ -253,23 +261,33 @@ api_server/
 
 **Schema Organization**:
 
-**Phase 1 (Current)**: Schema per Tenant
+**Architecture Decision**: Schema-per-tenant via `django-tenants` (all subscription tiers)
 ```
-- tenant_1 schema
-- tenant_2 schema
-- shared schema (for system data)
+PostgreSQL Server
+├── public                  -- shared platform entities
+│   ├── tenants             -- tenant registry
+│   ├── subscription_plans  -- feature/limit tiers
+│   └── audit_logs          -- cross-tenant audit trail (partitioned by month)
+│
+├── tenant_001              -- e.g., Nourish Poultry
+│   ├── users, roles, permissions
+│   ├── vehicles, drivers, helpers, vendors
+│   ├── suppliers, dealers, routes, zones, pois, product_categories, products
+│   ├── product_requisitions, transport_requests, transport_orders, trips
+│   ├── gate_entries, scale_in_entries, scale_out_entries, gate_passes
+│   ├── qc_events, qc_samples, qc_inspections
+│   └── trip_costs, vendor_invoices, notifications
+│
+└── tenant_002              -- e.g., ABC Logistics
+    └── (same table set, fully isolated)
 ```
 
-**Rationale for Phase 1**:
-- Complete data isolation
-- Simpler security model
-- Easier backup/restore per tenant
-- Clear tenant boundaries
-
-**Future Consideration (Phase 2+)**: Row-Level Security
-- Single schema with tenant_id column
-- RLS policies for isolation
-- May be considered if schema-per-tenant becomes limiting
+**Why schema-per-tenant (not RLS)**:
+- Complete data isolation at the PostgreSQL level — no application-level `tenant_id` filtering
+- Independent backup and restore per tenant
+- `django-tenants` library handles `search_path` routing automatically
+- `migrate_schemas` management command applies Django migrations to every tenant schema
+- No risk of cross-tenant data leakage at the query layer
 
 **Features Used**:
 - ACID transactions
@@ -328,14 +346,16 @@ api_server/
 
 ### 8. Message Queue
 
-**Phase 1**: Redis (used as Celery broker)  
+**Phase 1**: Redis (used as Celery broker — shared with the Cache container)  
 **Phase 2+**: RabbitMQ / AWS SQS
 
 **Technology**: 
-- Phase 1: Redis (shared with cache)
+- Phase 1: Redis (shared with Cache container — see note below)
 - Phase 2+: RabbitMQ / AWS SQS
 
 **Purpose**: Asynchronous message passing
+
+> **Note on Redis dual-role in Phase 1**: The same Redis instance serves as both the application cache (container 7) and the Celery task broker. This is acceptable in Phase 1 with low tenant counts but introduces a single point of failure for both caching and background task delivery. The Phase 2 migration to a dedicated message queue (RabbitMQ/SQS) eliminates this risk.
 
 **Phase 1 Use Cases**:
 - Celery task queue (background jobs)
@@ -627,7 +647,7 @@ This container view was created by analyzing:
 
 ---
 
-**Document Status**: 🚧 Draft  
-**Next Steps**: Create container diagram, review with team  
+**Document Status**: Active  
+**Last Updated**: March 2026  
 **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 

@@ -4,15 +4,18 @@ info:
   description: |
     API contract for Master Data Management module in DFMS.
     
-    This contract defines the interface for managing master data entities:
+    This contract defines the interface for managing all master data entities:
     - Vehicles
     - Drivers
     - Helpers
-    - Vendors (master data)
-    - POIs (Points of Interest)
-    - Products
+    - Vendors (admin CRUD; vendor onboarding/bidding is in vendor-management.yaml)
+    - POIs (Points of Interest with geofence configuration)
+    - Products and Product Categories
+    - Suppliers
+    - Dealers
+    - Routes
     - Zones
-  version: 1.0.0
+  version: 1.1.0
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com
@@ -26,15 +29,29 @@ tags:
     description: Vehicle management operations
   - name: Drivers
     description: Driver management operations
+  - name: Helpers
+    description: Helper (loader/unloader) management operations
   - name: Vendors
-    description: Vendor master data operations
+    description: Vendor master data CRUD operations
   - name: POIs
-    description: Point of Interest management operations
+    description: Point of Interest management and geofence configuration
   - name: Products
     description: Product management operations
+  - name: ProductCategories
+    description: Product category management operations
+  - name: Suppliers
+    description: Supplier master data operations
+  - name: Dealers
+    description: Dealer master data operations
+  - name: Routes
+    description: Route definition and management operations
+  - name: Zones
+    description: Geographic zone management operations
 
 paths:
+  # ─────────────────────────────────────────────
   # Vehicles
+  # ─────────────────────────────────────────────
   /vehicles:
     get:
       tags: [Vehicles]
@@ -53,6 +70,11 @@ paths:
           schema:
             type: string
             enum: [own, vendor]
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: List of vehicles
@@ -67,7 +89,7 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/Vehicle'
-    
+
     post:
       tags: [Vehicles]
       summary: Create vehicle
@@ -87,7 +109,7 @@ paths:
                 $ref: '#/components/schemas/Vehicle'
         '400':
           $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
-  
+
   /vehicles/{id}:
     get:
       tags: [Vehicles]
@@ -104,7 +126,7 @@ paths:
                 $ref: '#/components/schemas/Vehicle'
         '404':
           $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
-    
+
     put:
       tags: [Vehicles]
       summary: Update vehicle
@@ -126,10 +148,10 @@ paths:
                 $ref: '#/components/schemas/Vehicle'
         '404':
           $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
-    
+
     delete:
       tags: [Vehicles]
-      summary: Delete vehicle
+      summary: Delete vehicle (soft delete)
       operationId: deleteVehicle
       parameters:
         - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
@@ -138,8 +160,10 @@ paths:
           description: Vehicle deleted
         '404':
           $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
-  
+
+  # ─────────────────────────────────────────────
   # Drivers
+  # ─────────────────────────────────────────────
   /drivers:
     get:
       tags: [Drivers]
@@ -153,6 +177,11 @@ paths:
           schema:
             type: string
             enum: [available, assigned, on_leave, inactive]
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         '200':
           description: List of drivers
@@ -167,7 +196,7 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/Driver'
-    
+
     post:
       tags: [Drivers]
       summary: Create driver
@@ -187,7 +216,7 @@ paths:
                 $ref: '#/components/schemas/Driver'
         '400':
           $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
-  
+
   /drivers/{id}:
     get:
       tags: [Drivers]
@@ -204,7 +233,7 @@ paths:
                 $ref: '#/components/schemas/Driver'
         '404':
           $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
-    
+
     put:
       tags: [Drivers]
       summary: Update driver
@@ -227,16 +256,1019 @@ paths:
         '404':
           $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
 
+    delete:
+      tags: [Drivers]
+      summary: Delete driver (soft delete)
+      operationId: deleteDriver
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Driver deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Helpers
+  # ─────────────────────────────────────────────
+  /helpers:
+    get:
+      tags: [Helpers]
+      summary: List helpers
+      operationId: listHelpers
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, assigned, inactive]
+      responses:
+        '200':
+          description: List of helpers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Helper'
+
+    post:
+      tags: [Helpers]
+      summary: Create helper
+      operationId: createHelper
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelperCreate'
+      responses:
+        '201':
+          description: Helper created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Helper'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /helpers/{id}:
+    get:
+      tags: [Helpers]
+      summary: Get helper by ID
+      operationId: getHelper
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Helper details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Helper'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Helpers]
+      summary: Update helper
+      operationId: updateHelper
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelperUpdate'
+      responses:
+        '200':
+          description: Helper updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Helper'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Helpers]
+      summary: Delete helper (soft delete)
+      operationId: deleteHelper
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Helper deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Vendors (master data admin CRUD)
+  # ─────────────────────────────────────────────
+  /master-data/vendors:
+    get:
+      tags: [Vendors]
+      summary: List vendors (admin view)
+      operationId: listMasterVendors
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: registration_status
+          in: query
+          schema:
+            type: string
+            enum: [pending_verification, verified, rejected]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [contractual, non_contractual]
+      responses:
+        '200':
+          description: List of vendors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Vendor'
+
+    post:
+      tags: [Vendors]
+      summary: Create vendor master record
+      operationId: createMasterVendor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorBulkUpload'
+      responses:
+        '201':
+          description: Vendor created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /master-data/vendors/{id}:
+    get:
+      tags: [Vendors]
+      summary: Get vendor by ID
+      operationId: getMasterVendor
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Vendor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Vendors]
+      summary: Update vendor master record
+      operationId: updateMasterVendor
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorUpdate'
+      responses:
+        '200':
+          description: Vendor updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Vendors]
+      summary: Delete vendor (soft delete)
+      operationId: deleteMasterVendor
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Vendor deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # POIs
+  # ─────────────────────────────────────────────
+  /pois:
+    get:
+      tags: [POIs]
+      summary: List Points of Interest
+      operationId: listPOIs
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [factory, warehouse, cfs, customer, depot]
+      responses:
+        '200':
+          description: List of POIs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/POI'
+
+    post:
+      tags: [POIs]
+      summary: Create Point of Interest
+      operationId: createPOI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/POICreate'
+      responses:
+        '201':
+          description: POI created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/POI'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /pois/{id}:
+    get:
+      tags: [POIs]
+      summary: Get POI by ID
+      operationId: getPOI
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: POI details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/POI'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [POIs]
+      summary: Update POI
+      operationId: updatePOI
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/POIUpdate'
+      responses:
+        '200':
+          description: POI updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/POI'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [POIs]
+      summary: Delete POI
+      operationId: deletePOI
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: POI deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  /pois/{id}/geofence:
+    put:
+      tags: [POIs]
+      summary: Configure geofence for a POI
+      operationId: configurePOIGeofence
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeofenceConfig'
+      responses:
+        '200':
+          description: Geofence configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/POI'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Product Categories
+  # ─────────────────────────────────────────────
+  /product-categories:
+    get:
+      tags: [ProductCategories]
+      summary: List product categories
+      operationId: listProductCategories
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of product categories
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ProductCategory'
+
+    post:
+      tags: [ProductCategories]
+      summary: Create product category
+      operationId: createProductCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCategoryCreate'
+      responses:
+        '201':
+          description: Product category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCategory'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /product-categories/{id}:
+    get:
+      tags: [ProductCategories]
+      summary: Get product category by ID
+      operationId: getProductCategory
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Product category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCategory'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [ProductCategories]
+      summary: Update product category
+      operationId: updateProductCategory
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCategoryUpdate'
+      responses:
+        '200':
+          description: Product category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductCategory'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [ProductCategories]
+      summary: Delete product category
+      operationId: deleteProductCategory
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Product category deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Products
+  # ─────────────────────────────────────────────
+  /products:
+    get:
+      tags: [Products]
+      summary: List products
+      operationId: listProducts
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: category_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+
+    post:
+      tags: [Products]
+      summary: Create product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get product by ID
+      operationId: getProduct
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Products]
+      summary: Update product
+      operationId: updateProduct
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '200':
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Products]
+      summary: Delete product (soft delete)
+      operationId: deleteProduct
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Product deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Suppliers
+  # ─────────────────────────────────────────────
+  /suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List suppliers
+      operationId: listSuppliers
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of suppliers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Supplier'
+
+    post:
+      tags: [Suppliers]
+      summary: Create supplier
+      operationId: createSupplier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkUpload'
+      responses:
+        '201':
+          description: Supplier created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /suppliers/{id}:
+    get:
+      tags: [Suppliers]
+      summary: Get supplier by ID
+      operationId: getSupplier
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Supplier details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Suppliers]
+      summary: Update supplier
+      operationId: updateSupplier
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierUpdate'
+      responses:
+        '200':
+          description: Supplier updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Suppliers]
+      summary: Delete supplier (soft delete)
+      operationId: deleteSupplier
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Supplier deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Dealers
+  # ─────────────────────────────────────────────
+  /dealers:
+    get:
+      tags: [Dealers]
+      summary: List dealers
+      operationId: listDealers
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: zone_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of dealers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Dealer'
+
+    post:
+      tags: [Dealers]
+      summary: Create dealer
+      operationId: createDealer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DealerCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkUpload'
+      responses:
+        '201':
+          description: Dealer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dealer'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /dealers/{id}:
+    get:
+      tags: [Dealers]
+      summary: Get dealer by ID
+      operationId: getDealer
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Dealer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dealer'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Dealers]
+      summary: Update dealer
+      operationId: updateDealer
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DealerUpdate'
+      responses:
+        '200':
+          description: Dealer updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dealer'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Dealers]
+      summary: Delete dealer (soft delete)
+      operationId: deleteDealer
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Dealer deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Routes
+  # ─────────────────────────────────────────────
+  /routes:
+    get:
+      tags: [Routes]
+      summary: List routes
+      operationId: listRoutes
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+        - name: origin_poi_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: destination_poi_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of routes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Route'
+
+    post:
+      tags: [Routes]
+      summary: Create route
+      operationId: createRoute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteCreate'
+      responses:
+        '201':
+          description: Route created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /routes/{id}:
+    get:
+      tags: [Routes]
+      summary: Get route by ID
+      operationId: getRoute
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Route details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Routes]
+      summary: Update route
+      operationId: updateRoute
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteUpdate'
+      responses:
+        '200':
+          description: Route updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Route'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Routes]
+      summary: Delete route (soft delete)
+      operationId: deleteRoute
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Route deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+  # ─────────────────────────────────────────────
+  # Zones
+  # ─────────────────────────────────────────────
+  /zones:
+    get:
+      tags: [Zones]
+      summary: List zones
+      operationId: listZones
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageParam'
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/PageSizeParam'
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of zones
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '../schemas/common-schemas.yaml#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Zone'
+
+    post:
+      tags: [Zones]
+      summary: Create zone
+      operationId: createZone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneCreate'
+      responses:
+        '201':
+          description: Zone created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Zone'
+        '400':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/BadRequest'
+
+  /zones/{id}:
+    get:
+      tags: [Zones]
+      summary: Get zone by ID
+      operationId: getZone
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '200':
+          description: Zone details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Zone'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    put:
+      tags: [Zones]
+      summary: Update zone
+      operationId: updateZone
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneUpdate'
+      responses:
+        '200':
+          description: Zone updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Zone'
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
+    delete:
+      tags: [Zones]
+      summary: Delete zone (soft delete)
+      operationId: deleteZone
+      parameters:
+        - $ref: '../schemas/common-schemas.yaml#/components/parameters/UUIDParam'
+      responses:
+        '204':
+          description: Zone deleted
+        '404':
+          $ref: '../schemas/common-schemas.yaml#/components/responses/NotFound'
+
 components:
   schemas:
+    # ── Vehicles ─────────────────────────────────
     Vehicle:
       type: object
       properties:
         id:
           type: string
           format: uuid
+        vehicle_code:
+          type: string
+          example: VH-0001
         registration_number:
           type: string
+        make:
+          type: string
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
         type:
           $ref: '../schemas/common-schemas.yaml#/components/schemas/VehicleType'
         capacity:
@@ -264,12 +1296,21 @@ components:
         - capacity
         - owner_type
         - status
-    
+
     VehicleCreate:
       type: object
       properties:
         registration_number:
           type: string
+        make:
+          type: string
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
         type:
           $ref: '../schemas/common-schemas.yaml#/components/schemas/VehicleType'
         capacity:
@@ -286,17 +1327,31 @@ components:
         - type
         - capacity
         - owner_type
-    
+
     VehicleUpdate:
       type: object
       properties:
-        status:
+        make:
           type: string
-          enum: [available, assigned, maintenance, inactive]
+          nullable: true
+        model:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
         capacity:
           type: number
           format: decimal
-    
+        status:
+          type: string
+          enum: [available, assigned, maintenance, inactive]
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    # ── Drivers ──────────────────────────────────
     Driver:
       type: object
       properties:
@@ -307,11 +1362,20 @@ components:
           type: string
         contact_number:
           type: string
+        nid_number:
+          type: string
+          nullable: true
         license_number:
           type: string
         license_valid_until:
           type: string
           format: date
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
         status:
           type: string
           enum: [available, assigned, on_leave, inactive]
@@ -333,7 +1397,7 @@ components:
         - license_number
         - license_valid_until
         - status
-    
+
     DriverCreate:
       type: object
       properties:
@@ -341,26 +1405,910 @@ components:
           type: string
         contact_number:
           type: string
+        nid_number:
+          type: string
+          nullable: true
         license_number:
           type: string
         license_valid_until:
           type: string
           format: date
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
       required:
         - name
         - contact_number
         - license_number
         - license_valid_until
-    
+
     DriverUpdate:
       type: object
       properties:
-        status:
+        contact_number:
           type: string
-          enum: [available, assigned, on_leave, inactive]
+        nid_number:
+          type: string
+          nullable: true
         license_valid_until:
           type: string
           format: date
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        status:
+          type: string
+          enum: [available, assigned, on_leave, inactive]
+        vendor_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    # ── Helpers ───────────────────────────────────
+    Helper:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        helper_code:
+          type: string
+          example: HLP-0001
+        name:
+          type: string
+        contact_number:
+          type: string
+        nid_number:
+          type: string
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        assigned_vehicle_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          type: string
+          enum: [available, assigned, inactive]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - helper_code
+        - name
+        - contact_number
+        - status
+
+    HelperCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_number:
+          type: string
+        nid_number:
+          type: string
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        assigned_vehicle_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - name
+        - contact_number
+
+    HelperUpdate:
+      type: object
+      properties:
+        contact_number:
+          type: string
+        nid_number:
+          type: string
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        assigned_vehicle_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          type: string
+          enum: [available, assigned, inactive]
+
+    # ── Vendors ───────────────────────────────────
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendor_code:
+          type: string
+          example: VND-0001
+        name:
+          type: string
+        registration_number:
+          type: string
+          nullable: true
+        registration_status:
+          type: string
+          enum: [pending_verification, verified, rejected]
+        contact_number:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        bank_details:
+          type: object
+          nullable: true
+          properties:
+            bank_name:
+              type: string
+            account_number:
+              type: string
+            routing_number:
+              type: string
+              nullable: true
+        type:
+          type: string
+          enum: [contractual, non_contractual]
+        contract_start_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - vendor_code
+        - name
+        - registration_status
+        - contact_number
+        - type
+        - status
+
+    VendorCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        registration_number:
+          type: string
+          nullable: true
+        contact_number:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        bank_details:
+          type: object
+          nullable: true
+          properties:
+            bank_name:
+              type: string
+            account_number:
+              type: string
+            routing_number:
+              type: string
+              nullable: true
+        type:
+          type: string
+          enum: [contractual, non_contractual]
+        contract_start_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+      required:
+        - name
+        - contact_number
+        - type
+
+    VendorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        registration_number:
+          type: string
+          nullable: true
+        registration_status:
+          type: string
+          enum: [pending_verification, verified, rejected]
+        contact_number:
+          type: string
+        email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        bank_details:
+          type: object
+          nullable: true
+        type:
+          type: string
+          enum: [contractual, non_contractual]
+        contract_start_date:
+          type: string
+          format: date
+          nullable: true
+        contract_end_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+
+    VendorBulkUpload:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: CSV file with vendor records
+      required:
+        - file
+
+    # ── POIs ─────────────────────────────────────
+    POI:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: float
+            longitude:
+              type: number
+              format: float
+          required:
+            - latitude
+            - longitude
+        type:
+          type: string
+          enum: [factory, warehouse, cfs, customer, depot]
+        contact_person:
+          type: string
+          nullable: true
+        contact_number:
+          type: string
+          nullable: true
+        geofence_radius_meters:
+          type: integer
+          nullable: true
+          description: Radius in meters for circular geofence trigger
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - location
+        - type
+
+    POICreate:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+          nullable: true
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+          required:
+            - latitude
+            - longitude
+        type:
+          type: string
+          enum: [factory, warehouse, cfs, customer, depot]
+        contact_person:
+          type: string
+          nullable: true
+        contact_number:
+          type: string
+          nullable: true
+        geofence_radius_meters:
+          type: integer
+          nullable: true
+      required:
+        - name
+        - location
+        - type
+
+    POIUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+          nullable: true
+        contact_person:
+          type: string
+          nullable: true
+        contact_number:
+          type: string
+          nullable: true
+        geofence_radius_meters:
+          type: integer
+          nullable: true
+
+    GeofenceConfig:
+      type: object
+      properties:
+        radius_meters:
+          type: integer
+          minimum: 50
+          description: Circular geofence radius in meters
+        entry_event_enabled:
+          type: boolean
+          default: true
+        exit_event_enabled:
+          type: boolean
+          default: true
+      required:
+        - radius_meters
+
+    # ── Product Categories ────────────────────────
+    ProductCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+          example: POULTRY
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - code
+
+    ProductCategoryCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+          nullable: true
+      required:
+        - name
+        - code
+
+    ProductCategoryUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+
+    # ── Products ──────────────────────────────────
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        sku:
+          type: string
+          nullable: true
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+        category_name:
+          type: string
+          nullable: true
+          readOnly: true
+        unit_of_measure:
+          type: string
+          enum: [kg, ton, piece, bag]
+        weight_per_unit:
+          type: number
+          format: decimal
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - code
+        - unit_of_measure
+        - status
+
+    ProductCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        sku:
+          type: string
+          nullable: true
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+        unit_of_measure:
+          type: string
+          enum: [kg, ton, piece, bag]
+        weight_per_unit:
+          type: number
+          format: decimal
+          nullable: true
+      required:
+        - name
+        - code
+        - unit_of_measure
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+          nullable: true
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+        unit_of_measure:
+          type: string
+          enum: [kg, ton, piece, bag]
+        weight_per_unit:
+          type: number
+          format: decimal
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    # ── Suppliers ─────────────────────────────────
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        supplier_code:
+          type: string
+          example: SUP-0001
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        status:
+          type: string
+          enum: [active, inactive]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - supplier_code
+        - name
+        - status
+
+    SupplierCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+      required:
+        - name
+
+    SupplierUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        status:
+          type: string
+          enum: [active, inactive]
+
+    # ── Dealers ───────────────────────────────────
+    Dealer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        dealer_code:
+          type: string
+          example: DLR-0001
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        zone_id:
+          type: string
+          format: uuid
+          nullable: true
+        zone_name:
+          type: string
+          nullable: true
+          readOnly: true
+        status:
+          type: string
+          enum: [active, inactive]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - dealer_code
+        - name
+        - status
+
+    DealerCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        zone_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - name
+
+    DealerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        contact_name:
+          type: string
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        address:
+          $ref: '#/components/schemas/AddressObject'
+        zone_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    # ── Routes ────────────────────────────────────
+    Route:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        route_code:
+          type: string
+          example: RTE-0001
+        name:
+          type: string
+        origin_poi_id:
+          type: string
+          format: uuid
+        origin_poi_name:
+          type: string
+          readOnly: true
+        destination_poi_id:
+          type: string
+          format: uuid
+        destination_poi_name:
+          type: string
+          readOnly: true
+        distance_km:
+          type: number
+          format: decimal
+          nullable: true
+        estimated_duration_min:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - route_code
+        - name
+        - origin_poi_id
+        - destination_poi_id
+        - status
+
+    RouteCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        origin_poi_id:
+          type: string
+          format: uuid
+        destination_poi_id:
+          type: string
+          format: uuid
+        distance_km:
+          type: number
+          format: decimal
+          nullable: true
+        estimated_duration_min:
+          type: integer
+          nullable: true
+      required:
+        - name
+        - origin_poi_id
+        - destination_poi_id
+
+    RouteUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        distance_km:
+          type: number
+          format: decimal
+          nullable: true
+        estimated_duration_min:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+
+    # ── Zones ─────────────────────────────────────
+    Zone:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        boundary_coordinates:
+          type: array
+          description: "GeoJSON polygon coordinates: array of [longitude, latitude] pairs"
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - code
+
+    ZoneCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        boundary_coordinates:
+          type: array
+          nullable: true
+          items:
+            type: array
+            items:
+              type: number
+      required:
+        - name
+        - code
+
+    ZoneUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        boundary_coordinates:
+          type: array
+          nullable: true
+          items:
+            type: array
+            items:
+              type: number
+        is_active:
+          type: boolean
+
+    # ── Shared ────────────────────────────────────
+    AddressObject:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+          nullable: true
+        postal_code:
+          type: string
+          nullable: true
+        country:
+          type: string
+          default: Bangladesh
+      required:
+        - street
+        - city
+        - country
+
+    BulkUpload:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: CSV file for bulk import
+      required:
+        - file
 
   securitySchemes:
     bearerAuth:
@@ -368,4 +2316,3 @@ components:
 
 security:
   - bearerAuth: []
-

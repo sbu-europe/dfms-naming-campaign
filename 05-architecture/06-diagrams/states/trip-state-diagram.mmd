@@ -1,41 +1,97 @@
-%% Trip State Diagram
-%% Shows Trip state transitions
+%% DFMS Trip State Diagram — Full 13-state lifecycle
+%% Aligned with gate_entries status enum and DB schema
+%% Last Updated: March 2026
 
 stateDiagram-v2
-    [*] --> Pending: Trip Created
-    
-    Pending --> InTransit: Driver Starts Trip<br/>(TripStarted Event)
-    Pending --> Cancelled: Cancel Trip<br/>(TripCancelled Event)
-    
-    InTransit --> InTransit: Location Update<br/>(TripLocationUpdated Event)
-    InTransit --> Completed: Driver Completes Trip<br/>(TripCompleted Event)
-    InTransit --> Cancelled: Cancel Trip<br/>(TripCancelled Event)
-    
-    Completed --> [*]: Trip Cost Calculated
-    
-    Cancelled --> [*]: Cancellation Recorded
-    
+    [*] --> Pending : Transport Order created
+
+    %% ── Pre-departure ──────────────────────────────
+    Pending --> Assigned : Vehicle + driver confirmed\n(TO dispatched)
+    Pending --> Cancelled : Trip cancelled before dispatch
+
+    Assigned --> GateIn : Vehicle arrives at origin gate\n(gate-in recorded by gate operator)
+    Assigned --> OnHold : Pre-departure incident raised
+    Assigned --> Cancelled : Trip cancelled after assignment
+
+    %% ── Origin operations ──────────────────────────
+    GateIn --> Loading : Gate operator starts loading\n(POST /operations/loading/start)
+
+    Loading --> LoadingComplete : Quantity loaded confirmed\n(POST /operations/loading/complete)
+    Loading --> OnHold : Loading incident raised
+
+    LoadingComplete --> ScaleIn : Tare (empty) weight recorded\n(POST /operations/scale-in)
+    LoadingComplete --> OnHold : Pre-departure hold
+
+    %% ── In transit ─────────────────────────────────
+    ScaleIn --> InTransit : Vehicle departs origin gate\n(driver confirms departure)
+    InTransit --> InTransit : GPS location update\n(every 60 seconds)
+    InTransit --> OnHold : Breakdown / incident en route\n(driver or supervisor action)
+
+    %% ── Destination operations ─────────────────────
+    InTransit --> GateOut : Vehicle arrives at destination gate\n(gate-out recorded by gate operator)
+
+    GateOut --> Unloading : Gate operator starts unloading\n(POST /operations/unloading/start)
+    GateOut --> OnHold : Destination hold
+
+    Unloading --> ScaleOut : Gross weight recorded after unloading\n(POST /operations/scale-out)\nNet weight = gross - tare
+    Unloading --> OnHold : Unloading incident raised
+
+    %% ── QC & completion ────────────────────────────
+    ScaleOut --> QCPending : Scale-out complete; gate pass issued\n(QC event auto-created)
+
+    QCPending --> Completed : QC inspection passed\n(trip cost calculation triggered)
+    QCPending --> OnHold : QC failure — re-inspection required
+
+    %% ── Cross-cutting: OnHold ──────────────────────
+    OnHold --> Assigned : Hold resolved — back to pre-dispatch
+    OnHold --> Loading : Hold resolved — resume loading
+    OnHold --> InTransit : Hold resolved — resume transit
+    OnHold --> Unloading : Hold resolved — resume unloading
+    OnHold --> QCPending : Re-inspection scheduled
+    OnHold --> Cancelled : Irresolvable — trip cancelled
+
+    %% ── Terminal states ────────────────────────────
+    Completed --> [*] : Trip cost record created\n→ Vendor invoice generated
+    Cancelled --> [*] : Cancellation reason recorded
+
+    %% ── State notes ────────────────────────────────
     note right of Pending
-        Initial state
-        Trip assigned to driver
-        Waiting for start
-    end note
-    
-    note right of InTransit
-        Active trip
-        GPS tracking active
-        Location updates every 60s
-    end note
-    
-    note right of Completed
-        Trip finished
-        Triggers cost calculation
-        QC inspection completed
-    end note
-    
-    note right of Cancelled
-        Trip cancelled
-        Reason recorded
-        No cost calculation
+        Initial state on TO creation.
+        Awaiting vehicle + driver assignment.
     end note
 
+    note right of GateIn
+        Gate operator logs vehicle_registration,
+        party_type, and entry_time.
+        Triggers scale-in queue.
+    end note
+
+    note right of ScaleIn
+        Tare weight (empty vehicle) captured
+        at origin weighbridge.
+        Used for net weight calculation at destination.
+    end note
+
+    note right of InTransit
+        Real-time GPS tracking active (60s interval).
+        Route deviation alerts may trigger OnHold.
+    end note
+
+    note right of ScaleOut
+        Net weight = gross_weight_kg − tare_weight_kg.
+        gate_pass_token generated and attached
+        to GatePass record.
+    end note
+
+    note right of QCPending
+        QC event auto-created on ScaleOutComplete event.
+        QC inspector performs physical/lab inspection.
+        Pass → Completed; Fail → OnHold (re-inspection).
+    end note
+
+    note right of Completed
+        Final state. Triggers:
+        1. TripCost calculation (Celery task)
+        2. VendorInvoice generation
+        3. ERP sync (if configured)
+    end note
