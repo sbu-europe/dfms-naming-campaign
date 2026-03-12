@@ -96,6 +96,53 @@ Both **light** and **dark** themes are first-class. Theme switching via `[data-t
 
 ---
 
+## Design Influences & Principles
+
+DFMS does not adopt any single design system wholesale. Instead it draws specific, deliberate lessons from proven systems chosen for their relevance to enterprise operational software.
+
+### Reference Systems
+
+| System | Layer | What We Borrow |
+|--------|-------|---------------|
+| **IBM Carbon Design System** | Web portal (primary reference) | Information density principles, data table affordances, status indicator patterns, form layout rules, and the overall philosophy that professional tools should be calm, structured, and predictable — never decorative |
+| **Material 3 (Google)** | Flutter mobile (structural reference) | `ColorScheme` + `ThemeData` token structure, touch target sizing (48×48px minimum), elevation/shadow semantics, and component parameters for buttons, inputs, and cards |
+| **Radix UI / Shadcn** | Web (accessibility reference) | ARIA patterns, focus management, keyboard navigation contracts, and accessible component composition patterns |
+| **Ant Design** | Behavioural reference only | Form validation UX, table column behaviour, step-wizard patterns, and feedback patterns for bulk operations |
+
+### What We Deliberately Do NOT Adopt
+
+| Avoided Pattern | Reason |
+|-----------------|--------|
+| M3 "expressive" tonal fills and large rounded shapes | Conflict with professional, authority-first brand identity and data-dense layouts |
+| M3 `ColorScheme.fromSeed()` auto-generation | Produces tonal variants that override brand colors (#122056 / #5B65DC) — always use explicit `ColorScheme` |
+| Ant Design's default blue-grey palette | Replaced entirely by the Brainstation-23 brand palette |
+| HIG (Apple Human Interface Guidelines) | Not applicable — mobile is Flutter cross-platform, not native Swift/SwiftUI |
+| Bottom sheets for primary navigation | DFMS operations contexts require persistent, visible navigation (sidebar on web, bottom nav bar on mobile) |
+
+### Core Design Principles
+
+These are binding design decisions, not suggestions:
+
+**1. Density over decoration**
+DFMS users are gate officers, QC supervisors, and fleet planners working in fast-paced environments. Every screen must surface the data they need immediately. Generous whitespace is used for clarity, not aesthetic preference.
+
+**2. Status is everything**
+Trip status, vehicle status, and QC status drive operational decisions. Status colours, badges, and indicators must be immediately scannable and unambiguous. Never use status colours for decorative purposes.
+
+**3. Authority through restraint**
+The dark navy (`#122056`) carries authority. It is used sparingly — top navigation and critical headers only. Overuse dilutes its effect.
+
+**4. Predictability over novelty**
+Interaction patterns must be consistent and learnable. Gate operators may use this system dozens of times a day under pressure. Surprising or clever UI patterns are a liability.
+
+**5. Accessible by default**
+WCAG 2.1 AA is the minimum. Every component is built accessible first — contrast ratios, keyboard navigation, ARIA labels, and touch targets are non-negotiable, not afterthoughts.
+
+**6. Theme-agnostic tokens**
+Every component references CSS custom properties or Flutter `ThemeData` tokens — never raw hex values. Both light and dark themes must work without any component changes.
+
+---
+
 ## Governance
 
 ### Who owns this?
@@ -116,6 +163,7 @@ The design system is owned by the **Tech Lead** and maintained by the frontend t
 |---------|------|---------|
 | 1.0 | 2026-02-23 | Initial design system — foundation, components, patterns, platform guides |
 | 1.1 | 2026-03-12 | Brand colors updated to Brainstation-23 palette (Pantone 2766 C + 2726 C); dark theme added; design philosophy documented |
+| 1.2 | 2026-03-12 | Design influences documented: IBM Carbon (web), M3 structural (Flutter), Radix (accessibility), Ant Design (behaviour); binding design principles defined; M3 anti-patterns called out |
 
 ---
 
