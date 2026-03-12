@@ -363,6 +363,20 @@
     }
     .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+    /* ─── Form Section Header ─── */
+    .form-section-header {
+      background: var(--color-bg-surface-alt);
+      border-bottom: 1px solid var(--color-border);
+      border-left: 3px solid var(--color-primary);
+      color: var(--color-text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
     /* ─── Forms ─── */
     .form-group { margin-bottom: 20px; }
     .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
@@ -878,74 +892,123 @@
          ════════════════════════════════════ -->
     <section class="section" id="forms">
       <div class="section-title">Forms</div>
-      <p class="section-subtitle">Inputs, selects, toggles, and layout patterns.</p>
+      <p class="section-subtitle">Inputs, selects, toggles, section headers, and layout patterns.</p>
 
-      <div class="card" style="max-width:560px;">
-        <div class="card-title">New Transport Order</div>
-        <div class="card-subtitle">Fill in all required fields to create a transport order.</div>
+      <!-- Hierarchy Comparison -->
+      <div class="subsection">
+        <div class="subsection-title">Section Header — Hierarchy Rule</div>
+        <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:20px;">The primary action button must always be the most visually prominent element. Section headers are structural dividers — never filled with a dominant colour.</p>
+        <div class="grid-2" style="gap:24px;align-items:start;">
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Origin Depot <span style="color:var(--color-danger)">*</span></label>
-            <input class="input" type="text" placeholder="e.g. Dhaka Central Depot">
+          <!-- WRONG -->
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-danger);margin-bottom:10px;">❌ Wrong — header competes with Save</div>
+            <div style="border:1px solid var(--color-border);border-radius:12px;overflow:hidden;">
+              <div style="background:#122056;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:10px 16px;">ORGANISATION</div>
+              <div style="padding:20px;">
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label class="form-label">Organisation Name</label>
+                  <input class="input" type="text" placeholder="Nourish Poultry Limited">
+                </div>
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Subdomain</label>
+                  <input class="input" type="text" placeholder="nourish">
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <button class="btn btn-ghost btn-sm">Cancel</button>
+                  <button class="btn btn-primary btn-sm">Save</button>
+                </div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">The dark navy header band draws more attention than the Save button.</p>
+          </div>
+
+          <!-- CORRECT -->
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-success);margin-bottom:10px;">✓ Correct — Save is the focus</div>
+            <div style="border:1px solid var(--color-border);border-radius:12px;overflow:hidden;">
+              <div style="padding:20px;">
+                <div class="form-section-header">ORGANISATION</div>
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label class="form-label">Organisation Name</label>
+                  <input class="input" type="text" placeholder="Nourish Poultry Limited">
+                </div>
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Subdomain</label>
+                  <input class="input" type="text" placeholder="nourish">
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <button class="btn btn-ghost btn-sm">Cancel</button>
+                  <button class="btn btn-primary btn-sm">Save</button>
+                </div>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--color-text-muted);margin-top:8px;">Off-white bg + indigo left stripe: structural but quiet. Save is the loudest element.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Full Form Example -->
+      <div class="subsection">
+        <div class="subsection-title">Full Form Example</div>
+        <div class="card" style="max-width:580px;">
+          <div class="card-title" style="margin-bottom:4px;">New Tenant</div>
+          <div class="card-subtitle">Complete all sections to provision a new tenant.</div>
+
+          <div class="form-section-header">ORGANISATION</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Organisation Name <span style="color:var(--color-danger)">*</span></label>
+              <input class="input" type="text" placeholder="e.g. Nourish Poultry Ltd.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subdomain <span style="color:var(--color-danger)">*</span></label>
+              <input class="input" type="text" placeholder="e.g. nourish" style="font-family:'JetBrains Mono',monospace">
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Destination</label>
-            <input class="input" type="text" placeholder="e.g. Chittagong Hub">
+            <label class="form-label">Subscription Plan</label>
+            <select class="input select">
+              <option>Select plan...</option>
+              <option>Basic</option>
+              <option selected>Professional</option>
+              <option>Enterprise</option>
+            </select>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label class="form-label">Assign Driver</label>
-          <select class="input select">
-            <option>Select driver...</option>
-            <option>Md. Rahim Uddin</option>
-            <option>Karim Hossain</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Vehicle Number</label>
-          <div class="input-group">
-            <input class="input" type="text" placeholder="e.g. DH-2345" style="font-family:'JetBrains Mono',monospace">
-            <button class="btn btn-primary" style="border-radius:0 8px 8px 0;white-space:nowrap">Look up</button>
+          <div class="form-section-header" style="margin-top:8px;">TENANT ADMIN</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Admin Name <span style="color:var(--color-danger)">*</span></label>
+              <input class="input" type="text" placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Admin Email <span style="color:var(--color-danger)">*</span></label>
+              <input class="input input-error" type="email" placeholder="admin@example.com">
+            </div>
           </div>
-          <div class="form-hint">Enter the vehicle registration number to auto-fill details.</div>
-        </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Phone</label>
+            <input class="input" type="tel" placeholder="+880 1X-XXXX-XXXX">
+            <div class="form-hint">A welcome email with login credentials will be sent to the admin email.</div>
+          </div>
+          <div class="form-error" style="margin-top:4px;margin-bottom:16px;">Admin email is required.</div>
 
-        <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea class="input" rows="3" placeholder="Optional dispatch notes..." style="resize:vertical"></textarea>
-        </div>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+            <span class="toggle-label">Send welcome email immediately on provisioning</span>
+          </div>
 
-        <div class="form-group">
-          <label class="form-label">Scheduled Departure</label>
-          <input class="input input-error" type="datetime-local">
-          <div class="form-error">Departure time cannot be in the past.</div>
-        </div>
-
-        <div class="toggle-row">
-          <label class="toggle">
-            <input type="checkbox" checked>
-            <div class="toggle-track"></div>
-            <div class="toggle-thumb"></div>
-          </label>
-          <span class="toggle-label">Send SMS notification to driver</span>
-        </div>
-
-        <div class="toggle-row">
-          <label class="toggle">
-            <input type="checkbox">
-            <div class="toggle-track"></div>
-            <div class="toggle-thumb"></div>
-          </label>
-          <span class="toggle-label">Require helper assignment</span>
-        </div>
-
-        <hr class="divider">
-        <div class="btn-row">
-          <button class="btn btn-primary">Create Order</button>
-          <button class="btn btn-ghost">Cancel</button>
+          <hr class="divider">
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-ghost">Cancel</button>
+            <button class="btn btn-primary">Create Tenant</button>
+          </div>
         </div>
       </div>
     </section>

@@ -51,6 +51,20 @@ created: 2026-02-23
 
 ---
 
+## Visual Hierarchy Rule
+
+> **The primary button must always be the most visually prominent interactive element on the page.** Nothing else — no section header, no banner, no card — may use a solid filled colour of equal or greater weight than the primary button on the same view.
+
+This is a binding constraint, not a preference. Violations cause hierarchy inversion where structural chrome outweighs actionable elements.
+
+**Checklist before shipping any form or page:**
+- [ ] The primary button (`color-primary` fill, white text) is the loudest coloured element below the top navigation
+- [ ] No form section header, panel title, or card header uses a solid dark fill (`color-primary-dark` or equivalent)
+- [ ] Section headers use the lightweight `form-section-header` treatment (off-white bg + left accent stripe)
+- [ ] The top navigation (`color-primary-dark`) is visually separated from the page body — it does not count as competition because it is a persistent chrome element outside the form context
+
+---
+
 ## Rules
 
 - **Maximum one `primary` button per page section** (form, modal, card)

@@ -147,14 +147,91 @@ Use toggles for **binary settings** (enable/disable), not for form selections.
 
 ---
 
+## Form Section Headers
+
+Form section headers group related fields (e.g. "Organisation", "Contact Details", "Address"). They are **structural dividers** — not actions, not CTAs.
+
+### Visual Hierarchy Rule
+
+> The primary action button ("Save", "Create", "Submit") must always be the **most visually prominent interactive element** on the page. Form section headers must never compete with it.
+
+Using `color-primary-dark` (`#122056`) as a solid background fill on section headers inverts the hierarchy — a dark full-width band draws more attention than a button. This is prohibited.
+
+### Correct Treatment
+
+| Property | Value |
+|----------|-------|
+| Background | `color-bg-surface-alt` (`#FAFAFD` light / `#12162B` dark) |
+| Border bottom | 1px solid `color-border` |
+| Border left | 3px solid `color-primary` |
+| Text | 12px / `font-semibold` / `color-text-primary` / `letter-spacing: 0.06em` / `UPPERCASE` |
+| Padding | 10px 16px |
+| Border radius | `radius-sm` (4px) |
+| Margin bottom | `space-6` (24px) |
+
+```html
+<!-- Correct: lightweight section header -->
+<div class="form-section-header">
+  ORGANISATION
+</div>
+
+<style>
+.form-section-header {
+  background: var(--color-bg-surface-alt);
+  border-bottom: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-primary);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  border-radius: 4px;
+  margin-bottom: 24px;
+}
+</style>
+```
+
+### Prohibited Patterns
+
+```html
+<!-- ❌ WRONG: dark fill competes with the Save button -->
+<div style="background: #122056; color: white; padding: 10px 16px; font-weight: bold;">
+  ORGANISATION
+</div>
+
+<!-- ❌ WRONG: primary colour fill on section header -->
+<div style="background: var(--color-primary); color: white; padding: 10px 16px;">
+  ORGANISATION
+</div>
+```
+
+### Visual Comparison
+
+```
+✅ CORRECT hierarchy:
+  [ORGANISATION]              ← quiet: off-white bg, left accent stripe
+  Name ___________
+  Phone ___________
+                   [Cancel]  [Save]   ← loud: solid primary fill button
+
+❌ WRONG hierarchy:
+  ██████ ORGANISATION ██████  ← loud: dark navy fill, full-width band
+  Name ___________
+  Phone ___________
+                   [Cancel]  [Save]   ← quiet: same weight as the header
+```
+
+---
+
 ## Form Layout Rules
 
 1. **Single-column forms** for simple operations (login, OTP, basic profile)
 2. **Two-column forms** for master data entry (vehicle, driver, vendor registration)
 3. **Wizard/step forms** for complex multi-section inputs (tenant onboarding, trip creation)
-4. **Group related fields** under visible section headers (H5 size)
+4. **Group related fields** under `form-section-header` (see above — never a dark fill)
 5. **Field order** follows the natural information hierarchy (required fields first)
-6. **Submit button** is always at the bottom-right of a form, `primary` variant
+6. **Submit button** is always at the bottom-right of a form, `primary` variant, and must be the highest-contrast interactive element on screen
 7. **Cancel button** is always to the left of Submit, `ghost` variant
 8. **Inline validation** fires on field blur; form-level validation on submit
 9. Form sections must be separated by `--space-8` (32px)
