@@ -144,6 +144,10 @@
       color: var(--color-text-primary);
       transition: background-color 200ms ease, color 200ms ease;
     }
+    /* Light mode: page canvas is a touch cooler/greyer so white surfaces visually lift */
+    [data-theme="light"] body {
+      background-color: #ECEEF5;
+    }
 
     /* ─── Top Nav ─── */
     .topnav {
@@ -209,6 +213,10 @@
       overflow-y: auto;
       transition: background 200ms ease, border-color 200ms ease;
     }
+    /* Light mode: sidebar needs a step darker than the page to create visual separation */
+    [data-theme="light"] .sidebar {
+      background: #F0F1F8;
+    }
     .sidebar-section { padding: 0 16px 8px; }
     .sidebar-label {
       font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
@@ -239,6 +247,10 @@
       flex: 1;
       padding: 40px 48px;
       max-width: 960px;
+    }
+    /* Light mode: main content area is pure white for card lift */
+    [data-theme="light"] .main {
+      background: #FFFFFF;
     }
 
     /* ─── Section Structure ─── */
@@ -394,6 +406,10 @@
       transition: border-color 150ms ease, box-shadow 150ms ease;
       outline: none;
     }
+    [data-theme="light"] .input {
+      border-color: #C9CDD6;
+      background: #FFFFFF;
+    }
     .input:focus {
       border-color: var(--color-primary);
       box-shadow: 0 0 0 3px var(--color-primary-focus);
@@ -422,6 +438,10 @@
       box-shadow: var(--shadow-sm);
       transition: background 200ms ease, border-color 200ms ease;
     }
+    [data-theme="light"] .card {
+      border-color: #D1D5DB;
+      box-shadow: 0 1px 4px rgba(18,32,86,0.07), 0 0 0 1px rgba(18,32,86,0.04);
+    }
     .card-title { font-size: 15px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; }
     .card-subtitle { font-size: 13px; color: var(--color-text-muted); margin-bottom: 16px; }
 
@@ -433,6 +453,10 @@
       border-radius: 12px;
       padding: 20px;
       box-shadow: var(--shadow-sm);
+    }
+    [data-theme="light"] .kpi-card {
+      border-color: #D1D5DB;
+      box-shadow: 0 1px 4px rgba(18,32,86,0.07), 0 0 0 1px rgba(18,32,86,0.04);
     }
     .kpi-label { font-size: 12px; font-weight: 500; color: var(--color-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
     .kpi-value { font-size: 30px; font-weight: 700; color: var(--color-text-primary); line-height: 1.1; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
@@ -451,8 +475,13 @@
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
+    [data-theme="light"] .table-wrap {
+      border-color: #D1D5DB;
+      box-shadow: 0 1px 4px rgba(18,32,86,0.07), 0 0 0 1px rgba(18,32,86,0.04);
+    }
     table { width: 100%; border-collapse: collapse; }
     thead { background: var(--color-bg-surface-alt); }
+    [data-theme="light"] thead { background: #F0F1F8; }
     th {
       text-align: left;
       font-size: 12px; font-weight: 600;
@@ -469,6 +498,7 @@
     }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--color-bg-surface-alt); }
+    [data-theme="light"] tr:hover td { background: #F5F6FB; }
     .td-primary { color: var(--color-text-primary); font-weight: 500; }
     .td-mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
 
@@ -512,6 +542,10 @@
       font-size: 13px; font-weight: 500;
       color: var(--color-text-secondary);
       min-width: 120px;
+    }
+    /* Light mode: page bg is near-white, shadow items need border to be visible without shadow context */
+    [data-theme="light"] .shadow-item {
+      border: 1px solid #E5E7EB;
     }
 
     /* ─── Radius ─── */
