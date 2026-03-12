@@ -3,6 +3,7 @@ title: DFMS Design System
 category: design-system
 status: approved
 created: 2026-02-23
+updated: 2026-03-12
 ---
 
 # DFMS Design System
@@ -30,8 +31,8 @@ created: 2026-02-23
 
 | Document | What It Defines |
 |----------|----------------|
-| [Design Tokens](./01-foundation/design-tokens.md) | All named constants: colors, spacing, type, shadows, z-index, animation |
-| [Colors](./01-foundation/colors.md) | Brand palette, semantic colors, status colors, accessibility ratios |
+| [Design Tokens](./01-foundation/design-tokens.md) | All named constants: colors (light + dark), spacing, type, shadows, z-index, animation |
+| [Colors](./01-foundation/colors.md) | Brand palette, semantic colors, dark theme, status colors, accessibility ratios |
 | [Typography](./01-foundation/typography.md) | Typefaces, type scale, heading styles, font weights, implementation |
 | [Spacing & Layout](./01-foundation/spacing.md) | Spacing scale, border radius, shadows, page grid, breakpoints, z-index |
 
@@ -61,15 +62,24 @@ created: 2026-02-23
 
 ## Quick Reference
 
-### Brand Colors
+### Design Philosophy
 
-| | Hex | Use |
-|-|-----|-----|
-| Primary | `#1A4F8A` | Actions, links, active states |
-| Accent | `#F5A623` | Highlights, badges |
-| Success | `#1E8A4C` | Approved, completed |
-| Warning | `#D97706` | Pending, caution |
-| Danger | `#C0392B` | Errors, rejected |
+**Modern · Minimalistic · Professional** — Clean geometry, generous whitespace, no decoration. Built for data-dense operational UIs used in demanding field and logistics environments. Every element must earn its place.
+
+### Brand Colors (Brainstation-23 Identity)
+
+| Token | Light | Dark | Use |
+|-------|-------|------|-----|
+| `color-primary-dark` | `#122056` | `#122056` | Top nav, dark surfaces — Pantone 2766 C |
+| `color-primary` | `#5B65DC` | `#7580F0` | Buttons, links, active states — Pantone 2726 C |
+| `color-primary-light` | `#EEEFFD` | `#1C2044` | Ghost buttons, chips, info backgrounds |
+| `color-success` | `#1E8A4C` | `#34D475` | Approved, completed |
+| `color-warning` | `#D97706` | `#F59E0B` | Pending, caution |
+| `color-danger` | `#C0392B` | `#F87171` | Errors, rejected |
+
+### Theming
+
+Both **light** and **dark** themes are first-class. Theme switching via `[data-theme="dark"]` attribute on `<html>`. Respects OS `prefers-color-scheme` on first visit. See [Colors](./01-foundation/colors.md) for full CSS and Flutter implementation.
 
 ### Fonts
 
@@ -105,6 +115,7 @@ The design system is owned by the **Tech Lead** and maintained by the frontend t
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-02-23 | Initial design system — foundation, components, patterns, platform guides |
+| 1.1 | 2026-03-12 | Brand colors updated to Brainstation-23 palette (Pantone 2766 C + 2726 C); dark theme added; design philosophy documented |
 
 ---
 
