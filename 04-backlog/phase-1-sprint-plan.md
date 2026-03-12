@@ -8,12 +8,13 @@
 ## Sprint 1 — Platform Security Foundation
 
 | Story | Title | Epic | SP |
-|-------|-------|------|----|
+|-------|-------|------|----| 
+| US-098 | Tenant Onboarding & Schema Provisioning | EPIC-002 | 13 |
 | US-001 | User Login & Account Lockout | EPIC-001 | 10 |
 | US-002 | Multi-Factor Authentication (2FA) | EPIC-001 | 10 |
 | US-003 | Session Control & Management | EPIC-001 | 10 |
 | US-004 | Role Hierarchy & Permission Management | EPIC-001 | 10 |
-| **Total** | | | **40** |
+| **Total** | | | **53** |
 
 ---
 
@@ -249,13 +250,13 @@
 
 | Sprint Group | Sprints | Stories | Story Points |
 |---|---|---|---|
-| Foundation | Sprint 1–3 | 21 | 120 |
+| Foundation | Sprint 1–3 | 22 | 133 |
 | Transport Core | Sprint 4–7 | 18 | 110 |
 | Vendor & Weighing | Sprint 8–10 | 15 | 88 |
 | Gate & Operations | Sprint 11–13 | 17 | 80 |
 | QC Workflow | Sprint 14–16 | 23 | 80 |
 | Mobile & Finance | Sprint 17–18 | 7 | 38 |
-| **Total** | **18 sprints** | **101** | **516** |
+| **Total** | **18 sprints** | **102** | **529** |
 
 ---
 

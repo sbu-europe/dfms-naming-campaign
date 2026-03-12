@@ -20,6 +20,12 @@
 **Epic ID:** EPIC-002
 
 ### User Stories:
+- **US-098**: Tenant Onboarding & Schema Provisioning
+  - Module: User & Tenant Management
+  - Priority: Critical
+  - Sprint: Sprint 1
+  - Story Points: 13
+
 - **US-002**: Multi-Factor Authentication (MFA)
   - Module: User & Tenant Management
   - Priority: Critical
@@ -751,7 +757,7 @@
 | Epic ID | Epic Name | Story Count | Total Story Points |
 |---------|-----------|-------------|-------------------|
 | EPIC-001 | System Foundation | 1 | 10 |
-| EPIC-002 | User & Tenant Foundation | 8 | 57 |
+| EPIC-002 | User & Tenant Foundation | 9 | 70 |
 | EPIC-003 | Master Data Configuration (Routes, Suppliers & Dealers) | 1 | 5 |
 | EPIC-004 | POI Management & Geofencing | 1 | 13 |
 | EPIC-005 | Product Inventory Management | 1 | 13 |
@@ -769,7 +775,7 @@
 | EPIC-017 | Mobile Applications (Vendor) | 1 | 8 |
 | EPIC-018 | Financial Management | 2 | 13 |
 
-**Total:** 100 User Stories across 18 Epics
+**Total:** 101 User Stories across 18 Epics
 
 ### Priority Distribution:
 - **Critical**: 42 stories
