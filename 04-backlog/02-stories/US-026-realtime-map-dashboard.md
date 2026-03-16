@@ -11,7 +11,7 @@ epic_name: Command Center Operations
 sprint: Sprint 7
 story_points: 8
 created: 2026-02-11
-updated: 2026-02-11
+updated: 2026-03-16
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/04-poi-operations/command-center.md
@@ -50,14 +50,24 @@ Command Center is the **nerve center** of fleet operations:
 - Alerts and notifications
 - Trip filtering and search
 
+### GPS Data Source — Confirmed (16 March 2026)
+
+GPS data is sourced from **GPSWOX** (https://www.gpswox.com/), Nourish's existing VTS platform, via REST API. Hardware on vehicles is **Concox GT06-ND**.
+
+- DFMS polls GPSWOX every 30 seconds via a Celery task and caches results in Redis
+- The dashboard reads from Redis — it does not call GPSWOX directly
+- GPSWOX API credentials are being obtained by Antu (Nourish GPS Operator)
+- See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+
 ---
 
 ## Acceptance Criteria
 
 ### AC-1: Map Display
-- [ ] System SHALL display interactive map (Google Maps / Mapbox)
+- [ ] System SHALL display interactive map (Google Maps / Mapbox) in **terrain view**
+- [ ] System SHALL open at an initial zoom level showing approximately **100 km radius** to provide regional fleet visibility
 - [ ] System SHALL show all active trips as markers
-- [ ] System SHALL update marker positions in real-time (every 30 seconds)
+- [ ] System SHALL update marker positions in real-time (every 30 seconds, sourced from GPSWOX via Redis cache)
 - [ ] System SHALL use different marker colors by trip status:
   - 🟢 Green: On-time
   - 🟡 Yellow: Delayed (< 1 hour)
@@ -125,12 +135,18 @@ Command Center is the **nerve center** of fleet operations:
 - [ ] System SHALL update statistics in real-time
 
 ### AC-8: GPS Data Handling
-- [ ] System SHALL receive GPS data from:
-  - Driver mobile interface
-  - GPS tracking devices (if installed)
-- [ ] System SHALL handle GPS data frequency (every 30-60 seconds)
-- [ ] System SHALL detect GPS signal loss
+- [ ] System SHALL source GPS data from the **GPSWOX platform API** (Nourish's existing VTS provider)
+- [ ] GPS data for each active vehicle shall include:
+  - Latitude and longitude (decimal degrees, WGS84)
+  - Speed (km/h)
+  - **Overspeed indicator** (boolean flag from GPSWOX — display only; does not trigger trip state changes)
+  - Heading (degrees)
+  - Last fix timestamp
+- [ ] System SHALL fall back to driver mobile GPS submission if GPSWOX data is unavailable for a vehicle
+- [ ] System SHALL handle GPS data frequency of 30 seconds (Celery poll → Redis cache)
+- [ ] System SHALL detect GPS signal loss (no update for > 10 minutes)
 - [ ] System SHALL show "last seen" timestamp if GPS unavailable
+- [ ] System SHALL display overspeed indicator on vehicle marker tooltip when `overspeed = true`
 
 ---
 
@@ -190,15 +206,17 @@ Command Center is the **nerve center** of fleet operations:
 TripGPSData {
   id: UUID (PK)
   trip_id: UUID (FK)
-  
+
   latitude: Decimal
   longitude: Decimal
-  accuracy: Decimal (meters)
+  accuracy: Decimal (meters, nullable)
   speed: Decimal (km/h, nullable)
+  overspeed: Boolean (nullable)  // From GPSWOX — display only, Phase 1
   heading: Decimal (degrees, nullable)
-  
+
   timestamp: Timestamp
-  source: Enum (Mobile_App, GPS_Device)
+  source: Enum (GPSWOX, Mobile_App)  // GPSWOX is primary source; Mobile_App is fallback
+  gpswox_device_id: String (nullable)  // GPSWOX device identifier for the vehicle
 }
 
 TripMapView {
@@ -270,8 +288,8 @@ TripMapView {
 │ │ 🔵 In Transit: 10:00 AM (Current)                      │  │
 │ │ ⏹️ ETA: 11:30 AM (On-time ✓)                          │  │
 │ │                                                        │  │
-│ │ Last GPS: 2 min ago                                    │  │
-│ │ Speed: 45 km/h                                         │  │
+│ │ Last GPS: 2 min ago (GPSWOX)                           │  │
+│ │ Speed: 45 km/h  ✓ Normal                               │  │
 │ │                                                        │  │
 │ │ [View Full Details] [Report Incident]                  │  │
 │ └────────────────────────────────────────────────────────┘  │
@@ -330,6 +348,20 @@ Response: {
 2. **GPS signal lost**: Show "last seen" timestamp
 3. **WebSocket disconnected**: Fallback to polling
 4. **No active trips**: Show empty state message
+
+---
+
+## Deferred Features (Out of Scope — US-026)
+
+The following features were suggested by Sadman (Nourish) in the 16 March 2026 meeting. They are **not in scope for US-026** and require feasibility validation before backlog entry.
+
+### 1. Vehicle Assignment Optimisation
+Sort the available vehicle list by real-time distance from the pickup POI at assignment time (using live GPSWOX location data + Haversine distance). Pending GPSWOX API rate limit confirmation.
+
+### 2. Upcoming Vehicle Availability Forecasting
+Predict when vehicles currently in transit will become available for new assignments, using GPSWOX location + Maps API ETA + trip state data. Phase 2+ candidate — requires historical dwell time modelling.
+
+> See full feasibility notes in the meeting record: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
 
 ---
 

@@ -19,89 +19,227 @@ DFMS integrates with external systems for GPS tracking, ERP synchronization, SMS
 
 ---
 
-## GPS/VTS Integration
+## GPS/VTS Integration — GPSWOX + Concox GT06-ND
+
+> **Provider**: GPSWOX (https://www.gpswox.com/), hardware: Concox GT06-ND
+> Confirmed in meeting: 16 March 2026.
+> See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../06-contracts/04-integration/gps-vts-integration.yaml)
+
+### Required Django Settings
+
+```python
+# settings/base.py — values loaded from environment variables
+GPSWOX_API_KEY      = env('GPSWOX_API_KEY')    # Pending — Antu (Nourish) to obtain from GPSWOX
+GPSWOX_BASE_URL     = env('GPSWOX_BASE_URL', default='http://206.189.141.206/api/v1')
+GPSWOX_TIMEOUT      = int(env('GPSWOX_TIMEOUT', default='5'))        # seconds
+GPSWOX_POLL_INTERVAL = int(env('GPSWOX_POLL_INTERVAL', default='30')) # seconds
+```
+
+> **Note**: `GPS_API_KEY` and `GPS_API_URL` (old generic keys) are replaced by the
+> GPSWOX-specific settings above. Update `.env.example` and deployment configs accordingly.
 
 ### GPS Service
 
 ```python
 # apps/tracking/services.py
+import logging
 import requests
 from django.conf import settings
-from django.utils import timezone
+from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
+
+LOCATION_CACHE_PREFIX = 'vehicle_location:'
+LOCATION_CACHE_TTL    = 30  # seconds — matches poll interval
+
 
 class GPSService:
-    """GPS/VTS integration service"""
-    
+    """
+    GPSWOX GPS/VTS integration service.
+
+    Provider:  GPSWOX (https://www.gpswox.com/)
+    Hardware:  Concox GT06-ND
+    Dashboard: http://206.189.141.206
+
+    Integration pattern: Celery periodic poll (every 30s) → Redis cache.
+    Components never call this service directly — they read from Redis cache.
+
+    Fallback: if GPSWOX API is unavailable, the Concox GT06-ND supports direct
+    TCP/UDP data push to a custom receiver. Mahfuz (BS23) to confirm feasibility
+    before implementing the fallback path.
+    """
+
     def __init__(self):
-        self.api_key = settings.GPS_API_KEY
-        self.api_url = settings.GPS_API_URL
-        self.timeout = 10
-    
-    def get_vehicle_location(self, vehicle_id):
-        """Get current vehicle location"""
+        self.api_key  = settings.GPSWOX_API_KEY
+        self.base_url = settings.GPSWOX_BASE_URL.rstrip('/')
+        self.timeout  = settings.GPSWOX_TIMEOUT
+
+    def _headers(self):
+        return {'X-Api-Key': self.api_key}
+
+    def get_vehicle_location(self, vehicle_id: str) -> dict | None:
+        """
+        Fetch current location for a single vehicle from GPSWOX.
+
+        Returns a dict with confirmed map display fields:
+          latitude, longitude, speed, overspeed, heading, timestamp, ignition_status
+
+        Returns cached data on API failure (5s timeout).
+        Returns None if no data is available (new vehicle, never seen).
+        """
+        cache_key = f'{LOCATION_CACHE_PREFIX}{vehicle_id}'
+
         try:
             response = requests.get(
-                f'{self.api_url}/vehicles/{vehicle_id}/location',
-                headers={'Authorization': f'Bearer {self.api_key}'},
-                timeout=self.timeout
+                f'{self.base_url}/vehicles/{vehicle_id}/location',
+                headers=self._headers(),
+                timeout=self.timeout,
             )
             response.raise_for_status()
-            
             data = response.json()
-            return {
-                'latitude': data['latitude'],
-                'longitude': data['longitude'],
-                'timestamp': data['timestamp'],
-                'speed': data.get('speed'),
-                'heading': data.get('heading'),
+
+            location = {
+                'vehicle_id':      data.get('vehicle_id', vehicle_id),
+                'latitude':        data['latitude'],
+                'longitude':       data['longitude'],
+                'speed':           data.get('speed'),           # km/h
+                'overspeed':       data.get('overspeed'),       # bool — display only in Phase 1
+                'heading':         data.get('heading'),         # degrees 0–359
+                'timestamp':       data['timestamp'],
+                'ignition_status': data.get('ignition_status'),
             }
+
+            cache.set(cache_key, location, timeout=LOCATION_CACHE_TTL)
+            return location
+
+        except requests.Timeout:
+            logger.warning('GPSWOX timeout for vehicle %s — returning cached location', vehicle_id)
+            return cache.get(cache_key)
+
+        except requests.HTTPError as e:
+            logger.error('GPSWOX HTTP error for vehicle %s: %s', vehicle_id, e)
+            return cache.get(cache_key)
+
         except requests.RequestException as e:
-            raise Exception(f"GPS API error: {str(e)}")
-    
-    def get_vehicle_history(self, vehicle_id, start_time, end_time):
-        """Get vehicle location history"""
-        params = {
-            'start_time': start_time.isoformat(),
-            'end_time': end_time.isoformat(),
-        }
-        
-        response = requests.get(
-            f'{self.api_url}/vehicles/{vehicle_id}/history',
-            params=params,
-            headers={'Authorization': f'Bearer {self.api_key}'},
-            timeout=self.timeout
-        )
-        response.raise_for_status()
-        
-        return response.json()
+            logger.error('GPSWOX request error for vehicle %s: %s', vehicle_id, e)
+            return cache.get(cache_key)
+
+    def get_vehicle_location_history(
+        self, vehicle_id: str, start_time, end_time
+    ) -> list[dict]:
+        """
+        Fetch GPS breadcrumb trail for a vehicle over a time window.
+
+        Used for:
+        - Breadcrumb trail rendering on the Command Centre map
+        - Actual distance calculation for trip costing
+
+        Returns a list of GPSPoint dicts (lat, lng, speed, overspeed, heading, timestamp).
+        """
+        try:
+            response = requests.get(
+                f'{self.base_url}/vehicles/{vehicle_id}/location/history',
+                headers=self._headers(),
+                params={
+                    'start_time': start_time.isoformat(),
+                    'end_time':   end_time.isoformat(),
+                },
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data.get('route_points', [])
+
+        except requests.RequestException as e:
+            logger.error(
+                'GPSWOX history error for vehicle %s (%s – %s): %s',
+                vehicle_id, start_time, end_time, e,
+            )
+            return []
+
+    def get_all_vehicle_locations(self) -> list[dict]:
+        """
+        Fetch latest location for all vehicles registered in GPSWOX.
+
+        Used by the vehicle assignment optimisation feature (sort by distance
+        from pickup POI). Availability and rate limits TBC once API credentials
+        are confirmed.
+        """
+        try:
+            response = requests.get(
+                f'{self.base_url}/vehicles',
+                headers=self._headers(),
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data.get('vehicles', [])
+
+        except requests.RequestException as e:
+            logger.error('GPSWOX bulk vehicle list error: %s', e)
+            return []
 ```
 
-### GPS Webhook Handler
+### Celery Polling Task
 
 ```python
-# apps/tracking/views.py
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from apps.tracking.services import TrackingService
+# apps/tracking/tasks.py
+from celery import shared_task
+from django.core.cache import cache
+from apps.tracking.services import GPSService
+from apps.transport.models import Trip
+import logging
 
-@csrf_exempt
-def gps_webhook(request):
-    """Handle GPS webhook updates"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    data = json.loads(request.body)
-    vehicle_id = data.get('vehicle_id')
-    location_data = data.get('location')
-    
-    # Update vehicle location
-    TrackingService.update_vehicle_location(
-        vehicle_id,
-        location_data['latitude'],
-        location_data['longitude']
-    )
-    
-    return JsonResponse({'status': 'ok'})
+logger = logging.getLogger(__name__)
+
+
+@shared_task
+def poll_active_vehicle_locations():
+    """
+    Periodic Celery task: poll GPSWOX every 30 seconds for all active trips.
+
+    Fetches current location for each vehicle on an active trip and writes
+    the result to Redis (TTL: 30s). The Command Centre dashboard reads from
+    Redis — it never calls GPSWOX directly.
+
+    Scheduled via Celery Beat (see CELERY_BEAT_SCHEDULE in settings).
+    """
+    gps = GPSService()
+
+    active_trips = Trip.objects.filter(
+        status__in=['assigned', 'gate_in', 'loading', 'loading_complete',
+                    'scale_in', 'in_transit', 'gate_out', 'unloading', 'scale_out']
+    ).select_related('vehicle')
+
+    updated = 0
+    for trip in active_trips:
+        vehicle_id = trip.vehicle.gpswox_device_id  # GPSWOX device identifier
+        if not vehicle_id:
+            continue
+        location = gps.get_vehicle_location(vehicle_id)
+        if location:
+            updated += 1
+
+    logger.info('GPS poll complete: %d/%d vehicles updated', updated, active_trips.count())
+    return {'updated': updated, 'total': active_trips.count()}
+```
+
+> **Vehicle model note**: Add `gpswox_device_id` field to the `Vehicle` model
+> to store the identifier used in GPSWOX. This is the mapping between DFMS vehicle
+> records and GPSWOX device registrations.
+
+### Celery Beat Schedule
+
+```python
+# settings/base.py
+CELERY_BEAT_SCHEDULE = {
+    # ... other tasks ...
+    'poll-gps-locations': {
+        'task': 'apps.tracking.tasks.poll_active_vehicle_locations',
+        'schedule': 30.0,  # seconds — matches GPSWOX_POLL_INTERVAL
+    },
+}
 ```
 
 ---

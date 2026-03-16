@@ -1,36 +1,114 @@
-# GPS/VTS Integration Contract
-# Contract for GPS/VTS provider integration
+# GPS/VTS Integration Contract — GPSWOX + Concox GT06-ND
+# Provider confirmed in meeting: 16 March 2026
+# See: 06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md
 
 openapi: 3.0.3
 info:
-  title: GPS/VTS Provider Integration
+  title: GPS/VTS Provider Integration — GPSWOX
   description: |
-    Integration contract for GPS/VTS provider.
-    
-    This contract defines the interface for vehicle tracking and location services.
-  version: 1.0.0
+    Integration contract for GPSWOX, the confirmed GPS/VTS provider for Nourish.
+
+    **Provider**: GPSWOX (https://www.gpswox.com/)
+    **Hardware**: Concox GT06-ND
+    **Dashboard**: http://206.189.141.206
+
+    **Integration scope**: DFMS consumes GPS data read-only for trip management and
+    map display. Nourish retains full device and platform management.
+
+    **API access status**: PENDING — Antu (Nourish GPS Operator) has been actioned
+    to contact GPSWOX via email to request API credentials. Exact endpoint paths and
+    authentication method are subject to update once credentials are confirmed.
+    This contract reflects the expected interface based on GPSWOX platform capabilities
+    and the Concox GT06-ND device specification.
+
+    **Fallback**: If GPSWOX API access is unavailable, evaluate direct TCP/UDP data
+    pull from Concox GT06-ND hardware (Mahfuz — BS23 Tech Lead — to confirm feasibility).
+  version: 1.1.0
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com
 
+x-provider: GPSWOX
+x-hardware: Concox GT06-ND
+x-dashboard-url: http://206.189.141.206
+x-api-status: pending-credentials
+x-meeting-note: 06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md
+
 servers:
-  - url: https://gps-provider.example.com/api/v1
-    description: GPS Provider API
+  - url: http://206.189.141.206/api/v1
+    description: |
+      GPSWOX platform API — provisional base URL.
+      Exact API path to be confirmed once Antu receives API documentation from GPSWOX.
 
 paths:
   /vehicles/{vehicle_id}/location:
     get:
       summary: Get current vehicle location
+      description: |
+        Returns the most recent GPS fix for a given vehicle.
+
+        Confirmed required fields (from meeting 2026-03-16):
+        - latitude, longitude, speed, overspeed indicator
+
+        Called by the DFMS Celery polling task every 30 seconds per active trip.
+        Result is cached in Redis with 30-second TTL for the Command Centre dashboard.
       operationId: getVehicleLocation
+      tags: [Location]
+      parameters:
+        - name: vehicle_id
+          in: path
+          required: true
+          description: Vehicle identifier as registered in GPSWOX (to be mapped from DFMS vehicle_code)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current vehicle location and telemetry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleLocation'
+        '401':
+          description: Invalid or missing API key
+        '404':
+          description: Vehicle not found in GPSWOX
+        '429':
+          description: Rate limit exceeded
+        '503':
+          description: GPSWOX platform unavailable — use cached location
+
+  /vehicles/{vehicle_id}/location/history:
+    get:
+      summary: Get vehicle location history (breadcrumb trail)
+      description: |
+        Returns timestamped GPS points for a vehicle over a time window.
+        Used for breadcrumb trail rendering on the Command Centre map and
+        actual distance calculation for trip costing.
+      operationId: getVehicleLocationHistory
+      tags: [Location]
       parameters:
         - name: vehicle_id
           in: path
           required: true
           schema:
             type: string
+        - name: start_time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: Start of time window (ISO 8601 UTC)
+        - name: end_time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: End of time window (ISO 8601 UTC)
       responses:
         '200':
-          description: Current vehicle location
+          description: GPS breadcrumb points within the time window
           content:
             application/json:
               schema:
@@ -38,82 +116,134 @@ paths:
                 properties:
                   vehicle_id:
                     type: string
-                  location:
-                    type: object
-                    properties:
-                      latitude:
-                        type: number
-                        format: float
-                      longitude:
-                        type: number
-                        format: float
-                      speed:
-                        type: number
-                        format: float
-                      heading:
-                        type: number
-                        format: float
-                      timestamp:
-                        type: string
-                        format: date-time
-                  ignition_status:
-                    type: string
-                    enum: [on, off]
-  
-  /trips/{trip_id}/route:
+                  route_points:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GPSPoint'
+
+  /vehicles:
     get:
-      summary: Get trip route history
-      operationId: getTripRoute
-      parameters:
-        - name: trip_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: start_time
-          in: query
-          schema:
-            type: string
-            format: date-time
-        - name: end_time
-          in: query
-          schema:
-            type: string
-            format: date-time
+      summary: List all tracked vehicles
+      description: |
+        Returns all vehicles registered in GPSWOX with their latest location.
+        Used for vehicle assignment optimisation (sorting by distance from pickup POI).
+
+        NOTE: This endpoint is needed for the suggested "Vehicle Assignment Optimisation"
+        feature. Feasibility depends on API rate limits for bulk queries.
+        See meeting note for details.
+      operationId: listVehicles
+      tags: [Location]
       responses:
         '200':
-          description: Trip route points
+          description: List of vehicles with last known location
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  trip_id:
-                    type: string
-                  route_points:
+                  vehicles:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        latitude:
-                          type: number
-                        longitude:
-                          type: number
-                        timestamp:
-                          type: string
-                          format: date-time
-                        speed:
-                          type: number
-                        heading:
-                          type: number
+                      $ref: '#/components/schemas/VehicleLocation'
 
 components:
+  schemas:
+    VehicleLocation:
+      type: object
+      description: Current GPS position and telemetry for a vehicle
+      required:
+        - vehicle_id
+        - latitude
+        - longitude
+        - timestamp
+      properties:
+        vehicle_id:
+          type: string
+          description: Vehicle identifier in GPSWOX
+          example: "GT06-00123"
+        latitude:
+          type: number
+          format: float
+          description: Latitude in decimal degrees (WGS84)
+          example: 23.8103
+        longitude:
+          type: number
+          format: float
+          description: Longitude in decimal degrees (WGS84)
+          example: 90.4125
+        speed:
+          type: number
+          format: float
+          description: Current speed in km/h
+          nullable: true
+          example: 62.5
+        overspeed:
+          type: boolean
+          description: |
+            True if the vehicle is currently exceeding the speed threshold
+            configured in GPSWOX for this device. Display only in Phase 1 —
+            does not trigger automatic trip state changes.
+          nullable: true
+          example: false
+        heading:
+          type: number
+          format: float
+          description: Direction of travel in degrees (0 = North, 90 = East, 180 = South, 270 = West)
+          nullable: true
+          example: 180.0
+        timestamp:
+          type: string
+          format: date-time
+          description: UTC timestamp of the GPS fix
+          example: "2026-03-16T08:30:00Z"
+        ignition_status:
+          type: string
+          enum: [on, off]
+          description: Vehicle ignition state reported by Concox GT06-ND
+          nullable: true
+          example: "on"
+
+    GPSPoint:
+      type: object
+      description: Single timestamped GPS breadcrumb point
+      required:
+        - latitude
+        - longitude
+        - timestamp
+      properties:
+        latitude:
+          type: number
+          format: float
+          example: 23.8103
+        longitude:
+          type: number
+          format: float
+          example: 90.4125
+        speed:
+          type: number
+          format: float
+          nullable: true
+          description: Speed in km/h at this point
+        overspeed:
+          type: boolean
+          nullable: true
+          description: Overspeed flag at this breadcrumb point
+        heading:
+          type: number
+          format: float
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+
   securitySchemes:
     apiKey:
       type: apiKey
       in: header
-      name: X-API-Key
+      name: X-Api-Key
+      description: |
+        GPSWOX API key — to be obtained by Antu (Nourish) from GPSWOX support.
+        Store in Django settings as GPSWOX_API_KEY (environment variable).
 
 security:
   - apiKey: []
-

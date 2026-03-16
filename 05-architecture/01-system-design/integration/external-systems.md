@@ -2,8 +2,8 @@
 
 > Detailed specifications for external system integrations
 
-**Status**: 🚧 Draft  
-**Last Updated**: February 13, 2026
+**Status**: Active — Partial (GPS/VTS provider confirmed; API access pending)
+**Last Updated**: March 16, 2026
 
 ---
 
@@ -19,77 +19,197 @@ This document provides detailed specifications for each external system that DFM
 
 ---
 
-## 1. GPS/VTS (Vehicle Tracking System) Providers
+## 1. GPS/VTS (Vehicle Tracking System) — GPSWOX + Concox GT06-ND
 
-### Purpose
-Real-time vehicle location tracking and trip monitoring.
+> **Provider confirmed**: Meeting with Nourish on 16 March 2026.
+> See full meeting notes: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../06-contracts/04-integration/gps-vts-integration.yaml)
+
+### Confirmed Provider Stack
+
+| Component | Detail |
+|-----------|--------|
+| **Software** | GPSWOX — https://www.gpswox.com/ |
+| **Hardware** | Concox GT06-ND |
+| **Dashboard** | http://206.189.141.206 (Nourish-managed) |
+| **Data path** | Concox GT06-ND → GSM/GPRS → GPSWOX platform → REST API → DFMS |
+
+### Integration Scope Boundary
+
+Nourish retains full ownership of device management and GPSWOX platform configuration. DFMS is a **read-only consumer** of GPS data only.
+
+| Nourish owns | DFMS consumes |
+|--------------|---------------|
+| Device installation & configuration | Live vehicle location |
+| GPSWOX dashboard & device management | Speed and overspeed flag |
+| SIM card and GSM connectivity | Breadcrumb trail (trip history) |
+| Speed threshold configuration in GPSWOX | Geofence event detection |
 
 ### Integration Pattern
-**Real-Time API** + **WebSocket** (for continuous updates)
 
-### Use Cases
-- Real-time vehicle location tracking
-- Trip route tracking
-- Geofence alerts
-- Historical route playback
-- Vehicle speed monitoring
+**Celery periodic poll** (every 30 seconds) — not WebSocket from GPSWOX.
+
+```
+Concox GT06-ND → [GSM/GPRS] → GPSWOX Platform
+                                      ↓  REST API (every 30s)
+                              Celery Worker (DFMS)
+                                      ↓
+                              Redis Cache (TTL: 30s)
+                                      ↓
+                              Django API Server
+                                      ↓
+                  Phase 1: HTTP polling  |  Phase 2+: WebSocket
+                                      ↓
+                          Command Centre Dashboard
+```
+
+### Confirmed Map Display Fields
+
+Required fields confirmed in the 16 March 2026 meeting:
+
+| Field | Type | Source |
+|-------|------|--------|
+| `latitude` | `float` | GPSWOX API |
+| `longitude` | `float` | GPSWOX API |
+| `speed` | `float` (km/h) | GPSWOX API |
+| `overspeed` | `boolean` | GPSWOX API (threshold set in GPSWOX platform) |
+| `heading` | `float` (degrees) | GPSWOX API |
+| `timestamp` | `datetime` (UTC) | GPSWOX API |
+| `ignition_status` | `on` / `off` | Concox GT06-ND via GPSWOX |
+
+> **Overspeed in Phase 1**: Display only. Does not trigger automatic trip state changes.
+
+### Map Configuration Requirements
+
+| Setting | Value |
+|---------|-------|
+| Map type | **Terrain view** |
+| Initial zoom | **~100 km radius** (regional fleet visibility) |
+| Update frequency | 30 seconds |
 
 ### API Operations
 
-**Get Vehicle Location**:
+**Get current vehicle location**:
 ```http
 GET /api/v1/vehicles/{vehicle_id}/location
-Authorization: Bearer {api_key}
+X-Api-Key: {gpswox_api_key}
 
 Response 200:
 {
-  "vehicle_id": "ABC123",
+  "vehicle_id": "GT06-00123",
   "latitude": 23.8103,
   "longitude": 90.4125,
-  "speed": 45.5,
+  "speed": 62.5,
+  "overspeed": false,
   "heading": 180,
-  "timestamp": "2026-02-13T10:30:00Z",
+  "timestamp": "2026-03-16T08:30:00Z",
   "ignition_status": "on"
 }
 ```
 
-**Get Trip Route**:
+**Get vehicle location history (breadcrumb trail)**:
 ```http
-GET /api/v1/trips/{trip_id}/route
-Authorization: Bearer {api_key}
+GET /api/v1/vehicles/{vehicle_id}/location/history
+    ?start_time=2026-03-16T06:00:00Z&end_time=2026-03-16T14:00:00Z
+X-Api-Key: {gpswox_api_key}
 
 Response 200:
 {
-  "trip_id": "TRIP-001",
+  "vehicle_id": "GT06-00123",
   "route_points": [
-    {
-      "latitude": 23.8103,
-      "longitude": 90.4125,
-      "timestamp": "2026-02-13T10:00:00Z"
-    },
+    {"latitude": 23.8103, "longitude": 90.4125, "speed": 0, "overspeed": false, "timestamp": "..."},
     ...
   ]
 }
 ```
 
+> **API access status**: PENDING — Antu (Nourish GPS Operator) is contacting GPSWOX to request API credentials. Exact endpoint paths subject to update. Store credentials as `GPSWOX_API_KEY` and `GPSWOX_BASE_URL` in Django environment settings.
+
 ### Data Flow
+
 ```
-DFMS → GPS Provider: Request location
-GPS Provider → DFMS: Current location
-DFMS → Database: Store location
-DFMS → Cache (Redis): Update real-time cache
-DFMS → WebSocket: Push to dashboard
+DFMS Celery Task → GPSWOX API: GET /vehicles/{id}/location  (every 30s per active trip)
+GPSWOX API → DFMS: {latitude, longitude, speed, overspeed, heading, timestamp}
+DFMS → Redis: Cache location (TTL: 30s)
+DFMS → PostgreSQL: Persist GPS point to trip_gps_data table
+DFMS → Django API: Serve cached data to dashboard
 ```
 
 ### Error Handling
-- **Timeout (5s)**: Return cached location
-- **API Down**: Use last known location
-- **Invalid Data**: Log error, skip update
 
-### Providers
-- Local GPS device providers
-- Fleet management system APIs
-- Custom GPS hardware integrations
+| Condition | Handling |
+|-----------|----------|
+| Timeout (5s) | Return Redis cached location; log warning |
+| GPSWOX API down | Use last known location from Redis; show "last seen" timestamp |
+| Invalid / missing data | Log error, skip update, retain last valid value |
+| Rate limit (429) | Exponential backoff; alert ops team if sustained |
+| Vehicle not found (404) | Log; check vehicle_id mapping between DFMS and GPSWOX |
+
+### Fallback Strategy
+
+**Primary**: GPSWOX REST API (preferred).
+
+**Fallback**: If GPSWOX API access is denied or rate-limited:
+- The Concox GT06-ND supports direct TCP/UDP data push to a custom server
+- Mahfuz (BS23 Tech Lead) to confirm hardware capability and implementation effort
+- This would require running a lightweight TCP listener as an additional DFMS service
+- Decision pending API credential response from GPSWOX
+
+### Django Settings Required
+
+```python
+# settings/base.py (values from environment variables)
+GPSWOX_API_KEY  = env('GPSWOX_API_KEY')   # Pending Antu's email to GPSWOX
+GPSWOX_BASE_URL = env('GPSWOX_BASE_URL', default='http://206.189.141.206/api/v1')
+GPSWOX_TIMEOUT  = 5   # seconds
+GPSWOX_POLL_INTERVAL = 30  # seconds
+```
+
+### Celery Task (Poll Schedule)
+
+```python
+# Periodic task — one per active trip, or single bulk poll
+CELERY_BEAT_SCHEDULE = {
+    'poll-gps-locations': {
+        'task': 'apps.tracking.tasks.poll_active_vehicle_locations',
+        'schedule': 30.0,  # every 30 seconds
+    },
+}
+```
+
+---
+
+### Suggested Features (From Sadman — Nourish, 16 Mar 2026)
+
+These were raised during the meeting. Both are **deferred** — not in current sprint scope. Do not implement until API access is confirmed and feasibility is validated.
+
+#### A. Vehicle Assignment Optimisation
+
+**Description**: At the time of assigning a vehicle to a transport requisition, sort the available vehicle list by real-time distance from the pickup POI rather than by default order.
+
+**Approach**:
+1. Fetch current location of all available vehicles from GPSWOX (single call per assignment action or from Redis cache)
+2. Calculate Haversine distance from each vehicle to the pickup POI coordinates
+3. Return sorted vehicle list to the assignment UI
+
+**Dependencies**: GPSWOX API access, Redis cache populated with recent locations, Haversine distance utility (already used in geofencing module)
+
+**Risk**: API rate limits if many vehicles queried simultaneously. Consider Redis-cached last-known location (30s staleness acceptable for assignment decisions).
+
+**Status**: Deferred — add to backlog once GPSWOX API is live and rate limits are known.
+
+#### B. Upcoming Vehicle Availability Forecasting
+
+**Description**: Show a forecast of when vehicles currently in transit will become available, to support trip planning and scheduling.
+
+**Approach**:
+- Current vehicle location (GPSWOX) + destination POI coordinates → Maps API ETA
+- Combined with trip state and expected remaining operations (unloading, QC, scale-out)
+- Surface as "Available at ~{time}" on the vehicle assignment screen
+
+**Dependencies**: GPSWOX API, Maps API (ETA), trip state data from DFMS, historical dwell time data per POI
+
+**Status**: Phase 2+ candidate — requires data dependency validation and historical dwell time modelling.
 
 ---
 
@@ -494,7 +614,7 @@ DFMS → Notifications: Notify finance team
 
 ---
 
-**Document Status**: 🚧 Draft  
-**Next Steps**: Finalize provider selection, implement adapters  
+**Document Status**: Active — Partial (GPS/VTS provider confirmed 2026-03-16; API credentials pending; other integrations remain draft)
+**Next Steps**: Confirm GPSWOX API credentials → update endpoint paths in contract → implement `GPSService` polling task
 **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 
