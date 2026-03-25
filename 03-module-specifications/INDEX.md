@@ -2,39 +2,24 @@
 
 This index provides a comprehensive mapping of all module specifications, cross-references, dependencies, and user story mappings.
 
-**Last Updated**: 2026-02-26
+**Last Updated**: 2026-03-16
 
 ---
 
 ## 📊 Overview Statistics
 
-- **Total Modules**: 12
-- **Total Specification Files**: 41 markdown files
-- **Module README Files**: 12 (one per module)
+- **Total Modules**: 11
+- **Total Specification Files**: 35 specification files + 11 README files = 46 markdown files
+- **Module README Files**: 11 (one per module)
 - **Source**: PRD_DFMS_v1.0.md (5,362 lines)
-- **Related User Stories**: 95 stories in Phase-1 backlog
+- **Related User Stories**: 98 stories in Phase-1 backlog (US-001 to US-098)
 
 ---
 
 ## 🗂️ Complete Module Structure
 
-### [00-overview/](00-overview/README.md) - Product Overview & Context
-**Purpose**: Product vision, scope, objectives, stakeholders  
-**PRD Sections**: 1-4  
-**Phase**: All  
-**Dependencies**: None (foundational documentation)
-
-#### Specifications
-- [product-vision.md](00-overview/product-vision.md) - Document purpose, product vision, value proposition
-- [scope.md](00-overview/scope.md) - In-scope, out-of-scope, assumptions, dependencies
-- [business-objectives.md](00-overview/business-objectives.md) - Primary objectives, challenges, business impact
-- [user-personas.md](00-overview/user-personas.md) - Internal users, external users, role framework
-
-#### Cross-References
-- **Informs**: All modules (provides business context)
-- **Referenced by**: `01-foundation/` (user roles), `10-phases/` (roadmap)
-
----
+> **Product overview & business context** is maintained in `02-domain/` (not in this folder).
+> See [`02-domain/01-overview/`](../02-domain/01-overview/) for product vision, scope, objectives, and user personas.
 
 ### [01-foundation/](01-foundation/README.md) - System Foundation
 **Purpose**: Authentication, security, RBAC, tenant management  
@@ -47,6 +32,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [rbac.md](01-foundation/rbac.md) - Role-based Access Control, Dynamic Role Builder
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
+- [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
 
 #### Related User Stories
 - US-001: User Login & Account Lockout
@@ -58,6 +44,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-007: Account Deactivation
 - US-008: Password & Account Reset
 - US-009: User Activity & Audit Logs
+- US-098: Tenant Onboarding & Schema Provisioning
 
 #### Cross-References
 - **Required by**: All operational modules
@@ -301,7 +288,7 @@ Use the dependency information in each module's README to understand:
 
 ### By User Story
 Use the "Related User Stories" sections to map stories to specifications.  
-All stories are located in: `../04-backlog/phase-1/user-stories/`
+All stories are located in: `../04-backlog/02-stories/`
 
 ### By Phase
 See `10-phases/` for phase-wise organization of features.
@@ -315,7 +302,6 @@ Each specification file includes PRD section references in frontmatter.
 
 | Module | Depends On | Required By |
 |--------|-----------|-------------|
-| 00-overview | None | All (context) |
 | 01-foundation | None | All operational modules |
 | 02-master-data | 01-foundation | 03, 04, 05, 06 |
 | 03-operations | 01, 02 | 04, 05, 06, 07, 08 |
@@ -333,10 +319,10 @@ Each specification file includes PRD section references in frontmatter.
 ## 🔗 Related Documentation
 
 - **[Main README](README.md)** - Module specifications overview
+- **[Product Overview](../02-domain/01-overview/)** - Business context (vision, scope, objectives, personas)
 - **[Phase Backlog](../04-backlog/README.md)** - Implementation user stories
-- **[Source PRD](../../source-documents/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[WBS Differences](../04-backlog/phase-1/WBS-DIFFERENCES.md)** - Organizational decisions
-- **[PRD Alignment](../04-backlog/phase-1/PRD-ALIGNMENT-REPORT.md)** - PRD alignment validation
+- **[User Stories by Epic](../04-backlog/user-stories-by-epic.md)** - All 98 stories mapped to epics
+- **[Sprint Plan](../04-backlog/phase-1-sprint-plan.md)** - Phase 1 sprint-wise delivery plan
 
 ---
 
@@ -359,8 +345,9 @@ Each specification file includes PRD section references in frontmatter.
 
 ---
 
-**Last Updated**: 2026-02-26  
-**Total Modules**: 12  
-**Total Specifications**: 41 files  
-**Coverage**: 100% of PRD Phase-1 features
+**Last Updated**: 2026-03-16  
+**Total Modules**: 11  
+**Total Specifications**: 35 spec files + 11 README files = 46 files  
+**Coverage**: 100% of PRD Phase-1 features  
+**User Stories**: 98 (US-001 to US-098)
 
