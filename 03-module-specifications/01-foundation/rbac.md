@@ -98,6 +98,7 @@ Super Admin (Brainstation 23)
   - Manage system-wide settings and feature flags
 - **Restrictions**: Cannot be created through the UI; no self-registration
 - **Typical Users**: Platform provider team (Brainstation 23 staff)
+- **Authentication**: Super Admin login on the platform admin portal (`admin.dfms.com`) **MUST use 2FA** (OTP or authenticator app). Given cross-tenant, platform-wide access, this is the most sensitive account on the platform and is subject to the same MFA requirement as Tenant Admins. See US-002.
 
 ### 1.4 Tier 2: Tenant Admin
 
@@ -588,8 +589,13 @@ function validateApproval(approverId: UUID, requisition: Requisition): boolean {
 RBAC integrates tightly with authentication system:
 
 ```
-User Login → Auth Success → Load Role → Load Permissions → Embed in Token
+User Login → Auth Success → [2FA challenge if admin role] → Load Role → Load Permissions → Embed in Token
 ```
+
+**2FA Enforcement by Role**:
+- **Super Admin**: 2FA required on every login to `admin.dfms.com`
+- **Tenant Admin**: 2FA required on every login to `<tenant>.dfms.com`
+- **Department Admin / Operational Users**: 2FA not required in Phase 1
 
 **JWT Token Payload with Permissions**:
 ```typescript
