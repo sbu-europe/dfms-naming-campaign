@@ -1,24 +1,66 @@
 # Phase 1 — Sprint-wise Deliverables
 
-**Timeline**: 24–28 weeks (18 sprints)  
+**Timeline**: 22–26 weeks (17 sprints)  
 **Objective**: Deliver a fully usable DFMS platform covering end-to-end transport execution, gate operations, QC, vendor handling, and basic costing with secure multi-tenant access.
 
 ---
 
-## Sprint 1 — Platform Security Foundation
+## Sprint 1 — Infrastructure, Onboarding & Secure Login
 
-| Story | Title | Epic | SP |
-|-------|-------|------|----| 
-| US-098 | Tenant Onboarding & Schema Provisioning | EPIC-002 | 13 |
-| US-001 | User Login & Account Lockout | EPIC-001 | 10 |
-| US-002 | Multi-Factor Authentication (2FA) | EPIC-001 | 10 |
-| US-003 | Session Control & Management | EPIC-001 | 10 |
-| US-004 | Role Hierarchy & Permission Management | EPIC-001 | 10 |
-| **Total** | | | **53** |
+> Full task breakdown: [sprint1/](sprint1/README.md)
+
+### Epic: System Foundation Infrastructure
+
+| Story | Status | SP |
+|-------|--------|----|
+| [Local development environment — all services running with a single command](sprint1/INFRA-01-local-dev-environment.md) | Done | 3 |
+| [Isolated database per client — each organisation's data in a separate, secure schema](sprint1/INFRA-02-multi-tenant-schema-isolation.md) | Done | 3 |
+| [Background job processing — emails and async tasks run without blocking the web app](sprint1/INFRA-03-background-job-processing.md) | Done | 3 |
+| [Caching and session storage — fast, Redis-backed user session management](sprint1/INFRA-04-caching-session-storage.md) | Done | 1 |
+| [Production-ready setup — multi-environment config, deployment config, and onboarding docs](sprint1/INFRA-05-production-ready-setup.md) | Done | 2 |
+| **Subtotal** | | **12** |
 
 ---
 
-## Sprint 2 — Master Data Foundation
+### Epic: Platform Admin Portal *(DFMS team — internal)*
+
+| Story | Status | SP |
+|-------|--------|----|
+| [Custom-branded admin interface (DFMS design system, dark/light theme)](sprint1/PAP-01-custom-branded-admin-interface.md) | Done | 5 |
+| [Platform admin login (username & password)](sprint1/PAP-02-platform-admin-login.md) | Done | 2 |
+| [Platform admin 2FA — email OTP challenge](sprint1/PAP-03-platform-admin-2fa-otp.md) | Done | 3 |
+| [Platform admin dashboard showing key metrics](sprint1/PAP-04-platform-admin-dashboard.md) | Done | 3 |
+| [Tenant Onboarding — register a new client organisation](sprint1/PAP-05-tenant-onboarding.md) | ~80% | 13 |
+| [Tenant Management — view, update, and suspend client accounts](sprint1/PAP-06-tenant-management.md) | Done | 3 |
+| **Subtotal** | | **29** |
+
+**Pending under Tenant Onboarding**: resend welcome email, tenant reactivation after suspension.
+
+---
+
+### Epic: Client Portal *(for Nourish / end-client users)*
+
+| Story | Status | SP |
+|-------|--------|----|
+| [Custom-branded interface](sprint1/CP-01-custom-branded-client-interface.md) | Done | 3 |
+| [Branded login page served on the client's domain](sprint1/CP-02-branded-login-page-on-tenant-domain.md) | Done | 2 |
+| [2FA — Email OTP (3-step secure login)](sprint1/CP-03-2fa-email-otp-login.md) | Done | 8 |
+| [Account activation flow for new users via invitation link](sprint1/CP-04-account-activation-invitation.md) | ~70% | 5 |
+| [Dashboard showing basic live operational metrics](sprint1/CP-05-tenant-dashboard.md) | Done | 3 |
+| **Subtotal** | | **21** |
+
+**Pending under Account activation**: bulk invitation via file upload, resend invitation.
+
+---
+
+| **Sprint 1 Total** | **~62 SP** |
+|---|---|
+| Done | ~52 SP |
+| Pending | ~10 SP |
+
+---
+
+## Sprint 2 — Master Data, User Management & POI
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -28,25 +70,17 @@
 | US-053 | Vehicle Master Data Management | EPIC-006 | 5 |
 | US-057 | Driver Master Data Management | EPIC-006 | 5 |
 | US-061 | Helper Master Data Management | EPIC-006 | 3 |
-| **Total** | | | **36** |
-
----
-
-## Sprint 3 — User Management & POI
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-005 | User Invitation & Activation | EPIC-002 | 8 |
 | US-006 | OTP Verification System | EPIC-002 | 5 |
 | US-007 | Account Deactivation & Reactivation | EPIC-002 | 5 |
 | US-008 | Password & Account Reset | EPIC-002 | 5 |
 | US-009 | User Activity & Audit Logs | EPIC-002 | 8 |
 | US-097 | POI Management & Geofencing | EPIC-004 | 13 |
-| **Total** | | | **44** |
+| **Total** | | | **80** |
 
 ---
 
-## Sprint 4 — Requisition & Fleet Planning
+## Sprint 3 — Requisition & Fleet Planning
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -61,7 +95,7 @@
 
 ---
 
-## Sprint 5 — Transport Order Creation
+## Sprint 4 — Transport Order Creation
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -73,7 +107,7 @@
 
 ---
 
-## Sprint 6 — Trip Execution
+## Sprint 5 — Trip Execution
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -84,7 +118,7 @@
 
 ---
 
-## Sprint 7 — Trip Closure & Vendor Onboarding
+## Sprint 6 — Trip Closure & Vendor Onboarding
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -96,7 +130,7 @@
 
 ---
 
-## Sprint 8 — Vendor Operations & QC Config
+## Sprint 7 — Vendor Operations & QC Config
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -109,7 +143,7 @@
 
 ---
 
-## Sprint 9 — Vendor Portal & Gate Setup
+## Sprint 8 — Vendor Portal & Gate Setup
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -121,7 +155,7 @@
 
 ---
 
-## Sprint 10 — Vendor Compliance & Weighing
+## Sprint 9 — Vendor Compliance & Weighing
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -135,7 +169,7 @@
 
 ---
 
-## Sprint 11 — Gate Operations & QC Prep
+## Sprint 10 — Gate Operations & QC Prep
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -149,7 +183,7 @@
 
 ---
 
-## Sprint 12 — Destination Gate, Scaling & Loading
+## Sprint 11 — Destination Gate, Scaling & Loading
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -163,7 +197,7 @@
 
 ---
 
-## Sprint 13 — Unloading & Command Center
+## Sprint 12 — Unloading & Command Center
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -176,7 +210,7 @@
 
 ---
 
-## Sprint 14 — QC Sampling Workflow
+## Sprint 13 — QC Sampling Workflow
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -193,7 +227,7 @@
 
 ---
 
-## Sprint 15 — Lab Testing
+## Sprint 14 — Lab Testing
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -208,7 +242,7 @@
 
 ---
 
-## Sprint 16 — QC Decisions & Compliance
+## Sprint 15 — QC Decisions & Compliance
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -223,7 +257,7 @@
 
 ---
 
-## Sprint 17 — Mobile Applications
+## Sprint 16 — Mobile Applications
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -234,7 +268,7 @@
 
 ---
 
-## Sprint 18 — Financial Management & Reporting
+## Sprint 17 — Financial Management & Reporting
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -250,16 +284,16 @@
 
 | Sprint Group | Sprints | Stories | Story Points |
 |---|---|---|---|
-| Foundation | Sprint 1–3 | 22 | 133 |
-| Transport Core | Sprint 4–7 | 18 | 110 |
-| Vendor & Weighing | Sprint 8–10 | 15 | 88 |
-| Gate & Operations | Sprint 11–13 | 17 | 80 |
-| QC Workflow | Sprint 14–16 | 23 | 80 |
-| Mobile & Finance | Sprint 17–18 | 7 | 38 |
-| **Total** | **18 sprints** | **102** | **529** |
+| Foundation | Sprint 1–2 | 22 | 133 |
+| Transport Core | Sprint 3–6 | 18 | 110 |
+| Vendor & Weighing | Sprint 7–9 | 15 | 88 |
+| Gate & Operations | Sprint 10–12 | 17 | 80 |
+| QC Workflow | Sprint 13–15 | 23 | 80 |
+| Mobile & Finance | Sprint 16–17 | 7 | 38 |
+| **Total** | **17 sprints** | **102** | **529** |
 
 ---
 
-**Last Updated**: 2026-03-06  
-**Phase**: Phase 1 — Core Foundation & Operational Enablement (MVP)  
-**Status**: Planning
+**Last Updated**: 2026-03-31
+**Phase**: Phase 1 — Core Foundation & Operational Enablement (MVP)
+**Status**: In Progress — Sprint 1 ~70% complete

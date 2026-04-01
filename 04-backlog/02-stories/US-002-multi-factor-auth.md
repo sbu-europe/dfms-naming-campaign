@@ -4,14 +4,19 @@ story_id: US-002
 phase: phase-1
 module: System Foundation
 priority: Critical
-status: Pending
-epic: System Foundation
+status: In Progress
+epic: Client Portal
 epic_id: EPIC-001
 epic_name: System Foundation
-sprint: Sprint 1
-story_points: 10
+sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
+story_points: 8
 created: 2026-02-23
-updated: 2026-03-30
+updated: 2026-03-31
+completion: ~60%
+pending:
+  - TOTP / authenticator app support
+  - Backup codes
+  - SMS OTP delivery
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/stories-table.md

@@ -4,14 +4,20 @@ story_id: US-098
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
-status: Pending
-epic: User & Tenant Foundation
+status: In Progress
+epic: Platform Admin Portal
 epic_id: EPIC-002
 epic_name: User & Tenant Foundation
-sprint: Sprint 1
+sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
 story_points: 13
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-31
+completion: ~80%
+pending:
+  - Resend welcome email endpoint
+  - Tenant reactivation endpoint
+  - Full audit log writes on provisioning events
+  - Trial auto-suspension
 source_documents:
   - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../03-module-specifications/01-foundation/user-tenant-management.md

@@ -4,12 +4,17 @@ story_id: US-005
 phase: phase-1
 module: User & Tenant Management
 priority: Critical
-status: Pending
-epic: Tenant Onboarding
+status: In Progress
+epic: Client Portal
 epic_id: EPIC-002
 epic_name: User & Tenant Foundation
-sprint: Sprint 3
-story_points: 8
+sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
+story_points: 5
+completion: ~70%
+pending:
+  - Bulk invitation via CSV
+  - Resend invitation endpoint (platform admin)
+  - Invitation expiry cleanup task
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
