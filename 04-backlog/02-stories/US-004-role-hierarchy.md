@@ -36,62 +36,133 @@ tags: [foundation, rbac, roles, security, critical]
 
 Role hierarchy defines permission scope and access rights. The system must:
 - Define hierarchical role structure with Administrative and Operational categories
+- Support two access scope levels: **Global Access** (across all locations) and **Local Access** (within assigned department/POI)
 - Enforce role-based permissions at UI, API, and database levels
-- Allow Department Admins to assign operational roles within their departments
+- Allow Tenant Admins to assign operational roles within their departments
 - Prevent users from approving their own requisitions
+- Enforce Requester vs Approver vs Executor role separation
 
 ---
 
 ## Acceptance Criteria
 
 ### AC-1: Role Structure
-- [ ] System SHALL define hierarchical role structure with pre-defined roles
-- [ ] System SHALL categorize roles as Administrative and Operational
-- [ ] System SHALL assign each role a specific permission scope and access rights
-- [ ] System SHALL allow Department Admins to assign operational roles within their departments
+- [ ] System SHALL define a hierarchical role structure with pre-defined roles
+- [ ] System SHALL categorize roles into: **Administrative Roles**, **Operational Roles**
+- [ ] System SHALL assign each role:
+  - a permission scope
+  - access rights
+- [ ] System SHALL support two access scope levels:
+  - **Global Access** – role can access data and actions across all locations within the tenant
+  - **Local Access** – role can access data only within assigned department, POI, depot, feed mill, or operational unit
+- [ ] System SHALL allow Tenant Admins to assign operational roles within their departments
+- [ ] System SHALL support the following operational roles and access scope definitions:
+
+| Department | Role | Functional Type | Access Scope |
+|------------|------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer | Requester | Local |
+| | Feed Mill Officer | Requester | Local |
+| | Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO) | Executor | Local |
+| | Distribution Manager (DM) | Approver | Global |
+| Transport | Transport Planner (TP) | Executor | Global |
+| | Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical | Executor | Local |
+| | QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer | Executor | Local |
+| | Loading Personnel | Executor | Local |
+| | Unloading Personnel | Executor | Local |
+| | Driver Supervisor | Executor | Local |
+| | Driver Helper | Executor | Local |
+
+- [ ] System SHALL ensure Local roles only access records within their assigned location
+- [ ] System SHALL ensure Global roles can access requests across all locations within the tenant
 
 ### AC-2: Permission Enforcement
-- [ ] System SHALL enforce permissions at UI level (menu/button visibility)
-- [ ] System SHALL enforce permissions at API level (endpoint access validation)
-- [ ] System SHALL enforce permissions at database level (row-level security where applicable)
+- [ ] System SHALL enforce permissions at multiple security layers
+
+**UI Level**
+- [ ] System SHALL control:
+  - menu visibility
+  - page access
+  - button availability
+  - based on user role and permission scope
+
+**API Level**
+- [ ] System SHALL validate permissions before allowing API endpoint access
+- [ ] Unauthorized requests SHALL return HTTP 403 Forbidden
+
+**Database Level**
+- [ ] System SHALL enforce row-level security for sensitive data access
+- [ ] Local roles SHALL only access records associated with their assigned department or operational location
+- [ ] Global roles SHALL access records across all locations where the role permission applies
 
 ### AC-3: Approval Constraints
 - [ ] System SHALL prevent users from approving their own requisitions
-- [ ] System SHALL enforce Requester vs Approver role separation
+- [ ] System SHALL enforce Requester vs Approver vs Executor role separation
+- [ ] System SHALL ensure that:
+  - A Requester cannot approve requests they created
+  - Only roles flagged as Approver can approve requests
+- [ ] System SHALL enforce approval rules regardless of Local or Global role scope
+
+**Example:**
+- Depot Manager (Requester – Local) → cannot approve requests
+- Distribution Manager (Approver – Global) → can approve TR requests across all locations
 
 ### AC-4: Role Types
-- [ ] System SHALL support functional role types (Requester, Approver, Executor)
-- [ ] System SHALL scope all roles to tenant level (multi-tenant isolation)
+- [ ] System SHALL support functional role types:
+  - **Requester**
+  - **Approver**
+  - **Executor**
+- [ ] System SHALL allow each operational role to be mapped to a functional role type
+- [ ] System SHALL support multi-tenant architecture, where:
+  - all roles are scoped to the tenant
+  - users cannot access data from other tenants
+- [ ] System SHALL combine Role + Functional Type + Access Scope to determine user permissions
 
 ---
 
 ## Functional Requirements
 
 ### FR-001: RBAC
-- [Critical] Hierarchical role structure
-- [Critical] Permission scope per role
-- [Critical] Department-level role assignment
+- [Critical] Hierarchical role structure with Administrative and Operational categories
+- [Critical] Permission scope per role (Global vs Local access)
+- [Critical] Functional role types (Requester, Approver, Executor)
+- [Critical] Tenant-level role assignment by Tenant Admins
 
 ### FR-002: Access Control
-- [Critical] UI-level permission enforcement
-- [Critical] API-level permission enforcement
-- [High] Row-level security for sensitive data
+- [Critical] UI-level permission enforcement (menu/page/button visibility)
+- [Critical] API-level permission enforcement (403 on unauthorized access)
+- [Critical] Database-level row-level security for Local vs Global access
+- [Critical] Multi-tenant data isolation
 
 ---
 
 ## Business Rules
 
 ### BR-RBAC-001: Role Hierarchy
-- Administrative roles: Super Admin, Tenant Admin, Department Admin
-- Operational roles: Transport Planner, TDO, QC Inspector, etc.
+- **Administrative roles**: Super Admin, Tenant Admin, Department Admin
+- **Operational roles**: 15 pre-defined roles across 5 departments (see AC-1 table)
+- Each role has a Functional Type: Requester, Approver, or Executor
 - **Enforcement**: RBAC service
 
-### BR-RBAC-002: Self-Approval Prevention
+### BR-RBAC-002: Access Scope Enforcement
+- **Global Access**: User can access data across all locations within tenant
+- **Local Access**: User can only access data within assigned department/POI/depot/feed mill
+- Row-level security enforced at database layer
+- **Enforcement**: Database RLS policies + API middleware
+
+### BR-RBAC-003: Self-Approval Prevention
 - Users cannot approve their own requisitions
+- Requester role type cannot approve requests
+- Only Approver role type can approve requests
+- Approval rules apply regardless of Global or Local scope
 - **Enforcement**: Approval workflow validation
 
-### BR-RBAC-003: Tenant Isolation
+### BR-RBAC-004: Tenant Isolation
 - All roles scoped to tenant
+- Users cannot access data from other tenants
 - **Enforcement**: Multi-tenant middleware
 
 ---
@@ -104,13 +175,17 @@ Role {
   tenant_id: UUID
   name: string
   category: Enum (Administrative, Operational)
+  functional_type: Enum (Requester, Approver, Executor)
+  access_scope: Enum (Global, Local)
+  department: string (nullable)
   permissions: JSON (array of permission codes)
 }
 
 UserRole {
   user_id: UUID
   role_id: UUID
-  department_id: UUID (nullable)
+  department_id: UUID (nullable, required for Local roles)
+  poi_id: UUID (nullable, for Local roles)
   assigned_by: UUID
   assigned_at: DateTime
 }
@@ -119,7 +194,8 @@ Permission {
   permission_code: string
   resource: string
   action: string
-  scope: Enum (tenant, department, self)
+  scope: Enum (Global, Local, Self)
+  requires_functional_type: Enum (Requester, Approver, Executor, null)
 }
 ```
 
@@ -127,24 +203,35 @@ Permission {
 
 ## UI/UX Requirements
 
-### Role Assignment (Admin)
+### Role Assignment (Tenant Admin)
 ```
-┌─────────────────────────────────────────┐
-│ Assign Role: john.doe                   │
-├─────────────────────────────────────────┤
-│ Department: [Transport ▼]                │
-│ Role:      [Transport Planner ▼]         │
-│                                         │
-│ Permissions: (read-only summary)         │
-│ • View TOs, Create TOs, Assign Fleet     │
-│ • Cannot approve own requisitions        │
-│                                         │
-│ [Assign]  [Cancel]                       │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│ Assign Role: john.doe                       │
+├─────────────────────────────────────────────┤
+│ Department: [Transport ▼]                    │
+│ Role:      [Transport Planner ▼]             │
+│                                             │
+│ Role Details: (read-only)                    │
+│ • Functional Type: Executor                  │
+│ • Access Scope: Global                       │
+│                                             │
+│ Permissions:                                 │
+│ • View TOs across all locations              │
+│ • Create TOs, Assign Fleet                   │
+│ • Cannot approve requisitions (Executor)     │
+│                                             │
+│ Location Assignment: (for Local roles only)  │
+│ POI/Depot: [Not Required - Global Access]   │
+│                                             │
+│ [Assign]  [Cancel]                           │
+└─────────────────────────────────────────────┘
 ```
 
 ### Menu/Button Visibility
-- UI elements hidden based on permission scope
+- UI elements hidden based on role's functional type and access scope
+- Approval buttons hidden for Requester and Executor roles
+- Local roles see only records from their assigned location
+- Global roles see records from all locations
 - Disabled state with tooltip when action not permitted
 
 ---
@@ -153,18 +240,43 @@ Permission {
 
 ```typescript
 GET /api/v1/roles
-Response: { roles: [{ role_id, name, category, permissions }] }
+Response: { 
+  roles: [{ 
+    role_id, 
+    name, 
+    category, 
+    functional_type, 
+    access_scope, 
+    department, 
+    permissions 
+  }] 
+}
 
 GET /api/v1/users/{user_id}/roles
-Response: { roles: [{ role_id, department_id }] }
+Response: { 
+  roles: [{ 
+    role_id, 
+    department_id, 
+    poi_id, 
+    functional_type, 
+    access_scope 
+  }] 
+}
 
 POST /api/v1/admin/users/{user_id}/roles
-Body: { role_id, department_id? }
+Body: { 
+  role_id, 
+  department_id?, 
+  poi_id? // Required for Local roles
+}
 Response: { success }
 
 GET /api/v1/permissions/check
-Query: resource, action
-Response: { permitted: boolean }
+Query: resource, action, record_id?
+Response: { 
+  permitted: boolean, 
+  reason?: string // e.g., "Local role cannot access this location"
+}
 ```
 
 ---
@@ -172,13 +284,17 @@ Response: { permitted: boolean }
 ## Testing Scenarios
 
 ### Happy Path
-1. Department Admin assigns Transport Planner role → User sees TO menu
-2. User creates requisition → Cannot approve own requisition (button hidden)
+1. Tenant Admin assigns Transport Planner (Executor, Global) → User sees TO menu across all locations
+2. Tenant Admin assigns Depot Officer (Requester, Local) → User sees only their depot's data
+3. Distribution Manager (Approver, Global) approves TR → Success
+4. Depot Officer creates requisition → Cannot approve (Requester type, button hidden)
 
 ### Edge Cases
-1. **Self-approval attempt**: API returns 403
-2. **Cross-tenant role access**: Denied
-3. **Permission escalation**: Validation prevents higher scope assignment
+1. **Self-approval attempt**: API returns 403 "Requester cannot approve own requisition"
+2. **Local role accessing other location**: API returns 403 "Access denied - outside assigned location"
+3. **Executor attempting approval**: API returns 403 "Only Approver roles can approve"
+4. **Cross-tenant role access**: Denied at middleware level
+5. **Local role without location assignment**: Assignment rejected at creation
 
 ---
 
@@ -194,10 +310,14 @@ Response: { permitted: boolean }
 ---
 
 ## Definition of Done
-- [ ] Role hierarchy defined
-- [ ] Permission enforcement at UI and API
-- [ ] Self-approval prevention
+- [ ] Role hierarchy defined with 15 operational roles (see AC-1 table)
+- [ ] Functional types (Requester, Approver, Executor) implemented
+- [ ] Access scope (Global, Local) enforced at database level
+- [ ] Permission enforcement at UI, API, and database layers
+- [ ] Self-approval prevention with functional type validation
+- [ ] Row-level security for Local vs Global access
 - [ ] Unit tests > 80%
+- [ ] Integration tests for approval constraints
 - [ ] UAT approved
 
 ---
