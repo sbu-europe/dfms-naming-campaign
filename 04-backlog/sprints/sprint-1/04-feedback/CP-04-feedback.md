@@ -45,6 +45,6 @@ When a Tenant Admin sends an invitation, the email included in the activation UR
 
 ## Notes
 
-- Pending scope items (DFS-015-11, DFS-015-12) are also tracked in the [CP-04 story](../client-portal/CP-04-account-activation-invitation.md) under `sub_tasks`
+- Pending scope items (DFS-015-11, DFS-015-12) are also tracked in the [CP-04 story](../03-client-portal/CP-04-account-activation-invitation.md) under `sub_tasks`
 - DFS-015-13 (FB-001) is a security fix and should be prioritised before the next client demo
 - Bulk CSV invitation is a dependency for large client onboardings (e.g., Nourish rollout with 50+ operational users)

@@ -13,11 +13,11 @@
 
 | Story | Jira | Status | SP |
 |-------|------|--------|----|
-| [Local development environment — all services running with a single command](sprints/sprint-1/infra/INFRA-01-local-dev-environment.md) | DFS-001 | Done | 3 |
-| [Isolated database per client — each organisation's data in a separate, secure schema](sprints/sprint-1/infra/INFRA-02-multi-tenant-schema-isolation.md) | DFS-002 | Done | 3 |
-| [Background job processing — emails and async tasks run without blocking the web app](sprints/sprint-1/infra/INFRA-03-background-job-processing.md) | DFS-003 | Done | 3 |
-| [Caching and session storage — fast, Redis-backed user session management](sprints/sprint-1/infra/INFRA-04-caching-session-storage.md) | DFS-004 | Done | 1 |
-| [Production-ready setup — multi-environment config, deployment config, and onboarding docs](sprints/sprint-1/infra/INFRA-05-production-ready-setup.md) | DFS-005 | Done | 2 |
+| [Local development environment — all services running with a single command](sprints/sprint-1/01-infra/INFRA-01-local-dev-environment.md) | DFS-001 | Done | 3 |
+| [Isolated database per client — each organisation's data in a separate, secure schema](sprints/sprint-1/01-infra/INFRA-02-multi-tenant-schema-isolation.md) | DFS-002 | Done | 3 |
+| [Background job processing — emails and async tasks run without blocking the web app](sprints/sprint-1/01-infra/INFRA-03-background-job-processing.md) | DFS-003 | Done | 3 |
+| [Caching and session storage — fast, Redis-backed user session management](sprints/sprint-1/01-infra/INFRA-04-caching-session-storage.md) | DFS-004 | Done | 1 |
+| [Production-ready setup — multi-environment config, deployment config, and onboarding docs](sprints/sprint-1/01-infra/INFRA-05-production-ready-setup.md) | DFS-005 | Done | 2 |
 | **Subtotal** | | | **12** |
 
 ---
@@ -26,15 +26,15 @@
 
 | Story | Jira | Status | SP |
 |-------|------|--------|----|
-| [Custom-branded admin interface (DFMS design system, dark/light theme)](sprints/sprint-1/platform-admin-portal/PAP-01-custom-branded-admin-interface.md) | DFS-006 | Done | 5 |
-| [Platform admin login (username & password)](sprints/sprint-1/platform-admin-portal/PAP-02-platform-admin-login.md) | DFS-007 | Done | 2 |
-| [Platform admin 2FA — email OTP challenge](sprints/sprint-1/platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) | DFS-008 | Done | 3 |
-| [Platform admin dashboard showing key metrics](sprints/sprint-1/platform-admin-portal/PAP-04-platform-admin-dashboard.md) | DFS-009 | Done | 3 |
-| [Tenant Onboarding — register a new client organisation](sprints/sprint-1/platform-admin-portal/PAP-05-tenant-onboarding.md) | DFS-010 | ~80% | 13 |
-| [Tenant Management — view, update, and suspend client accounts](sprints/sprint-1/platform-admin-portal/PAP-06-tenant-management.md) | DFS-011 | Done | 3 |
+| [Custom-branded admin interface (DFMS design system, dark/light theme)](sprints/sprint-1/02-platform-admin-portal/PAP-01-custom-branded-admin-interface.md) | DFS-006 | Done | 5 |
+| [Platform admin login (username & password)](sprints/sprint-1/02-platform-admin-portal/PAP-02-platform-admin-login.md) | DFS-007 | Done | 2 |
+| [Platform admin 2FA — email OTP challenge](sprints/sprint-1/02-platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) | DFS-008 | Done | 3 |
+| [Platform admin dashboard showing key metrics](sprints/sprint-1/02-platform-admin-portal/PAP-04-platform-admin-dashboard.md) | DFS-009 | Done | 3 |
+| [Tenant Onboarding — register a new client organisation](sprints/sprint-1/02-platform-admin-portal/PAP-05-tenant-onboarding.md) | DFS-010 | ~80% | 13 |
+| [Tenant Management — view, update, and suspend client accounts](sprints/sprint-1/02-platform-admin-portal/PAP-06-tenant-management.md) | DFS-011 | Done | 3 |
 | **Subtotal** | | | **29** |
 
-**Pending under Tenant Onboarding**: [resend welcome email (DFS-010-12)](sprints/sprint-1/feedback/PAP-05-feedback.md), [tenant reactivation (DFS-010-13)](sprints/sprint-1/feedback/PAP-05-feedback.md).
+**Pending under Tenant Onboarding**: [resend welcome email (DFS-010-12)](sprints/sprint-1/04-feedback/PAP-05-feedback.md), [tenant reactivation (DFS-010-13)](sprints/sprint-1/04-feedback/PAP-05-feedback.md).
 
 ---
 
@@ -42,14 +42,14 @@
 
 | Story | Jira | Status | SP |
 |-------|------|--------|----|
-| [Custom-branded interface](sprints/sprint-1/client-portal/CP-01-custom-branded-client-interface.md) | DFS-012 | Done | 3 |
-| [Branded login page served on the client's domain](sprints/sprint-1/client-portal/CP-02-branded-login-page-on-tenant-domain.md) | DFS-013 | Done | 2 |
-| [2FA — Email OTP (3-step secure login)](sprints/sprint-1/client-portal/CP-03-2fa-email-otp-login.md) | DFS-014 | Done | 8 |
-| [Account activation flow for new users via invitation link](sprints/sprint-1/client-portal/CP-04-account-activation-invitation.md) | DFS-015 | ~70% | 5 |
-| [Dashboard showing basic live operational metrics](sprints/sprint-1/client-portal/CP-05-tenant-dashboard.md) | DFS-016 | Done | 3 |
+| [Custom-branded interface](sprints/sprint-1/03-client-portal/CP-01-custom-branded-client-interface.md) | DFS-012 | Done | 3 |
+| [Branded login page served on the client's domain](sprints/sprint-1/03-client-portal/CP-02-branded-login-page-on-tenant-domain.md) | DFS-013 | Done | 2 |
+| [2FA — Email OTP (3-step secure login)](sprints/sprint-1/03-client-portal/CP-03-2fa-email-otp-login.md) | DFS-014 | Done | 8 |
+| [Account activation flow for new users via invitation link](sprints/sprint-1/03-client-portal/CP-04-account-activation-invitation.md) | DFS-015 | ~70% | 5 |
+| [Dashboard showing basic live operational metrics](sprints/sprint-1/03-client-portal/CP-05-tenant-dashboard.md) | DFS-016 | Done | 3 |
 | **Subtotal** | | | **21** |
 
-**Pending under Account activation**: [bulk invitation via CSV (DFS-015-12)](sprints/sprint-1/feedback/CP-04-feedback.md), [resend invitation (DFS-015-11)](sprints/sprint-1/feedback/CP-04-feedback.md).
+**Pending under Account activation**: [bulk invitation via CSV (DFS-015-12)](sprints/sprint-1/04-feedback/CP-04-feedback.md), [resend invitation (DFS-015-11)](sprints/sprint-1/04-feedback/CP-04-feedback.md).
 
 ---
 

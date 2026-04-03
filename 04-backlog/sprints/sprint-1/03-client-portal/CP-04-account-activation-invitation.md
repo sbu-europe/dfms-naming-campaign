@@ -22,7 +22,7 @@ sub_tasks:
   - id: DFS-015-13
     title: "FB-001: Lock email field on activation page (read-only + server-side validation)"
     status: Open
-feedback_file: ../feedback/CP-04-feedback.md
+feedback_file: ../04-feedback/CP-04-feedback.md
 ---
 
 # CP-04 — Account Activation Flow for New Users via Invitation Link
@@ -52,7 +52,7 @@ After the Tenant Admin has logged in, they need to onboard team members. Each in
 - [ ] Bulk user invitation via CSV file upload
 - [ ] Resend invitation (generates a new token, resets 7-day window)
 
-### From Demo Feedback ([FB-001](../feedback/CP-04-feedback.md))
+### From Demo Feedback ([FB-001](../04-feedback/CP-04-feedback.md))
 - [ ] Email field on the activation page is displayed as read-only (non-editable)
 - [ ] Server validates email against the token record, not the submitted form value
 - [ ] Attempting to submit a modified email returns a 400 error

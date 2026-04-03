@@ -19,7 +19,7 @@ sub_tasks:
   - id: DFS-010-13
     title: Add "Reactivate Tenant" admin action
     status: Pending
-feedback_file: ../feedback/PAP-05-feedback.md
+feedback_file: ../04-feedback/PAP-05-feedback.md
 ---
 
 # PAP-05 — Tenant Onboarding — Register a New Client Organisation

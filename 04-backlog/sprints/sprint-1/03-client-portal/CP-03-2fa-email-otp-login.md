@@ -18,7 +18,7 @@ sub_tasks:
   - id: DFS-014-11
     title: "FB-005: Configurable OTP channel per user (email | SMS)"
     status: Open
-feedback_file: ../feedback/CP-03-feedback.md
+feedback_file: ../04-feedback/CP-03-feedback.md
 ---
 
 # CP-03 — 2FA — Email OTP (3-Step Secure Login)
@@ -95,7 +95,7 @@ Step 3: Client stores JWT tokens, uses Authorization: Bearer <token> for all sub
 - Wrong OTP → error shown, no session created
 - Resend OTP → new code sent after 60s cooldown
 
-## From Demo Feedback ([FB-004, FB-005](../feedback/CP-03-feedback.md))
+## From Demo Feedback ([FB-004, FB-005](../04-feedback/CP-03-feedback.md))
 
 ### FB-004 — Trusted Device: Skip OTP on Known Browser
 - [ ] After successful OTP, set `dfms_trusted_device=<signed_token>` cookie with 30-day max-age

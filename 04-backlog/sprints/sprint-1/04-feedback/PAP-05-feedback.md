@@ -49,5 +49,5 @@ When the initial welcome email to a Tenant Admin fails to deliver (e.g. SMTP fai
 
 ## Notes
 
-- DFS-010-12 and DFS-010-13 are also tracked in the [PAP-05 story](../platform-admin-portal/PAP-05-tenant-onboarding.md) under `sub_tasks`
+- DFS-010-12 and DFS-010-13 are also tracked in the [PAP-05 story](../02-platform-admin-portal/PAP-05-tenant-onboarding.md) under `sub_tasks`
 - These should be completed before Sprint 1 is marked fully Done in Jira

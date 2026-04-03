@@ -13,7 +13,7 @@ sub_tasks:
   - id: DFS-004-6
     title: "FB-003: Extend session timeout from 30 min to 24 hours (sliding window)"
     status: Open
-feedback_file: ../feedback/INFRA-04-feedback.md
+feedback_file: ../04-feedback/INFRA-04-feedback.md
 ---
 
 # INFRA-04 — Caching and Session Storage (Redis-backed)
@@ -56,7 +56,7 @@ Django's default in-process or database-backed session store does not work well 
 - Login, navigate, restart `web` container, refresh — user remains logged in
 - `docker exec redis redis-cli -n 1 keys "*"` shows session keys
 
-## From Demo Feedback ([FB-003](../feedback/INFRA-04-feedback.md))
+## From Demo Feedback ([FB-003](../04-feedback/INFRA-04-feedback.md))
 
 ### FB-003 — Extend Session Timeout to 24 Hours
 - [ ] `SESSION_COOKIE_AGE = 86400` (24 hours) set in `config/settings/base.py`

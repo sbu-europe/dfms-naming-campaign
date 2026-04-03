@@ -35,7 +35,7 @@ Requiring OTP on every login is disruptive for users who log in multiple times a
 - [ ] Trusted device tokens stored in Redis with 30-day TTL (key: `trusted_device:<user_id>:<token>`)
 - [ ] User can view all trusted devices and revoke individual ones from account settings
 
-> Also affects [PAP-03 — Platform Admin 2FA OTP](../platform-admin-portal/PAP-03-platform-admin-2fa-otp.md).
+> Also affects [PAP-03 — Platform Admin 2FA OTP](../02-platform-admin-portal/PAP-03-platform-admin-2fa-otp.md).
 > See `DECISIONS.md` — "Trusted Device Cookie for OTP Skip" for rationale and trade-offs.
 
 ---
@@ -84,6 +84,6 @@ Currently, OTP is always sent by email. The client requires the ability to confi
 
 ## Notes
 
-- FB-004 also applies to [PAP-03](../platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) (Super Admin login) — the same trusted device mechanism should be used on both portals
+- FB-004 also applies to [PAP-03](../02-platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) (Super Admin login) — the same trusted device mechanism should be used on both portals
 - FB-005 introduces a dependency on an SMS gateway — provider selection must be confirmed before implementation begins
 - Both items are new scope beyond the original CP-03 story and should be tracked as separate Jira sub-tasks / linked stories
