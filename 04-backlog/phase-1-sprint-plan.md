@@ -60,7 +60,7 @@
 
 ---
 
-## Sprint 2 — Master Data, User Management & POI
+## Sprint 2 — Master Data, User Management & Vehicle Tracking
 
 > Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-2/](sprints/sprint-2/README.md)
 
@@ -68,7 +68,7 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [POI Management & Geofencing](sprints/sprint-2/03-poi-management/MDM-04-poi-management-geofencing.md) | MDM-04 | DFS-020 | Pending | 13 |
+| [POI Setup & Management](sprints/sprint-2/01-master-data-management/MDM-04-poi-management.md) | MDM-04 | DFS-020 | Pending | 8 |
 | [Product Master Data Management (CRUD)](sprints/sprint-2/01-master-data-management/MDM-01-product-master-data.md) | MDM-01 | DFS-017 | Pending | 13 |
 | [Route, Supplier & Dealer Master Data](sprints/sprint-2/01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | Pending | 5 |
 | [Vendor Master Data (Admin CRUD & Bulk Upload)](sprints/sprint-2/01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | Pending | 5 |
@@ -86,7 +86,13 @@
 | [Password & Account Reset](sprints/sprint-2/02-tenant-user-management/TUM-04-password-account-reset.md) | TUM-04 | DFS-027 | Pending | 5 |
 | [User Activity & Audit Logs](sprints/sprint-2/02-tenant-user-management/TUM-05-user-activity-audit-logs.md) | TUM-05 | DFS-028 | Pending | 8 |
 
-| **Total** | | | | **80** |
+### Epic: Vehicle Tracking & Geofencing
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Geofencing Engine — Arrival & Departure Detection](sprints/sprint-2/03-vehicle-tracking-geofencing/VTG-01-geofencing-arrival-departure.md) | VTG-01 | DFS-031 | Pending | 8 |
+
+| **Total** | | | | **83** |
 
 ---
 

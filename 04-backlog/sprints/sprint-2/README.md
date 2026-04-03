@@ -1,15 +1,15 @@
 ---
 sprint: Sprint 2
-title: Master Data, User Management & POI
+title: Master Data, User Management & Vehicle Tracking
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 80
+total_story_points: 83
 status: Not Started
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
 
-# Sprint 2 — Master Data, User Management & POI
+# Sprint 2 — Master Data, User Management & Vehicle Tracking
 
 > Full sprint backlog with stories, sub-tasks, and status.
 > Source story specs: [`04-backlog/stories/`](../../stories/)
@@ -18,10 +18,10 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 12 |
-| Total Story Points | 80 |
+| Total Stories | 13 |
+| Total Story Points | 83 |
 | Status | Not Started |
-| Epics | Master Data Management, Tenant User Management, POI & Geofencing |
+| Epics | Master Data Management, Tenant User Management, Vehicle Tracking & Geofencing |
 
 ---
 
@@ -31,7 +31,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [POI Management & Geofencing](03-poi-management/MDM-04-poi-management-geofencing.md) | MDM-04 | DFS-020 | 13 | Pending |
+| 1 | [POI Setup & Management](01-master-data-management/MDM-04-poi-management.md) | MDM-04 | DFS-020 | 8 | Pending |
 | 2 | [Product Master Data Management (CRUD)](01-master-data-management/MDM-01-product-master-data.md) | MDM-01 | DFS-017 | 13 | Pending |
 | 3 | [Route, Supplier & Dealer Master Data](01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | 5 | Pending |
 | 4 | [Vendor Master Data (Admin CRUD & Bulk Upload)](01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | 5 | Pending |
@@ -39,7 +39,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | 6 | [Driver Master Data Management](01-master-data-management/MDM-06-driver-master-data.md) | MDM-06 | DFS-022 | 5 | Pending |
 | 7 | [Helper Master Data Management](01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | 3 | Pending |
 
-**Sub-total**: 49 SP
+**Sub-total**: 44 SP
 
 ---
 
@@ -59,28 +59,53 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ---
 
+## Epic: Vehicle Tracking & Geofencing
+
+> Runtime GPS event processing — geofence boundary evaluation, vehicle arrival/departure detection, and dwell time tracking.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Geofencing Engine — Arrival & Departure Detection](03-vehicle-tracking-geofencing/VTG-01-geofencing-arrival-departure.md) | VTG-01 | DFS-031 | 8 | Pending |
+
+> More stories (live GPS map, trip timeline integration, dwell time reporting) planned for later sprints.
+
+**Sub-total**: 8 SP (Sprint 2 scope) + 3 SP pending carry-over (TUM-01) = **83 SP total**
+
+---
+
 ## Dependency Map
 
 ```
 MDM-04 (POI)
-  ├── MDM-02 (Route) — depends on POI for source/dest FK
-  └── MDM-05 (Vehicle) — depends on POI for assigned POI FK
+  ├── MDM-02 (Route) ............. depends on POI for source/dest FK
+  ├── MDM-05 (Vehicle) ........... depends on POI for assigned POI FK
+  └── VTG-01 (Geofencing) ........ reads geofence_radius_meters from POI
 
 MDM-03 (Vendor)
-  └── MDM-06 (Driver) — vendor drivers linked to vendor profile
+  └── MDM-06 (Driver) ............ vendor drivers linked to vendor profile
 
 TUM-02 (OTP)
-  ├── TUM-01 (Invitation) — uses OTP for activation
-  └── TUM-04 (Password Reset) — uses OTP for verification
+  ├── TUM-01 (Invitation) ........ uses OTP for activation
+  └── TUM-04 (Password Reset) .... uses OTP for verification
+
+VTG-01 (Geofencing Engine)
+  ├── MDM-04 (POI) ............... reads POI coords + radius
+  └── MDM-05 (Vehicle) ........... reads vehicle identity + GPS tracker ID
 ```
 
-> **Recommended delivery order**: MDM-04 → MDM-01 → MDM-02, MDM-03 (parallel) → MDM-05, MDM-06, MDM-07 (parallel) → TUM stories (can run in parallel with MDM)
+> **Recommended delivery order within sprint**:
+> 1. MDM-04 (POI) — unblocks Routes, Vehicles, Geofencing engine
+> 2. MDM-01 (Product) — must complete before Sprint 3 requisition stories
+> 3. MDM-02, MDM-03 in parallel after MDM-04
+> 4. MDM-05, MDM-06, MDM-07 in parallel after MDM-04
+> 5. VTG-01 after MDM-04 + MDM-05
+> 6. TUM stories can run in parallel with all MDM stories
 
 ---
 
 ## Pending Items
 
-### Carry-over from Sprint 1 (US-005)
+### Carry-over from Sprint 1 (TUM-01 / US-005 ~70% done)
 
 | # | Item | Story | Priority | Status |
 |---|------|-------|----------|--------|
@@ -98,7 +123,8 @@ TUM-02 (OTP)
 
 ## Notes
 
-- **MDM-04 (POI)** is the highest-priority story in this sprint as it unblocks MDM-02 (Routes), MDM-05 (Vehicles), and downstream Gate Management stories
+- **MDM-04 (POI)** is the highest-priority story — unblocks Routes, Vehicles, and the Geofencing engine
+- **VTG-01** covers only the geofencing runtime engine; POI CRUD and geofence radius configuration live in MDM-04
 - **MDM-01 (Product)** must complete before Sprint 3 requisition stories (US-010+)
-- **TUM-01** is ~70% complete from Sprint 1 carry-over; remaining items (bulk invite, resend, expiry task) complete this story
-- Jira Epic keys: `DFS-020` (Master Data), `DFS-029` (Tenant User Management)
+- **TUM-01** is ~70% complete from Sprint 1 carry-over; 3 remaining sub-tasks (bulk invite, resend, expiry task) close it out
+- Jira Epics: `DFS-030` (Master Data Management), `DFS-029` (Tenant User Management), `DFS-032` (Vehicle Tracking & Geofencing)
