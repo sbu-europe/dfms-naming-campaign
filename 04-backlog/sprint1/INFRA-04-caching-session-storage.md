@@ -28,6 +28,11 @@ Django's default in-process or database-backed session store does not work well 
 - [ ] Cache read/write latency is sub-millisecond for typical keys
 - [ ] `django-redis` is the cache backend
 
+### Feedback — Sprint 1 Demo (FB-003)
+- [ ] `SESSION_COOKIE_AGE = 86400` (24 hours) — changed from 30 minutes — [FB-003](FEEDBACK.md#fb-003--session-timeout-extend-from-30-minutes-to-24-hours)
+- [ ] `SESSION_SAVE_EVERY_REQUEST = True` — sliding window: session TTL resets on every authenticated request
+- [ ] Idle for 24 hours logs the user out; active use keeps the session alive indefinitely
+
 ## Sub-tasks
 
 | # | Sub-task | Status |
@@ -35,7 +40,7 @@ Django's default in-process or database-backed session store does not work well 
 | INFRA-04-1 | Install `django-redis`; add to `requirements.txt` | Done |
 | INFRA-04-2 | Configure `CACHES['default']` in `config/settings/base.py` — use `django_redis.cache.RedisCache` with location `redis://redis:6379/1` | Done |
 | INFRA-04-3 | Set `SESSION_ENGINE = 'django.contrib.sessions.backends.cache'` and `SESSION_CACHE_ALIAS = 'default'` | Done |
-| INFRA-04-4 | Set `SESSION_COOKIE_AGE`, `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_HTTPONLY` to appropriate values | Done |
+| INFRA-04-4 | Set `SESSION_COOKIE_AGE = 86400`, `SESSION_SAVE_EVERY_REQUEST = True`, `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_HTTPONLY` — updated per FB-003 (was 1800 / 30 min) | **Updated** |
 | INFRA-04-5 | Verify session persistence: login → restart `web` container → confirm session is still active | Done |
 
 ## Technical Notes

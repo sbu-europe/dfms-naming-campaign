@@ -41,8 +41,15 @@ Tenant onboarding is the most critical provisioning flow on the platform. When a
 - [x] Login page reads `?email=` query param and pre-populates the email field
 
 ### Should Have (Pending)
-- [ ] Resend welcome email with a fresh temporary password (resets 72-hour window)
+- [ ] Resend welcome email with a fresh temporary password (resets 72-hour window) — escalated by [FB-002](FEEDBACK.md#fb-002--platform-admin-resend-invitation-email)
 - [ ] Tenant reactivation after suspension
+
+### Feedback — Sprint 1 Demo (FB-002)
+- [ ] "Resend Welcome Email" action available on the `TenantAdmin` list view — [FB-002](FEEDBACK.md#fb-002--platform-admin-resend-invitation-email)
+- [ ] Action generates a new 12-char temporary password (old password is immediately invalidated)
+- [ ] 72-hour expiry window resets from time of resend
+- [ ] Welcome email dispatched via Celery (non-blocking)
+- [ ] Action is recorded in `public.audit_logs`
 
 ### Nice to Have (Pending)
 - [ ] Provisioning progress indicator (schema creation takes 2–5 seconds)

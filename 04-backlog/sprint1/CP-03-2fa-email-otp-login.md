@@ -37,6 +37,20 @@ This is the **tenant portal** counterpart to PAP-02 (platform admin 2FA). Both s
 - [ ] Too many failed OTP attempts triggers a lockout (configurable threshold)
 - [ ] Non-admin roles (Warehouse Manager, Driver Coordinator, etc.) are NOT required to complete 2FA in Phase 1
 
+### Feedback — Sprint 1 Demo (FB-004)
+- [ ] After successful OTP, set a `dfms_trusted_device=<signed_token>` cookie with 30-day max-age — [FB-004](FEEDBACK.md#fb-004--otp-trusted-device--skip-otp-on-known-browser)
+- [ ] On subsequent logins from same browser: check trusted device cookie before triggering OTP — valid cookie skips OTP entirely
+- [ ] Trusted device tokens stored in Redis (`trusted_device:<user_id>:<token>`, TTL 30 days)
+- [ ] Invalid, expired, or revoked cookie falls back to OTP as normal
+- [ ] User can view and revoke individual trusted devices from account settings
+
+### Feedback — Sprint 1 Demo (FB-005)
+- [ ] `User` model gains `otp_channel` field (`email` | `sms`), default `email` — [FB-005](FEEDBACK.md#fb-005--otp-channel-configurable-email-or-phone-otp-per-user)
+- [ ] At login, dispatch OTP via channel defined on `user.otp_channel` (email → existing task; sms → new `send_otp_sms` task)
+- [ ] OTP verification flow, TTL, and endpoint unchanged regardless of channel
+- [ ] SMS failure falls back to email and logs the failure
+- [ ] See [CP-06 — OTP Channel Configuration](CP-06-otp-channel-configuration.md) for the admin-facing configuration story
+
 ## Sub-tasks
 
 | # | Sub-task | Status |
@@ -90,3 +104,7 @@ Step 3: Client stores JWT tokens, uses Authorization: Bearer <token> for all sub
 - Tenant Admin logs in → OTP email received within 30s → enters OTP → lands on dashboard
 - Wrong OTP → error shown, no session created
 - Resend OTP → new code sent after 60s cooldown
+- **Trusted device (FB-004)**: Second login from same browser → OTP skipped, session created directly
+- **Trusted device (FB-004)**: Login from new/private browser → OTP required as normal
+- **OTP channel (FB-005)**: User with `otp_channel=sms` → OTP sent via SMS, not email
+- **OTP channel (FB-005)**: SMS failure → fallback to email, failure logged
