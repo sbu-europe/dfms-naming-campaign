@@ -62,21 +62,31 @@
 
 ## Sprint 2 — Master Data, User Management & POI
 
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
-| US-095 | Product Master Data Management (CRUD) | EPIC-005 | 13 |
-| US-096 | Route, Supplier & Dealer Master Data | EPIC-003 | 5 |
-| US-047 | Vendor Master Data (Admin CRUD & Bulk Upload) | EPIC-006 | 5 |
-| US-053 | Vehicle Master Data Management | EPIC-006 | 5 |
-| US-057 | Driver Master Data Management | EPIC-006 | 5 |
-| US-061 | Helper Master Data Management | EPIC-006 | 3 |
-| US-005 | User Invitation & Activation | EPIC-002 | 8 |
-| US-006 | OTP Verification System | EPIC-002 | 5 |
-| US-007 | Account Deactivation & Reactivation | EPIC-002 | 5 |
-| US-008 | Password & Account Reset | EPIC-002 | 5 |
-| US-009 | User Activity & Audit Logs | EPIC-002 | 8 |
-| US-097 | POI Management & Geofencing | EPIC-004 | 13 |
-| **Total** | | | **80** |
+> Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-2/](sprints/sprint-2/README.md)
+
+### Epic: Master Data Management
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [POI Management & Geofencing](sprints/sprint-2/03-poi-management/MDM-04-poi-management-geofencing.md) | MDM-04 | DFS-020 | Pending | 13 |
+| [Product Master Data Management (CRUD)](sprints/sprint-2/01-master-data-management/MDM-01-product-master-data.md) | MDM-01 | DFS-017 | Pending | 13 |
+| [Route, Supplier & Dealer Master Data](sprints/sprint-2/01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | Pending | 5 |
+| [Vendor Master Data (Admin CRUD & Bulk Upload)](sprints/sprint-2/01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | Pending | 5 |
+| [Vehicle Registration & Master Data](sprints/sprint-2/01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | Pending | 5 |
+| [Driver Master Data Management](sprints/sprint-2/01-master-data-management/MDM-06-driver-master-data.md) | MDM-06 | DFS-022 | Pending | 5 |
+| [Helper Master Data Management](sprints/sprint-2/01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | Pending | 3 |
+
+### Epic: Tenant User Management
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [User Invitation & Activation](sprints/sprint-2/02-tenant-user-management/TUM-01-user-invitation-activation.md) | TUM-01 | DFS-024 | In Progress | 5 |
+| [OTP Verification System](sprints/sprint-2/02-tenant-user-management/TUM-02-otp-verification.md) | TUM-02 | DFS-025 | Pending | 5 |
+| [Account Deactivation & Reactivation](sprints/sprint-2/02-tenant-user-management/TUM-03-account-deactivation-reactivation.md) | TUM-03 | DFS-026 | Pending | 5 |
+| [Password & Account Reset](sprints/sprint-2/02-tenant-user-management/TUM-04-password-account-reset.md) | TUM-04 | DFS-027 | Pending | 5 |
+| [User Activity & Audit Logs](sprints/sprint-2/02-tenant-user-management/TUM-05-user-activity-audit-logs.md) | TUM-05 | DFS-028 | Pending | 8 |
+
+| **Total** | | | | **80** |
 
 ---
 
