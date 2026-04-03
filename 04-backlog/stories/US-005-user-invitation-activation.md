@@ -49,29 +49,51 @@ This is critical for multi-tenant security and proper access control.
 
 ## Acceptance Criteria
 
-### Must Have (Critical)
-- [ ] System SHALL allow admin to invite users via email
-- [ ] System SHALL send invitation email with activation link
-- [ ] System SHALL require email and mobile OTP verification before activation
-- [ ] System SHALL allow role assignment during invitation
-- [ ] System SHALL support bulk user invitation via CSV upload
-- [ ] System SHALL validate role permissions against tenant plan limits
-- [ ] System SHALL enforce unique email per tenant
-- [ ] System SHALL allow invitation resend (with cooldown period)
-- [ ] System SHALL expire invitations after 7 days
-- [ ] System SHALL log all invitation and activation events
+Given a tenant Admin user accesses the "Invite User" functionality,
 
-### Should Have (High)
-- [ ] System SHOULD support invitation via SMS (mobile number)
-- [ ] System SHOULD allow custom invitation message
-- [ ] System SHOULD show invitation status (Pending, Activated, Expired)
-- [ ] System SHOULD allow invitation cancellation
-- [ ] System SHOULD validate email domain (if domain restriction enabled)
+when the Admin fills out the invitation form with user details (Full Name, Email, Mobile Number, Role, Department, Employment Type, POI if applicable, and Workflow Responsibility),
 
-### Nice to Have (Medium)
-- [ ] System MAY support invitation templates
-- [ ] System MAY allow invitation scheduling
-- [ ] System MAY provide invitation analytics
+then the system shall:
+
+- [ ] Allow admin to invite users via Email or mobile number
+- [ ] Send an invitation link via Email or mobile phone number
+- [ ] Requires Email or mobile OTP verification before activation
+- [ ] Allow role assignment during invitation with the following roles:
+  - Distribution Officer
+  - Distribution Manager
+  - Procurement Officer
+  - Commercial Officer
+  - Depot Officer
+  - Feed Mill Officer
+  - Transport Planner
+  - Transport Distribution Officer
+  - Command Center Officer
+  - Gate man
+  - Scaling Personnel
+  - Loading Personnel
+  - Unloading Personnel
+  - QC Inspector - Physical
+  - QA Lab Technician
+  - Driver Supervisor
+  - Driver
+  - Helper
+- [ ] Bulk user invitation via CSV upload for each role
+- [ ] Validate role permissions against tenant plan limits
+- [ ] Enforce unique mobile number per tenant
+- [ ] Allow invitation resend (with cooldown period)
+- [ ] Expires invitations after 7 days
+- [ ] Allow the invited user to complete verification by:
+  - Inputting phone OTP
+  - Setting a password
+  - Verifying OTP
+  - Accepting Terms & Conditions
+- [ ] Activate the user account only after successful OTP verification
+- [ ] Allow the Admin to resend the invitation if it has expired
+- [ ] Allow custom invitation message
+- [ ] Support invitation templates
+- [ ] Allow invitation scheduling
+- [ ] Completes verification by verifying phone OTP, set password, accept T&C
+- [ ] Track the invitation status as: **Sent → Pending → Activated/Expired**
 
 ## Functional Requirements
 
@@ -80,9 +102,13 @@ This is critical for multi-tenant security and proper access control.
   - Email address (mandatory)
   - Mobile number (mandatory)
   - Full name
-  - Role assignment
+  - Role assignment (from predefined list of 18 roles)
   - Department assignment (if applicable)
+  - Employment Type
+  - POI (if applicable)
+  - Workflow Responsibility
 - [Critical] System SHALL validate email uniqueness within tenant
+- [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
 - [Critical] System SHALL check subscription plan user limit before invitation
 - [High] System SHALL support bulk CSV upload with validation
@@ -104,6 +130,7 @@ This is critical for multi-tenant security and proper access control.
 - [Critical] System SHALL require OTP verification (email + SMS) before activation
 - [Critical] System SHALL require password setup during activation
 - [Critical] System SHALL enforce password complexity rules
+- [Critical] System SHALL require Terms & Conditions acceptance
 - [Critical] System SHALL create user account upon successful activation
 - [Critical] System SHALL assign role(s) as specified in invitation
 - [Critical] System SHALL send welcome email after activation
@@ -112,7 +139,7 @@ This is critical for multi-tenant security and proper access control.
 
 ### FR-065-004: Bulk Invitation
 - [Critical] System SHALL support CSV upload with columns:
-  - Email, Mobile, Full Name, Role, Department
+  - Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility
 - [Critical] System SHALL validate CSV format and data
 - [Critical] System SHALL process invitations in batch
 - [Critical] System SHALL report success/failure for each row
@@ -134,9 +161,11 @@ This is critical for multi-tenant security and proper access control.
 - Invitation resend cooldown: 2 minutes
 - Invitation expiration: 7 days from creation
 
-### BR-065-002: Email Validation
+### BR-065-002: Email and Mobile Validation
 - Email must be unique within tenant
+- Mobile number must be unique within tenant
 - Email format must be valid
+- Mobile number format must be valid
 - Email domain validation (if domain restriction enabled)
 - Cannot invite user with existing active account
 
@@ -149,6 +178,7 @@ This is critical for multi-tenant security and proper access control.
 ### BR-065-004: Activation Requirements
 - Both email and SMS OTP must be verified
 - Password must meet complexity requirements
+- Terms & Conditions must be accepted
 - Activation link must be valid (not expired)
 - User account created only after successful activation
 
@@ -159,13 +189,16 @@ This is critical for multi-tenant security and proper access control.
 UserInvitation:
   invitation_id: string (unique)
   tenant_id: string (FK)
-  email: string
-  mobile: string
+  email: string (unique per tenant)
+  mobile: string (unique per tenant)
   full_name: string
   role_ids: array[string] (FK)
   department_id: string (FK, optional)
+  employment_type: string
+  poi_id: string (FK, optional)
+  workflow_responsibility: string
   invitation_token: string (unique)
-  status: string (pending, activated, expired, cancelled)
+  status: string (sent, pending, activated, expired, cancelled)
   invited_by: string (FK - user_id)
   invited_at: datetime
   expires_at: datetime
@@ -185,6 +218,8 @@ UserActivation:
   sms_otp_verified: boolean
   email_otp_expires_at: datetime
   sms_otp_expires_at: datetime
+  terms_accepted: boolean
+  terms_accepted_at: datetime (optional)
   activation_attempts: integer
   activated_at: datetime (optional)
 ```
@@ -195,15 +230,18 @@ UserActivation:
 - Email input with validation
 - Mobile number input with validation
 - Full name input
-- Role selection (multi-select)
+- Role selection (dropdown from 18 predefined roles)
 - Department selection (dropdown, optional)
+- Employment Type input
+- POI selection (dropdown, optional)
+- Workflow Responsibility input
 - Custom message textarea (optional)
 - "Send Invitation" button
 - "Bulk Upload" option
 
 ### Bulk Upload Interface
 - CSV file upload area
-- Template download link
+- Template download link (with columns: Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility)
 - Validation results display
 - Success/failure summary
 - "Process Invitations" button
@@ -220,6 +258,7 @@ UserActivation:
 - SMS OTP input
 - Password setup form
 - Password confirmation
+- Terms & Conditions checkbox with link to T&C document
 - "Activate Account" button
 - Resend OTP links
 
@@ -227,7 +266,7 @@ UserActivation:
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations
 - Create user invitation
-- Request body: email, mobile, full_name, role_ids, department_id, custom_message
+- Request body: email, mobile, full_name, role_ids, department_id, employment_type, poi_id, workflow_responsibility, custom_message
 - Response: invitation_id, invitation_token
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations/bulk
@@ -250,7 +289,7 @@ UserActivation:
 
 ### POST /api/v1/users/invitations/{invitation_token}/activate
 - Activate user account
-- Request body: email_otp, sms_otp, password, password_confirm
+- Request body: email_otp, sms_otp, password, password_confirm, terms_accepted
 - Response: user_id, access_token
 
 ### POST /api/v1/users/invitations/{invitation_token}/otp/resend
