@@ -131,17 +131,25 @@
 
 ## Sprint 4 — Trip Execution & Closure
 
-> **Theme**: Complete the trip lifecycle — from dispatch through incident handling, partial delivery, closure with POD, and real-time tracking.
+> Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-4/](sprints/sprint-4/README.md)
 
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
-| US-020 | TO Execution — Own Fleet (Vehicle/Driver Assignment) | EPIC-009 | 8 |
-| US-021 | Trip Lifecycle Management (12 States) | EPIC-009 | 13 |
-| US-023 | Incident Management & Exception Handling | EPIC-009 | 5 |
-| US-022 | Partial Delivery Handling | EPIC-009 | 5 |
-| US-025 | Trip Closure with Proof of Delivery (POD) | EPIC-009 | 8 |
-| US-026 | Real-time Map & Tracking Dashboard | EPIC-015 | 8 |
-| **Total** | | | **47** |
+### Epic: Trip Execution
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [TO Execution — Own Fleet (Vehicle/Driver Assignment)](sprints/sprint-4/01-trip-execution/TE-01-to-execution-own-fleet.md) | TE-01 | DFS-042 | Pending | 8 |
+| [Trip Lifecycle Management (12 States)](sprints/sprint-4/01-trip-execution/TE-02-trip-lifecycle-management.md) | TE-02 | DFS-043 | Pending | 13 |
+| [Incident Management & Exception Handling](sprints/sprint-4/01-trip-execution/TE-03-incident-management.md) | TE-03 | DFS-044 | Pending | 5 |
+
+### Epic: Trip Closure & Tracking
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Partial Delivery Handling](sprints/sprint-4/02-trip-closure-tracking/TC-01-partial-delivery.md) | TC-01 | DFS-045 | Pending | 5 |
+| [Trip Closure with Proof of Delivery (POD)](sprints/sprint-4/02-trip-closure-tracking/TC-02-trip-closure-pod.md) | TC-02 | DFS-046 | Pending | 8 |
+| [Real-time Map & Tracking Dashboard](sprints/sprint-4/02-trip-closure-tracking/TC-03-realtime-map-tracking.md) | TC-03 | DFS-047 | Pending | 8 |
+
+| **Total** | | | | **47** |
 
 ---
 
