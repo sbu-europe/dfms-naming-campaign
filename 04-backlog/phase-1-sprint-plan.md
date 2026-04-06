@@ -96,18 +96,36 @@
 
 ---
 
-## Sprint 3 — Requisition & Fleet Planning
+## Sprint 3 — Transfer Requisition, Transport Planning & Transport Orders
 
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
-| US-062 | Helper Assignment to Trips | EPIC-006 | 5 |
-| US-010 | Create Port Consignment Transfer Requisition (TR) | EPIC-007 | 5 |
-| US-013 | Stock Validation (Source & Destination) | EPIC-007 | 3 |
-| US-014 | Capacity Checking & Warnings | EPIC-007 | 3 |
-| US-011 | Distribution Approval Workflow (FG TR) | EPIC-008 | 5 |
-| US-012 | Procurement Approval Workflow (Port TR) | EPIC-008 | 5 |
-| US-016 | Fleet Availability Validation | EPIC-009 | 3 |
-| **Total** | | | **29** |
+> Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-3/](sprints/sprint-3/README.md)
+
+### Epic: Transfer Requisition
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Finished Goods (FG) Transfer Requisition](sprints/sprint-3/01-transfer-requisition/TR-01-fg-transfer-requisition.md) | TR-01 | DFS-032 | Pending | 5 |
+| [Port Consignment / RM Transfer Requisition](sprints/sprint-3/01-transfer-requisition/TR-02-port-rm-transfer-requisition.md) | TR-02 | DFS-033 | Pending | 5 |
+| [Stock & Capacity Validation](sprints/sprint-3/01-transfer-requisition/TR-03-stock-capacity-validation.md) | TR-03 | DFS-034 | Pending | 3 |
+| [Distribution Approval Workflow (FG TR)](sprints/sprint-3/01-transfer-requisition/TR-04-distribution-approval.md) | TR-04 | DFS-035 | Pending | 5 |
+| [Procurement Approval Workflow (Port / RM TR)](sprints/sprint-3/01-transfer-requisition/TR-05-procurement-approval.md) | TR-05 | DFS-036 | Pending | 5 |
+
+### Epic: Transport Planning
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [TR Assessment by Transport Planner](sprints/sprint-3/02-transport-planning/TP-01-tr-assessment.md) | TP-01 | DFS-037 | Pending | 5 |
+| [Fleet Availability & Transport Planning](sprints/sprint-3/02-transport-planning/TP-02-fleet-availability-planning.md) | TP-02 | DFS-038 | Pending | 5 |
+
+### Epic: Transport Order
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [TO Creation — Single & Multi-TO per TR](sprints/sprint-3/03-transport-order/TO-01-to-creation.md) | TO-01 | DFS-039 | Pending | 8 |
+| [TO — Own Fleet Vehicle & Driver Assignment](sprints/sprint-3/03-transport-order/TO-02-to-own-fleet-assignment.md) | TO-02 | DFS-040 | Pending | 8 |
+| [TO — Vendor Fleet Direct Assignment](sprints/sprint-3/03-transport-order/TO-03-vendor-direct-assignment.md) | TO-03 | DFS-041 | Pending | 5 |
+
+| **Total** | | | | **49** |
 
 ---
 
