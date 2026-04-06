@@ -1,6 +1,6 @@
 # Phase 1 — Sprint-wise Deliverables
 
-**Timeline**: 22–26 weeks (17 sprints)  
+**Timeline**: 18–22 weeks (15 sprints)  
 **Objective**: Deliver a fully usable DFMS platform covering end-to-end transport execution, gate operations, QC, vendor handling, and basic costing with secure multi-tenant access.
 
 ---
@@ -129,19 +129,7 @@
 
 ---
 
-## Sprint 4 — Transport Order Creation
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
-| US-015 | TR Assessment by Transport Planner | EPIC-009 | 5 |
-| US-017 | TO Creation — Multiple TOs per TR | EPIC-009 | 8 |
-| US-018 | TO Creation by Transport Planner | EPIC-009 | 8 |
-| US-019 | TO Execution — Vendor Fleet (Direct Assignment) | EPIC-009 | 5 |
-| **Total** | | | **26** |
-
----
-
-## Sprint 5 — Trip Execution
+## Sprint 4 — Trip Execution
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -152,7 +140,7 @@
 
 ---
 
-## Sprint 6 — Trip Closure & Vendor Onboarding
+## Sprint 5 — Trip Closure & Vendor Onboarding
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -164,7 +152,7 @@
 
 ---
 
-## Sprint 7 — Vendor Operations & QC Config
+## Sprint 6 — Vendor Operations & QC Config
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -177,7 +165,7 @@
 
 ---
 
-## Sprint 8 — Vendor Portal & Gate Setup
+## Sprint 7 — Vendor Portal & Gate Setup
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -189,7 +177,7 @@
 
 ---
 
-## Sprint 9 — Vendor Compliance & Weighing
+## Sprint 8 — Vendor Compliance & Weighing
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -203,7 +191,7 @@
 
 ---
 
-## Sprint 10 — Gate Operations & QC Prep
+## Sprint 9 — Gate Operations & QC Prep
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -217,7 +205,7 @@
 
 ---
 
-## Sprint 11 — Destination Gate, Scaling & Loading
+## Sprint 10 — Destination Gate, Scaling & Loading
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -231,7 +219,7 @@
 
 ---
 
-## Sprint 12 — Unloading & Command Center
+## Sprint 11 — Unloading & Command Center
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -244,7 +232,7 @@
 
 ---
 
-## Sprint 13 — QC Sampling Workflow
+## Sprint 12 — QC Sampling Workflow
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -256,78 +244,71 @@
 | US-080 | Exception Recording | EPIC-014 | 3 |
 | US-081 | QC Context Display | EPIC-014 | 3 |
 | US-082 | Sample Collection Event | EPIC-014 | 4 |
+| US-083 | Configurable Form/Checklist for Sampling | EPIC-014 | 5 |
+| US-084 | QR/Barcode Label | EPIC-014 | 3 |
 | US-085 | Sampling Timestamp | EPIC-014 | 2 |
-| **Total** | | | **29** |
+| **Total** | | | **37** |
 
 ---
 
-## Sprint 14 — Lab Testing
+## Sprint 13 — Lab Testing & QC Decisions
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
-| US-083 | Configurable Form/Checklist for Sampling | EPIC-014 | 5 |
-| US-084 | QR/Barcode Label | EPIC-014 | 3 |
 | US-086 | Create Lab Request | EPIC-014 | 5 |
 | US-087 | Lab Estimated Completion Time | EPIC-014 | 2 |
 | US-088 | Lab Report Upload | EPIC-014 | 3 |
 | US-089 | Lab Status Monitoring | EPIC-014 | 3 |
 | US-048 | QC Report Generation | EPIC-014 | 3 |
-| **Total** | | | **24** |
-
----
-
-## Sprint 15 — QC Decisions & Compliance
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-090 | QC Pass/Fail/Auto-Pass Tracking | EPIC-014 | 5 |
 | US-091 | Escalation Workflow | EPIC-014 | 5 |
 | US-049 | QC Rejection Workflow | EPIC-014 | 5 |
+| **Total** | | | **31** |
+
+---
+
+## Sprint 14 — QC Compliance & Mobile Applications
+
+| Story | Title | Epic | SP |
+|-------|-------|------|----|
 | US-050 | QC Dashboard & Analytics | EPIC-014 | 5 |
 | US-053b | QC Certificate Management | EPIC-014 | 2 |
 | US-054 | QC Audit Trail & History | EPIC-014 | 2 |
 | US-055 | QC Vendor Quality Tracking | EPIC-014 | 3 |
-| **Total** | | | **27** |
-
----
-
-## Sprint 16 — Mobile Applications
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
+| US-056 | QC Compliance & Regulatory Reporting | EPIC-014 | 3 |
 | US-092 | Trip Management — Driver Interface | EPIC-016 | 8 |
 | US-093 | QC Supervisor Mobile Interface | EPIC-016 | 8 |
 | US-094 | Vendor Mobile Application Access | EPIC-017 | 8 |
-| **Total** | | | **24** |
+| **Total** | | | **39** |
 
 ---
 
-## Sprint 17 — Financial Management & Reporting
+## Sprint 15 — Financial Management & Reporting
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
 | US-058 | Fuel Management & Tracking | EPIC-006 | 3 |
 | US-059 | Trip Cost Calculation & Analysis | EPIC-018 | 5 |
 | US-060 | Trip Profitability Analysis | EPIC-018 | 3 |
-| US-056 | QC Compliance & Regulatory Reporting | EPIC-014 | 3 |
-| **Total** | | | **14** |
+| **Total** | | | **11** |
 
 ---
 
 ## Summary
 
-| Sprint Group | Sprints | Stories | Story Points |
-|---|---|---|---|
-| Foundation | Sprint 1–2 | 22 | 133 |
-| Transport Core | Sprint 3–6 | 18 | 110 |
-| Vendor & Weighing | Sprint 7–9 | 15 | 88 |
-| Gate & Operations | Sprint 10–12 | 17 | 80 |
-| QC Workflow | Sprint 13–15 | 23 | 80 |
-| Mobile & Finance | Sprint 16–17 | 7 | 38 |
-| **Total** | **17 sprints** | **102** | **529** |
+| Sprint Group | Sprints | Story Points |
+|---|---|---|
+| Foundation | Sprint 1–2 | ~182 SP |
+| Transport Core | Sprint 3–5 | ~104 SP |
+| Vendor & Gate | Sprint 6–9 | ~117 SP |
+| Operations & QC | Sprint 10–13 | ~121 SP |
+| Compliance & Mobile | Sprint 14–15 | ~50 SP |
+| **Total** | **15 sprints** | **~574 SP** |
+
+> ⚠️ Sprint 12 (37 SP) and Sprint 14 (39 SP) are heavier than the target — consider splitting if team velocity is < 35 SP/sprint.
 
 ---
 
-**Last Updated**: 2026-03-31
+**Last Updated**: 2026-04-03
 **Phase**: Phase 1 — Core Foundation & Operational Enablement (MVP)
-**Status**: In Progress — Sprint 1 ~70% complete
+**Status**: In Progress — Sprint 1 done, Sprint 2–3 planned
