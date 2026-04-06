@@ -1,6 +1,6 @@
 # Phase 1 — Sprint-wise Deliverables
 
-**Timeline**: 18–22 weeks (15 sprints)  
+**Timeline**: 12–14 weeks (10 sprints)  
 **Objective**: Deliver a fully usable DFMS platform covering end-to-end transport execution, gate operations, QC, vendor handling, and basic costing with secure multi-tenant access.
 
 ---
@@ -129,83 +129,64 @@
 
 ---
 
-## Sprint 4 — Trip Execution
+## Sprint 4 — Trip Execution & Closure
+
+> **Theme**: Complete the trip lifecycle — from dispatch through incident handling, partial delivery, closure with POD, and real-time tracking.
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
 | US-020 | TO Execution — Own Fleet (Vehicle/Driver Assignment) | EPIC-009 | 8 |
 | US-021 | Trip Lifecycle Management (12 States) | EPIC-009 | 13 |
 | US-023 | Incident Management & Exception Handling | EPIC-009 | 5 |
-| **Total** | | | **26** |
-
----
-
-## Sprint 5 — Trip Closure & Vendor Onboarding
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-022 | Partial Delivery Handling | EPIC-009 | 5 |
 | US-025 | Trip Closure with Proof of Delivery (POD) | EPIC-009 | 8 |
 | US-026 | Real-time Map & Tracking Dashboard | EPIC-015 | 8 |
+| **Total** | | | **47** |
+
+---
+
+## Sprint 5 — Vendor Management
+
+> **Theme**: Full vendor lifecycle — onboarding, bidding, portal, fleet, compliance, performance, and payment.
+
+| Story | Title | Epic | SP |
+|-------|-------|------|----|
 | US-027 | Vendor Registration & Verification Workflow | EPIC-010 | 8 |
-| **Total** | | | **29** |
-
----
-
-## Sprint 6 — Vendor Operations & QC Config
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-024 | Vendor Bidding Portal (Non-Contractual TOs) | EPIC-010 | 8 |
-| US-028 | Vendor Performance Tracking & Metrics | EPIC-010 | 5 |
-| US-029 | Vendor Payment Management | EPIC-010 | 8 |
-| US-044 | QC Lab Testing Workflow | EPIC-014 | 5 |
-| US-046 | QC Test Configuration & Checklist Management | EPIC-014 | 3 |
-| **Total** | | | **29** |
-
----
-
-## Sprint 7 — Vendor Portal & Gate Setup
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-030 | Vendor Fleet Management | EPIC-010 | 3 |
 | US-031 | Vendor Portal (Self-Service) | EPIC-010 | 8 |
-| US-063 | Gate-in TO/Challan Lookup | EPIC-011 | 8 |
-| US-064 | On-Demand TO Creation — Dealer Entry | EPIC-011 | 8 |
-| **Total** | | | **27** |
-
----
-
-## Sprint 8 — Vendor Compliance & Weighing
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
+| US-028 | Vendor Performance Tracking & Metrics | EPIC-010 | 5 |
+| US-029 | Vendor Payment Management | EPIC-010 | 8 |
 | US-032 | Vendor Rating & Reviews | EPIC-010 | 3 |
 | US-033 | Vendor Contract Management | EPIC-010 | 5 |
 | US-034 | Vendor Blacklist & Suspension | EPIC-010 | 3 |
-| US-065 | On-Demand TO Creation — Supplier Entry | EPIC-011 | 8 |
-| US-068 | Weight Entry (Scale-In) | EPIC-012 | 8 |
-| US-069 | Queue Token Generation | EPIC-012 | 5 |
-| **Total** | | | **32** |
+| **Total** | | | **51** |
 
 ---
 
-## Sprint 9 — Gate Operations & QC Prep
+## Sprint 6 — Gate Management & Weighing
+
+> **Theme**: Full gate operations at source and destination — vehicle check-in/out, on-demand TOs, scale-in/out, queue management.
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
+| US-063 | Gate-in TO/Challan Lookup | EPIC-011 | 8 |
+| US-064 | On-Demand TO Creation — Dealer Entry | EPIC-011 | 8 |
+| US-065 | On-Demand TO Creation — Supplier Entry | EPIC-011 | 8 |
 | US-035 | Gate-In at Source POI | EPIC-011 | 5 |
 | US-036 | Gate-Out at Source POI | EPIC-011 | 3 |
 | US-066 | Gate-Out Entry | EPIC-011 | 5 |
 | US-067 | Remarks Logging | EPIC-011 | 3 |
+| US-068 | Weight Entry (Scale-In) | EPIC-012 | 8 |
+| US-069 | Queue Token Generation | EPIC-012 | 5 |
 | US-070 | Weight Exit (Scale-Out) | EPIC-012 | 8 |
-| US-051 | QC Checklist Management (Visual Inspection) | EPIC-014 | 3 |
-| **Total** | | | **27** |
+| **Total** | | | **61** |
 
 ---
 
-## Sprint 10 — Destination Gate, Scaling & Loading
+## Sprint 7 — Destination Operations & Loading/Unloading
+
+> **Theme**: Destination gate, scaling, loading/unloading operations, command center monitoring, and dispatch management.
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -214,44 +195,42 @@
 | US-039 | Scaling/Weighing at Source POI | EPIC-012 | 5 |
 | US-040 | Scaling/Weighing at Destination POI | EPIC-012 | 5 |
 | US-041 | Loading Operations Management | EPIC-013 | 5 |
-| US-052 | Driver Mobile Interface | EPIC-016 | 8 |
-| **Total** | | | **31** |
-
----
-
-## Sprint 11 — Unloading & Command Center
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-042 | Unloading Operations Management | EPIC-013 | 5 |
-| US-043 | Command Center Operations Monitoring | EPIC-009 | 8 |
-| US-045 | QC Sample Collection | EPIC-014 | 5 |
-| US-073 | Assignment Alert/Notification | EPIC-015 | 2 |
-| US-074 | Assign Waiting Serial | EPIC-015 | 2 |
-| **Total** | | | **22** |
-
----
-
-## Sprint 12 — QC Sampling Workflow
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
 | US-075 | Load Start/End Time Entry | EPIC-013 | 3 |
 | US-076 | Unload Start/End Time Entry | EPIC-013 | 3 |
+| US-073 | Assignment Alert/Notification | EPIC-015 | 2 |
+| US-074 | Assign Waiting Serial | EPIC-015 | 2 |
+| US-043 | Command Center Operations Monitoring | EPIC-009 | 8 |
+| **Total** | | | **46** |
+
+---
+
+## Sprint 8 — QC Sampling & Lab Workflow
+
+> **Theme**: Complete QC workflow — configuration, sample collection, lab requests, test results, and pass/fail decisions.
+
+| Story | Title | Epic | SP |
+|-------|-------|------|----|
+| US-051 | QC Checklist Management (Visual Inspection) | EPIC-014 | 3 |
+| US-046 | QC Test Configuration & Checklist Management | EPIC-014 | 3 |
+| US-044 | QC Lab Testing Workflow | EPIC-014 | 5 |
+| US-045 | QC Sample Collection | EPIC-014 | 5 |
 | US-077 | Pre-QC Context Display | EPIC-014 | 3 |
 | US-078 | Sample Creation | EPIC-014 | 5 |
 | US-079 | Sample Labeling | EPIC-014 | 3 |
+| US-083 | Configurable Form/Checklist for Sampling | EPIC-014 | 5 |
+| US-084 | QR/Barcode Label | EPIC-014 | 3 |
 | US-080 | Exception Recording | EPIC-014 | 3 |
 | US-081 | QC Context Display | EPIC-014 | 3 |
 | US-082 | Sample Collection Event | EPIC-014 | 4 |
-| US-083 | Configurable Form/Checklist for Sampling | EPIC-014 | 5 |
-| US-084 | QR/Barcode Label | EPIC-014 | 3 |
 | US-085 | Sampling Timestamp | EPIC-014 | 2 |
-| **Total** | | | **37** |
+| **Total** | | | **47** |
 
 ---
 
-## Sprint 13 — Lab Testing & QC Decisions
+## Sprint 9 — QC Lab Results, Decisions & Compliance
+
+> **Theme**: Lab result processing, QC pass/fail decisions, rejection workflow, audit, compliance reporting, and QC dashboard.
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
@@ -259,53 +238,55 @@
 | US-087 | Lab Estimated Completion Time | EPIC-014 | 2 |
 | US-088 | Lab Report Upload | EPIC-014 | 3 |
 | US-089 | Lab Status Monitoring | EPIC-014 | 3 |
-| US-048 | QC Report Generation | EPIC-014 | 3 |
 | US-090 | QC Pass/Fail/Auto-Pass Tracking | EPIC-014 | 5 |
 | US-091 | Escalation Workflow | EPIC-014 | 5 |
 | US-049 | QC Rejection Workflow | EPIC-014 | 5 |
-| **Total** | | | **31** |
-
----
-
-## Sprint 14 — QC Compliance & Mobile Applications
-
-| Story | Title | Epic | SP |
-|-------|-------|------|----|
+| US-048 | QC Report Generation | EPIC-014 | 3 |
 | US-050 | QC Dashboard & Analytics | EPIC-014 | 5 |
 | US-053b | QC Certificate Management | EPIC-014 | 2 |
 | US-054 | QC Audit Trail & History | EPIC-014 | 2 |
 | US-055 | QC Vendor Quality Tracking | EPIC-014 | 3 |
 | US-056 | QC Compliance & Regulatory Reporting | EPIC-014 | 3 |
-| US-092 | Trip Management — Driver Interface | EPIC-016 | 8 |
-| US-093 | QC Supervisor Mobile Interface | EPIC-016 | 8 |
-| US-094 | Vendor Mobile Application Access | EPIC-017 | 8 |
-| **Total** | | | **39** |
+| **Total** | | | **46** |
 
 ---
 
-## Sprint 15 — Financial Management & Reporting
+## Sprint 10 — Mobile Applications & Financial Reporting
+
+> **Theme**: Mobile interfaces for driver, QC supervisor, and vendor — plus trip costing, profitability, and fuel management.
 
 | Story | Title | Epic | SP |
 |-------|-------|------|----|
+| US-052 | Driver Mobile Interface | EPIC-016 | 8 |
+| US-092 | Trip Management — Driver Interface | EPIC-016 | 8 |
+| US-093 | QC Supervisor Mobile Interface | EPIC-016 | 8 |
+| US-094 | Vendor Mobile Application Access | EPIC-017 | 8 |
 | US-058 | Fuel Management & Tracking | EPIC-006 | 3 |
 | US-059 | Trip Cost Calculation & Analysis | EPIC-018 | 5 |
 | US-060 | Trip Profitability Analysis | EPIC-018 | 3 |
-| **Total** | | | **11** |
+| **Total** | | | **43** |
 
 ---
 
 ## Summary
 
-| Sprint Group | Sprints | Story Points |
-|---|---|---|
-| Foundation | Sprint 1–2 | ~182 SP |
-| Transport Core | Sprint 3–5 | ~104 SP |
-| Vendor & Gate | Sprint 6–9 | ~117 SP |
-| Operations & QC | Sprint 10–13 | ~121 SP |
-| Compliance & Mobile | Sprint 14–15 | ~50 SP |
-| **Total** | **15 sprints** | **~574 SP** |
+| Sprint | Title | SP |
+|--------|-------|----|
+| Sprint 1 | Infrastructure, Onboarding & Secure Login | ~62 |
+| Sprint 2 | Master Data, User Management & Vehicle Tracking | 83 |
+| Sprint 3 | Transfer Requisition, Transport Planning & Transport Orders | 49 |
+| Sprint 4 | Trip Execution & Closure | 47 |
+| Sprint 5 | Vendor Management | 51 |
+| Sprint 6 | Gate Management & Weighing | 61 |
+| Sprint 7 | Destination Operations & Loading/Unloading | 46 |
+| Sprint 8 | QC Sampling & Lab Workflow | 47 |
+| Sprint 9 | QC Lab Results, Decisions & Compliance | 46 |
+| Sprint 10 | Mobile Applications & Financial Reporting | 43 |
+| **Total** | **10 sprints** | **~535 SP** |
 
-> ⚠️ Sprint 12 (37 SP) and Sprint 14 (39 SP) are heavier than the target — consider splitting if team velocity is < 35 SP/sprint.
+> ⚠️ **Sprint 5 (51 SP)** and **Sprint 6 (61 SP)** are above the typical 45 SP target.
+> - Sprint 5 can be split: Vendor Onboarding + Bidding (Sprint 5a) / Portal + Compliance (Sprint 5b) if needed
+> - Sprint 6 can be split: Gate Source + On-demand TOs (Sprint 6a) / Weighing + Gate Dest (Sprint 6b) if needed
 
 ---
 
