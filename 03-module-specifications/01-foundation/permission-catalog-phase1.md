@@ -4,6 +4,7 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
+related_stories: US-004
 last_updated: 2026-03-05
 ---
 
@@ -27,6 +28,42 @@ This document enumerates all permissions available in Phase 1. Each permission f
 | Export | E | Export data (CSV/PDF) |
 | Assign | AS | Assign resources to entities |
 | Configure | CF | Modify system configuration |
+
+---
+
+## Functional Role Type Mapping
+
+Permissions are gated not only by role but also by **Functional Role Type** (Requester / Approver / Executor) and **Access Scope** (Global / Local). The system evaluates `Role + Functional Type + Access Scope` to determine effective permissions (see [RBAC specification](rbac.md), Section 1.7-1.8).
+
+### Functional Type to Permission Action Mapping
+
+| Functional Type | Allowed Actions | Restricted Actions | Access Scope Behavior |
+|----------------|----------------|-------------------|----------------------|
+| **Requester** | Create, Read, Update, Export | Approve, Assign | Local: Only records within assigned location. Global: Records across all locations. |
+| **Approver** | Read, Approve, Export | Create (of own approvals) | Global: Can approve across all locations. Local: Can approve only within assigned location. Self-approval always denied. |
+| **Executor** | Read, Update, Execute, Assign | Approve, Create (requisitions) | Local: Execute tasks within assigned location. Global: Execute across all locations. |
+
+### Role-to-Functional-Type Default Mapping
+
+| Role | Default Functional Type | Access Scope |
+|------|------------------------|-------------|
+| Depot Officer | Requester | Local |
+| Feed Mill Officer | Requester | Local |
+| Commercial Officer | Requester | Local |
+| Procurement Officer | Approver | Global |
+| Distribution Officer (DO) | Executor | Local |
+| Distribution Manager (DM) | Approver | Global |
+| Transport Planner (TP) | Executor | Global |
+| Transport Distribution Officer (TDO) | Executor | Global |
+| QC Inspector – Physical | Executor | Local |
+| QA Lab Technician | Executor | Local |
+| Command Center Officer | Executor | Local |
+| Loading Personnel | Executor | Local |
+| Unloading Personnel | Executor | Local |
+| Driver Supervisor | Executor | Local |
+| Driver Helper | Executor | Local |
+
+> **Note:** Admins (Tenant Admin or Department Admin) can override the default functional type during user role assignment. A user can hold multiple functional types (e.g., Requester + Executor) but Requester and Approver for the same request must be different users.
 
 ---
 
@@ -154,7 +191,7 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Requisition.TR.Create` | Create Transport Requisitions | Depot Manager, Feed Mill Manager, Commercial Officer |
+| `Requisition.TR.Create` | Create Transport Requisitions | Depot Officer, Feed Mill Officer, Commercial Officer |
 | `Requisition.TR.Read` | View TR list and details | Distribution, Procurement, Transport roles |
 | `Requisition.TR.Update` | Modify TR details | Creator (draft only) |
 | `Requisition.TR.Cancel` | Cancel a TR | Creator, Tenant Admin |

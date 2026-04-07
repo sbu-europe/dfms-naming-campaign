@@ -126,7 +126,7 @@ Admin Dashboard Alert → Offline Verification → Admin Unlock
 **Four-Tier Structure**:
 1. **Super Admin** (e.g., Brainstation 23): Platform-level access, cross-tenant, manages Tenant Admins
 2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages Department Admins and Operational Users
-3. **Department Admin** (e.g., Depot Manager, Procurement Head): Department-scoped, manages Operational Users within their department
+3. **Department Admin** (e.g., Depot Officer, Procurement Head): Department-scoped, manages Operational Users within their department
 4. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
 
 ### 3.2 Permission Model

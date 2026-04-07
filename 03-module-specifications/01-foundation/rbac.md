@@ -70,7 +70,7 @@ The RBAC system implements a four-tier hierarchical structure:
 Super Admin (Brainstation 23)
  └─ creates → Tenant Admin (Nourish)
                ├─ creates → Dept Admin (Depot / Feed Mill / Commercial)
-               │             └─ Depot Manager, Feed Mill Manager, Commercial Officer
+               │             └─ Depot Officer, Feed Mill Officer, Commercial Officer
                ├─ creates → Dept Admin (Procurement)
                │             └─ Procurement Officer
                ├─ creates → Dept Admin (Distribution)
@@ -133,7 +133,7 @@ Super Admin (Brainstation 23)
 
 | Department | Operational Roles | Default Functional Role |
 |-----------|-------------------|----------------------|
-| **Depot / Feed Mill / Commercial** | Depot Manager, Feed Mill Manager, Commercial Officer | Requester |
+| **Depot / Feed Mill / Commercial** | Depot Officer, Feed Mill Officer, Commercial Officer | Requester |
 | **Procurement** | Procurement Officer | Approver |
 | **Distribution** | Distribution Officer (DO), Distribution Manager (DM) | DM = Approver |
 | **Transport** | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor |
@@ -147,8 +147,8 @@ Super Admin (Brainstation 23)
 Operational users perform day-to-day execution and **cannot manage users or system configurations**.
 
 **Depot / Feed Mill / Commercial**:
-- Depot Manager – Create FG Transfer Requests (Requester)
-- Feed Mill Manager – Create FG Transfer Requests (Requester)
+- Depot Officer – Create FG Transfer Requests (Requester)
+- Feed Mill Officer – Create FG Transfer Requests (Requester)
 - Commercial Officer – Create RM Transfer Requests from Port (Requester)
 
 **Procurement**:
@@ -191,6 +191,48 @@ Admin (Tenant Admin or Department Admin) can assign one or more functional role 
 - Requester and Approver for the same request must be different users
 - Department Admin without Approver flag cannot approve workflows
 - Functional role assignment is scoped to the user's department
+
+### 1.8 Access Scope Levels
+
+Each operational role is assigned one of two access scope levels that determine the breadth of data visibility and action:
+
+| Access Scope | Description | Data Access |
+|-------------|-------------|-------------|
+| **Global Access** | Role can access data and actions across all locations within the tenant | All departments, POIs, depots, feed mills, and operational units |
+| **Local Access** | Role can access data only within assigned department, POI, depot, feed mill, or operational unit | Restricted to the user's assigned location |
+
+**Operational Roles with Access Scope:**
+
+| Department | Role | Functional Type | Access Scope |
+|------------|------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer | Requester | Local |
+| | Feed Mill Officer | Requester | Local |
+| | Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO) | Executor | Local |
+| | Distribution Manager (DM) | Approver | Global |
+| Transport | Transport Planner (TP) | Executor | Global |
+| | Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical | Executor | Local |
+| | QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer | Executor | Local |
+| | Loading Personnel | Executor | Local |
+| | Unloading Personnel | Executor | Local |
+| | Driver Supervisor | Executor | Local |
+| | Driver Helper | Executor | Local |
+
+**Administrative Roles with Access Scope:**
+
+| Role | Access Scope | Description |
+|------|-------------|-------------|
+| Super Admin | System-Wide | Platform-level access across all tenants |
+| Tenant Admin | Global | Full access within assigned tenant |
+| Department Admin | Local | Full access within assigned department |
+
+**Access Scope Enforcement:**
+- **Local roles**: Row-level security filters records to the user's assigned location. API middleware validates location context on every request.
+- **Global roles**: Can access records across all locations within the tenant. No location-based row-level filtering applied.
+- **Permission calculation**: The system combines `Role + Functional Type + Access Scope` to determine user permissions. A user needs all three to match for access to be granted.
 
 ---
 
@@ -276,10 +318,12 @@ Role: Transport Planner {
 ```
 
 **Constraints**:
-- One primary role per user
-- Optional secondary roles (future enhancement)
-- Department must match role's department scope
+- One primary operational role per user in Phase 1
+- Multiple roles supported for edge cases (e.g., user operating across departments). When a user holds multiple roles, the system applies the highest privilege for access scope (Global wins over Local) and the union of functional types. Self-approval prevention still applies regardless of multiple roles.
+- Department must match role's department scope for Local roles
+- Location assignment (department_id / poi_id) is required for Local roles and rejected for Global roles
 - Workflow type (Requester/Approver/Executor) flags specific permissions
+- Access scope (Global / Local) determines data visibility (see Section 1.8)
 
 ### 3.2 Functional Role Types
 
@@ -443,6 +487,7 @@ Role {
   is_system_role: boolean  // true for predefined roles
   permissions: JSON        // Array of permission strings
   department: string | null
+  access_scope: enum ['Global', 'Local']  // See Section 1.8
   workflow_flags: {
     is_requester: boolean
     is_approver: boolean
@@ -453,6 +498,23 @@ Role {
   status: enum ['Active', 'Inactive']
 }
 ```
+
+**Database Schema Placement:**
+
+The DFMS platform uses `django-tenants` with a schema-per-tenant architecture (see [Admin Schema Access Control](admin-schema-access-control.md)). Role and Permission models follow a split-schema strategy:
+
+| Model | Schema | Rationale |
+|-------|--------|-----------|
+| `Role` (predefined system roles) | `public` (shared) | Predefined roles are identical across all tenants. Stored once in the shared schema and referenced by all tenant schemas. Managed via `PlatformOnlyAdminMixin` in Django admin. |
+| `Permission` (permission definitions) | `public` (shared) | Permission codes are system-wide constants (e.g., `Fleet.Vehicle.Create`). Not tenant-specific. |
+| `Role` (custom roles, Phase 2) | Tenant schema | Custom roles created via Dynamic Role Builder are tenant-specific. Stored in the tenant's own schema with `tenant_id` set. |
+| `UserRole` (user-role assignment) | Tenant schema | User-to-role mappings are tenant-specific. Includes `department_id`, `poi_id` for Local access scope enforcement. |
+
+This means:
+- `tenant_id = null` on a Role indicates a **system role** in the shared `public` schema
+- `tenant_id = <UUID>` on a Role indicates a **custom role** in a tenant schema (Phase 2)
+- The `is_system_role` boolean distinguishes predefined from custom roles
+- PostgreSQL's `search_path` mechanism ensures tenant schemas cannot access other tenants' custom roles
 
 ### 6.2 Tenant Context Validation
 
