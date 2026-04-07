@@ -95,8 +95,8 @@ interface Driver {
 type DriverStatus = 
   | 'ACTIVE'                        // Operational, can be assigned
   | 'ON_LEAVE'                      // Temporary absence
-  | 'INACTIVE'                      // Terminated/resigned
-  | 'SUSPENDED'                     // Disciplinary action
+  | 'INACTIVE'                      // Terminated/resigned, or permanently deactivated (US-007)
+  | 'SUSPENDED'                     // Disciplinary action, or temporarily suspended (US-007)
   | 'PENDING_VERIFICATION';         // Vendor driver pending approval
 
 type DriverAvailability = 
@@ -201,6 +201,14 @@ interface DriverVehicleAssignment {
 - Trip completion → Driver availability → 'AVAILABLE'
 - Manual reassignment → Previous assignment ends, new begins
 - Driver goes on leave → Assignment suspended
+
+**User-Level Account Deactivation (US-007):**
+When a driver's user account is deactivated through the account deactivation workflow:
+- **Temporary Suspension**: Driver status → `SUSPENDED`; driver excluded from all assignment dropdowns and new trip assignments; existing default vehicle pairing suspended
+- **Permanent Deactivation**: Driver status → `INACTIVE`; driver permanently excluded from assignments; vehicle pairing removed; historical trip records preserved
+- **Reactivation**: Driver status → `ACTIVE` upon user account reactivation; admin must manually reassign vehicle pairing if needed
+
+> See [User & Tenant Management - Section 6](../01-foundation/user-tenant-management.md) and [US-007: Account Deactivation](../../04-backlog/stories/US-007-account-deactivation.md) for the full deactivation workflow.
 
 ---
 

@@ -210,9 +210,17 @@ System sends invitation email → Tenant Admin activates account
 - User completes profile, sets password, verifies OTP
 - Account activated after T&C acceptance
 
-**Deactivation**:
-- **Temporary**: Suspended status, can be reactivated
-- **Permanent**: Inactive status, data archived
+**Deactivation** (US-007):
+- **Temporary Suspension**: `Suspended` status, data preserved, roles retained, can be reactivated with admin approval
+- **Permanent Deactivation**: `Inactive` status, data archived, cannot be reactivated
+- Requires mandatory fields: reason, effective date, admin remarks
+- Active critical assignment check before deactivation (TOs, trips, approvals, QC inspections) with override option
+- Immediate session termination and login blocking
+- Bulk deactivation supported with per-user validation
+- Scheduled (future date) deactivation supported
+- Assignment prevention: deactivated users excluded from all dropdowns and assignment workflows
+- Email notification sent to user and admin upon deactivation/reactivation
+- Reactivation checks subscription plan user limit before restoring access
 
 **Password Reset**:
 - **Admin-Assisted**: For low-literacy users, admin generates OTP after offline verification

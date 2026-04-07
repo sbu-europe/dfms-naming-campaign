@@ -577,22 +577,28 @@ async function resendOTP(userId: UUID): Promise<void> {
 
 ## 6. Account Deactivation
 
+> **Related Story**: [US-007: Account Deactivation](../../04-backlog/stories/US-007-account-deactivation.md)
+
 ### 6.1 Deactivation Types
 
-**Temporary Suspension**:
-- User cannot login
-- Data preserved
-- Permissions retained
-- Can be reactivated
-- Use cases: Leave of absence, security incident investigation
+| Type | Status | Data | Reactivation | Use Cases |
+|------|--------|------|--------------|-----------|
+| **Temporary Suspension** | `Suspended` | Preserved, permissions retained | Yes (admin approval) | Leave of absence, security incident investigation, role transition |
+| **Permanent Deactivation** | `Inactive` | Archived (not deleted, for audit) | No | Employee termination, account closure, compliance action |
 
-**Permanent Deactivation**:
-- User cannot login
-- Data archived (not deleted, for audit)
-- Cannot be reactivated
-- Use cases: Employee termination, account closure
+**Rules**:
+- Deactivation type **cannot be changed** after confirmation
+- Only Platform Super Admin and Tenant Super Admin can deactivate users
+- Admin cannot deactivate their own account
+- At least one active Tenant Admin must remain per tenant
 
 ### 6.2 Deactivation Process
+
+**Required Fields**:
+- Deactivation type (Temporary / Permanent)
+- Reason (predefined dropdown or custom text)
+- Effective date (default: Immediate; supports future scheduling)
+- Admin remarks (mandatory text area)
 
 **Admin-Initiated Deactivation**:
 ```typescript
@@ -600,25 +606,46 @@ async function deactivateUser(
     userId: UUID,
     deactivationType: 'Temporary' | 'Permanent',
     reason: string,
+    adminRemarks: string,
     effectiveDate: DateTime,
-    adminId: UUID
-): Promise<void> {
+    adminId: UUID,
+    overrideActiveAssignments: boolean = false,
+    overrideRemarks?: string
+): Promise<DeactivationResult> {
     // 1. Validate admin has permission
-    await checkPermission(adminId, 'User.Deactivate');
+    await checkPermission(adminId, 'UserMgmt.User.Deactivate');
     
-    // 2. Check for active assignments
-    const activeAssignments = await getActiveAssignments(userId);
-    if (activeAssignments.length > 0) {
-        throw new Error(
-            'Cannot deactivate user with active assignments. ' +
-            'Reassign the following: ' + activeAssignments.map(a => a.description).join(', ')
-        );
+    // 2. Prevent self-deactivation
+    if (userId === adminId) {
+        throw new Error('Cannot deactivate your own account.');
     }
     
-    // 3. Terminate all active sessions
+    // 3. Ensure at least one active Tenant Admin remains
+    if (await isLastActiveTenantAdmin(userId)) {
+        throw new Error('At least one active Tenant Admin required.');
+    }
+    
+    // 4. Check for active critical assignments
+    const activeAssignments = await getActiveAssignments(userId);
+    // Checks: Active TOs, active trips, pending approvals, active QC inspections
+    if (activeAssignments.length > 0 && !overrideActiveAssignments) {
+        return {
+            status: 'blocked',
+            code: 'DA-409-ACTIVE-ASSIGNMENTS',
+            active_assignments: activeAssignments,
+            message: 'User has active critical assignments. Override required.'
+        };
+    }
+    
+    // 5. If future date, schedule deactivation instead
+    if (effectiveDate > NOW()) {
+        return await scheduleDeactivation(userId, deactivationType, reason, adminRemarks, effectiveDate, adminId);
+    }
+    
+    // 6. Terminate all active sessions immediately
     await terminateAllSessions(userId);
     
-    // 4. Update user status
+    // 7. Update user status
     await updateUser(userId, {
         status: deactivationType === 'Temporary' ? 'Suspended' : 'Inactive',
         deactivation_reason: reason,
@@ -626,53 +653,135 @@ async function deactivateUser(
         deactivated_by: adminId
     });
     
-    // 5. Send notification email
-    await sendDeactivationEmail(userId, deactivationType, reason);
+    // 8. Send notification email to user
+    await sendDeactivationEmail(userId, deactivationType, reason, effectiveDate);
     
-    // 6. Archive data (if permanent)
+    // 9. Send notification to admin who performed deactivation
+    await sendAdminDeactivationConfirmation(adminId, userId, deactivationType);
+    
+    // 10. Archive data (if permanent)
     if (deactivationType === 'Permanent') {
         await archiveUserData(userId);
     }
     
-    // 7. Audit log
+    // 11. Audit log (immutable)
     await auditLog({
         event: 'UserDeactivated',
         user_id: userId,
         actor_id: adminId,
-        details: { type: deactivationType, reason, effectiveDate }
+        ip_address: request.ip,
+        details: {
+            type: deactivationType,
+            reason,
+            admin_remarks: adminRemarks,
+            effectiveDate,
+            override_used: overrideActiveAssignments,
+            override_remarks: overrideRemarks,
+            active_assignments_at_time: activeAssignments.length
+        }
     });
+    
+    return { status: 'success', deactivation_id: generateUUID() };
 }
 ```
 
-### 6.3 Reactivation (Temporary Suspension Only)
+### 6.2.1 Bulk Deactivation
 
 ```typescript
-async function reactivateUser(userId: UUID, adminId: UUID): Promise<void> {
-    const user = await getUser(userId);
+async function bulkDeactivateUsers(
+    userIds: UUID[],
+    deactivationType: 'Temporary' | 'Permanent',
+    reason: string,
+    adminRemarks: string,
+    effectiveDate: DateTime,
+    adminId: UUID
+): Promise<BulkDeactivationResult> {
+    await checkPermission(adminId, 'UserMgmt.User.Deactivate');
     
-    // Can only reactivate temporarily suspended users
-    if (user.status !== 'Suspended') {
-        throw new Error('Only suspended users can be reactivated.');
+    if (userIds.length === 0) {
+        throw new Error('At least one user required.');
     }
     
-    // Update status
+    // Deduplicate and exclude admin's own account
+    const uniqueIds = [...new Set(userIds)].filter(id => id !== adminId);
+    
+    const results: DeactivationResult[] = [];
+    
+    for (const userId of uniqueIds) {
+        try {
+            const result = await deactivateUser(
+                userId, deactivationType, reason, adminRemarks,
+                effectiveDate, adminId, false
+            );
+            results.push({ user_id: userId, ...result });
+        } catch (error) {
+            results.push({ user_id: userId, status: 'failed', error: error.message });
+        }
+    }
+    
+    return {
+        success_count: results.filter(r => r.status === 'success').count(),
+        failure_count: results.filter(r => r.status !== 'success').count(),
+        results
+    };
+}
+```
+
+### 6.3 Assignment Prevention
+
+Deactivated users (`Suspended` or `Inactive` status) are excluded from all operational workflows:
+
+| Prevention Area | Behavior |
+|---|---|
+| User selection dropdowns | Deactivated users filtered out (only `Active` shown) |
+| Transport Order assignment | API rejects assignment with HTTP 400 |
+| Trip assignment | API rejects with "Cannot assign to deactivated user" |
+| Vehicle-driver pairing | Deactivated driver excluded from pairing |
+| Task/approval assignment | Deactivated user cannot receive new approvals |
+| Historical records | Deactivated user shown with "Deactivated" badge; data preserved |
+
+### 6.4 Reactivation (Temporary Suspension Only)
+
+```typescript
+async function reactivateUser(
+    userId: UUID,
+    adminId: UUID,
+    reactivationReason: string
+): Promise<void> {
+    // 1. Validate admin permission
+    await checkPermission(adminId, 'UserMgmt.User.Reactivate');
+    
+    const user = await getUser(userId);
+    
+    // 2. Only temporarily suspended users can be reactivated
+    if (user.status !== 'Suspended') {
+        throw new Error('Only suspended users can be reactivated. Permanently deactivated accounts cannot be reactivated.');
+    }
+    
+    // 3. Check subscription plan limit
+    if (await isOverPlanLimit(user.tenant_id)) {
+        throw new Error('User limit reached. Upgrade subscription before reactivating.');
+    }
+    
+    // 4. Update status and restore roles
     await updateUser(userId, {
         status: 'Active',
         reactivated_at: NOW(),
         reactivated_by: adminId
     });
     
-    // Send notification
+    // 5. Send notification to user
     await sendReactivationEmail(userId);
     
-    // Audit
+    // 6. Audit log
     await auditLog({
         event: 'UserReactivated',
         user_id: userId,
-        actor_id: adminId
+        actor_id: adminId,
+        ip_address: request.ip,
+        details: { reactivation_reason: reactivationReason }
     });
 }
-```
 
 ---
 
@@ -919,7 +1028,7 @@ function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
 **Related User Stories:**
 - US-005: User Invitation & Activation
 - US-006: OTP Verification
-- US-007: Account Deactivation
+- US-007: Account Deactivation (temporary suspension, permanent deactivation, bulk, assignment prevention, reactivation)
 - US-008: Password & Account Reset
 - US-009: User Activity & Audit Logs
 
