@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1, 6.2
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 related_stories: US-001 through US-009
 ---
 
@@ -205,18 +205,22 @@ System sends invitation email → Tenant Admin activates account
 ### 4.3 User Lifecycle
 
 **Invitation**:
-- Admin invites users with role, department, workflow type
-- Invitation email sent with 72-hour activation link
-- User completes profile, sets password, verifies OTP
+- Admin invites users with role, department, employment type, POI, workflow responsibility
+- Single invitation via form or bulk invitation via CSV upload (max 100 per batch)
+- Invitation email sent with 7-day activation link and optional custom message
+- Invitation scheduling supported for deferred sends
+- User completes profile, sets password, verifies OTP (email + SMS)
 - Account activated after T&C acceptance
+- Subscription plan user limit enforced before invitation
 
 **Deactivation**:
 - **Temporary**: Suspended status, can be reactivated
 - **Permanent**: Inactive status, data archived
 
-**Password Reset**:
-- **Admin-Assisted**: For low-literacy users, admin generates OTP after offline verification
-- **Self-Service**: User requests reset link via email (15 min validity)
+**Password Reset** (consolidated into US-005 from US-008):
+- **Admin-Assisted**: For low-literacy users (e.g., Drivers), admin verifies identity offline, generates OTP (10 min validity), communicates offline; justification and verification method required
+- **Self-Service**: User clicks "Forgot Password" on login, enters email or mobile; receives reset link (15 min validity) and SMS OTP (10 min validity); max 3 requests per hour
+- **Post-Reset**: All active sessions terminated, confirmation email sent, audit logged
 
 ### 4.4 OTP Verification System
 
@@ -417,10 +421,10 @@ queryAuditLogs(filters) → audit_logs[]
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
 - US-004: Role Hierarchy & RBAC
-- US-005: User Invitation & Activation
+- US-005: User Invitation, Activation & Password Reset (consolidated scope)
 - US-006: OTP Verification
 - US-007: Account Deactivation
-- US-008: Password & Account Reset
+- US-008: Password & Account Reset (scope consolidated into US-005)
 - US-009: User Activity & Audit Logs
 
 ### Downstream Modules

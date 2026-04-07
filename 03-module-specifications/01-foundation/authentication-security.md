@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
-last_updated: 2026-02-26
-related_stories: US-001, US-002, US-003
+last_updated: 2026-04-07
+related_stories: US-001, US-002, US-003, US-005, US-008
 ---
 
 # Authentication & Security Specification
@@ -530,7 +530,33 @@ All authentication events sent to centralized audit logging system:
 
 ---
 
-## 8. Related Documentation
+## 8. Password Reset Integration
+
+Password reset flows (both self-service and admin-assisted) directly interact with the authentication and session management systems:
+
+**Session Termination on Password Reset**:
+- When a password is reset (either method), **all active sessions for that user are immediately terminated**
+- All access tokens are invalidated and refresh tokens revoked
+- The user must re-authenticate with their new password
+
+**Password Complexity Enforcement**:
+- The same password complexity rules (Section 1.4) apply during both activation password setup and password reset
+- Password history check (last 3 passwords) enforced at the authentication layer
+
+**Rate Limiting for Self-Service Reset**:
+- Maximum 3 reset requests per hour per user
+- Standard rate limiting (Section 5.3) applies to the reset endpoint
+
+**Audit Integration**:
+- All password reset events logged via the audit system (Section 6.1)
+- Admin-assisted resets include: Admin ID, justification, verification method
+- Self-service resets include: User ID, IP address, device ID, timestamp
+
+> For detailed password reset workflows and business rules, see [User & Tenant Management - Section 7](user-tenant-management.md#7-password--account-reset) and [US-005: User Invitation & Activation](../../04-backlog/stories/US-005-user-invitation-activation.md).
+
+---
+
+## 9. Related Documentation
 
 - **[RBAC Specification](rbac.md)** - Role-based access control details
 - **[User Management](user-tenant-management.md)** - User lifecycle management
@@ -540,5 +566,7 @@ All authentication events sent to centralized audit logging system:
 - US-001: User Login & Account Lockout
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
+- US-005: User Invitation, Activation & Password Reset
+- US-008: Password & Account Reset (scope consolidated into US-005)
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3

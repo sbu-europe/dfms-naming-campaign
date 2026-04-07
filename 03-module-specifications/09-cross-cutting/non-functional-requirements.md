@@ -2,7 +2,7 @@
 source_document: PRD_DFMS_v1.0.md
 source_sections: Non-Functional Requirements, Performance, Scalability, Availability
 extracted_date: 2026-02-13
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [all-modules]
 ---
@@ -265,7 +265,7 @@ const allowedDowntimeMinutes = totalMinutesInMonth * (1 - monthlyUptimeSLA); // 
 - **Minimum Length:** 8 characters
 - **Complexity:** Must include uppercase, lowercase, number, special character
 - **Expiry:** 90 days (user prompted to change password)
-- **History:** Cannot reuse last 5 passwords
+- **History:** Cannot reuse last 3 passwords
 
 **Example Validation:**
 ```typescript
@@ -276,7 +276,7 @@ const passwordPolicy = {
   requireNumber: true,
   requireSpecialChar: true,
   expiryDays: 90,
-  preventReuse: 5
+  preventReuse: 3
 };
 
 function validatePassword(password: string): boolean {

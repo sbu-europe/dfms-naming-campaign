@@ -5,8 +5,9 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 related_stories: US-005, US-006, US-007, US-008, US-009
+scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
 
 # User & Tenant Management Specification
@@ -366,11 +367,15 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 - Email Address
 - Mobile Number
 - User Type (Department Admin / Operational User)
-- Role (from available roles per user type)
-- Department (Depot / Procurement / Distribution / Transport / QC)
-- Employment Type (Permanent/Temporary/Contractor)
-- POI Assignment (if applicable, e.g., Gate Operator → specific gate)
-- Workflow Responsibility (Requester/Approver/Executor)
+- Role (from 18 predefined operational roles, multi-select supported)
+- Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
+- Employment Type (Permanent / Temporary / Contractor)
+- POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
+- Workflow Responsibility (Requester / Approver / Executor)
+
+**Optional Fields**:
+- Custom invitation message (freeform text)
+- Scheduled send date/time (for deferred invitations)
 
 **Validation**:
 ```typescript
@@ -392,6 +397,35 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 }
 ```
 
+### 4.2.1 Bulk Invitation via CSV Upload
+
+Admins can upload a CSV file to invite multiple users at once:
+
+**CSV Columns**: Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility
+
+**Processing Rules**:
+- Maximum 100 invitations per batch
+- CSV format and data validated before processing
+- Partial processing supported (valid rows processed, invalid rows reported)
+- Success/failure report generated per row with specific error reasons
+- CSV template download available for admin convenience
+
+**Validation per Row**:
+```typescript
+async function validateCSVRow(row: CSVRow, tenant: Tenant): Promise<ValidationResult> {
+    const errors: string[] = [];
+    
+    if (!isValidEmail(row.email)) errors.push('Invalid email format');
+    if (await emailExistsInTenant(row.email, tenant.id)) errors.push('Email already exists');
+    if (!isValidPhone(row.mobile)) errors.push('Invalid mobile format');
+    if (await mobileExistsInTenant(row.mobile, tenant.id)) errors.push('Mobile already exists');
+    if (!await roleExists(row.role)) errors.push('Invalid role');
+    if (await isOverPlanLimit(tenant.id)) errors.push('Plan user limit exceeded');
+    
+    return { valid: errors.length === 0, errors };
+}
+```
+
 ### 4.3 Invitation Email
 
 **Email Content**:
@@ -405,8 +439,10 @@ Hi [Full Name],
 Your Role: [Role Name]
 Department: [Department]
 
+[Custom Message from Admin - if provided]
+
 To activate your account:
-1. Click the link below (valid for 72 hours)
+1. Click the link below (valid for 7 days)
 2. Complete your profile and set a password
 3. Verify your email and phone with OTP
 4. Review and accept Terms & Conditions
@@ -418,6 +454,13 @@ Need help? Reply to this email or contact your administrator.
 This invitation expires on [Expiry DateTime].
 ```
 
+**Email Template Support**: The system supports customizable email templates per tenant. Admins can modify the invitation email body while preserving required elements (activation link, expiry).
+
+**Resend Rules**:
+- Cooldown: 2 minutes between resend requests
+- Resending generates a new email but preserves the original activation token
+- Expired invitations can be resent by admin (generates a new token with fresh 7-day expiry)
+
 **Invitation Token**:
 ```typescript
 InvitationToken {
@@ -425,7 +468,7 @@ InvitationToken {
   user_id: UUID
   email: string
   invited_by: UUID
-  expires_at: DateTime  // 72 hours from creation
+  expires_at: DateTime  // 7 days from creation
   status: enum ['Pending', 'Activated', 'Expired', 'Revoked']
   created_at: DateTime
 }
@@ -696,6 +739,12 @@ User sets new password → Confirmation
 
 ### 7.2 Admin-Assisted Reset
 
+**Prerequisites**:
+- Admin must have `UserMgmt.User.ResetPassword` permission (Tenant Admin or Department Admin)
+- Admin must verify user's identity offline before initiating the reset
+- Justification remarks are mandatory (minimum 10 characters)
+- Verification method must be selected: Phone, Email, or In-Person
+
 **Workflow**:
 ```typescript
 async function adminAssistedReset(
@@ -705,12 +754,17 @@ async function adminAssistedReset(
     justification: string
 ): Promise<string> {
     // 1. Validate admin permission
-    await checkPermission(adminId, 'User.ResetPassword');
+    await checkPermission(adminId, 'UserMgmt.User.ResetPassword');
     
-    // 2. Generate 6-digit OTP
+    // 2. Validate justification
+    if (justification.length < 10) {
+        throw new Error('Justification must be at least 10 characters');
+    }
+    
+    // 3. Generate 6-digit OTP
     const resetOTP = generateOTP();
     
-    // 3. Store OTP with metadata
+    // 4. Store OTP with metadata
     await createPasswordResetOTP({
         user_id: userId,
         otp_code: await bcrypt.hash(resetOTP, 10),
@@ -720,44 +774,65 @@ async function adminAssistedReset(
         justification: justification
     });
     
-    // 4. Audit log
+    // 5. Audit log (immutable)
     await auditLog({
         event: 'AdminAssistedPasswordReset',
         user_id: userId,
         actor_id: adminId,
-        details: { verificationMethod, justification }
+        details: { verificationMethod, justification },
+        ip_address: request.ip
     });
     
-    // 5. Return OTP to admin (display on screen, not logged)
+    // 6. Send notification to user about admin-assisted reset
+    await notifyUser(userId, 'PasswordResetInitiated', { method: 'admin-assisted' });
+    
+    // 7. Return OTP to admin (display on screen, not sent to user)
     return resetOTP;
 }
 ```
 
 ### 7.3 Self-Service Reset
 
+**Rate Limiting**: Maximum 3 reset requests per hour per user. Exceeding this returns HTTP 429.
+
 **Reset Link Generation**:
 ```typescript
-async function generateResetLink(email: string): Promise<string> {
-    const user = await getUserByEmail(email);
+async function generateResetLink(identifier: string): Promise<string> {
+    // Accept email or mobile number as identifier
+    const user = await findUserByEmailOrPhone(identifier);
     
     if (!user) {
-        // Don't reveal if email exists (security)
+        // Don't reveal if account exists (prevent enumeration)
         return 'success';
+    }
+    
+    // Check rate limit
+    const recentResets = await countResetRequestsLastHour(user.user_id);
+    if (recentResets >= 3) {
+        throw new RateLimitError('Too many reset requests. Please try again later.');
     }
     
     // Generate secure token
     const token = crypto.randomBytes(32).toString('hex');
     
-    // Store token
+    // Generate 6-digit OTP for mobile verification
+    const otp = generateOTP();
+    
+    // Store token and OTP
     await createPasswordResetToken({
         user_id: user.user_id,
         token: await bcrypt.hash(token, 10),
-        expires_at: NOW() + 15 * 60 * 1000,  // 15 minutes
+        otp_code: await bcrypt.hash(otp, 10),
+        expires_at: NOW() + 15 * 60 * 1000,  // Reset link: 15 minutes
+        otp_expires_at: NOW() + 10 * 60 * 1000,  // OTP: 10 minutes
         ip_address: request.ip
     });
     
-    // Send email
+    // Send reset link via email
     await sendPasswordResetEmail(user.email, token);
+    
+    // Send OTP via SMS
+    await sendSMS(user.phone, `Your DFMS password reset code: ${otp}. Valid for 10 minutes.`);
     
     return 'success';
 }
@@ -765,11 +840,21 @@ async function generateResetLink(email: string): Promise<string> {
 
 ### 7.4 Password Change Enforcement
 
+**Password Complexity Rules**:
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+- Cannot reuse last 3 passwords
+- Hashed using bcrypt with tenant-specific salt
+
 **Post-Reset Actions**:
 ```typescript
 async function completePasswordReset(
     userId: UUID,
-    newPassword: string
+    newPassword: string,
+    method: 'self-service' | 'admin-assisted'
 ): Promise<void> {
     // 1. Validate password complexity
     validatePasswordStrength(newPassword);
@@ -797,7 +882,9 @@ async function completePasswordReset(
     await auditLog({
         event: 'PasswordChanged',
         user_id: userId,
-        method: 'Reset'
+        method: method,
+        ip_address: request.ip,
+        device_id: request.headers['x-device-id']
     });
 }
 ```
@@ -917,10 +1004,10 @@ function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
 - **[System Foundation](system-foundation.md)** - Overall architecture
 
 **Related User Stories:**
-- US-005: User Invitation & Activation
+- US-005: User Invitation, Activation & Password Reset (consolidated scope — includes password reset from US-008)
 - US-006: OTP Verification
 - US-007: Account Deactivation
-- US-008: Password & Account Reset
+- US-008: Password & Account Reset (scope consolidated into US-005)
 - US-009: User Activity & Audit Logs
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.2.1-6.2.8

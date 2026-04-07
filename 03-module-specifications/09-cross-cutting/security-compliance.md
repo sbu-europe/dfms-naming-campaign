@@ -2,9 +2,10 @@
 source_document: PRD_DFMS_v1.0.md
 source_sections: Security, Compliance, Data Security, Access Control
 extracted_date: 2026-02-13
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
+related_stories: US-004, US-005, US-008
 ---
 
 # Security & Compliance
@@ -110,6 +111,42 @@ function maskNationalID(nid: string): string {
 - UI level (button visibility)
 - API level (endpoint access)
 - Database level (row-level security)
+
+---
+
+## User Lifecycle Security (US-005)
+
+Security controls applied across the user invitation, activation, and password reset lifecycle:
+
+### Invitation & Activation Security
+- **Activation tokens**: 64-character cryptographically secure hex tokens, unique per invitation
+- **Token expiry**: 7 days from creation; expired tokens cannot be reused
+- **OTP verification**: Both email and SMS OTP required before account activation
+- **Email uniqueness**: Enforced per tenant to prevent duplicate accounts
+- **Mobile uniqueness**: Enforced per tenant for OTP delivery integrity
+- **Plan limit enforcement**: Invitation blocked if tenant exceeds subscription user limit
+- **Bulk upload validation**: CSV rows individually validated; partial processing supported
+
+### Password Reset Security
+- **Self-service reset**: Reset link valid 15 minutes; SMS OTP valid 10 minutes
+- **Admin-assisted reset**: OTP valid 10 minutes; admin must provide justification (min 10 chars) and verification method
+- **Rate limiting**: Max 3 self-service reset requests per hour per user
+- **Session termination**: All active sessions terminated upon successful password reset
+- **Password complexity**: Min 8 chars, uppercase + lowercase + number + special character
+- **Password history**: Last 3 passwords cannot be reused
+- **Enumeration prevention**: Self-service reset always returns success regardless of whether email exists
+- **OTP brute-force prevention**: Max 3 incorrect OTP attempts per token; token invalidated after
+
+### Password Reset Audit Trail
+All password reset events are logged with immutable audit entries:
+
+| Event | Logged Details |
+|---|---|
+| Self-Service Reset Initiated | User ID, IP address, timestamp |
+| Self-Service Reset Completed | User ID, IP address, device ID, timestamp |
+| Admin-Assisted Reset Initiated | Admin ID, User ID, justification, verification method, IP, timestamp |
+| Admin-Assisted Reset Completed | Admin ID, User ID, IP, timestamp |
+| Reset Failed (expired/wrong OTP) | User ID, failure reason, IP, timestamp |
 
 ---
 
