@@ -804,69 +804,122 @@ async function completePasswordReset(
 
 ---
 
-## 8. Audit Logging
+## 8. Audit Logging (US-009)
 
 ### 8.1 Audit Log Entity
 
 ```typescript
-UserAuditLog {
+AuditLog {
   log_id: UUID
   tenant_id: UUID
-  user_id: UUID | null
-  actor_id: UUID | null  // For admin actions
+  user_id: UUID | null          // null for system-generated events
+  actor_id: UUID | null         // Admin who performed the action
   event_type: enum [
-    'TenantRegistered', 'UserInvited', 'UserActivated',
-    'Login', 'Logout', 'LoginFailed', 'AccountLocked',
-    'PasswordReset', 'PasswordChanged', 'OTPGenerated',
-    'OTPVerified', 'UserDeactivated', 'UserReactivated',
-    'RoleChanged', 'PermissionGranted', 'PermissionRevoked'
+    'LOGIN', 'LOGOUT', 'LOGIN_FAILED', 'ACCOUNT_LOCKOUT',
+    'ACCOUNT_UNLOCK', 'SESSION_TIMEOUT',
+    'PASSWORD_RESET', 'PASSWORD_CHANGED',
+    'OTP_GENERATION', 'OTP_VERIFICATION', 'OTP_RESEND',
+    'USER_INVITED', 'USER_ACTIVATED', 'USER_DEACTIVATED', 'USER_REACTIVATED',
+    'ROLE_CHANGED', 'PERMISSION_GRANTED', 'PERMISSION_REVOKED',
+    'CREATE', 'READ', 'UPDATE', 'DELETE',
+    'AUDIT_LOG_ACCESS', 'AUDIT_LOG_EXPORT'
   ]
-  event_details: JSON
+  entity_type: string | null    // e.g., 'User', 'Vehicle', 'Trip'
+  entity_id: string | null
+  action: string                // e.g., 'Vehicle.Create', 'User.Deactivate'
+  status: enum ['success', 'failure']
+  failure_reason: string | null
+  details: JSON                 // Before/after values, justification, error messages
   ip_address: string
+  device_id: string
   user_agent: string
+  location: string | null
   timestamp: DateTime
   session_id: UUID | null
 }
 ```
 
+**Audit Log Access Entity** (meta-auditing):
+```typescript
+AuditLogAccess {
+  access_id: UUID
+  log_id: UUID | null           // Specific log entry viewed, or null for list/export
+  accessed_by: UUID
+  access_type: enum ['view', 'export']
+  filters_applied: JSON | null  // Filters used during query/export
+  export_format: string | null  // 'csv' or 'json'
+  ip_address: string
+  accessed_at: DateTime
+}
+```
+
 ### 8.2 Logged Events
 
-**User Lifecycle Events**:
-- User invitation sent
-- User activation completed
-- User deactivated/reactivated
-- Role assigned/changed
-
 **Authentication Events**:
-- Login attempts (success/failure)
-- Account lockouts
-- MFA verifications
-- Session creation/termination
+- Login attempts (success/failure with failure reason: `InvalidPassword`, `AccountLocked`, `AccountInactive`)
+- Logout (user-initiated and forced)
+- Account lockouts (`MaxAttemptsExceeded`)
+- Account unlocks (with admin ID and justification)
+- Session creation, termination, and timeout (with session duration)
 
-**Security Events**:
-- Password resets (admin-assisted and self-service)
-- Password changes
-- OTP generations and verifications
-- Permission changes
+**OTP Operation Events**:
+- OTP generation (delivery method: `email`/`sms`, operation type: `login`/`activation`/`password_reset`)
+- OTP verification (success/failure, attempt count)
+- OTP resend (resend count, cooldown status)
+
+**Password Events**:
+- Self-service password reset (initiation, completion, failure with reason)
+- Admin-assisted password reset (admin ID, justification, verification method)
+- Password change (during activation, forced change, voluntary change)
+
+**User Lifecycle Events**:
+- User invitation sent (with role, department)
+- User activation completed
+- User deactivated (type: temporary/permanent, reason, admin remarks)
+- User reactivated (admin ID, timestamp)
+
+**CRUD Operation Events**:
+- **Create**: Entity type, Entity ID, created data snapshot
+- **Read**: Entity type, Entity ID, access timestamp (logged for sensitive entities only to manage volume)
+- **Update**: Entity type, Entity ID, old values, new values, changed fields list
+- **Delete**: Entity type, Entity ID, full deleted entity snapshot
 
 **Administrative Actions**:
-- User management actions by admins
-- Role assignments
-- Permission modifications
+- Role assigned/changed (user, old role, new role)
+- Permission granted/revoked
+- Bulk operations (each entity logged individually)
 
-### 8.3 Audit Log Query & Reporting
+### 8.3 Log Immutability & Storage
 
-**Admin Dashboard Filters**:
-- Date range
-- User
-- Event type
-- Status (success/failure)
-- IP address
+- **Immutable**: Logs stored in append-only tables; database-level constraints prevent UPDATE and DELETE
+- **No API modification**: No PUT, PATCH, or DELETE endpoints for audit logs (HTTP 405 on attempts)
+- **Encrypted at rest**: AES-256 with key rotation every 90 days
+- **Performance**: Log writes < 50ms; async write path ensures no impact on user-facing operations
 
-**Retention Policy**:
-- Standard: 2 years
-- Financial/Compliance: 7 years
-- Configurable per tenant
+### 8.4 Audit Dashboard & Export
+
+**Dashboard** (requires `UserMgmt.AuditLog.Read` permission):
+- Real-time log feed with auto-refresh
+- Filters: Date range, User, Event Type, Status, IP Address
+- Full-text search across log entries
+- Log detail view with before/after comparison for UPDATE events
+- Related logs (same user, same entity)
+- Pagination: 25/50/100 per page
+
+**Export** (requires `UserMgmt.AuditLog.Export` permission):
+- CSV and JSON formats
+- Filters applied before export
+- Bulk export for compliance reporting
+- Streaming for large datasets (100k+ records)
+
+**Meta-Auditing**: All dashboard access and export operations are themselves logged in `AuditLogAccess`
+
+### 8.5 Retention Policy
+
+- **Minimum**: 2 years (mandatory for all tenants)
+- **Extended**: Configurable up to 7 years per tenant
+- **Archival**: Logs beyond active retention window compressed and moved to cold storage; remain queryable
+- **Purge**: Only logs past the configured retention period may be purged (automated job)
 
 ---
 

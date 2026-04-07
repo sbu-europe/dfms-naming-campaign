@@ -4,7 +4,8 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
-last_updated: 2026-03-05
+last_updated: 2026-04-07
+related_stories: US-004, US-005, US-007, US-008, US-009
 ---
 
 # Phase 1 Permission Catalog
@@ -79,8 +80,8 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.AuditLog.Read` | View audit logs | Tenant Admin |
-| `UserMgmt.AuditLog.Export` | Export audit logs | Tenant Admin |
+| `UserMgmt.AuditLog.Read` | View audit logs and dashboard | Super Admin, Tenant Admin |
+| `UserMgmt.AuditLog.Export` | Export audit logs (CSV, JSON) | Super Admin, Tenant Admin |
 
 ---
 

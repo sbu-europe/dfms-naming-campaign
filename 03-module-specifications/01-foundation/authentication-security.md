@@ -464,46 +464,79 @@ Content-Security-Policy: default-src 'self'
 
 ---
 
-## 6. Audit & Compliance
+## 6. Audit & Compliance (US-009)
 
 ### 6.1 Audit Logging
 
-All authentication events are logged for compliance and security auditing:
+All authentication events, user actions (CRUD), and OTP operations are logged for compliance and security auditing. See **US-009: User Activity & Audit Logs** for full specification.
 
-**Logged Events:**
+**Authentication Event Logging (FR-069-001):**
 - Login attempts (success/failure)
+- Logout
 - Account lockouts
 - Admin unlocks
-- MFA verifications
-- Session creation/termination
-- Password changes
+- MFA/OTP verifications
+- Session creation/termination/timeout
+- Password changes and resets (self-service and admin-assisted)
 - Permission changes
+
+**User Action Logging (FR-069-002):**
+- Create: Entity type, Entity ID, created data
+- Read: Entity type, Entity ID, access timestamp (for sensitive entities)
+- Update: Entity type, Entity ID, old value, new value, changed fields
+- Delete: Entity type, Entity ID, deleted data snapshot
+
+**OTP Operation Logging (FR-069-003):**
+- OTP generation: User ID, operation type, delivery method
+- OTP verification: User ID, status, attempt count
+- OTP resend: User ID, resend count
 
 **Audit Log Structure:**
 ```typescript
 AuditLog {
   log_id: UUID
-  event_type: enum ['Login', 'Logout', 'AccountLock', 'AccountUnlock', 'MFAVerify', ...]
-  user_id: UUID
-  actor_id: UUID      // For admin actions
+  event_type: enum ['LOGIN', 'LOGOUT', 'ACCOUNT_LOCKOUT', 'ACCOUNT_UNLOCK',
+                     'SESSION_TIMEOUT', 'PASSWORD_RESET', 'OTP_GENERATION',
+                     'OTP_VERIFICATION', 'OTP_RESEND', 'CREATE', 'READ',
+                     'UPDATE', 'DELETE', 'PERMISSION_CHANGE']
+  user_id: UUID | null     // null for system actions
+  actor_id: UUID | null    // For admin actions
+  entity_type: string      // e.g., 'User', 'Vehicle', 'Trip'
+  entity_id: string | null
   ip_address: string
-  details: JSON       // Event-specific details
+  device_id: string
+  user_agent: string
+  location: string | null
+  status: enum ['success', 'failure']
+  failure_reason: string | null
+  details: JSON            // Event-specific details (before/after for updates)
   timestamp: DateTime
   tenant_id: UUID
 }
 ```
 
-### 6.2 Compliance Considerations
+### 6.2 Log Immutability
+
+- Logs are stored in append-only tables with database-level constraints preventing UPDATE and DELETE
+- No API endpoints exist for modifying or deleting audit log entries (HTTP 405 on attempts)
+- Log access itself is audited via a separate `AuditLogAccess` entity
+
+### 6.3 Compliance Considerations
 
 **Data Retention:**
-- Login attempt logs: 90 days
-- Audit logs: 7 years (configurable per tenant)
+- All audit logs: **Minimum 2 years** (mandatory, configurable up to 7 years per tenant)
 - Session records: 30 days after expiry
+- Archived logs remain accessible for compliance queries
 
 **Privacy:**
 - Passwords never logged (only hashes stored)
-- PII encrypted at rest
-- Audit logs accessible only to authorized admins
+- PII encrypted at rest (AES-256)
+- Audit logs accessible only to Security Admin and Tenant Admin
+
+**Access Control:**
+- Requires `UserMgmt.AuditLog.Read` permission to view logs
+- Requires `UserMgmt.AuditLog.Export` permission to export
+- All access and export operations are themselves logged
 
 ---
 
