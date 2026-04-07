@@ -30,30 +30,24 @@ spec_file: ../../../../stories/US-096-supplier-dealer-master-data.md
 ### AC-1: Supplier Master (per PRD 6.3.1)
 - [ ] System SHALL provide a Suppliers setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Supplier with:
-  - Supplier Name (required, unique within tenant)
-  - Supplier Code (required, unique)
-  - Contact Person Name (optional)
-  - Contact Phone (optional)
-  - Contact Email (optional)
-  - Address (optional)
-  - Status: (Is Active)
-    - Active
-    - Inactive
+  - Supplier Code (Text Input, required, unique)
+  - Supplier Name (Text Input, required, unique within tenant)
+  - Contact Number (Text Input, required)
+  - Email (Email format, optional)
+  - Address (Text Input, required)
+  - Supplier Status (Checkmark, Is Active?, required)
 - [ ] Only Active suppliers SHALL be selectable in gate on-demand TO creation (US-065)
 - [ ] Bulk CSV upload SHALL be supported for suppliers
 
 ### AC-2: Dealer Master (per PRD 6.3.1)
 - [ ] System SHALL provide a Dealers setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Dealer with:
-  - Dealer Name (required, unique within tenant)
-  - Dealer Code (required, unique)
-  - Contact Person Name (optional)
-  - Contact Phone (optional)
-  - Contact Email (optional)
-  - Address (optional)
-  - Status: (Is Active)
-    - Active
-    - Inactive
+  - Dealer Code (Text Input, required, unique)
+  - Dealer Name (Text Input, required, unique within tenant)
+  - Contact Number (Text Input, required)
+  - Email (Email Format, optional)
+  - Address (Text Input, required)
+  - Dealer Status (Checkmark, Is Active?, required)
 - [ ] Only Active dealers SHALL be selectable in gate on-demand TO creation (US-064)
 - [ ] Bulk CSV upload SHALL be supported for dealers
 
