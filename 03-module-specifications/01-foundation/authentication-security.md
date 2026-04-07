@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
-last_updated: 2026-02-26
-related_stories: US-001, US-002, US-003
+last_updated: 2026-04-07
+related_stories: US-001, US-002, US-003, US-005, US-007, US-008
 ---
 
 # Authentication & Security Specification
@@ -136,6 +136,7 @@ If you did not request this account, please ignore this email.
 **Password Requirements:**
 - Minimum 8 characters
 - Must contain: uppercase letter, lowercase letter, number, special character
+- Dictionary check: Cannot be a common password (top 10,000 common passwords)
 - Hashed using bcrypt with tenant-specific salt
 - Password history: Last 3 passwords cannot be reused
 - Expiration: 90 days (configurable per tenant)
@@ -530,7 +531,114 @@ All authentication events sent to centralized audit logging system:
 
 ---
 
-## 8. Related Documentation
+## 8. Password Reset Integration (US-005, US-008)
+
+Password reset involves two distinct flows that integrate with the authentication layer:
+
+### 8.1 Self-Service Password Reset
+
+```
+User → "Forgot Password" → Enter email/mobile
+    → System sends reset link (15 min) + SMS OTP (10 min)
+    → User clicks link → Verifies OTP → Sets new password
+    → All active sessions terminated → Must login with new password
+```
+
+**Security Controls:**
+- Reset tokens are 64-char hex, cryptographically random (`crypto.randomBytes(32)`)
+- Tokens are stored hashed (bcrypt) — raw token only in the email link
+- OTP is 6-digit, stored hashed, valid for 10 minutes
+- Maximum 3 OTP verification attempts per token
+- **Rate Limiting**: Max 3 self-service reset requests per hour per user (HTTP 429 on exceed)
+- Only the latest token/OTP is valid — previous ones are automatically invalidated
+- Response to non-existent email returns same success message (prevents email enumeration)
+
+**Password Complexity Enforcement:**
+- Minimum 8 characters, uppercase, lowercase, number, special character
+- Dictionary check against top 10,000 common passwords
+- Cannot reuse last 3 passwords (history check)
+- Password strength meter displayed on UI
+
+### 8.2 Admin-Assisted Password Reset
+
+```
+Admin → Select user → Verify identity offline → Provide justification (≥10 chars)
+    → System generates 6-digit OTP (10 min validity) → Admin communicates OTP offline
+    → User enters OTP → Sets new password → All sessions terminated
+```
+
+**Security Controls:**
+- Requires `UserMgmt.User.ResetPassword` permission (Super Admin, Tenant Admin)
+- Admin must confirm offline identity verification method (Phone, Email, In-Person)
+- Justification is mandatory (minimum 10 characters) and immutable in audit log
+- OTP displayed only to the Admin (not sent to user directly)
+- Admin-assisted resets bypass self-service rate limits
+
+### 8.3 Password Reset Audit Logging
+
+All reset attempts (success and failure) are logged with:
+
+| Field | Description |
+|---|---|
+| `user_id` | User whose password is being reset |
+| `admin_id` | Admin who initiated (for assisted resets) |
+| `method` | `self_service` or `admin_assisted` |
+| `status` | `success`, `failure` |
+| `failure_reason` | `token_expired`, `otp_invalid`, `rate_limited`, etc. |
+| `ip_address` | IP of the requestor |
+| `device_id` | Device fingerprint |
+| `timestamp` | ISO 8601 timestamp |
+| `justification` | Admin justification (assisted only) |
+
+### 8.4 Suspicious Activity Detection
+
+System monitors password reset patterns for anomalies:
+- Multiple resets across different users from the same IP address
+- Rapid sequential reset requests from a single user
+- Reset attempts for accounts that don't exist (potential enumeration)
+
+When suspicious activity is detected:
+- Additional verification may be required (e.g., CAPTCHA, extended OTP validation)
+- Alert sent to Tenant Admin
+- Activity logged for security review
+
+---
+
+## 9. Account Deactivation Integration (US-007)
+
+Account deactivation directly impacts the authentication layer:
+
+### 9.1 Session Termination on Deactivation
+
+When a user account is deactivated (temporary or permanent):
+1. All active sessions are immediately revoked (`status → Revoked`)
+2. All JWT access tokens are added to the blacklist
+3. All refresh tokens are invalidated
+4. Client-side tokens are cleared on next API call (returns HTTP 401)
+
+### 9.2 Login Prevention for Deactivated Users
+
+```typescript
+// In loginFlow (Section 1.2), the status check handles deactivated users:
+if (user.status === 'Suspended' || user.status === 'Deactivated') {
+    throw new Error('Account is inactive or suspended.');
+}
+```
+
+- **Temporarily Suspended**: Login blocked until admin reactivates the account
+- **Permanently Deactivated**: Login permanently blocked; no reactivation possible
+
+### 9.3 Reactivation Impact
+
+When a temporarily suspended account is reactivated:
+- User status returns to `Active`
+- User can login again using normal 3-step flow
+- Previous sessions are NOT restored — user must create a new session
+- `password_must_change` may be set to `true` depending on admin policy
+
+---
+
+## 10. Related Documentation
 
 - **[RBAC Specification](rbac.md)** - Role-based access control details
 - **[User Management](user-tenant-management.md)** - User lifecycle management
@@ -540,5 +648,8 @@ All authentication events sent to centralized audit logging system:
 - US-001: User Login & Account Lockout
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
+- US-005: User Invitation & Activation (consolidated password reset scope)
+- US-007: Account Deactivation (session termination, login prevention)
+- US-008: Password & Account Reset
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3

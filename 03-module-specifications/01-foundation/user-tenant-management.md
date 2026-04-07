@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 related_stories: US-005, US-006, US-007, US-008, US-009
 ---
 
@@ -765,13 +765,29 @@ async function generateResetLink(email: string): Promise<string> {
 
 ### 7.4 Password Change Enforcement
 
+**Password Complexity Rules** (applies to activation, password reset, and password change):
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+- Cannot reuse last 3 passwords
+- Cannot be a common password (dictionary check against top 10,000 common passwords)
+- Hashed using bcrypt with tenant-specific salt
+
+**Suspicious Activity Detection**:
+- System detects unusual reset patterns (e.g., multiple resets across different users from same IP)
+- Suspicious patterns trigger additional verification or alert to Tenant Admin
+- All suspicious activity logged for security review
+
 **Post-Reset Actions**:
 ```typescript
 async function completePasswordReset(
     userId: UUID,
-    newPassword: string
+    newPassword: string,
+    method: 'self-service' | 'admin-assisted'
 ): Promise<void> {
-    // 1. Validate password complexity
+    // 1. Validate password complexity (including dictionary check)
     validatePasswordStrength(newPassword);
     
     // 2. Check password history (last 3 passwords)
@@ -797,7 +813,9 @@ async function completePasswordReset(
     await auditLog({
         event: 'PasswordChanged',
         user_id: userId,
-        method: 'Reset'
+        method: method,
+        ip_address: request.ip,
+        device_id: request.headers['x-device-id']
     });
 }
 ```

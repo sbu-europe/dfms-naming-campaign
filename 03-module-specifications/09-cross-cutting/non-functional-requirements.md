@@ -264,8 +264,14 @@ const allowedDowntimeMinutes = totalMinutesInMonth * (1 - monthlyUptimeSLA); // 
 **Password Complexity:**
 - **Minimum Length:** 8 characters
 - **Complexity:** Must include uppercase, lowercase, number, special character
+- **Dictionary Check:** Cannot be a common password (checked against top 10,000 common passwords)
 - **Expiry:** 90 days (user prompted to change password)
-- **History:** Cannot reuse last 5 passwords
+- **History:** Cannot reuse last 3 passwords
+
+**Rate Limiting (Password Reset):**
+- Maximum 3 self-service reset requests per hour per user
+- Admin-assisted resets not subject to self-service rate limits
+- Suspicious patterns (multiple resets across different users from same IP) trigger additional verification
 
 **Example Validation:**
 ```typescript
@@ -275,16 +281,19 @@ const passwordPolicy = {
   requireLowercase: true,
   requireNumber: true,
   requireSpecialChar: true,
+  dictionaryCheck: true,
   expiryDays: 90,
-  preventReuse: 5
+  preventReuse: 3
 };
 
 function validatePassword(password: string): boolean {
-  return password.length >= 8 &&
+  const meetsComplexity = password.length >= 8 &&
          /[A-Z]/.test(password) &&
          /[a-z]/.test(password) &&
          /[0-9]/.test(password) &&
          /[!@#$%^&*]/.test(password);
+  const notCommon = !commonPasswordList.includes(password.toLowerCase());
+  return meetsComplexity && notCommon;
 }
 ```
 

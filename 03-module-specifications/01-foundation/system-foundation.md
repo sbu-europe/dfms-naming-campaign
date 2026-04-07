@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1, 6.2
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 related_stories: US-001 through US-009
 ---
 
@@ -214,9 +214,12 @@ System sends invitation email → Tenant Admin activates account
 - **Temporary**: Suspended status, can be reactivated
 - **Permanent**: Inactive status, data archived
 
-**Password Reset**:
-- **Admin-Assisted**: For low-literacy users, admin generates OTP after offline verification
-- **Self-Service**: User requests reset link via email (15 min validity)
+**Password Reset (US-008)**:
+- **Admin-Assisted**: For low-literacy users (e.g., Drivers, Helpers); admin verifies identity offline, generates 6-digit OTP (10 min), communicates to user offline; mandatory justification logged
+- **Self-Service**: User requests reset link via email (15 min) + SMS OTP (10 min); rate limited to 3 requests/hour/user
+- **Password Complexity**: 8+ chars, upper/lower/number/special, dictionary check (top 10k common passwords), last 3 passwords not reusable
+- **Session Termination**: All active sessions revoked immediately on successful reset
+- **Suspicious Activity Detection**: Unusual reset patterns trigger additional verification and admin alerts
 
 ### 4.4 OTP Verification System
 
