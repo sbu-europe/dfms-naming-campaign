@@ -38,6 +38,13 @@ The implementation patches `admin.site.login` at app startup so no changes to Dj
 - [ ] Super Admin cannot bypass the OTP step by navigating directly to any `/admin/` URL mid-flow
 - [ ] All 2FA attempts (success and failure) are logged
 
+### Feedback — Sprint 1 Demo (FB-004)
+- [ ] After successful OTP, set a `dfms_trusted_device=<signed_token>` cookie with 30-day max-age — [FB-004](FEEDBACK.md#fb-004--otp-trusted-device--skip-otp-on-known-browser)
+- [ ] On subsequent logins from same browser: check trusted device cookie before triggering OTP — valid cookie skips OTP entirely
+- [ ] Trusted device tokens stored in Redis (`trusted_device:admin:<user_id>:<token>`, TTL 30 days)
+- [ ] Invalid, expired, or revoked cookie falls back to full OTP challenge
+- [ ] Super Admin can view and revoke trusted devices from account settings
+
 ## Sub-tasks
 
 | # | Sub-task | Status |

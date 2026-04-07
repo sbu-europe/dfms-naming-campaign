@@ -39,6 +39,11 @@ After the Tenant Admin has logged in, they need to onboard team members. Each in
 - [ ] Bulk user invitation via CSV file upload
 - [ ] Resend invitation (generates a new token, resets 7-day window)
 
+### Feedback — Sprint 1 Demo (FB-001)
+- [ ] Email field on the activation page is displayed as **read-only** (non-editable) — [FB-001](FEEDBACK.md#fb-001--invitation-url-email-pre-filled-and-non-editable)
+- [ ] Server validates email against the token record server-side, not the submitted form value (prevents tampering)
+- [ ] Submitting a modified email returns a 400 error
+
 ## Sub-tasks
 
 | # | Sub-task | Status |

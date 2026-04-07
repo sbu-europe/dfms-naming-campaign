@@ -112,6 +112,21 @@ The following modules have models, serializers, viewsets, and URL routing wired 
 
 ---
 
+---
+
+## Sprint 1 Demo Feedback
+
+Feedback received during or after the Sprint 1 demo. All items logged in [sprint1/FEEDBACK.md](../../04-backlog/sprint1/FEEDBACK.md).
+
+| # | Source | Item | Affects | Priority |
+|---|--------|------|---------|----------|
+| FB-001 | Internal | Invitation activation page: email must be pre-filled and **non-editable** | CP-04 | High |
+| FB-002 | Internal | Platform Admin needs a **Resend Welcome Email** action for failed/expired invitations | PAP-05 | High |
+| FB-003 | Client | **Session timeout**: extend from 30 minutes to **24 hours** (sliding window) | INFRA-04 | Medium |
+| FB-004 | Client | **OTP trusted device**: skip OTP on known browser — only prompt on new device/browser | CP-03, PAP-03 | High |
+
+---
+
 **Recorded by**: Development Team
 **Last updated**: 2026-03-31
 **Next review**: Sprint 1 completion / Sprint 2 kickoff

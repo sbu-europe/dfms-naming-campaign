@@ -42,3 +42,30 @@
 | [CP-05](CP-05-tenant-dashboard.md) | Tenant dashboard — basic live operational metrics | 3 | Done |
 
 **Pending**: bulk CSV invitation, resend invitation (tracked in CP-04)
+
+---
+
+## Sprint 1 Demo Feedback — Backlogged Items
+
+> Full feedback log: [FEEDBACK.md](FEEDBACK.md)
+
+| Ref | Feedback | Source | Affects | Sprint |
+|-----|----------|--------|---------|--------|
+| [FB-001](FEEDBACK.md#fb-001--invitation-url-email-pre-filled-and-non-editable) | Invitation activation email field must be read-only | Internal | CP-04 | Sprint 2 |
+| [FB-002](FEEDBACK.md#fb-002--platform-admin-resend-invitation-email) | Platform admin resend welcome email action | Internal | PAP-05 | Sprint 2 |
+| [FB-003](FEEDBACK.md#fb-003--session-timeout-extend-from-30-minutes-to-24-hours) | Session timeout 30 min → 24 hours | Client | INFRA-04 | Sprint 2 |
+| [FB-004](FEEDBACK.md#fb-004--otp-trusted-device--skip-otp-on-known-browser) | OTP skip for trusted device / known browser | Client | CP-03, PAP-03 | Sprint 2 |
+| [FB-005](FEEDBACK.md#fb-005--otp-channel-configurable-email-or-phone-otp-per-user) | OTP channel configurable per user (email or SMS) | Client | [CP-06](CP-06-otp-channel-configuration.md) | Sprint 2 |
+
+---
+
+## Sprint 1 Demo Feedback
+
+See [FEEDBACK.md](FEEDBACK.md) for all 4 items (2 internal, 2 client) with full acceptance criteria.
+
+| # | Source | Item | Affects |
+|---|--------|------|---------|
+| [FB-001](FEEDBACK.md#fb-001--invitation-url-email-pre-filled-and-non-editable) | Internal | Invitation email non-editable on activation page | CP-04 |
+| [FB-002](FEEDBACK.md#fb-002--platform-admin-resend-invitation-email) | Internal | Platform admin resend welcome email action | PAP-05 |
+| [FB-003](FEEDBACK.md#fb-003--session-timeout-extend-from-30-minutes-to-24-hours) | Client | Session timeout 30 min → 24 hours | INFRA-04 |
+| [FB-004](FEEDBACK.md#fb-004--otp-trusted-device--skip-otp-on-known-browser) | Client | OTP skip for trusted device / known browser | CP-03, PAP-03 |
