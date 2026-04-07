@@ -298,6 +298,282 @@ Response: {
 
 ---
 
+## Unit Tests
+
+### UT-RBAC-001: Role Creation & Assignment
+```python
+def test_role_creation():
+    # Test creating all 15 operational roles
+    for role in OPERATIONAL_ROLES:
+        role = Role.objects.create(**role_data)
+        assert role.functional_type in ['Requester', 'Approver', 'Executor']
+        assert role.access_scope in ['Global', 'Local']
+        assert role.category == 'Operational'
+
+def test_role_assignment():
+    # Test assigning role to user
+    user = create_test_user()
+    role = Role.objects.get(name='Transport Planner')
+    user_role = UserRole.objects.create(user=user, role=role, assigned_by=admin_user)
+    assert user_role.user == user
+    assert user_role.role == role
+
+def test_local_role_requires_location():
+    # Test Local roles require department_id or poi_id
+    local_role = Role.objects.get(name='Depot Officer')
+    with pytest.raises(ValidationError):
+        UserRole.objects.create(user=user, role=local_role, department_id=None, poi_id=None)
+```
+
+### UT-RBAC-002: Permission Validation
+```python
+def test_global_role_access():
+    # Test Global role can access all locations
+    global_user = create_user_with_role('Distribution Manager')
+    for location in ALL_LOCATIONS:
+        assert has_permission(global_user, 'view_tr', location)
+        assert has_permission(global_user, 'approve_tr', location)
+
+def test_local_role_access():
+    # Test Local role only accesses assigned location
+    local_user = create_user_with_role('Depot Officer', department_id='depot-1')
+    assert has_permission(local_user, 'view_pr', 'depot-1')
+    assert not has_permission(local_user, 'view_pr', 'depot-2')
+
+def test_requester_cannot_approve():
+    # Test Requester functional type cannot approve
+    requester = create_user_with_role('Depot Officer')
+    assert not has_permission(requester, 'approve_tr', 'any-location')
+    assert not has_permission(requester, 'approve_pr', 'any-location')
+
+def test_approver_can_approve():
+    # Test Approver functional type can approve
+    approver = create_user_with_role('Distribution Manager')
+    assert has_permission(approver, 'approve_tr', 'any-location')
+    assert has_permission(approver, 'approve_pr', 'any-location')
+```
+
+### UT-RBAC-003: Self-Approval Prevention
+```python
+def test_self_approval_prevention():
+    # Test user cannot approve own requisition
+    user = create_user_with_role('Distribution Manager')
+    requisition = create_requisition(created_by=user)
+    
+    with pytest.raises(PermissionDenied):
+        approve_requisition(requisition.id, user)
+    
+    # Test other approver can approve
+    other_approver = create_user_with_role('Distribution Manager')
+    approve_requisition(requisition.id, other_approver)  # Should succeed
+
+def test_requester_approval_blocked():
+    # Test Requester role approval always blocked
+    requester = create_user_with_role('Depot Officer')
+    other_requisition = create_requisition(created_by=other_user)
+    
+    with pytest.raises(PermissionDenied):
+        approve_requisition(other_requisition.id, requester)
+```
+
+### UT-RBAC-004: API Permission Middleware
+```python
+def test_api_permission_middleware():
+    # Test API endpoint permission checking
+    client = APIClient()
+    
+    # Test unauthorized access
+    local_user = create_user_with_role('Depot Officer')
+    client.force_authenticate(local_user)
+    response = client.get('/api/v1/transport-orders/?location=other-depot')
+    assert response.status_code == 403
+    
+    # Test authorized access
+    response = client.get('/api/v1/transport-orders/?location=assigned-depot')
+    assert response.status_code == 200
+
+def test_tenant_isolation():
+    # Test tenant isolation
+    tenant1_user = create_user_with_role('Transport Planner', tenant='tenant-1')
+    tenant2_data = create_transport_order(tenant='tenant-2')
+    
+    client.force_authenticate(tenant1_user)
+    response = client.get(f'/api/v1/transport-orders/{tenant2_data.id}/')
+    assert response.status_code == 403
+```
+
+### UT-RBAC-005: Database Row-Level Security
+```python
+def test_row_level_security():
+    # Test database row-level security
+    local_user = create_user_with_role('Depot Officer', department_id='depot-1')
+    
+    # Should only see records from assigned location
+    depot1_requisitions = TransportRequest.objects.filter(created_by__userrole__department_id='depot-1')
+    depot2_requisitions = TransportRequest.objects.filter(created_by__userrole__department_id='depot-2')
+    
+    user_queryset = get_filtered_queryset(TransportRequest, local_user)
+    assert depot1_requisitions.count() == user_queryset.count()
+    assert not user_queryset.filter(id__in=depot2_requisitions).exists()
+
+def test_global_role_queryset():
+    # Test Global role sees all records
+    global_user = create_user_with_role('Distribution Manager')
+    all_requisitions = TransportRequest.objects.all()
+    
+    user_queryset = get_filtered_queryset(TransportRequest, global_user)
+    assert all_requisitions.count() == user_queryset.count()
+```
+
+---
+
+## UI Tests
+
+### UI-RBAC-001: Role Assignment Interface
+```javascript
+describe('Role Assignment', () => {
+  test('displays all 15 operational roles', () => {
+    cy.visit('/admin/users/assign-role')
+    cy.get('[data-testid="role-select"]').should('contain', 'Transport Planner')
+    cy.get('[data-testid="role-select"]').should('contain', 'Depot Officer')
+    cy.get('[data-testid="role-select"]').should('contain', 'Distribution Manager')
+    // ... verify all 15 roles present
+  })
+
+  test('shows functional type and access scope for selected role', () => {
+    cy.get('[data-testid="role-select"]').select('Transport Planner')
+    cy.get('[data-testid="functional-type"]').should('contain', 'Executor')
+    cy.get('[data-testid="access-scope"]').should('contain', 'Global')
+    
+    cy.get('[data-testid="role-select"]').select('Depot Officer')
+    cy.get('[data-testid="functional-type"]').should('contain', 'Requester')
+    cy.get('[data-testid="access-scope"]').should('contain', 'Local')
+  })
+
+  test('requires location assignment for Local roles', () => {
+    cy.get('[data-testid="role-select"]').select('Depot Officer')
+    cy.get('[data-testid="department-select"]').should('be.visible')
+    cy.get('[data-testid="poi-select"]').should('be.visible')
+    cy.get('[data-testid="assign-button"]').should('be.disabled')
+    
+    cy.get('[data-testid="department-select"]').select('Depot 1')
+    cy.get('[data-testid="assign-button"]').should('not.be.disabled')
+  })
+
+  test('hides location assignment for Global roles', () => {
+    cy.get('[data-testid="role-select"]').select('Distribution Manager')
+    cy.get('[data-testid="department-select"]').should('not.be.visible')
+    cy.get('[data-testid="poi-select"]').should('not.be.visible')
+    cy.get('[data-testid="assign-button"]').should('not.be.disabled')
+  })
+})
+```
+
+### UI-RBAC-002: Menu and Button Visibility
+```javascript
+describe('Permission-based UI Visibility', () => {
+  test('hides approval buttons for Requester roles', () => {
+    cy.login_as('Depot Officer') // Requester role
+    cy.visit('/transport-requests')
+    cy.get('[data-testid="approve-button"]').should('not.exist')
+    cy.get('[data-testid="reject-button"]').should('not.exist')
+  })
+
+  test('shows approval buttons for Approver roles', () => {
+    cy.login_as('Distribution Manager') // Approver role
+    cy.visit('/transport-requests')
+    cy.get('[data-testid="approve-button"]').should('be.visible')
+    cy.get('[data-testid="reject-button"]').should('be.visible')
+  })
+
+  test('Local role sees only assigned location data', () => {
+    cy.login_as('Depot Officer', { department: 'Depot 1' })
+    cy.visit('/transport-requests')
+    cy.get('[data-testid="tr-row"]').should('contain', 'Depot 1')
+    cy.get('[data-testid="tr-row"]').should('not.contain', 'Depot 2')
+  })
+
+  test('Global role sees all location data', () => {
+    cy.login_as('Distribution Manager')
+    cy.visit('/transport-requests')
+    cy.get('[data-testid="tr-row"]').should('contain', 'Depot 1')
+    cy.get('[data-testid="tr-row"]').should('contain', 'Depot 2')
+    cy.get('[data-testid="tr-row"]').should('contain', 'Feed Mill 1')
+  })
+
+  test('disables buttons with tooltips for restricted actions', () => {
+    cy.login_as('Depot Officer')
+    cy.visit('/transport-orders/123')
+    cy.get('[data-testid="approve-to-button"]').should('be.disabled')
+    cy.get('[data-testid="approve-to-button"]').trigger('mouseover')
+    cy.get('[data-testid="permission-tooltip"]').should('contain', 'Only Approver roles can approve')
+  })
+})
+```
+
+### UI-RBAC-003: Self-Approval Prevention in UI
+```javascript
+describe('Self-Approval Prevention', () => {
+  test('cannot approve own requisition', () => {
+    cy.login_as('Distribution Manager') // Approver role
+    const requisition = cy.create_requisition({ created_by: 'current_user' })
+    
+    cy.visit(`/transport-requests/${requisition.id}`)
+    cy.get('[data-testid="approve-button"]').should('be.disabled')
+    cy.get('[data-testid="approve-button"]').trigger('mouseover')
+    cy.get('[data-testid="permission-tooltip"]').should('contain', 'Cannot approve own requisition')
+  })
+
+  test('can approve others requisition', () => {
+    cy.login_as('Distribution Manager')
+    const other_requisition = cy.create_requisition({ created_by: 'other_user' })
+    
+    cy.visit(`/transport-requests/${other_requisition.id}`)
+    cy.get('[data-testid="approve-button"]').should('be.enabled')
+  })
+})
+```
+
+### UI-RBAC-004: Cross-Tenant Access Prevention
+```javascript
+describe('Tenant Isolation', () => {
+  test('cannot access other tenant data', () => {
+    cy.login_as('Tenant1 Admin')
+    cy.visit('/tenants/tenant2-data')
+    cy.get('[data-testid="access-denied"]').should('contain', 'Access denied')
+    cy.url().should('include', '/access-denied')
+  })
+})
+```
+
+---
+
+## Test Coverage Requirements
+
+### Unit Test Coverage
+- [ ] Role creation and validation: 95% coverage
+- [ ] Permission checking logic: 100% coverage
+- [ ] Self-approval prevention: 100% coverage
+- [ ] API middleware: 90% coverage
+- [ ] Database row-level security: 95% coverage
+- [ ] Tenant isolation: 100% coverage
+
+### UI Test Coverage
+- [ ] Role assignment interface: 90% coverage
+- [ ] Menu/button visibility: 95% coverage
+- [ ] Data filtering by access scope: 90% coverage
+- [ ] Self-approval prevention: 100% coverage
+- [ ] Cross-tenant access prevention: 100% coverage
+
+### Integration Test Scenarios
+- [ ] End-to-end role assignment workflow
+- [ ] Permission enforcement across UI, API, and database layers
+- [ ] Self-approval prevention across all interfaces
+- [ ] Local vs Global access control across all modules
+- [ ] Multi-tenant isolation verification
+
+---
+
 ## Dependencies
 
 ### Prerequisites
