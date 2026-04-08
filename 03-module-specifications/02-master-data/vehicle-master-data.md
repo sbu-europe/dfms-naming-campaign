@@ -39,7 +39,7 @@ Vehicle {
   fuel_type: enum ['Diesel', 'Petrol', 'CNG', 'Electric', 'Hybrid', 'LPG']
   capacity_tonnage: Decimal // Max load capacity in Ton
   number_of_wheels: integer
-  allowed_product_category: enum ['FG', 'RM', 'Both'] (nullable)
+  allowed_product_category: enum ['FM', 'RM', 'Both', 'Byproducts', 'Machineries'] (nullable)
   
   // Tracking & Telematics
   gps_tracker_id: string (nullable)
@@ -141,6 +141,10 @@ BulkUploadLog {
     required: false,
     exists: true,
     is_active: true
+  },
+  allowed_product_category: {
+    required: false,
+    enum: ['FM', 'RM', 'Both', 'Byproducts', 'Machineries']
   },
   
   // Read-Only / Excluded Fields (Ignored during creation)
@@ -308,6 +312,7 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 - *Referential Integrity*: Verify that assigning a non-existent or inactive POI/Driver fails validation.
 - *Format Validation*: Test regex validation for Bangladesh vehicle registration format and VIN format for chassis number.
 - *Mileage Field Isolation*: Verify that attempting to set `initial_odometer_reading` or other mileage fields during `POST /api/v1/vehicles` is ignored or rejected, ensuring they are strictly read-only during creation.
+- *Allowed Product Category*: When provided, `allowed_product_category` must be one of FM, RM, Both, Byproducts, Machineries; invalid values are rejected.
 
 **2. API Endpoint Tests:**
 - *List/Filtering*: Test `GET /api/v1/vehicles` with combinations of filters (`operational_status`, `vehicle_type`, `assigned_poi_id`). Ensure pagination works.

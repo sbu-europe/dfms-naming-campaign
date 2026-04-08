@@ -45,7 +45,7 @@ Without proper vehicle master data, the system cannot:
   - Model is mandatory
   - Capacity is captured in Tons, with manual override allowed
   - Number of Wheels must be a numeric value
-  - Allowed Product Type must be FM, RM, Both (Optional)
+  - Allowed Product Type (optional) must be one of: FM, RM, Both, Byproducts, Machineries
 - **And** the system shall allow capturing additional vehicle details including:
   - Mileage information (initial, current, average, total distance)
   - Purchase information (date)
@@ -97,7 +97,7 @@ Without proper vehicle master data, the system cannot:
 | Vehicle Color | Text Input | No | |
 | Number of Wheels | Number Input | Yes | |
 | Chassis Number | Text Input | No | |
-| Allowed Product Type | Dropdown | No | FG / RM / Both |
+| Allowed Product Type | Dropdown | No | FM, RM, Both, Byproducts, Machineries |
 | GPS Device ID | Text Input | No | |
 | Initial Odometer reading | numeric, KM | No | |
 | Current Odometer Reading | numeric, KM | No | |
@@ -172,7 +172,7 @@ Vehicle {
   vehicle_color: String
   number_of_wheels: Integer
   chassis_number: String (unique per tenant, indexed)
-  allowed_product_category: Enum
+  allowed_product_category: Enum (FM, RM, Both, Byproducts, Machineries)
   gps_tracker_id: String
   initial_odometer_reading: Decimal
   current_odometer_reading: Decimal
