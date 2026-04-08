@@ -37,7 +37,7 @@ Product {
   unit_of_measure: enum ['Bag', 'Ton', 'KG', 'Liters', 'Pieces', 'Cartons']
   weight_per_unit: Decimal (nullable) // Conditional required field based on UOM
   standard_pack_size: string (nullable) // Pellet, Mash, Drum, etc.
-  volume: string (nullable)
+  volume: Decimal (nullable)
   
   // Product Details
   description: string (nullable)

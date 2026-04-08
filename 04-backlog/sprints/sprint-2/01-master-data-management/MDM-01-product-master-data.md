@@ -70,7 +70,7 @@ Product Master Data is the **foundational data** for the entire DFMS platform. B
 | Standard Pack Size | Text Input | No | Pellet, Mash, Drum |
 | Barcode/EAN Code | Text Input | No | |
 | Manufacturer Name | Text Input | No | |
-| Volume | Text Input | No | |
+| Volume | Number input (Decimal) | No | |
 | Special Handling Requirements | Text Input | No | |
 | Product Status | Checkmark (Is Active?) | Yes | |
 | Preferred Vehicle Body Type | Dropdown (Pre-defined) | No | Open Body, Closed Body, Container, Flatbed, Tanker, Refrigerated |
