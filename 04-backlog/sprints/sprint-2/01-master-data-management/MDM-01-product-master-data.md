@@ -34,6 +34,7 @@ Product Master Data is the **foundational data** for the entire DFMS platform. B
 - [ ] Unique Product Code/SKU per tenant
 - [ ] Unique Product Name per tenant
 - [ ] Activating/deactivating products preserves history
+- [ ] When creating a new product, category and sub-category must be selected from dropdown options and are required fields.
 
 ### AC-2: Product Attributes
 - [ ] Product Code/SKU, Name, Type, Category, Sub-Category, UOM, Standard Weight, Packing Type, Pack Size, Description, Barcode, Manufacturer, Status
@@ -51,30 +52,82 @@ Product Master Data is the **foundational data** for the entire DFMS platform. B
 ### AC-6: Audit Trail
 - [ ] Log all create, update, and status change operations with user + timestamp + changed fields
 
+## Data Dictionary
+
+### Product Master Data Fields
+
+| Field Name | Field Type | Required | Remarks |
+|---|---|---|---|
+| Product Type (RM / FG) | Dropdown (Pre-defined) | Yes | |
+| Product Category Name | Dropdown (Pre-defined) | Yes | |
+| Product Sub-Category Name (If available) | Dropdown (Pre-defined) | Yes | |
+| Product SKU Code | Text Input | Yes | |
+| Product Item Code | Text Input | Yes | |
+| Product Name | Text Input | Yes | |
+| Product Description | Text Input | No | |
+| Unit of Measure (UOM) | Dropdown (Pre-defined) | Yes | Bag, Ton, KG, Liters, Pieces, Cartons |
+| Weight Per Unit (Pack Size) | Number input | Yes | (Conditional Required Field) 25 KG Bag, 50 KG Bag, etc. If UOM is Tons (Meant Bulk unit), Weight per unit (pack size) input will be optional |
+| Standard Pack Size | Text Input | No | Pellet, Mash, Drum |
+| Barcode/EAN Code | Text Input | No | |
+| Manufacturer Name | Text Input | No | |
+| Volume | Text Input | No | |
+| Special Handling Requirements | Text Input | No | |
+| Product Status | Checkmark (Is Active?) | Yes | |
+| Preferred Vehicle Body Type | Dropdown (Pre-defined) | No | Open Body, Closed Body, Container, Flatbed, Tanker, Refrigerated |
+| Requires QC | Checkmark (Is Active?) | Yes | |
+
+### Product Category Creation Fields
+
+| Field Name | Field Type | Required | Remarks |
+|---|---|---|---|
+| Product Type (RM / FG) | Dropdown (Pre-defined) | Yes | |
+| Product Category Code | Text Input | Yes | |
+| Product Category Name | Text Input | Yes | |
+| Product Category Status | Checkmark (Is Active?) | Yes | |
+| Sub-Category Code | Text Input | Yes | |
+| Sub-Category Name | Text Input | Yes | |
+| Sub-Category Status | Checkmark (Is Active?) | Yes | |
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| MDM-01-1 | Product model + Django migration (Product, ProductAuditLog tables) | DFS-017-1 | Pending |
-| MDM-01-2 | Product CRUD API endpoints (POST, GET list, GET detail, PUT, PATCH status) | DFS-017-2 | Pending |
-| MDM-01-3 | Validation: unique code/name per tenant, required fields, UOM-weight rule | DFS-017-3 | Pending |
-| MDM-01-4 | Transport config JSONB field — vehicle compatibility, special handling, load type | DFS-017-4 | Pending |
-| MDM-01-5 | QC config JSONB field — requires_qc, checklist link, sampling, auto-pass, lab test | DFS-017-5 | Pending |
-| MDM-01-6 | Audit trail logging on every create/update/status-change | DFS-017-6 | Pending |
-| MDM-01-7 | Product list UI — search, filter by type/category/status, pagination | DFS-017-7 | Pending |
-| MDM-01-8 | Product create/edit form — 3-tab layout (Basic Info, Transport Config, QC Config) | DFS-017-8 | Pending |
-| MDM-01-9 | Deactivation warning modal — show active references before status change | DFS-017-9 | Pending |
-| MDM-01-10 | Inactive product gate — filter out inactive from all dependent workflow dropdowns | DFS-017-10 | Pending |
+| MDM-01-1 | Requirements & story update on context repo | DFS-156 | Pending |
+| MDM-01-2 | Implementation Context Generation | DFS-157 | Pending |
+| MDM-01-3 | Models update & Migration | DFS-158 | Pending |
+| MDM-01-4 | Admin view implementation | DFS-159 | Pending |
+| MDM-01-5 | API Endpoints Implementation | DFS-160 | Pending |
+| MDM-01-6 | Bulk Import/Export CSV | DFS-161 | Pending |
+| MDM-01-7 | Unit Testing | DFS-162 | Pending |
 
 ## API Endpoints
 
 ```
+### Products
 POST   /api/v1/products
-GET    /api/v1/products?search=&product_type=&category=&status=&page=&per_page=
+GET    /api/v1/products?search=&product_type=&category=&sub_category=&status=&page=&per_page=
 GET    /api/v1/products/{product_id}
 PUT    /api/v1/products/{product_id}
 PATCH  /api/v1/products/{product_id}/status
 GET    /api/v1/products/{product_id}/audit-trail
+
+### Bulk Operations
+POST   /api/v1/products/import-csv
+GET    /api/v1/products/export-csv
+
+### Product Categories
+POST   /api/v1/product-categories
+GET    /api/v1/product-categories?product_type=&status=
+GET    /api/v1/product-categories/{category_id}
+PUT    /api/v1/product-categories/{category_id}
+PATCH  /api/v1/product-categories/{category_id}/status
+
+### Product Sub-Categories
+POST   /api/v1/product-categories/{category_id}/sub-categories
+GET    /api/v1/product-categories/{category_id}/sub-categories?status=
+GET    /api/v1/product-sub-categories/{sub_id}
+PUT    /api/v1/product-sub-categories/{sub_id}
+PATCH  /api/v1/product-sub-categories/{sub_id}/status
 ```
 
 ## Dependencies
