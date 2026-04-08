@@ -21,7 +21,10 @@ The DFMS platform implements a comprehensive authentication and security framewo
 
 ### 1.1 Login Flow (3-Step)
 
-All users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+Most users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+
+**Exception (Phase 1): Driver SMS Quick Login (US-005)**  
+Driver users may authenticate via a mobile interface link + system-generated password (no OTP required in Phase 1) to support low digital literacy users.
 
 ```
 Step 1: Enter Email or Phone Number
@@ -237,7 +240,7 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ### 3.1 OTP Overview
 
-OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1.
 
 **Applicability:**
 - **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
@@ -555,6 +558,24 @@ Password reset flows (both self-service and admin-assisted) directly interact wi
 > For detailed password reset workflows and business rules, see [User & Tenant Management - Section 7](user-tenant-management.md#7-password--account-reset) and [US-005: User Invitation & Activation](../../04-backlog/stories/US-005-user-invitation-activation.md).
 
 ---
+
+## 8.1 Driver SMS Quick Login Integration (US-005)
+
+Driver users can authenticate using a **mobile interface link** and a **system-generated password** sent via SMS, to support low digital literacy users.
+
+**Flow**:
+1. Driver receives SMS containing mobile link + system-generated password
+2. Driver opens link; mobile number is auto-populated (read-only)
+3. Driver enters system-generated password
+4. System validates password and creates session (JWT)
+
+**Security Controls**:
+- Allowed only for role `Driver` and only via the mobile interface
+- Rate limited using the login endpoint policy
+- Failed attempts contribute to the account lockout policy
+- All attempts are audit logged with device ID, IP address, and status
+
+**Note**: OTP may still be generated/sent for logging/compatibility, but it is not required for Driver quick login in Phase 1.
 
 ## 9. Related Documentation
 

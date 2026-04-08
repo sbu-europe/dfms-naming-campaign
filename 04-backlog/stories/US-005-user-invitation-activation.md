@@ -16,7 +16,7 @@ pending:
   - Resend invitation endpoint (platform admin)
   - Invitation expiry cleanup task
 created: 2026-02-13
-updated: 2026-02-13
+updated: 2026-04-07
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
@@ -55,13 +55,12 @@ This is critical for multi-tenant security, proper access control, and accommoda
 
 Given a tenant Admin user accesses the "Invite User" functionality,
 
-when the Admin fills out the invitation form with user details (Full Name, Email, Mobile Number, Role, Department, Employment Type, POI if applicable, and Workflow Responsibility),
+when the Admin fills out the invitation form with user details (Employee ID, Full Name, Email, Mobile Number, Role, Department, POI if applicable, and Functional Role Type),
 
 then the system shall:
 
-- [ ] Allow admin to invite users via Email or mobile number
-- [ ] Send an invitation link via Email or mobile phone number
-- [ ] Requires Email or mobile OTP verification before activation
+- [ ] Allow admin to invite users via Email (all roles) or via Mobile Number (**Drivers only**)
+- [ ] Enforce unique **email or mobile number** per tenant (based on the chosen invitation channel)
 - [ ] Allow role assignment during invitation with the following roles:
   - Distribution Officer
   - Distribution Manager
@@ -81,23 +80,48 @@ then the system shall:
   - Driver Supervisor
   - Driver
   - Helper
+- [ ] Allow Functional Role Type assignment during invitation:
+  - Requester
+  - Approver
+  - Executor
 - [ ] Bulk user invitation via CSV upload for each role
 - [ ] Validate role permissions against tenant plan limits
-- [ ] Enforce unique mobile number per tenant
 - [ ] Allow invitation resend (with cooldown period)
 - [ ] Expires invitations after 7 days
-- [ ] Allow the invited user to complete verification by:
-  - Inputting phone OTP
-  - Setting a password
-  - Verifying OTP
-  - Accepting Terms & Conditions
-- [ ] Activate the user account only after successful OTP verification
 - [ ] Allow the Admin to resend the invitation if it has expired
 - [ ] Allow custom invitation message
 - [ ] Support invitation templates
 - [ ] Allow invitation scheduling
-- [ ] Completes verification by verifying phone OTP, set password, accept T&C
 - [ ] Track the invitation status as: **Sent → Pending → Activated/Expired**
+
+#### Driver users (SMS-based invitation + low literacy quick login)
+
+- [ ] System SHALL send an SMS to the Driver containing:
+  - A Mobile interface link
+  - A 6-digit One-Time Password (OTP) valid for 10 minutes (**logged; not required for activation in Phase 1**)
+  - A system-generated password
+- [ ] Upon opening the mobile link:
+  - Registered mobile number is auto-populated (read-only)
+  - Driver enters the system-generated password received via SMS
+  - On success, system authenticates the Driver and grants access
+  - On invalid credentials, system displays an appropriate error message and denies access
+- [ ] Driver activation/login does **not** require OTP verification in Phase 1
+
+#### Other role users (Email-based invitation + OTP activation + credential setup)
+
+- [ ] System SHALL send a user invitation email containing:
+  - An invitation link
+  - A 6-digit One-Time Password (OTP)
+- [ ] Upon accessing the invitation link:
+  - Registered email is automatically populated (read-only)
+  - User enters the OTP received via email
+  - On successful OTP verification, system prompts to set credentials (New Password + Confirm Password)
+  - System ensures password match + password policy compliance
+  - User accepts Terms & Conditions
+  - System authenticates and logs the user into the platform
+- [ ] Post activation, the user can access the system using registered email + configured password
+
+- [ ] System logs audit events for invitation, activation, OTP operations, and driver quick login attempts
 
 **Test Scenarios (AC-1):**
 
@@ -121,12 +145,27 @@ Scenario: AC-1.2 - Bulk invitation via CSV
 Scenario: AC-1.3 - User activation with OTP verification
   Given a user received an invitation email with an activation link
   When the user clicks the activation link within 7 days
-  And enters the email OTP and SMS OTP
+  And enters the email OTP
   And sets a password meeting complexity requirements
   And accepts Terms & Conditions
   Then the user account is created and activated
   And the invitation status changes to "Activated"
   And a welcome email is sent
+
+Scenario: AC-1.3b - Driver SMS quick login (no OTP required)
+  Given a Driver user invitation was created with mobile "+8801712345678"
+  When the system sends an SMS containing a mobile link and a system-generated password
+  And the Driver opens the mobile link
+  Then the mobile number is auto-populated and read-only
+  When the Driver enters the system-generated password
+  Then the system authenticates the Driver and grants access
+  And logs the login attempt as success
+
+Scenario: AC-1.3c - Driver SMS quick login invalid password
+  Given a Driver opens the mobile link
+  When the Driver enters an invalid system-generated password
+  Then the system denies access with an appropriate error message
+  And logs the login attempt as failure with reason "InvalidPassword"
 
 Scenario: AC-1.4 - Plan limit enforcement
   Given a tenant is on the "Basic" plan with a limit of 5 users
@@ -302,14 +341,14 @@ Scenario: AC-3.6 - Password history enforcement
 
 ### FR-065-001: User Invitation Creation
 - [Critical] System SHALL provide form to invite users with:
+  - Employee ID
   - Email address (mandatory)
   - Mobile number (mandatory)
   - Full name
   - Role assignment (from predefined list of 18 roles)
   - Department assignment (if applicable)
-  - Employment Type
   - POI (if applicable)
-  - Workflow Responsibility
+  - Functional Role Type Assignment (Requester / Approver / Executor)
 - [Critical] System SHALL validate email uniqueness within tenant
 - [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
@@ -330,7 +369,8 @@ Scenario: AC-3.6 - Password history enforcement
 - [High] System SHALL allow invitation resend (2-minute cooldown)
 
 ### FR-065-003: User Activation
-- [Critical] System SHALL require OTP verification (email + SMS) before activation
+- [Critical] System SHALL require OTP verification (email) before activation for non-Driver users
+- [Critical] Driver users SHALL authenticate using the system-generated password received via SMS (no OTP required in Phase 1)
 - [Critical] System SHALL require password setup during activation
 - [Critical] System SHALL enforce password complexity rules
 - [Critical] System SHALL require Terms & Conditions acceptance
@@ -342,7 +382,7 @@ Scenario: AC-3.6 - Password history enforcement
 
 ### FR-065-004: Bulk Invitation
 - [Critical] System SHALL support CSV upload with columns:
-  - Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility
+  - Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type
 - [Critical] System SHALL validate CSV format and data
 - [Critical] System SHALL process invitations in batch
 - [Critical] System SHALL report success/failure for each row
@@ -551,19 +591,19 @@ PasswordResetAuditLog:
 ### Invitation Form
 - Email input with validation
 - Mobile number input with validation
+- Employee ID input with validation
 - Full name input
 - Role selection (dropdown from 18 predefined roles)
 - Department selection (dropdown, optional)
-- Employment Type input
 - POI selection (dropdown, optional)
-- Workflow Responsibility input
+- Functional Role Type input (Requester / Approver / Executor)
 - Custom message textarea (optional)
 - "Send Invitation" button
 - "Bulk Upload" option
 
 ### Bulk Upload Interface
 - CSV file upload area
-- Template download link (with columns: Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility)
+- Template download link (with columns: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type)
 - Validation results display
 - Success/failure summary
 - "Process Invitations" button
@@ -577,12 +617,18 @@ PasswordResetAuditLog:
 ### Activation Page
 - Display organization name
 - Email OTP input
-- SMS OTP input
 - Password setup form
 - Password confirmation
 - Terms & Conditions checkbox with link to T&C document
 - "Activate Account" button
 - Resend OTP links
+
+### Driver Mobile Login Page (SMS-based)
+- Mobile number auto-populated (read-only)
+- System-generated password input
+- "Login" button
+- Error message on invalid password
+- Link to "Contact Admin" for assistance
 
 ### Forgot Password Page
 - Email or mobile number input
@@ -622,7 +668,7 @@ PasswordResetAuditLog:
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations
 - Create user invitation
-- Request body: email, mobile, full_name, role_ids, department_id, employment_type, poi_id, workflow_responsibility, custom_message
+- Request body: employee_id, email, mobile, full_name, role_ids, department_id, poi_id, functional_role_type, custom_message
 - Response: invitation_id, invitation_token
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations/bulk
@@ -645,7 +691,16 @@ PasswordResetAuditLog:
 
 ### POST /api/v1/users/invitations/{invitation_token}/activate
 - Activate user account
-- Request body: email_otp, sms_otp, password, password_confirm, terms_accepted
+- Request body: email_otp, password, password_confirm, terms_accepted
+- Response: user_id, access_token
+
+### GET /m/driver/login/{invitation_token}
+- Driver SMS-based mobile login page (auto-populates mobile)
+- Response: HTML/mobile UI
+
+### POST /api/v1/auth/driver/login
+- Driver SMS-based login (no OTP required in Phase 1)
+- Request body: invitation_token, mobile (read-only client-side), system_generated_password
 - Response: user_id, access_token
 
 ### POST /api/v1/users/invitations/{invitation_token}/otp/resend
@@ -742,13 +797,13 @@ def test_create_invitation_success():
     client.force_authenticate(admin)
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
+        'employee_id': 'EMP-0001',
         'email': 'newuser@company.com',
         'mobile': '+8801712345678',
         'full_name': 'John Doe',
         'role_ids': [get_role_id('Depot Officer')],
         'department_id': 'depot-1',
-        'employment_type': 'Permanent',
-        'workflow_responsibility': 'Requester'
+        'functional_role_type': 'Requester'
     })
     
     assert response.status_code == 201
@@ -1524,13 +1579,13 @@ def test_e2e_invitation_to_activation():
     
     # Step 1: Create invitation
     inv_response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
+        'employee_id': 'EMP-0002',
         'email': 'newuser@company.com',
         'mobile': '+8801712345678',
         'full_name': 'New User',
         'role_ids': [get_role_id('Depot Officer')],
         'department_id': 'depot-1',
-        'employment_type': 'Permanent',
-        'workflow_responsibility': 'Requester'
+        'functional_role_type': 'Requester'
     })
     assert inv_response.status_code == 201
     token = inv_response.json()['invitation_token']
@@ -1546,7 +1601,6 @@ def test_e2e_invitation_to_activation():
     client.logout()
     act_response = client.post(f'/api/v1/users/invitations/{token}/activate', {
         'email_otp': activation.email_otp,
-        'sms_otp': activation.sms_otp,
         'password': 'SecurePass123!',
         'password_confirm': 'SecurePass123!',
         'terms_accepted': True

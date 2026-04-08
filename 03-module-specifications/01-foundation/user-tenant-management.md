@@ -356,6 +356,23 @@ Admin (Tenant Admin or Department Admin) → Invite User Form → Send Email →
 User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account Active
 ```
 
+#### 4.1.1 Driver SMS-based Invitation + Quick Login (Low Digital Literacy)
+
+For **Driver** users, the system supports an SMS-first onboarding flow optimized for low literacy users.
+
+```
+Admin → Invite Driver (mobile-based) → System sends SMS:
+  - Mobile interface link
+  - System-generated password
+  - (Optional) 6-digit OTP for audit/logging
+Driver opens link → Mobile auto-populated (read-only) → Enter system-generated password → Authenticated
+```
+
+**Rules**:
+- Driver invitations may be created using **mobile number only** (email optional)
+- Driver quick login does **not** require OTP verification in Phase 1
+- All driver quick login attempts are audit logged (success/failure with reason)
+
 **Permission-Based Invitation**:
 - **Tenant Admin** can invite: Department Admins, Operational Users (any department)
 - **Department Admin** can invite: Operational Users (own department only)
@@ -369,9 +386,9 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 - User Type (Department Admin / Operational User)
 - Role (from 18 predefined operational roles, multi-select supported)
 - Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
-- Employment Type (Permanent / Temporary / Contractor)
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
-- Workflow Responsibility (Requester / Approver / Executor)
+- Employee ID
+- Functional Role Type (Requester / Approver / Executor)
 
 **Optional Fields**:
 - Custom invitation message (freeform text)
@@ -401,7 +418,7 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 
 Admins can upload a CSV file to invite multiple users at once:
 
-**CSV Columns**: Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility
+**CSV Columns**: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type
 
 **Processing Rules**:
 - Maximum 100 invitations per batch

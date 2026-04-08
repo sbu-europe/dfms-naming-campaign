@@ -4,7 +4,8 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
-last_updated: 2026-03-05
+last_updated: 2026-04-07
+related_stories: US-004, US-005, US-007, US-008, US-009
 ---
 
 # Phase 1 Permission Catalog
@@ -63,7 +64,7 @@ This document enumerates all permissions available in Phase 1. Each permission f
 | `UserMgmt.User.Deactivate` | Suspend/deactivate users | Tenant Admin |
 | `UserMgmt.User.Reactivate` | Reactivate suspended users | Tenant Admin |
 | `UserMgmt.User.BulkInvite` | Bulk CSV invitation | Tenant Admin |
-| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin, Department Admin |
+| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Super Admin, Tenant Admin |
 | `UserMgmt.User.Unlock` | Unlock locked accounts | Tenant Admin |
 | `UserMgmt.User.Export` | Export user list | Tenant Admin |
 
@@ -79,8 +80,8 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.AuditLog.Read` | View audit logs | Tenant Admin |
-| `UserMgmt.AuditLog.Export` | Export audit logs | Tenant Admin |
+| `UserMgmt.AuditLog.Read` | View audit logs | Super Admin, Tenant Admin |
+| `UserMgmt.AuditLog.Export` | Export audit logs | Super Admin, Tenant Admin |
 
 ---
 
@@ -154,7 +155,7 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Requisition.TR.Create` | Create Transport Requisitions | Depot Manager, Feed Mill Manager, Commercial Officer |
+| `Requisition.TR.Create` | Create Transport Requisitions | Depot Officer, Feed Mill Officer, Commercial Officer |
 | `Requisition.TR.Read` | View TR list and details | Distribution, Procurement, Transport roles |
 | `Requisition.TR.Update` | Modify TR details | Creator (draft only) |
 | `Requisition.TR.Cancel` | Cancel a TR | Creator, Tenant Admin |
