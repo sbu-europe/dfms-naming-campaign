@@ -45,6 +45,45 @@ The system must support both self-service and admin-assisted reset to accommodat
 
 ## Acceptance Criteria
 
+### AC-0: Forgot Password / Change Password (All Users)
+
+Given a user needs to reset a forgotten password or change their password,
+
+when either **Forgot Password** (unauthenticated) or **Change Password** (authenticated) is initiated,
+
+then the system shall:
+
+- [ ] Send a 6-digit OTP (valid 10 minutes) to the user’s registered **mobile number or email address** (based on chosen identifier / security policy)
+- [ ] Require the user to enter the OTP for verification (where applicable)
+- [ ] On successful verification, prompt the user to enter New Password and Confirm Password
+- [ ] Validate password match + password policy compliance (complexity + dictionary check + last 3 password history)
+- [ ] Update the user’s password and invalidate all active sessions
+- [ ] Log the event with user ID, timestamp, IP address, device ID, method, and status
+
+**Test Scenarios (AC-0):**
+
+```gherkin
+Scenario: AC-0.1 - Forgot password requires OTP then sets new password
+  Given a registered user on the login page
+  When the user initiates "Forgot Password" using their email
+  Then the system sends a reset link (15 minutes) and an OTP (10 minutes) to the appropriate channels
+  When the user enters the received OTP successfully
+  Then the system prompts for New Password and Confirm Password
+  And updates the password on successful submission
+
+Scenario: AC-0.2 - Authenticated change password requires match and complexity
+  Given an authenticated user is on the Profile → Settings page
+  When the user enters New Password and Confirm Password
+  Then the system validates password match and complexity rules
+  And updates the password on success
+  And invalidates all active sessions
+
+Scenario: AC-0.3 - Optional OTP verification for change password (high-risk)
+  Given an authenticated user with a high-privilege role
+  When the user initiates Change Password
+  Then the system requires OTP verification before saving the new password
+```
+
 ### AC-1: Admin-Assisted Password Reset
 
 Given a user requires a password reset and cannot self-service (e.g., low digital literacy users such as Drivers, Helpers),
@@ -116,8 +155,8 @@ then the system shall:
 
 - [ ] Provide a "Forgot Password" option on the login page
 - [ ] Accept email or mobile number as identifier
-- [ ] Send a reset link via email (valid 15 minutes)
-- [ ] Send a 6-digit OTP via SMS (valid 10 minutes)
+- [ ] Send a reset link via email (valid 15 minutes) when email is available
+- [ ] Send a 6-digit OTP via SMS or email (valid 10 minutes) based on identifier / available channel
 - [ ] Prompt the user to complete the reset flow
 - [ ] Enforce password complexity rules during new password setup
 - [ ] Prevent reuse of last 3 passwords
@@ -186,7 +225,32 @@ Scenario: AC-2.8 - Password complexity validation
 
 ## Functional Requirements
 
-### FR-067-001: Admin-Assisted Password Reset
+### FR-067-001: Forgot Password (Self-Service Reset Initiation)
+- [Critical] The system SHALL provide a “Forgot Password” option on the login interface for all users
+- [Critical] The system SHALL require the user to input a registered identifier: Email address or Mobile number
+- [Critical] The system SHALL initiate identity verification based on the input method:
+  - Send a password reset link via email (valid for 15 minutes), and/or
+  - Send a 6-digit OTP via SMS/email (valid for 10 minutes)
+- [Critical] The system SHALL require successful OTP verification (where applicable) prior to allowing password reset
+- [High] The system SHALL display a password strength indicator during password creation
+- [High] The system SHALL send a confirmation notification to the user upon successful password reset
+- [High] The system SHALL support password reset via both web and mobile interfaces
+
+### FR-067-002: Authenticated Password Change (Change Password)
+- [Critical] The system SHALL allow authenticated users to change their password from their profile/settings section
+- [Critical] The system SHALL prompt the user to enter New Password and Confirm Password
+- [Critical] The system SHALL validate:
+  - Password complexity requirements
+  - Password confirmation matches
+  - Prevent reuse of last 3 passwords
+- [Critical] Upon successful validation:
+  - The system SHALL update the password
+  - The system SHALL invalidate all previous active sessions
+- [High] The system SHALL optionally require OTP verification for password change based on security policy (e.g., high-risk roles or suspicious activity)
+- [High] The system SHALL send a notification to the user upon successful password change
+- [High] The system SHALL log password change activity including user ID, timestamp, and IP address
+
+### FR-067-003: Admin-Assisted Password Reset
 - [Critical] System SHALL allow Super Admin and Tenant Admin to trigger assisted reset
 - [Critical] System SHALL require offline identity verification by admin
 - [Critical] System SHALL generate 6-digit OTP valid for 10 minutes
@@ -202,7 +266,7 @@ Scenario: AC-2.8 - Password complexity validation
 - [High] System SHALL require admin approval for sensitive accounts
 - [High] System SHALL send notification to user about assisted reset
 
-### FR-067-002: Self-Service Password Reset
+### FR-067-004: Self-Service Password Reset (Completion)
 - [Critical] System SHALL provide "Forgot Password" link on login page
 - [Critical] System SHALL require email or mobile number input
 - [Critical] System SHALL send password reset link via email (valid 15 minutes)
@@ -218,7 +282,7 @@ Scenario: AC-2.8 - Password complexity validation
 - [High] System SHALL provide password strength meter
 - [High] System SHALL support mobile app password reset
 
-### FR-067-003: Password Reset Process
+### FR-067-005: Password Reset Process
 - [Critical] System SHALL validate reset link/OTP before allowing password change
 - [Critical] System SHALL check reset link expiration (15 minutes)
 - [Critical] System SHALL validate password complexity
@@ -228,7 +292,7 @@ Scenario: AC-2.8 - Password complexity validation
 - [Critical] System SHALL require user to login with new password
 - [High] System SHALL send confirmation email after successful reset
 
-### FR-067-004: Password Reset Logging
+### FR-067-006: Password Reset Logging
 - [Critical] System SHALL log all password reset attempts:
   - User ID
   - Method (admin-assisted|self-service)
@@ -241,7 +305,7 @@ Scenario: AC-2.8 - Password complexity validation
 - [High] System SHALL provide reset history per user
 - [High] System SHALL generate audit reports
 
-### FR-067-005: Rate Limiting & Security
+### FR-067-007: Rate Limiting & Security
 - [Critical] System SHALL enforce rate limiting (max 3 reset requests per hour per user)
 - [Critical] System SHALL block reset requests after rate limit exceeded
 - [Critical] System SHALL validate reset link/OTP uniqueness
@@ -337,6 +401,14 @@ PasswordResetLog:
 - OTP display (for admin to communicate)
 - Reset completion confirmation
 
+### Change Password (Authenticated)
+- Located under Profile/Settings
+- New password input with strength meter
+- Confirm password input
+- (Optional) OTP prompt if required by security policy
+- "Change Password" button
+- Success notification and forced re-login (sessions invalidated)
+
 ## API Endpoints
 
 ### POST /api/v1/auth/password/reset/request
@@ -353,6 +425,12 @@ PasswordResetLog:
 - Reset password
 - Request body: reset_token, new_password, password_confirm
 - Response: success message
+
+### POST /api/v1/auth/password/change
+- Authenticated change password (Change Password)
+- Requires: authenticated session
+- Request body: new_password, confirm_password, otp? (optional, if policy requires)
+- Response: success message (or 202 OTP required)
 
 ### POST /api/v1/admin/users/{user_id}/password/reset
 - Admin-assisted password reset
@@ -699,6 +777,54 @@ def test_reset_logs_queryable():
 
 ---
 
+## Additional Unit Tests: Authenticated Change Password
+
+### UT-CP-001: Change Password Success (No OTP)
+```python
+def test_change_password_success_no_otp():
+    user = create_active_user(email='user@co.com')
+    token = authenticate_user(user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
+    response = client.post('/api/v1/auth/password/change', {
+        'new_password': 'NewSecurePass789!',
+        'confirm_password': 'NewSecurePass789!'
+    })
+
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    assert Session.objects.filter(user=user, status='Active').count() == 0
+
+def test_change_password_mismatch_rejected():
+    user = create_active_user()
+    token = authenticate_user(user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
+    response = client.post('/api/v1/auth/password/change', {
+        'new_password': 'SecurePass123!',
+        'confirm_password': 'DifferentPass456!'
+    })
+
+    assert response.status_code == 400
+    assert 'do not match' in response.json()['message']
+```
+
+### UT-CP-002: Optional OTP for High-Risk Roles
+```python
+def test_change_password_requires_otp_for_high_risk_role():
+    admin = create_user_with_role('Tenant Admin')
+    token = authenticate_user(admin)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
+    response = client.post('/api/v1/auth/password/change', {
+        'new_password': 'NewSecurePass789!',
+        'confirm_password': 'NewSecurePass789!'
+    })
+
+    assert response.status_code == 202
+    assert response.json()['code'] == 'PWD-202-OTP-REQUIRED'
+```
+
 ## UI Tests
 
 ### UI-PR-001: Forgot Password Page Tests
@@ -908,6 +1034,42 @@ describe('Password Reset Logs', () => {
 
 ---
 
+## UI Tests: Change Password
+
+### UI-CP-001: Change Password Page (Authenticated)
+```javascript
+describe('Change Password (Authenticated)', () => {
+  beforeEach(() => {
+    cy.loginAs('tenantAdmin');
+    cy.visit('/profile/settings/security');
+  });
+
+  it('should display change password form', () => {
+    cy.get('[data-testid="new-password-input"]').should('be.visible');
+    cy.get('[data-testid="confirm-password-input"]').should('be.visible');
+    cy.get('[data-testid="password-strength-meter"]').should('be.visible');
+    cy.get('[data-testid="change-password-btn"]').should('be.visible');
+  });
+
+  it('should change password successfully', () => {
+    cy.get('[data-testid="new-password-input"]').type('NewSecurePass789!');
+    cy.get('[data-testid="confirm-password-input"]').type('NewSecurePass789!');
+    cy.get('[data-testid="change-password-btn"]').click();
+    cy.get('[data-testid="success-message"]').should('contain', 'Password changed');
+    cy.url().should('include', '/login'); // forced re-login after session invalidation
+  });
+
+  it('should require OTP for high-risk roles when policy enabled', () => {
+    cy.loginAs('superAdmin');
+    cy.visit('/profile/settings/security');
+    cy.get('[data-testid="new-password-input"]').type('NewSecurePass789!');
+    cy.get('[data-testid="confirm-password-input"]').type('NewSecurePass789!');
+    cy.get('[data-testid="change-password-btn"]').click();
+    cy.get('[data-testid="otp-modal"]').should('be.visible');
+  });
+});
+```
+
 ## Integration Tests
 
 ### IT-PR-001: End-to-End Self-Service Reset
@@ -1041,6 +1203,24 @@ def test_only_latest_token_valid():
 ```
 
 ---
+
+## Integration Tests: Change Password
+
+### IT-CP-001: End-to-End Change Password
+```python
+def test_e2e_change_password_invalidates_sessions():
+    user = create_active_user(email='user@co.com')
+    create_session(user=user, status='Active')
+    token = authenticate_user(user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+
+    response = client.post('/api/v1/auth/password/change', {
+        'new_password': 'BrandNewPass456!',
+        'confirm_password': 'BrandNewPass456!'
+    })
+    assert response.status_code == 200
+    assert Session.objects.filter(user=user, status='Active').count() == 0
+```
 
 ## Edge Cases
 

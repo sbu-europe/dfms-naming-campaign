@@ -318,6 +318,7 @@ function validatePassword(password: string): boolean {
 **Comprehensive Audit Trail:**
 - **Logged Actions:**
   - User login/logout
+  - Password reset and authenticated password change
   - CRUD operations (create, update, delete)
   - Permission changes
   - Report access

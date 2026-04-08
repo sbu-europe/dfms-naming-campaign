@@ -820,6 +820,52 @@ async function completePasswordReset(
 }
 ```
 
+### 7.5 Authenticated Change Password (Change Password)
+
+Authenticated users can change their password from Profile/Settings.
+
+**Policy**:
+- Enforce the same password complexity rules (including dictionary check)
+- Prevent reuse of last 3 passwords
+- Invalidate all active sessions after successful change (force re-login)
+- Optional OTP verification can be required based on security policy (high-risk roles or suspicious activity)
+
+```typescript
+async function changePassword(
+    userId: UUID,
+    newPassword: string,
+    confirmPassword: string,
+    otp?: string
+): Promise<void> {
+    if (newPassword !== confirmPassword) {
+        throw new Error('Passwords do not match');
+    }
+
+    // Optional OTP step (policy-driven)
+    if (requiresOtpForPasswordChange(userId)) {
+        if (!otp) throw new Error('OTP required');
+        await verifyOTP(userId, otp);
+    }
+
+    validatePasswordStrength(newPassword);
+    await checkPasswordHistory(userId, newPassword);
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(userId, passwordHash);
+
+    await terminateAllSessions(userId);
+    await sendPasswordChangedEmail(userId);
+
+    await auditLog({
+        event: 'PasswordChanged',
+        user_id: userId,
+        method: 'change-password',
+        ip_address: request.ip,
+        device_id: request.headers['x-device-id']
+    });
+}
+```
+
 ---
 
 ## 8. Audit Logging

@@ -136,7 +136,6 @@ If you did not request this account, please ignore this email.
 **Password Requirements:**
 - Minimum 8 characters
 - Must contain: uppercase letter, lowercase letter, number, special character
-- Dictionary check: Cannot be a common password (top 10,000 common passwords)
 - Hashed using bcrypt with tenant-specific salt
 - Password history: Last 3 passwords cannot be reused
 - Expiration: 90 days (configurable per tenant)
@@ -555,7 +554,6 @@ User → "Forgot Password" → Enter email/mobile
 
 **Password Complexity Enforcement:**
 - Minimum 8 characters, uppercase, lowercase, number, special character
-- Dictionary check against top 10,000 common passwords
 - Cannot reuse last 3 passwords (history check)
 - Password strength meter displayed on UI
 
@@ -601,6 +599,16 @@ When suspicious activity is detected:
 - Additional verification may be required (e.g., CAPTCHA, extended OTP validation)
 - Alert sent to Tenant Admin
 - Activity logged for security review
+
+### 8.5 Authenticated Change Password (US-008)
+
+Authenticated users can change their password from Profile/Settings.
+
+**Security Controls:**
+- Enforce password complexity + dictionary check + last 3 password history
+- Invalidate all active sessions after successful change (force re-login)
+- Optional OTP verification can be required based on policy (high-risk roles or suspicious activity)
+- Event is audit logged with user ID, timestamp, IP, device ID, and status
 
 ---
 
