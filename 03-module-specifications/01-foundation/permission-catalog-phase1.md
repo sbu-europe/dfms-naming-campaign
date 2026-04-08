@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 related_to: rbac.md
 related_stories: US-004
-last_updated: 2026-03-05
+last_updated: 2026-04-07
 ---
 
 # Phase 1 Permission Catalog
@@ -54,7 +54,8 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 | Distribution Officer (DO) | Executor | Local |
 | Distribution Manager (DM) | Approver | Global |
 | Transport Planner (TP) | Executor | Global |
-| Transport Distribution Officer (TDO) | Executor | Global |
+| Transport Distribution Officer (TDO) - Own Fleet | Executor | Global |
+| Transport Distribution Officer (TDO) - Vendor Fleet | Executor | Global |
 | QC Inspector – Physical | Executor | Local |
 | QA Lab Technician | Executor | Local |
 | Command Center Officer | Executor | Local |
@@ -495,3 +496,64 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 | **Operational User** | Feature-specific permissions based on assigned role |
 
 For the full per-role permission mapping, see the [RBAC specification](rbac.md).
+
+---
+
+## Appendix A: Role-Based Menu Access (Jira UI Matrix)
+
+This appendix maps Jira’s **menu/sub-menu access** to DFMS **permission codes**. It is used by the UI to translate navigation items into permission gates.
+
+> **Naming note**: Jira “Tenant Super Admin” is DFMS “Tenant Admin”. Jira “Gateman” is mapped to permissions currently labeled “Gate Operator” in some specs; UI labels should use Jira naming, permission codes remain stable.
+
+### A.1 User Management & Master Data
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Tenant Admin Dashboard | - | `Reports.Dashboard.Read` (or dedicated `Admin.Dashboard.Read` if introduced) |
+| Master Data Configuration → Dealers | - | `MasterData.Dealer.{Create,Read,Update,Delete}` |
+| Master Data Configuration → Suppliers | - | `MasterData.Supplier.{Create,Read,Update,Delete}` |
+| Master Data Configuration → POIs | - | `MasterData.POI.{Create,Read,Update,Delete}` |
+| PIM → Product Category | - | `MasterData.ProductCategory.{Create,Read,Update,Delete}` |
+| PIM → Product Listing | - | `MasterData.Product.{Create,Read,Update,Delete}` |
+| Vehicles | - | `MasterData.Vehicle.{Create,Read,Update,Delete}` |
+| Helpers | - | `MasterData.Helper.{Create,Read,Update,Delete}` |
+| User Management → Drivers Master | - | `MasterData.Driver.{Create,Read,Update,Delete}` + `UserMgmt.User.ResetPassword` (admin-assisted OTP during registration, if applicable) |
+| User Management → Users | - | `UserMgmt.User.{Create,Read,Update,Deactivate}` |
+
+### A.2 Core Operations (PR/TR/Planning/Transport)
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Product Shipments | Requisition (PR) | `Requisition.PR.{Create,Read,Update,Delete}` |
+| Requisition (TR) | - | `Requisition.TR.{Create,Read,Update,Delete}` |
+| Shipment Planning | - | `Requisition.Approval.{Read,Approve}` + related update permissions |
+| Transport Dashboard | Map | `Transport.Map.Read` |
+| Transport Planning | Fleet Management | `Transport.TO.Assign` + `Fleet.Assignment.{Create,Read,Update}` |
+| Bid Management | - | `Vendor.Bidding.{Create,Read,Update,Delete,Approve}` |
+| Transport Order (TO) | - | `Transport.TO.{Create,Read,Update,Cancel}` |
+
+### A.3 POI Operations (Gate/Scaling/QC/Load-Unload)
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Gate Management | Entry/Exit | `Gate.Entry.{Create,Read,Update}` and `Gate.Exit.{Create,Read,Update}` |
+| Scale Management | Scale In/Out | `Scaling.Weight.{Create,Read,Update}` |
+| Command Center Operations | Queue/Assign | `Operations.CommandCenter.{Read,Assign}` |
+| Load & Unload Operations | Load/Unload queues | `Operations.Loading.{Read,Update}` + `Operations.Unloading.{Read,Update}` |
+| QC & QA | Sampling/Analysis/Lab | `QC.Sample.{Create,Read,Update,Delete}` + `QC.Inspection.{Read,Update}` + `QC.LabTest.{Read,Update}` |
+
+### A.4 Reporting & Costing
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Reports | Transport & Trip | `Reports.Report.{Read,Export}` |
+| Reports | Vendor | `Reports.Report.{Read,Export}` |
+| Reports | Fleet Performance | `Reports.Report.{Read,Export}` |
+| Reports | Costing & Finance | `Reports.Report.{Read,Export}` |
+| Costing | Trip Costing | `Costing.TripCost.{Read,Export}` + approval permission (e.g., `Costing.Invoice.Approve`) |
+
+### A.5 Settings
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Settings | - | `UserMgmt.User.Update` (profile/settings) or a dedicated `User.Settings.Update` if introduced |

@@ -11,7 +11,7 @@ epic_name: System Foundation
 sprint: Sprint 1
 story_points: 10
 created: 2026-02-23
-updated: 2026-02-23
+updated: 2026-04-07
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../../source-documents/04-wbs/stories-table.md
@@ -67,7 +67,8 @@ Role hierarchy defines permission scope and access rights. The system must:
 | Distribution | Distribution Officer (DO) | Executor | Local |
 | | Distribution Manager (DM) | Approver | Global |
 | Transport | Transport Planner (TP) | Executor | Global |
-| | Transport Distribution Officer (TDO) | Executor | Global |
+| | Transport Distribution Officer (TDO) - Own Fleet | Executor | Global |
+| | Transport Distribution Officer (TDO) - Vendor Fleet | Executor | Global |
 | QA / QC | QC Inspector – Physical | Executor | Local |
 | | QA Lab Technician | Executor | Local |
 | Operations | Command Center Officer | Executor | Local |
@@ -75,6 +76,10 @@ Role hierarchy defines permission scope and access rights. The system must:
 | | Unloading Personnel | Executor | Local |
 | | Driver Supervisor | Executor | Local |
 | | Driver Helper | Executor | Local |
+| Gate Operations | Gateman | Executor | Local |
+| Scaling / Weight | Scaling Operator | Executor | Local |
+| Costing & Finance | Account Officer | Approver | Global |
+| Fleet / Driver Operations | Driver | Executor | Local |
 
 - [ ] System SHALL support the following administrative roles and access scope definitions:
 
@@ -392,6 +397,93 @@ Permission {
 - Local roles see only records from their assigned location
 - Global roles see records from all locations
 - Disabled state with tooltip when action not permitted
+
+---
+
+## Role-Based Access of Menus (UI Matrix from Jira)
+
+This table defines **UI menu visibility and CRUD/action capability** per role. It is used to implement:
+- **Menu/sub-menu visibility** (UI routing + navigation)
+- **Page access** (route guards)
+- **Field-level enablement** (read-only vs editable controls)
+- **Button-level actions** (Create/Update/Delete/Approve/Assign/Export)
+
+> **Role naming note**: Jira uses **Tenant Super Admin**; this maps to the DFMS **Tenant Admin** role in this repository’s terminology.
+
+### 1) Tenant Admin Dashboard & Master Data Configuration
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Tenant Admin (Tenant Super Admin) | Tenant Admin Dashboard | - | - | Read |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | Master Entities → Dealers | Dealer Master Data Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | Master Entities → Suppliers | Supplier Master Data Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | Master Entities → POIs | POI Master Data Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | PIM → Product Category | Product Category Master Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | PIM → Product Listing | Product Listing Master Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | Vehicles | Vehicle Master Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | Master Data Configuration | Helpers | Helper Master Data Fields | Create, Read, Update, Delete |
+| Tenant Admin (Tenant Super Admin) | User Management | Drivers Master | All driver header fields while creating data; Phone OTP (Admin-Assisted registration) | Create, Read, Update, Deactivate |
+| Tenant Admin (Tenant Super Admin) | User Management | Users | Role, Full Name, Email, Contact Number, Employee ID, POI, Global flag | Create, Read, Update, Deactivate |
+
+### 2) Vendor Management (Vendor Portal)
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Tenant Admin (Tenant Super Admin) | Vendor Management | - | - | Approve, Update, Read |
+| Vendor Admin | Vendor Portal (Contractual) | TO List | - | Read, Update |
+| Vendor Admin | Vendor Portal (Non-Contractual) | Bid | - | Read, Update |
+
+### 3) Requisition / Shipment / Planning
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Depot Officer / Feed Mill Officer / Commercial Officer | Product Shipments | Requisition (PR) | Reference PRD 6.7.1 | Create, Read, Update, Delete |
+| Distribution Officer (DO) / Procurement Officer | Requisition (TR) | - | Reference PRD 6.7.3 | Create, Read, Update, Delete |
+| Distribution Manager (DM) / Procurement Officer | Shipment Planning | - | - | Read, Approve, Update |
+
+### 4) Transport Dashboard / Planning / TO
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Transport Planner (TP) / TDO – Own Fleet / TDO – Vendor Fleet | Transport Dashboard | Map | - | Read |
+| TDO – Own Fleet / TDO – Vendor Fleet | Transport Planning | Fleet Management | Vehicle, Driver, Helper, ETA | Assign, Read, Update |
+| TDO – Vendor Fleet | Bid Management | - | Required vehicles, initial bid rate (optional), source, destination, vehicle type | Create, Read, Update, Delete, Approve |
+| Transport Planner (TP) | Transport Request (TR) | - | Number of Vehicles, Vehicle Type, C&F Clearance Approval | Read, Update |
+| Transport Planner (TP) | Transport Order (TO) | - | Transport Mode | Create, Read, Update, Delete |
+
+### 5) Gate / Scaling / Command Center / Loading-Unloading / QC
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Gateman | Gate Management | Entry | Reference PRD 6.10.1 | Create, Read, Update, Delete |
+| Gateman | Gate Management | Exit | - | Read, Update |
+| Scaling Operator | Scale Management | Scale In | Reference PRD 6.11.1 | Create, Read, Update, Delete |
+| Scaling Operator | Scale Management | Scale Out | - | Read, Update |
+| Command Center Officer | Command Center Operations | Vehicle Queue List | - | Read |
+| Command Center Officer | Command Center Operations | Assign Loading Point | - | Assign, Read |
+| Loading Personnel | Load & Unload Operations | Load Queue List | Loading Quantity, Unit, Seal Number, Date Timestamp | Read, Update |
+| Unloading Personnel | Load & Unload Operations | Unload Queue List | Unloading Quantity, Unit, Date Timestamp | Read, Update |
+| QC Inspector – Physical | QC & QA | Vehicle Queue List | - | Read |
+| QC Inspector – Physical | QC & QA | Assign Unloading Point | - | Assign, Read |
+| QC Inspector – Physical | QC & QA | Sampling | Vehicle Number, Material Name, Receiving Date, Product Item Code, Sample Send Time, Result Receiving time, Is Lab Test Required?, Physical Analysis, Nutritional Analysis, Remarks | Create, Read, Update, Delete |
+| QC Inspector – Physical | QC & QA | Physical Analysis | - | Read, Update |
+| QC Inspector – Physical | QC & QA | Nutritional Analysis | - | Read, Update |
+| QC Inspector – Physical | QC & QA | Lab Report | - | Read |
+| QA Lab Technician | QC & QA | Lab Test | - | Read, Update |
+
+### 6) Costing, Reports, Workshop, Mobile, Settings
+
+| Role | Menu | Sub-menu | Fields / Notes | Permission Set |
+|---|---|---|---|---|
+| Account Officer | Costing | Trip Costing | - | Read, Export, Approve (Bill Claims) |
+| Transport Planner (TP) / TDO – Own Fleet / TDO – Vendor Fleet | Reports | Transport & Trip | - | Read, Export |
+| Transport Planner (TP) / TDO – Own Fleet / TDO – Vendor Fleet | Reports | Vendor | - | Read, Export |
+| Transport Planner (TP) / TDO – Own Fleet / TDO – Vendor Fleet | Reports | Fleet Performance | - | Read, Export |
+| Account Officer | Reports | Costing & Finance | - | Read, Export |
+| Driver Supervisor | Workshop Management | - | Reference PRD 6.6.1.8 | Create, Read, Update, Delete |
+| Driver | Mobile Interface | Fuel Tracking | Fuel Intake, Fuel Receipt | Create, Read, Update, Delete |
+| Driver | Mobile Interface | Trip List | - | Read, Update |
+| All Users | Others | Settings | - | Read, Update |
 
 ---
 

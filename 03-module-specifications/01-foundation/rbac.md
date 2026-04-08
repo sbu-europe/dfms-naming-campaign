@@ -356,6 +356,8 @@ IF !user.hasPermission('TransportOrder.Approve'):
     disable_button('Approve TO')
 ```
 
+> **UI menu mapping**: UI navigation items (menu/sub-menu) must map to stable permission codes from the Permission Catalog. The Jira menu matrix (captured in US-004) is treated as a UI-level projection of permissions — the UI must not implement “role-name checks”; it must implement permission checks (role → permissions → UI).
+
 **Layer 2: API-Level Enforcement**
 ```typescript
 @RequirePermission('TransportOrder.Create')
