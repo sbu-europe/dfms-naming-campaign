@@ -22,8 +22,9 @@ This module defines master data configuration and management for the DFMS platfo
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [product-inventory-management.md](product-inventory-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 | [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, drivers, helpers, vendors), vehicle capacity calculation, driver-vehicle assignment, bulk upload/management, referential integrity, data quality controls | 6.3.1-6.3.4 | US-053, US-057, US-061, US-047 | 513 |
+| [driver-master-data.md](driver-master-data.md) | Driver data model, registration workflow, document compliance & expiry alerts, state tracking (Available/Assigned), performance metrics, bulk import, and integration points | 6.3.2 | US-057 | 356 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications
+**Total Documentation**: ~2,000 lines of comprehensive technical specifications
 
 ---
 

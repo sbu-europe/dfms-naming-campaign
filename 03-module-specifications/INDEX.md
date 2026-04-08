@@ -9,7 +9,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 ## 📊 Overview Statistics
 
 - **Total Modules**: 11
-- **Total Specification Files**: 35 specification files + 11 README files = 46 markdown files
+- **Total Specification Files**: 36 specification files + 11 README files = 47 markdown files
 - **Module README Files**: 11 (one per module)
 - **Source**: PRD_DFMS_v1.0.md (5,362 lines)
 - **Related User Stories**: 98 stories in Phase-1 backlog (US-001 to US-098)
@@ -62,6 +62,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [master-data-configuration.md](02-master-data/master-data-configuration.md) - Master Data Configuration
 - [product-inventory-management.md](02-master-data/product-inventory-management.md) - Product Inventory Management (PIM)
 - [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
+- [driver-master-data.md](02-master-data/driver-master-data.md) - Driver Master Data Management
 
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
@@ -347,7 +348,7 @@ Each specification file includes PRD section references in frontmatter.
 
 **Last Updated**: 2026-03-16  
 **Total Modules**: 11  
-**Total Specifications**: 35 spec files + 11 README files = 46 files  
+**Total Specifications**: 36 spec files + 11 README files = 47 files  
 **Coverage**: 100% of PRD Phase-1 features  
 **User Stories**: 98 (US-001 to US-098)
 
