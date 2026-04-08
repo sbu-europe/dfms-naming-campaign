@@ -35,7 +35,7 @@ Product {
   
   // Physical Attributes
   unit_of_measure: enum ['Bag', 'Ton', 'KG', 'Liters', 'Pieces', 'Cartons']
-  weight_per_unit: Decimal (nullable) // Conditional required field based on UOM
+  weight_per_unit: Decimal (nullable) // Hidden/null for Ton, KG, Liters. Required for Bag, Pieces, Cartons.
   standard_pack_size: string (nullable) // Pellet, Mash, Drum, etc.
   volume: Decimal (nullable)
   
@@ -115,7 +115,8 @@ Product {
     max_length: 200
   },
   weight_per_unit: {
-    required_if_not: uom in ['Ton'],
+    required_if: uom in ['Bag', 'Pieces', 'Cartons'],
+    not_applicable_if: uom in ['Ton', 'KG', 'Liters'],
     min: 0,
     precision: 3
   },
@@ -504,7 +505,7 @@ The testing strategy follows the testing pyramid, focusing on business logic iso
 **1. Model & Validation Tests:**
 - *Product Code Uniqueness*: Verify that saving two products with the same `product_sku_code` or `product_item_code` under the same `tenant_id` raises an IntegrityError.
 - *Tenant Isolation*: Verify that duplicate `product_sku_code` across *different* `tenant_id`s succeeds.
-- *Conditional Validation*: Verify that creating a product with UOM = 'Bag' fails if `weight_per_unit` is missing. Verify it succeeds if UOM = 'Ton' and `weight_per_unit` is missing.
+- *Conditional Validation*: Verify that creating a product with UOM = 'Bag' fails if `weight_per_unit` is missing. Verify it succeeds if UOM = 'Ton', 'KG', or 'Liters' and `weight_per_unit` is omitted (null).
 
 **2. API Endpoint Tests:**
 - *List/Filtering*: Test `GET /api/v1/products` with combinations of filters (`is_active`, `category_id`). Ensure results are paginated correctly.

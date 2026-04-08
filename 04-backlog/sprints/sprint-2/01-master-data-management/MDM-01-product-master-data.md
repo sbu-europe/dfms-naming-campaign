@@ -66,7 +66,7 @@ Product Master Data is the **foundational data** for the entire DFMS platform. B
 | Product Name | Text Input | Yes | |
 | Product Description | Text Input | No | |
 | Unit of Measure (UOM) | Dropdown (Pre-defined) | Yes | Bag, Ton, KG, Liters, Pieces, Cartons |
-| Weight Per Unit (Pack Size) | Number input | Yes | (Conditional Required Field) 25 KG Bag, 50 KG Bag, etc. If UOM is Tons (Meant Bulk unit), Weight per unit (pack size) input will be optional |
+| Weight Per Unit (Pack Size) | Number input | Yes | (Conditional Field) Only visible and required if UOM is Bag, Pieces, or Cartons. Not visible for Ton, KG, or Liters. |
 | Standard Pack Size | Text Input | No | Pellet, Mash, Drum |
 | Barcode/EAN Code | Text Input | No | |
 | Manufacturer Name | Text Input | No | |
