@@ -49,8 +49,9 @@ Tenant Admin
     │         Server: redirect → status polling page
     │
     ├─► [3] GET  /admin/master_data/vehicle/import/<job_id>/status.json
-    │         Polling endpoint — returns {status, valid_rows, invalid_rows}
+    │         Polling endpoint — returns {status, processed_rows, valid_rows, invalid_rows}
     │         Status page auto-refreshes every 3s via <meta http-equiv="refresh">
+    │         UI uses processed_rows to show progress out of MAX_IMPORT_ROWS (5000)
     │         When status = preview_ready → redirect to preview page
     │
     ├─► [4] GET  /admin/master_data/vehicle/import/<job_id>/
@@ -124,9 +125,11 @@ pending ──► processing ──► completed
                └──────────────────────────────────────► failed
 ```
 
-### 1.4 Tenant Isolation in Celery
+### 1.4 Tenant Isolation and Rate Limiting in Celery
 
 All Celery tasks run in a worker process with no active Django tenant schema. Every task that touches tenant data wraps its body in `schema_context(schema_name)` from `django_tenants.utils`. The `schema_name` is captured at job creation time from `connection.schema_name` (the current HTTP request's tenant schema) and stored as a plain `CharField` on the job model. This is the established pattern in `apps/tenants/tasks.py`.
+
+To prevent resource exhaustion, the API and Admin views enforce a **Tenant Rate Limit** of a maximum of 3 concurrent active jobs per tenant. If a tenant attempts to queue a 4th job while 3 are still in `pending`, `validating`, or `importing`/`processing` states, the request is rejected with HTTP 429.
 
 ```python
 # Pattern used by all three tenant-aware tasks
@@ -157,6 +160,7 @@ class BulkImportJob(TenantAwareModel):
     uploaded_file = models.FileField(upload_to="bulk_imports/%Y/%m/")
     created_by    = models.ForeignKey("users.User", null=True, on_delete=models.SET_NULL)
     total_rows    = models.PositiveIntegerField(default=0)
+    processed_rows= models.PositiveIntegerField(default=0)
     valid_rows    = models.PositiveIntegerField(default=0)
     invalid_rows  = models.PositiveIntegerField(default=0)
     preview_data  = models.JSONField(default=list)         # see §2.3
@@ -197,6 +201,7 @@ class BulkExportJob(TenantAwareModel):
     result_file  = models.FileField(upload_to="bulk_exports/%Y/%m/", blank=True)
     created_by   = models.ForeignKey("users.User", null=True, on_delete=models.SET_NULL)
     total_rows   = models.PositiveIntegerField(default=0)
+    processed_rows= models.PositiveIntegerField(default=0)
     completed_at = models.DateTimeField(null=True, blank=True)
     expires_at   = models.DateTimeField(db_index=True)    # auto-set on first save
 
@@ -400,8 +405,14 @@ class ImportService:
             else:
                 invalid += 1
 
+            # Update progress periodically for the UI
+            if (row_num - 1) % 500 == 0:
+                job.processed_rows = row_num - 1
+                job.save(update_fields=["processed_rows"])
+
         job.preview_data = preview_data
         job.total_rows = valid + invalid
+        job.processed_rows = valid + invalid
         job.valid_rows = valid
         job.invalid_rows = invalid
         job.status = "preview_ready"
@@ -431,8 +442,9 @@ class ImportService:
             # Status save is inside atomic() — if this save fails, the whole
             # transaction rolls back, leaving the DB in a clean importable state.
             job.status = "completed"
+            job.processed_rows = len(rows_to_import)
             job.completed_at = now()
-            job.save(update_fields=["status", "completed_at"])
+            job.save(update_fields=["status", "processed_rows", "completed_at"])
 ```
 
 ### 4.2 ExportService
@@ -446,25 +458,36 @@ class ExportService:
     def generate(cls, job: BulkExportJob) -> None:
         """
         Stream all active records to a CSV file.
-        Saves file to job.result_file using ContentFile.
+        Saves file to job.result_file using tempfile to prevent memory exhaustion.
         Called inside generate_bulk_export Celery task.
         """
+        import tempfile
+        from django.core.files import File
+
         config = IMPORT_REGISTRY[job.model_name]
-        buffer = io.StringIO()
-        writer = csv.DictWriter(buffer, fieldnames=config.get_csv_headers())
-        writer.writeheader()
-        count = 0
+        
+        with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8-sig", newline="") as temp_file:
+            writer = csv.DictWriter(temp_file, fieldnames=config.get_csv_headers())
+            writer.writeheader()
+            count = 0
 
-        for obj in config.get_export_queryset().iterator(chunk_size=500):
-            writer.writerow(config.get_export_row(obj))
-            count += 1
+            for obj in config.get_export_queryset().iterator(chunk_size=500):
+                writer.writerow(config.get_export_row(obj))
+                count += 1
+                if count % 500 == 0:
+                    job.processed_rows = count
+                    job.save(update_fields=["processed_rows"])
 
-        job.result_file.save(
-            f"{job.model_name}_export_{job.id}.csv",
-            ContentFile(buffer.getvalue().encode("utf-8-sig")),  # BOM for Excel compatibility
-            save=False,
-        )
+            temp_file.flush()
+
+            job.result_file.save(
+                f"{job.model_name}_export_{job.id}.csv",
+                File(temp_file, name=f"{job.model_name}_export_{job.id}.csv"),
+                save=False,
+            )
+
         job.total_rows = count
+        job.processed_rows = count
         job.status = "completed"
         job.completed_at = now()
         job.save()
@@ -1150,7 +1173,7 @@ class BulkImportJobSerializer(serializers.ModelSerializer):
         model  = BulkImportJob
         fields = [
             "id", "model_name", "status",
-            "total_rows", "valid_rows", "invalid_rows",
+            "total_rows", "processed_rows", "valid_rows", "invalid_rows",
             "error_summary", "created_at", "completed_at", "expires_at",
         ]
         read_only_fields = fields
@@ -1194,7 +1217,7 @@ class BulkExportJobSerializer(serializers.ModelSerializer):
     class Meta:
         model  = BulkExportJob
         fields = [
-            "id", "model_name", "status", "total_rows",
+            "id", "model_name", "status", "total_rows", "processed_rows",
             "download_url", "created_at", "completed_at", "expires_at",
         ]
         read_only_fields = fields
@@ -1245,6 +1268,14 @@ class BulkImportViewSet(viewsets.GenericViewSet):
 
     def create(self, request):
         """POST /bulk-imports/ — upload CSV, create job, fire validation task."""
+        # Tenant rate limiting: max 3 active import jobs per tenant
+        active_jobs = BulkImportJob.objects.filter(status__in=["pending", "validating", "importing"]).count()
+        if active_jobs >= 3:
+            return Response(
+                {"detail": "Maximum number of concurrent import jobs (3) reached. Please wait for them to finish."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         serializer = BulkImportUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         job = BulkImportJob.objects.create(
@@ -1366,6 +1397,14 @@ class BulkExportViewSet(viewsets.GenericViewSet):
 
     def create(self, request):
         """POST /bulk-exports/ — trigger export, return 202 immediately."""
+        # Tenant rate limiting: max 3 active export jobs per tenant
+        active_jobs = BulkExportJob.objects.filter(status__in=["pending", "processing"]).count()
+        if active_jobs >= 3:
+            return Response(
+                {"detail": "Maximum number of concurrent export jobs (3) reached. Please wait for them to finish."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         serializer = BulkExportTriggerSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         job = BulkExportJob.objects.create(
@@ -1440,6 +1479,7 @@ Response `202 Accepted`:
   "model_name": "vehicle",
   "status": "pending",
   "total_rows": 0,
+  "processed_rows": 0,
   "valid_rows": 0,
   "invalid_rows": 0,
   "error_summary": [],
@@ -1458,6 +1498,7 @@ Response `202 Accepted`:
     "model_name": "vehicle",
     "status": "preview_ready",
     "total_rows": 55,
+    "processed_rows": 55,
     "valid_rows": 52,
     "invalid_rows": 3,
     "error_summary": [],
@@ -1514,6 +1555,7 @@ Response `202 Accepted`:
   "model_name": "vehicle",
   "status": "pending",
   "total_rows": 0,
+  "processed_rows": 0,
   "download_url": null,
   "created_at": "2026-04-01T11:00:00Z",
   "completed_at": null,
@@ -1529,6 +1571,7 @@ Response `202 Accepted`:
   "model_name": "vehicle",
   "status": "completed",
   "total_rows": 247,
+  "processed_rows": 247,
   "download_url": "https://tenant.dfms.com/api/v1/master-data/bulk-exports/661f9511-.../download/",
   "created_at": "2026-04-01T11:00:00Z",
   "completed_at": "2026-04-01T11:00:42Z",
@@ -1547,6 +1590,7 @@ Response `202 Accepted`:
 | Cancel confirmed/completed job | 400 | `{"detail": "Cannot cancel a job that is already confirmed or completed."}` |
 | Download on non-completed job | 404 | `{"detail": "Not found."}` (via `get_object_or_404(status="completed")`) |
 | Unauthenticated request | 401 | `{"detail": "Authentication credentials were not provided."}` |
+| Too many active jobs | 429 | `{"detail": "Maximum number of concurrent import jobs (3) reached. Please wait for them to finish."}` |
 | Celery broker unreachable at enqueue | 503 | `{"detail": "Task queue is currently unavailable. Please retry shortly."}` — job is marked `failed` before response; no orphaned `pending` record |
 
 ### 10.8 API Test Plan
@@ -1596,8 +1640,10 @@ pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 | `TestBulkImportUploadAPI` | `test_post_wrong_content_type_returns_400` | `content_type="application/vnd.ms-excel"` + `.csv` name → 400 |
 | `TestBulkImportUploadAPI` | `test_broker_down_returns_503_and_marks_job_failed` | `validate_bulk_import.delay` raises `OperationalError` → 503, `job.status == "failed"`, `job.error_summary` non-empty, no orphaned `pending` job |
 | `TestBulkImportUploadAPI` | `test_unauthenticated_returns_401` | No JWT → 401 |
+| `TestBulkImportUploadAPI` | `test_rate_limit_rejects_fourth_active_job` | 3 pending jobs exist → POST returns 429 |
 | `TestBulkImportConfirmAPI` | `test_broker_down_on_confirm_returns_503_and_marks_job_failed` | `execute_bulk_import.delay` raises `OperationalError` → 503, job status reverted to `failed` |
 | `TestBulkExportTriggerAPI` | `test_broker_down_returns_503_and_marks_export_job_failed` | `generate_bulk_export.delay` raises `OperationalError` → 503, `job.status == "failed"` |
+| `TestBulkExportTriggerAPI` | `test_rate_limit_rejects_fourth_active_export_job` | 3 pending export jobs exist → POST returns 429 |
 | `TestBulkImportRetrieveAPI` | `test_get_pending_job_returns_200_with_empty_rows` | GET pending job → 200, `rows=[]`, `count=0` |
 | `TestBulkImportRetrieveAPI` | `test_get_preview_ready_job_returns_rows` | Job with 5 preview rows → 200, `rows` has 5 items |
 | `TestBulkImportRetrieveAPI` | `test_preview_paginated_20_per_page` | Job with 25 rows → `?page=1` returns 20 rows, `total_pages=2` |
