@@ -86,14 +86,16 @@ Product {
 **Creation Workflow**:
 ```
 1. Admin selects product type (FG or RM)
-2. Admin selects Product Category Name and Product Sub-Category Name from dropdowns
-3. Enter basic information (SKU, Item Code, Name, Description)
-4. Configure physical attributes (UOM, Weight Per Unit, Volume, Standard Pack Size)
-5. Set transport requirements (Preferred Vehicle Body Type, Special Handling Requirements)
-6. Configure QC requirements (Requires QC checkmark)
-7. Set status (Is Active checkmark)
-8. System validates uniqueness and completeness
-9. Product created and available for requisitions
+2. Admin selects Product Category Name
+3. The Product Sub-Category Name dropdown dynamically populates based on the selected Category
+4. Admin selects Product Sub-Category Name
+5. Enter basic information (SKU, Item Code, Name, Description)
+6. Configure physical attributes (UOM, Weight Per Unit, Volume, Standard Pack Size)
+7. Set transport requirements (Preferred Vehicle Body Type, Special Handling Requirements)
+8. Configure QC requirements (Requires QC checkmark)
+9. Set status (Is Active checkmark)
+10. System validates uniqueness and completeness
+11. Product created and available for requisitions
 ```
 
 **Validation Rules**:
@@ -130,6 +132,14 @@ Product {
 ```
 
 ### 2.2 Category & Sub-Category Hierarchy
+
+**Category & Sub-Category Creation Workflow**:
+```
+1. Admin creates a Product Category (specifying Name, Code, and Product Type).
+2. Admin creates a Product Sub-Category.
+3. During Sub-Category creation, Admin selects the parent Product Category from a dropdown.
+4. Sub-Category inherits the parent Category's context and is linked via category_id.
+```
 
 **Product Category Entity**:
 ```typescript
@@ -522,7 +532,33 @@ The testing strategy follows the testing pyramid, focusing on business logic iso
 
 ---
 
-## 12. Related Documentation
+## 12. Django Admin SSR Implementation Strategy
+
+Since the platform utilizes Django Admin for Server-Side Rendering (SSR) management interfaces, specific strategies are required to handle dynamic user interactions like dependent dropdowns.
+
+### 12.1 Dependent Dropdowns (Category -> Sub-Category)
+
+To provide a seamless UX during Product creation where the `sub_category_id` dropdown is filtered based on the selected `category_id`:
+
+1. **Custom AJAX Endpoint**:
+   - Create an internal API endpoint (e.g., `/admin/api/subcategories-by-category/`) that accepts a `category_id` and returns a JSON list of active sub-categories.
+2. **ModelAdmin Media Class**:
+   - Attach a custom JavaScript file (`dependent_dropdowns.js`) to the `ProductAdmin` class using the `Media` inner class.
+3. **JavaScript Logic**:
+   - The script will listen for the `change` event on the `category_id` select element.
+   - Upon change, it triggers a `fetch()` request to the custom AJAX endpoint.
+   - The script clears the existing options in the `sub_category_id` select element and repopulates it with the newly fetched data.
+   - It should also handle the initial page load state (if a category is already selected during an "Edit" operation, it should ensure the correct sub-categories are loaded).
+4. **Alternative (HTMX)**:
+   - If HTMX is integrated into the admin templates, use `hx-get` on the category dropdown to fetch a partial HTML response containing the `<option>` tags for the sub-category dropdown, targeting the `sub_category_id` element.
+
+### 12.2 Form Validation
+
+- Ensure that the Django `ModelForm` for the Product validates that the selected `sub_category_id` actually belongs to the selected `category_id` on the backend, preventing malicious or erroneous form submissions.
+
+---
+
+## 13. Related Documentation
 
 - **[Master Data Configuration](master-data-configuration.md)** - Overall master data management
 - **[POI Management](poi-management.md)** - Location master data
