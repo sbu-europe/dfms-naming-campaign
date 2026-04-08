@@ -16,7 +16,7 @@ spec_file: ../../../../stories/US-057-driver-master-data.md
 
 ## User Story
 
-**As a** Transport Planner  
+**As a** Transport Planner or Tenant Admin  
 **I want to** register and manage driver profiles  
 **So that** only verified drivers operate vehicles and driver availability is tracked for efficient assignment
 
@@ -27,11 +27,27 @@ Drivers are critical fleet resources. Proper driver management ensures complianc
 ## Acceptance Criteria
 
 ### AC-1: Driver Registration
-- [ ] Multi-step registration form: Personal Info → Contact & Emergency → License & Certs → Employment → Documents → Review
-- [ ] Mandatory fields: Full Name, National ID (unique), DOB, Phone (unique), Emergency Contacts (min 2), Driving License Number (unique), License Type, License Issue/Expiry Dates, Driver Type (Permanent/Temporary/Own/Vendor)
-- [ ] Upload: Experience Certificate, Medical Certificate, Training Records (PDF/JPG/PNG, max 5MB)
-- [ ] Age warning (< 21 or > 65) — not blocking
-- [ ] Draft save support
+- [ ] Driver master data configuration fields:
+
+| Field Name | Field Type | Required | Remarks |
+|---|---|---|---|
+| Employee ID | Text Input | Yes | |
+| Full Name | Text Input | Yes | |
+| Contact Number | Text Input | Yes | |
+| Driving License Number | Text Input | Yes | |
+| License Type | Text Input | Yes | |
+| License Expiry Date | Date | Yes | |
+| National ID Number | Text Input | No | |
+| Driver Type (Permanent / Temporary) | Dropdown (Pre-defined) | Yes | |
+| Experience Certificate | Attachment (JPG, JPEG, PNG, PDF) | No | |
+| Biodata | Attachment (JPG, JPEG, PNG, PDF) | No | |
+| Reference Contact 1 | Text Input | No | |
+| Reference Contact 2 | Text Input | No | |
+| Accident History | Text Input | No | |
+| Medical Certificate | Attachment (JPG, JPEG, PNG, PDF) | No | |
+| Last Training / Assessment Information | Text Input | No | |
+| Address | Text Input | No | |
+| Driver Status | Checkmark (Is Active?) | Yes | |
 
 ### AC-2: Driver-Vehicle Assignment
 - [ ] Assign/reassign driver to vehicle
@@ -63,34 +79,31 @@ Drivers are critical fleet resources. Proper driver management ensures complianc
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| MDM-06-1 | Driver model + migration (Driver, DriverDocument, DriverLeave tables) | DFS-022-1 | Pending |
-| MDM-06-2 | Driver CRUD API (POST, GET list, GET detail, PATCH, status change) | DFS-022-2 | Pending |
-| MDM-06-3 | Unique constraint validation: NID, Phone, License Number | DFS-022-3 | Pending |
-| MDM-06-4 | Document upload API — file storage, metadata, expiry tracking | DFS-022-4 | Pending |
-| MDM-06-5 | Document expiry alert — daily cron job, 30-day threshold, notify Fleet Manager | DFS-022-5 | Pending |
-| MDM-06-6 | Driver state tracking — auto-update on trip assignment/completion | DFS-022-6 | Pending |
-| MDM-06-7 | Leave management API (mark On Leave with start/end dates) | DFS-022-7 | Pending |
-| MDM-06-8 | Attendance entry (manual input: POI, entry/exit datetime) | DFS-022-8 | Pending |
-| MDM-06-9 | CSV bulk upload with template and row-level error reporting | DFS-022-9 | Pending |
-| MDM-06-10 | Driver list UI (search, filter by Status/Type/Expiry, sortable) | DFS-022-10 | Pending |
-| MDM-06-11 | Driver profile view — tabs: Overview, Trip History, Documents, Performance | DFS-022-11 | Pending |
+| MDM-06-1 | Requirements & story update on context repo | DFS-228 | Pending |
+| MDM-06-2 | Implementation context generation | DFS-229 | Pending |
+| MDM-06-3 | Models update & migration | DFS-230 | Pending |
+| MDM-06-4 | Admin view implementation | DFS-231 | Pending |
+| MDM-06-5 | API Endpoints Implementation | DFS-232 | Pending |
+| MDM-06-6 | Bulk Driver Import/Export CSV | DFS-233 | Pending |
+| MDM-06-7 | User Invitation(Driver) | DFS-234 | Pending |
+| MDM-06-8 | Unit Testing | DFS-235 | Pending |
 
 ## API Endpoints
 
-```
+```text
 POST   /api/v1/drivers
-GET    /api/v1/drivers?status=Available&employment_type=&search=
-GET    /api/v1/drivers/available
+GET    /api/v1/drivers?status=Available&driver_type=&search=&page=1&limit=10
 GET    /api/v1/drivers/{driver_id}
 PATCH  /api/v1/drivers/{driver_id}
 PATCH  /api/v1/drivers/{driver_id}/status
 POST   /api/v1/drivers/{driver_id}/documents
 GET    /api/v1/drivers/{driver_id}/documents
+DELETE /api/v1/drivers/{driver_id}/documents/{document_id}
 POST   /api/v1/drivers/{driver_id}/leave
 GET    /api/v1/drivers/{driver_id}/performance
-GET    /api/v1/drivers/expiring-licenses?days=30
-POST   /api/v1/drivers/bulk-upload
-GET    /api/v1/drivers/bulk-upload/template
+GET    /api/v1/drivers/expiring-documents?days=30
+POST   /api/v1/drivers/import
+GET    /api/v1/drivers/import/template
 ```
 
 ## Dependencies
