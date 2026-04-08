@@ -40,7 +40,7 @@ Master data serves as the foundation for consistent, traceable operations withou
 **Operational Configuration**:
 - Routes
 - POIs (covered in poi-management.md)
-- Products (covered in product-inventory-management.md)
+- Products (covered in product-master-data-management.md)
 - QC Checklists
 
 ### 1.2 Common Master Data Pattern
@@ -682,7 +682,7 @@ MasterDataAuditLog {
 ## 10. Related Documentation
 
 - **[POI Management](poi-management.md)** - Location master data
-- **[Product Inventory Management](product-inventory-management.md)** - Product master data
+- **[Product Master Data Management](product-master-data-management.md)** - Product master data
 - **[Fleet Management](../06-fleet-management/README.md)** - Fleet operations using vehicle/driver data
 - **[Vendor Management](../05-vendor-management/README.md)** - Vendor lifecycle and operations
 
