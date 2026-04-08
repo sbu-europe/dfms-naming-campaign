@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 5
 assignee: ~
-spec_file: ../../../../stories/US-053-vehicle-registration-master-data.md
+spec_file: ../../../../03-module-specifications/02-master-data/vehicle-master-data.md
 ---
 
 # MDM-05 — Vehicle Registration & Master Data Management
