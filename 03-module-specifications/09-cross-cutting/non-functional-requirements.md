@@ -264,7 +264,6 @@ const allowedDowntimeMinutes = totalMinutesInMonth * (1 - monthlyUptimeSLA); // 
 **Password Complexity:**
 - **Minimum Length:** 8 characters
 - **Complexity:** Must include uppercase, lowercase, number, special character
-- **Dictionary Check:** Cannot be a common password (checked against top 10,000 common passwords)
 - **Expiry:** 90 days (user prompted to change password)
 - **History:** Cannot reuse last 3 passwords
 
@@ -281,7 +280,6 @@ const passwordPolicy = {
   requireLowercase: true,
   requireNumber: true,
   requireSpecialChar: true,
-  dictionaryCheck: true,
   expiryDays: 90,
   preventReuse: 3
 };

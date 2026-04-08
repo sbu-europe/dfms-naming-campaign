@@ -217,7 +217,7 @@ System sends invitation email → Tenant Admin activates account
 **Password Reset (US-008)**:
 - **Admin-Assisted**: For low-literacy users (e.g., Drivers, Helpers); admin verifies identity offline, generates 6-digit OTP (10 min), communicates to user offline; mandatory justification logged
 - **Self-Service**: User requests reset link via email (15 min) + SMS OTP (10 min); rate limited to 3 requests/hour/user
-- **Password Complexity**: 8+ chars, upper/lower/number/special, dictionary check (top 10k common passwords), last 3 passwords not reusable
+- **Password Complexity**: 8+ chars, upper/lower/number/special, last 3 passwords not reusable
 - **Session Termination**: All active sessions revoked immediately on successful reset
 - **Suspicious Activity Detection**: Unusual reset patterns trigger additional verification and admin alerts
 

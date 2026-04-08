@@ -153,7 +153,6 @@ function maskNationalID(nid: string): string {
 | Max OTP attempts | 3 per token | 3 per OTP |
 | Rate limit | 3 requests/hour/user | No self-service limit |
 | Password complexity | Enforced | Enforced |
-| Dictionary check | Top 10,000 common passwords | Top 10,000 common passwords |
 | Password history | Last 3 passwords | Last 3 passwords |
 | Session termination | All active sessions revoked | All active sessions revoked |
 | Confirmation email | Sent on success | Sent on success |

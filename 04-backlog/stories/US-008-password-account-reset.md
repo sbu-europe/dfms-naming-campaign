@@ -56,7 +56,7 @@ then the system shall:
 - [ ] Send a 6-digit OTP (valid 10 minutes) to the user’s registered **mobile number or email address** (based on chosen identifier / security policy)
 - [ ] Require the user to enter the OTP for verification (where applicable)
 - [ ] On successful verification, prompt the user to enter New Password and Confirm Password
-- [ ] Validate password match + password policy compliance (complexity + dictionary check + last 3 password history)
+- [ ] Validate password match + password policy compliance (complexity + last 3 password history)
 - [ ] Update the user’s password and invalidate all active sessions
 - [ ] Log the event with user ID, timestamp, IP address, device ID, method, and status
 
@@ -334,7 +334,6 @@ Scenario: AC-2.8 - Password complexity validation
 - At least one lowercase letter
 - At least one number
 - At least one special character
-- Cannot be common password (dictionary check)
 
 ### BR-067-004: Session Management
 - All active sessions terminated on password reset
@@ -1229,7 +1228,7 @@ def test_e2e_change_password_invalidates_sessions():
 2. **Reset during active session**: All sessions terminated immediately upon successful reset; in-progress API requests may complete
 3. **Concurrent reset requests**: Only the most recent token/OTP is valid; previous ones are invalidated
 4. **Reset link used twice**: Second use returns "Link already used" error
-5. **Common password dictionary check**: Passwords like "Password1!" that meet complexity rules but are common are rejected
+5. **Password complexity edge**: Password meets complexity but is still rejected due to mismatch confirmation or password history rules
 6. **Reset with email that exists in multiple tenants**: Reset scoped to tenant context; each tenant account resets independently
 7. **Unicode in password**: System accepts Unicode characters in passwords beyond the minimum requirements
 
@@ -1279,7 +1278,7 @@ def test_e2e_change_password_invalidates_sessions():
 ### Functional Requirements
 - [ ] Admin-assisted reset implemented (OTP generation, verification, justification, audit)
 - [ ] Self-service reset implemented (forgot password, reset link, OTP, new password)
-- [ ] Password complexity validation implemented (8+ chars, upper/lower/number/special, dictionary check)
+- [ ] Password complexity validation implemented (8+ chars, upper/lower/number/special)
 - [ ] Password history enforcement implemented (last 3 passwords)
 - [ ] Session termination on reset implemented (all active sessions revoked)
 - [ ] Rate limiting implemented (max 3 self-service requests per hour per user)

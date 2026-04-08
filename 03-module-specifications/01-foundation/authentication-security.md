@@ -605,7 +605,7 @@ When suspicious activity is detected:
 Authenticated users can change their password from Profile/Settings.
 
 **Security Controls:**
-- Enforce password complexity + dictionary check + last 3 password history
+- Enforce password complexity + last 3 password history
 - Invalidate all active sessions after successful change (force re-login)
 - Optional OTP verification can be required based on policy (high-risk roles or suspicious activity)
 - Event is audit logged with user ID, timestamp, IP, device ID, and status

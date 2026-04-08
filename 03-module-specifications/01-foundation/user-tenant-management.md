@@ -772,7 +772,6 @@ async function generateResetLink(email: string): Promise<string> {
 - At least one number
 - At least one special character
 - Cannot reuse last 3 passwords
-- Cannot be a common password (dictionary check against top 10,000 common passwords)
 - Hashed using bcrypt with tenant-specific salt
 
 **Suspicious Activity Detection**:
@@ -787,7 +786,7 @@ async function completePasswordReset(
     newPassword: string,
     method: 'self-service' | 'admin-assisted'
 ): Promise<void> {
-    // 1. Validate password complexity (including dictionary check)
+    // 1. Validate password complexity
     validatePasswordStrength(newPassword);
     
     // 2. Check password history (last 3 passwords)
@@ -825,7 +824,7 @@ async function completePasswordReset(
 Authenticated users can change their password from Profile/Settings.
 
 **Policy**:
-- Enforce the same password complexity rules (including dictionary check)
+- Enforce the same password complexity rules
 - Prevent reuse of last 3 passwords
 - Invalidate all active sessions after successful change (force re-login)
 - Optional OTP verification can be required based on security policy (high-risk roles or suspicious activity)
