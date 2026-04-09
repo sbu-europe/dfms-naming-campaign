@@ -630,7 +630,6 @@ class Role(models.Model):
     TIER_CHOICES = [
         ('super_admin', 'Super Admin'),
         ('tenant_admin', 'Tenant Admin'),
-        ('dept_admin', 'Department Admin'),
         ('operational', 'Operational'),
     ]
 

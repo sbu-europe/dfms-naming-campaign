@@ -240,7 +240,7 @@ Administrators can manually unlock locked accounts after offline verification:
 OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
 
 **Applicability:**
-- **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
+- **Required for**: All user types (Super Admin, Tenant Admin, Operational User)
 - **Delivery Methods**: Email (if logged in via email), SMS (if logged in via phone)
 
 ### 3.2 OTP Generation

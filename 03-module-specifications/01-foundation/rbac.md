@@ -18,7 +18,7 @@ The DFMS platform implements a comprehensive Role-Based Access Control (RBAC) sy
 The system supports both predefined operational roles (for standardized workflows) and custom roles (via Dynamic Role Builder in Phase 2) to accommodate diverse organizational structures while maintaining security and auditability.
 
 **Key Acceptance Criteria**:
-- **AC-1**: System SHALL allow Department Admins to assign operational roles within their departments
+- **AC-1**: System SHALL allow Tenant Admins to assign operational roles within their departments
 - **AC-2**: Super Admin controls global configurations across all tenants
 
 ---
@@ -43,23 +43,15 @@ The RBAC system implements a four-tier hierarchical structure:
 │ (Organization-level, single tenant)                         │
 │ Example: Nourish Poultry (client organization)              │
 │ Created: By Super Admin                                     │
-│ Manages: Department Admins + Operational Users              │
+│ Manages: Operational Users                                  │
 └──────────────────────────────────────────────────────────────┘
               ↓ creates & manages
 ┌──────────────────────────────────────────────────────────────┐
-│ Tier 3: Department Admin                                    │
-│ (Department-level, within tenant)                           │
-│ Examples: Depot, Procurement, Distribution, Transport, QC   │
-│ Created: By Tenant Admin                                    │
-│ Manages: Operational Users within department                │
-└──────────────────────────────────────────────────────────────┘
-              ↓ oversees
-┌──────────────────────────────────────────────────────────────┐
-│ Tier 4: Operational User                                    │
+│ Tier 3: Operational User                                    │
 │ (Task-level, day-to-day execution)                          │
 │ Examples: Command Center Officer, Loading Person,           │
 │           Unloading Person, Driver Supervisor, Driver Helper │
-│ Created: By Tenant Admin or Department Admin                │
+│ Created: By Tenant Admin                                    │
 │ Manages: Nothing (execution-only)                           │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -106,8 +98,7 @@ Super Admin (Brainstation 23)
 - **Creation**: Created by Super Admin during tenant onboarding
 - **Example**: Nourish Poultry admin user
 - **Capabilities**:
-  - Manage all users within the tenant (Department Admins + Operational Users)
-  - Create and assign Department Admins
+  - Manage all users within the tenant (Operational Users)
   - Configure master data (POIs, products, vehicles, vendors)
   - Access all modules and features per subscription tier
   - View organization-wide reports and analytics
@@ -116,20 +107,7 @@ Super Admin (Brainstation 23)
 - **Restrictions**: Cannot access other tenants' data; cannot create Super Admins
 - **Typical Users**: Organization IT admin, System administrator, Operations Head
 
-### 1.5 Tier 3: Department Admin
-
-- **Scope**: Single department within tenant
-- **Creation**: Created by Tenant Admin
-- **Capabilities**:
-  - Assign operational roles within their department (AC-1)
-  - Assign Functional Role Types (Requester / Approver / Executor) to department members
-  - Manage Operational Users within assigned department
-  - Configure department-specific settings
-  - View department-level reports
-  - Approve department-specific workflows
-- **Restrictions**: Cannot access other departments' data; cannot create Tenant Admins or other Department Admins
-
-**Departments and their operational roles:**
+### 1.5 Departments and their operational roles
 
 | Department | Operational Roles | Default Functional Role |
 |-----------|-------------------|----------------------|
@@ -142,7 +120,7 @@ Super Admin (Brainstation 23)
 
 **Nominated Vendors** are external users managed separately through the Vendor Portal (see Vendor Management module).
 
-### 1.6 Tier 4: Operational User
+### 1.6 Tier 3: Operational User
 
 Operational users perform day-to-day execution and **cannot manage users or system configurations**.
 
@@ -178,7 +156,7 @@ Operational users perform day-to-day execution and **cannot manage users or syst
 
 ### 1.7 Functional Role Types
 
-Admin (Tenant Admin or Department Admin) can assign one or more functional role types to any operational user:
+Admin (Tenant Admin) can assign one or more functional role types to any operational user:
 
 | Functional Role | Description | Workflow Behavior |
 |----------------|-------------|-------------------|
@@ -189,7 +167,7 @@ Admin (Tenant Admin or Department Admin) can assign one or more functional role 
 **Assignment Rules**:
 - A user can hold multiple functional roles (e.g., Requester + Executor)
 - Requester and Approver for the same request must be different users
-- Department Admin without Approver flag cannot approve workflows
+- Approver role type is required to approve workflows (department-scoped via role + location)
 - Functional role assignment is scoped to the user's department
 
 ### 1.8 Access Scope Levels
@@ -227,7 +205,6 @@ Each operational role is assigned one of two access scope levels that determine 
 |------|-------------|-------------|
 | Super Admin | System-Wide | Platform-level access across all tenants |
 | Tenant Admin | Global | Full access within assigned tenant |
-| Department Admin | Local | Full access within assigned department |
 
 **Access Scope Enforcement:**
 - **Local roles**: Row-level security filters records to the user's assigned location. API middleware validates location context on every request.
@@ -592,15 +569,12 @@ Super Admin (Brainstation 23)
     ↓ inherits all
 Tenant Admin (Nourish)
     ↓ inherits all within tenant
-Department Admin (Depot, Procurement, Distribution, Transport, QC)
-    ↓ inherits department-specific
 Operational User (Command Center Officer, Loading Person, etc.)
 ```
 
 **Inheritance Rules**:
 - Super Admin: All permissions across all tenants (platform-wide)
 - Tenant Admin: All permissions within their tenant
-- Department Admin: All permissions within their department
 - Operational User: Specific task permissions only (no management access)
 
 ### 7.2 Wildcard Permissions
@@ -648,7 +622,6 @@ function validateApproval(approverId: UUID, requisition: Requisition): boolean {
 
 **Workflow Separation**:
 - Requester and Approver must be different users
-- Department Admin without Approver flag cannot approve
 - System enforces separation of duties
 
 ---
@@ -666,7 +639,7 @@ User Login → Auth Success → [2FA challenge if admin role] → Load Role → 
 **2FA Enforcement by Role**:
 - **Super Admin**: 2FA required on every login to `admin.dfms.com`
 - **Tenant Admin**: 2FA required on every login to `<tenant>.dfms.com`
-- **Department Admin / Operational Users**: 2FA not required in Phase 1
+- **Operational Users**: 2FA not required in Phase 1
 
 **JWT Token Payload with Permissions**:
 ```typescript

@@ -123,11 +123,10 @@ Admin Dashboard Alert → Offline Verification → Admin Unlock
 
 ### 3.1 Role Hierarchy
 
-**Four-Tier Structure**:
+**Three-Tier Structure**:
 1. **Super Admin** (e.g., Brainstation 23): Platform-level access, cross-tenant, manages Tenant Admins
-2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages Department Admins and Operational Users
-3. **Department Admin** (e.g., Depot Officer, Procurement Head): Department-scoped, manages Operational Users within their department
-4. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
+2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages users and role assignments across departments (with department scoping where applicable)
+3. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
 
 ### 3.2 Permission Model
 
@@ -151,7 +150,6 @@ Module → Feature → Action (Create, Read, Update, Delete, Approve, etc.)
 **Administrative**:
 - Super Admin
 - Tenant Admin (Organization Admin)
-- Department Admin
 
 **Operational** (by department):
 - **Distribution**: Distribution Officer, Distribution Manager

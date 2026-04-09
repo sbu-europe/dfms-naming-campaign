@@ -64,7 +64,7 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 | Driver Supervisor | Executor | Local |
 | Driver Helper | Executor | Local |
 
-> **Note:** Admins (Tenant Admin or Department Admin) can override the default functional type during user role assignment. A user can hold multiple functional types (e.g., Requester + Executor) but Requester and Approver for the same request must be different users.
+> **Note:** Admins (Tenant Admin) can override the default functional type during user role assignment. A user can hold multiple functional types (e.g., Requester + Executor) but Requester and Approver for the same request must be different users.
 
 ---
 
@@ -95,13 +95,13 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.User.Create` | Invite new users | Tenant Admin, Department Admin |
-| `UserMgmt.User.Read` | View user list and profiles | Tenant Admin, Department Admin |
-| `UserMgmt.User.Update` | Modify user details | Tenant Admin, Department Admin |
+| `UserMgmt.User.Create` | Invite new users | Tenant Admin |
+| `UserMgmt.User.Read` | View user list and profiles | Tenant Admin |
+| `UserMgmt.User.Update` | Modify user details | Tenant Admin |
 | `UserMgmt.User.Deactivate` | Suspend/deactivate users | Tenant Admin |
 | `UserMgmt.User.Reactivate` | Reactivate suspended users | Tenant Admin |
 | `UserMgmt.User.BulkInvite` | Bulk CSV invitation | Tenant Admin |
-| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin, Department Admin |
+| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin |
 | `UserMgmt.User.Unlock` | Unlock locked accounts | Tenant Admin |
 | `UserMgmt.User.Export` | Export user list | Tenant Admin |
 
@@ -109,8 +109,8 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.Role.Read` | View available roles | Tenant Admin, Department Admin |
-| `UserMgmt.Role.Assign` | Assign roles to users | Tenant Admin, Department Admin |
+| `UserMgmt.Role.Read` | View available roles | Tenant Admin |
+| `UserMgmt.Role.Assign` | Assign roles to users | Tenant Admin |
 | `UserMgmt.Role.UpdatePermissions` | Modify role permissions | Tenant Admin |
 
 ### UserMgmt.AuditLog
@@ -196,7 +196,7 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 | `Requisition.TR.Read` | View TR list and details | Distribution, Procurement, Transport roles |
 | `Requisition.TR.Update` | Modify TR details | Creator (draft only) |
 | `Requisition.TR.Cancel` | Cancel a TR | Creator, Tenant Admin |
-| `Requisition.TR.Export` | Export TR data | Tenant Admin, Department Admins |
+| `Requisition.TR.Export` | Export TR data | Tenant Admin |
 
 ### Requisition.Approval
 
@@ -459,9 +459,9 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Reports.Report.Create` | Generate custom reports | Tenant Admin, Department Admins |
-| `Reports.Report.Read` | View reports | Tenant Admin, Department Admins |
-| `Reports.Report.Export` | Export reports | Tenant Admin, Department Admins |
+| `Reports.Report.Create` | Generate custom reports | Tenant Admin |
+| `Reports.Report.Read` | View reports | Tenant Admin |
+| `Reports.Report.Export` | Export reports | Tenant Admin |
 
 ---
 
@@ -492,7 +492,6 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 |------|-----------------|
 | **Super Admin** | `Platform.*`, `UserMgmt.*` (cross-tenant) |
 | **Tenant Admin** | `UserMgmt.*`, `MasterData.*`, `Reports.*` (own tenant) |
-| **Department Admin** | `UserMgmt.User.{Create,Read,Update}`, `MasterData.*.{Read}`, Department-specific modules |
 | **Operational User** | Feature-specific permissions based on assigned role |
 
 For the full per-role permission mapping, see the [RBAC specification](rbac.md).

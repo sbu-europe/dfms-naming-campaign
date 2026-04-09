@@ -107,8 +107,7 @@ For the full RBAC specification, see [rbac.md](../01-foundation/rbac.md) and [pe
 **Role Hierarchy (Four-Tier):**
 1. **Tier 1 – Super Admin:** Platform-level, cross-tenant (System-Wide access)
 2. **Tier 2 – Tenant Admin:** Organization-level, single tenant (Global access)
-3. **Tier 3 – Department Admin:** Department-level, within tenant (Local access)
-4. **Tier 4 – Operational Users:** Task-level, day-to-day execution
+3. **Tier 3 – Operational Users:** Task-level, day-to-day execution
 
 **Operational Roles by Department:**
 

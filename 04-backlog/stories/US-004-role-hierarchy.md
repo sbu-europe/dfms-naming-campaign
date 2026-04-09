@@ -89,7 +89,6 @@ Role hierarchy defines permission scope and access rights. The system must:
 |------|-----------------|--------------|-------------|
 | Super Admin | Administrator | System-Wide | Platform-level access across all tenants |
 | Tenant Admin | Administrator | Global | Full access within assigned tenant |
-| Department Admin | Administrator | Local | Full access within assigned department |
 
 - [ ] System SHALL ensure Local roles only access records within their assigned location
 - [ ] System SHALL ensure Global roles can access requests across all locations within the tenant
@@ -314,7 +313,7 @@ Scenario: AC-4.5 - Executor role permissions
 ## Business Rules
 
 ### BR-RBAC-001: Role Hierarchy
-- **Administrative roles**: Super Admin, Tenant Admin, Department Admin
+- **Administrative roles**: Super Admin, Tenant Admin
 - **Operational roles**: 15 pre-defined roles across 5 departments (see AC-1 table)
 - Each role has a Functional Type: Requester, Approver, or Executor
 - Each Operational Role belongs to exactly one predefined Department (used for role creation and role filtering in user assignment/invitation flows)

@@ -17,11 +17,10 @@ All modules run within a **schema-per-tenant** PostgreSQL architecture managed b
 
 ### Role Model Note
 
-DFMS uses a **4-tier role hierarchy** for access control (enforced at API, service, and query layers):
+DFMS uses a **3-tier role hierarchy** for access control (enforced at API, service, and query layers):
 1. **Super Admin** — platform-level; manages tenants and subscription plans (public schema only)
 2. **Tenant Admin** — full access within their tenant; manages users, master data, configuration
-3. **Department Admin / Manager** — manages workflows within a department (approvals, assignments)
-4. **Operational User** — field-level access; executes assigned tasks (driver, gate operator, QC inspector, etc.)
+3. **Operational User** — field-level access; executes assigned tasks (driver, gate operator, QC inspector, etc.)
 
 Functional role flags (`is_requester`, `is_approver`, `is_executor`) further control workflow participation and prevent self-approval.
 
