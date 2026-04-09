@@ -46,6 +46,8 @@ Without proper vehicle master data, the system cannot:
   - Capacity is captured in Tons, with manual override allowed
   - Number of Wheels must be a numeric value
   - Allowed Product Type (optional) must be one of: FM, RM, Both, Byproducts, Machineries
+- **And** the system shall expose a **Brands** menu (Master Data) where **Tenant Admin** can create and maintain the list of brand names for the tenant; other roles use this list when registering vehicles per RBAC.
+- **And** when registering or editing a vehicle, **Brand** shall be an **optional** **dropdown** populated only with brands defined for that tenant (active brands for new selection); free-text brand entry on the vehicle form is not used.
 - **And** the system shall allow capturing additional vehicle details including:
   - Mileage information (initial, current, average, total distance)
   - Purchase information (date)
@@ -76,6 +78,12 @@ Without proper vehicle master data, the system cannot:
 
 ## Functional Requirements
 
+### FR-000: Brand Master (Tenant Admin)
+
+- **[Critical]** System SHALL provide a **Brands** screen under Master Data where Tenant Admin can create, view, edit, and deactivate brand names for the tenant.
+- **[Critical]** Brand name SHALL be unique per tenant.
+- **[High]** Vehicle create/edit SHALL offer Brand as an optional dropdown whose values come only from this catalog (no free-text brand on the vehicle form).
+
 ### FR-001: Vehicle Creation
 - **[Critical]** System SHALL provide form to create new vehicle record
 - **[Critical]** System SHALL validate all mandatory fields before save
@@ -92,7 +100,7 @@ Without proper vehicle master data, the system cannot:
 | Capacity (MT / Bag / KG) | Number Input | Yes | User needs to choose the unit of Max load capacity of the vehicle |
 | Date of Purchase | Date format | No | |
 | Year of Manufacture | Numeric | No | |
-| Brand Name | Text Input | No | |
+| Brand | Dropdown | No | Optional. Options = brands created under **Brands** menu (tenant-scoped). Tenant Admin maintains brands; vehicle form only selects existing brands. |
 | Model Name | Text Input | No | |
 | Vehicle Color | Text Input | No | |
 | Number of Wheels | Number Input | Yes | |
@@ -124,7 +132,7 @@ Without proper vehicle master data, the system cannot:
 - **Under Maintenance**: In workshop, unavailable for trips
 
 ### FR-003: Vehicle Search & Filter
-- **[High]** System SHALL provide search by registration number, type, depot
+- **[High]** System SHALL provide search by registration number, type, depot, and optional filter by brand
 - **[High]** System SHALL support multi-criteria filtering
 - **[High]** System SHALL display filtered results in sortable table
 - **[Medium]** System SHALL support advanced search with combined filters
@@ -146,6 +154,7 @@ Without proper vehicle master data, the system cannot:
 
 ## Business Rules
 
+- **BR-000: Brand Master Data**: Brand names are maintained in a dedicated **Brands** catalog per tenant (unique brand name per tenant). Vehicles reference a brand via optional foreign key; vehicle registration does not accept free-text brand names.
 - **BR-001: Unique Registration & Chassis Number**: Each vehicle must have unique registration number AND unique chassis number within tenant.
 - **BR-002: Status Exclusivity**: Vehicle can only have one operational status at a time, determined dynamically by workflow or GPS info.
 - **BR-003: Maintenance Exclusion**: Vehicles under maintenance cannot be assigned to trips.
@@ -157,6 +166,17 @@ Without proper vehicle master data, the system cannot:
 ## Data Model
 
 ```text
+Brand {
+  id: UUID (PK, auto-generated)
+  tenant_id: UUID (FK)
+  brand_name: String (unique per tenant, indexed)
+  is_active: Boolean
+  created_at: Timestamp
+  created_by: UUID
+  updated_at: Timestamp
+  updated_by: UUID
+}
+
 Vehicle {
   id: UUID (PK, auto-generated)
   tenant_id: UUID (FK)
@@ -167,7 +187,7 @@ Vehicle {
   capacity_tonnage: Decimal
   purchase_date: Date
   year_of_manufacture: Integer
-  brand_name: String
+  brand_id: UUID (FK to Brand, nullable)
   model_name: String
   vehicle_color: String
   number_of_wheels: Integer
@@ -208,6 +228,8 @@ BulkUploadLog {
 
 ## Relationships
 
+- Brand → Tenant: Many-to-One (tenant-scoped catalog)
+- Vehicle → Brand: Many-to-One (optional)
 - Vehicle → POI (home_depot_id): Many-to-One
 - Vehicle → Transport Orders: One-to-Many
 - Vehicle → Trips: One-to-Many
@@ -216,16 +238,23 @@ BulkUploadLog {
 
 ## UI/UX Requirements
 
+**Brands (Tenant Admin)**
+
+- New navigation entry under Master Data (e.g. **Brands**): list, create, edit, deactivate brands for the current tenant.
+- Brand name is the primary field; enforce uniqueness per tenant with clear validation messaging.
+- Inactive brands are hidden from the vehicle brand dropdown for **new** selections; existing vehicle links remain valid per product rules.
+
 **Vehicle List Page**
 - Layout: Sortable table with pagination
 - Columns: Registration, Type, Capacity, Ownership, Depot, Status, Actions
 - Actions: View, Edit, Delete (soft delete)
-- Filters: Status, Type, Depot, Ownership
+- Filters: Status, Type, Brand, Depot, Ownership
 - Search: Real-time search by registration number
 - Bulk Actions: Export to CSV, Bulk upload
 
 **Vehicle Form (Create/Edit)**
 - Layout: Two-column form with sections (Basic Information, Details, Documents, Additional Info)
+- **Brand** field: optional dropdown; options loaded from tenant Brands API (active brands). Empty = no brand selected.
 - Validation: Real-time inline validation
 - Save Options: Save & Close, Save & Add Another
 
@@ -237,6 +266,7 @@ BulkUploadLog {
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
+| MDM-05-0 | Brand master (model, migration, Tenant Admin UI, APIs) + vehicle `brand_id` | TBD | Pending |
 | MDM-05-1 | Requirements & story update on context repo | DFS-163 | Pending |
 | MDM-05-2 | Implementation context generation | DFS-164 | Pending |
 | MDM-05-3 | Models update & migration | DFS-165 | Pending |
@@ -248,6 +278,13 @@ BulkUploadLog {
 ## API Endpoints
 
 ```
+GET    /api/v1/brands                - List brands (tenant-scoped; for dropdowns)
+POST   /api/v1/brands                - Create brand (Tenant Admin per RBAC)
+GET    /api/v1/brands/{id}           - Get brand
+PUT    /api/v1/brands/{id}           - Update brand
+PATCH  /api/v1/brands/{id}           - Partial update
+DELETE /api/v1/brands/{id}           - Deactivate brand (soft; policy per spec)
+
 POST   /api/v1/vehicles              - Create vehicle
 GET    /api/v1/vehicles              - List vehicles (with filters)
 GET    /api/v1/vehicles/{id}         - Get vehicle details
@@ -264,7 +301,8 @@ GET    /api/v1/vehicles/{id}/history - Get vehicle history
 
 ## Dependencies
 
-- **No Prerequisites**: This is a foundational feature
+- **Brand catalog**: Vehicle work should include Brand model, APIs, and **Brands** admin UI (or a dedicated story may split Brands vs Vehicle if the team prefers smaller increments; functionally, dropdown depends on brands existing).
+- **Foundational**: Vehicle master remains a core enabler for fleet features below
 - **Enables**:
   - US-015: Fleet Health Dashboard
   - US-020: TO Execution - Own Fleet

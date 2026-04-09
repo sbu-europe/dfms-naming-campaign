@@ -1,10 +1,10 @@
 ---
 module: 02-master-data
 specification: Vehicle Master Data Management
-version: 1.0
+version: 1.1
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-last_updated: 2026-04-08
+last_updated: 2026-04-09
 related_stories: US-053
 ---
 
@@ -14,9 +14,36 @@ related_stories: US-053
 
 The Vehicle Master Data Management module provides centralized management of all fleet vehicles for the DFMS platform. Accurate vehicle information is the foundation of all fleet management operations, enabling trip planning, vehicle assignment, fleet utilization tracking, maintenance scheduling, compliance management, and cost allocation. The system supports comprehensive vehicle profiles, dynamic operational status tracking, and bulk data operations.
 
+**Brand master data (prerequisite for brand selection on vehicles):** Vehicle **brand** is not free text. Each tenant maintains a **Brands** catalog (separate menu, Tenant Admin). When creating or editing a vehicle, **Brand** is an **optional** dropdown listing only brands defined for that tenant. If no brand applies, the field is left empty.
+
 ---
 
 ## 1. Vehicle Data Model
+
+### 1.0 Brand Entity Structure (Tenant-Scoped Master)
+
+Brands are maintained under **Master Data → Brands** (or equivalent navigation). Only users with Tenant Admin (or role granted brand maintenance) can create, edit, or deactivate brand records. Transport Planners and other roles **consume** the list when registering vehicles but do not manage the catalog unless RBAC allows it.
+
+```typescript
+Brand {
+  id: UUID (PK, auto-generated)
+  tenant_id: UUID (FK)
+  
+  brand_name: string // Unique per tenant (case-insensitive or normalized per product rules), indexed
+  is_active: boolean // Inactive brands hidden from vehicle dropdown but preserved for historical vehicles
+  
+  // Metadata
+  created_at: Timestamp
+  created_by: UUID
+  updated_at: Timestamp
+  updated_by: UUID
+}
+```
+
+**Business rules:**
+- Uniqueness of `brand_name` is enforced **within a tenant** (not globally).
+- Soft-deactivating a brand (`is_active = false`) removes it from **new** vehicle selections; vehicles already linked keep their reference (display resolved via join or snapshot policy—implementation choice; prefer retaining FK for integrity).
+- Optional: bulk CSV may accept a **brand name** column that is matched to an existing Brand row for the tenant; unknown names fail validation or are rejected per import rules (documented in bulk-upload spec).
 
 ### 1.1 Vehicle Entity Structure
 
@@ -28,7 +55,7 @@ Vehicle {
   // Identification
   registration_number: string (unique per tenant, indexed)
   chassis_number: string (unique per tenant, indexed)
-  brand_name: string (nullable)
+  brand_id: UUID (FK to Brand, nullable) // Optional; selected from tenant brand dropdown
   model_name: string (nullable)
   year_of_manufacture: integer (nullable)
   vehicle_color: string (nullable)
@@ -98,7 +125,7 @@ BulkUploadLog {
 ```
 1. User (Tenant Admin or Transport Planner) navigates to Vehicle creation form.
 2. User fills in Basic Information (Registration, Type, Capacity, Body Type, Fuel Type).
-3. User fills in Details (Brand, Model, Year, Chassis Number, Wheels).
+3. User fills in Details (Brand optional dropdown from tenant Brands, Model, Year, Chassis Number, Wheels).
 4. User uploads/enters Documents info (Insurance Expiry, Fitness Expiry).
 5. User provides Additional Info (Purchase Date, Remarks, Assigned Driver, Assigned POI).
 6. System performs real-time inline validation.
@@ -141,6 +168,12 @@ BulkUploadLog {
     required: false,
     exists: true,
     is_active: true
+  },
+  brand_id: {
+    required: false,
+    exists: true,
+    is_active: true, // Brand must belong to same tenant and be active for new selection
+    same_tenant: true
   },
   allowed_product_category: {
     required: false,
@@ -228,6 +261,7 @@ Status Rules:
 **Filters**:
 - Operational Status
 - Vehicle Type
+- Brand (optional; filter by linked Brand)
 - Assigned POI (Depot)
 - Ownership (Derived from or mapped if applicable)
 - Advanced search with combined filters supported.
@@ -247,6 +281,7 @@ Status Rules:
 
 ### 6.3 Referential Integrity
 - **POI & Driver**: Vehicle must be assigned to an existing active POI and an existing active driver.
+- **Brand**: When `brand_id` is set, it must reference a Brand in the same tenant; for new assignments, the Brand should be active (vehicles may retain a link to a later-deactivated Brand per lifecycle policy above).
 
 ---
 
@@ -260,6 +295,7 @@ CREATE INDEX idx_vehicle_registration ON vehicles(registration_number, tenant_id
 CREATE INDEX idx_vehicle_chassis ON vehicles(chassis_number, tenant_id);
 CREATE INDEX idx_vehicle_status ON vehicles(operational_status);
 CREATE INDEX idx_vehicle_poi ON vehicles(assigned_poi_id);
+CREATE INDEX idx_vehicle_brand ON vehicles(brand_id); -- nullable FK; index supports filter/join
 ```
 
 ### 7.2 Audit Trail
@@ -272,12 +308,24 @@ All changes to vehicle records, including creation, updates, status changes, and
 
 The API will follow RESTful principles, utilizing JSON for payload and responses. Standard HTTP methods will be used.
 
+### 8.0 Brand CRUD (Tenant-Scoped)
+
+| Method | Endpoint | Description | Implementation Details |
+|---|---|---|---|
+| GET | `/api/v1/brands` | List brands | Query: `?search=`, `?is_active=`, `?page=`, `?per_page=`. Used to populate vehicle brand dropdown |
+| POST | `/api/v1/brands` | Create brand | Enforce unique `brand_name` per tenant. Tenant Admin (or delegated role) |
+| GET | `/api/v1/brands/{id}` | Get brand | |
+| PUT / PATCH | `/api/v1/brands/{id}` | Update brand | |
+| DELETE | `/api/v1/brands/{id}` | Deactivate / soft-delete brand | Prefer soft delete; hide from dropdowns for new vehicles |
+
+Vehicle create/update payloads use `brand_id` (nullable UUID), not a free-text brand string.
+
 ### 8.1 Vehicle CRUD & Status
 
 | Method | Endpoint | Description | Implementation Details |
 |---|---|---|---|
-| GET | `/api/v1/vehicles` | List vehicles | Support query params: `?search=`, `?status=`, `?type=`, `?poi_id=`, `?page=`, `?per_page=` |
-| POST | `/api/v1/vehicles` | Create vehicle | Validate uniqueness of `registration_number` and `chassis_number` per tenant. Validate FKs |
+| GET | `/api/v1/vehicles` | List vehicles | Support query params: `?search=`, `?status=`, `?type=`, `?brand_id=`, `?poi_id=`, `?page=`, `?per_page=` |
+| POST | `/api/v1/vehicles` | Create vehicle | Validate uniqueness of `registration_number` and `chassis_number` per tenant. Validate FKs including optional `brand_id` |
 | GET | `/api/v1/vehicles/{id}` | Get vehicle details | Include joined POI and Driver details |
 | PUT | `/api/v1/vehicles/{id}` | Update vehicle | Full update. Validate FKs and uniqueness |
 | PATCH | `/api/v1/vehicles/{id}` | Inline edit | Partial update for row/column level editing |
@@ -309,7 +357,7 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 **1. Model & Validation Tests:**
 - *Uniqueness*: Verify that saving two vehicles with the same `registration_number` or `chassis_number` under the same tenant raises an IntegrityError.
 - *Tenant Isolation*: Verify that duplicate registration numbers across *different* tenants succeed.
-- *Referential Integrity*: Verify that assigning a non-existent or inactive POI/Driver fails validation.
+- *Referential Integrity*: Verify that assigning a non-existent or inactive POI/Driver fails validation; optional `brand_id` must belong to the same tenant and active Brand when policy requires active-only selection.
 - *Format Validation*: Test regex validation for Bangladesh vehicle registration format and VIN format for chassis number.
 - *Mileage Field Isolation*: Verify that attempting to set `initial_odometer_reading` or other mileage fields during `POST /api/v1/vehicles` is ignored or rejected, ensuring they are strictly read-only during creation.
 - *Allowed Product Category*: When provided, `allowed_product_category` must be one of FM, RM, Both, Byproducts, Machineries; invalid values are rejected.
@@ -335,6 +383,7 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 
 ## 10. Related Documentation
 
+- **Brands** — Tenant-scoped master catalog; UI menu for Tenant Admin; vehicles reference `brand_id` (this document, §1.0, §8.0).
 - **[POI Management](poi-management.md)** - Location master data (Vehicle assignment)
 - **[Transport Order Execution](../03-operations/transport-order-execution.md)** - Vehicle assignment workflows
 - **[Trip Lifecycle Management](../03-operations/trip-lifecycle-management.md)** - Operational status updates
