@@ -494,6 +494,8 @@ The API will follow RESTful principles, utilizing JSON for payload and responses
 
 ### 10.3 Bulk Operations
 
+Implement product CSV import/export using the shared master-data pipeline in **[bulk-import-export.md](bulk-import-export.md)** (`IMPORT_REGISTRY` entries for `product` and `productcategory`, `BulkImportViewSet` / `BulkExportViewSet`). The table below names REST shapes; align paths and behaviour with §10 of that document rather than introducing a second parallel bulk implementation.
+
 | Method | Endpoint | Description | Implementation Details |
 |---|---|---|---|
 | POST | `/api/v1/products/import-csv` | Bulk import products | Accept multipart/form-data. Use async processing if > 500 rows. Return pre-signed error log URL on partial failure |
@@ -520,7 +522,7 @@ The testing strategy follows the testing pyramid, focusing on business logic iso
 **2. API Endpoint Tests:**
 - *List/Filtering*: Test `GET /api/v1/products` with combinations of filters (`is_active`, `category_id`). Ensure results are paginated correctly.
 - *Soft Deletion*: Test `PATCH /api/v1/products/{id}/status`. Verify `is_active` flips, and ensure dependent workflows handle the inactive product correctly.
-- *Bulk Import*: Test `POST /api/v1/products/import-csv` with a valid CSV, a CSV with missing required fields, and a CSV with duplicate SKU codes. Ensure errors are clearly formatted.
+- *Bulk Import*: Test bulk import via the contract in **[bulk-import-export.md](bulk-import-export.md)** §10 (e.g. `POST /api/v1/master-data/bulk-imports/` with `model_name=product`) with a valid CSV, missing required fields, and duplicate natural keys. Ensure errors are clearly formatted and match preview/confirm flow.
 
 **3. Business Rules Tests:**
 - *Status Transition Impact*: Test deactivation when the product has pending requisitions (should warn but succeed). Test deactivation when product has active stock (should block).
@@ -535,6 +537,8 @@ The testing strategy follows the testing pyramid, focusing on business logic iso
 ## 12. Django Admin SSR Implementation Strategy
 
 Since the platform utilizes Django Admin for Server-Side Rendering (SSR) management interfaces, specific strategies are required to handle dynamic user interactions like dependent dropdowns.
+
+**Bulk CSV import/export** on Product and Product Category changelists is provided by **`BulkImportExportMixin`** as specified in **[bulk-import-export.md](bulk-import-export.md)** §6 (not duplicated here).
 
 ### 12.1 Dependent Dropdowns (Category -> Sub-Category)
 
@@ -560,6 +564,7 @@ To provide a seamless UX during Product creation where the `sub_category_id` dro
 
 ## 13. Related Documentation
 
+- **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export for Product and Product Category (and other master entities)
 - **[Master Data Configuration](master-data-configuration.md)** - Overall master data management
 - **[POI Management](poi-management.md)** - Location master data
 - **[Product Requisition Management](../03-operations/product-requisition-management.md)** - Product usage in requisitions

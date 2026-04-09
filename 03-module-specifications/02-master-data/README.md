@@ -33,7 +33,7 @@ This module defines master data configuration and management for the DFMS platfo
 
 ### Master Data Configuration
 - **Entity Registration**: POIs, Vehicles, Drivers, Helpers, Vendors, Routes, Products, QC Checklists
-- **Bulk Upload**: CSV-based bulk data import with validation
+- **Bulk Upload**: CSV-based bulk data import with validation — canonical implementation plan: **[bulk-import-export.md](bulk-import-export.md)**
 - **Inline Management**: Create, edit, delete with full audit trail
 - **Referential Integrity**: Cascade rules and dependency validation
 - **Active/Inactive Control**: Soft delete with status management
@@ -187,6 +187,8 @@ POST /api/v1/master-data/bulk-upload
 GET /api/v1/master-data/validation-rules
 ```
 
+**Bulk CSV import/export:** The implementation plan for async jobs, preview, Django admin, and REST (`/api/v1/master-data/bulk-imports/`, `/bulk-exports/`) is **[bulk-import-export.md](bulk-import-export.md)**. Entity-specific `/bulk-upload` paths above are illustrative; align with that document when wiring endpoints.
+
 ---
 
 ## Business Rules
@@ -204,7 +206,7 @@ GET /api/v1/master-data/validation-rules
 
 ### Data Consistency
 1. **Referential Integrity**: Cannot delete POI/Product referenced in active trips
-2. **Bulk Upload Validation**: All rows validated before commit, rollback on any error
+2. **Bulk Upload Validation**: Row-level validation, preview, and commit semantics are defined in **[bulk-import-export.md](bulk-import-export.md)** (async validation, optional import of valid rows only; not necessarily “all-or-nothing” rollback for every path)
 3. **Audit Trail**: All create/update/delete operations logged with user and timestamp
 
 ---
@@ -215,7 +217,7 @@ GET /api/v1/master-data/validation-rules
 1. POI Registration & CRUD ⭐⭐⭐
 2. Product Catalog Management ⭐⭐⭐
 3. POI Capacity Tracking (US-014) ⭐⭐⭐
-4. Bulk Upload (CSV) ⭐⭐
+4. Bulk Upload (CSV) ⭐⭐ — see **[bulk-import-export.md](bulk-import-export.md)**
 5. Geofencing Setup ⭐⭐
 6. Data Consistency Rules ⭐⭐
 7. Master Data Audit Trail ⭐
@@ -228,7 +230,7 @@ GET /api/v1/master-data/validation-rules
 - Create POI with GPS coordinates and geofence
 - Update POI capacity and validate free capacity calculation
 - Deactivate POI with active references (should fail)
-- Bulk upload POIs from CSV with validation errors
+- Bulk upload POIs from CSV with validation errors (per **[bulk-import-export.md](bulk-import-export.md)**)
 
 ### Product Management
 - Create product with QC requirements
@@ -246,6 +248,7 @@ GET /api/v1/master-data/validation-rules
 
 ## Quick Links
 
+- **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export implementation (Django admin, Celery, REST API)
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
