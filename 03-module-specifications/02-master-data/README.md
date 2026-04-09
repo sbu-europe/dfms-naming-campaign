@@ -22,9 +22,10 @@ This module defines master data configuration and management for the DFMS platfo
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [product-inventory-management.md](product-inventory-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 | [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, drivers, helpers, vendors), vehicle capacity calculation, driver-vehicle assignment, bulk upload/management, referential integrity, data quality controls | 6.3.1-6.3.4 | US-053, US-057, US-061, US-047 | 513 |
-| [helper-master-data.md](helper-master-data.md) | Helper entity model, assignment logic, availability status tracking, lifecycle management, and integration with trip execution | 6.3.3 | US-061 | 290 |
 
-**Total Documentation**: ~1,940 lines of comprehensive technical specifications
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications
+
+**Helper (US-061) — full specification**: [helper-master-data.md](../01-foundation/helper-master-data.md) (lives under **01-foundation** because helpers may link to platform users via optional `user_id`).
 
 ---
 
@@ -252,7 +253,7 @@ GET /api/v1/master-data/validation-rules
 
 ---
 
-**Last Updated**: 2026-02-26  
+**Last Updated**: 2026-04-09  
 **Status**: Complete  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
 **Next Module**: [03-operations/](../03-operations/README.md) - Core Operations

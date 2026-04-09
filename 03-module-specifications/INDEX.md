@@ -2,7 +2,7 @@
 
 This index provides a comprehensive mapping of all module specifications, cross-references, dependencies, and user story mappings.
 
-**Last Updated**: 2026-03-16
+**Last Updated**: 2026-04-09
 
 ---
 
@@ -33,6 +33,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
+- [helper-master-data.md](01-foundation/helper-master-data.md) - Helper Master Data Management (entity model, optional `user_id` to User, assignments, availability, APIs)
 
 #### Related User Stories
 - US-001: User Login & Account Lockout
@@ -44,11 +45,13 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-007: Account Deactivation
 - US-008: Password & Account Reset
 - US-009: User Activity & Audit Logs
+- US-061: Helper Profile
 - US-098: Tenant Onboarding & Schema Provisioning
 
 #### Cross-References
 - **Required by**: All operational modules
 - **Provides**: User context, authentication, authorization, audit trail
+- **Helper identity**: [helper-master-data.md](01-foundation/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
 
 ---
 
@@ -62,13 +65,11 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [master-data-configuration.md](02-master-data/master-data-configuration.md) - Master Data Configuration
 - [product-inventory-management.md](02-master-data/product-inventory-management.md) - Product Inventory Management (PIM)
 - [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
-- [helper-master-data.md](02-master-data/helper-master-data.md) - Helper Master Data Management
 
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
 - US-053: Vehicle Registration & Master Data
 - US-057: Driver Master Data
-- US-061: Helper Profile
 - US-047: Vendor Registration
 
 #### Cross-References
@@ -331,7 +332,7 @@ Each specification file includes PRD section references in frontmatter.
 
 ### Critical Path Modules (Phase 1)
 1. **01-foundation** - Authentication, RBAC (US-001-009)
-2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057, US-061)
+2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057); helper detail spec in **01-foundation** (US-061)
 3. **03-operations** - PR, TR, TO, Trip (US-010-025)
 4. **04-poi-operations** - Gate, Scaling, QC, Command Center (US-026, US-035-090)
 5. **09-cross-cutting** - Security, Performance, Integration
@@ -346,7 +347,7 @@ Each specification file includes PRD section references in frontmatter.
 
 ---
 
-**Last Updated**: 2026-03-16  
+**Last Updated**: 2026-04-09  
 **Total Modules**: 11  
 **Total Specifications**: 35 spec files + 11 README files = 46 files  
 **Coverage**: 100% of PRD Phase-1 features  

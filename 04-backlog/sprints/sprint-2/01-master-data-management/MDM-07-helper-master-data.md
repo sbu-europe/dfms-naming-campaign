@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 3
 assignee: ~
-spec_file: ../../../../03-module-specifications/02-master-data/helper-master-data.md
+spec_file: ../../../../03-module-specifications/01-foundation/helper-master-data.md
 ---
 
 # MDM-07 — Helper Master Data Management
@@ -39,6 +39,7 @@ Helpers assist drivers with loading, unloading, and handling goods. Proper helpe
 | Reference Contact 2 | Text Input | No | |
 | Helper Status | Checkmark (Is Active?) | Yes | |
 | Address | Text Input | No | |
+| Linked User (`user_id`) | FK / lookup | No | Optional link to platform User when this helper is also a system user; unique per tenant when set |
 
 - [ ] Prevent duplicate Employee ID and Contact Number
 - [ ] Prevent duplicate National ID Number (NID) per tenant (if provided)
@@ -65,7 +66,7 @@ Helpers assist drivers with loading, unloading, and handling goods. Proper helpe
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| MDM-07-1 | Helper model + migration (Helper, HelperAssignment tables) | DFS-023-1 | Pending |
+| MDM-07-1 | Helper model + migration (Helper with nullable `user_id` FK, HelperAssignment tables) | DFS-023-1 | Pending |
 | MDM-07-2 | Helper CRUD API (POST, GET list, GET detail, PATCH, status change) | DFS-023-2 | Pending |
 | MDM-07-3 | Unique Employee ID, Contact Number, and NID (per tenant) validation | DFS-023-3 | Pending |
 | MDM-07-4 | Helper assignment API — link helper to driver + trip, conflict check | DFS-023-4 | Pending |

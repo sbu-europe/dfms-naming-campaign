@@ -348,6 +348,10 @@ DriverPerformance {
 
 ## 4. Helper Master Data
 
+**Canonical specification** (entity model, optional `user_id` → User, assignments, availability, APIs, indexes): **[Helper Master Data Management](../01-foundation/helper-master-data.md)**.
+
+The summary below stays aligned with the master-data catalogue; defer to the foundation spec for implementation detail.
+
 ### 4.1 Helper Entity Model
 
 ```typescript
@@ -363,7 +367,8 @@ Helper {
   employee_id: string (nullable)
   helper_type: enum ['Own', 'Vendor', 'Temporary']
   vendor_id: UUID (nullable)
-  
+  user_id: UUID (nullable)        // FK to User; optional when helper is also a system user
+
   // References
   references: [
     { name, contact, relationship }
