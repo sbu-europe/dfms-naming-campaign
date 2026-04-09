@@ -18,16 +18,16 @@ The DFMS platform implements a comprehensive Role-Based Access Control (RBAC) sy
 The system supports both predefined operational roles (for standardized workflows) and custom roles (via Dynamic Role Builder in Phase 2) to accommodate diverse organizational structures while maintaining security and auditability.
 
 **Key Acceptance Criteria**:
-- **AC-1**: System SHALL allow Department Admins to assign operational roles within their departments
+- **AC-1**: System SHALL allow Tenant Admins to assign operational roles within their departments
 - **AC-2**: Super Admin controls global configurations across all tenants
 
 ---
 
 ## 1. Role Hierarchy Architecture
 
-### 1.1 Four-Tier Role Structure
+### 1.1 Three-Tier Role Structure
 
-The RBAC system implements a four-tier hierarchical structure:
+The RBAC system implements a three-tier hierarchical structure:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -43,23 +43,15 @@ The RBAC system implements a four-tier hierarchical structure:
 │ (Organization-level, single tenant)                         │
 │ Example: Nourish Poultry (client organization)              │
 │ Created: By Super Admin                                     │
-│ Manages: Department Admins + Operational Users              │
+│ Manages: Operational Users                                  │
 └──────────────────────────────────────────────────────────────┘
               ↓ creates & manages
 ┌──────────────────────────────────────────────────────────────┐
-│ Tier 3: Department Admin                                    │
-│ (Department-level, within tenant)                           │
-│ Examples: Depot, Procurement, Distribution, Transport, QC   │
-│ Created: By Tenant Admin                                    │
-│ Manages: Operational Users within department                │
-└──────────────────────────────────────────────────────────────┘
-              ↓ oversees
-┌──────────────────────────────────────────────────────────────┐
-│ Tier 4: Operational User                                    │
+│ Tier 3: Operational User                                    │
 │ (Task-level, day-to-day execution)                          │
 │ Examples: Command Center Officer, Loading Person,           │
 │           Unloading Person, Driver Supervisor, Driver Helper │
-│ Created: By Tenant Admin or Department Admin                │
+│ Created: By Tenant Admin                                    │
 │ Manages: Nothing (execution-only)                           │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -69,17 +61,17 @@ The RBAC system implements a four-tier hierarchical structure:
 ```
 Super Admin (Brainstation 23)
  └─ creates → Tenant Admin (Nourish)
-               ├─ creates → Dept Admin (Depot / Feed Mill / Commercial)
-               │             └─ Depot Manager, Feed Mill Manager, Commercial Officer
-               ├─ creates → Dept Admin (Procurement)
+               ├─ creates → Operational Users (Depot / Feed Mill / Commercial)
+               │             └─ Depot Officer, Feed Mill Officer, Commercial Officer
+               ├─ creates → Operational Users (Procurement)
                │             └─ Procurement Officer
-               ├─ creates → Dept Admin (Distribution)
+               ├─ creates → Operational Users (Distribution)
                │             └─ Distribution Officer, Distribution Manager
-               ├─ creates → Dept Admin (Transport)
+               ├─ creates → Operational Users (Transport)
                │             └─ Transport Planner, Transport Distribution Officer
-               ├─ creates → Dept Admin (QA / QC)
+               ├─ creates → Operational Users (QA / QC)
                │             └─ QC Inspector – Physical, QA Lab Technician
-               └─ creates → Dept Admin (Operations)
+               └─ creates → Operational Users (Operations)
                              └─ Command Center Officer, Loading Personnel,
                                 Unloading Personnel, Driver Supervisor, Driver Helper
 ```
@@ -106,34 +98,20 @@ Super Admin (Brainstation 23)
 - **Creation**: Created by Super Admin during tenant onboarding
 - **Example**: Nourish Poultry admin user
 - **Capabilities**:
-  - Manage all users within the tenant (Department Admins + Operational Users)
-  - Create and assign Department Admins
+  - Manage all users within the tenant (Operational Users)
   - Configure master data (POIs, products, vehicles, vendors)
   - Access all modules and features per subscription tier
   - View organization-wide reports and analytics
   - Configure tenant-specific settings (business rules, workflows)
-  - Assign Functional Role Types (Requester / Approver / Executor) to users
+  - Assign operational roles (department-scoped) to users
 - **Restrictions**: Cannot access other tenants' data; cannot create Super Admins
 - **Typical Users**: Organization IT admin, System administrator, Operations Head
 
-### 1.5 Tier 3: Department Admin
-
-- **Scope**: Single department within tenant
-- **Creation**: Created by Tenant Admin
-- **Capabilities**:
-  - Assign operational roles within their department (AC-1)
-  - Assign Functional Role Types (Requester / Approver / Executor) to department members
-  - Manage Operational Users within assigned department
-  - Configure department-specific settings
-  - View department-level reports
-  - Approve department-specific workflows
-- **Restrictions**: Cannot access other departments' data; cannot create Tenant Admins or other Department Admins
-
-**Departments and their operational roles:**
+### 1.5 Departments and their operational roles
 
 | Department | Operational Roles | Default Functional Role |
 |-----------|-------------------|----------------------|
-| **Depot / Feed Mill / Commercial** | Depot Manager, Feed Mill Manager, Commercial Officer | Requester |
+| **Depot / Feed Mill / Commercial** | Depot Officer, Feed Mill Officer, Commercial Officer | Requester |
 | **Procurement** | Procurement Officer | Approver |
 | **Distribution** | Distribution Officer (DO), Distribution Manager (DM) | DM = Approver |
 | **Transport** | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor |
@@ -142,13 +120,13 @@ Super Admin (Brainstation 23)
 
 **Nominated Vendors** are external users managed separately through the Vendor Portal (see Vendor Management module).
 
-### 1.6 Tier 4: Operational User
+### 1.6 Tier 3: Operational User
 
 Operational users perform day-to-day execution and **cannot manage users or system configurations**.
 
 **Depot / Feed Mill / Commercial**:
-- Depot Manager – Create FG Transfer Requests (Requester)
-- Feed Mill Manager – Create FG Transfer Requests (Requester)
+- Depot Officer – Create FG Transfer Requests (Requester)
+- Feed Mill Officer – Create FG Transfer Requests (Requester)
 - Commercial Officer – Create RM Transfer Requests from Port (Requester)
 
 **Procurement**:
@@ -176,21 +154,63 @@ Operational users perform day-to-day execution and **cannot manage users or syst
 **Nominated Vendors** (External):
 - Vendor Admin – Bidding, vehicle info, invoice submission via Vendor Portal
 
-### 1.7 Functional Role Types
+### 1.7 Functional Role Types (Metadata Only)
 
-Admin (Tenant Admin or Department Admin) can assign one or more functional role types to any operational user:
+Functional Role Type (Requester / Approver / Executor) is **role metadata** used for UI display, documentation, and filtering. It is **not** an independent runtime permission gate.
 
-| Functional Role | Description | Workflow Behavior |
-|----------------|-------------|-------------------|
-| **Requester** | Can create requisitions and requests | Subject to approval workflow; cannot approve own requests |
-| **Approver** | Can approve or reject requests | Cannot approve own requests (separation of duties enforced) |
-| **Executor** | Executes approved tasks | Cannot modify approval status; task-specific permissions only |
+**Permission enforcement relies solely on the Role → Permission matrix (permission catalog) and Access Scope.**
 
-**Assignment Rules**:
-- A user can hold multiple functional roles (e.g., Requester + Executor)
-- Requester and Approver for the same request must be different users
-- Department Admin without Approver flag cannot approve workflows
-- Functional role assignment is scoped to the user's department
+| Functional Type | Meaning (metadata) | Typical Role Examples |
+|----------------|-------------------|----------------------|
+| **Requester** | Role primarily creates/initiates records | Depot Officer, Feed Mill Officer, Commercial Officer |
+| **Approver** | Role primarily approves or rejects records | Procurement Officer, Distribution Manager |
+| **Executor** | Role primarily executes tasks assigned to them | Transport Planner, TDO, Loading Personnel, Drivers |
+
+**Notes**:
+- Functional Type is a fixed attribute on the role definition — it is not overridden per user.
+- Self-approval prevention is a **business rule** (`requester_id ≠ current_user_id`), not a permission code. See Section 8.1.
+- The Permission Catalog rows (Role → Permission) are the authoritative source of what each role may do.
+
+### 1.8 Access Scope Levels
+
+Each operational role is assigned one of two access scope levels that determine the breadth of data visibility and action:
+
+| Access Scope | Description | Data Access |
+|-------------|-------------|-------------|
+| **Global Access** | Role can access data and actions across all locations within the tenant | All departments, POIs, depots, feed mills, and operational units |
+| **Local Access** | Role can access data only within assigned department, POI, depot, feed mill, or operational unit | Restricted to the user's assigned location |
+
+**Operational Roles with Access Scope:**
+
+| Department | Role | Functional Type | Access Scope |
+|------------|------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer | Requester | Local |
+| | Feed Mill Officer | Requester | Local |
+| | Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO) | Executor | Local |
+| | Distribution Manager (DM) | Approver | Global |
+| Transport | Transport Planner (TP) | Executor | Global |
+| | Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical | Executor | Local |
+| | QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer | Executor | Local |
+| | Loading Personnel | Executor | Local |
+| | Unloading Personnel | Executor | Local |
+| | Driver Supervisor | Executor | Local |
+| | Driver Helper | Executor | Local |
+
+**Administrative Roles with Access Scope:**
+
+| Role | Access Scope | Description |
+|------|-------------|-------------|
+| Super Admin | System-Wide | Platform-level access across all tenants |
+| Tenant Admin | Global | Full access within assigned tenant |
+
+**Access Scope Enforcement:**
+- **Local roles**: Row-level security filters records to the user's assigned location. API middleware validates location context on every request.
+- **Global roles**: Can access records across all locations within the tenant. No location-based row-level filtering applied.
+- **Permission calculation**: The system combines `Role + Access Scope` to determine effective permissions. The Role → Permission matrix defines *what* a user can do; Access Scope controls *which records* they can act on. Functional Type is metadata only and is not evaluated at runtime.
 
 ---
 
@@ -243,18 +263,30 @@ Fleet Management → Vehicle Registration → Delete
 
 ### 2.3 Permission Matrix Example
 
+Permission codes follow the `Module.Feature.Action` format from the [Permission Catalog](permission-catalog-phase1.md).
+
 ```typescript
-Role: Transport Planner {
-  permissions: {
-    "TransportRequisition": ["Read", "Update"],
-    "TransportOrder": ["Create", "Read", "Update"],
-    "Trip": ["Create", "Read", "Update", "Assign"],
-    "Fleet": ["Read"],
-    "Vehicle": ["Read"],
-    "Driver": ["Read"],
-    "Vendor": ["Read"],
-    "Reports.Transport": ["Read", "Export"]
-  }
+// Transport Planner — permissions per catalog
+Role: "Transport Planner" {
+  permissions: [
+    "Requisition.TR.Read",           // view TR list (submitted by Distribution Officers)
+    "Requisition.TR.Update",         // update number of vehicles, vehicle type, C&F approval
+    "Transport.TO.Create",           // create Transport Orders
+    "Transport.TO.Read",
+    "Transport.TO.Update",
+    "Transport.TO.Cancel",
+    "Transport.TO.Assign",           // assign vehicles/drivers to TOs
+    "Transport.Trip.Read",
+    "Transport.Map.Read",            // Transport Dashboard map
+    "Vendor.Bidding.Read",           // view bids
+    "Vendor.Bidding.Approve",        // accept/reject bids
+    "Fleet.Assignment.Create",       // fleet planning
+    "Fleet.Assignment.Read",
+    "Reports.Report.Read",           // Transport & Trip / Vendor / Fleet Performance reports
+    "Reports.Report.Export"
+  ],
+  access_scope: "Global",
+  functional_type: "Executor"        // metadata only
 }
 ```
 
@@ -267,31 +299,40 @@ Role: Transport Planner {
 **Assignment Flow**:
 ```
 1. User invitation initiated by Admin
-2. Admin selects role during invitation
-3. Admin assigns department (if applicable)
-4. Admin assigns workflow type: Requester/Approver/Executor
-5. System validates role against tenant subscription tier
-6. User activates account
-7. Permissions loaded on first login
+2. Admin selects Department (predefined dropdown)
+3. Admin selects Role (filtered to chosen department)
+4. System validates role against tenant subscription tier
+5. User activates account
+6. Permissions loaded on first login (Role → Permission matrix + Access Scope)
 ```
 
 **Constraints**:
-- One primary role per user
-- Optional secondary roles (future enhancement)
-- Department must match role's department scope
-- Workflow type (Requester/Approver/Executor) flags specific permissions
+- One primary operational role per user in Phase 1
+- Multiple roles supported for edge cases (e.g., user operating across departments). When a user holds multiple roles, the system applies Global over Local for access scope and the union of permissions from all roles. Self-approval prevention still applies regardless of multiple roles.
+- Department must match role's department scope for Local roles
+- Location assignment (department_id / poi_id) is required for Local roles and rejected for Global roles
+- Access scope (Global / Local) determines data row visibility (see Section 1.8)
 
-### 3.2 Functional Role Types
+### 3.1.1 Predefined Departments & Role Department Mapping
 
-See Section 1.7 for full Functional Role Type definitions (Requester / Approver / Executor).
+- Each **Operational Role** belongs to exactly one **Department** (predefined; not free-text).
+- When creating/configuring a role (Phase 2 custom roles) the Admin MUST select **Department** from a dropdown of predefined departments.
+- In user-facing assignment UIs (invite user / assign role), the **Department is selected first**, then the **Role dropdown is filtered** to roles under that department.
+- The API MUST validate Department↔Role consistency and reject mismatches (even if UI is bypassed).
+
+### 3.2 Self-Approval Prevention (Business Rule)
+
+Self-approval prevention is enforced as a business rule — not as a functional type gate.
 
 **Self-Approval Prevention Rule**:
 ```
-IF user.role.has_flag('Approver') AND
+IF user has permission 'Requisition.Approve' (or equivalent) AND
    requisition.requester_id == user.id:
     DENY approval action
     SHOW "Cannot approve own requisition"
 ```
+
+This rule applies regardless of the role's Functional Type metadata. See Section 8.1 for the full implementation.
 
 ---
 
@@ -311,6 +352,8 @@ IF !user.hasPermission('Fleet.Vehicle.Read'):
 IF !user.hasPermission('TransportOrder.Approve'):
     disable_button('Approve TO')
 ```
+
+> **UI menu mapping**: UI navigation items (menu/sub-menu) must map to stable permission codes from the Permission Catalog. The Jira menu matrix (captured in US-004) is treated as a UI-level projection of permissions — the UI must not implement “role-name checks”; it must implement permission checks (role → permissions → UI).
 
 **Layer 2: API-Level Enforcement**
 ```typescript
@@ -378,11 +421,12 @@ Tenant Admins can create custom roles beyond predefined system roles:
 1. Admin navigates to Role Management
 2. Clicks "Create Custom Role"
 3. Enters role name (unique per tenant)
-4. Selects permissions from permission matrix
-5. Configures department assignment (optional)
-6. Sets workflow flags (Requester/Approver/Executor)
-7. System validates and saves role
-8. Role immediately available for user assignment
+4. Selects Department (predefined dropdown)
+5. Selects Access Scope (Global / Local)
+6. Selects Functional Type metadata label (Requester / Approver / Executor — display only)
+7. Selects permissions from permission matrix
+8. System validates and saves role
+9. Role immediately available for user assignment
 ```
 
 **Permission Matrix UI** (conceptual):
@@ -420,7 +464,8 @@ function cloneRole(sourceRoleId: UUID): CustomRole {
         name: `${sourceRole.name} (Copy)`,
         permissions: [...sourceRole.permissions], // Deep copy
         department: sourceRole.department,
-        workflow_flags: sourceRole.workflow_flags,
+        access_scope: sourceRole.access_scope,
+        functional_type: sourceRole.functional_type,  // metadata label, copied for display
         is_custom: true
     };
 }
@@ -439,20 +484,34 @@ All roles (predefined and custom) are scoped to tenant level:
 Role {
   role_id: UUID
   role_name: string
-  tenant_id: UUID | null  // null for system roles, UUID for custom roles
-  is_system_role: boolean  // true for predefined roles
-  permissions: JSON        // Array of permission strings
-  department: string | null
-  workflow_flags: {
-    is_requester: boolean
-    is_approver: boolean
-    is_executor: boolean
-  }
+  tenant_id: UUID | null        // null for system roles, UUID for custom roles
+  is_system_role: boolean       // true for predefined roles
+  permissions: JSON             // Array of permission strings — the authoritative permission grant
+  department: Enum (Predefined Department) | null  // required for Operational roles; null for Administrative roles
+  access_scope: enum ['Global', 'Local']  // See Section 1.8 — enforced at runtime
+  functional_type: enum ['Requester', 'Approver', 'Executor'] | null  // metadata only — not a runtime permission gate
   created_by: UUID
   created_at: DateTime
   status: enum ['Active', 'Inactive']
 }
 ```
+
+**Database Schema Placement:**
+
+The DFMS platform uses `django-tenants` with a schema-per-tenant architecture (see [Admin Schema Access Control](admin-schema-access-control.md)). Role and Permission models follow a split-schema strategy:
+
+| Model | Schema | Rationale |
+|-------|--------|-----------|
+| `Role` (predefined system roles) | `public` (shared) | Predefined roles are identical across all tenants. Stored once in the shared schema and referenced by all tenant schemas. Managed via `PlatformOnlyAdminMixin` in Django admin. |
+| `Permission` (permission definitions) | `public` (shared) | Permission codes are system-wide constants (e.g., `Fleet.Vehicle.Create`). Not tenant-specific. |
+| `Role` (custom roles, Phase 2) | Tenant schema | Custom roles created via Dynamic Role Builder are tenant-specific. Stored in the tenant's own schema with `tenant_id` set. |
+| `UserRole` (user-role assignment) | Tenant schema | User-to-role mappings are tenant-specific. Includes `department_id`, `poi_id` for Local access scope enforcement. |
+
+This means:
+- `tenant_id = null` on a Role indicates a **system role** in the shared `public` schema
+- `tenant_id = <UUID>` on a Role indicates a **custom role** in a tenant schema (Phase 2)
+- The `is_system_role` boolean distinguishes predefined from custom roles
+- PostgreSQL's `search_path` mechanism ensures tenant schemas cannot access other tenants' custom roles
 
 ### 6.2 Tenant Context Validation
 
@@ -521,15 +580,12 @@ Super Admin (Brainstation 23)
     ↓ inherits all
 Tenant Admin (Nourish)
     ↓ inherits all within tenant
-Department Admin (Depot, Procurement, Distribution, Transport, QC)
-    ↓ inherits department-specific
 Operational User (Command Center Officer, Loading Person, etc.)
 ```
 
 **Inheritance Rules**:
 - Super Admin: All permissions across all tenants (platform-wide)
 - Tenant Admin: All permissions within their tenant
-- Department Admin: All permissions within their department
 - Operational User: Specific task permissions only (no management access)
 
 ### 7.2 Wildcard Permissions
@@ -577,7 +633,6 @@ function validateApproval(approverId: UUID, requisition: Requisition): boolean {
 
 **Workflow Separation**:
 - Requester and Approver must be different users
-- Department Admin without Approver flag cannot approve
 - System enforces separation of duties
 
 ---
@@ -595,7 +650,7 @@ User Login → Auth Success → [2FA challenge if admin role] → Load Role → 
 **2FA Enforcement by Role**:
 - **Super Admin**: 2FA required on every login to `admin.dfms.com`
 - **Tenant Admin**: 2FA required on every login to `<tenant>.dfms.com`
-- **Department Admin / Operational Users**: 2FA not required in Phase 1
+- **Operational Users**: 2FA not required in Phase 1
 
 **JWT Token Payload with Permissions**:
 ```typescript
@@ -604,17 +659,16 @@ User Login → Auth Success → [2FA challenge if admin role] → Load Role → 
   tenant_id: UUID,
   role_id: UUID,
   role_name: string,
-  permissions: string[],  // Embedded for fast validation
+  permissions: string[],  // Embedded for fast validation (from Role → Permission matrix)
   department: string,
-  workflow_flags: {
-    is_requester: boolean,
-    is_approver: boolean,
-    is_executor: boolean
-  },
+  access_scope: 'Global' | 'Local',
+  functional_type: 'Requester' | 'Approver' | 'Executor',  // metadata only — UI display
   iat: number,
   exp: number
 }
 ```
+
+> `functional_type` in the JWT is display metadata only. Permission enforcement uses `permissions[]` and `access_scope`. The backend MUST NOT use `functional_type` as an access gate in middleware or service layers.
 
 ### 9.2 Module Integration
 

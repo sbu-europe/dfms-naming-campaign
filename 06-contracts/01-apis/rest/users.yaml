@@ -43,7 +43,7 @@ paths:
         - Invitations
       summary: Invite a new user
       description: |
-        Tenant Admin or Department Admin invites a new user.
+        Tenant Admin invites a new user.
         Sends invitation email with 72-hour activation link.
       operationId: inviteUser
       security:
@@ -875,7 +875,6 @@ components:
         - email
         - full_name
         - mobile
-        - user_type
         - role_id
         - department_id
       properties:
@@ -889,9 +888,6 @@ components:
         mobile:
           type: string
           description: E.164 format (e.g., +8801XXXXXXXXX)
-        user_type:
-          type: string
-          enum: [department_admin, operational_user]
         role_id:
           type: string
           format: uuid
