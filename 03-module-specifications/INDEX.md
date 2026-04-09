@@ -34,6 +34,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - (Moved to 12-users/driver-user-profiles.md)
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
+- (Moved to 12-users/helper-master-data.md)
 
 #### Related User Stories
 - US-001: User Login & Account Lockout
@@ -45,6 +46,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-007: Account Deactivation
 - US-008: Password & Account Reset
 - US-009: User Activity & Audit Logs
+- US-061: Helper Profile
 - US-052: Driver Mobile Interface (authenticates as Driver user)
 - US-057: Driver user profiles & compliance
 - US-098: Tenant Onboarding & Schema Provisioning
@@ -52,6 +54,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Cross-References
 - **Required by**: All operational modules
 - **Provides**: User context, authentication, authorization, audit trail
+- **Helper identity**: [helper-master-data.md](12-users/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
 
 ---
 
@@ -62,7 +65,6 @@ This index provides a comprehensive mapping of all module specifications, cross-
 **Dependencies**: `01-foundation/`
 
 #### Specifications
-- [master-data-configuration.md](02-master-data/master-data-configuration.md) - Master Data Configuration
 - [product-master-data-management.md](02-master-data/product-master-data-management.md) - Product Master Data Management
 - [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
 - [vehicle-master-data.md](02-master-data/vehicle-master-data.md) - Vehicle Master Data Management
@@ -278,20 +280,20 @@ This index provides a comprehensive mapping of all module specifications, cross-
 ---
 
 ### [12-users/](12-users/README.md) - User Management
-**Purpose**: User profiles, driver user profiles, and user-related domain logic  
-**PRD Sections**: 6.3.2, 6.6  
+**Purpose**: User profiles, helper profiles, and user-related domain logic  
+**PRD Sections**: 6.3.3  
 **Phase**: Phase 1 (Critical)  
 **Dependencies**: `01-foundation/`
 
 #### Specifications
-- [driver-user-profiles.md](12-users/driver-user-profiles.md) - **Driver** + **User** on create; invitation separate; `driver_id` FKs
+- [helper-master-data.md](12-users/helper-master-data.md) - Helper entity model, optional `user_id` FK to User, assignments, availability, APIs
 
 #### Related User Stories
-- US-057: Driver user profiles
+- US-061: Helper Master Data Management
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
-- **Referenced by**: `06-fleet-management/`, `03-operations/`
+- **Referenced by**: `06-fleet-management/`, `03-operations/`, `02-master-data/`
 
 ---
 
@@ -335,7 +337,7 @@ Each specification file includes PRD section references in frontmatter.
 | 09-cross-cutting | Cross-cutting | All |
 | 10-phases | All (organizational) | - |
 | 11-reference | None | All (reference) |
-| 12-users | 01 | 03, 06 |
+| 12-users | 01 | 02, 03, 06 |
 
 ---
 
@@ -353,7 +355,7 @@ Each specification file includes PRD section references in frontmatter.
 
 ### Critical Path Modules (Phase 1)
 1. **01-foundation** - Authentication, RBAC (US-001-009)
-2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057, US-061)
+2. **02-master-data** - POI, Products, Master config (US-014, US-047, US-053, US-057); helper detail spec in **01-foundation** (US-061)
 3. **03-operations** - PR, TR, TO, Trip (US-010-025)
 4. **04-poi-operations** - Gate, Scaling, QC, Command Center (US-026, US-035-090)
 5. **09-cross-cutting** - Security, Performance, Integration

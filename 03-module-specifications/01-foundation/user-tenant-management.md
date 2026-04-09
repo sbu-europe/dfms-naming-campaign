@@ -90,7 +90,7 @@ Tenant {
 
 ### 2.1 System User Types
 
-The DFMS platform has four distinct user types in a strict management hierarchy:
+The DFMS platform has three distinct user types in a strict management hierarchy:
 
 ```
 1. Super Admin (e.g., Brainstation 23)
@@ -100,17 +100,12 @@ The DFMS platform has four distinct user types in a strict management hierarchy:
 
 2. Tenant Admin (e.g., Nourish)
    ├─ Created: By Super Admin
-   ├─ Manages: Department Admins + Operational Users
+   ├─ Manages: Operational Users
    └─ Scope: Organization-wide, single tenant
 
-3. Department Admin (e.g., Depot, Procurement, Distribution, Transport, QC)
-   ├─ Created: By Tenant Admin
-   ├─ Manages: Operational Users within department
-   └─ Scope: Single department within tenant
-
-4. Operational User (e.g., Command Center Officer, Loading Person,
+3. Operational User (e.g., Command Center Officer, Loading Person,
                      Unloading Person, Driver Supervisor, Driver Helper)
-   ├─ Created: By Tenant Admin or Department Admin
+   ├─ Created: By Tenant Admin
    ├─ Manages: Nothing (execution-only)
    └─ Scope: Assigned tasks/workflows only
 ```
@@ -251,14 +246,14 @@ async function provisionTenant(
 }
 ```
 
-### 2.5 Department Admin & User Creation (by Tenant Admin)
+### 2.5 User Creation (by Tenant Admin)
 
-Once the Tenant Admin activates their account, they can create Department Admins and Operational Users:
+Once the Tenant Admin activates their account, they can create Operational Users across departments (department-scoped where applicable):
 
 ```
 Tenant Admin → User Management → Invite User →
-  Select Role (Department Admin / Operational User) →
-  Assign Department (Depot, Procurement, Distribution, Transport, QC) →
+  Select Department (predefined dropdown) →
+  Select Role (filtered by Department) →
   Send Invitation → User Activates Account
 ```
 
@@ -267,9 +262,7 @@ Tenant Admin → User Management → Invite User →
 | Creator | Can Create | Notes |
 |---------|-----------|-------|
 | Super Admin | Tenant Admin | During tenant onboarding |
-| Tenant Admin | Department Admin | Assigns to specific department |
 | Tenant Admin | Operational User | Direct creation for any department |
-| Department Admin | Operational User | Only within their own department |
 
 ---
 
@@ -351,13 +344,12 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 ### 4.1 Invitation Workflow
 
 ```
-Admin (Tenant Admin or Department Admin) → Invite User Form → Send Email →
+Admin (Tenant Admin) → Invite User Form → Send Email →
 User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account Active
 ```
 
 **Permission-Based Invitation**:
-- **Tenant Admin** can invite: Department Admins, Operational Users (any department)
-- **Department Admin** can invite: Operational Users (own department only)
+- **Tenant Admin** can invite: Operational Users (any department)
 
 ### 4.2 Invitation Form
 
@@ -365,7 +357,6 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 - Full Name
 - Email Address
 - Mobile Number
-- User Type (Department Admin / Operational User)
 - Role (from available roles per user type)
 - Department (Depot / Procurement / Distribution / Transport / QC)
 - Employment Type (Permanent/Temporary/Contractor)

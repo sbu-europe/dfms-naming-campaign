@@ -52,7 +52,6 @@
    - Transport configuration, QC configuration
    - Product lifecycle, search/filtering
 
-3. **master-data-configuration.md** (513 lines)
    - Vehicle/driver/helper/vendor master data
    - Bulk data management, referential integrity
    - Data quality and audit logging

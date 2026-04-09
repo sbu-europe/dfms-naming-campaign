@@ -4,7 +4,7 @@
 
 ## Overview
 
-This folder contains **34 specification files** (~20,000 lines) that document how DFMS features work, combining:
+This folder contains **35 specification files** (~20,000 lines) that document how DFMS features work, combining:
 - **Business domain knowledge**: Conceptual workflows, business rules, feature behavior
 - **Technical design details**: Data models, APIs, state machines, integration points
 - **Implementation guidance**: Validation rules, edge cases, performance considerations
@@ -21,8 +21,8 @@ These are **module specifications** (not just business requirements or just tech
 
 | Module | Files | Lines | Description |
 |--------|-------|-------|-------------|
-| [01-foundation/](01-foundation/) | 5 | 2,720 | Authentication, RBAC, user/tenant management, driver user profiles, system foundation |
-| [02-master-data/](02-master-data/) | 3 | 1,650 | POI management, product inventory, master data configuration |
+| [01-foundation/](01-foundation/) | 7 | ~2,730 | Authentication, RBAC, user/tenant management, system foundation, helper master data (optional user link) |
+| [02-master-data/](02-master-data/) | 3 | ~1,650 | POI management, product inventory, master data configuration |
 | [03-operations/](03-operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
 | [04-poi-operations/](04-poi-operations/) | 4 | 3,460 | Gate management, scaling, QC workflow, command center |
 | [05-vendor-management/](05-vendor-management/) | 3 | 2,265 | Vendor onboarding, bidding system, vendor portal |
@@ -31,7 +31,7 @@ These are **module specifications** (not just business requirements or just tech
 | [08-reporting/](08-reporting/) | 2 | 924 | Reports and analytics dashboards |
 | [09-cross-cutting/](09-cross-cutting/) | 3 | 835 | Non-functional requirements, security, integrations |
 
-**Total**: 34 files, ~20,000 lines of comprehensive technical documentation
+**Total**: 35 files, ~20,000 lines of comprehensive technical documentation
 
 **Note**: Business context (objectives, vision, scope, personas) is in [02-domain/01-overview/](../../02-domain/01-overview/)
 
@@ -116,7 +116,7 @@ For transformation guide and progress reports, see [`../10-meta/`](../10-meta/)
 
 ---
 
-**Last Updated**: 2026-02-27  
+**Last Updated**: 2026-04-09  
 **Total Files**: 38 specifications  
 **Total Lines**: ~20,539 lines  
 **Format**: Domain knowledge + technical design  

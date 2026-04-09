@@ -22,10 +22,10 @@ This module defines master data configuration and management for the DFMS platfo
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
-| [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, helpers, vendors), vehicle capacity, assignment, bulk upload, referential integrity; **drivers** are [Driver User Profiles](../12-users/driver-user-profiles.md) | 6.3.1-6.3.4 | US-053, US-061, US-047 | 513 |
-| [bulk-import-export.md](bulk-import-export.md) | Async CSV bulk import (upload → async validation → paginated preview → confirm) and bulk export for the eight Phase 1 master data entities in scope; import config registry, Celery tasks with tenant isolation, file retention/cleanup, full unit test plan | 6.3.1-6.3.3 | US-047, US-053, US-057, US-061, US-095, US-096 | — |
 
 **Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `12-users/driver-user-profiles.md`)
+
+**Helper (US-061) — full specification**: [helper-master-data.md](../12-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
 ---
 

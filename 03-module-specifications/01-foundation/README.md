@@ -2,7 +2,7 @@
 
 ## Module Overview
 
-This module defines the foundational layer of the DFMS platform, including authentication, security, role-based access control (RBAC), and user/tenant management. All other modules depend on this foundation.
+This module defines the foundational layer of the DFMS platform, including authentication, security, role-based access control (RBAC), user/tenant management, and **helper master data** where helpers may optionally link to a `User` (`user_id`) for identity and future app access. All other modules depend on this foundation.
 
 **Purpose**: Provide secure authentication, authorization, and multi-tenant infrastructure  
 **PRD Sections**: 6.1, 6.2  
@@ -24,8 +24,9 @@ This module defines the foundational layer of the DFMS platform, including authe
 | [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
 | ~~driver-user-profiles.md~~ | (Moved to `12-users/driver-user-profiles.md`) | - | - | - |
 | [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
+| ~~helper-master-data.md~~ | (Moved to `12-users/helper-master-data.md`) | - | - | - |
 
-**Total Documentation**: ~2,720 lines of comprehensive technical specifications
+**Total Documentation**: ~2,730 lines of comprehensive technical specifications
 
 ---
 
@@ -91,10 +92,9 @@ None - This is the foundation layer
 | US-007 | Account Deactivation | User Management |
 | US-008 | Password & Account Reset | Security |
 | US-009 | User Activity & Audit Logs | Compliance |
-| US-052 | Driver Mobile Interface | Mobile (driver user auth) |
-| US-057 | Driver user profiles & compliance | Fleet / users |
+| US-061 | Helper Profile | Master data / identity bridge |
 
-**Location**: `../../04-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`; US-052/US-057 in sprint backlog
+**Location**: `../../04-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`, and US-061 under sprint backlog MDM-07
 
 ---
 

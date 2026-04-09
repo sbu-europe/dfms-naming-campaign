@@ -102,9 +102,6 @@ DFMS-product-context/
 │   ├── 02-master-data/                          # POI, products, vehicles (4 files, ~2,000 lines)
 │   │   ├── poi-management.md
 │   │   ├── product-inventory-management.md
-│   │   ├── master-data-configuration.md
-│   │   └── vehicle-master-data.md
-│   │   ├── product-master-data-management.md
 │   │
 │   ├── 03-operations/                           # PRM, TRM, TO, trips (4 files, 3,275 lines)
 │   │   ├── product-requisition-management.md

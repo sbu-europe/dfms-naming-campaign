@@ -73,7 +73,6 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 │
 ├── 02-master-data/
 │   ├── README.md                      # Module overview with cross-refs
-│   ├── master-data-configuration.md
 │   ├── product-inventory-management.md
 │   └── poi-management.md              # US-014
 │
