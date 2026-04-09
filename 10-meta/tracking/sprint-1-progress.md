@@ -1,72 +1,80 @@
 # Sprint 1 Progress Report — Platform Security Foundation
 
-**Date**: 2026-03-30  
-**Sprint**: Sprint 1  
-**Theme**: Platform Security Foundation  
-**Total Story Points**: 53  
-**Overall Completion**: ~65%
+**Date**: 2026-03-31
+**Sprint**: Sprint 1
+**Theme**: Platform Security Foundation
+**Overall Completion**: ~70%
 
 ---
 
-## Client-Facing Summary
+## Epic Overview
 
-### What's Been Built
-
-**1. Project Infrastructure**
-- Development environment fully set up and running
-- Database, background job processing, and caching all configured
-- Ready for both local development and production deployment
-
----
-
-**2. Platform Admin Portal** *(for the DFMS team — internal)*
-- Custom-branded admin interface (not the default Django look)
-- Secure login for platform administrators
-- Dashboard showing key platform metrics at a glance
-- **Tenant Onboarding** — ability to register a new client organisation:
-  - Fill in company details, subscription plan, and admin contact
-  - System automatically creates an isolated environment for that client
-  - Sends a welcome/activation email to the new Tenant Admin
-- **Tenant Management** — view, update, suspend, or reactivate client accounts
+| Epic | Stories | Status |
+|------|---------|--------|
+| System Foundation Infrastructure | 1 | Done |
+| Platform Admin Portal | 5 | ~80% |
+| Client Portal | 5 | ~65% |
 
 ---
 
-**3. Client Portal** *(for Nourish / end-client users)*
-- Branded login page with OTP verification (3-step secure login)
-- Account activation flow for new users (via invitation link)
-- Dashboard showing live operational metrics
-- **Master Data Management** — ability to set up and manage:
-  - Locations (depots, warehouses, feed mills, ports)
-  - Routes between locations
-  - Products (finished goods & raw materials)
-  - Fleet (vehicles, drivers, helpers)
-  - Business partners (suppliers & dealers)
-- **User Management** — Tenant Admin can invite staff, assign roles, and manage accounts
+## Epic 1 — System Foundation Infrastructure
+
+**Goal**: Development environment and infrastructure ready for local and production use.
+
+### Stories
+
+| # | Story | Status |
+|---|-------|--------|
+| 1.1 | Development environment set up and running (Docker Compose — web, db, Redis, Celery worker/beat, nginx) | Done |
+| 1.2 | Database configured (PostgreSQL 15, schema-per-tenant via `django-tenants`) | Done |
+| 1.3 | Background job processing configured (Celery + Redis broker; result backend on Redis DB 2 — multi-tenant safe) | Done |
+| 1.4 | Caching configured (Redis — sessions, OTP state) | Done |
+| 1.5 | Production-ready configuration (multi-stage Dockerfile, `docker-compose.prod.yml`, env template) | Done |
 
 ---
 
-### What's Pending (to complete Sprint 1)
+## Epic 2 — Platform Admin Portal *(DFMS team — internal)*
 
-| Item | Notes |
-|------|-------|
-| Admin account unlock flow | When a user is locked out, admin needs a dedicated screen to unlock them |
-| Session management screen | Users should be able to see and close their active sessions across devices |
-| TOTP / Authenticator app support | Currently only email OTP; authenticator app (Google Authenticator etc.) not yet wired |
-| Resend activation email | Platform admin needs a button to resend the welcome email to a Tenant Admin |
-| Tenant reactivation endpoint | Reactivating a suspended tenant needs its own dedicated action |
-| Role & permission seeding | System roles exist but permissions haven't been assigned to them yet |
+**Goal**: Platform administrators can log in securely, onboard clients, and manage tenant accounts.
+
+### Stories
+
+| # | Story | Status | Notes |
+|---|-------|--------|-------|
+| 2.1 | Custom-branded admin interface (DFMS design system — dark/light theme, 3,300+ line CSS) | Done | |
+| 2.2 | Secure login for platform administrators with email OTP as a second factor | Done | Two-step flow: password → email OTP challenge at `/admin/login/` |
+| 2.3 | Dashboard showing key platform metrics | Done | Platform admin home |
+| 2.4 | Tenant Onboarding — register a new client organisation | ~80% | Fills company details, subscription plan, admin contact; auto-creates isolated schema; sends activation email to Tenant Admin. **Pending**: resend welcome email button, reactivation endpoint, trial auto-suspension |
+| 2.5 | Tenant Management — view and update client accounts | Done | View, update, suspend. **Pending**: dedicated reactivation action |
 
 ---
 
-## Story-Level Progress (Technical)
+## Epic 3 — Client Portal *(for Nourish / end-client users)*
 
-| Story | Title | SP | Status | Notes |
-|-------|-------|----|--------|-------|
-| US-098 | Tenant Onboarding & Schema Provisioning | 13 | ~80% | Core provisioning done. Missing: reactivate endpoint, resend-welcome endpoint, audit log writes, trial auto-suspension |
-| US-001 | User Login & Account Lockout | 10 | ~70% | 3-step login + lockout done. Missing: admin unlock endpoint, locked accounts dashboard, `AccountUnlockLog` model, `LoginAttempt` model |
-| US-002 | Multi-Factor Authentication (2FA) | 10 | ~40% | Email OTP done. TOTP/authenticator app, backup codes not started |
-| US-003 | Session Control & Management | 10 | ~50% | Session tracking + concurrent session limit done. Missing: list sessions API, log out all devices, admin force logout, session cleanup task |
-| US-004 | Role Hierarchy & Permission Management | 10 | ~65% | Models, 10 system roles, permission classes done. Missing: permission catalog seeding (135 permissions), role management API, hierarchy enforcement |
+**Goal**: Tenant users can log in securely, activate their accounts, and access their operational dashboard.
+
+### Stories
+
+| # | Story | Status | Notes |
+|---|-------|--------|-------|
+| 3.1 | Custom-branded interface (Bootstrap 5 + DFMS design tokens on tenant host) | Done | |
+| 3.2 | Branded login page served on tenant host (`<schema>.dfms.com/login/`) | Done | Platform host (`admin.dfms.com`) redirects to Django admin; tenant hosts serve custom login page |
+| 3.3 | 2FA — Email OTP (3-step: identifier → OTP → password) | Done | JWT with tenant context issued on completion |
+| 3.4 | Account activation flow for new users (via invitation link) | Done | Tenant Admin receives email → sets password → account active |
+| 3.5 | Dashboard showing basic live operational metrics | Done | Tenant dashboard at `/dashboard/`; redirects platform host to `/admin/` |
+
+---
+
+## What's Pending (to complete Sprint 1)
+
+| Item | Epic | Notes |
+|------|------|-------|
+| Resend activation email | 2 — Tenant Onboarding | Platform admin needs a button to resend the welcome email to a Tenant Admin |
+| Tenant reactivation endpoint | 2 — Tenant Management | Dedicated action (currently suspend-only has its own endpoint) |
+| Admin account unlock flow | 3 — (login hardening) | When a user is locked out, admin needs a screen to unlock |
+| Session management screen | 3 — (login hardening) | Users see and close active sessions across devices |
+| TOTP / Authenticator app support | 3 — 2FA | Currently email OTP only; Google Authenticator / TOTP not yet wired |
+| Role & permission seeding | Cross-epic | 10 system roles exist; 135 permissions not yet assigned |
 
 ---
 
@@ -74,9 +82,11 @@
 
 - Multi-tenant schema isolation (`django-tenants`) fully operational
 - Custom DFMS design system applied to Django admin (3,300+ line CSS override, dark/light theme)
-- 3-step OTP login (`identifier → OTP → password`) wired end-to-end
+- 3-step OTP login (`identifier → OTP → password`) wired end-to-end for tenant users
+- Two-step admin login for Super Admin (password + email OTP patch on Django admin)
 - `TenantProvisioningService` — atomic 6-step provisioning with rollback on failure
-- Celery-based email delivery (OTP, invitation, activation emails) with retry logic
+- Celery-based email delivery (OTP, invitation, activation, password-reset hook) with retry logic
+- Celery result backend on Redis (DB 2) — avoids `django_celery_results` schema conflict in worker
 - JWT authentication with tenant context embedded in token
 - Redis-backed session cache and OTP state management
 - `scripts/seed_data.py` for local dev bootstrapping (platform tenant, client tenant, super admin)
@@ -97,10 +107,26 @@ The following modules have models, serializers, viewsets, and URL routing wired 
 - Gate Operations
 - Scaling / Weighing
 - Loading / Unloading
-- Notifications
+- Notifications (dispatch layer)
 - Reporting
 
 ---
 
-**Recorded by**: Development Team  
+---
+
+## Sprint 1 Demo Feedback
+
+Feedback received during or after the Sprint 1 demo. All items logged in [sprint1/FEEDBACK.md](../../04-backlog/sprint1/FEEDBACK.md).
+
+| # | Source | Item | Affects | Priority |
+|---|--------|------|---------|----------|
+| FB-001 | Internal | Invitation activation page: email must be pre-filled and **non-editable** | CP-04 | High |
+| FB-002 | Internal | Platform Admin needs a **Resend Welcome Email** action for failed/expired invitations | PAP-05 | High |
+| FB-003 | Client | **Session timeout**: extend from 30 minutes to **24 hours** (sliding window) | INFRA-04 | Medium |
+| FB-004 | Client | **OTP trusted device**: skip OTP on known browser — only prompt on new device/browser | CP-03, PAP-03 | High |
+
+---
+
+**Recorded by**: Development Team
+**Last updated**: 2026-03-31
 **Next review**: Sprint 1 completion / Sprint 2 kickoff

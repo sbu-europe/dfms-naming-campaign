@@ -1,36 +1,83 @@
 # User Stories Grouped by Epic
 
+---
+
+## Sprint 1 — Infrastructure, Onboarding & Secure Login
+
+### Epic: System Foundation Infrastructure
+
+| Story | Title | SP | Status |
+|-------|-------|----|--------|
+| INFRA | Development environment (Docker Compose — web, db, Redis, Celery, nginx) | 3 | Done |
+| INFRA | PostgreSQL 15 with schema-per-tenant (`django-tenants`) | 3 | Done |
+| INFRA | Background job processing (Celery + Redis; Redis result backend — multi-tenant safe) | 3 | Done |
+| INFRA | Caching and session store (Redis) | 1 | Done |
+| INFRA | Production-ready config (multi-stage Dockerfile, `.env.example`) | 2 | Done |
+
+### Epic: Platform Admin Portal *(DFMS team — internal)*
+
+| Story | Title | SP | Status |
+|-------|-------|----|--------|
+| — | Custom-branded admin interface (DFMS design system, dark/light theme) | 5 | Done |
+| — | Secure platform admin login with email OTP (2FA second factor) | 5 | Done |
+| — | Platform admin dashboard (key metrics) | 3 | Done |
+| US-098 | Tenant Onboarding — register a new client organisation (schema, domain, activation email) | 13 | In Progress (~80%) |
+| — | Tenant Management — view and update client accounts | 3 | Done |
+
+### Epic: Client Portal *(for Nourish / end-client users)*
+
+| Story | Title | SP | Status |
+|-------|-------|----|--------|
+| — | Custom-branded interface (Bootstrap 5 + DFMS design tokens on tenant host) | 3 | Done |
+| — | Branded login page served on tenant host | 2 | Done |
+| US-002 | Multi-Factor Authentication — Email OTP (3-step: identifier → OTP → password) | 8 | In Progress (~60%) |
+| US-005 | Account activation flow for new users (invitation link) | 5 | In Progress (~70%) |
+| — | Tenant dashboard (basic live operational metrics) | 3 | Done |
+
+---
+
+## All Stories by Epic
+
 ## EPIC-001: System Foundation
 
-**Epic Name:** System Foundation  
+**Epic Name:** System Foundation
 **Epic ID:** EPIC-001
 
 ### User Stories:
 - **US-001**: User Login & Account Lockout
   - Module: System Foundation
   - Priority: Critical
-  - Sprint: Sprint 1
+  - Sprint: Sprint 2
   - Story Points: 10
 
 ---
 
 ## EPIC-002: User & Tenant Foundation
 
-**Epic Name:** User & Tenant Foundation  
+**Epic Name:** User & Tenant Foundation
 **Epic ID:** EPIC-002
 
 ### User Stories:
 - **US-098**: Tenant Onboarding & Schema Provisioning
   - Module: User & Tenant Management
   - Priority: Critical
-  - Sprint: Sprint 1
+  - Sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
   - Story Points: 13
+  - Status: In Progress (~80%)
 
 - **US-002**: Multi-Factor Authentication (MFA)
   - Module: User & Tenant Management
   - Priority: Critical
-  - Sprint: Sprint 1
+  - Sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
   - Story Points: 8
+  - Status: In Progress (~60%)
+
+- **US-005**: User Invitation & Activation
+  - Module: User & Tenant Management
+  - Priority: Critical
+  - Sprint: Sprint 1 — Infrastructure, Onboarding & Secure Login
+  - Story Points: 5
+  - Status: In Progress (~70%)
 
 - **US-003**: Session Control & Management
   - Module: User & Tenant Management
@@ -43,12 +90,6 @@
   - Priority: Critical
   - Sprint: Sprint 2
   - Story Points: 13
-
-- **US-005**: User Invitation & Activation
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 3
-  - Story Points: 8
 
 - **US-006**: OTP Verification System
   - Module: User & Tenant Management
