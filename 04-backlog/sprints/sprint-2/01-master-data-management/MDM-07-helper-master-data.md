@@ -9,14 +9,14 @@ epic: Master Data Management
 status: Pending
 story_points: 3
 assignee: ~
-spec_file: ../../../../stories/US-061-helper-profile.md
+spec_file: ../../../../03-module-specifications/12-users/helper-master-data.md
 ---
 
 # MDM-07 — Helper Master Data Management
 
 ## User Story
 
-**As a** Transport Distribution Officer (TDO)  
+**As a** Transport Distribution Officer (TDO) or Tenant Admin  
 **I want to** register and manage helper profiles and assign helpers to drivers  
 **So that** trips are carried out with the required supporting personnel
 
@@ -27,8 +27,22 @@ Helpers assist drivers with loading, unloading, and handling goods. Proper helpe
 ## Acceptance Criteria
 
 ### AC-1: Helper Registration
-- [ ] Create helper profile with: Full Name, National ID (unique, required), Reference Contact (min 1, required), Contact Phone (unique), Date of Birth, Address, Photo (optional), Employment Type (Own/Contractual/Vendor), Join Date, Vendor ID (if vendor helper)
-- [ ] Prevent duplicate NID
+- [ ] Create helper profile with the following attributes:
+
+| Field Name | Field Type | Required | Remarks |
+|---|---|---|---|
+| Employee ID | Text Input | Yes | |
+| Full Name | Text Input | Yes | |
+| Contact Number | Text Input | Yes | |
+| National ID Number | Text Input | No | National ID Number |
+| Reference Contact 1 | Text Input | No | |
+| Reference Contact 2 | Text Input | No | |
+| Helper Status | Checkmark (Is Active?) | Yes | |
+| Address | Text Input | No | |
+| Linked User (`user_id`) | FK / lookup | No | Optional link to platform User when this helper is also a system user; unique per tenant when set |
+
+- [ ] Prevent duplicate Employee ID and Contact Number
+- [ ] Prevent duplicate National ID Number (NID) per tenant (if provided)
 - [ ] Draft save and profile updates with audit logging
 
 ### AC-2: Helper Assignment to Driver
@@ -52,9 +66,9 @@ Helpers assist drivers with loading, unloading, and handling goods. Proper helpe
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| MDM-07-1 | Helper model + migration (Helper, HelperAssignment tables) | DFS-023-1 | Pending |
+| MDM-07-1 | Helper model + migration (Helper with nullable `user_id` FK, HelperAssignment tables) | DFS-023-1 | Pending |
 | MDM-07-2 | Helper CRUD API (POST, GET list, GET detail, PATCH, status change) | DFS-023-2 | Pending |
-| MDM-07-3 | Unique NID + Phone validation | DFS-023-3 | Pending |
+| MDM-07-3 | Unique Employee ID, Contact Number, and NID (per tenant) validation | DFS-023-3 | Pending |
 | MDM-07-4 | Helper assignment API — link helper to driver + trip, conflict check | DFS-023-4 | Pending |
 | MDM-07-5 | Status auto-update on trip assignment and completion | DFS-023-5 | Pending |
 | MDM-07-6 | Leave marking API | DFS-023-6 | Pending |

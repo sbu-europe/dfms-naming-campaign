@@ -99,10 +99,9 @@ DFMS-product-context/
 │   │   ├── rbac.md
 │   │   └── user-tenant-management.md
 │   │
-│   ├── 02-master-data/                          # POI, products (3 files, 1,650 lines)
+│   ├── 02-master-data/                          # POI, products, vehicles (4 files, ~2,000 lines)
 │   │   ├── poi-management.md
 │   │   ├── product-inventory-management.md
-│   │   └── master-data-configuration.md
 │   │
 │   ├── 03-operations/                           # PRM, TRM, TO, trips (4 files, 3,275 lines)
 │   │   ├── product-requisition-management.md

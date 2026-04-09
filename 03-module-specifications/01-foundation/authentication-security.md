@@ -245,7 +245,7 @@ OTP verification is **mandatory for all users** as part of the 3-step login flow
 - **Invitation activation flows** where OTP may be **optional** depending on the invitation’s selected **OTP type** (None / Email / SMS) as defined in US-005
 
 **Applicability:**
-- **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
+- **Required for**: All user types (Super Admin, Tenant Admin, Operational User)
 - **Delivery Methods**: Email (if logged in via email), SMS (if logged in via phone)
 
 ### 3.2 OTP Generation

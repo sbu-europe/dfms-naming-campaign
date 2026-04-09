@@ -42,8 +42,7 @@ paths:
       summary: List available roles
       description: |
         Returns roles available in the current tenant context.
-        Super Admin sees all system roles; Tenant/Department Admins see
-        roles they can assign.
+        Super Admin sees all system roles; Tenant Admin sees roles they can assign.
       operationId: listRoles
       security:
         - bearerAuth: []
@@ -269,8 +268,7 @@ paths:
         - Role Assignment
       summary: Assign role to user
       description: |
-        Assign a role to a user. Department Admins can only assign
-        operational roles within their department.
+        Assign a role to a user.
       operationId: assignRole
       security:
         - bearerAuth: []
@@ -471,7 +469,7 @@ components:
           enum: [administrative, operational]
         tier:
           type: string
-          enum: [super_admin, tenant_admin, department_admin, operational]
+          enum: [super_admin, tenant_admin, operational]
         department:
           type: string
           nullable: true
@@ -497,21 +495,21 @@ components:
           enum: [administrative, operational]
         tier:
           type: string
-          enum: [super_admin, tenant_admin, department_admin, operational]
+          enum: [super_admin, tenant_admin, operational]
         department:
           type: string
           nullable: true
         is_system_role:
           type: boolean
-        workflow_flags:
-          type: object
-          properties:
-            can_request:
-              type: boolean
-            can_approve:
-              type: boolean
-            can_execute:
-              type: boolean
+        functional_type:
+          type: string
+          enum: [Requester, Approver, Executor]
+          nullable: true
+          description: "Role metadata label for UI display only — not a runtime permission gate. Permission enforcement uses the permissions array and access_scope."
+        access_scope:
+          type: string
+          enum: [Global, Local]
+          description: "Enforced at runtime to determine which records the role can act on."
         permissions:
           type: array
           items:

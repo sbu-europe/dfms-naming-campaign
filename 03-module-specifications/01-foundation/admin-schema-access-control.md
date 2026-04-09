@@ -1,3 +1,13 @@
+---
+module: 01-foundation
+specification: Admin Schema Access Control
+version: 1.0
+phase: Phase 1
+related_to: rbac.md
+related_stories: US-004
+last_updated: 2026-02-26
+---
+
 # Admin Schema Access Control
 
 ## Overview
