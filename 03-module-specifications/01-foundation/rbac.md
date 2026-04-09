@@ -325,6 +325,13 @@ Role: Transport Planner {
 - Workflow type (Requester/Approver/Executor) flags specific permissions
 - Access scope (Global / Local) determines data visibility (see Section 1.8)
 
+### 3.1.1 Predefined Departments & Role Department Mapping
+
+- Each **Operational Role** belongs to exactly one **Department** (predefined; not free-text).
+- When creating/configuring a role (Phase 2 custom roles) the Admin MUST select **Department** from a dropdown of predefined departments.
+- In user-facing assignment UIs (invite user / assign role), the **Department is selected first**, then the **Role dropdown is filtered** to roles under that department.
+- The API MUST validate Department↔Role consistency and reject mismatches (even if UI is bypassed).
+
 ### 3.2 Functional Role Types
 
 See Section 1.7 for full Functional Role Type definitions (Requester / Approver / Executor).
@@ -488,7 +495,7 @@ Role {
   tenant_id: UUID | null  // null for system roles, UUID for custom roles
   is_system_role: boolean  // true for predefined roles
   permissions: JSON        // Array of permission strings
-  department: string | null
+  department: string | null  // predefined department; required for Operational roles; null for Administrative roles
   access_scope: enum ['Global', 'Local']  // See Section 1.8
   workflow_flags: {
     is_requester: boolean

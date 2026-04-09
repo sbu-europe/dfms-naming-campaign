@@ -52,6 +52,8 @@ Role hierarchy defines permission scope and access rights. The system must:
 - [ ] System SHALL assign each role:
   - a permission scope
   - access rights
+- [ ] System SHALL require each **Operational Role** to be associated with exactly one **Department** (selected from a predefined department list)
+- [ ] When creating or configuring a role, Admin SHALL select the role’s **Department** from a dropdown populated by the predefined department table (AC-1 operational roles table)
 - [ ] System SHALL support two access scope levels:
   - **Global Access** – role can access data and actions across all locations within the tenant
   - **Local Access** – role can access data only within assigned department, POI, depot, feed mill, or operational unit
@@ -125,6 +127,12 @@ Scenario: AC-1.5 - Administrative role hierarchy
   When the user accesses any tenant's data
   Then the user has full read/write access across all tenants
   And can manage Tenant Admin assignments
+
+Scenario: AC-1.6 - Create operational role requires predefined department
+  Given a Tenant Admin is creating an Operational role
+  When the admin opens the "Department" dropdown
+  Then the dropdown options match the predefined Department list from the Operational Roles table
+  And free-text department entry is not allowed
 ```
 
 ### AC-2: Permission Enforcement
@@ -309,6 +317,7 @@ Scenario: AC-4.5 - Executor role permissions
 - **Administrative roles**: Super Admin, Tenant Admin, Department Admin
 - **Operational roles**: 15 pre-defined roles across 5 departments (see AC-1 table)
 - Each role has a Functional Type: Requester, Approver, or Executor
+- Each Operational Role belongs to exactly one predefined Department (used for role creation and role filtering in user assignment/invitation flows)
 - **Enforcement**: RBAC service
 
 ### BR-RBAC-002: Access Scope Enforcement
@@ -341,7 +350,7 @@ Role {
   category: Enum (Administrative, Operational)
   functional_type: Enum (Requester, Approver, Executor)
   access_scope: Enum (Global, Local)
-  department: string (nullable)
+  department: Enum (Predefined Department; required for Operational roles; null for Administrative roles)
   permissions: JSON (array of permission codes)
 }
 
