@@ -23,14 +23,14 @@ spec_file: ../../../../stories/US-005-user-invitation-activation.md
 
 ## Business Context
 
-Organizations need to onboard multiple users with different roles. The invitation and activation workflow ensures secure user onboarding, proper role assignment, email/mobile verification, and controlled access. Critical for multi-tenant security.
+Organizations need to onboard multiple users with different roles. All users — including Drivers and Helpers — are invited via **email only** in Phase 1. The invitation and activation workflow ensures secure user onboarding, proper role assignment, email-based activation, and controlled access. Critical for multi-tenant security.
 
 ## Status: In Progress (~70% complete)
 
 ### Completed
-- [x] Single user invitation via email
+- [x] Single user invitation via email (all roles including Driver/Helper)
 - [x] Invitation email with activation link
-- [x] Email + mobile OTP verification before activation
+- [x] Email OTP verification before activation (when OTP type = Email)
 - [x] Role assignment during invitation
 - [x] Unique email per tenant enforcement
 
@@ -42,11 +42,11 @@ Organizations need to onboard multiple users with different roles. The invitatio
 ## Acceptance Criteria
 
 ### AC-1: Single User Invitation
-- [ ] Admin invites user via email with **First Name** + **Last Name** and role assignment
+- [ ] Admin invites user via **email** with **First Name** + **Last Name** and role assignment (applies to all roles including Driver and Helper)
 - [ ] **Invitation email dispatched immediately** upon form submission (synchronous within the creation request)
 - [ ] `invitation_status` set to `sent` upon email dispatch
 - [ ] **Super Admin role cannot be assigned** — system rejects with HTTP 403 (`ROLE-403-SUPER-ADMIN-RESTRICTED`) and Super Admin is hidden from the role dropdown
-- [ ] OTP verification behavior driven by OTP type selected (None / Email / SMS)
+- [ ] OTP verification behavior driven by OTP type selected (**None / Email** — no SMS in Phase 1)
 - [ ] Role permissions validated against tenant plan limits
 
 ### AC-2: Invitation Management
@@ -56,7 +56,7 @@ Organizations need to onboard multiple users with different roles. The invitatio
 - [ ] Admin can cancel (previously "revoke") pending invitations
 
 ### AC-3: Bulk Invitation (Pending)
-- [ ] CSV upload for bulk user invitations (columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type)
+- [ ] CSV upload for bulk user invitations (columns: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type)
 - [ ] Per-row validation with error report (failed rows with reason)
 - [ ] Bulk invitation audit logged
 
@@ -74,7 +74,7 @@ Organizations need to onboard multiple users with different roles. The invitatio
 |---|----------|------|--------|
 | TUM-01-1 | Single invitation API (POST /invitations) + email dispatch | DFS-024-1 | Done |
 | TUM-01-2 | Invitation token generation (secure, time-limited) | DFS-024-2 | Done |
-| TUM-01-3 | Activation page — OTP verify (email + mobile) + password set | DFS-024-3 | Done |
+| TUM-01-3 | Activation page — email OTP verify (if OTP type=Email) + password set | DFS-024-3 | Done |
 | TUM-01-4 | Role assignment + tenant plan limit validation | DFS-024-4 | Done |
 | TUM-01-5 | Invitation list UI (pending, activated, expired, revoked statuses) | DFS-024-5 | Done |
 | TUM-01-6 | Resend invitation API with cooldown | DFS-024-6 | Pending |
@@ -94,6 +94,8 @@ POST   /api/v1/tenants/{tenant_id}/users/invitations/bulk      # Bulk CSV invita
 
 **Key Constraints**:
 - `POST` invitation: `first_name` + `last_name` are required; `full_name` is removed
+- `POST` invitation: `email` is the only invitation channel — no mobile/SMS flow in Phase 1
+- `POST` invitation: `otp_type` accepts `none` or `email` only — SMS option removed in Phase 1
 - `POST` invitation: `role_ids` containing Super Admin role returns HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED`
 - `POST` invitation: Response includes `invitation_status: "sent"` confirming email dispatch
 

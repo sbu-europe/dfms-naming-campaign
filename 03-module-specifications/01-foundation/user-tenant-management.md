@@ -6,6 +6,7 @@ phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
 last_updated: 2026-04-09
+phase1_note: All users (including Driver, Helper) invited via email only. SMS/phone-based invitation removed from Phase 1 scope.
 related_stories: US-005, US-006, US-007, US-008, US-009
 scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
@@ -359,28 +360,13 @@ Admin (Tenant Admin or Department Admin) → Invite User Form → Submit →
   System creates user record + dispatches invitation email immediately →
   invitation_status = "sent" →
 User Clicks Link → invitation_status = "pending" →
-  Complete Profile → Verify OTP → Accept T&C →
+  Complete Profile → Verify OTP (if required) → Accept T&C →
   invitation_status = "activated" → Account Active
 ```
 
+> **Phase 1 — Email Only**: All users including Drivers and Helpers are invited via email. There is no SMS or phone-number-based invitation flow in Phase 1.
+
 > **Immediate Email Dispatch**: The invitation email is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming the email was queued/dispatched. If dispatch fails, status remains `pending` and a retry is attempted.
-
-#### 4.1.1 Driver SMS-based Invitation + Quick Login (Low Digital Literacy)
-
-For **Driver** users, the system supports an SMS-first onboarding flow optimized for low literacy users.
-
-```
-Admin → Invite Driver (mobile-based) → System sends SMS:
-  - Mobile interface link
-  - System-generated password
-  - (Optional) 6-digit OTP for audit/logging
-Driver opens link → Mobile auto-populated (read-only) → Enter system-generated password → Authenticated
-```
-
-**Rules**:
-- Driver invitations may be created using **mobile number only** (email optional)
-- Driver quick login does **not** require OTP verification in Phase 1
-- All driver quick login attempts are audit logged (success/failure with reason)
 
 **Permission-Based Invitation**:
 - **Tenant Admin** can invite: Department Admins, Operational Users (any department)
@@ -391,15 +377,14 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
 **Required Fields**:
 - First Name
 - Last Name
-- Email Address
-- Mobile Number
+- Email Address (mandatory — sole invitation channel for all roles in Phase 1)
 - User Type (Department Admin / Operational User)
 - Role (from 18 predefined operational roles, multi-select supported; **Super Admin role is not listed and cannot be selected**)
 - Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
 - Employee ID
 - Functional Role Type (Requester / Approver / Executor)
-- OTP type (None / Email / SMS) — default None (controls activation OTP flow for non-Driver users)
+- OTP type (None / Email) — default None
 
 **Optional Fields**:
 - Custom invitation message (freeform text)
@@ -411,10 +396,7 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
   email: {
     unique_per_tenant: true,
     format: 'email'
-  },
-  mobile: {
-    unique_per_tenant: true,
-    format: 'E.164'
+    // Phase 1: email is the sole invitation channel for all roles
   },
   role: {
     validate: (role, tenant) => {
@@ -434,7 +416,7 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
 
 Admins can upload a CSV file to invite multiple users at once:
 
-**CSV Columns**: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type
+**CSV Columns**: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type
 
 **Processing Rules**:
 - Validate that Department is one of the predefined department options
@@ -452,9 +434,8 @@ async function validateCSVRow(row: CSVRow, tenant: Tenant): Promise<ValidationRe
     
     if (!isValidEmail(row.email)) errors.push('Invalid email format');
     if (await emailExistsInTenant(row.email, tenant.id)) errors.push('Email already exists');
-    if (!isValidPhone(row.mobile)) errors.push('Invalid mobile format');
-    if (await mobileExistsInTenant(row.mobile, tenant.id)) errors.push('Mobile already exists');
     if (!await roleExists(row.role)) errors.push('Invalid role');
+    if (row.role === 'Super Admin') errors.push('Super Admin role cannot be assigned via invitation');
     if (await isOverPlanLimit(tenant.id)) errors.push('Plan user limit exceeded');
     
     return { valid: errors.length === 0, errors };
@@ -478,8 +459,8 @@ Department: [Department]
 
 To activate your account:
 1. Click the link below (valid for 7 days)
-2. Complete your profile and set a password
-3. Verify your email and phone with OTP
+2. Enter your OTP if prompted (only if OTP type was set to "Email")
+3. Set a password
 4. Review and accept Terms & Conditions
 
 [Activate Account Button: https://dfms.app/activate/[token]]
@@ -531,7 +512,6 @@ InvitationToken {
 - OTP requirement depends on **OTP type** selected during invitation:
   - OTP type = None → Skip OTP verification
   - OTP type = Email → Send OTP to email; user enters OTP
-  - OTP type = SMS → Send OTP to mobile; user enters OTP
 - System validates against stored code (max 3 attempts, 10-minute validity)
 
 **Step 4: Accept Terms**
@@ -566,7 +546,7 @@ OTPRecord {
   otp_id: UUID
   user_id: UUID
   otp_code: string  // Hashed for security
-  otp_type: enum ['None', 'Email', 'SMS', 'Both']
+  otp_type: enum ['None', 'Email']  // Phase 1: SMS removed
   purpose: enum ['Registration', 'Activation', 'PasswordReset', 'MFA']
   generated_at: DateTime
   expires_at: DateTime  // 10 minutes
@@ -841,9 +821,9 @@ async function adminAssistedReset(
 
 **Reset Link Generation**:
 ```typescript
-async function generateResetLink(identifier: string): Promise<string> {
-    // Accept email or mobile number as identifier
-    const user = await findUserByEmailOrPhone(identifier);
+async function generateResetLink(email: string): Promise<string> {
+    // Phase 1: accepts email address only
+    const user = await findUserByEmail(email);
     
     if (!user) {
         // Don't reveal if account exists (prevent enumeration)
@@ -872,11 +852,8 @@ async function generateResetLink(identifier: string): Promise<string> {
         ip_address: request.ip
     });
     
-    // Send reset link via email
-    await sendPasswordResetEmail(user.email, token);
-    
-    // Send OTP via SMS
-    await sendSMS(user.phone, `Your DFMS password reset code: ${otp}. Valid for 10 minutes.`);
+    // Send reset link + OTP together via email (Phase 1: email only)
+    await sendPasswordResetEmail(user.email, { token, otp });
     
     return 'success';
 }

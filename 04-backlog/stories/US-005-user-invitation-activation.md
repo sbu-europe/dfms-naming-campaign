@@ -34,39 +34,38 @@ tags: [user-management, invitation, activation, onboarding, critical]
 ## User Story
 
 **As a** Tenant Super Admin  
-**I want to** invite users, activate accounts securely, and reset passwords through both self-service and admin-assisted methods  
-**So that** user onboarding and account recovery are secure, flexible, and accessible for all types of users (including low-literacy users such as Drivers)
+**I want to** invite users via email, activate accounts securely, and reset passwords through both self-service and admin-assisted methods  
+**So that** user onboarding and account recovery are secure and consistent for all user types
 
 ## Business Context
 
 Organizations need to onboard multiple users with different roles and provide accessible account recovery. The system must support:
-- Secure user onboarding via invitation and activation workflows
+- Secure user onboarding via email invitation and activation workflows for **all user types** (including Drivers and Helpers)
 - Proper role assignment during invitation (18 operational roles across 6 departments)
-- Email/mobile OTP verification before account activation
+- Email OTP verification (optional) before account activation
 - Bulk user invitation via CSV upload
 - Subscription plan limit enforcement during invitation
-- Admin-assisted password reset for low-literacy users (e.g., Drivers, Helpers)
+- Admin-assisted password reset
 - Self-service password reset via forgot password flow
 - Comprehensive audit logging for all account operations
 
-This is critical for multi-tenant security, proper access control, and accommodating users with varying levels of digital literacy.
+> **Phase 1 Scope**: All users — including Drivers and Helpers — are invited exclusively via **email**. SMS/phone-based invitation and SMS OTP flows are out of scope for Phase 1.
 
 ## Acceptance Criteria
 
 Given a tenant Admin user accesses the "Invite User" functionality,
 
-when the Admin fills out the invitation form with user details (Employee ID, First Name, Last Name, Email, Mobile Number, Role, Department, POI if applicable, and Functional Role Type),
+when the Admin fills out the invitation form with user details (Employee ID, First Name, Last Name, Email, Role, Department, POI if applicable, and Functional Role Type),
 
 then the system shall:
 
-- [ ] Allow admin to invite users via Email (all roles) or via Mobile Number (**Drivers only**)
-- [ ] Enforce unique **email or mobile number** per tenant (based on the chosen invitation channel)
+- [ ] Allow admin to invite **all users** (including Drivers and Helpers) via **email only**
+- [ ] Enforce unique **email** per tenant
 - [ ] Require the Admin to select a **Department** first (from predefined departments), then select a **Role** under that Department
 - [ ] Role dropdown SHALL be filtered based on selected Department; the system SHALL reject role selections that do not belong to the selected Department
-- [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`, `SMS`
-- [ ] Default **OTP type** is `None` (no OTP required for activation for non-Driver users)
+- [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`
+- [ ] Default **OTP type** is `None` (no OTP required for activation)
 - [ ] If **OTP type = Email**, system sends a 6-digit OTP via email and requires OTP verification before credential setup
-- [ ] If **OTP type = SMS**, system sends a 6-digit OTP via SMS and requires OTP verification before credential setup
 - [ ] Allow role assignment during invitation with the following roles:
   - Distribution Officer
   - Distribution Manager
@@ -113,51 +112,41 @@ then the system shall:
 | QA / QC | QC Inspector - Physical, QA Lab Technician |
 | Operations | Command Center Officer, Gate man, Scaling Personnel, Loading Personnel, Unloading Personnel |
 
-#### Driver users (SMS-based invitation + low literacy quick login)
+#### All users — Email-based invitation + activation + credential setup (Phase 1)
 
-- [ ] System SHALL send an SMS to the Driver containing:
-  - A Mobile interface link
-  - A 6-digit One-Time Password (OTP) valid for 10 minutes (**logged; not required for activation in Phase 1**)
-  - A system-generated password
-- [ ] Upon opening the mobile link:
-  - Registered mobile number is auto-populated (read-only)
-  - Driver enters the system-generated password received via SMS
-  - On success, system authenticates the Driver and grants access
-  - On invalid credentials, system displays an appropriate error message and denies access
-- [ ] Driver activation/login does **not** require OTP verification in Phase 1
-
-#### Other role users (Email-based invitation + OTP activation + credential setup)
-
-- [ ] System SHALL send a user invitation email containing:
-  - An invitation link
+- [ ] System SHALL send a user invitation email containing an activation link (applies to **all roles including Driver and Helper**)
 - [ ] If **OTP type = Email**, the invitation email includes a 6-digit OTP (valid 10 minutes)
-- [ ] If **OTP type = SMS**, the system sends a 6-digit OTP via SMS (valid 10 minutes)
 - [ ] If **OTP type = None**, no OTP is sent and the user proceeds directly to credential setup after opening the link
 - [ ] Upon accessing the invitation link:
   - Registered email is automatically populated (read-only)
-  - If OTP is required by the selected OTP type, user enters the received OTP
+  - If OTP type = Email, user enters the received OTP
   - On successful OTP verification (or if OTP type = None), system prompts to set credentials (New Password + Confirm Password)
   - System ensures password match + password policy compliance
   - User accepts Terms & Conditions
   - System authenticates and logs the user into the platform
 - [ ] Post activation, the user can access the system using registered email + configured password
-
-- [ ] System logs audit events for invitation, activation, OTP operations, and driver quick login attempts
+- [ ] System logs audit events for invitation, activation, and OTP operations
 
 **Test Scenarios (AC-1):**
 
 ```gherkin
 Scenario: AC-1.1 - Single user invitation
   Given a Tenant Admin accesses the "Invite User" form
-  When the Admin fills out: Employee ID, First Name, Last Name, Email, Mobile, Role "Depot Officer", Department "Depot", OTP type "Email", Functional Role Type "Requester"
-  Then the system validates email and mobile uniqueness within the tenant
+  When the Admin fills out: Employee ID, First Name, Last Name, Email, Role "Depot Officer", Department "Depot", OTP type "Email", Functional Role Type "Requester"
+  Then the system validates email uniqueness within the tenant
   And immediately dispatches an invitation email with an activation link
   And sets invitation_status to "sent" upon email dispatch
   And the invitation expires after 7 days
 
+Scenario: AC-1.1b - Driver invited via email (same as all users)
+  Given a Tenant Admin accesses the "Invite User" form
+  When the Admin fills out: Employee ID, First Name, Last Name, Email, Role "Driver", Department "Transport", OTP type "None", Functional Role Type "Executor"
+  Then the system creates the invitation and immediately dispatches an invitation email
+  And the Driver activates their account via the email link and sets a password
+
 Scenario: AC-1.2 - Bulk invitation via CSV
   Given a Tenant Admin uploads a CSV with 50 user records
-  And the CSV contains columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type, OTP type
+  And the CSV contains columns: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type, OTP type
   When the system processes the CSV
   Then valid rows create invitations and send emails
   And invalid rows are reported with specific error reasons
@@ -182,30 +171,6 @@ Scenario: AC-1.3a - User activation with OTP type None
   And prompts the user to set a password and accept Terms & Conditions
   When the user submits valid credentials
   Then the user account is created and activated
-
-Scenario: AC-1.3d - User activation with SMS OTP
-  Given a user received an invitation email with an activation link
-  And the user has a registered mobile number
-  When the user clicks the activation link within 7 days
-  And the OTP type is "SMS"
-  Then the system sends a 6-digit OTP via SMS
-  When the user enters the SMS OTP successfully
-  Then the system prompts the user to set a password and accept Terms & Conditions
-
-Scenario: AC-1.3b - Driver SMS quick login (no OTP required)
-  Given a Driver user invitation was created with mobile "+8801712345678"
-  When the system sends an SMS containing a mobile link and a system-generated password
-  And the Driver opens the mobile link
-  Then the mobile number is auto-populated and read-only
-  When the Driver enters the system-generated password
-  Then the system authenticates the Driver and grants access
-  And logs the login attempt as success
-
-Scenario: AC-1.3c - Driver SMS quick login invalid password
-  Given a Driver opens the mobile link
-  When the Driver enters an invalid system-generated password
-  Then the system denies access with an appropriate error message
-  And logs the login attempt as failure with reason "InvalidPassword"
 
 Scenario: AC-1.4 - Plan limit enforcement
   Given a tenant is on the "Basic" plan with a limit of 5 users
@@ -258,18 +223,13 @@ Scenario: AC-1.7d - Reject Super Admin role assignment
   And displays "Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually."
   And the "Super Admin" role SHALL NOT appear in the role dropdown
 
-Scenario: AC-1.8 - Unique mobile number enforcement
-  Given a user with mobile "+8801712345678" already exists in the tenant
-  When the Admin attempts to invite another user with the same mobile number
-  Then the system rejects with "Mobile number already registered in this organization"
-
-Scenario: AC-1.9 - Custom invitation message
+Scenario: AC-1.8 - Custom invitation message
   Given a Tenant Admin fills out the invitation form
   When the Admin adds a custom message "Welcome to the Distribution team!"
   Then the invitation email includes the custom message
   And the standard invitation template elements are preserved
 
-Scenario: AC-1.10 - Invitation scheduling
+Scenario: AC-1.9 - Invitation scheduling
   Given a Tenant Admin fills out the invitation form
   When the Admin schedules the invitation for a future date/time
   Then the system queues the invitation
@@ -336,10 +296,9 @@ Scenario: AC-2.5 - Admin-assisted reset with expired OTP
 Given a registered user has forgotten their password, when the user initiates a self-service reset from the login screen, then the system shall:
 
 - [ ] Provide a "Forgot Password" option on the login page
-- [ ] Accept email or mobile number as identifier
-- [ ] Generate a 6-digit OTP with 10-minute validity and deliver it to the user's registered mobile number
+- [ ] Accept **email address** as identifier
 - [ ] Generate a reset link that is valid for 15 minutes and send via email
-- [ ] Prompt the user on mobile to complete the reset flow
+- [ ] Generate a 6-digit OTP with 10-minute validity and include it in the reset email
 - [ ] Enforce password complexity rules during the new password setup:
   - Minimum 8 characters
   - At least one uppercase letter
@@ -359,28 +318,20 @@ Scenario: AC-3.1 - User initiates forgot password
   Given a registered user on the login page
   When the user clicks "Forgot Password"
   And enters their registered email "user@company.com"
-  Then the system sends a password reset link to the email (valid 15 minutes)
-  And sends a 6-digit OTP to the registered mobile number (valid 10 minutes)
+  Then the system sends a password reset email containing a reset link (valid 15 minutes) and a 6-digit OTP (valid 10 minutes)
 
 Scenario: AC-3.2 - User completes self-service reset via email link
   Given a user clicked the password reset link from their email
   And the link is within the 15-minute validity window
-  When the user enters a new password meeting complexity requirements
+  When the user enters the OTP from the email
+  And enters a new password meeting complexity requirements
   And confirms the password
   Then the system updates the password (hashed)
   And terminates all active sessions
   And sends a confirmation email
   And redirects to the login page
 
-Scenario: AC-3.3 - User completes self-service reset via mobile OTP
-  Given a user received a 6-digit OTP on their mobile
-  When the user enters the OTP on the reset page
-  And sets a new password meeting complexity requirements
-  Then the system validates the OTP
-  And updates the password
-  And terminates all active sessions
-
-Scenario: AC-3.4 - Expired reset link rejected
+Scenario: AC-3.3 - Expired reset link rejected
   Given a user received a password reset link 16 minutes ago
   When the user clicks the expired link
   Then the system displays "Reset link expired. Please request a new one."
@@ -404,17 +355,15 @@ Scenario: AC-3.6 - Password history enforcement
 ### FR-065-001: User Invitation Creation
 - [Critical] System SHALL provide form to invite users with:
   - Employee ID
-  - Email address (mandatory)
-  - Mobile number (mandatory)
+  - Email address (mandatory — the sole invitation channel for all roles)
   - First Name (mandatory)
   - Last Name (mandatory)
   - Role assignment (from predefined list of 18 operational roles)
   - Department assignment (required; dropdown from predefined departments)
   - POI (if applicable)
   - Functional Role Type Assignment (Requester / Approver / Executor)
-  - OTP type (None / Email / SMS) — default None
+  - OTP type (None / Email) — default None
 - [Critical] System SHALL validate email uniqueness within tenant
-- [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
 - [Critical] System SHALL validate that selected role belongs to selected department
 - [Critical] System SHALL **reject** any invitation where the selected role is `Super Admin` — Super Admin accounts are provisioned manually only, never through invitation
@@ -437,23 +386,20 @@ Scenario: AC-3.6 - Password history enforcement
 - [High] System SHALL allow invitation resend (2-minute cooldown)
 
 ### FR-065-003: User Activation
-- [Critical] For non-Driver users, OTP verification behavior SHALL be driven by **OTP type** selected during invitation:
+- [Critical] OTP verification behavior SHALL be driven by **OTP type** selected during invitation (applies to all roles including Driver and Helper):
   - OTP type = None → no OTP required for activation
-  - OTP type = Email → email OTP required
-  - OTP type = SMS → SMS OTP required
-- [Critical] Driver users SHALL authenticate using the system-generated password received via SMS (no OTP required in Phase 1)
-- [Critical] System SHALL require password setup during activation
+  - OTP type = Email → email OTP required before credential setup
+- [Critical] System SHALL require password setup during activation for all users
 - [Critical] System SHALL enforce password complexity rules
 - [Critical] System SHALL require Terms & Conditions acceptance
 - [Critical] System SHALL create user account upon successful activation
 - [Critical] System SHALL assign role(s) as specified in invitation
 - [Critical] System SHALL send welcome email after activation
 - [High] System SHALL allow activation link reuse within validity period
-- [High] System SHALL support activation via mobile app
 
 ### FR-065-004: Bulk Invitation
 - [Critical] System SHALL support CSV upload with columns:
-  - Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type
+  - Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type
 - [Critical] System SHALL validate CSV format and data
 - [Critical] System SHALL process invitations in batch
 - [Critical] System SHALL report success/failure for each row
@@ -481,9 +427,8 @@ Scenario: AC-3.6 - Password history enforcement
 
 ### FR-065-007: Self-Service Password Reset
 - [Critical] System SHALL provide "Forgot Password" link on login page
-- [Critical] System SHALL accept email or mobile number as identifier
-- [Critical] System SHALL send password reset link via email (valid 15 minutes)
-- [Critical] System SHALL send 6-digit OTP via SMS to registered mobile (valid 10 minutes)
+- [Critical] System SHALL accept **email address** as identifier
+- [Critical] System SHALL send password reset email containing: a reset link (valid 15 minutes) and a 6-digit OTP (valid 10 minutes)
 - [Critical] System SHALL require OTP verification before allowing password change
 - [Critical] System SHALL enforce password complexity rules:
   - Minimum 8 characters
@@ -523,11 +468,9 @@ Scenario: AC-3.6 - Password history enforcement
 - `cancelled` — set when admin explicitly cancels a pending invitation before activation
 - Status transitions: `sent` → `pending` → `activated` | `expired` | `cancelled`
 
-### BR-065-002: Email and Mobile Validation
+### BR-065-002: Email Validation
 - Email must be unique within tenant
-- Mobile number must be unique within tenant
 - Email format must be valid
-- Mobile number format must be valid
 - Email domain validation (if domain restriction enabled)
 - Cannot invite user with existing active account
 
@@ -539,10 +482,9 @@ Scenario: AC-3.6 - Password history enforcement
 - Role permissions validated against tenant plan
 
 ### BR-065-004: Activation Requirements
-- OTP verification requirement depends on **OTP type** selected during invitation:
+- OTP verification requirement depends on **OTP type** selected during invitation (applies to all users including Drivers):
   - OTP type = None → no OTP required
-  - OTP type = Email → email OTP required
-  - OTP type = SMS → SMS OTP required
+  - OTP type = Email → email OTP required before credential setup
 - Password must meet complexity requirements
 - Terms & Conditions must be accepted
 - Activation link must be valid (not expired)
@@ -557,8 +499,8 @@ Scenario: AC-3.6 - Password history enforcement
 - All assisted resets logged for audit with full details
 
 ### BR-065-006: Self-Service Reset Rules
-- Reset link valid for 15 minutes
-- OTP valid for 10 minutes
+- Reset link and OTP both delivered via email
+- Reset link valid for 15 minutes; OTP valid for 10 minutes
 - Maximum 3 reset requests per hour per user
 - Cannot reuse last 3 passwords
 - All active sessions terminated upon successful reset
@@ -581,8 +523,7 @@ Scenario: AC-3.6 - Password history enforcement
 UserInvitation:
   invitation_id: string (unique)
   tenant_id: string (FK)
-  email: string (unique per tenant)
-  mobile: string (unique per tenant)
+  email: string (unique per tenant)  # sole invitation channel — Phase 1
   first_name: string
   last_name: string
   role_ids: array[string] (FK)  # Super Admin role is strictly forbidden
@@ -590,7 +531,7 @@ UserInvitation:
   employment_type: string
   poi_id: string (FK, optional)
   functional_role_type: string
-  otp_type: string (none|email|sms)
+  otp_type: string (none|email)  # SMS removed — Phase 1 email-only
   invitation_token: string (unique)
   invitation_status: string (sent|pending|activated|expired|cancelled)
     # sent       — invitation email dispatched immediately upon form submission
@@ -611,7 +552,7 @@ UserInvitation:
 UserActivation:
   activation_id: string (unique)
   invitation_id: string (FK)
-  otp_type: string (none|email|sms)
+  otp_type: string (none|email)  # SMS removed — Phase 1 email-only
   otp_code: string (6-digit, hashed; optional when otp_type=none)
   otp_verified: boolean
   otp_expires_at: datetime
@@ -630,7 +571,7 @@ PasswordResetToken:
   token: string (unique, 64-char hex, hashed)
   otp_code: string (6-digit, hashed)
   method: string (self-service, admin-assisted)
-  delivery_channel: string (email, sms, both)
+  delivery_channel: string (email)  # Phase 1: email only
   expires_at: datetime
   otp_expires_at: datetime
   status: string (pending, used, expired)
@@ -677,8 +618,7 @@ PasswordResetAuditLog:
 ## UI/UX Requirements
 
 ### Invitation Form
-- Email input with validation
-- Mobile number input with validation
+- Email input with validation (mandatory — sole invitation channel)
 - Employee ID input with validation
 - First Name input (mandatory)
 - Last Name input (mandatory)
@@ -686,14 +626,14 @@ PasswordResetAuditLog:
 - Role selection (dropdown filtered by selected Department; **Super Admin is not listed**)
 - POI selection (dropdown, optional)
 - Functional Role Type input (Requester / Approver / Executor)
-- OTP type selector (None / Email / SMS) — default None
+- OTP type selector (None / Email) — default None
 - Custom message textarea (optional)
 - "Send Invitation" button — triggers user record creation **and** immediate email dispatch
 - "Bulk Upload" option
 
 ### Bulk Upload Interface
 - CSV file upload area
-- Template download link (with columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type)
+- Template download link (with columns: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type)
 - Validation results display
 - Success/failure summary
 - "Process Invitations" button
@@ -713,15 +653,8 @@ PasswordResetAuditLog:
 - "Activate Account" button
 - Resend OTP links
 
-### Driver Mobile Login Page (SMS-based)
-- Mobile number auto-populated (read-only)
-- System-generated password input
-- "Login" button
-- Error message on invalid password
-- Link to "Contact Admin" for assistance
-
 ### Forgot Password Page
-- Email or mobile number input
+- Email address input
 - "Send Reset Link" button
 - Link to "Contact Admin for assisted reset"
 - Success message: "If an account exists, a reset link has been sent"
@@ -757,8 +690,8 @@ PasswordResetAuditLog:
 ## API Endpoints
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations
-- Create user invitation and **immediately dispatch invitation email**
-- Request body: employee_id, email, mobile, first_name, last_name, role_ids (Super Admin role forbidden), department_id, poi_id, functional_role_type, otp_type, custom_message
+- Create user invitation and **immediately dispatch invitation email** (all roles including Driver/Helper)
+- Request body: employee_id, email, first_name, last_name, role_ids (Super Admin role forbidden), department_id, poi_id, functional_role_type, otp_type (none|email), custom_message
 - Response: invitation_id, invitation_token, invitation_status ("sent")
 - Error: HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED` if Super Admin role is in role_ids
 
@@ -785,23 +718,14 @@ PasswordResetAuditLog:
 - Request body: otp_code? (required when otp_type != none), password, password_confirm, terms_accepted
 - Response: user_id, access_token
 
-### GET /m/driver/login/{invitation_token}
-- Driver SMS-based mobile login page (auto-populates mobile)
-- Response: HTML/mobile UI
-
-### POST /api/v1/auth/driver/login
-- Driver SMS-based login (no OTP required in Phase 1)
-- Request body: invitation_token, mobile (read-only client-side), system_generated_password
-- Response: user_id, access_token
-
 ### POST /api/v1/users/invitations/{invitation_token}/otp/resend
-- Resend OTP (email or SMS)
-- Request body: otp_type (email|sms) (must match invitation otp_type; rejected if otp_type=none)
+- Resend email OTP
+- Request body: otp_type (email) — rejected if otp_type=none
 - Response: success message
 
 ### POST /api/v1/auth/password/forgot
 - Initiate self-service password reset
-- Request body: identifier (email or mobile)
+- Request body: email
 - Response: { message: "If an account exists, a reset link has been sent" }
 - Note: Always returns success to prevent email enumeration
 
@@ -832,10 +756,10 @@ PasswordResetAuditLog:
 ## Testing Scenarios
 
 ### TC-065-001: Single User Invitation
-1. Admin invites user with email and role
-2. Verify invitation email sent
+1. Admin invites user with email and role (any role including Driver/Helper)
+2. Verify invitation email sent immediately
 3. User clicks activation link
-4. User verifies OTPs and sets password
+4. User verifies email OTP (if OTP type = Email) and sets password
 5. Verify user account created and activated
 
 ### TC-065-002: Bulk Invitation
@@ -872,10 +796,10 @@ PasswordResetAuditLog:
 
 ### TC-065-007: Self-Service Password Reset
 1. User clicks "Forgot Password" on login page
-2. User enters registered email
-3. User receives reset link and OTP
-4. User clicks link, enters OTP, sets new password
-5. Verify password updated, sessions terminated, confirmation sent
+2. User enters registered email address
+3. User receives reset email containing reset link and OTP
+4. User clicks link, enters OTP from email, sets new password
+5. Verify password updated, sessions terminated, confirmation email sent
 
 ---
 
@@ -890,7 +814,6 @@ def test_create_invitation_success():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'employee_id': 'EMP-0001',
         'email': 'newuser@company.com',
-        'mobile': '+8801712345678',
         'first_name': 'John',
         'last_name': 'Doe',
         'role_ids': [get_role_id('Depot Officer')],
@@ -911,7 +834,6 @@ def test_create_invitation_sends_email_immediately():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'employee_id': 'EMP-0002',
         'email': 'newuser2@company.com',
-        'mobile': '+8801712345679',
         'first_name': 'Jane',
         'last_name': 'Smith',
         'role_ids': [get_role_id('Depot Officer')],
@@ -933,7 +855,6 @@ def test_create_invitation_super_admin_role_rejected():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'employee_id': 'EMP-0003',
         'email': 'superadmin@company.com',
-        'mobile': '+8801700000010',
         'first_name': 'Super',
         'last_name': 'Admin',
         'role_ids': [get_role_id('Super Admin')],
@@ -950,7 +871,6 @@ def test_create_invitation_duplicate_email():
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'existing@company.com',
-        'mobile': '+8801799999999',
         'first_name': 'Jane',
         'last_name': 'Doe',
         'role_ids': [get_role_id('Depot Officer')]
@@ -960,24 +880,9 @@ def test_create_invitation_duplicate_email():
     assert response.json()['code'] == 'INV-409-DUPLICATE-EMAIL'
     assert 'already' in response.json()['message']
 
-def test_create_invitation_duplicate_mobile():
-    create_invitation(mobile='+8801712345678', tenant='tenant-1')
-    
-    response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
-        'email': 'new@company.com',
-        'mobile': '+8801712345678',
-        'first_name': 'Jane',
-        'last_name': 'Doe',
-        'role_ids': [get_role_id('Depot Officer')]
-    })
-    
-    assert response.status_code == 409
-    assert response.json()['code'] == 'INV-409-DUPLICATE-MOBILE'
-
 def test_create_invitation_invalid_role():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'user@company.com',
-        'mobile': '+8801700000000',
         'first_name': 'Test',
         'last_name': 'User',
         'role_ids': ['non-existent-role']
@@ -992,7 +897,6 @@ def test_create_invitation_plan_limit_exceeded():
     
     response = client.post(f'/api/v1/tenants/{tenant.id}/users/invitations', {
         'email': 'user6@company.com',
-        'mobile': '+8801700000006',
         'first_name': 'User',
         'last_name': 'Six',
         'role_ids': [get_role_id('Depot Officer')]
@@ -1007,7 +911,6 @@ def test_create_invitation_for_active_user():
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'active@company.com',
-        'mobile': '+8801700000000',
         'first_name': 'Active',
         'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')]
@@ -1031,9 +934,9 @@ def test_invitation_expiry_set_to_7_days():
 ### UT-INV-002: Bulk CSV Upload Validation
 ```python
 def test_bulk_upload_valid_csv():
-    csv_content = "Email,Mobile,First Name,Last Name,Role,Department\n"
-    csv_content += "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
-    csv_content += "user2@co.com,+8801700000002,User,Two,Transport Planner,Transport\n"
+    csv_content = "Email,First Name,Last Name,Role,Department\n"
+    csv_content += "user1@co.com,User,One,Depot Officer,Depot\n"
+    csv_content += "user2@co.com,User,Two,Transport Planner,Transport\n"
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk', 
                           files={'csv': csv_content})
@@ -1043,10 +946,10 @@ def test_bulk_upload_valid_csv():
     assert response.json()['failure_count'] == 0
 
 def test_bulk_upload_partial_failure():
-    csv_content = "Email,Mobile,First Name,Last Name,Role,Department\n"
-    csv_content += "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
-    csv_content += "invalid-email,bad-phone,User,Two,InvalidRole,Bad\n"
-    csv_content += "user3@co.com,+8801700000003,User,Three,QA Lab Technician,QC\n"
+    csv_content = "Email,First Name,Last Name,Role,Department\n"
+    csv_content += "user1@co.com,User,One,Depot Officer,Depot\n"
+    csv_content += "invalid-email,User,Two,InvalidRole,Bad\n"
+    csv_content += "user3@co.com,User,Three,QA Lab Technician,QC\n"
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk',
                           files={'csv': csv_content})
@@ -1077,7 +980,7 @@ def test_bulk_upload_invalid_format():
 ### UT-INV-003: Activation Workflow
 ```python
 def test_activation_success():
-    invitation = create_invitation(email='user@co.com', mobile='+8801700000001')
+    invitation = create_invitation(email='user@co.com')
     activation = create_activation(invitation_id=invitation.id)
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
@@ -1158,13 +1061,6 @@ def test_email_otp_verification_success():
     
     activation.refresh_from_db()
     assert activation.otp_verified is True
-
-def test_sms_otp_verification_success():
-    invitation = create_invitation(email='user@co.com', mobile='+8801700000001')
-    activation = create_activation(invitation_id=invitation.id, otp_type='sms', otp_code='654321')
-    
-    result = verify_activation_otp(activation.id, 'sms', '654321')
-    assert result is True
 
 def test_otp_expired():
     activation = create_activation(
@@ -1277,7 +1173,7 @@ def test_admin_assisted_reset_audit_log():
 ### UT-INV-006: Self-Service Password Reset
 ```python
 def test_forgot_password_initiation():
-    user = create_active_user(email='user@company.com', mobile='+8801712345678')
+    user = create_active_user(email='user@company.com')
     
     response = client.post('/api/v1/auth/password/forgot', {
         'identifier': 'user@company.com'
@@ -1385,7 +1281,6 @@ describe('Invitation Form', () => {
 
   it('should display all required form fields', () => {
     cy.get('[data-testid="email-input"]').should('be.visible');
-    cy.get('[data-testid="mobile-input"]').should('be.visible');
     cy.get('[data-testid="first-name-input"]').should('be.visible');
     cy.get('[data-testid="last-name-input"]').should('be.visible');
     cy.get('[data-testid="role-select"]').should('be.visible');
@@ -1393,6 +1288,8 @@ describe('Invitation Form', () => {
     cy.get('[data-testid="otp-type-select"]').should('be.visible');
     cy.get('[data-testid="send-invitation-btn"]').should('be.visible');
     cy.get('[data-testid="bulk-upload-btn"]').should('be.visible');
+    // Mobile number input must NOT be present (email-only Phase 1)
+    cy.get('[data-testid="mobile-input"]').should('not.exist');
   });
 
   it('should not show Super Admin in role dropdown', () => {
@@ -1402,16 +1299,18 @@ describe('Invitation Form', () => {
     });
   });
 
+  it('should not show SMS option in OTP type selector', () => {
+    cy.get('[data-testid="otp-type-select"]').click();
+    cy.get('[data-testid="otp-type-option"]').should('have.length', 2);
+    cy.get('[data-testid="otp-type-option"]').should('contain', 'None');
+    cy.get('[data-testid="otp-type-option"]').should('contain', 'Email');
+    cy.get('[data-testid="otp-type-option"]').should('not.contain', 'SMS');
+  });
+
   it('should validate email format', () => {
     cy.get('[data-testid="email-input"]').type('invalid-email');
     cy.get('[data-testid="send-invitation-btn"]').click();
     cy.get('[data-testid="email-error"]').should('contain', 'valid email');
-  });
-
-  it('should validate mobile number format', () => {
-    cy.get('[data-testid="mobile-input"]').type('123');
-    cy.get('[data-testid="send-invitation-btn"]').click();
-    cy.get('[data-testid="mobile-error"]').should('contain', 'valid mobile');
   });
 
   it('should show all 18 roles in dropdown', () => {
@@ -1467,7 +1366,8 @@ describe('Bulk Upload Interface', () => {
   it('should download CSV template', () => {
     cy.get('[data-testid="template-download-link"]').click();
     cy.readFile('cypress/downloads/invitation-template.csv')
-      .should('contain', 'Email,Mobile,First Name,Last Name,Role,Department');
+      .should('contain', 'Email,First Name,Last Name,Role,Department')
+      .and('not.contain', 'Mobile');
   });
 
   it('should upload valid CSV and show results', () => {
@@ -1611,20 +1511,14 @@ describe('Forgot Password Page', () => {
   });
 
   it('should accept email and show success message', () => {
-    cy.get('[data-testid="identifier-input"]').type('user@company.com');
+    cy.get('[data-testid="email-input"]').type('user@company.com');
     cy.get('[data-testid="send-reset-btn"]').click();
     cy.get('[data-testid="success-message"]')
       .should('contain', 'If an account exists, a reset link has been sent');
   });
 
-  it('should accept mobile number', () => {
-    cy.get('[data-testid="identifier-input"]').type('+8801712345678');
-    cy.get('[data-testid="send-reset-btn"]').click();
-    cy.get('[data-testid="success-message"]').should('be.visible');
-  });
-
-  it('should show same message for non-existent email', () => {
-    cy.get('[data-testid="identifier-input"]').type('nonexistent@company.com');
+  it('should show same message for non-existent email (prevent enumeration)', () => {
+    cy.get('[data-testid="email-input"]').type('nonexistent@company.com');
     cy.get('[data-testid="send-reset-btn"]').click();
     cy.get('[data-testid="success-message"]')
       .should('contain', 'If an account exists, a reset link has been sent');
@@ -1725,7 +1619,6 @@ def test_e2e_invitation_to_activation():
     inv_response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'employee_id': 'EMP-0002',
         'email': 'newuser@company.com',
-        'mobile': '+8801712345678',
         'first_name': 'New',
         'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')],
@@ -1768,10 +1661,10 @@ def test_e2e_bulk_invitation():
     client.force_authenticate(admin)
     
     csv = (
-        "Email,Mobile,First Name,Last Name,Role,Department\n"
-        "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
-        "bad-email,invalid,User,Two,FakeRole,Dept\n"
-        "user3@co.com,+8801700000003,User,Three,Transport Planner,Transport\n"
+        "Email,First Name,Last Name,Role,Department\n"
+        "user1@co.com,User,One,Depot Officer,Depot\n"
+        "bad-email,User,Two,FakeRole,Dept\n"
+        "user3@co.com,User,Three,Transport Planner,Transport\n"
     )
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk',
@@ -1800,7 +1693,6 @@ def test_plan_limit_blocks_invitation():
     
     response = client.post(f'/api/v1/tenants/{tenant.id}/users/invitations', {
         'email': 'overflow@co.com',
-        'mobile': '+8801700000099',
         'first_name': 'Overflow',
         'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')]
@@ -1865,8 +1757,8 @@ def test_e2e_admin_assisted_reset():
 ### IT-INV-005: Self-Service Password Reset Flow
 ```python
 def test_e2e_self_service_reset():
-    """Full flow: User forgot password → OTP → reset → sessions terminated."""
-    user = create_active_user(email='user@co.com', mobile='+8801712345678')
+    """Full flow: User forgot password → OTP via email → reset → sessions terminated."""
+    user = create_active_user(email='user@co.com')
     create_session(user=user, status='Active')
     old_password_hash = user.password
     
@@ -1913,6 +1805,7 @@ def test_e2e_self_service_reset():
 8. **Cross-tenant email uniqueness**: Same email can exist in different tenants but not within the same tenant
 9. **Bulk upload with duplicate emails in same CSV**: Second occurrence flagged as duplicate within batch
 10. **Invitation with Super Admin role**: System rejects with HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED` — "Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually." The `Super Admin` role is also hidden from the role dropdown in the UI
+11. **Driver/Helper invitation**: Driver and Helper users are invited via email the same as all other roles — there is no SMS or mobile-link-based flow in Phase 1
 
 ### Password Reset Edge Cases
 11. **Password reset during active session**: All sessions terminated immediately upon successful reset; user must re-authenticate
