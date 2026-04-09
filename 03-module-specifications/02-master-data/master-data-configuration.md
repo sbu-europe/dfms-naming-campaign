@@ -486,6 +486,8 @@ Vendor {
 
 ## 6. Bulk Data Management
 
+**Canonical implementation (CSV jobs, async validation, paginated preview, Django admin + REST):** **[bulk-import-export.md](bulk-import-export.md)**. The process sketch below is conceptual; align engineering work with that document for Phase 1.
+
 ### 6.1 Bulk Upload via CSV
 
 **Upload Process**:
@@ -681,6 +683,7 @@ MasterDataAuditLog {
 
 ## 10. Related Documentation
 
+- **[Bulk Import & Export](bulk-import-export.md)** - CSV bulk import/export implementation plan (shared `ImportService` / `ExportService`, Celery, admin mixin)
 - **[POI Management](poi-management.md)** - Location master data
 - **[Product Master Data Management](product-master-data-management.md)** - Product master data
 - **[Fleet Management](../06-fleet-management/README.md)** - Fleet operations using vehicle/driver data
