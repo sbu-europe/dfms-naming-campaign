@@ -389,6 +389,7 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
 - Employee ID
 - Functional Role Type (Requester / Approver / Executor)
+- OTP type (None / Email / SMS) — default None (controls activation OTP flow for non-Driver users)
 
 **Optional Fields**:
 - Custom invitation message (freeform text)
@@ -503,9 +504,11 @@ InvitationToken {
 - Optional: Upload profile photo
 
 **Step 3: OTP Verification**
-- System sends OTP to email and phone
-- User enters both OTPs
-- Validates against stored codes
+- OTP requirement depends on **OTP type** selected during invitation:
+  - OTP type = None → Skip OTP verification
+  - OTP type = Email → Send OTP to email; user enters OTP
+  - OTP type = SMS → Send OTP to mobile; user enters OTP
+- System validates against stored code (max 3 attempts, 10-minute validity)
 
 **Step 4: Accept Terms**
 - Display Terms & Conditions
@@ -539,7 +542,7 @@ OTPRecord {
   otp_id: UUID
   user_id: UUID
   otp_code: string  // Hashed for security
-  otp_type: enum ['Email', 'SMS', 'Both']
+  otp_type: enum ['None', 'Email', 'SMS', 'Both']
   purpose: enum ['Registration', 'Activation', 'PasswordReset', 'MFA']
   generated_at: DateTime
   expires_at: DateTime  // 10 minutes

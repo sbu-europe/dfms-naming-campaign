@@ -240,7 +240,9 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ### 3.1 OTP Overview
 
-OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except:
+- **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1
+- **Invitation activation flows** where OTP may be **optional** depending on the invitation’s selected **OTP type** (None / Email / SMS) as defined in US-005
 
 **Applicability:**
 - **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)

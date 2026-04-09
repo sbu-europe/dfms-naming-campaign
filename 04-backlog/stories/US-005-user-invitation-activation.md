@@ -61,6 +61,10 @@ then the system shall:
 
 - [ ] Allow admin to invite users via Email (all roles) or via Mobile Number (**Drivers only**)
 - [ ] Enforce unique **email or mobile number** per tenant (based on the chosen invitation channel)
+- [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`, `SMS`
+- [ ] Default **OTP type** is `None` (no OTP required for activation for non-Driver users)
+- [ ] If **OTP type = Email**, system sends a 6-digit OTP via email and requires OTP verification before credential setup
+- [ ] If **OTP type = SMS**, system sends a 6-digit OTP via SMS and requires OTP verification before credential setup
 - [ ] Allow role assignment during invitation with the following roles:
   - Distribution Officer
   - Distribution Manager
@@ -111,11 +115,13 @@ then the system shall:
 
 - [ ] System SHALL send a user invitation email containing:
   - An invitation link
-  - A 6-digit One-Time Password (OTP)
+- [ ] If **OTP type = Email**, the invitation email includes a 6-digit OTP (valid 10 minutes)
+- [ ] If **OTP type = SMS**, the system sends a 6-digit OTP via SMS (valid 10 minutes)
+- [ ] If **OTP type = None**, no OTP is sent and the user proceeds directly to credential setup after opening the link
 - [ ] Upon accessing the invitation link:
   - Registered email is automatically populated (read-only)
-  - User enters the OTP received via email
-  - On successful OTP verification, system prompts to set credentials (New Password + Confirm Password)
+  - If OTP is required by the selected OTP type, user enters the received OTP
+  - On successful OTP verification (or if OTP type = None), system prompts to set credentials (New Password + Confirm Password)
   - System ensures password match + password policy compliance
   - User accepts Terms & Conditions
   - System authenticates and logs the user into the platform
@@ -128,7 +134,7 @@ then the system shall:
 ```gherkin
 Scenario: AC-1.1 - Single user invitation
   Given a Tenant Admin accesses the "Invite User" form
-  When the Admin fills out: Full Name, Email, Mobile, Role "Depot Officer", Department "Depot", Employment Type "Permanent"
+  When the Admin fills out: Employee ID, Full Name, Email, Mobile, Role "Depot Officer", Department "Depot", OTP type "Email", Functional Role Type "Requester"
   Then the system validates email and mobile uniqueness within the tenant
   And sends an invitation link via email
   And sets invitation status to "Sent"
@@ -136,7 +142,7 @@ Scenario: AC-1.1 - Single user invitation
 
 Scenario: AC-1.2 - Bulk invitation via CSV
   Given a Tenant Admin uploads a CSV with 50 user records
-  And the CSV contains columns: Email, Mobile, Full Name, Role, Department, Employment Type, POI, Workflow Responsibility
+  And the CSV contains columns: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type, OTP type
   When the system processes the CSV
   Then valid rows create invitations and send emails
   And invalid rows are reported with specific error reasons
@@ -145,12 +151,31 @@ Scenario: AC-1.2 - Bulk invitation via CSV
 Scenario: AC-1.3 - User activation with OTP verification
   Given a user received an invitation email with an activation link
   When the user clicks the activation link within 7 days
-  And enters the email OTP
+  And the OTP type is "Email"
+  And the user enters the email OTP
   And sets a password meeting complexity requirements
   And accepts Terms & Conditions
   Then the user account is created and activated
   And the invitation status changes to "Activated"
   And a welcome email is sent
+
+Scenario: AC-1.3a - User activation with OTP type None
+  Given a user received an invitation email with an activation link
+  When the user clicks the activation link within 7 days
+  And the OTP type is "None"
+  Then the system does not request OTP verification
+  And prompts the user to set a password and accept Terms & Conditions
+  When the user submits valid credentials
+  Then the user account is created and activated
+
+Scenario: AC-1.3d - User activation with SMS OTP
+  Given a user received an invitation email with an activation link
+  And the user has a registered mobile number
+  When the user clicks the activation link within 7 days
+  And the OTP type is "SMS"
+  Then the system sends a 6-digit OTP via SMS
+  When the user enters the SMS OTP successfully
+  Then the system prompts the user to set a password and accept Terms & Conditions
 
 Scenario: AC-1.3b - Driver SMS quick login (no OTP required)
   Given a Driver user invitation was created with mobile "+8801712345678"
@@ -191,7 +216,7 @@ Scenario: AC-1.6 - Expired invitation activation attempt
 
 Scenario: AC-1.7 - Role assignment during invitation
   Given a Tenant Admin is inviting a user
-  When the Admin selects role "Transport Planner" and workflow responsibility "Executor"
+  When the Admin selects role "Transport Planner" and Functional Role Type "Executor"
   Then the system validates the role exists and is assignable
   And validates role permissions against the tenant's subscription plan
   And assigns the role upon successful activation
@@ -349,6 +374,7 @@ Scenario: AC-3.6 - Password history enforcement
   - Department assignment (if applicable)
   - POI (if applicable)
   - Functional Role Type Assignment (Requester / Approver / Executor)
+  - OTP type (None / Email / SMS) — default None
 - [Critical] System SHALL validate email uniqueness within tenant
 - [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
@@ -369,7 +395,10 @@ Scenario: AC-3.6 - Password history enforcement
 - [High] System SHALL allow invitation resend (2-minute cooldown)
 
 ### FR-065-003: User Activation
-- [Critical] System SHALL require OTP verification (email) before activation for non-Driver users
+- [Critical] For non-Driver users, OTP verification behavior SHALL be driven by **OTP type** selected during invitation:
+  - OTP type = None → no OTP required for activation
+  - OTP type = Email → email OTP required
+  - OTP type = SMS → SMS OTP required
 - [Critical] Driver users SHALL authenticate using the system-generated password received via SMS (no OTP required in Phase 1)
 - [Critical] System SHALL require password setup during activation
 - [Critical] System SHALL enforce password complexity rules
@@ -459,7 +488,10 @@ Scenario: AC-3.6 - Password history enforcement
 - Role permissions validated against tenant plan
 
 ### BR-065-004: Activation Requirements
-- Both email and SMS OTP must be verified
+- OTP verification requirement depends on **OTP type** selected during invitation:
+  - OTP type = None → no OTP required
+  - OTP type = Email → email OTP required
+  - OTP type = SMS → SMS OTP required
 - Password must meet complexity requirements
 - Terms & Conditions must be accepted
 - Activation link must be valid (not expired)
@@ -505,7 +537,8 @@ UserInvitation:
   department_id: string (FK, optional)
   employment_type: string
   poi_id: string (FK, optional)
-  workflow_responsibility: string
+  functional_role_type: string
+  otp_type: string (none|email|sms)
   invitation_token: string (unique)
   status: string (sent, pending, activated, expired, cancelled)
   invited_by: string (FK - user_id)
@@ -521,12 +554,10 @@ UserInvitation:
 UserActivation:
   activation_id: string (unique)
   invitation_id: string (FK)
-  email_otp: string
-  sms_otp: string
-  email_otp_verified: boolean
-  sms_otp_verified: boolean
-  email_otp_expires_at: datetime
-  sms_otp_expires_at: datetime
+  otp_type: string (none|email|sms)
+  otp_code: string (6-digit, hashed; optional when otp_type=none)
+  otp_verified: boolean
+  otp_expires_at: datetime
   terms_accepted: boolean
   terms_accepted_at: datetime (optional)
   activation_attempts: integer
@@ -597,6 +628,7 @@ PasswordResetAuditLog:
 - Department selection (dropdown, optional)
 - POI selection (dropdown, optional)
 - Functional Role Type input (Requester / Approver / Executor)
+- OTP type selector (None / Email / SMS) — default None
 - Custom message textarea (optional)
 - "Send Invitation" button
 - "Bulk Upload" option
@@ -616,7 +648,7 @@ PasswordResetAuditLog:
 
 ### Activation Page
 - Display organization name
-- Email OTP input
+- OTP input field (shown only when OTP type != None)
 - Password setup form
 - Password confirmation
 - Terms & Conditions checkbox with link to T&C document
@@ -668,7 +700,7 @@ PasswordResetAuditLog:
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations
 - Create user invitation
-- Request body: employee_id, email, mobile, full_name, role_ids, department_id, poi_id, functional_role_type, custom_message
+- Request body: employee_id, email, mobile, full_name, role_ids, department_id, poi_id, functional_role_type, otp_type, custom_message
 - Response: invitation_id, invitation_token
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations/bulk
@@ -691,7 +723,7 @@ PasswordResetAuditLog:
 
 ### POST /api/v1/users/invitations/{invitation_token}/activate
 - Activate user account
-- Request body: email_otp, password, password_confirm, terms_accepted
+- Request body: otp_code? (required when otp_type != none), password, password_confirm, terms_accepted
 - Response: user_id, access_token
 
 ### GET /m/driver/login/{invitation_token}
@@ -705,7 +737,7 @@ PasswordResetAuditLog:
 
 ### POST /api/v1/users/invitations/{invitation_token}/otp/resend
 - Resend OTP (email or SMS)
-- Request body: otp_type (email|sms)
+- Request body: otp_type (email|sms) (must match invitation otp_type; rejected if otp_type=none)
 - Response: success message
 
 ### POST /api/v1/auth/password/forgot
@@ -941,8 +973,7 @@ def test_activation_success():
     activation = create_activation(invitation_id=invitation.id)
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
-        'email_otp': activation.email_otp,
-        'sms_otp': activation.sms_otp,
+        'otp_code': activation.otp_code,
         'password': 'SecurePass123!',
         'password_confirm': 'SecurePass123!',
         'terms_accepted': True
@@ -959,8 +990,7 @@ def test_activation_expired_link():
                                    expires_at=datetime.now() - timedelta(days=1))
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
-        'email_otp': '123456',
-        'sms_otp': '654321',
+        'otp_code': '123456',
         'password': 'SecurePass123!',
         'password_confirm': 'SecurePass123!',
         'terms_accepted': True
@@ -973,8 +1003,7 @@ def test_activation_without_terms_acceptance():
     invitation = create_invitation(email='user@co.com')
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
-        'email_otp': '123456',
-        'sms_otp': '654321',
+        'otp_code': '123456',
         'password': 'SecurePass123!',
         'password_confirm': 'SecurePass123!',
         'terms_accepted': False
@@ -987,8 +1016,7 @@ def test_activation_weak_password():
     invitation = create_invitation(email='user@co.com')
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
-        'email_otp': '123456',
-        'sms_otp': '654321',
+        'otp_code': '123456',
         'password': 'weak',
         'password_confirm': 'weak',
         'terms_accepted': True
@@ -1001,8 +1029,7 @@ def test_activation_mismatched_passwords():
     invitation = create_invitation(email='user@co.com')
     
     response = client.post(f'/api/v1/users/invitations/{invitation.token}/activate', {
-        'email_otp': '123456',
-        'sms_otp': '654321',
+        'otp_code': '123456',
         'password': 'SecurePass123!',
         'password_confirm': 'DifferentPass456!',
         'terms_accepted': True
@@ -1016,17 +1043,17 @@ def test_activation_mismatched_passwords():
 ```python
 def test_email_otp_verification_success():
     invitation = create_invitation(email='user@co.com')
-    activation = create_activation(invitation_id=invitation.id, email_otp='123456')
+    activation = create_activation(invitation_id=invitation.id, otp_type='email', otp_code='123456')
     
     result = verify_activation_otp(activation.id, 'email', '123456')
     assert result is True
     
     activation.refresh_from_db()
-    assert activation.email_otp_verified is True
+    assert activation.otp_verified is True
 
 def test_sms_otp_verification_success():
     invitation = create_invitation(email='user@co.com', mobile='+8801700000001')
-    activation = create_activation(invitation_id=invitation.id, sms_otp='654321')
+    activation = create_activation(invitation_id=invitation.id, otp_type='sms', otp_code='654321')
     
     result = verify_activation_otp(activation.id, 'sms', '654321')
     assert result is True
@@ -1254,7 +1281,7 @@ describe('Invitation Form', () => {
     cy.get('[data-testid="full-name-input"]').should('be.visible');
     cy.get('[data-testid="role-select"]').should('be.visible');
     cy.get('[data-testid="department-select"]').should('be.visible');
-    cy.get('[data-testid="employment-type-input"]').should('be.visible');
+    cy.get('[data-testid="otp-type-select"]').should('be.visible');
     cy.get('[data-testid="send-invitation-btn"]').should('be.visible');
     cy.get('[data-testid="bulk-upload-btn"]').should('be.visible');
   });
@@ -1398,11 +1425,10 @@ describe('Invitation Dashboard', () => {
 ### UI-INV-004: Activation Page Tests
 ```javascript
 describe('Activation Page', () => {
-  it('should display organization name and OTP fields', () => {
+  it('should display organization name and OTP field when required', () => {
     cy.visit('/activate?token=valid-token');
     cy.get('[data-testid="org-name"]').should('be.visible');
-    cy.get('[data-testid="email-otp-input"]').should('be.visible');
-    cy.get('[data-testid="sms-otp-input"]').should('be.visible');
+    cy.get('[data-testid="otp-input"]').should('be.visible');
     cy.get('[data-testid="password-input"]').should('be.visible');
     cy.get('[data-testid="password-confirm-input"]').should('be.visible');
     cy.get('[data-testid="terms-checkbox"]').should('be.visible');
@@ -1411,8 +1437,7 @@ describe('Activation Page', () => {
 
   it('should complete activation with valid inputs', () => {
     cy.visit('/activate?token=valid-token');
-    cy.get('[data-testid="email-otp-input"]').type('123456');
-    cy.get('[data-testid="sms-otp-input"]').type('654321');
+    cy.get('[data-testid="otp-input"]').type('123456');
     cy.get('[data-testid="password-input"]').type('SecurePass123!');
     cy.get('[data-testid="password-confirm-input"]').type('SecurePass123!');
     cy.get('[data-testid="terms-checkbox"]').check();
@@ -1600,7 +1625,7 @@ def test_e2e_invitation_to_activation():
     # Step 4: Activate account
     client.logout()
     act_response = client.post(f'/api/v1/users/invitations/{token}/activate', {
-        'email_otp': activation.email_otp,
+        'otp_code': activation.otp_code,
         'password': 'SecurePass123!',
         'password_confirm': 'SecurePass123!',
         'terms_accepted': True
@@ -1761,7 +1786,7 @@ def test_e2e_self_service_reset():
 3. **CSV with mixed valid/invalid rows**: Valid rows processed, invalid rows reported with row number and error detail
 4. **Multiple pending invitations for same email**: Only one active invitation per email per tenant; resending replaces the previous one
 5. **Invitation resend within cooldown**: Returns 429 with "Please wait 2 minutes" message
-6. **Activation with wrong OTP type order**: Both email and SMS OTP must be verified regardless of entry order
+6. **Activation with OTP type mismatch**: If activation is attempted with an OTP type different from the invitation's OTP type, system rejects with "Invalid OTP type"
 7. **Invitation scheduling past expiry**: System rejects if scheduled send time + 7 days is unreasonable (> 30 days out)
 8. **Cross-tenant email uniqueness**: Same email can exist in different tenants but not within the same tenant
 9. **Bulk upload with duplicate emails in same CSV**: Second occurrence flagged as duplicate within batch
