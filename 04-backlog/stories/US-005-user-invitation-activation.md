@@ -16,7 +16,7 @@ pending:
   - Resend invitation endpoint (platform admin)
   - Invitation expiry cleanup task
 created: 2026-02-13
-updated: 2026-04-07
+updated: 2026-04-09
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
@@ -55,7 +55,7 @@ This is critical for multi-tenant security, proper access control, and accommoda
 
 Given a tenant Admin user accesses the "Invite User" functionality,
 
-when the Admin fills out the invitation form with user details (Employee ID, Full Name, Email, Mobile Number, Role, Department, POI if applicable, and Functional Role Type),
+when the Admin fills out the invitation form with user details (Employee ID, First Name, Last Name, Email, Mobile Number, Role, Department, POI if applicable, and Functional Role Type),
 
 then the system shall:
 
@@ -86,6 +86,7 @@ then the system shall:
   - Driver Supervisor
   - Driver
   - Helper
+- [ ] **Restrict Super Admin role assignment**: The `Super Admin` role SHALL NOT be selectable during user invitation. The system SHALL reject any invitation attempt where `role_ids` contains a Super Admin role, returning HTTP 403 with error code `ROLE-403-SUPER-ADMIN-RESTRICTED`
 - [ ] Allow Functional Role Type assignment during invitation:
   - Requester
   - Approver
@@ -98,7 +99,8 @@ then the system shall:
 - [ ] Allow custom invitation message
 - [ ] Support invitation templates
 - [ ] Allow invitation scheduling
-- [ ] Track the invitation status as: **Sent → Pending → Activated/Expired**
+- [ ] **Send invitation email immediately** upon form submission — the invitation email SHALL be dispatched in the same request/transaction cycle as the invitation record creation (synchronous dispatch or immediate async task). The `invitation_status` SHALL be set to `sent` as soon as the email is queued/dispatched
+- [ ] Track the invitation status as: **Sent → Pending → Activated/Expired/Cancelled**
 
 #### Department → Role mapping (Phase 1)
 
@@ -147,15 +149,15 @@ then the system shall:
 ```gherkin
 Scenario: AC-1.1 - Single user invitation
   Given a Tenant Admin accesses the "Invite User" form
-  When the Admin fills out: Employee ID, Full Name, Email, Mobile, Role "Depot Officer", Department "Depot", OTP type "Email", Functional Role Type "Requester"
+  When the Admin fills out: Employee ID, First Name, Last Name, Email, Mobile, Role "Depot Officer", Department "Depot", OTP type "Email", Functional Role Type "Requester"
   Then the system validates email and mobile uniqueness within the tenant
-  And sends an invitation link via email
-  And sets invitation status to "Sent"
+  And immediately dispatches an invitation email with an activation link
+  And sets invitation_status to "sent" upon email dispatch
   And the invitation expires after 7 days
 
 Scenario: AC-1.2 - Bulk invitation via CSV
   Given a Tenant Admin uploads a CSV with 50 user records
-  And the CSV contains columns: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type, OTP type
+  And the CSV contains columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type, OTP type
   When the system processes the CSV
   Then valid rows create invitations and send emails
   And invalid rows are reported with specific error reasons
@@ -247,6 +249,14 @@ Scenario: AC-1.7c - Reject role not in department
   And the Admin selected Department "Procurement"
   When the Admin attempts to select role "Distribution Officer"
   Then the system rejects the selection with "Role does not belong to selected department"
+
+Scenario: AC-1.7d - Reject Super Admin role assignment
+  Given a Tenant Admin is inviting a user
+  When the Admin attempts to assign the "Super Admin" role
+  Then the system rejects the request with HTTP 403
+  And returns error code "ROLE-403-SUPER-ADMIN-RESTRICTED"
+  And displays "Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually."
+  And the "Super Admin" role SHALL NOT appear in the role dropdown
 
 Scenario: AC-1.8 - Unique mobile number enforcement
   Given a user with mobile "+8801712345678" already exists in the tenant
@@ -396,8 +406,9 @@ Scenario: AC-3.6 - Password history enforcement
   - Employee ID
   - Email address (mandatory)
   - Mobile number (mandatory)
-  - Full name
-  - Role assignment (from predefined list of 18 roles)
+  - First Name (mandatory)
+  - Last Name (mandatory)
+  - Role assignment (from predefined list of 18 operational roles)
   - Department assignment (required; dropdown from predefined departments)
   - POI (if applicable)
   - Functional Role Type Assignment (Requester / Approver / Executor)
@@ -406,11 +417,14 @@ Scenario: AC-3.6 - Password history enforcement
 - [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
 - [Critical] System SHALL validate that selected role belongs to selected department
+- [Critical] System SHALL **reject** any invitation where the selected role is `Super Admin` — Super Admin accounts are provisioned manually only, never through invitation
 - [Critical] System SHALL check subscription plan user limit before invitation
 - [High] System SHALL support bulk CSV upload with validation
 - [High] System SHALL allow custom invitation message
 
 ### FR-065-002: Invitation Email
+- [Critical] System SHALL **immediately dispatch** the invitation email at the time the user record is created — email send is triggered synchronously (or via an immediately-queued async task) within the same invitation creation flow
+- [Critical] System SHALL set `invitation_status` to `sent` upon successful email dispatch (or `pending` if queueing fails, for retry)
 - [Critical] System SHALL send invitation email with:
   - Activation link (unique token)
   - Organization name
@@ -439,7 +453,7 @@ Scenario: AC-3.6 - Password history enforcement
 
 ### FR-065-004: Bulk Invitation
 - [Critical] System SHALL support CSV upload with columns:
-  - Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type
+  - Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type
 - [Critical] System SHALL validate CSV format and data
 - [Critical] System SHALL process invitations in batch
 - [Critical] System SHALL report success/failure for each row
@@ -501,6 +515,14 @@ Scenario: AC-3.6 - Password history enforcement
 - Invitation resend cooldown: 2 minutes
 - Invitation expiration: 7 days from creation
 
+### BR-065-001a: Invitation Status Lifecycle
+- `sent` — set immediately when the invitation email is dispatched upon user creation
+- `pending` — state while the user has received the email but has not yet clicked the activation link and completed activation
+- `activated` — set when the user successfully completes activation (OTP verification + password set + T&C accepted)
+- `expired` — set automatically when `expires_at` passes without activation (via scheduled cleanup job)
+- `cancelled` — set when admin explicitly cancels a pending invitation before activation
+- Status transitions: `sent` → `pending` → `activated` | `expired` | `cancelled`
+
 ### BR-065-002: Email and Mobile Validation
 - Email must be unique within tenant
 - Mobile number must be unique within tenant
@@ -512,6 +534,7 @@ Scenario: AC-3.6 - Password history enforcement
 ### BR-065-003: Role Assignment
 - Role must exist and be active
 - Role must be assignable (not system-only)
+- **Super Admin role is strictly forbidden in invitation flow** — `Super Admin` cannot be selected as a role during user invitation; it is provisioned exclusively via manual database seed or CLI. Any attempt returns HTTP 403 (`ROLE-403-SUPER-ADMIN-RESTRICTED`)
 - User can have multiple roles
 - Role permissions validated against tenant plan
 
@@ -560,15 +583,21 @@ UserInvitation:
   tenant_id: string (FK)
   email: string (unique per tenant)
   mobile: string (unique per tenant)
-  full_name: string
-  role_ids: array[string] (FK)
+  first_name: string
+  last_name: string
+  role_ids: array[string] (FK)  # Super Admin role is strictly forbidden
   department_id: string (FK, optional)
   employment_type: string
   poi_id: string (FK, optional)
   functional_role_type: string
   otp_type: string (none|email|sms)
   invitation_token: string (unique)
-  status: string (sent, pending, activated, expired, cancelled)
+  invitation_status: string (sent|pending|activated|expired|cancelled)
+    # sent       — invitation email dispatched immediately upon form submission
+    # pending    — user has received email but has not yet activated
+    # activated  — user completed activation successfully
+    # expired    — invitation link passed 7-day window without activation
+    # cancelled  — admin manually cancelled before activation
   invited_by: string (FK - user_id)
   invited_at: datetime
   expires_at: datetime
@@ -651,19 +680,20 @@ PasswordResetAuditLog:
 - Email input with validation
 - Mobile number input with validation
 - Employee ID input with validation
-- Full name input
+- First Name input (mandatory)
+- Last Name input (mandatory)
 - Department selection (dropdown from predefined departments)
-- Role selection (dropdown filtered by selected Department)
+- Role selection (dropdown filtered by selected Department; **Super Admin is not listed**)
 - POI selection (dropdown, optional)
 - Functional Role Type input (Requester / Approver / Executor)
 - OTP type selector (None / Email / SMS) — default None
 - Custom message textarea (optional)
-- "Send Invitation" button
+- "Send Invitation" button — triggers user record creation **and** immediate email dispatch
 - "Bulk Upload" option
 
 ### Bulk Upload Interface
 - CSV file upload area
-- Template download link (with columns: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type)
+- Template download link (with columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type)
 - Validation results display
 - Success/failure summary
 - "Process Invitations" button
@@ -727,9 +757,10 @@ PasswordResetAuditLog:
 ## API Endpoints
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations
-- Create user invitation
-- Request body: employee_id, email, mobile, full_name, role_ids, department_id, poi_id, functional_role_type, otp_type, custom_message
-- Response: invitation_id, invitation_token
+- Create user invitation and **immediately dispatch invitation email**
+- Request body: employee_id, email, mobile, first_name, last_name, role_ids (Super Admin role forbidden), department_id, poi_id, functional_role_type, otp_type, custom_message
+- Response: invitation_id, invitation_token, invitation_status ("sent")
+- Error: HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED` if Super Admin role is in role_ids
 
 ### POST /api/v1/tenants/{tenant_id}/users/invitations/bulk
 - Bulk create user invitations via CSV
@@ -860,7 +891,8 @@ def test_create_invitation_success():
         'employee_id': 'EMP-0001',
         'email': 'newuser@company.com',
         'mobile': '+8801712345678',
-        'full_name': 'John Doe',
+        'first_name': 'John',
+        'last_name': 'Doe',
         'role_ids': [get_role_id('Depot Officer')],
         'department_id': 'depot-1',
         'functional_role_type': 'Requester'
@@ -869,6 +901,49 @@ def test_create_invitation_success():
     assert response.status_code == 201
     assert 'invitation_id' in response.json()
     assert 'invitation_token' in response.json()
+    assert response.json()['invitation_status'] == 'sent'
+
+def test_create_invitation_sends_email_immediately():
+    """Invitation email must be dispatched synchronously upon creation."""
+    admin = create_user_with_role('Tenant Admin')
+    client.force_authenticate(admin)
+    
+    response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
+        'employee_id': 'EMP-0002',
+        'email': 'newuser2@company.com',
+        'mobile': '+8801712345679',
+        'first_name': 'Jane',
+        'last_name': 'Smith',
+        'role_ids': [get_role_id('Depot Officer')],
+        'department_id': 'depot-1',
+        'functional_role_type': 'Requester'
+    })
+    
+    assert response.status_code == 201
+    # Email must be sent within the same request lifecycle
+    assert_email_sent_to('newuser2@company.com', subject_contains='Invitation')
+    invitation = UserInvitation.objects.get(id=response.json()['invitation_id'])
+    assert invitation.invitation_status == 'sent'
+
+def test_create_invitation_super_admin_role_rejected():
+    """Super Admin role must never be assignable via invitation."""
+    admin = create_user_with_role('Tenant Admin')
+    client.force_authenticate(admin)
+    
+    response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
+        'employee_id': 'EMP-0003',
+        'email': 'superadmin@company.com',
+        'mobile': '+8801700000010',
+        'first_name': 'Super',
+        'last_name': 'Admin',
+        'role_ids': [get_role_id('Super Admin')],
+        'department_id': 'depot-1',
+        'functional_role_type': 'Requester'
+    })
+    
+    assert response.status_code == 403
+    assert response.json()['code'] == 'ROLE-403-SUPER-ADMIN-RESTRICTED'
+    assert 'Super Admin role cannot be assigned' in response.json()['message']
 
 def test_create_invitation_duplicate_email():
     create_invitation(email='existing@company.com', tenant='tenant-1')
@@ -876,7 +951,8 @@ def test_create_invitation_duplicate_email():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'existing@company.com',
         'mobile': '+8801799999999',
-        'full_name': 'Jane Doe',
+        'first_name': 'Jane',
+        'last_name': 'Doe',
         'role_ids': [get_role_id('Depot Officer')]
     })
     
@@ -890,7 +966,8 @@ def test_create_invitation_duplicate_mobile():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'new@company.com',
         'mobile': '+8801712345678',
-        'full_name': 'Jane Doe',
+        'first_name': 'Jane',
+        'last_name': 'Doe',
         'role_ids': [get_role_id('Depot Officer')]
     })
     
@@ -901,7 +978,8 @@ def test_create_invitation_invalid_role():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'user@company.com',
         'mobile': '+8801700000000',
-        'full_name': 'Test User',
+        'first_name': 'Test',
+        'last_name': 'User',
         'role_ids': ['non-existent-role']
     })
     
@@ -915,7 +993,8 @@ def test_create_invitation_plan_limit_exceeded():
     response = client.post(f'/api/v1/tenants/{tenant.id}/users/invitations', {
         'email': 'user6@company.com',
         'mobile': '+8801700000006',
-        'full_name': 'User Six',
+        'first_name': 'User',
+        'last_name': 'Six',
         'role_ids': [get_role_id('Depot Officer')]
     })
     
@@ -929,7 +1008,8 @@ def test_create_invitation_for_active_user():
     response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'email': 'active@company.com',
         'mobile': '+8801700000000',
-        'full_name': 'Active User',
+        'first_name': 'Active',
+        'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')]
     })
     
@@ -951,9 +1031,9 @@ def test_invitation_expiry_set_to_7_days():
 ### UT-INV-002: Bulk CSV Upload Validation
 ```python
 def test_bulk_upload_valid_csv():
-    csv_content = "Email,Mobile,Full Name,Role,Department\n"
-    csv_content += "user1@co.com,+8801700000001,User One,Depot Officer,Depot\n"
-    csv_content += "user2@co.com,+8801700000002,User Two,Transport Planner,Transport\n"
+    csv_content = "Email,Mobile,First Name,Last Name,Role,Department\n"
+    csv_content += "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
+    csv_content += "user2@co.com,+8801700000002,User,Two,Transport Planner,Transport\n"
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk', 
                           files={'csv': csv_content})
@@ -963,10 +1043,10 @@ def test_bulk_upload_valid_csv():
     assert response.json()['failure_count'] == 0
 
 def test_bulk_upload_partial_failure():
-    csv_content = "Email,Mobile,Full Name,Role,Department\n"
-    csv_content += "user1@co.com,+8801700000001,User One,Depot Officer,Depot\n"
-    csv_content += "invalid-email,bad-phone,User Two,InvalidRole,Bad\n"
-    csv_content += "user3@co.com,+8801700000003,User Three,QA Lab Technician,QC\n"
+    csv_content = "Email,Mobile,First Name,Last Name,Role,Department\n"
+    csv_content += "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
+    csv_content += "invalid-email,bad-phone,User,Two,InvalidRole,Bad\n"
+    csv_content += "user3@co.com,+8801700000003,User,Three,QA Lab Technician,QC\n"
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk',
                           files={'csv': csv_content})
@@ -1306,12 +1386,20 @@ describe('Invitation Form', () => {
   it('should display all required form fields', () => {
     cy.get('[data-testid="email-input"]').should('be.visible');
     cy.get('[data-testid="mobile-input"]').should('be.visible');
-    cy.get('[data-testid="full-name-input"]').should('be.visible');
+    cy.get('[data-testid="first-name-input"]').should('be.visible');
+    cy.get('[data-testid="last-name-input"]').should('be.visible');
     cy.get('[data-testid="role-select"]').should('be.visible');
     cy.get('[data-testid="department-select"]').should('be.visible');
     cy.get('[data-testid="otp-type-select"]').should('be.visible');
     cy.get('[data-testid="send-invitation-btn"]').should('be.visible');
     cy.get('[data-testid="bulk-upload-btn"]').should('be.visible');
+  });
+
+  it('should not show Super Admin in role dropdown', () => {
+    cy.get('[data-testid="role-select"]').click();
+    cy.get('[data-testid="role-option"]').each(($opt) => {
+      cy.wrap($opt).should('not.contain', 'Super Admin');
+    });
   });
 
   it('should validate email format', () => {
@@ -1339,16 +1427,19 @@ describe('Invitation Form', () => {
     cy.get('[data-testid="custom-message-textarea"]').should('have.value', 'Welcome to the team!');
   });
 
-  it('should submit invitation and show success', () => {
+  it('should submit invitation and show success, dispatching email immediately', () => {
     cy.fillInvitationForm({
       email: 'newuser@company.com',
       mobile: '+8801712345678',
-      fullName: 'John Doe',
+      firstName: 'John',
+      lastName: 'Doe',
       role: 'Depot Officer',
       department: 'Depot'
     });
     cy.get('[data-testid="send-invitation-btn"]').click();
     cy.get('[data-testid="success-toast"]').should('contain', 'Invitation sent');
+    // Invitation status badge should immediately reflect "sent"
+    cy.get('[data-testid="invitation-status"]').should('contain', 'sent');
   });
 
   it('should show error for duplicate email', () => {
@@ -1376,7 +1467,7 @@ describe('Bulk Upload Interface', () => {
   it('should download CSV template', () => {
     cy.get('[data-testid="template-download-link"]').click();
     cy.readFile('cypress/downloads/invitation-template.csv')
-      .should('contain', 'Email,Mobile,Full Name,Role,Department');
+      .should('contain', 'Email,Mobile,First Name,Last Name,Role,Department');
   });
 
   it('should upload valid CSV and show results', () => {
@@ -1630,20 +1721,22 @@ def test_e2e_invitation_to_activation():
     admin = create_user_with_role('Tenant Admin')
     client.force_authenticate(admin)
     
-    # Step 1: Create invitation
+    # Step 1: Create invitation — email dispatched immediately
     inv_response = client.post('/api/v1/tenants/tenant-1/users/invitations', {
         'employee_id': 'EMP-0002',
         'email': 'newuser@company.com',
         'mobile': '+8801712345678',
-        'full_name': 'New User',
+        'first_name': 'New',
+        'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')],
         'department_id': 'depot-1',
         'functional_role_type': 'Requester'
     })
     assert inv_response.status_code == 201
+    assert inv_response.json()['invitation_status'] == 'sent'
     token = inv_response.json()['invitation_token']
     
-    # Step 2: Verify email sent
+    # Step 2: Email must already be sent at this point (immediate dispatch)
     assert_email_sent_to('newuser@company.com', subject_contains='Invitation')
     
     # Step 3: Retrieve activation OTPs
@@ -1675,10 +1768,10 @@ def test_e2e_bulk_invitation():
     client.force_authenticate(admin)
     
     csv = (
-        "Email,Mobile,Full Name,Role,Department\n"
-        "user1@co.com,+8801700000001,User One,Depot Officer,Depot\n"
-        "bad-email,invalid,User Two,FakeRole,Dept\n"
-        "user3@co.com,+8801700000003,User Three,Transport Planner,Transport\n"
+        "Email,Mobile,First Name,Last Name,Role,Department\n"
+        "user1@co.com,+8801700000001,User,One,Depot Officer,Depot\n"
+        "bad-email,invalid,User,Two,FakeRole,Dept\n"
+        "user3@co.com,+8801700000003,User,Three,Transport Planner,Transport\n"
     )
     
     response = client.post('/api/v1/tenants/tenant-1/users/invitations/bulk',
@@ -1708,7 +1801,8 @@ def test_plan_limit_blocks_invitation():
     response = client.post(f'/api/v1/tenants/{tenant.id}/users/invitations', {
         'email': 'overflow@co.com',
         'mobile': '+8801700000099',
-        'full_name': 'Overflow User',
+        'first_name': 'Overflow',
+        'last_name': 'User',
         'role_ids': [get_role_id('Depot Officer')]
     })
     
@@ -1818,7 +1912,7 @@ def test_e2e_self_service_reset():
 7. **Invitation scheduling past expiry**: System rejects if scheduled send time + 7 days is unreasonable (> 30 days out)
 8. **Cross-tenant email uniqueness**: Same email can exist in different tenants but not within the same tenant
 9. **Bulk upload with duplicate emails in same CSV**: Second occurrence flagged as duplicate within batch
-10. **Invitation to a system-only role (e.g., Super Admin)**: System rejects with "Role is not assignable"
+10. **Invitation with Super Admin role**: System rejects with HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED` — "Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually." The `Super Admin` role is also hidden from the role dropdown in the UI
 
 ### Password Reset Edge Cases
 11. **Password reset during active session**: All sessions terminated immediately upon successful reset; user must re-authenticate
@@ -1896,6 +1990,6 @@ def test_e2e_self_service_reset():
 - PRD Section 6.2.3: User Invitation & Activation
 - US-008: Password & Account Reset (consolidated into US-005)
 
-**Last Updated**: April 7, 2026  
+**Last Updated**: April 9, 2026  
 **Status**: Pending Review
 

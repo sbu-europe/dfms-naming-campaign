@@ -18,8 +18,8 @@ spec_file: ../../../../stories/US-005-user-invitation-activation.md
 ## User Story
 
 **As a** Tenant Admin  
-**I want to** invite users to join the organization and activate their accounts  
-**So that** they can access the system with appropriate roles and permissions
+**I want to** invite users (with first and last name) to join the organization, have the invitation email sent immediately upon creation, and ensure that only valid operational roles (not Super Admin) can be assigned during invitation  
+**So that** secure and controlled user onboarding is enforced from the moment an invitation is created
 
 ## Business Context
 
@@ -42,29 +42,31 @@ Organizations need to onboard multiple users with different roles. The invitatio
 ## Acceptance Criteria
 
 ### AC-1: Single User Invitation
-- [ ] Admin invites user via email with role assignment
-- [ ] Invitation email sent with tokenized activation link
-- [ ] Email + mobile OTP verification required before account activation
+- [ ] Admin invites user via email with **First Name** + **Last Name** and role assignment
+- [ ] **Invitation email dispatched immediately** upon form submission (synchronous within the creation request)
+- [ ] `invitation_status` set to `sent` upon email dispatch
+- [ ] **Super Admin role cannot be assigned** — system rejects with HTTP 403 (`ROLE-403-SUPER-ADMIN-RESTRICTED`) and Super Admin is hidden from the role dropdown
+- [ ] OTP verification behavior driven by OTP type selected (None / Email / SMS)
 - [ ] Role permissions validated against tenant plan limits
 
 ### AC-2: Invitation Management
-- [ ] Resend invitation (with cooldown period)
-- [ ] Invitation expires after 48 hours
-- [ ] Invited user status: Pending / Activated / Expired / Revoked
-- [ ] Admin can revoke pending invitations
+- [ ] Resend invitation (with 2-minute cooldown period)
+- [ ] Invitation expires after 7 days
+- [ ] `invitation_status` lifecycle: `sent` → `pending` → `activated` | `expired` | `cancelled`
+- [ ] Admin can cancel (previously "revoke") pending invitations
 
 ### AC-3: Bulk Invitation (Pending)
-- [ ] CSV upload for bulk user invitations
+- [ ] CSV upload for bulk user invitations (columns: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type)
 - [ ] Per-row validation with error report (failed rows with reason)
 - [ ] Bulk invitation audit logged
 
 ### AC-4: Account Activation
 - [ ] User sets password on activation
 - [ ] Password complexity rules enforced
-- [ ] Account active immediately after successful OTP verification + password set
+- [ ] Account active immediately after OTP verification (if required) + password set + T&C acceptance
 
 ### AC-5: Audit Trail
-- [ ] All invitation actions logged: inviter, invitee, role, timestamp, status
+- [ ] All invitation actions logged: inviter, invitee, role, timestamp, invitation_status
 
 ## Sub-tasks
 
@@ -82,13 +84,18 @@ Organizations need to onboard multiple users with different roles. The invitatio
 ## API Endpoints
 
 ```
-POST   /api/v1/invitations                          # Send invitation
-GET    /api/v1/invitations?status=Pending           # List invitations
-POST   /api/v1/invitations/{token}/activate         # Activate account
-POST   /api/v1/invitations/{id}/resend              # Resend invitation
-DELETE /api/v1/invitations/{id}                     # Revoke invitation
-POST   /api/v1/invitations/bulk                     # Bulk CSV invitation
+POST   /api/v1/tenants/{tenant_id}/users/invitations           # Create invitation + immediately dispatch email
+GET    /api/v1/tenants/{tenant_id}/users/invitations?status=   # List invitations (filter by invitation_status)
+POST   /api/v1/users/invitations/{token}/activate              # Activate account
+POST   /api/v1/users/invitations/{token}/resend                # Resend invitation (2-min cooldown)
+DELETE /api/v1/users/invitations/{id}                          # Cancel invitation
+POST   /api/v1/tenants/{tenant_id}/users/invitations/bulk      # Bulk CSV invitation
 ```
+
+**Key Constraints**:
+- `POST` invitation: `first_name` + `last_name` are required; `full_name` is removed
+- `POST` invitation: `role_ids` containing Super Admin role returns HTTP 403 `ROLE-403-SUPER-ADMIN-RESTRICTED`
+- `POST` invitation: Response includes `invitation_status: "sent"` confirming email dispatch
 
 ## Dependencies
 

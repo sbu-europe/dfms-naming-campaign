@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-04-07
+last_updated: 2026-04-09
 related_stories: US-005, US-006, US-007, US-008, US-009
 scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
@@ -118,7 +118,7 @@ The DFMS platform has four distinct user types in a strict management hierarchy:
 
 ### 2.2 Super Admin Creation
 
-Super Admins are **never created through the UI**. They are provisioned manually:
+Super Admins are **never created through the UI or invitation flow**. They are provisioned manually via database seed or CLI only. The `Super Admin` role is explicitly blocked from the user invitation form — any API request attempting to assign the Super Admin role during invitation will be rejected with HTTP 403 (`ROLE-403-SUPER-ADMIN-RESTRICTED`).
 
 ```typescript
 // Database seed or CLI command — executed during initial deployment
@@ -167,7 +167,8 @@ Step 6: Tenant Admin activates account and sets password
 - Subscription Plan (Basic / Starter / Growth / Enterprise)
 - Tenant Admin Email (unique, valid format)
 - Tenant Admin Phone (with country code)
-- Tenant Admin Full Name
+- Tenant Admin First Name
+- Tenant Admin Last Name
 - Organization Address (full address fields)
 
 **Validation Rules**:
@@ -224,7 +225,8 @@ async function provisionTenant(
         tenant_id,
         email: tenantData.admin_email,
         phone: tenantData.admin_phone,
-        full_name: tenantData.admin_name,
+        first_name: tenantData.admin_first_name,
+        last_name: tenantData.admin_last_name,
         role: 'Tenant Admin',
         status: 'Pending',  // Pending until activation
         created_by: superAdminId
@@ -353,9 +355,15 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 ### 4.1 Invitation Workflow
 
 ```
-Admin (Tenant Admin or Department Admin) → Invite User Form → Send Email →
-User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account Active
+Admin (Tenant Admin or Department Admin) → Invite User Form → Submit →
+  System creates user record + dispatches invitation email immediately →
+  invitation_status = "sent" →
+User Clicks Link → invitation_status = "pending" →
+  Complete Profile → Verify OTP → Accept T&C →
+  invitation_status = "activated" → Account Active
 ```
+
+> **Immediate Email Dispatch**: The invitation email is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming the email was queued/dispatched. If dispatch fails, status remains `pending` and a retry is attempted.
 
 #### 4.1.1 Driver SMS-based Invitation + Quick Login (Low Digital Literacy)
 
@@ -381,11 +389,12 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
 ### 4.2 Invitation Form
 
 **Required Fields**:
-- Full Name
+- First Name
+- Last Name
 - Email Address
 - Mobile Number
 - User Type (Department Admin / Operational User)
-- Role (from 18 predefined operational roles, multi-select supported)
+- Role (from 18 predefined operational roles, multi-select supported; **Super Admin role is not listed and cannot be selected**)
 - Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
 - Employee ID
@@ -409,6 +418,11 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
   },
   role: {
     validate: (role, tenant) => {
+      // Super Admin role is strictly forbidden during invitation
+      if (role.name === 'Super Admin') {
+        throw new ForbiddenError('ROLE-403-SUPER-ADMIN-RESTRICTED',
+          'Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually.');
+      }
       // Check if subscription tier allows this role
       return tenant.enabled_modules.includes(role.required_module);
     }
@@ -420,7 +434,7 @@ Driver opens link → Mobile auto-populated (read-only) → Enter system-generat
 
 Admins can upload a CSV file to invite multiple users at once:
 
-**CSV Columns**: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type
+**CSV Columns**: Employee ID, Email, Mobile, First Name, Last Name, Role, Department, POI, Functional Role Type
 
 **Processing Rules**:
 - Validate that Department is one of the predefined department options
@@ -453,7 +467,7 @@ async function validateCSVRow(row: CSVRow, tenant: Tenant): Promise<ValidationRe
 ```
 Subject: You're invited to join [Organization Name] on DFMS
 
-Hi [Full Name],
+Hi [First Name] [Last Name],
 
 [Admin Name] has invited you to join [Organization Name]'s DFMS account.
 
@@ -485,12 +499,19 @@ This invitation expires on [Expiry DateTime].
 **Invitation Token**:
 ```typescript
 InvitationToken {
-  token: string  // Unique, 64-char hex
+  token: string           // Unique, 64-char hex
   user_id: UUID
   email: string
+  first_name: string
+  last_name: string
   invited_by: UUID
-  expires_at: DateTime  // 7 days from creation
-  status: enum ['Pending', 'Activated', 'Expired', 'Revoked']
+  expires_at: DateTime    // 7 days from creation
+  invitation_status: enum ['sent', 'pending', 'activated', 'expired', 'cancelled']
+    // sent      — email dispatched on creation
+    // pending   — user received email, not yet activated
+    // activated — user completed activation
+    // expired   — expiry passed without activation
+    // cancelled — admin cancelled before activation
   created_at: DateTime
 }
 ```
