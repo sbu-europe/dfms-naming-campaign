@@ -63,8 +63,9 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Specifications
 - [master-data-configuration.md](02-master-data/master-data-configuration.md) - Master Data Configuration
-- [product-inventory-management.md](02-master-data/product-inventory-management.md) - Product Inventory Management (PIM)
+- [product-master-data-management.md](02-master-data/product-master-data-management.md) - Product Master Data Management
 - [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
+- [vehicle-master-data.md](02-master-data/vehicle-master-data.md) - Vehicle Master Data Management
 
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
