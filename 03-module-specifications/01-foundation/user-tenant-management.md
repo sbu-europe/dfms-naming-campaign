@@ -259,7 +259,8 @@ Once the Tenant Admin activates their account, they can create Department Admins
 ```
 Tenant Admin → User Management → Invite User →
   Select Role (Department Admin / Operational User) →
-  Assign Department (Depot, Procurement, Distribution, Transport, QC) →
+  Select Department (predefined dropdown) →
+  Select Role (dropdown filtered by selected Department) →
   Send Invitation → User Activates Account
 ```
 
@@ -422,6 +423,8 @@ Admins can upload a CSV file to invite multiple users at once:
 **CSV Columns**: Employee ID, Email, Mobile, Full Name, Role, Department, POI, Functional Role Type
 
 **Processing Rules**:
+- Validate that Department is one of the predefined department options
+- Validate that Role belongs to the selected Department (reject row if mismatch)
 - Maximum 100 invitations per batch
 - CSV format and data validated before processing
 - Partial processing supported (valid rows processed, invalid rows reported)

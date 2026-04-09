@@ -61,6 +61,8 @@ then the system shall:
 
 - [ ] Allow admin to invite users via Email (all roles) or via Mobile Number (**Drivers only**)
 - [ ] Enforce unique **email or mobile number** per tenant (based on the chosen invitation channel)
+- [ ] Require the Admin to select a **Department** first (from predefined departments), then select a **Role** under that Department
+- [ ] Role dropdown SHALL be filtered based on selected Department; the system SHALL reject role selections that do not belong to the selected Department
 - [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`, `SMS`
 - [ ] Default **OTP type** is `None` (no OTP required for activation for non-Driver users)
 - [ ] If **OTP type = Email**, system sends a 6-digit OTP via email and requires OTP verification before credential setup
@@ -97,6 +99,17 @@ then the system shall:
 - [ ] Support invitation templates
 - [ ] Allow invitation scheduling
 - [ ] Track the invitation status as: **Sent → Pending → Activated/Expired**
+
+#### Department → Role mapping (Phase 1)
+
+| Department | Allowed Roles (dropdown options) |
+|---|---|
+| Depot / Feed Mill / Commercial | Depot Officer, Feed Mill Officer, Commercial Officer |
+| Procurement | Procurement Officer |
+| Distribution | Distribution Officer, Distribution Manager |
+| Transport | Transport Planner, Transport Distribution Officer, Driver Supervisor, Driver, Helper |
+| QA / QC | QC Inspector - Physical, QA Lab Technician |
+| Operations | Command Center Officer, Gate man, Scaling Personnel, Loading Personnel, Unloading Personnel |
 
 #### Driver users (SMS-based invitation + low literacy quick login)
 
@@ -216,10 +229,24 @@ Scenario: AC-1.6 - Expired invitation activation attempt
 
 Scenario: AC-1.7 - Role assignment during invitation
   Given a Tenant Admin is inviting a user
-  When the Admin selects role "Transport Planner" and Functional Role Type "Executor"
+  When the Admin selects Department "Transport"
+  And selects role "Transport Planner"
+  And selects Functional Role Type "Executor"
   Then the system validates the role exists and is assignable
   And validates role permissions against the tenant's subscription plan
   And assigns the role upon successful activation
+
+Scenario: AC-1.7b - Role dropdown filtered by department
+  Given a Tenant Admin is inviting a user
+  When the Admin selects Department "QA / QC"
+  Then the role dropdown shows only: "QC Inspector - Physical", "QA Lab Technician"
+  And does not show: "Transport Planner", "Depot Officer"
+
+Scenario: AC-1.7c - Reject role not in department
+  Given a Tenant Admin is inviting a user
+  And the Admin selected Department "Procurement"
+  When the Admin attempts to select role "Distribution Officer"
+  Then the system rejects the selection with "Role does not belong to selected department"
 
 Scenario: AC-1.8 - Unique mobile number enforcement
   Given a user with mobile "+8801712345678" already exists in the tenant
@@ -371,13 +398,14 @@ Scenario: AC-3.6 - Password history enforcement
   - Mobile number (mandatory)
   - Full name
   - Role assignment (from predefined list of 18 roles)
-  - Department assignment (if applicable)
+  - Department assignment (required; dropdown from predefined departments)
   - POI (if applicable)
   - Functional Role Type Assignment (Requester / Approver / Executor)
   - OTP type (None / Email / SMS) — default None
 - [Critical] System SHALL validate email uniqueness within tenant
 - [Critical] System SHALL validate mobile number uniqueness within tenant
 - [Critical] System SHALL validate role exists and is assignable
+- [Critical] System SHALL validate that selected role belongs to selected department
 - [Critical] System SHALL check subscription plan user limit before invitation
 - [High] System SHALL support bulk CSV upload with validation
 - [High] System SHALL allow custom invitation message
@@ -624,8 +652,8 @@ PasswordResetAuditLog:
 - Mobile number input with validation
 - Employee ID input with validation
 - Full name input
-- Role selection (dropdown from 18 predefined roles)
-- Department selection (dropdown, optional)
+- Department selection (dropdown from predefined departments)
+- Role selection (dropdown filtered by selected Department)
 - POI selection (dropdown, optional)
 - Functional Role Type input (Requester / Approver / Executor)
 - OTP type selector (None / Email / SMS) — default None
