@@ -13,15 +13,13 @@ related_stories: US-047, US-053, US-057, US-061, US-095, US-096
 
 ## Overview
 
-The DFMS platform provides CSV-based bulk import and export for all 10 master data entities. Tenant admins can upload a CSV file from the Django admin, preview a paginated validation report before committing, and confirm or retry. All import writes and export file generation are processed asynchronously by Celery workers to avoid blocking HTTP requests. Files are automatically purged after a 7-day retention window.
+The DFMS platform provides CSV-based bulk import and export for all 8 master data entities. Tenant admins can upload a CSV file from the Django admin, preview a paginated validation report before committing, and confirm or retry. All import writes and export file generation are processed asynchronously by Celery workers to avoid blocking HTTP requests. Files are automatically purged after a 7-day retention window.
 
 **Scope of entities covered:**
 
 | Entity | Model | Admin |
 |---|---|---|
 | Point of Interest | `POI` | `POIAdmin` |
-| Zone | `Zone` | `TenantMasterDataAdmin` |
-| Route | `Route` | `TenantMasterDataAdmin` |
 | Product Category | `ProductCategory` | `TenantMasterDataAdmin` |
 | Product | `Product` | `ProductAdmin` |
 | Vehicle | `Vehicle` | `VehicleAdmin` |
@@ -249,7 +247,7 @@ class BulkExportJob(TenantAwareModel):
 ]
 ```
 
-**Scale note**: JSON preview is suitable for master data loads up to `MAX_IMPORT_ROWS` (5,000) rows. `ImportService.validate()` raises a hard `ValidationError` if the CSV exceeds this limit before any row is written to `preview_data`. If imports regularly approach that ceiling, migrate `preview_data` to a separate `BulkImportRow(job=FK, row_num, status, data, errors)` model for true database-level pagination.
+**Scale note**: JSON preview is suitable for master data loads up to `MAX_IMPORT_ROWS` (5,000) rows. This limit is explicitly set for Phase 1 as we are using PostgreSQL. It prevents multi-MB JSON blobs from degrading DB performance and memory consumption in `preview_data`. `ImportService.validate()` raises a hard `ValidationError` if the CSV exceeds this limit before any row is written to `preview_data`. If imports regularly approach that ceiling in future phases, `preview_data` will be migrated to a separate `BulkImportRow(job=FK, row_num, status, data, errors)` model for true database-level pagination and batching.
 
 ---
 
@@ -257,7 +255,7 @@ class BulkExportJob(TenantAwareModel):
 
 ### 3.1 Design
 
-`apps/master_data/import_configs.py` defines a generic registry so all 10 models share one validation pipeline. Adding import support for a new model = write one config class.
+`apps/master_data/import_configs.py` defines a generic registry so all 8 models share one validation pipeline. Adding import support for a new model = write one config class.
 
 ```python
 @dataclass
@@ -273,24 +271,26 @@ class BaseImportConfig:
     unique_lookup: str = ""             # field used in update_or_create lookup
 
     def validate_row(self, row: dict) -> tuple[bool, dict, list[str]]:
-        """Returns (is_valid, cleaned_data, error_list)."""
+        """
+        Returns (is_valid, cleaned_data, error_list).
+        Runs field-level validation, type coercion, and finally model-level 
+        validation via model.full_clean().
+        """
         ...
 
     def get_csv_headers(self) -> list[str]:
+        """
+        Returns required and optional column headers.
+        Explicitly excludes attachment/file fields.
+        """
         return [f.name for f in self.fields]
 
-    def get_or_create(self, cleaned: dict):
+    def perform_batch_import(self, cleaned_rows: list[dict]) -> None:
         """
-        Write one validated row to the database.
-
-        CONSTRAINT — implementations MUST be fully idempotent:
-        Called inside transaction.atomic() in ImportService.execute().
-        If the task retries after a transient failure post-commit (e.g. network
-        blip on the job.save() inside atomic()), this method will run again on
-        already-written rows. Implementations must use update_or_create (not
-        create) keyed on unique_lookup, must not trigger non-idempotent side
-        effects (external API calls, file writes, signals with irreversible
-        actions), and must not assume a row is new.
+        Write validated rows to the database using batch processing.
+        
+        Uses bulk_create for new records and bulk_update for existing ones
+        to minimize database hits. Batched into chunks of 500.
         """
         ...
 
@@ -302,8 +302,6 @@ class BaseImportConfig:
 
 IMPORT_REGISTRY: dict[str, BaseImportConfig] = {
     "poi":             POIImportConfig(),
-    "zone":            ZoneImportConfig(),
-    "route":           RouteImportConfig(),
     "productcategory": ProductCategoryImportConfig(),
     "product":         ProductImportConfig(),
     "vehicle":         VehicleImportConfig(),
@@ -319,8 +317,6 @@ IMPORT_REGISTRY: dict[str, BaseImportConfig] = {
 | Model | Required columns | Optional columns |
 |---|---|---|
 | `POI` | `poi_code`, `name`, `poi_type` | `address`, `city`, `latitude`, `longitude`, `geofence_radius_meters`, `storage_capacity_mt`, `contact_person`, `contact_phone` |
-| `Zone` | `zone_code`, `name` | `region` |
-| `Route` | `route_code`, `name`, `origin_poi_code`, `destination_poi_code` | `distance_km`, `estimated_duration_hours`, `notes` |
 | `ProductCategory` | `code`, `name` | `parent_code` |
 | `Product` | `sku`, `name`, `product_type`, `uom` | `category_code`, `description`, `standard_weight_kg`, `requires_qc`, `qc_tolerance_percent` |
 | `Vehicle` | `registration_number`, `vehicle_type`, `capacity_mt` | `make`, `model`, `year_of_manufacture`, `fitness_certificate_expiry`, `route_permit_expiry`, `insurance_expiry`, `gps_device_id`, `owner_name` |
@@ -334,16 +330,22 @@ IMPORT_REGISTRY: dict[str, BaseImportConfig] = {
 **Header validation** (before any row processing):
 - All required column names must be present; validation fails immediately with a clear error if any are missing.
 - Extra columns are silently ignored.
+- **Attachments excluded**: Any `FileField` or `ImageField` defined on the model is strictly omitted from the downloadable template and ignored if supplied in the CSV. File uploads must be handled per-record via standard interfaces.
 
 **Row-level validation** (per row):
-- Required fields: non-empty after `strip()`.
+- Required fields: non-empty after `strip()`. If a required field is empty, the row is marked invalid and will not be imported.
 - Choice fields (e.g. `vehicle_type`, `poi_type`, `product_type`, `uom`): value must be in the model's `TextChoices` set.
 - Decimal fields: parseable by `decimal.Decimal`; no negative values where not meaningful.
 - Date fields (`YYYY-MM-DD` format): parseable by `datetime.date.fromisoformat`.
 - Boolean fields (`requires_qc`): `"true"/"false"/"1"/"0"/"yes"/"no"` (case-insensitive).
 - FK-by-code fields (e.g. `origin_poi_code` for `Route`): resolved to a DB object; error if the referenced code does not exist in the tenant's data.
 
-**Uniqueness**: The unique lookup field (e.g. `registration_number` for `Vehicle`) is used in `update_or_create` — existing records are updated, not duplicated.
+**Model-level validation**:
+- After field coercion, the config instantiates an in-memory model object (`instance = model(**cleaned_data)`) and calls `instance.full_clean()` to run any cross-field constraints, custom `clean()` logic, or `UniqueConstraint` checks defined on the model.
+- Validation errors are appended to the row's `errors` list.
+
+**Uniqueness**: 
+- The unique lookup field (e.g. `registration_number` for `Vehicle`) is used to match existing records during batch import. Existing records are updated, and new records are created.
 
 ---
 
@@ -421,26 +423,21 @@ class ImportService:
     @classmethod
     def execute(cls, job: BulkImportJob, import_valid_only: bool) -> None:
         """
-        Write valid rows to the database inside a single transaction.
+        Batch write valid rows to the database inside a single transaction.
         Called inside execute_bulk_import Celery task.
         If import_valid_only=True, invalid rows are skipped.
-
-        The job status update is intentionally placed INSIDE transaction.atomic()
-        so that a commit-then-crash scenario does not leave status as 'importing'
-        while rows are already written. On Celery retry, get_or_create() is
-        idempotent (see BaseImportConfig.get_or_create constraint), so re-running
-        is safe.
+        If a user chooses to proceed with errors, only the valid rows are imported.
         """
         config = IMPORT_REGISTRY[job.model_name]
         rows_to_import = [
-            r for r in job.preview_data
+            r["data"] for r in job.preview_data
             if r["status"] == "valid" or not import_valid_only
         ]
+        
         with transaction.atomic():
-            for row in rows_to_import:
-                config.get_or_create(row["data"])
-            # Status save is inside atomic() — if this save fails, the whole
-            # transaction rolls back, leaving the DB in a clean importable state.
+            if rows_to_import:
+                config.perform_batch_import(rows_to_import)
+            
             job.status = "completed"
             job.processed_rows = len(rows_to_import)
             job.completed_at = now()
@@ -785,7 +782,7 @@ class VehicleAdmin(BulkImportExportMixin, TenantOnlyAdminMixin, admin.ModelAdmin
     search_fields = ("registration_number",)
 ```
 
-All 10 model admins receive this mixin. For the four models currently using `admin.site.register(Model, TenantMasterDataAdmin)`, these are converted to `@admin.register` decorated classes that inherit `BulkImportExportMixin`.
+All 8 model admins receive this mixin. For the four models currently using `admin.site.register(Model, TenantMasterDataAdmin)`, these are converted to `@admin.register` decorated classes that inherit `BulkImportExportMixin`.
 
 ### 6.2 Job History Admins
 
@@ -937,7 +934,7 @@ tests/
 | `TestFieldConfig` | `test_date_coercion_invalid` | `"31-12-2026"` → error |
 | `TestFieldConfig` | `test_boolean_coercion_truthy_values` | `"true"/"1"/"yes"` → `True` |
 | `TestFieldConfig` | `test_boolean_coercion_falsy_values` | `"false"/"0"/"no"` → `False` |
-| `TestRegistryCompleteness` | `test_all_10_models_in_registry` | `IMPORT_REGISTRY.keys()` contains all 10 model names |
+| `TestRegistryCompleteness` | `test_all_8_models_in_registry` | `IMPORT_REGISTRY.keys()` contains all 8 model names |
 | `TestRegistryCompleteness` | `test_every_config_has_unique_lookup` | `config.unique_lookup` is non-empty for all configs |
 | `TestRegistryCompleteness` | `test_get_csv_headers_returns_list_of_strings` | For each config, `get_csv_headers()` returns `list[str]` with at least one entry |
 | `TestVehicleImportConfig` | `test_valid_row_passes` | Full valid vehicle row → `is_valid=True`, no errors |
@@ -946,7 +943,6 @@ tests/
 | `TestProductImportConfig` | `test_invalid_uom_choice` | `uom="gallons"` → error with valid choices listed |
 | `TestProductImportConfig` | `test_requires_qc_boolean_parsing` | `requires_qc="yes"` → `True` |
 | `TestDriverImportConfig` | `test_valid_driver_row` | Full driver row passes |
-| `TestRouteImportConfig` | `test_fk_resolution_error_for_missing_poi_code` | `origin_poi_code="UNKNOWN"` → error referencing non-existent POI |
 
 ### 9.3 test_import_service.py — ImportService
 
@@ -974,8 +970,8 @@ pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 | `TestImportServiceExecute` | `test_valid_rows_written_to_db` | Execute with 3 valid vehicle rows → `Vehicle.objects.count() == 3` |
 | `TestImportServiceExecute` | `test_import_valid_only_skips_invalid_rows` | 2 valid + 1 invalid, `import_valid_only=True` → 2 records created, `job.status == "completed"` |
 | `TestImportServiceExecute` | `test_existing_record_updated_not_duplicated` | Row with existing `registration_number` → record updated, count unchanged |
-| `TestImportServiceExecute` | `test_atomic_rollback_on_db_error_no_records_written` | Patch `config.get_or_create` to raise on 2nd row → 0 records in DB (full rollback including first row) |
-| `TestImportServiceExecute` | `test_status_completed_inside_atomic_block` | Patch `config.get_or_create` to raise → `job.status` remains `"importing"` (status save rolled back with rows) |
+| `TestImportServiceExecute` | `test_atomic_rollback_on_db_error_no_records_written` | Patch `config.perform_batch_import` to raise → 0 records in DB (full rollback) |
+| `TestImportServiceExecute` | `test_status_completed_inside_atomic_block` | Patch `config.perform_batch_import` to raise → `job.status` remains `"importing"` (status save rolled back with rows) |
 | `TestImportServiceExecute` | `test_completed_at_set_on_success` | After execute, `job.completed_at` is not `None` |
 | `TestImportServiceExecute` | `test_status_set_to_completed` | `job.status == "completed"` after successful execute |
 
@@ -1092,7 +1088,7 @@ The existing `VehicleViewSet`, `DriverViewSet` etc. are model-CRUD-focused (one 
 
 - Break Single Responsibility Principle — CRUD and async job management are different concerns
 - Produce awkward URLs: `/vehicles/import/{job_uuid}/` where `{job_uuid}` is not a vehicle PK
-- Force each of the 10 ViewSets to grow with import/export actions, making them hard to read
+- Force each of the 8 ViewSets to grow with import/export actions, making them hard to read
 
 Two dedicated ViewSets registered alongside the existing ones is the clean separation.
 
@@ -1661,7 +1657,7 @@ pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 | `TestTemplateDownloadAPI` | `test_get_valid_model_returns_csv` | `?model_name=vehicle` → 200, `Content-Type: text/csv`, first row = vehicle headers |
 | `TestTemplateDownloadAPI` | `test_template_has_no_data_rows` | Only 1 line in CSV (the header) |
 | `TestTemplateDownloadAPI` | `test_get_unknown_model_returns_400` | `?model_name=unknown` → 400 |
-| `TestTemplateDownloadAPI` | `test_all_10_models_return_valid_template` | Parameterized: each registry key → 200 |
+| `TestTemplateDownloadAPI` | `test_all_8_models_return_valid_template` | Parameterized: each registry key → 200 |
 | `TestBulkExportTriggerAPI` | `test_post_valid_trigger_returns_202` | POST `{model_name: "product"}` → 202, `status=pending`, `download_url=null` |
 | `TestBulkExportTriggerAPI` | `test_post_creates_export_job_in_db` | `BulkExportJob.objects.count() == 1` |
 | `TestBulkExportTriggerAPI` | `test_post_fires_generate_task_with_correct_args` | `generate_bulk_export.delay` called with `(str(job.id), schema_name)` |
@@ -1680,7 +1676,7 @@ The recommended sequence ensures each layer is testable before the next builds o
 ```
 ── Shared Core ────────────────────────────────────────────────────────────
 1. models.py         — BulkImportJob, BulkExportJob, expires_at (+ migration)
-2. import_configs.py — IMPORT_REGISTRY + all 10 configs
+2. import_configs.py — IMPORT_REGISTRY + all 8 configs
 3. services.py       — ImportService + ExportService (.iterator streaming)
 4. tasks.py          — 4 Celery tasks (validate, execute, export, purge)
    ↑ Write unit tests §9.2 – §9.5 here
@@ -1688,7 +1684,7 @@ The recommended sequence ensures each layer is testable before the next builds o
 ── SSR Track ───────────────────────────────── ── REST API Track ──────────
 5a. admin.py                                   5b. serializers.py
     BulkImportExportMixin                           7 new serializers
-    10 updated ModelAdmins                     5c. views.py
+    8 updated ModelAdmins                     5c. views.py
     BulkImportJobAdmin                              BulkImportViewSet
     BulkExportJobAdmin                              BulkExportViewSet
 6a. Templates                                  5d. urls.py
@@ -1707,10 +1703,10 @@ The recommended sequence ensures each layer is testable before the next builds o
 | File | Type | Change |
 |---|---|---|
 | `apps/master_data/models.py` | Modified | Add `BulkImportJob`, `BulkExportJob`, `FILE_RETENTION_DAYS` |
-| `apps/master_data/import_configs.py` | New | `FieldConfig`, `BaseImportConfig`, all 10 model configs, `IMPORT_REGISTRY` |
+| `apps/master_data/import_configs.py` | New | `FieldConfig`, `BaseImportConfig`, all 8 model configs, `IMPORT_REGISTRY` |
 | `apps/master_data/services.py` | Modified | Replace `BulkUploadService` with `ImportService` + `ExportService` |
 | `apps/master_data/tasks.py` | New | 5 Celery tasks (validate, execute, export, purge, mark_stale) |
-| `apps/master_data/admin.py` | Modified | `BulkImportExportMixin`, updated 10 admins, `BulkImportJobAdmin`, `BulkExportJobAdmin` |
+| `apps/master_data/admin.py` | Modified | `BulkImportExportMixin`, updated 8 admins, `BulkImportJobAdmin`, `BulkExportJobAdmin` |
 | `apps/master_data/serializers.py` | Modified | Add `BulkImportUploadSerializer`, `BulkImportJobSerializer`, `BulkImportPreviewRowSerializer`, `BulkImportPreviewSerializer`, `BulkImportConfirmSerializer`, `BulkExportTriggerSerializer`, `BulkExportJobSerializer` |
 | `apps/master_data/views.py` | Modified | Add `BulkImportViewSet`, `BulkExportViewSet` |
 | `apps/master_data/urls.py` | Modified | Register `bulk-imports` and `bulk-exports` ViewSets |
