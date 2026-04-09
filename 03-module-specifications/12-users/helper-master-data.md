@@ -20,7 +20,7 @@ This specification defines the Helper data model, lifecycle management, assignme
 
 Helper behaviour spans **identity** (who can log in or be linked to audit context), **tenant-scoped master data** (employee profile, availability), and **operations** (trip assignment). The detailed implementation plan therefore lives under **01-foundation** alongside user/tenant models: helpers may exist only as operational profiles, or may be **linked to a platform `User`** when the same person is also a system user (e.g. mobile or back-office access). The optional `user_id` foreign key preserves that evolution without forcing every helper to have credentials on day one.
 
-For the broader master-data catalogue (vehicles, drivers, vendors, bulk upload patterns), see **[Master Data Configuration](../02-master-data/master-data-configuration.md)**.
+For the broader master-data catalogue (vehicles, drivers, vendors, bulk upload patterns), see the **02-master-data** module specifications.
 
 ---
 
@@ -305,7 +305,7 @@ To ensure robustness and data integrity, the Helper Master Data Management modul
 
 ## 8. Related Documentation
 
-- **[Master Data Configuration](../02-master-data/master-data-configuration.md)** - Overall master data management architecture.
+- **[Master Data README](../02-master-data/README.md)** - Overall master data management architecture.
 - **[User & tenant management](user-tenant-management.md)** - Users, tenants, and identity lifecycle.
 - **[Trip Management](../03-operations/trip-management.md)** - How helpers are utilized during trip execution.
 

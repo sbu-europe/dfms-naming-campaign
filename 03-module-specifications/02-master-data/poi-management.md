@@ -576,7 +576,7 @@ CREATE INDEX idx_poi_name_tenant ON pois(poi_name, tenant_id);  -- Unique constr
 
 ## 10. Related Documentation
 
-- **[Master Data Configuration](master-data-configuration.md)** - Overall master data management
+- **[Master Data README](README.md)** - Overall master data management
 - **[Product Inventory Management](product-inventory-management.md)** - Product master data
 - **[Product Requisition Management](../03-operations/product-requisition-management.md)** - How POIs are used in requisitions
 - **[Trip Management](../03-operations/trip-management.md)** - Geofence integration with trips

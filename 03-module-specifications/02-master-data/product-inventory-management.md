@@ -539,7 +539,7 @@ ProductAuditLog {
 
 ## 10. Related Documentation
 
-- **[Master Data Configuration](master-data-configuration.md)** - Overall master data management
+- **[Master Data README](README.md)** - Overall master data management
 - **[POI Management](poi-management.md)** - Location master data
 - **[Product Requisition Management](../03-operations/product-requisition-management.md)** - Product usage in requisitions
 - **[QC Workflow](../04-poi-operations/qc-workflow.md)** - QC checklist integration
