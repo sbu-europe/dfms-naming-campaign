@@ -104,6 +104,7 @@ DFMS-product-context/
 │   │   ├── product-inventory-management.md
 │   │   ├── master-data-configuration.md
 │   │   └── vehicle-master-data.md
+│   │   ├── product-master-data-management.md
 │   │
 │   ├── 03-operations/                           # PRM, TRM, TO, trips (4 files, 3,275 lines)
 │   │   ├── product-requisition-management.md

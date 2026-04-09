@@ -14,7 +14,7 @@ created: 2026-02-27
 updated: 2026-02-27
 source_documents:
   - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../../03-module-specifications/02-master-data/product-inventory-management.md
+  - ../../../03-module-specifications/02-master-data/product-master-data-management.md
   - ../../../../source-documents/04-wbs/epics-table.md
 related_stories:
   - US-010-port-transfer-requisition.md
@@ -600,7 +600,7 @@ ProductAuditLog {
 ## Related Documentation
 
 - **PRD Section**: 6.4 Product Inventory Management (PIM)
-- **Module Spec**: `03-module-specifications/02-master-data/product-inventory-management.md`
+- **Module Spec**: `03-module-specifications/02-master-data/product-master-data-management.md`
 - **Epic**: [EPIC-005](../01-epics/EPIC-005-product-inventory-management-pim.md)
 - **Related Stories**: US-010, US-011, US-012, US-013, US-044, US-046, US-059
 - **WBS Source**: `01-source/04-wbs/epics-table.md` (EPIC-005)
