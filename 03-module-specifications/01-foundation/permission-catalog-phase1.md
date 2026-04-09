@@ -31,22 +31,20 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 ---
 
-## Functional Role Type Mapping
+## Permission Enforcement Model
 
-Permissions are gated not only by role but also by **Functional Role Type** (Requester / Approver / Executor) and **Access Scope** (Global / Local). The system evaluates `Role + Functional Type + Access Scope` to determine effective permissions (see [RBAC specification](rbac.md), Section 1.7-1.8).
+Permissions are determined by **Role → Permission matrix** and **Access Scope** only. The system evaluates `Role + Access Scope` to determine effective permissions.
 
-### Functional Type to Permission Action Mapping
+- **Role → Permission matrix** (this catalog) is the **sole enforcement authority** for what a user can do.
+- **Access Scope** (Global / Local) controls *which records* a user can act on — enforced at the database row-level security and API middleware layers.
+- **Self-approval prevention** is a **business rule**, not a permission gate: the system always checks `requester_id ≠ current_user_id` before allowing an approve action, regardless of role.
 
-| Functional Type | Allowed Actions | Restricted Actions | Access Scope Behavior |
-|----------------|----------------|-------------------|----------------------|
-| **Requester** | Create, Read, Update, Export | Approve, Assign | Local: Only records within assigned location. Global: Records across all locations. |
-| **Approver** | Read, Approve, Export | Create (of own approvals) | Global: Can approve across all locations. Local: Can approve only within assigned location. Self-approval always denied. |
-| **Executor** | Read, Update, Execute, Assign | Approve, Create (requisitions) | Local: Execute tasks within assigned location. Global: Execute across all locations. |
+> **Functional Role Type (Requester / Approver / Executor)** is kept as **role metadata** for UI display, documentation, and filtering. It is **not** an independent runtime permission gate. The permission rows below (Role → Permission) already fully encode what each role can and cannot do.
 
-### Role-to-Functional-Type Default Mapping
+### Role Metadata Reference
 
-| Role | Default Functional Type | Access Scope |
-|------|------------------------|-------------|
+| Role | Functional Type (metadata) | Access Scope |
+|------|---------------------------|-------------|
 | Depot Officer | Requester | Local |
 | Feed Mill Officer | Requester | Local |
 | Commercial Officer | Requester | Local |
@@ -64,7 +62,7 @@ Permissions are gated not only by role but also by **Functional Role Type** (Req
 | Driver Supervisor | Executor | Local |
 | Driver Helper | Executor | Local |
 
-> **Note:** Admins (Tenant Admin) can override the default functional type during user role assignment. A user can hold multiple functional types (e.g., Requester + Executor) but Requester and Approver for the same request must be different users.
+> Access Scope is enforced at runtime. Functional Type is display-only metadata — permission rows in this catalog are the authoritative source for what each role may do.
 
 ---
 

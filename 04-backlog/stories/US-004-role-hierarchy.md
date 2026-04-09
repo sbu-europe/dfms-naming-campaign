@@ -156,17 +156,17 @@ Scenario: AC-1.6 - Create operational role requires predefined department
 **Test Scenarios (AC-2):**
 
 ```gherkin
-Scenario: AC-2.1 - UI menu visibility based on role
-  Given a user with "Depot Officer" role (Requester type)
+Scenario: AC-2.1 - UI menu visibility based on role permissions
+  Given a user with "Depot Officer" role
   When the user logs into the system
-  Then the "Approve Requests" menu item is not visible
-  And the "Create Request" menu item is visible
+  Then the "Approve Requests" menu item is not visible (role has no Requisition.Approval.Approve permission)
+  And the "Create Request" menu item is visible (role has Requisition.TR.Create permission)
 
-Scenario: AC-2.2 - UI button availability based on role
-  Given a user with "Executor" functional type
+Scenario: AC-2.2 - UI button availability based on role permissions
+  Given a user with "Loading Personnel" role (has no Requisition.Approval.Approve permission)
   When the user views a Transport Request detail page
   Then the "Approve" button is hidden
-  And the "Execute" button is visible
+  And the "Execute task" button is visible (role has Operations.Loading.Update permission)
 
 Scenario: AC-2.3 - API unauthorized access returns 403
   Given a user with "Depot Officer" role assigned to "Depot-A"
@@ -194,74 +194,76 @@ Scenario: AC-2.6 - Database allows Global role full access
 ```
 
 ### AC-3: Approval Constraints
-- [ ] System SHALL prevent users from approving their own requisitions
-- [ ] System SHALL enforce Requester vs Approver vs Executor role separation
-- [ ] System SHALL ensure that:
-  - A Requester cannot approve requests they created
-  - Only roles flagged as Approver can approve requests
+- [ ] System SHALL prevent users from approving their own requisitions (business rule: `requester_id ≠ current_user_id`)
+- [ ] System SHALL ensure that only roles with the `Requisition.Approval.Approve` permission can approve TRs
+- [ ] System SHALL ensure that only roles with `Requisition.Approval.Approve` can approve PRs / purchase requests (distribution/procurement flow)
 - [ ] System SHALL enforce approval rules regardless of Local or Global role scope
 
-**Example:**
-- Depot Manager (Requester – Local) → cannot approve requests
-- Distribution Manager (Approver – Global) → can approve TR requests across all locations
+**Example (permission-based):**
+- Depot Officer (has `Requisition.TR.Create`, no `Requisition.Approval.Approve`) → cannot approve TRs
+- Distribution Manager (has `Requisition.Approval.Approve`, Global scope) → can approve TR requests across all locations
 
 **Test Scenarios (AC-3):**
 
 ```gherkin
-Scenario: AC-3.1 - Self-approval prevention
-  Given a user with "Distribution Manager" role (Approver type)
+Scenario: AC-3.1 - Self-approval prevention (business rule)
+  Given a user with "Distribution Manager" role (has Requisition.Approval.Approve permission)
   And the user has created a Transport Request "TR-001"
   When the user attempts to approve "TR-001"
-  Then the system returns error "Cannot approve own requisition"
+  Then the system checks: requester_id == current_user_id → deny
+  And returns error "Cannot approve own requisition"
   And the request status remains unchanged
 
-Scenario: AC-3.2 - Requester cannot approve any request
-  Given a user with "Depot Officer" role (Requester type)
+Scenario: AC-3.2 - Role without approve permission cannot approve
+  Given a user with "Depot Officer" role (has no Requisition.Approval.Approve permission)
   And another user has created a Transport Request "TR-002"
   When the Depot Officer attempts to approve "TR-002"
   Then the system returns HTTP 403 Forbidden
-  And displays message "Only Approver roles can approve requests"
+  And displays message "Role does not have permission to approve this resource"
 
 Scenario: AC-3.3 - Approver can approve others' requests
-  Given a user with "Distribution Manager" role (Approver type)
+  Given a user with "Distribution Manager" role (has Requisition.Approval.Approve, Global scope)
   And another user has created a Transport Request "TR-003"
   When the Distribution Manager approves "TR-003"
-  Then the request status changes to "Approved"
+  Then the system checks: requester_id ≠ current_user_id → allow
+  And the request status changes to "Approved"
   And the approval is recorded with approver details
 
-Scenario: AC-3.4 - Executor cannot approve requests
-  Given a user with "Transport Planner" role (Executor type, Global scope)
+Scenario: AC-3.4 - Role without approve permission — approval button hidden
+  Given a user with "Transport Planner" role (has no Requisition.Approval.Approve permission, Global scope)
   When the user views any Transport Request
-  Then the "Approve" button is not available
-  And attempting API approval returns HTTP 403
+  Then the "Approve" button is not available (permission check: no Requisition.Approval.Approve)
+  And attempting API approval returns HTTP 403 "RBAC-403-PERMISSION"
 
-Scenario: AC-3.5 - Approval rules apply regardless of scope
-  Given a user with "Procurement Officer" role (Approver type, Global scope)
+Scenario: AC-3.5 - Approval self-prevention applies regardless of access scope
+  Given a user with "Procurement Officer" role (has Requisition.Approval.Approve, Global scope)
   And the user created a Purchase Request "PR-001"
   When the user attempts to approve "PR-001"
-  Then the system prevents self-approval
+  Then the system checks: requester_id == current_user_id → deny
   And returns error "Cannot approve own requisition"
 ```
 
-### AC-4: Role Types
-- [ ] System SHALL support functional role types:
-  - **Requester**
-  - **Approver**
-  - **Executor**
-- [ ] System SHALL allow each operational role to be mapped to a functional role type
+### AC-4: Role Types & Permission Model
+- [ ] System SHALL support functional role types as **role metadata** (display / documentation only):
+  - **Requester** — role primarily creates/initiates records
+  - **Approver** — role primarily approves or rejects records
+  - **Executor** — role primarily executes assigned tasks
+- [ ] System SHALL use the **Role → Permission matrix** (permission catalog) as the **sole runtime enforcement authority** for what a user can do
+- [ ] System SHALL use **Access Scope** (Global / Local) as the **sole runtime enforcement authority** for which records a user can act on
+- [ ] System SHALL prevent self-approval via a **business rule** (`requester_id ≠ approver_id`), not via functional type check
 - [ ] System SHALL support multi-tenant architecture, where:
   - all roles are scoped to the tenant
   - users cannot access data from other tenants
-- [ ] System SHALL combine Role + Functional Type + Access Scope to determine user permissions
 
 **Test Scenarios (AC-4):**
 
 ```gherkin
-Scenario: AC-4.1 - Functional type mapping
+Scenario: AC-4.1 - Functional type displayed as metadata
   Given the system has role "Depot Officer" configured
   When an administrator views role details
-  Then the functional type is displayed as "Requester"
+  Then the functional type label "Requester" is displayed (UI metadata only)
   And the access scope is displayed as "Local"
+  And the system grants permissions per the Role → Permission matrix, not via functional type gate
 
 Scenario: AC-4.2 - Multi-tenant isolation
   Given a user with "Transport Planner" role in "Tenant-A"
@@ -275,21 +277,18 @@ Scenario: AC-4.3 - Tenant-scoped role assignment
   Then only roles scoped to "Tenant-A" are displayed
   And roles from other tenants are not visible
 
-Scenario: AC-4.4 - Combined permission calculation
-  Given a user with role "Distribution Manager"
-  And functional type "Approver"
-  And access scope "Global"
-  When the user requests permission check for "approve_transport_request"
-  Then the system evaluates: Role + Functional Type + Access Scope
-  And returns permitted = true for all locations within tenant
+Scenario: AC-4.4 - Permission check uses Role → Permission matrix
+  Given a user with role "Distribution Manager" (access scope "Global")
+  When the user requests permission check for "TransportRequisition.Approve"
+  Then the system checks the permission catalog for "Distribution Manager"
+  And returns permitted = true because "Distribution Manager" has "TransportRequisition.Approve"
+  And the Global access scope means approval applies across all tenant locations
 
-Scenario: AC-4.5 - Executor role permissions
-  Given a user with role "Loading Personnel"
-  And functional type "Executor"
-  And access scope "Local" for "Depot-1"
-  When the user attempts to execute loading operations
-  Then permission is granted for "Depot-1" only
-  And approval actions are denied regardless of location
+Scenario: AC-4.5 - Approve action blocked by missing permission (not by functional type)
+  Given a user with role "Loading Personnel" (access scope "Local")
+  When the user attempts to approve a transport request
+  Then permission is denied because "Loading Personnel" does not have "TransportRequisition.Approve" in the catalog
+  And the 403 response references "RBAC-403-PERMISSION" (not functional type mismatch)
 ```
 
 ---
@@ -298,8 +297,10 @@ Scenario: AC-4.5 - Executor role permissions
 
 ### FR-001: RBAC
 - [Critical] Hierarchical role structure with Administrative and Operational categories
-- [Critical] Permission scope per role (Global vs Local access)
-- [Critical] Functional role types (Requester, Approver, Executor)
+- [Critical] Permission enforcement via **Role → Permission matrix** (permission catalog) — the sole runtime gate for what a user can do
+- [Critical] **Access Scope** (Global / Local) enforcement per role — the sole runtime gate for which records a user can act on
+- [Critical] **Functional Role Type** (Requester / Approver / Executor) stored on the role as **display metadata** only — not a runtime permission gate
+- [Critical] Self-approval prevention implemented as a **business rule** (`requester_id ≠ approver_id`)
 - [Critical] Tenant-level role assignment by Tenant Admins
 
 ### FR-002: Access Control
@@ -315,8 +316,9 @@ Scenario: AC-4.5 - Executor role permissions
 ### BR-RBAC-001: Role Hierarchy
 - **Administrative roles**: Super Admin, Tenant Admin
 - **Operational roles**: 15 pre-defined roles across 5 departments (see AC-1 table)
-- Each role has a Functional Type: Requester, Approver, or Executor
+- Each role carries a **Functional Type label** (Requester / Approver / Executor) as **display metadata** — it is not evaluated at runtime as a permission gate
 - Each Operational Role belongs to exactly one predefined Department (used for role creation and role filtering in user assignment/invitation flows)
+- Runtime permission enforcement uses **Role → Permission matrix** + **Access Scope** only
 - **Enforcement**: RBAC service
 
 ### BR-RBAC-002: Access Scope Enforcement
@@ -347,10 +349,10 @@ Role {
   tenant_id: UUID
   name: string
   category: Enum (Administrative, Operational)
-  functional_type: Enum (Requester, Approver, Executor)
-  access_scope: Enum (Global, Local)
+  functional_type: Enum (Requester, Approver, Executor) | null  // metadata only — not a runtime gate
+  access_scope: Enum (Global, Local)                            // enforced at runtime (row-level security)
   department: Enum (Predefined Department; required for Operational roles; null for Administrative roles)
-  permissions: JSON (array of permission codes)
+  permissions: JSON (array of permission codes)                 // sole runtime enforcement authority
 }
 
 UserRole {
@@ -367,7 +369,7 @@ Permission {
   resource: string
   action: string
   scope: Enum (Global, Local, Self)
-  requires_functional_type: Enum (Requester, Approver, Executor, null)
+  // Note: no requires_functional_type field — permission enforcement does not gate on functional type
 }
 ```
 
@@ -400,11 +402,12 @@ Permission {
 ```
 
 ### Menu/Button Visibility
-- UI elements hidden based on role's functional type and access scope
-- Approval buttons hidden for Requester and Executor roles
-- Local roles see only records from their assigned location
-- Global roles see records from all locations
-- Disabled state with tooltip when action not permitted
+- UI elements shown/hidden based on the role's **permissions** from the permission catalog
+- Approval buttons hidden for roles that do not have the relevant `*.Approve` permission
+- Local roles see only records from their assigned location (Access Scope enforcement)
+- Global roles see records from all locations within the tenant
+- Functional Type label shown in role detail view as informational metadata
+- Disabled state with tooltip when action is not permitted
 
 ---
 
@@ -531,10 +534,13 @@ Body: {
 Response: { success }
 
 GET /api/v1/permissions/check
-Query: resource, action, record_id?
+Query: permission_code (e.g. "Requisition.Approval.Approve"), record_id? (for Access Scope check)
 Response: { 
   permitted: boolean, 
-  reason?: string // e.g., "Local role cannot access this location"
+  reason?: string,        // e.g., "Local role cannot access this location"
+  permission_code: string // the catalog code that was evaluated
+  access_scope: string    // "Global" | "Local" — runtime gate
+  functional_type: string // metadata only — for UI display
 }
 ```
 
@@ -543,17 +549,17 @@ Response: {
 ## Testing Scenarios
 
 ### Happy Path
-1. Tenant Admin assigns Transport Planner (Executor, Global) → User sees TO menu across all locations
-2. Tenant Admin assigns Depot Officer (Requester, Local) → User sees only their depot's data
-3. Distribution Manager (Approver, Global) approves TR → Success
-4. Depot Officer creates requisition → Cannot approve (Requester type, button hidden)
+1. Tenant Admin assigns Transport Planner (Executor metadata, Global scope) → User sees TO menu across all locations (has `Transport.TO.Read`, `Transport.TO.Create` etc.)
+2. Tenant Admin assigns Depot Officer (Requester metadata, Local scope) → User sees only their depot's data (has `Requisition.TR.Read` scoped to assigned location)
+3. Distribution Manager (Approver metadata, Global scope) approves TR → Success (has `Requisition.Approval.Approve`)
+4. Depot Officer creates requisition → Cannot approve (no `Requisition.Approval.Approve` in catalog → approve button hidden)
 
 ### Edge Cases
-1. **Self-approval attempt**: API returns 403 "Requester cannot approve own requisition"
-2. **Local role accessing other location**: API returns 403 "Access denied - outside assigned location"
-3. **Executor attempting approval**: API returns 403 "Only Approver roles can approve"
-4. **Cross-tenant role access**: Denied at middleware level
-5. **Local role without location assignment**: Assignment rejected at creation
+1. **Self-approval attempt**: API returns 403 "RBAC-403-SELF-APPROVAL" — business rule: `requester_id == current_user_id`
+2. **Local role accessing other location**: API returns 403 "RBAC-403-LOCATION" — Access Scope enforcement
+3. **Role without approve permission attempting approval**: API returns 403 "RBAC-403-PERMISSION" — missing `Requisition.Approval.Approve` in permission catalog
+4. **Cross-tenant role access**: Denied at middleware level, returns 404 (no information disclosure)
+5. **Local role without location assignment**: Assignment rejected at creation (400 "RBAC-400-LOCATION-REQUIRED")
 
 ### Extended Edge Cases
 
@@ -604,18 +610,18 @@ Response: {
     - Role changed at T=0
     - Cached permissions still valid until T=5min (stale read)
     - Critical operations force cache refresh
-    - Approval operations ALWAYS validate fresh permissions (no cache)
+    - Approval operations ALWAYS validate fresh permissions from the catalog (no cache)
 
-13. **Conflicting role functional types**:
-    - User has "Depot Officer" (Requester) and "QC Inspector" (Executor)
-    - Neither role is Approver → User cannot approve
-    - Multiple functional types do NOT combine to create new capabilities
+13. **Multiple roles with no approve permission**:
+    - User has "Depot Officer" (has `Requisition.TR.Create/Read`) and "QC Inspector – Physical" (has `QC.Inspection.Create/Read/Update`)
+    - Neither role has `Requisition.Approval.Approve` in the catalog → User cannot approve TRs
+    - Union of permissions from both roles does NOT include any approve permission
 
-14. **Global role with Local role combination**:
-    - User has "Transport Planner" (Global, Executor) and "Depot Officer" (Local, Requester)
-    - Access scope: Global (highest wins)
-    - Functional types: Both Executor AND Requester capabilities
-    - Cannot approve (no Approver role)
+14. **Global + Local role combination**:
+    - User has "Transport Planner" (Global scope, has `Transport.TO.*`) and "Depot Officer" (Local scope, has `Requisition.TR.*`)
+    - Access scope: Global (highest wins — user sees all locations)
+    - Permissions: Union of both roles' catalog entries — user has `Transport.TO.*` AND `Requisition.TR.*`
+    - Cannot approve TRs: neither role has `Requisition.Approval.Approve` in catalog
 
 15. **Role assignment to inactive user**:
     - Admin attempts to assign role to deactivated user account
@@ -638,9 +644,12 @@ def test_role_creation():
     # Test creating all 15 operational roles
     for role in OPERATIONAL_ROLES:
         role = Role.objects.create(**role_data)
-        assert role.functional_type in ['Requester', 'Approver', 'Executor']
+        # functional_type is metadata — verify it is stored but NOT used as a permission gate
+        assert role.functional_type in ['Requester', 'Approver', 'Executor', None]
         assert role.access_scope in ['Global', 'Local']
         assert role.category == 'Operational'
+        # permissions array is the enforcement authority
+        assert isinstance(role.permissions, list)
 
 def test_role_assignment():
     # Test assigning role to user
@@ -660,29 +669,33 @@ def test_local_role_requires_location():
 ### UT-RBAC-002: Permission Validation
 ```python
 def test_global_role_access():
-    # Test Global role can access all locations
+    # Distribution Manager has Requisition.TR.Read + Requisition.Approval.Approve (Global scope)
     global_user = create_user_with_role('Distribution Manager')
     for location in ALL_LOCATIONS:
-        assert has_permission(global_user, 'view_tr', location)
-        assert has_permission(global_user, 'approve_tr', location)
+        assert has_permission(global_user, 'Requisition.TR.Read', location)
+        assert has_permission(global_user, 'Requisition.Approval.Approve', location)
 
 def test_local_role_access():
-    # Test Local role only accesses assigned location
+    # Depot Officer has Requisition.TR.Create / Read (Local scope — depot-1 only)
     local_user = create_user_with_role('Depot Officer', department_id='depot-1')
-    assert has_permission(local_user, 'view_pr', 'depot-1')
-    assert not has_permission(local_user, 'view_pr', 'depot-2')
+    assert has_permission(local_user, 'Requisition.TR.Read', 'depot-1')
+    assert not has_permission(local_user, 'Requisition.TR.Read', 'depot-2')
 
-def test_requester_cannot_approve():
-    # Test Requester functional type cannot approve
+def test_role_without_approve_permission_cannot_approve():
+    # Depot Officer has no Requisition.Approval.Approve in its permission catalog entry
     requester = create_user_with_role('Depot Officer')
-    assert not has_permission(requester, 'approve_tr', 'any-location')
-    assert not has_permission(requester, 'approve_pr', 'any-location')
+    assert not has_permission(requester, 'Requisition.Approval.Approve', 'any-location')
+    # Transport Planner also has no Requisition.Approval.Approve
+    planner = create_user_with_role('Transport Planner')
+    assert not has_permission(planner, 'Requisition.Approval.Approve', 'any-location')
 
-def test_approver_can_approve():
-    # Test Approver functional type can approve
+def test_role_with_approve_permission_can_approve():
+    # Distribution Manager has Requisition.Approval.Approve in the permission catalog
     approver = create_user_with_role('Distribution Manager')
-    assert has_permission(approver, 'approve_tr', 'any-location')
-    assert has_permission(approver, 'approve_pr', 'any-location')
+    assert has_permission(approver, 'Requisition.Approval.Approve', 'any-location')
+    # Procurement Officer also has Requisition.Approval.Approve
+    proc_officer = create_user_with_role('Procurement Officer')
+    assert has_permission(proc_officer, 'Requisition.Approval.Approve', 'any-location')
 ```
 
 ### UT-RBAC-003: Self-Approval Prevention
@@ -699,13 +712,14 @@ def test_self_approval_prevention():
     other_approver = create_user_with_role('Distribution Manager')
     approve_requisition(requisition.id, other_approver)  # Should succeed
 
-def test_requester_approval_blocked():
-    # Test Requester role approval always blocked
+def test_role_without_approve_permission_blocked():
+    # Depot Officer has no Requisition.Approval.Approve — denied by permission catalog, not functional type
     requester = create_user_with_role('Depot Officer')
     other_requisition = create_requisition(created_by=other_user)
     
-    with pytest.raises(PermissionDenied):
+    with pytest.raises(PermissionDenied) as exc:
         approve_requisition(other_requisition.id, requester)
+    assert exc.value.code == 'RBAC-403-PERMISSION'
 ```
 
 ### UT-RBAC-004: API Permission Middleware
@@ -785,8 +799,8 @@ def test_403_permission_denied_response_format():
         }
     }
 
-def test_403_approver_required_response_format():
-    """Test 403 response for non-Approver attempting approval"""
+def test_403_missing_approve_permission_response_format():
+    """Test 403 response for a role without approve permission attempting approval"""
     client = APIClient()
     requester = create_user_with_role('Depot Officer')
     tr = create_transport_request()
@@ -797,12 +811,12 @@ def test_403_approver_required_response_format():
     assert response.status_code == 403
     assert response.json() == {
         "error": "PERMISSION_DENIED",
-        "code": "RBAC-403-FUNCTIONAL-TYPE",
-        "message": "Only Approver roles can approve requests",
+        "code": "RBAC-403-PERMISSION",
+        "message": "Role does not have permission to approve this resource",
         "details": {
-            "required_functional_type": "Approver",
-            "user_functional_type": "Requester",
-            "user_role": "Depot Officer"
+            "required_permission": "Requisition.Approval.Approve",
+            "user_role": "Depot Officer",
+            "user_permissions": ["Requisition.TR.Create", "Requisition.TR.Read"]
         }
     }
 
@@ -943,44 +957,44 @@ def test_409_duplicate_role_assignment_response():
 ### UT-API-ERR-004: Permission Check Endpoint Responses
 ```python
 def test_permission_check_permitted_response():
-    """Test permission check endpoint - permitted response"""
+    """Test permission check endpoint - permitted response (catalog code + access scope)"""
     client = APIClient()
     global_user = create_user_with_role('Distribution Manager')
     client.force_authenticate(global_user)
     
     response = client.get('/api/v1/permissions/check', {
-        'resource': 'transport_request',
-        'action': 'approve',
+        'permission_code': 'Requisition.Approval.Approve',
         'record_id': 'tr-123'
     })
     
     assert response.status_code == 200
     assert response.json() == {
         "permitted": True,
+        "permission_code": "Requisition.Approval.Approve",
         "user_role": "Distribution Manager",
-        "functional_type": "Approver",
+        "functional_type": "Approver",  # metadata only — included in response for UI display
         "access_scope": "Global"
     }
 
 def test_permission_check_denied_response():
-    """Test permission check endpoint - denied response with reason"""
+    """Test permission check endpoint - denied by Access Scope (not functional type)"""
     client = APIClient()
     local_user = create_user_with_role('Depot Officer', department_id='depot-1')
     other_location_record = create_transport_request(location='depot-2')
     client.force_authenticate(local_user)
     
     response = client.get('/api/v1/permissions/check', {
-        'resource': 'transport_request',
-        'action': 'view',
+        'permission_code': 'Requisition.TR.Read',
         'record_id': str(other_location_record.id)
     })
     
     assert response.status_code == 200
     assert response.json() == {
         "permitted": False,
-        "reason": "Local role cannot access this location",
+        "reason": "Local role cannot access this location",  # denied by Access Scope gate
+        "permission_code": "Requisition.TR.Read",
         "user_role": "Depot Officer",
-        "functional_type": "Requester",
+        "functional_type": "Requester",  # metadata only — included for UI display
         "access_scope": "Local",
         "user_location": "depot-1",
         "record_location": "depot-2"
@@ -1034,15 +1048,15 @@ describe('Role Assignment', () => {
 ### UI-RBAC-002: Menu and Button Visibility
 ```javascript
 describe('Permission-based UI Visibility', () => {
-  test('hides approval buttons for Requester roles', () => {
-    cy.login_as('Depot Officer') // Requester role
+  test('hides approval buttons for roles without Requisition.Approval.Approve', () => {
+    cy.login_as('Depot Officer') // no Requisition.Approval.Approve in catalog
     cy.visit('/transport-requests')
     cy.get('[data-testid="approve-button"]').should('not.exist')
     cy.get('[data-testid="reject-button"]').should('not.exist')
   })
 
-  test('shows approval buttons for Approver roles', () => {
-    cy.login_as('Distribution Manager') // Approver role
+  test('shows approval buttons for roles with Requisition.Approval.Approve', () => {
+    cy.login_as('Distribution Manager') // has Requisition.Approval.Approve in catalog
     cy.visit('/transport-requests')
     cy.get('[data-testid="approve-button"]').should('be.visible')
     cy.get('[data-testid="reject-button"]').should('be.visible')
@@ -1068,7 +1082,7 @@ describe('Permission-based UI Visibility', () => {
     cy.visit('/transport-orders/123')
     cy.get('[data-testid="approve-to-button"]').should('be.disabled')
     cy.get('[data-testid="approve-to-button"]').trigger('mouseover')
-    cy.get('[data-testid="permission-tooltip"]').should('contain', 'Only Approver roles can approve')
+    cy.get('[data-testid="permission-tooltip"]').should('contain', 'You do not have permission to approve this resource')
   })
 })
 ```
