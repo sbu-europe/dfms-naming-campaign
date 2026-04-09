@@ -120,9 +120,8 @@ DFMS-product-context/
 │   │   ├── vendor-bidding.md
 │   │   └── vendor-portal.md
 │   │
-│   ├── 06-fleet-management/                     # Vehicles, drivers (4 files, 1,501 lines)
+│   ├── 06-fleet-management/                     # Vehicles, helpers, fuel (3 files, ~1,100 lines)
 │   │   ├── vehicle-management.md
-│   │   ├── driver-management.md
 │   │   ├── helper-management.md
 │   │   └── fuel-management.md
 │   │
@@ -135,10 +134,14 @@ DFMS-product-context/
 │   │   ├── reporting.md
 │   │   └── analytics.md
 │   │
-│   └── 09-cross-cutting/                        # NFRs, security (3 files, 835 lines)
-│       ├── non-functional-requirements.md
-│       ├── security-compliance.md
-│       └── integration-requirements.md
+│   ├── 09-cross-cutting/                        # NFRs, security (3 files, 835 lines)
+│   │   ├── non-functional-requirements.md
+│   │   ├── security-compliance.md
+│   │   └── integration-requirements.md
+│   │
+│   └── 12-users/                                # User profiles (1 file, ~330 lines)
+│       ├── README.md
+│       └── driver-user-profiles.md
 │
 ├── 04-backlog/                                  # ✅ Product backlog (97 stories, 17 epics)
 │   ├── README.md                                # Backlog overview
