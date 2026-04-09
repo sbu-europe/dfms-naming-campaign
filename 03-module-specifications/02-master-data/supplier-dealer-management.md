@@ -14,6 +14,8 @@ Suppliers and Dealers are critical master data entities within the DFMS platform
 
 This implementation plan defines the architectural models, API endpoint designs, business validation rules, and testing strategies required to deliver the Supplier and Dealer Master Data features.
 
+**Bulk CSV import/export:** The platform-wide implementation (async jobs, preview, Django admin, REST API) is specified in **[bulk-import-export.md](bulk-import-export.md)**. Prefer `BulkImportViewSet` / `BulkExportViewSet` and registry keys `supplier` / `dealer` over ad hoc `/bulk-upload` endpoints unless product explicitly requires both shapes during migration.
+
 ---
 
 ## 1. Entity Architecture
@@ -84,6 +86,8 @@ Dealer {
 
 The backend services will expose RESTful APIs under the `/api/v1` namespace.
 
+For CSV bulk import and template download, align with **[bulk-import-export.md](bulk-import-export.md)** §10 (`/api/v1/master-data/bulk-imports/`, `/bulk-imports/template/?model_name=supplier|dealer`, `/bulk-exports/`). The resource-specific `/bulk-upload` routes in the tables below are optional aliases; the shared bulk spec is the source of truth for job lifecycle and validation.
+
 ### 2.1 Supplier APIs
 
 | Method | Endpoint | Description |
@@ -129,6 +133,9 @@ The backend services will expose RESTful APIs under the `/api/v1` namespace.
   - Blocker: If the Supplier/Dealer is referenced in any existing TR, TO, Trip, or Gate record, the hard delete request will be rejected with an appropriate error message (e.g., `409 Conflict: Entity in use`).
 
 ### 3.3 Bulk Upload Flow
+
+Detailed steps (status machine, Celery, preview pagination, `import_valid_only`) are in **[bulk-import-export.md](bulk-import-export.md)**. Summary:
+
 1. **Template Download**: Provides a CSV with predefined columns. Mandatory columns (Code, Name, Contact Number, Address, Status) are explicitly marked.
 2. **File Processing**: System parses the CSV row by row.
 3. **Row-level Validation**: Each row is validated independently. Invalid rows do not stop valid rows from being saved (unless atomic transaction is explicitly required; appending is preferred).
@@ -189,3 +196,10 @@ Achieving a minimum of 85% test coverage is required for the backend implementat
 ### 5.3 Security & RBAC Testing
 - Ensure endpoints reject requests lacking valid authentication tokens (401 Unauthorized).
 - Ensure users without the `Tenant Admin` or equivalent role receive a 403 Forbidden error for mutating endpoints (POST, PATCH, DELETE).
+
+---
+
+## 6. Related Documentation
+
+- **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export for Supplier and Dealer (`model_name=supplier` / `dealer`), Django admin mixin, and REST job lifecycle
+- **[Master Data Configuration](master-data-configuration.md)** - Overall master data management

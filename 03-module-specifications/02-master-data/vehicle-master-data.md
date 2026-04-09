@@ -43,7 +43,7 @@ Brand {
 **Business rules:**
 - Uniqueness of `brand_name` is enforced **within a tenant** (not globally).
 - Soft-deactivating a brand (`is_active = false`) removes it from **new** vehicle selections; vehicles already linked keep their reference (display resolved via join or snapshot policy—implementation choice; prefer retaining FK for integrity).
-- Optional: bulk CSV may accept a **brand name** column that is matched to an existing Brand row for the tenant; unknown names fail validation or are rejected per import rules (documented in bulk-upload spec).
+- Optional: bulk CSV may accept a **brand name** column that is matched to an existing Brand row for the tenant; unknown names fail validation or are rejected per import rules in **[bulk-import-export.md](bulk-import-export.md)** (`VehicleImportConfig` / registry).
 
 ### 1.1 Vehicle Entity Structure
 
@@ -230,6 +230,8 @@ Status Rules:
 
 ## 4. Bulk Upload & Inline Management
 
+**Implementation plan:** Vehicle bulk CSV import/export follows the shared pipeline in **[bulk-import-export.md](bulk-import-export.md)** (`BulkImportJob`, `validate_bulk_import` / `execute_bulk_import`, `BulkImportExportMixin` on `VehicleAdmin`). The workflow below describes UX intent; where it differs from the canonical spec (e.g. append-only vs `update_or_create` by natural key), resolve in favour of **bulk-import-export.md** for Phase 1 code.
+
 ### 4.1 CSV Bulk Upload
 
 **Workflow**:
@@ -335,6 +337,8 @@ Vehicle create/update payloads use `brand_id` (nullable UUID), not a free-text b
 
 ### 8.2 Bulk Operations
 
+REST bulk endpoints below are the **intended API surface**; wire them to the same services and Celery tasks as in **[bulk-import-export.md](bulk-import-export.md)** §10 (`BulkImportViewSet` / `BulkExportViewSet`, `model_name=vehicle`) so admin and API stay consistent.
+
 | Method | Endpoint | Description | Implementation Details |
 |---|---|---|---|
 | POST | `/api/v1/vehicles/bulk-upload` | Bulk upload CSV | Accept multipart/form-data. Append-only logic. Create `BulkUploadLog` |
@@ -368,7 +372,7 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 - *Soft Deletion*: Test `DELETE /api/v1/vehicles/{id}`. Verify `is_active` flips to false and a reason is logged.
 - *RBAC/Security*: Verify that only Tenant Admin or Transport Planner roles can create/update vehicles, while other roles receive `403 Forbidden`.
 
-**3. Bulk Upload Tests:**
+**3. Bulk Upload Tests:** (align with **[bulk-import-export.md](bulk-import-export.md)** §9 — registry, `ImportService`, admin views)
 - *Append-Only Logic*: Upload a CSV with new records and existing records. Verify new records are created and existing ones are skipped/flagged as errors, without overwriting.
 - *Error Reporting*: Upload a CSV with missing mandatory fields (e.g., no vehicle type). Verify the response includes detailed row-level error messages.
 - *Template Generation*: Verify the template endpoint returns a properly formatted CSV.
@@ -383,6 +387,7 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 
 ## 10. Related Documentation
 
+- **[Bulk Import & Export](bulk-import-export.md)** - Shared CSV bulk import/export for Vehicle (and other master entities)
 - **Brands** — Tenant-scoped master catalog; UI menu for Tenant Admin; vehicles reference `brand_id` (this document, §1.0, §8.0).
 - **[POI Management](poi-management.md)** - Location master data (Vehicle assignment)
 - **[Transport Order Execution](../03-operations/transport-order-execution.md)** - Vehicle assignment workflows

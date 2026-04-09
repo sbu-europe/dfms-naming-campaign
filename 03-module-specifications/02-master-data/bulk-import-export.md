@@ -1730,6 +1730,8 @@ The recommended sequence ensures each layer is testable before the next builds o
 
 ## 13. Related Documentation
 
+**Cross-references:** Other specs in `02-master-data/` link to this document wherever bulk CSV import/export is discussed (README, master-data-configuration, vehicle, product, POI, supplier/dealer).
+
 - **[master-data-configuration.md](master-data-configuration.md)** — Master data entities, vehicle capacity, driver assignment, referential integrity
 - **[product-inventory-management.md](product-inventory-management.md)** — Product data model, QC configuration, transport attributes
 - **[poi-management.md](poi-management.md)** — POI entity model, geofencing, capacity tracking
