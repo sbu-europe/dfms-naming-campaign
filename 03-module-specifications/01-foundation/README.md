@@ -23,7 +23,7 @@ This module defines the foundational layer of the DFMS platform, including authe
 | [rbac.md](rbac.md) | Role hierarchy, permission model, enforcement layers, dynamic role builder, multi-tenant isolation | 6.1.4-6.1.6 | US-004 | 592 |
 | [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
 | [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
-| [helper-master-data.md](helper-master-data.md) | Helper entity model, optional `user_id` FK to User, assignments, availability state machine, lifecycle, trip integration, APIs | 6.3.3 | US-061 | ~330 |
+| ~~helper-master-data.md~~ | (Moved to `12-users/helper-master-data.md`) | - | - | - |
 
 **Total Documentation**: ~2,730 lines of comprehensive technical specifications
 

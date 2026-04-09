@@ -348,7 +348,7 @@ DriverPerformance {
 
 ## 4. Helper Master Data
 
-**Canonical specification** (entity model, optional `user_id` → User, assignments, availability, APIs, indexes): **[Helper Master Data Management](../01-foundation/helper-master-data.md)**.
+**Canonical specification** (entity model, optional `user_id` → User, assignments, availability, APIs, indexes): **[Helper Master Data Management](../12-users/helper-master-data.md)**.
 
 The summary below stays aligned with the master-data catalogue; defer to the foundation spec for implementation detail.
 

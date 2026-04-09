@@ -25,7 +25,7 @@ This module defines master data configuration and management for the DFMS platfo
 
 **Total Documentation**: ~1,650 lines of comprehensive technical specifications
 
-**Helper (US-061) — full specification**: [helper-master-data.md](../01-foundation/helper-master-data.md) (lives under **01-foundation** because helpers may link to platform users via optional `user_id`).
+**Helper (US-061) — full specification**: [helper-master-data.md](../12-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
 ---
 

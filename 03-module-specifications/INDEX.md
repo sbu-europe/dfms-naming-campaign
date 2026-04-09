@@ -33,7 +33,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
-- [helper-master-data.md](01-foundation/helper-master-data.md) - Helper Master Data Management (entity model, optional `user_id` to User, assignments, availability, APIs)
+- (Moved to 12-users/helper-master-data.md)
 
 #### Related User Stories
 - US-001: User Login & Account Lockout
@@ -51,7 +51,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Cross-References
 - **Required by**: All operational modules
 - **Provides**: User context, authentication, authorization, audit trail
-- **Helper identity**: [helper-master-data.md](01-foundation/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
+- **Helper identity**: [helper-master-data.md](12-users/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
 
 ---
 
@@ -275,6 +275,24 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
+### [12-users/](12-users/README.md) - User Management
+**Purpose**: User profiles, helper profiles, and user-related domain logic  
+**PRD Sections**: 6.3.3  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: `01-foundation/`
+
+#### Specifications
+- [helper-master-data.md](12-users/helper-master-data.md) - Helper entity model, optional `user_id` FK to User, assignments, availability, APIs
+
+#### Related User Stories
+- US-061: Helper Master Data Management
+
+#### Cross-References
+- **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
+- **Referenced by**: `06-fleet-management/`, `03-operations/`, `02-master-data/`
+
+---
+
 ## 🔍 Navigation Guide
 
 ### By Module
@@ -309,12 +327,13 @@ Each specification file includes PRD section references in frontmatter.
 | 03-operations | 01, 02 | 04, 05, 06, 07, 08 |
 | 04-poi-operations | 03 | 08 |
 | 05-vendor-management | 02, 03 | 07, 08 |
-| 06-fleet-management | 02 | 03, 08 |
+| 06-fleet-management | 02, 12 | 03, 08 |
 | 07-mobile-apps | 03, 04, 05 | - |
 | 08-reporting | All operational | - |
 | 09-cross-cutting | Cross-cutting | All |
 | 10-phases | All (organizational) | - |
 | 11-reference | None | All (reference) |
+| 12-users | 01 | 02, 03, 06 |
 
 ---
 
@@ -348,8 +367,8 @@ Each specification file includes PRD section references in frontmatter.
 ---
 
 **Last Updated**: 2026-04-09  
-**Total Modules**: 11  
-**Total Specifications**: 35 spec files + 11 README files = 46 files  
+**Total Modules**: 12  
+**Total Specifications**: 35 spec files + 12 README files = 47 files  
 **Coverage**: 100% of PRD Phase-1 features  
 **User Stories**: 98 (US-001 to US-098)
 

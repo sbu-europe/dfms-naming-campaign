@@ -1,7 +1,7 @@
 ---
-module: 01-foundation
+module: 12-users
 specification: Helper Master Data Management
-version: 1.1
+version: 1.2
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 last_updated: 2026-04-09
