@@ -85,7 +85,7 @@ POST   /api/v1/transport-orders/{to_id}/dispatch
 
 ## Dependencies
 
-- **Requires**: TO-01 (confirmed TO), TP-02 (fleet availability), MDM-05 (vehicles), MDM-06 (drivers), MDM-07 (helpers)
+- **Requires**: TO-01 (confirmed TO), TP-02 (fleet availability), MDM-05 (vehicles), US-057 / Driver domain (`driver-user-profiles.md`), MDM-07 (helpers)
 - **Enables**: Trip lifecycle (Sprint 4), vehicle + driver status tracking
 
 ## Definition of Done

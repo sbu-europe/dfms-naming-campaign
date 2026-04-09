@@ -21,7 +21,7 @@ These are **module specifications** (not just business requirements or just tech
 
 | Module | Files | Lines | Description |
 |--------|-------|-------|-------------|
-| [01-foundation/](01-foundation/) | 4 | 2,357 | Authentication, RBAC, user/tenant management, system foundation |
+| [01-foundation/](01-foundation/) | 5 | 2,720 | Authentication, RBAC, user/tenant management, driver user profiles, system foundation |
 | [02-master-data/](02-master-data/) | 3 | 1,650 | POI management, product inventory, master data configuration |
 | [03-operations/](03-operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
 | [04-poi-operations/](04-poi-operations/) | 4 | 3,460 | Gate management, scaling, QC workflow, command center |

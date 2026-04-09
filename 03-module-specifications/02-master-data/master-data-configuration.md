@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.3.1-6.3.4
-last_updated: 2026-02-26
+last_updated: 2026-04-09
 related_stories: US-053, US-057, US-061, US-047
 ---
 
@@ -13,7 +13,7 @@ related_stories: US-053, US-057, US-061, US-047
 
 ## Overview
 
-Master Data Configuration provides centralized management of core business entities that are referenced across all operational workflows in the DFMS platform. This specification covers entity registration, bulk data management, CRUD operations, and referential integrity controls for vehicles, drivers, helpers, vendors, routes, and other master entities.
+Master Data Configuration provides centralized management of core business entities that are referenced across all operational workflows in the DFMS platform. This specification covers entity registration, bulk data management, CRUD operations, and referential integrity controls for vehicles, helpers, vendors, routes, and other master entities. **Drivers** are a **`Driver`** aggregate outside master data—**[create then invite](../01-foundation/driver-user-profiles.md)**; **`driver_id`** is the operational FK.
 
 Master data serves as the foundation for consistent, traceable operations without manual data errors.
 
@@ -24,7 +24,7 @@ Master data serves as the foundation for consistent, traceable operations withou
 ### 1.1 Master Entity Categories
 
 **Human Resources**:
-- Drivers
+- Drivers (**`Driver`** entity — see foundation spec; not `master_data`)
 - Helpers  
 - Driver Supervisors
 
@@ -104,7 +104,7 @@ Vehicle {
   
   // Assignment
   assigned_poi_id: UUID          // Home base POI
-  assigned_driver_id: UUID (nullable)
+  assigned_driver_id: UUID (nullable)  // FK to Driver (see driver-user-profiles.md)
   gps_tracker_id: string (nullable)
   
   // Documents
@@ -201,79 +201,18 @@ function getAvailableVehicles(
 
 ---
 
-## 3. Driver Master Data
+## 3. Drivers (User & Role)
 
-### 3.1 Driver Entity Model
+Drivers are **not** in `apps.master_data`. The **`Driver`** aggregate (license, compliance, fleet state) lives in the driver/fleet application layer; **`driver_id`** is the stable FK for trips and vehicles. After **invite**, a **`user_id`** may link to a tenant `User` with the Driver role for login (US-052). Canonical specification: **[Driver domain](../01-foundation/driver-user-profiles.md)**.
 
-```typescript
-Driver {
-  driver_id: UUID
-  
-  // Personal Information
-  driver_name: string
-  national_id: string            // NID, unique
-  contact_number: string
-  email: string (nullable)
-  date_of_birth: Date
-  address: string
-  
-  // Employment
-  employee_id: string (nullable)
-  driver_type: enum ['Own-Permanent', 'Own-Temporary', 'Vendor']
-  vendor_id: UUID (if driver_type='Vendor')
-  joining_date: Date
-  
-  // License
-  license_number: string         // Unique
-  license_class: string          // A, B, C, etc.
-  license_type: string           // Professional, Non-Professional
-  license_expiry_date: Date
-  
-  // Experience & Training
-  years_of_experience: Integer
-  experience_certificate_url: string (nullable)
-  last_training_date: Date (nullable)
-  last_assessment_date: Date (nullable)
-  assessment_score: Decimal (nullable)
-  
-  // References
-  references: [
-    { name, contact, relationship }
-  ] (minimum 2)
-  
-  // Safety & Health
-  accident_history: [
-    { date, description, severity, fault_determination }
-  ]
-  medical_certificate_url: string (nullable)
-  medical_certificate_expiry: Date (nullable)
-  
-  // Documents
-  biodata_url: string (nullable)
-  photo_url: string (nullable)
-  
-  // Assignment
-  assigned_poi_id: UUID (nullable)
-  current_vehicle_id: UUID (nullable)
-  
-  // Performance
-  total_trips_completed: Integer
-  avg_rating: Decimal
-  
-  // Status
-  availability_status: enum ['Available', 'OnTrip', 'OnLeave', 'Sick', 'Absent']
-  status: enum ['Active', 'Inactive', 'Suspended']
-  
-  // Metadata
-  tenant_id: UUID
-  created_at: DateTime
-  updated_at: DateTime
-}
-```
+### 3.1 References in This Document
 
-### 3.2 Driver-Vehicle Assignment
+Use **`driver_id`** consistently for assignments and reporting. **`user_id`** on `Driver` is optional until invitation completes.
 
-**Assignment Rules**:
+### 3.2 Driver–Vehicle Assignment
+
+**Assignment Rules** (conceptual; use **`driver_id`**):
+
 ```typescript
 function assignDriverToVehicle(
     driver_id: UUID,
@@ -282,8 +221,7 @@ function assignDriverToVehicle(
     const driver = getDriver(driver_id);
     const vehicle = getVehicle(vehicle_id);
     
-    // Validation
-    if (driver.availability_status !== 'Available') {
+    if (driver.current_state !== 'Available') {
         throw new Error('Driver not available for assignment');
     }
     
@@ -299,10 +237,8 @@ function assignDriverToVehicle(
         throw new Error('Own driver cannot be assigned to vendor vehicle');
     }
     
-    // Update assignments
     await updateDriver(driver_id, {
-        current_vehicle_id: vehicle_id,
-        availability_status: 'OnTrip'
+        current_state: 'Assigned'
     });
     
     await updateVehicle(vehicle_id, {
@@ -314,32 +250,28 @@ function assignDriverToVehicle(
 
 ### 3.3 Driver Performance Tracking
 
-**Performance Metrics**:
+**Performance Metrics** (aggregate by **`driver_id`**):
+
 ```typescript
 DriverPerformance {
   driver_id: UUID
   
-  // Trip Statistics
   total_trips: Integer
   completed_trips: Integer
   cancelled_trips: Integer
   completion_rate: Decimal
   
-  // Punctuality
   on_time_arrivals: Integer
   delayed_arrivals: Integer
   avg_delay_minutes: Decimal
   
-  // Safety
   incidents_count: Integer
   accidents_count: Integer
   safety_violations: Integer
   
-  // Ratings
   avg_customer_rating: Decimal
   avg_supervisor_rating: Decimal
   
-  // Calculated monthly
   last_calculated_at: DateTime
 }
 ```
@@ -620,10 +552,9 @@ Vehicle Deactivated:
   → Cancel pending assignments
   → Continue active trips (complete first)
 
-Driver Deactivated:
-  → Set availability = 'Absent'
-  → Remove from assignment pool
-  → Continue active trips
+Driver user deactivated / profile inactive:
+  → Set driver state appropriately; remove from assignment pool
+  → Continue active trips until completion
 
 Vendor Deactivated:
   → Cancel pending bids
@@ -639,13 +570,13 @@ Vendor Deactivated:
 
 **Unique Constraints**:
 - Vehicle: registration_number, chassis_number (per tenant)
-- Driver: license_number, national_id (per tenant)
+- Driver profile: license_number, national_id (per tenant; see driver-user-profiles)
 - Vendor: vendor_code (per tenant)
 - Helper: national_id (per tenant)
 
 **Mandatory Fields**:
 - Vehicle: registration_number, vehicle_type, max_load_capacity
-- Driver: name, license_number, license_expiry
+- Driver user/profile: full name (user), license_number, license_expiry (profile)
 - Vendor: vendor_name, contact_person, contact_phone
 - Helper: name, contact_number
 
@@ -688,7 +619,7 @@ MasterDataAuditLog {
 
 **Related User Stories:**
 - US-053: Vehicle Registration & Master Data
-- US-057: Driver Master Data
+- US-057: Driver user profiles ([driver-user-profiles.md](../01-foundation/driver-user-profiles.md))
 - US-061: Helper Profile
 - US-047: Vendor Registration
 

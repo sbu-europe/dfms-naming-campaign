@@ -4,7 +4,7 @@ title: Master Data, User Management & Vehicle Tracking
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 83
+total_story_points: 78
 status: Not Started
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
@@ -18,8 +18,8 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 13 |
-| Total Story Points | 83 |
+| Total Stories | 12 |
+| Total Story Points | 78 |
 | Status | Not Started |
 | Epics | Master Data Management, Tenant User Management, Vehicle Tracking & Geofencing |
 
@@ -36,10 +36,11 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | 3 | [Route, Supplier & Dealer Master Data](01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | 5 | Pending |
 | 4 | [Vendor Master Data (Admin CRUD & Bulk Upload)](01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | 5 | Pending |
 | 5 | [Vehicle Registration & Master Data](01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | 5 | Pending |
-| 6 | [Driver Master Data Management](01-master-data-management/MDM-06-driver-master-data.md) | MDM-06 | DFS-022 | 5 | Pending |
-| 7 | [Helper Master Data Management](01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | 3 | Pending |
+| 6 | [Helper Master Data Management](01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | 3 | Pending |
 
-**Sub-total**: 44 SP
+**Sub-total**: 39 SP
+
+> **US-057 (Driver)** — tracked in [`stories/US-057-driver-master-data.md`](../../stories/US-057-driver-master-data.md) and [`03-module-specifications/01-foundation/driver-user-profiles.md`](../../../03-module-specifications/01-foundation/driver-user-profiles.md); not under the master data MDM backlog folder.
 
 ---
 
@@ -69,7 +70,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 > More stories (live GPS map, trip timeline integration, dwell time reporting) planned for later sprints.
 
-**Sub-total**: 8 SP (Sprint 2 scope) + 3 SP pending carry-over (TUM-01) = **83 SP total**
+**Sub-total**: 8 SP (Sprint 2 scope) + 3 SP pending carry-over (TUM-01) = **78 SP total**
 
 ---
 
@@ -82,7 +83,7 @@ MDM-04 (POI)
   └── VTG-01 (Geofencing) ........ reads geofence_radius_meters from POI
 
 MDM-03 (Vendor)
-  └── MDM-06 (Driver) ............ vendor drivers linked to vendor profile
+  └── US-057 (Driver) ............ vendor drivers linked to vendor profile; see driver-user-profiles.md
 
 TUM-02 (OTP)
   ├── TUM-01 (Invitation) ........ uses OTP for activation
@@ -97,7 +98,7 @@ VTG-01 (Geofencing Engine)
 > 1. MDM-04 (POI) — unblocks Routes, Vehicles, Geofencing engine
 > 2. MDM-01 (Product) — must complete before Sprint 3 requisition stories
 > 3. MDM-02, MDM-03 in parallel after MDM-04
-> 4. MDM-05, MDM-06, MDM-07 in parallel after MDM-04
+> 4. MDM-05, MDM-07 in parallel after MDM-04 (US-057 Driver in parallel per dependency on TUM/identity)
 > 5. VTG-01 after MDM-04 + MDM-05
 > 6. TUM stories can run in parallel with all MDM stories
 

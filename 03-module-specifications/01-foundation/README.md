@@ -22,9 +22,10 @@ This module defines the foundational layer of the DFMS platform, including authe
 | [authentication-security.md](authentication-security.md) | Authentication architecture, account lockout, MFA/2FA, session management, security features | 6.1.1-6.1.3 | US-001, US-002, US-003 | 446 |
 | [rbac.md](rbac.md) | Role hierarchy, permission model, enforcement layers, dynamic role builder, multi-tenant isolation | 6.1.4-6.1.6 | US-004 | 592 |
 | [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
+| [driver-user-profiles.md](driver-user-profiles.md) | **`Driver`** aggregate first; create/bulk then **invite** (service links User + role); `/api/v1/drivers`; not `master_data` | 6.3.2 / 6.6 | US-004, US-005, US-052, US-057 | ~330 |
 | [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
 
-**Total Documentation**: ~2,400 lines of comprehensive technical specifications
+**Total Documentation**: ~2,720 lines of comprehensive technical specifications
 
 ---
 
@@ -49,6 +50,9 @@ This module defines the foundational layer of the DFMS platform, including authe
 - **OTP Verification**: Phone/email verification with retry logic
 - **Account Management**: Activation, deactivation, password reset
 - **Audit Logging**: Comprehensive activity tracking
+
+### Driver domain
+- **`Driver`** records are created first (single or CSV); **invite** (single or bulk) calls identity to attach a **User** + Driver role (see [driver-user-profiles.md](driver-user-profiles.md)); not a `master_data` table
 
 ---
 
@@ -87,8 +91,10 @@ None - This is the foundation layer
 | US-007 | Account Deactivation | User Management |
 | US-008 | Password & Account Reset | Security |
 | US-009 | User Activity & Audit Logs | Compliance |
+| US-052 | Driver Mobile Interface | Mobile (driver user auth) |
+| US-057 | Driver user profiles & compliance | Fleet / users |
 
-**Location**: `../../04-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`
+**Location**: `../../04-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`; US-052/US-057 in sprint backlog
 
 ---
 
@@ -159,6 +165,9 @@ DELETE /api/v1/users/{user_id}
 POST /api/v1/users/{user_id}/deactivate
 POST /api/v1/admin/users/{user_id}/unlock
 ```
+
+### Drivers (API surface)
+See [driver-user-profiles.md](driver-user-profiles.md) §5 for `/api/v1/drivers` CRUD, import, invite, documents, and compliance routes.
 
 ### RBAC
 ```typescript
@@ -240,7 +249,7 @@ PUT /api/v1/roles/{role_id}/permissions
 
 ---
 
-**Last Updated**: 2026-02-26  
+**Last Updated**: 2026-04-09  
 **Status**: Complete  
 **Previous Module**: [00-overview/](../00-overview/README.md) - Product Overview  
 **Next Module**: [02-master-data/](../02-master-data/README.md) - Master Data Management
