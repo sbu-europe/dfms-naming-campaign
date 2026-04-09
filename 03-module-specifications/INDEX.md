@@ -31,7 +31,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [authentication-security.md](01-foundation/authentication-security.md) - Authentication, 2FA, Session Control
 - [rbac.md](01-foundation/rbac.md) - Role-based Access Control, Dynamic Role Builder
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
-- [driver-user-profiles.md](01-foundation/driver-user-profiles.md) - **Driver** + **User** on create; invitation separate; `driver_id` FKs
+- (Moved to 12-users/driver-user-profiles.md)
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
 
@@ -69,14 +69,14 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
 - US-053: Vehicle Registration & Master Data
-- US-057: Driver user profiles — see [`01-foundation/driver-user-profiles.md`](01-foundation/driver-user-profiles.md)
+- US-057: Driver user profiles — see [`12-users/driver-user-profiles.md`](12-users/driver-user-profiles.md)
 - US-061: Helper Profile
 - US-047: Vendor Registration
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (RBAC, audit)
 - **Referenced by**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`, `06-fleet-management/`
-- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (+ User on create) in `01-foundation/driver-user-profiles.md`
+- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (+ User on create) in `12-users/driver-user-profiles.md`
 
 ---
 
@@ -160,13 +160,13 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Specifications
 - [vehicle-management.md](06-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
-- [driver-management.md](06-fleet-management/driver-management.md) - Driver Registration & Management
+- [vehicle-management.md](06-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
 - [helper-management.md](06-fleet-management/helper-management.md) - Helper Profile & Assignment
 - [fuel-management.md](06-fleet-management/fuel-management.md) - Fuel Management System
 
 #### Related User Stories
 - US-053: Vehicle Registration & Master Data
-- US-057: Driver user profiles ([`01-foundation/driver-user-profiles.md`](01-foundation/driver-user-profiles.md))
+- US-057: Driver user profiles ([`12-users/driver-user-profiles.md`](12-users/driver-user-profiles.md))
 - US-058: Fuel Management
 - US-061-062: Helper Profile & Assignment
 
@@ -276,6 +276,24 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
+### [12-users/](12-users/README.md) - User Management
+**Purpose**: User profiles, driver user profiles, and user-related domain logic  
+**PRD Sections**: 6.3.2, 6.6  
+**Phase**: Phase 1 (Critical)  
+**Dependencies**: `01-foundation/`
+
+#### Specifications
+- [driver-user-profiles.md](12-users/driver-user-profiles.md) - **Driver** + **User** on create; invitation separate; `driver_id` FKs
+
+#### Related User Stories
+- US-057: Driver user profiles
+
+#### Cross-References
+- **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
+- **Referenced by**: `06-fleet-management/`, `03-operations/`
+
+---
+
 ## 🔍 Navigation Guide
 
 ### By Module
@@ -310,12 +328,13 @@ Each specification file includes PRD section references in frontmatter.
 | 03-operations | 01, 02 | 04, 05, 06, 07, 08 |
 | 04-poi-operations | 03 | 08 |
 | 05-vendor-management | 02, 03 | 07, 08 |
-| 06-fleet-management | 02 | 03, 08 |
+| 06-fleet-management | 02, 12 | 03, 08 |
 | 07-mobile-apps | 03, 04, 05 | - |
 | 08-reporting | All operational | - |
 | 09-cross-cutting | Cross-cutting | All |
 | 10-phases | All (organizational) | - |
 | 11-reference | None | All (reference) |
+| 12-users | 01 | 03, 06 |
 
 ---
 
@@ -349,8 +368,8 @@ Each specification file includes PRD section references in frontmatter.
 ---
 
 **Last Updated**: 2026-04-09  
-**Total Modules**: 11  
-**Total Specifications**: 36 spec files + 11 README files = 47 files  
+**Total Modules**: 12  
+**Total Specifications**: 36 spec files + 12 README files = 48 files  
 **Coverage**: 100% of PRD Phase-1 features  
 **User Stories**: 98 (US-001 to US-098)
 

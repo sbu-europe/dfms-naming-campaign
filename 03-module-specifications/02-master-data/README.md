@@ -21,16 +21,16 @@ This module defines master data configuration and management for the DFMS platfo
 |------|-------------|-------------|-----------------|-------|
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [product-inventory-management.md](product-inventory-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
-| [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, helpers, vendors), vehicle capacity, assignment, bulk upload, referential integrity; **drivers** are [Driver User Profiles](../01-foundation/driver-user-profiles.md) | 6.3.1-6.3.4 | US-053, US-061, US-047 | 513 |
+| [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, helpers, vendors), vehicle capacity, assignment, bulk upload, referential integrity; **drivers** are [Driver User Profiles](../12-users/driver-user-profiles.md) | 6.3.1-6.3.4 | US-053, US-061, US-047 | 513 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `01-foundation/driver-user-profiles.md`)
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `12-users/driver-user-profiles.md`)
 
 ---
 
 ## Key Features
 
 ### Master Data Configuration
-- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../01-foundation/driver-user-profiles.md))
+- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../12-users/driver-user-profiles.md))
 - **Bulk Upload**: CSV-based bulk data import with validation
 - **Inline Management**: Create, edit, delete with full audit trail
 - **Referential Integrity**: Cascade rules and dependency validation
@@ -85,7 +85,7 @@ This module defines master data configuration and management for the DFMS platfo
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
 - **US-053**: Vehicle Registration & Master Data
-- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`01-foundation/driver-user-profiles.md`](../01-foundation/driver-user-profiles.md) (not `master_data`)
+- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`12-users/driver-user-profiles.md`](../12-users/driver-user-profiles.md) (not `master_data`)
 - **US-061**: Helper Profile
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
@@ -141,7 +141,7 @@ Product {
 MasterEntity {
   entity_id: UUID
   entity_type: enum [Vehicle, Helper, Vendor, Route, Product, POI, QCChecklist]
-  // Drivers: User + Driver on create (see 01-foundation/driver-user-profiles.md)
+  // Drivers: User + Driver on create (see 12-users/driver-user-profiles.md)
   entity_data: JSON
   status: enum [Active, Inactive]
   created_by: UUID

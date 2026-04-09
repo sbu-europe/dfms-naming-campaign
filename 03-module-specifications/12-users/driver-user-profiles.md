@@ -1,7 +1,7 @@
 ---
-module: 01-foundation
+module: 12-users
 specification: Driver Domain (User on Create)
-version: 1.2
+version: 1.3
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 related_stories: US-004, US-005, US-052, US-057
@@ -130,7 +130,7 @@ Sending activation email, SMS, or in-app invite, **resend**, **revoke**, and tok
 - **Assignment history**: `driver_id`, `vehicle_id`, start/end, `assigned_by`.
 - **Performance metrics**: By `driver_id`.
 
-See [Master Data Configuration](../02-master-data/master-data-configuration.md) §3 and [Fleet Driver Management](../06-fleet-management/driver-management.md).
+See [Master Data Configuration](../02-master-data/master-data-configuration.md) §3.
 
 ---
 

@@ -75,7 +75,7 @@
 | [Vehicle Registration & Master Data](sprints/sprint-2/01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | Pending | 5 |
 | [Helper Master Data Management](sprints/sprint-2/01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | Pending | 3 |
 
-> US-057 (Driver): [`stories/US-057-driver-master-data.md`](stories/US-057-driver-master-data.md), [`03-module-specifications/01-foundation/driver-user-profiles.md`](../03-module-specifications/01-foundation/driver-user-profiles.md) — not an MDM backlog file under master data.
+> US-057 (Driver): [`stories/US-057-driver-master-data.md`](stories/US-057-driver-master-data.md), [`03-module-specifications/12-users/driver-user-profiles.md`](../03-module-specifications/12-users/driver-user-profiles.md) — not an MDM backlog file under master data.
 
 ### Epic: Tenant User Management
 
