@@ -13,7 +13,7 @@ related_stories: US-053, US-057, US-061, US-047
 
 ## Overview
 
-Master Data Configuration provides centralized management of core business entities that are referenced across all operational workflows in the DFMS platform. This specification covers entity registration, bulk data management, CRUD operations, and referential integrity controls for vehicles, helpers, vendors, routes, and other master entities. **Drivers** are a **`Driver`** aggregate outside master data—**[create then invite](../01-foundation/driver-user-profiles.md)**; **`driver_id`** is the operational FK.
+Master Data Configuration provides centralized management of core business entities that are referenced across all operational workflows in the DFMS platform. This specification covers entity registration, bulk data management, CRUD operations, and referential integrity controls for vehicles, helpers, vendors, routes, and other master entities. **Drivers** are a **`Driver`** aggregate outside master data—**[User + Driver on create](../01-foundation/driver-user-profiles.md)**; invitation is separate; **`driver_id`** is the operational FK.
 
 Master data serves as the foundation for consistent, traceable operations without manual data errors.
 
@@ -203,11 +203,11 @@ function getAvailableVehicles(
 
 ## 3. Drivers (User & Role)
 
-Drivers are **not** in `apps.master_data`. The **`Driver`** aggregate (license, compliance, fleet state) lives in the driver/fleet application layer; **`driver_id`** is the stable FK for trips and vehicles. After **invite**, a **`user_id`** may link to a tenant `User` with the Driver role for login (US-052). Canonical specification: **[Driver domain](../01-foundation/driver-user-profiles.md)**.
+Drivers are **not** in `apps.master_data`. The **`Driver`** aggregate (license, compliance, fleet state) lives in the driver/fleet application layer; **`user_id`** is set when the **`User`** row is created alongside **`Driver`** (Driver role, Operations). **`driver_id`** is the stable FK for trips and vehicles. Canonical specification: **[Driver domain](../01-foundation/driver-user-profiles.md)**.
 
 ### 3.1 References in This Document
 
-Use **`driver_id`** consistently for assignments and reporting. **`user_id`** on `Driver` is optional until invitation completes.
+Use **`driver_id`** consistently for assignments and reporting. **`user_id`** on `Driver` is set when **`User`** is created with the driver (same transaction).
 
 ### 3.2 Driver–Vehicle Assignment
 

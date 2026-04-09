@@ -30,7 +30,7 @@ This module defines master data configuration and management for the DFMS platfo
 ## Key Features
 
 ### Master Data Configuration
-- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** registration + invite is in ([driver-user-profiles.md](../01-foundation/driver-user-profiles.md))
+- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../01-foundation/driver-user-profiles.md))
 - **Bulk Upload**: CSV-based bulk data import with validation
 - **Inline Management**: Create, edit, delete with full audit trail
 - **Referential Integrity**: Cascade rules and dependency validation
@@ -85,7 +85,7 @@ This module defines master data configuration and management for the DFMS platfo
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
 - **US-053**: Vehicle Registration & Master Data
-- **US-057**: **`Driver`** create/import + invite + compliance — [`01-foundation/driver-user-profiles.md`](../01-foundation/driver-user-profiles.md) (not `master_data`)
+- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`01-foundation/driver-user-profiles.md`](../01-foundation/driver-user-profiles.md) (not `master_data`)
 - **US-061**: Helper Profile
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
@@ -141,7 +141,7 @@ Product {
 MasterEntity {
   entity_id: UUID
   entity_type: enum [Vehicle, Helper, Vendor, Route, Product, POI, QCChecklist]
-  // Drivers: Driver aggregate first; invite links User (see 01-foundation/driver-user-profiles.md)
+  // Drivers: User + Driver on create (see 01-foundation/driver-user-profiles.md)
   entity_data: JSON
   status: enum [Active, Inactive]
   created_by: UUID

@@ -31,7 +31,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [authentication-security.md](01-foundation/authentication-security.md) - Authentication, 2FA, Session Control
 - [rbac.md](01-foundation/rbac.md) - Role-based Access Control, Dynamic Role Builder
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
-- [driver-user-profiles.md](01-foundation/driver-user-profiles.md) - **Driver** aggregate; create/import then invite (identity); `driver_id` FKs
+- [driver-user-profiles.md](01-foundation/driver-user-profiles.md) - **Driver** + **User** on create; invitation separate; `driver_id` FKs
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
 
@@ -76,7 +76,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Cross-References
 - **Depends on**: `01-foundation/` (RBAC, audit)
 - **Referenced by**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`, `06-fleet-management/`
-- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (create + invite) in `01-foundation/driver-user-profiles.md`
+- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (+ User on create) in `01-foundation/driver-user-profiles.md`
 
 ---
 

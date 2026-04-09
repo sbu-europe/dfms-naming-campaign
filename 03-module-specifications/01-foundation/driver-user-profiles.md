@@ -1,7 +1,7 @@
 ---
 module: 01-foundation
-specification: Driver Domain (Create → Invite → User Link)
-version: 1.1
+specification: Driver Domain (User on Create)
+version: 1.2
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 related_stories: US-004, US-005, US-052, US-057
@@ -12,71 +12,78 @@ last_updated: 2026-04-09
 
 ## Overview
 
-Fleet and compliance features work with a first-class **`Driver`** aggregate in the application layer (implemented outside `apps.master_data`—e.g. `apps.drivers` or `apps.fleet` co-located with identity integration). **This specification does not define the `User` entity**; that remains in [User & Tenant Management](user-tenant-management.md) and [RBAC](rbac.md).
+Fleet and compliance features use a **`Driver`** aggregate (outside `apps.master_data`). **On every driver creation**, the system **persists a row in the tenant `users` table** with a fixed operational profile, then links **`Driver.user_id`** to that user. Field-level detail for `User` lives in [User & Tenant Management](user-tenant-management.md) and [RBAC](rbac.md); this spec defines **what must be written at driver-create time** and **what stays on `Driver`**.
+
+**Out of scope here**: **Invitation**, activation tokens, OTP, resend, and expiry—those follow a **separate invitation implementation plan** (US-005 / TUM) and are **not** part of the driver creation contract below.
 
 **Separation of concerns**
 
 | Concern | Owned by |
 |--------|----------|
-| Driver master fields, documents, fleet state, trip FKs | **Driver** module & `Driver` model |
-| Credentials, invitation tokens, activation, OTP, session | **Identity / users** module (invoked only from the invite step) |
-
-**End state**: A driver who has completed invitation has a **linked tenant `User`** with the **Driver** role (US-004, US-052). Until invite completes, `Driver` exists **without** a user—transport planners can register data and invite later.
+| **`User` row** on create: name, role, department, phone, employee id | **Identity / users** module — invoked in the **same transaction** as `Driver` insert |
+| License, documents, fleet state, trip FKs | **`Driver`** module & `Driver` model |
+| Invitation & activation workflows | **Separate implementation plan** (not this document) |
 
 ---
 
-## 1. Driver Entity
+## 1. User row written when creating a driver
 
-The **`Driver`** record holds every field required by US-057 (personal, license, compliance, attachments, operational state). Naming in code: model/table **`Driver`** (not `DriverUserProfile`).
+When **`Driver`** is created (single `POST` or bulk row), the implementation **must** insert (or delegate to) a **`User`** with at least:
+
+| Field | Value / rule |
+|-------|----------------|
+| `first_name` | From request (or parsed from bulk row) |
+| `last_name` | From request (or parsed from bulk row) |
+| **Role** | **Driver** (system role id or slug per RBAC) |
+| **Department** | **Operations** (fixed for drivers unless product later allows overrides) |
+| `phone_number` | Same as driver contact channel; E.164 where applicable |
+| `employee_id` | Unique per tenant; enforced with `Driver` / HR rules |
+
+Additional user fields (email, status `Pending` vs `Active`, etc.) follow the global user model and **invitation plan**—this spec does **not** mandate invitation timing or email delivery on create.
+
+**Transactional rule**: **`Driver.user_id`** is set to the new user’s id in the **same database transaction** as the `User` insert and `Driver` insert (or fail all). No “driver without user” state for the happy path.
+
+---
+
+## 2. Driver entity
+
+The **`Driver`** record holds US-057 compliance and fleet fields. Naming: model/table **`Driver`**.
 
 ```typescript
 Driver {
   driver_id: UUID
   tenant_id: UUID
 
-  // Optional link after successful invitation (null until invited & linked)
-  user_id: UUID | null
+  // Required link — set when User row is created
+  user_id: UUID
 
-  // Identity & contact (stored on Driver; copied/synced to User on invite as needed)
-  full_name: string
+  // Contact (align with User.phone_number; duplicate allowed for read-only denorm or single source of truth on User)
   contact_number: string              // E.164; unique per tenant
-  email: string | null               // Used for invitation when provided
+  email: string | null
 
-  // Employment / HR
-  employee_id: string                // Unique per tenant
+  // Employment / HR (employee_id may live on User only; if duplicated here, keep in sync)
   driver_type: enum ['Permanent', 'Temporary', 'Own', 'Vendor']
 
   // License & compliance
-  driving_license_number: string     // Unique per tenant
+  driving_license_number: string   // Unique per tenant
   license_type: string
   license_expiry_date: Date
-  national_id_number: string | null // Unique per tenant when set
+  national_id_number: string | null
 
-  // Optional text / refs
   reference_contact_1: string | null
   reference_contact_2: string | null
   accident_history: string | null
   last_training_assessment_info: string | null
   address: string | null
 
-  // Attachments (storage keys / file FKs)
   experience_certificate: Attachment | null
   biodata: Attachment | null
   medical_certificate: Attachment | null
   medical_certificate_expiry_date: Date | null
 
-  // Invitation & access
-  invitation_status: enum ['NotInvited', 'Pending', 'Active', 'Expired']
-    // NotInvited: no user / no invite sent
-    // Pending: invite sent, user not yet activated
-    // Active: user linked and can authenticate (when product requires it)
-    // Expired: optional; invitation lapsed, may re-invite
-
-  // Operational state (fleet)
-  is_active: boolean                 // Eligible for dispatch when true
+  is_active: boolean
   current_state: enum ['Available', 'Assigned', 'On Leave']
 
-  // Metadata
   created_by: UUID
   created_at: DateTime
   updated_by: UUID
@@ -86,159 +93,127 @@ Driver {
 
 **Rules**
 
-1. **Uniqueness** (per tenant): `employee_id`, `contact_number`, `driving_license_number`, and `national_id_number` (when present)—enforced on `Driver`.
-2. **Foreign keys** from trips, gate, and vehicle assignment use **`driver_id`** as the stable operational identifier.
-3. **`user_id`** is set only by the **invite / provisioning service** after `User` creation; driver CRUD does not require identity knowledge beyond optional email/phone for the invite channel.
+1. **Uniqueness** (per tenant): `contact_number`, `driving_license_number`, `national_id_number` (when set), and **`employee_id`** on **`User`**.
+2. **Foreign keys** from trips, gate, and vehicle assignment use **`driver_id`**.
+3. **`user_id`** is **mandatory** after successful create; resolve display name via **`User.first_name` / `User.last_name`** (or a read model).
 
 ---
 
-## 2. Lifecycle: Create → Invite (two phases)
+## 3. Creation workflow (single + bulk)
 
-### 2.1 Phase A — Create driver (no User)
+### 3.1 Single create
 
-**Who**: Transport Planner / Tenant Admin (per RBAC).
+1. Client sends **driver + user** payload: `first_name`, `last_name`, `phone_number`, `employee_id`, plus `Driver` fields (license, type, etc.).
+2. **Service layer** (single use-case):
+   - Validate tenant, RBAC, uniqueness.
+   - **Create `User`** with Role = Driver, Department = Operations, and the fields above.
+   - **Create `Driver`** with `user_id` set and compliance fields.
+   - Commit transaction.
+3. **Invitation** (if any) is **not** triggered here unless the separate invitation plan explicitly hooks post-create; default is **user record exists, invitation handled elsewhere**.
 
-**How**
+### 3.2 Bulk create
 
-- **Single**: Multi-step or single form capturing all required story fields; `POST` creates `Driver` with `invitation_status = NotInvited`, `user_id = null`.
-- **Bulk**: CSV import (`POST …/import`) creates many `Driver` rows with the same defaults; row-level validation and partial success policy as per product rules.
-
-**Validation**: Domain validators only (formats, uniqueness, required fields, license expiry policy). **No** call to the identity service in this phase.
-
-**Outcome**: Drivers appear in the **driver list**; they can be edited, deactivated, and assigned **subject to business rules** (e.g. some operations may require `invitation_status = Active` before mobile login—product decision; dispatch may use `driver_id` regardless).
-
-### 2.2 Phase B — Invite (User creation in service layer)
-
-**Who**: Same roles; action from **list** or **detail** screen.
-
-**UI**
-
-- Select **one** driver → **Invite**.
-- **Bulk**: multi-select drivers → **Invite selected** (or equivalent).
-
-**Service layer (orchestration)**
-
-1. Load `Driver` rows; skip or fail those already `invitation_status = Active` with a clear per-id result (idempotent: re-invite may reset token only if product allows).
-2. For each candidate, call **identity / user provisioning** (implementation detail—**not** specified here): create or resolve `User`, assign **Driver** role, set `Driver.user_id`, set `invitation_status` to `Pending`, trigger invitation channel per [User & Tenant Management](user-tenant-management.md) (US-005).
-3. On activation completion (existing user pipeline), transition `invitation_status` → `Active`.
-
-**Failure handling**: Partial failure on bulk invite returns per-`driver_id` errors (e.g. user limit, duplicate email in identity). **Do not** leave `Driver` half-linked without a defined transaction boundary.
-
-**Idempotency**: `POST …/invite` with same `driver_id` should be safe (no duplicate users; optional resend of invitation).
+- CSV or batch API: each row maps to the same **User + Driver** pair per row.
+- Row-level validation; failed rows reported without aborting valid rows if product allows partial success.
 
 ---
 
-## 3. State, Vehicle Assignment, Performance
+## 4. Invitation (out of scope — separate plan)
 
-- **State machine** and **vehicle assignment** reference **`driver_id`**.
+Sending activation email, SMS, or in-app invite, **resend**, **revoke**, and token lifecycle are documented under **User invitation & activation** (e.g. TUM / US-005) and **not** repeated here. Driver APIs may later expose **“Invite”** actions that only invoke that plan by `user_id`—implementation belongs to the invitation workstream.
+
+---
+
+## 5. State, Vehicle Assignment, Performance
+
+- **State machine** and **vehicle assignment** use **`driver_id`**.
 - **Assignment history**: `driver_id`, `vehicle_id`, start/end, `assigned_by`.
-- **Performance metrics**: Aggregated by `driver_id` (and optionally joined to `user_id` for reporting when present).
+- **Performance metrics**: By `driver_id`.
 
 See [Master Data Configuration](../02-master-data/master-data-configuration.md) §3 and [Fleet Driver Management](../06-fleet-management/driver-management.md).
 
 ---
 
-## 4. Documents & Expiry Alerts
+## 6. Documents & Expiry Alerts
 
-- Documents attach to **`Driver`** (or normalized `DriverDocument` table keyed by `driver_id`).
-- **Cron**: query `Driver` for license and medical expiry within threshold; notify roles per alert design.
+- Documents attach to **`Driver`** (or `DriverDocument` keyed by `driver_id`).
+- **Cron**: license and medical expiry queries on `Driver`.
 
 ---
 
-## 5. API Design (Implementation Plan)
+## 7. API design (implementation plan)
 
-**Resource-oriented**: `/api/v1/drivers` as the primary surface. Identity remains under `/api/v1/users/...` for generic user management; **invite** may be exposed only as driver actions below.
+**Primary surface**: `/api/v1/drivers`. Create payload **includes** user fields required for the `User` row (`first_name`, `last_name`, `phone_number`, `employee_id`) plus driver/compliance fields.
 
-### 5.1 Driver CRUD & list
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/drivers` | Create Driver (Phase A); body = story fields; no User creation |
-| `GET` | `/api/v1/drivers` | List with filters (`status`, `driver_type`, `invitation_status`, `search`, pagination) |
-| `GET` | `/api/v1/drivers/{driver_id}` | Detail including documents metadata and optional `user_id` |
-| `PATCH` | `/api/v1/drivers/{driver_id}` | Partial update (driver fields only) |
-| `PATCH` | `/api/v1/drivers/{driver_id}/status` | `is_active`, `current_state` (RBAC-guarded) |
-
-### 5.2 Bulk import (Phase A)
+### 7.1 Driver CRUD & list
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/drivers/import` | CSV bulk create; append-only; row-level errors in response |
-| `GET` | `/api/v1/drivers/import/template` | CSV headers aligned to `Driver` |
+| `POST` | `/api/v1/drivers` | Create **`User`** (Driver role, Operations dept) + **`Driver`** in one transaction |
+| `GET` | `/api/v1/drivers` | List; include `first_name`/`last_name` from join or nested `user` |
+| `GET` | `/api/v1/drivers/{driver_id}` | Detail + linked `user` summary |
+| `PATCH` | `/api/v1/drivers/{driver_id}` | Update driver fields; **user** name/phone/employee_id updates if policy allows (same service or delegated) |
+| `PATCH` | `/api/v1/drivers/{driver_id}/status` | `is_active`, `current_state` |
 
-### 5.3 Invitation (Phase B)
+### 7.2 Bulk import
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/drivers/{driver_id}/invite` | Triggers provisioning; identity service creates/links User + Driver role |
-| `POST` | `/api/v1/drivers/invite` | Bulk invite: body `{ "driver_ids": UUID[] }` (or `POST …/bulk-invite` alias) |
+| `POST` | `/api/v1/drivers/import` | Each row creates **User + Driver** as in §3.2 |
+| `GET` | `/api/v1/drivers/import/template` | Headers for user + driver columns |
 
-**Response shape (bulk)**: e.g. `{ "results": [{ "driver_id", "status": "ok|error", "detail": "..." }] }`.
-
-### 5.4 Documents, leave, performance, compliance
+### 7.3 Documents, leave, performance, compliance
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/v1/drivers/{driver_id}/documents` | Multipart upload |
 | `GET` | `/api/v1/drivers/{driver_id}/documents` | List / metadata |
 | `DELETE` | `/api/v1/drivers/{driver_id}/documents/{document_id}` | Remove attachment |
-| `POST` | `/api/v1/drivers/{driver_id}/leave` | On Leave with date range |
+| `POST` | `/api/v1/drivers/{driver_id}/leave` | On Leave |
 | `GET` | `/api/v1/drivers/{driver_id}/performance` | Aggregates |
-| `GET` | `/api/v1/drivers/expiring-documents` | Query param `days` (e.g. 30) |
-
-### 5.5 Implementation notes
-
-- **Controllers** stay thin; **domain services** own `Driver` invariants; **invite** delegates to an **IdentityPort** / **UserProvisioningService** interface so unit tests mock identity.
-- **No** requirement to expose raw `User` creation on driver APIs beyond what invite orchestrates.
+| `GET` | `/api/v1/drivers/expiring-documents` | `days` query param |
 
 ---
 
-## 6. Integration Points
+## 8. Integration points
 
 | Area | Integration |
 |------|-------------|
-| RBAC (US-004) | Driver role assigned only during invite provisioning |
-| Identity (US-005) | Invitation email/OTP flows; **not** duplicated in driver spec |
-| Trips / TO / Gate | FK **`driver_id`** → `Driver` |
-| Driver mobile (US-052) | Login as `User`; app resolves `Driver` via `user_id` when `invitation_status = Active` |
-| Audit | Driver lifecycle events; invite events may duplicate user audit or cross-reference |
+| RBAC (US-004) | **Driver** role and **Operations** department set on **User** at create |
+| Invitation (US-005) | **Separate** implementation plan; may reference `user_id` created here |
+| Trips / TO / Gate | FK **`driver_id`** |
+| Driver mobile (US-052) | Authenticates as **`User`** linked via `Driver.user_id` |
+| Audit | Driver + user create audited per platform rules |
 
 ---
 
-## 7. Unit & Integration Testing Strategy
+## 9. Unit & integration testing strategy
 
-### 7.1 Unit tests (Driver domain — no DB or mocked repos)
+### 9.1 Unit tests (driver + user create)
 
-- **Create**: Required fields, uniqueness (`employee_id`, `contact_number`, `license`, NID), invalid formats, default `invitation_status` / `user_id`.
-- **Update**: Partial patch; cannot set `user_id` via public API (only via provisioning hook or internal).
-- **State**: `current_state` transitions; guards when `is_active = false`.
-- **Bulk import**: Parse errors, row-level failures, tenant scoping.
+- **Transaction**: Mock **User** repository and **Driver** repository; assert **both** called once, `user_id` wired on `Driver`.
+- **Validation**: Duplicate `employee_id`, `phone_number`, license across tenant; invalid formats.
+- **Defaults**: Role = Driver, Department = Operations on every create path.
 
-### 7.2 Unit tests (Invite orchestration — mock IdentityPort)
+### 9.2 Unit tests (bulk import)
 
-- **Invite single**: Happy path sets `user_id`, `invitation_status`; identity failure rolls back or leaves driver unchanged per transaction policy.
-- **Bulk invite**: Partial success array; skip already-`Active` drivers.
-- **Idempotency**: Second invite does not create duplicate users (mock asserts single call).
+- Row failures: duplicate employee on row 3; rows 1–2 succeed with two user+driver pairs.
+- Partial commit policy matches product.
 
-### 7.3 Integration tests (optional layer)
+### 9.3 Non-goals in driver module tests
 
-- API → DB for `Driver` CRUD and import.
-- Invite with **test double** or sandbox identity service.
-
-### 7.4 Non-goals in driver module tests
-
-- Do **not** implement or test full **User** entity, password hashing, or OTP in the driver module—those belong to identity/user tests.
+- **Invitation** flows, OTP, email templates — tested under **invitation implementation plan**.
 
 ---
 
-## 8. Related Documentation
+## 10. Related documentation
 
 - [User & Tenant Management](user-tenant-management.md)
 - [RBAC](rbac.md)
 - [Master Data Configuration](../02-master-data/master-data-configuration.md)
 - [US-057 — Driver story](../../../04-backlog/stories/US-057-driver-master-data.md)
-- US-057: `04-backlog/stories/US-057-driver-master-data.md`
+- Invitation implementation (separate): tenant user management / TUM backlog
 
 ---
 
-**Source**: Evolved from driver-as-user-only docs to **Driver-first** domain with **invite** as the bridge to identity (create → invite).
+**Source**: Driver creation **creates `User`** (first/last name, Driver role, Operations department, phone, employee id) **with** `Driver`; invitation is **not** specified here.
