@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
-last_updated: 2026-02-26
-related_stories: US-001, US-002, US-003
+last_updated: 2026-04-07
+related_stories: US-001, US-002, US-003, US-005, US-007, US-008
 ---
 
 # Authentication & Security Specification
@@ -530,7 +530,42 @@ All authentication events sent to centralized audit logging system:
 
 ---
 
-## 8. Related Documentation
+## 8. Password Reset Integration (US-005)
+
+Password reset flows (both self-service and admin-assisted) interact with authentication and session management:
+
+- **Session termination**: All active sessions terminated immediately upon successful password reset
+- **Password complexity**: Same rules (Section 1.4) apply during activation and password reset
+- **Rate limiting**: Max 3 self-service reset requests per hour per user
+- **Audit integration**: All password reset events logged (Admin ID, justification, IP address)
+
+> For detailed password reset workflows, see [User & Tenant Management - Section 7](user-tenant-management.md) and [US-005](../../04-backlog/stories/US-005-user-invitation-activation.md).
+
+---
+
+## 9. Account Deactivation Integration (US-007)
+
+Account deactivation directly impacts authentication and session management:
+
+**Session Termination on Deactivation**:
+- When an account is deactivated (temporary or permanent), **all active sessions are immediately terminated**
+- All access tokens are invalidated and refresh tokens revoked
+- Login attempts by deactivated users return HTTP 403 with `AccountInactive` or `AccountSuspended` reason
+
+**Login Prevention**:
+- Users with status `Suspended` or `Inactive` are blocked at Step 1 of the login flow (Section 1.2)
+- The existing check `user.status !== 'Active'` covers both deactivation types
+- Blocked login attempts are logged with failure reason `AccountInactive`
+
+**Reactivation and Sessions**:
+- Upon reactivation, user status returns to `Active` and login is permitted
+- No sessions are auto-created; user must authenticate fresh after reactivation
+
+> For detailed deactivation workflows, see [User & Tenant Management - Section 6](user-tenant-management.md) and [US-007](../../04-backlog/stories/US-007-account-deactivation.md).
+
+---
+
+## 10. Related Documentation
 
 - **[RBAC Specification](rbac.md)** - Role-based access control details
 - **[User Management](user-tenant-management.md)** - User lifecycle management
@@ -540,5 +575,8 @@ All authentication events sent to centralized audit logging system:
 - US-001: User Login & Account Lockout
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
+- US-005: User Invitation, Activation & Password Reset
+- US-007: Account Deactivation
+- US-008: Password & Account Reset (scope consolidated into US-005)
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3
