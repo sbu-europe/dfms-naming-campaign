@@ -202,11 +202,53 @@ All password reset events are logged with immutable audit entries:
 
 ---
 
+## User Lifecycle Security (US-005, US-007, US-008)
+
+### Password Reset Security Controls
+
+| Control | Self-Service | Admin-Assisted |
+|---|---|---|
+| Reset token validity | 15 minutes | N/A (OTP-based) |
+| OTP validity | 10 minutes | 10 minutes |
+| Max OTP attempts | 3 per token | 3 per OTP |
+| Rate limit | 3 requests/hour/user | No self-service limit |
+| Password complexity | Enforced | Enforced |
+| Password history | Last 3 passwords | Last 3 passwords |
+| Session termination | All active sessions revoked | All active sessions revoked |
+| Confirmation email | Sent on success | Sent on success |
+| Audit logging | User ID, IP, timestamp, device | Admin ID, User ID, justification, IP |
+
+### Account Deactivation Security Controls
+
+| Control | Description |
+|---|---|
+| Permission enforcement | Only Super Admin and Tenant Admin can deactivate |
+| Self-deactivation prevention | Users cannot deactivate their own account |
+| Active assignment check | System warns of active TOs, trips, approvals before deactivation |
+| Override with justification | Admin can override assignment check with mandatory remarks |
+| Session termination | Immediate logout from all active sessions |
+| Data preservation | All historical data preserved in audit trail; deactivated users remain in records |
+| Login prevention | Deactivated users blocked from login until reactivated (temporary) or permanently |
+
+### Audit Trail for Password Reset and Deactivation
+
+| Event | Logged Fields |
+|---|---|
+| Self-Service Reset (initiated) | user_id, ip_address, device_id, timestamp |
+| Self-Service Reset (completed) | user_id, ip_address, device_id, timestamp, status |
+| Self-Service Reset (failed) | user_id, ip_address, device_id, timestamp, failure_reason |
+| Admin-Assisted Reset | admin_id, user_id, justification, verification_method, ip_address, timestamp |
+| Account Deactivation | admin_id, user_id, deactivation_type, reason, effective_date, ip_address, timestamp |
+| Account Reactivation | admin_id, user_id, timestamp, ip_address |
+
+---
+
 ## Summary
 
 Security & Compliance provides:
 - **Layered Security:** Network, application, data, audit layers
 - **Data Protection:** AES-256 encryption, data masking, secure deletion
 - **Access Control:** RBAC with least privilege, multi-tenant isolation
+- **User Lifecycle Security:** Password reset (self-service + admin-assisted), account deactivation/reactivation, with comprehensive audit trails
 - **Regulatory Compliance:** ISO 27001, GDPR/data privacy
 - **Incident Response:** Detection, containment, recovery procedures

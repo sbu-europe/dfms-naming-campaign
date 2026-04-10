@@ -267,6 +267,11 @@ const allowedDowntimeMinutes = totalMinutesInMonth * (1 - monthlyUptimeSLA); // 
 - **Expiry:** 90 days (user prompted to change password)
 - **History:** Cannot reuse last 3 passwords
 
+**Rate Limiting (Password Reset):**
+- Maximum 3 self-service reset requests per hour per user
+- Admin-assisted resets not subject to self-service rate limits
+- Suspicious patterns (multiple resets across different users from same IP) trigger additional verification
+
 **Example Validation:**
 ```typescript
 const passwordPolicy = {
@@ -280,11 +285,13 @@ const passwordPolicy = {
 };
 
 function validatePassword(password: string): boolean {
-  return password.length >= 8 &&
+  const meetsComplexity = password.length >= 8 &&
          /[A-Z]/.test(password) &&
          /[a-z]/.test(password) &&
          /[0-9]/.test(password) &&
          /[!@#$%^&*]/.test(password);
+  const notCommon = !commonPasswordList.includes(password.toLowerCase());
+  return meetsComplexity && notCommon;
 }
 ```
 
@@ -309,6 +316,7 @@ function validatePassword(password: string): boolean {
 **Comprehensive Audit Trail:**
 - **Logged Actions:**
   - User login/logout
+  - Password reset and authenticated password change
   - CRUD operations (create, update, delete)
   - Permission changes
   - Report access

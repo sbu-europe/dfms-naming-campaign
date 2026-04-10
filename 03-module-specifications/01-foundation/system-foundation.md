@@ -224,9 +224,13 @@ System sends invitation email → Tenant Admin activates account
 - Reactivation checks subscription plan user limit before restoring access
 
 **Password Reset** (consolidated into US-005 from US-008):
-- **Admin-Assisted**: For low-literacy users (e.g., Drivers), admin verifies identity offline, generates OTP (10 min validity), communicates offline; justification and verification method required
-- **Self-Service**: User clicks "Forgot Password" on login, enters email or mobile; receives reset link (15 min validity) and SMS OTP (10 min validity); max 3 requests per hour
+- **Admin-Assisted**: For low-literacy users (e.g., Drivers, Helpers); admin verifies identity offline, generates 6-digit OTP (10 min), communicates to user offline; mandatory justification logged
+- **Self-Service**: User requests reset link via email (15 min) + SMS OTP (10 min); rate limited to 3 requests/hour/user
+- **Password Complexity**: 8+ chars, upper/lower/number/special, last 3 passwords not reusable
+- **Session Termination**: All active sessions revoked immediately on successful reset
+- **Suspicious Activity Detection**: Unusual reset patterns trigger additional verification and admin alerts
 - **Post-Reset**: All active sessions terminated, confirmation email sent, audit logged
+
 
 ### 4.4 OTP Verification System
 

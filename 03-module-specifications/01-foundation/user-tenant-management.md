@@ -961,7 +961,7 @@ async function generateResetLink(email: string): Promise<string> {
 
 ### 7.4 Password Change Enforcement
 
-**Password Complexity Rules**:
+**Password Complexity Rules** (applies to activation, password reset, and password change):
 - Minimum 8 characters
 - At least one uppercase letter
 - At least one lowercase letter
@@ -969,6 +969,11 @@ async function generateResetLink(email: string): Promise<string> {
 - At least one special character
 - Cannot reuse last 3 passwords
 - Hashed using bcrypt with tenant-specific salt
+
+**Suspicious Activity Detection**:
+- System detects unusual reset patterns (e.g., multiple resets across different users from same IP)
+- Suspicious patterns trigger additional verification or alert to Tenant Admin
+- All suspicious activity logged for security review
 
 **Post-Reset Actions**:
 ```typescript
@@ -1004,6 +1009,52 @@ async function completePasswordReset(
         event: 'PasswordChanged',
         user_id: userId,
         method: method,
+        ip_address: request.ip,
+        device_id: request.headers['x-device-id']
+    });
+}
+```
+
+### 7.5 Authenticated Change Password (Change Password)
+
+Authenticated users can change their password from Profile/Settings.
+
+**Policy**:
+- Enforce the same password complexity rules
+- Prevent reuse of last 3 passwords
+- Invalidate all active sessions after successful change (force re-login)
+- Optional OTP verification can be required based on security policy (high-risk roles or suspicious activity)
+
+```typescript
+async function changePassword(
+    userId: UUID,
+    newPassword: string,
+    confirmPassword: string,
+    otp?: string
+): Promise<void> {
+    if (newPassword !== confirmPassword) {
+        throw new Error('Passwords do not match');
+    }
+
+    // Optional OTP step (policy-driven)
+    if (requiresOtpForPasswordChange(userId)) {
+        if (!otp) throw new Error('OTP required');
+        await verifyOTP(userId, otp);
+    }
+
+    validatePasswordStrength(newPassword);
+    await checkPasswordHistory(userId, newPassword);
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await updateUserPassword(userId, passwordHash);
+
+    await terminateAllSessions(userId);
+    await sendPasswordChangedEmail(userId);
+
+    await auditLog({
+        event: 'PasswordChanged',
+        user_id: userId,
+        method: 'change-password',
         ip_address: request.ip,
         device_id: request.headers['x-device-id']
     });
