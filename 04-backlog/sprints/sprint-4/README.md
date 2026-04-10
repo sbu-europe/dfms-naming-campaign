@@ -103,7 +103,7 @@ TC-02 (Delivered)                       ──→  Sprint 10 Financial (Costing)
 
 **Prerequisites from Sprint 2**:
 - MDM-02 (Route — polylines for TC-03 map overlay)
-- MDM-05 / MDM-06 (Vehicle / Driver master for TE-01 assignment)
+- MDM-05 (Vehicle) / US-057 Driver domain (for TE-01 assignment)
 
 ---
 

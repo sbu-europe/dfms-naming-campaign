@@ -6,7 +6,7 @@ phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
 last_updated: 2026-04-07
-related_stories: US-001, US-002, US-003, US-005, US-008
+related_stories: US-001, US-002, US-003, US-005, US-007, US-008
 ---
 
 # Authentication & Security Specification
@@ -590,6 +590,7 @@ Driver users can authenticate using a **mobile interface link** and a **system-g
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
 - US-005: User Invitation, Activation & Password Reset
+- US-007: Account Deactivation
 - US-008: Password & Account Reset (scope consolidated into US-005)
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3

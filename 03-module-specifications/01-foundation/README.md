@@ -22,6 +22,7 @@ This module defines the foundational layer of the DFMS platform, including authe
 | [authentication-security.md](authentication-security.md) | Authentication architecture, account lockout, MFA/2FA, session management, security features | 6.1.1-6.1.3 | US-001, US-002, US-003 | 446 |
 | [rbac.md](rbac.md) | Role hierarchy, permission model, enforcement layers, dynamic role builder, multi-tenant isolation | 6.1.4-6.1.6 | US-004 | 592 |
 | [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
+| ~~driver-user-profiles.md~~ | (Moved to `12-users/driver-user-profiles.md`) | - | - | - |
 | [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
 | ~~helper-master-data.md~~ | (Moved to `12-users/helper-master-data.md`) | - | - | - |
 
@@ -50,6 +51,9 @@ This module defines the foundational layer of the DFMS platform, including authe
 - **OTP Verification**: Phone/email verification with retry logic
 - **Account Management**: Activation, deactivation, password reset
 - **Audit Logging**: Comprehensive activity tracking
+
+### Driver domain
+- **`Driver`** creation writes a **`User`** row (Driver role, Operations department, name, phone, employee id) in the same transaction (see [driver-user-profiles.md](../12-users/driver-user-profiles.md)); **invitation** is a separate implementation plan; not `master_data`
 
 ---
 
@@ -161,6 +165,9 @@ DELETE /api/v1/users/{user_id}
 POST /api/v1/users/{user_id}/deactivate
 POST /api/v1/admin/users/{user_id}/unlock
 ```
+
+### Drivers (API surface)
+See [driver-user-profiles.md](../12-users/driver-user-profiles.md) §7 for `/api/v1/drivers` CRUD, import, documents, and compliance routes.
 
 ### RBAC
 ```typescript

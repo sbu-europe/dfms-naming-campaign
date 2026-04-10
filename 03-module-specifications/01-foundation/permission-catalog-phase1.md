@@ -4,7 +4,7 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
-last_updated: 2026-04-07
+last_updated: 2026-04-07, 
 related_stories: US-004, US-005, US-007, US-008, US-009
 ---
 
@@ -96,8 +96,8 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 | `UserMgmt.User.Create` | Invite new users | Tenant Admin |
 | `UserMgmt.User.Read` | View user list and profiles | Tenant Admin |
 | `UserMgmt.User.Update` | Modify user details | Tenant Admin |
-| `UserMgmt.User.Deactivate` | Suspend/deactivate users | Tenant Admin |
-| `UserMgmt.User.Reactivate` | Reactivate suspended users | Tenant Admin |
+| `UserMgmt.User.Deactivate` | Suspend/deactivate users (single and bulk) | Super Admin, Tenant Admin |
+| `UserMgmt.User.Reactivate` | Reactivate suspended users | Super Admin, Tenant Admin |
 | `UserMgmt.User.BulkInvite` | Bulk CSV invitation | Tenant Admin |
 | `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Super Admin, Tenant Admin |
 | `UserMgmt.User.Unlock` | Unlock locked accounts | Tenant Admin |

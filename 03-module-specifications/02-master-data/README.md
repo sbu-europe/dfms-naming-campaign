@@ -23,7 +23,7 @@ This module defines master data configuration and management for the DFMS platfo
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `12-users/driver-user-profiles.md`)
 
 **Helper (US-061) — full specification**: [helper-master-data.md](../12-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
@@ -32,7 +32,7 @@ This module defines master data configuration and management for the DFMS platfo
 ## Key Features
 
 ### Master Data Configuration
-- **Entity Registration**: POIs, Vehicles, Drivers, Helpers, Vendors, Routes, Products, QC Checklists
+- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../12-users/driver-user-profiles.md))
 - **Bulk Upload**: CSV-based bulk data import with validation — canonical implementation plan: **[bulk-import-export.md](bulk-import-export.md)**
 - **Inline Management**: Create, edit, delete with full audit trail
 - **Referential Integrity**: Cascade rules and dependency validation
@@ -87,7 +87,7 @@ This module defines master data configuration and management for the DFMS platfo
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
 - **US-053**: Vehicle Registration & Master Data
-- **US-057**: Driver Master Data
+- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`12-users/driver-user-profiles.md`](../12-users/driver-user-profiles.md) (not `master_data`)
 - **US-061**: Helper Profile
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
@@ -142,7 +142,8 @@ Product {
 ```typescript
 MasterEntity {
   entity_id: UUID
-  entity_type: enum [Vehicle, Driver, Helper, Vendor, Route, Product, POI, QCChecklist]
+  entity_type: enum [Vehicle, Helper, Vendor, Route, Product, POI, QCChecklist]
+  // Drivers: User + Driver on create (see 12-users/driver-user-profiles.md)
   entity_data: JSON
   status: enum [Active, Inactive]
   created_by: UUID

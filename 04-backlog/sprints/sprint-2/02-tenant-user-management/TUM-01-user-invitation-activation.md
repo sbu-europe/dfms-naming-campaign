@@ -80,6 +80,7 @@ Organizations need to onboard multiple users with different roles. All users —
 | TUM-01-6 | Resend invitation API with cooldown | DFS-024-6 | Pending |
 | TUM-01-7 | Invitation expiry Celery beat task | DFS-024-7 | Pending |
 | TUM-01-8 | Bulk invitation CSV upload + row-level error reporting | DFS-024-8 | Pending |
+| TUM-01-9 | Unit & Integration Testing | DFS-024-8 | Pending |
 
 ## API Endpoints
 

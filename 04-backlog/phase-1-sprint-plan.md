@@ -73,8 +73,9 @@
 | [Route, Supplier & Dealer Master Data](sprints/sprint-2/01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | Pending | 5 |
 | [Vendor Master Data (Admin CRUD & Bulk Upload)](sprints/sprint-2/01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | Pending | 5 |
 | [Vehicle Registration & Master Data](sprints/sprint-2/01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | Pending | 5 |
-| [Driver Master Data Management](sprints/sprint-2/01-master-data-management/MDM-06-driver-master-data.md) | MDM-06 | DFS-022 | Pending | 5 |
 | [Helper Master Data Management](sprints/sprint-2/01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | Pending | 3 |
+
+> US-057 (Driver): [`stories/US-057-driver-master-data.md`](stories/US-057-driver-master-data.md), [`03-module-specifications/12-users/driver-user-profiles.md`](../03-module-specifications/12-users/driver-user-profiles.md) — not an MDM backlog file under master data.
 
 ### Epic: Tenant User Management
 
@@ -92,7 +93,7 @@
 |-------|---------|------|--------|----|
 | [Geofencing Engine — Arrival & Departure Detection](sprints/sprint-2/03-vehicle-tracking-geofencing/VTG-01-geofencing-arrival-departure.md) | VTG-01 | DFS-031 | Pending | 8 |
 
-| **Total** | | | | **83** |
+| **Total** | | | | **78** |
 
 ---
 
@@ -281,7 +282,7 @@
 | Sprint | Title | SP |
 |--------|-------|----|
 | Sprint 1 | Infrastructure, Onboarding & Secure Login | ~62 |
-| Sprint 2 | Master Data, User Management & Vehicle Tracking | 83 |
+| Sprint 2 | Master Data, User Management & Vehicle Tracking | 78 |
 | Sprint 3 | Transfer Requisition, Transport Planning & Transport Orders | 49 |
 | Sprint 4 | Trip Execution & Closure | 47 |
 | Sprint 5 | Vendor Management | 51 |
@@ -290,7 +291,7 @@
 | Sprint 8 | QC Sampling & Lab Workflow | 47 |
 | Sprint 9 | QC Lab Results, Decisions & Compliance | 46 |
 | Sprint 10 | Mobile Applications & Financial Reporting | 43 |
-| **Total** | **10 sprints** | **~535 SP** |
+| **Total** | **10 sprints** | **~530 SP** |
 
 > ⚠️ **Sprint 5 (51 SP)** and **Sprint 6 (61 SP)** are above the typical 45 SP target.
 > - Sprint 5 can be split: Vendor Onboarding + Bidding (Sprint 5a) / Portal + Compliance (Sprint 5b) if needed

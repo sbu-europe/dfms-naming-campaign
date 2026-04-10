@@ -5,7 +5,7 @@ extracted_date: 2026-02-13
 last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
-related_stories: US-004, US-005, US-008
+related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008]
 ---
 
 # Security & Compliance
