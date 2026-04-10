@@ -4,8 +4,8 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
-last_updated: 2026-04-07
-related_stories: US-004, US-005, US-007
+last_updated: 2026-04-07, 
+related_stories: US-004, US-005, US-007, US-008, US-009
 ---
 
 # Phase 1 Permission Catalog
@@ -99,7 +99,7 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 | `UserMgmt.User.Deactivate` | Suspend/deactivate users (single and bulk) | Super Admin, Tenant Admin |
 | `UserMgmt.User.Reactivate` | Reactivate suspended users | Super Admin, Tenant Admin |
 | `UserMgmt.User.BulkInvite` | Bulk CSV invitation | Tenant Admin |
-| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin |
+| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Super Admin, Tenant Admin |
 | `UserMgmt.User.Unlock` | Unlock locked accounts | Tenant Admin |
 | `UserMgmt.User.Export` | Export user list | Tenant Admin |
 
@@ -115,8 +115,8 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.AuditLog.Read` | View audit logs | Tenant Admin |
-| `UserMgmt.AuditLog.Export` | Export audit logs | Tenant Admin |
+| `UserMgmt.AuditLog.Read` | View audit logs | Super Admin, Tenant Admin |
+| `UserMgmt.AuditLog.Export` | Export audit logs | Super Admin, Tenant Admin |
 
 ---
 

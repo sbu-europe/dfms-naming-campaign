@@ -138,43 +138,39 @@ For the full RBAC specification, see [rbac.md](../01-foundation/rbac.md) and [pe
 
 ---
 
-## User Lifecycle Security (US-005, US-007)
+## User Lifecycle Security (US-005)
 
-Security controls applied across user invitation, activation, password reset, and account deactivation:
+Security controls applied across the user invitation, activation, and password reset lifecycle:
 
-### Invitation & Activation Security (US-005)
-- **Activation tokens**: 64-character cryptographically secure hex tokens, unique per invitation, 7-day expiry
+### Invitation & Activation Security
+- **Activation tokens**: 64-character cryptographically secure hex tokens, unique per invitation
+- **Token expiry**: 7 days from creation; expired tokens cannot be reused
 - **OTP verification**: Both email and SMS OTP required before account activation
-- **Email/mobile uniqueness**: Enforced per tenant to prevent duplicate accounts
+- **Email uniqueness**: Enforced per tenant to prevent duplicate accounts
+- **Mobile uniqueness**: Enforced per tenant for OTP delivery integrity
 - **Plan limit enforcement**: Invitation blocked if tenant exceeds subscription user limit
+- **Bulk upload validation**: CSV rows individually validated; partial processing supported
 
-### Password Reset Security (US-005)
-- **Self-service reset**: Reset link valid 15 min; SMS OTP valid 10 min; max 3 requests/hour
-- **Admin-assisted reset**: OTP valid 10 min; mandatory justification (min 10 chars) and verification method
+### Password Reset Security
+- **Self-service reset**: Reset link valid 15 minutes; SMS OTP valid 10 minutes
+- **Admin-assisted reset**: OTP valid 10 minutes; admin must provide justification (min 10 chars) and verification method
+- **Rate limiting**: Max 3 self-service reset requests per hour per user
 - **Session termination**: All active sessions terminated upon successful password reset
+- **Password complexity**: Min 8 chars, uppercase + lowercase + number + special character
+- **Password history**: Last 3 passwords cannot be reused
 - **Enumeration prevention**: Self-service reset always returns success regardless of whether email exists
+- **OTP brute-force prevention**: Max 3 incorrect OTP attempts per token; token invalidated after
 
-### Account Deactivation Security (US-007)
-- **Permission enforcement**: Only Super Admin and Tenant Admin can deactivate (`UserMgmt.User.Deactivate`)
-- **Self-deactivation prevention**: Admin cannot deactivate their own account
-- **Last admin protection**: System prevents deactivation of the last active Tenant Admin
-- **Immediate session termination**: All active sessions and tokens revoked upon deactivation
-- **Login prevention**: Deactivated users (`Suspended`/`Inactive`) blocked at login Step 1
-- **Assignment prevention**: Deactivated users excluded from all operational assignment workflows
-- **Active assignment check**: Critical assignments (TOs, trips, approvals, QC) validated before deactivation; override requires mandatory justification
-- **Data preservation**: Historical data preserved in audit trail; permanently deactivated user data archived but not deleted
-- **Reactivation control**: Only temporary suspensions can be reactivated; permanent deactivation is irreversible
-- **Plan limit on reactivation**: Subscription user limit checked before allowing reactivation
-
-### Deactivation Audit Trail
+### Password Reset Audit Trail
+All password reset events are logged with immutable audit entries:
 
 | Event | Logged Details |
 |---|---|
-| User Deactivated (Temporary) | Admin ID, User ID, reason, remarks, effective date, IP, override details |
-| User Deactivated (Permanent) | Admin ID, User ID, reason, remarks, effective date, IP, override details |
-| User Reactivated | Admin ID, User ID, reactivation reason, IP, timestamp |
-| Bulk Deactivation | Admin ID, user count, per-user success/failure, reason |
-| Deactivation Override | Admin ID, User ID, override remarks, active assignments at time |
+| Self-Service Reset Initiated | User ID, IP address, timestamp |
+| Self-Service Reset Completed | User ID, IP address, device ID, timestamp |
+| Admin-Assisted Reset Initiated | Admin ID, User ID, justification, verification method, IP, timestamp |
+| Admin-Assisted Reset Completed | Admin ID, User ID, IP, timestamp |
+| Reset Failed (expired/wrong OTP) | User ID, failure reason, IP, timestamp |
 
 ---
 

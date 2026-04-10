@@ -21,7 +21,10 @@ The DFMS platform implements a comprehensive authentication and security framewo
 
 ### 1.1 Login Flow (3-Step)
 
-All users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+Most users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+
+**Exception (Phase 1): Driver SMS Quick Login (US-005)**  
+Driver users may authenticate via a mobile interface link + system-generated password (no OTP required in Phase 1) to support low digital literacy users.
 
 ```
 Step 1: Enter Email or Phone Number
@@ -237,7 +240,9 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ### 3.1 OTP Overview
 
-OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except:
+- **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1
+- **Invitation activation flows** where OTP may be **optional** depending on the invitation’s selected **OTP type** (None / Email / SMS) as defined in US-005
 
 **Applicability:**
 - **Required for**: All user types (Super Admin, Tenant Admin, Operational User)
@@ -530,42 +535,51 @@ All authentication events sent to centralized audit logging system:
 
 ---
 
-## 8. Password Reset Integration (US-005)
+## 8. Password Reset Integration
 
-Password reset flows (both self-service and admin-assisted) interact with authentication and session management:
+Password reset flows (both self-service and admin-assisted) directly interact with the authentication and session management systems:
 
-- **Session termination**: All active sessions terminated immediately upon successful password reset
-- **Password complexity**: Same rules (Section 1.4) apply during activation and password reset
-- **Rate limiting**: Max 3 self-service reset requests per hour per user
-- **Audit integration**: All password reset events logged (Admin ID, justification, IP address)
-
-> For detailed password reset workflows, see [User & Tenant Management - Section 7](user-tenant-management.md) and [US-005](../../04-backlog/stories/US-005-user-invitation-activation.md).
-
----
-
-## 9. Account Deactivation Integration (US-007)
-
-Account deactivation directly impacts authentication and session management:
-
-**Session Termination on Deactivation**:
-- When an account is deactivated (temporary or permanent), **all active sessions are immediately terminated**
+**Session Termination on Password Reset**:
+- When a password is reset (either method), **all active sessions for that user are immediately terminated**
 - All access tokens are invalidated and refresh tokens revoked
-- Login attempts by deactivated users return HTTP 403 with `AccountInactive` or `AccountSuspended` reason
+- The user must re-authenticate with their new password
 
-**Login Prevention**:
-- Users with status `Suspended` or `Inactive` are blocked at Step 1 of the login flow (Section 1.2)
-- The existing check `user.status !== 'Active'` covers both deactivation types
-- Blocked login attempts are logged with failure reason `AccountInactive`
+**Password Complexity Enforcement**:
+- The same password complexity rules (Section 1.4) apply during both activation password setup and password reset
+- Password history check (last 3 passwords) enforced at the authentication layer
 
-**Reactivation and Sessions**:
-- Upon reactivation, user status returns to `Active` and login is permitted
-- No sessions are auto-created; user must authenticate fresh after reactivation
+**Rate Limiting for Self-Service Reset**:
+- Maximum 3 reset requests per hour per user
+- Standard rate limiting (Section 5.3) applies to the reset endpoint
 
-> For detailed deactivation workflows, see [User & Tenant Management - Section 6](user-tenant-management.md) and [US-007](../../04-backlog/stories/US-007-account-deactivation.md).
+**Audit Integration**:
+- All password reset events logged via the audit system (Section 6.1)
+- Admin-assisted resets include: Admin ID, justification, verification method
+- Self-service resets include: User ID, IP address, device ID, timestamp
+
+> For detailed password reset workflows and business rules, see [User & Tenant Management - Section 7](user-tenant-management.md#7-password--account-reset) and [US-005: User Invitation & Activation](../../04-backlog/stories/US-005-user-invitation-activation.md).
 
 ---
 
-## 10. Related Documentation
+## 8.1 Driver SMS Quick Login Integration (US-005)
+
+Driver users can authenticate using a **mobile interface link** and a **system-generated password** sent via SMS, to support low digital literacy users.
+
+**Flow**:
+1. Driver receives SMS containing mobile link + system-generated password
+2. Driver opens link; mobile number is auto-populated (read-only)
+3. Driver enters system-generated password
+4. System validates password and creates session (JWT)
+
+**Security Controls**:
+- Allowed only for role `Driver` and only via the mobile interface
+- Rate limited using the login endpoint policy
+- Failed attempts contribute to the account lockout policy
+- All attempts are audit logged with device ID, IP address, and status
+
+**Note**: OTP may still be generated/sent for logging/compatibility, but it is not required for Driver quick login in Phase 1.
+
+## 9. Related Documentation
 
 - **[RBAC Specification](rbac.md)** - Role-based access control details
 - **[User Management](user-tenant-management.md)** - User lifecycle management
