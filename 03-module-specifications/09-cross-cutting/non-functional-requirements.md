@@ -2,7 +2,7 @@
 source_document: PRD_DFMS_v1.0.md
 source_sections: Non-Functional Requirements, Performance, Scalability, Availability
 extracted_date: 2026-02-13
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [all-modules]
 ---

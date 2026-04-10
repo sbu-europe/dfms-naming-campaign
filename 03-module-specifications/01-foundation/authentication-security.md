@@ -21,7 +21,10 @@ The DFMS platform implements a comprehensive authentication and security framewo
 
 ### 1.1 Login Flow (3-Step)
 
-All users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+Most users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+
+**Exception (Phase 1): Driver SMS Quick Login (US-005)**  
+Driver users may authenticate via a mobile interface link + system-generated password (no OTP required in Phase 1) to support low digital literacy users.
 
 ```
 Step 1: Enter Email or Phone Number
@@ -237,10 +240,12 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ### 3.1 OTP Overview
 
-OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except:
+- **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1
+- **Invitation activation flows** where OTP may be **optional** depending on the invitation’s selected **OTP type** (None / Email / SMS) as defined in US-005
 
 **Applicability:**
-- **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
+- **Required for**: All user types (Super Admin, Tenant Admin, Operational User)
 - **Delivery Methods**: Email (if logged in via email), SMS (if logged in via phone)
 
 ### 3.2 OTP Generation
@@ -656,8 +661,8 @@ When a temporarily suspended account is reactivated:
 - US-001: User Login & Account Lockout
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
-- US-005: User Invitation & Activation (consolidated password reset scope)
-- US-007: Account Deactivation (session termination, login prevention)
-- US-008: Password & Account Reset
+- US-005: User Invitation, Activation & Password Reset
+- US-007: Account Deactivation
+- US-008: Password & Account Reset (scope consolidated into US-005)
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3

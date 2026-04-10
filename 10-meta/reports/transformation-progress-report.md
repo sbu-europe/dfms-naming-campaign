@@ -52,7 +52,6 @@
    - Transport configuration, QC configuration
    - Product lifecycle, search/filtering
 
-3. **master-data-configuration.md** (513 lines)
    - Vehicle/driver/helper/vendor master data
    - Bulk data management, referential integrity
    - Data quality and audit logging
@@ -239,18 +238,12 @@
    - Compliance document tracking with expiry alerts
    - Operational status, utilization tracking
 
-2. **driver-management.md** (437 lines)
-   - Driver resource registry with credentials and license tracking
-   - Driver-vehicle assignment, availability monitoring
-   - Work hour tracking, leave management
-   - Performance metrics and state transitions
-
-3. **helper-management.md** (204 lines)
+2. **helper-management.md** (204 lines)
    - Helper registry with reference contacts
    - Helper-driver-trip assignment management
    - Availability tracking, many-to-one mapping
 
-4. **fuel-management.md** (205 lines)
+3. **fuel-management.md** (205 lines)
    - Fuel tracking for own fleet (Phase 2)
    - Refueling event logging with photo documentation
    - Fuel consumption calculation, efficiency monitoring
@@ -282,11 +275,13 @@
 - vendor-bidding.md
 - vendor-portal.md
 
-#### 06-fleet-management (4 files)
+#### 06-fleet-management (3 files)
 - vehicle-management.md
-- driver-management.md
 - helper-management.md
 - fuel-management.md
+
+#### 12-users (1 file)
+- driver-user-profiles.md (moved from 01-foundation)
 
 #### 07-mobile-interfaces (3 files)
 - driver-mobile.md

@@ -87,7 +87,7 @@ GET   /api/v1/fleet/summary?poi_id=                # Fleet planning dashboard st
 
 ## Dependencies
 
-- **Requires**: MDM-05 (Vehicles), MDM-06 (Drivers), MDM-07 (Helpers), MDM-03 (Vendors)
+- **Requires**: MDM-05 (Vehicles), US-057 / Driver domain (`12-users/driver-user-profiles.md`), MDM-07 (Helpers), MDM-03 (Vendors)
 - **Used by**: TP-01 (inline fleet summary during TR assessment), TO-01 / TO-02 (vehicle/driver selection during TO creation)
 
 ## Definition of Done

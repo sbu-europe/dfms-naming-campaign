@@ -43,7 +43,7 @@ Transport Order (TO) → [Transport executes delivery]
 
 ### Initiator & Context
 
-**Initiated by:** Depot Manager, Feed Mill Manager (operational roles at source POI)
+**Initiated by:** Depot Officer, Feed Mill Officer (operational roles at source POI)
 
 **Use Cases:**
 - Stock replenishment (Factory → Depot, Depot → Feed Mill)

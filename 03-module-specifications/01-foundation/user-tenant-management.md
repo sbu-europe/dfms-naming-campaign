@@ -5,8 +5,10 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-04-07
+last_updated: 2026-04-09
+phase1_note: All users (including Driver, Helper) invited via email only. SMS/phone-based invitation removed from Phase 1 scope.
 related_stories: US-005, US-006, US-007, US-008, US-009
+scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
 
 # User & Tenant Management Specification
@@ -90,7 +92,7 @@ Tenant {
 
 ### 2.1 System User Types
 
-The DFMS platform has four distinct user types in a strict management hierarchy:
+The DFMS platform has three distinct user types in a strict management hierarchy:
 
 ```
 1. Super Admin (e.g., Brainstation 23)
@@ -100,24 +102,19 @@ The DFMS platform has four distinct user types in a strict management hierarchy:
 
 2. Tenant Admin (e.g., Nourish)
    ├─ Created: By Super Admin
-   ├─ Manages: Department Admins + Operational Users
+   ├─ Manages: Operational Users
    └─ Scope: Organization-wide, single tenant
 
-3. Department Admin (e.g., Depot, Procurement, Distribution, Transport, QC)
-   ├─ Created: By Tenant Admin
-   ├─ Manages: Operational Users within department
-   └─ Scope: Single department within tenant
-
-4. Operational User (e.g., Command Center Officer, Loading Person,
+3. Operational User (e.g., Command Center Officer, Loading Person,
                      Unloading Person, Driver Supervisor, Driver Helper)
-   ├─ Created: By Tenant Admin or Department Admin
+   ├─ Created: By Tenant Admin
    ├─ Manages: Nothing (execution-only)
    └─ Scope: Assigned tasks/workflows only
 ```
 
 ### 2.2 Super Admin Creation
 
-Super Admins are **never created through the UI**. They are provisioned manually:
+Super Admins are **never created through the UI or invitation flow**. They are provisioned manually via database seed or CLI only. The `Super Admin` role is explicitly blocked from the user invitation form — any API request attempting to assign the Super Admin role during invitation will be rejected with HTTP 403 (`ROLE-403-SUPER-ADMIN-RESTRICTED`).
 
 ```typescript
 // Database seed or CLI command — executed during initial deployment
@@ -166,7 +163,8 @@ Step 6: Tenant Admin activates account and sets password
 - Subscription Plan (Basic / Starter / Growth / Enterprise)
 - Tenant Admin Email (unique, valid format)
 - Tenant Admin Phone (with country code)
-- Tenant Admin Full Name
+- Tenant Admin First Name
+- Tenant Admin Last Name
 - Organization Address (full address fields)
 
 **Validation Rules**:
@@ -223,7 +221,8 @@ async function provisionTenant(
         tenant_id,
         email: tenantData.admin_email,
         phone: tenantData.admin_phone,
-        full_name: tenantData.admin_name,
+        first_name: tenantData.admin_first_name,
+        last_name: tenantData.admin_last_name,
         role: 'Tenant Admin',
         status: 'Pending',  // Pending until activation
         created_by: superAdminId
@@ -251,14 +250,15 @@ async function provisionTenant(
 }
 ```
 
-### 2.5 Department Admin & User Creation (by Tenant Admin)
+### 2.5 User Creation (by Tenant Admin)
 
-Once the Tenant Admin activates their account, they can create Department Admins and Operational Users:
+Once the Tenant Admin activates their account, they can create Operational Users across departments (department-scoped where applicable):
 
 ```
 Tenant Admin → User Management → Invite User →
   Select Role (Department Admin / Operational User) →
-  Assign Department (Depot, Procurement, Distribution, Transport, QC) →
+  Select Department (predefined dropdown) →
+  Select Role (dropdown filtered by selected Department) →
   Send Invitation → User Activates Account
 ```
 
@@ -267,9 +267,7 @@ Tenant Admin → User Management → Invite User →
 | Creator | Can Create | Notes |
 |---------|-----------|-------|
 | Super Admin | Tenant Admin | During tenant onboarding |
-| Tenant Admin | Department Admin | Assigns to specific department |
 | Tenant Admin | Operational User | Direct creation for any department |
-| Department Admin | Operational User | Only within their own department |
 
 ---
 
@@ -351,26 +349,37 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 ### 4.1 Invitation Workflow
 
 ```
-Admin (Tenant Admin or Department Admin) → Invite User Form → Send Email →
-User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account Active
+Admin (Tenant Admin) → Invite User Form → Submit →
+  System creates user record + dispatches invitation email immediately →
+  invitation_status = "sent" →
+User Clicks Link → invitation_status = "pending" →
+  Complete Profile → Verify OTP (if required) → Accept T&C →
+  invitation_status = "activated" → Account Active
 ```
 
+> **Phase 1 — Email Only**: All users including Drivers and Helpers are invited via email. There is no SMS or phone-number-based invitation flow in Phase 1.
+
+> **Immediate Email Dispatch**: The invitation email is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming the email was queued/dispatched. If dispatch fails, status remains `pending` and a retry is attempted.
+
 **Permission-Based Invitation**:
-- **Tenant Admin** can invite: Department Admins, Operational Users (any department)
-- **Department Admin** can invite: Operational Users (own department only)
+- **Tenant Admin** can invite: Operational Users (any department)
 
 ### 4.2 Invitation Form
 
 **Required Fields**:
-- Full Name
-- Email Address
-- Mobile Number
-- User Type (Department Admin / Operational User)
-- Role (from available roles per user type)
-- Department (Depot / Procurement / Distribution / Transport / QC)
-- Employment Type (Permanent/Temporary/Contractor)
-- POI Assignment (if applicable, e.g., Gate Operator → specific gate)
-- Workflow Responsibility (Requester/Approver/Executor)
+- First Name
+- Last Name
+- Email Address (mandatory — sole invitation channel for all roles in Phase 1)
+- Role (from 18 predefined operational roles, multi-select supported; **Super Admin role is not listed and cannot be selected**)
+- Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
+- POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
+- Employee ID
+- Functional Role Type (Requester / Approver / Executor)
+- OTP type (None / Email) — default None
+
+**Optional Fields**:
+- Custom invitation message (freeform text)
+- Scheduled send date/time (for deferred invitations)
 
 **Validation**:
 ```typescript
@@ -378,17 +387,49 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
   email: {
     unique_per_tenant: true,
     format: 'email'
-  },
-  mobile: {
-    unique_per_tenant: true,
-    format: 'E.164'
+    // Phase 1: email is the sole invitation channel for all roles
   },
   role: {
     validate: (role, tenant) => {
+      // Super Admin role is strictly forbidden during invitation
+      if (role.name === 'Super Admin') {
+        throw new ForbiddenError('ROLE-403-SUPER-ADMIN-RESTRICTED',
+          'Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually.');
+      }
       // Check if subscription tier allows this role
       return tenant.enabled_modules.includes(role.required_module);
     }
   }
+}
+```
+
+### 4.2.1 Bulk Invitation via CSV Upload
+
+Admins can upload a CSV file to invite multiple users at once:
+
+**CSV Columns**: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type
+
+**Processing Rules**:
+- Validate that Department is one of the predefined department options
+- Validate that Role belongs to the selected Department (reject row if mismatch)
+- Maximum 100 invitations per batch
+- CSV format and data validated before processing
+- Partial processing supported (valid rows processed, invalid rows reported)
+- Success/failure report generated per row with specific error reasons
+- CSV template download available for admin convenience
+
+**Validation per Row**:
+```typescript
+async function validateCSVRow(row: CSVRow, tenant: Tenant): Promise<ValidationResult> {
+    const errors: string[] = [];
+    
+    if (!isValidEmail(row.email)) errors.push('Invalid email format');
+    if (await emailExistsInTenant(row.email, tenant.id)) errors.push('Email already exists');
+    if (!await roleExists(row.role)) errors.push('Invalid role');
+    if (row.role === 'Super Admin') errors.push('Super Admin role cannot be assigned via invitation');
+    if (await isOverPlanLimit(tenant.id)) errors.push('Plan user limit exceeded');
+    
+    return { valid: errors.length === 0, errors };
 }
 ```
 
@@ -398,17 +439,19 @@ User Clicks Link → Complete Profile → Verify OTP → Accept T&C → Account 
 ```
 Subject: You're invited to join [Organization Name] on DFMS
 
-Hi [Full Name],
+Hi [First Name] [Last Name],
 
 [Admin Name] has invited you to join [Organization Name]'s DFMS account.
 
 Your Role: [Role Name]
 Department: [Department]
 
+[Custom Message from Admin - if provided]
+
 To activate your account:
-1. Click the link below (valid for 72 hours)
-2. Complete your profile and set a password
-3. Verify your email and phone with OTP
+1. Click the link below (valid for 7 days)
+2. Enter your OTP if prompted (only if OTP type was set to "Email")
+3. Set a password
 4. Review and accept Terms & Conditions
 
 [Activate Account Button: https://dfms.app/activate/[token]]
@@ -418,15 +461,29 @@ Need help? Reply to this email or contact your administrator.
 This invitation expires on [Expiry DateTime].
 ```
 
+**Email Template Support**: The system supports customizable email templates per tenant. Admins can modify the invitation email body while preserving required elements (activation link, expiry).
+
+**Resend Rules**:
+- Cooldown: 2 minutes between resend requests
+- Resending generates a new email but preserves the original activation token
+- Expired invitations can be resent by admin (generates a new token with fresh 7-day expiry)
+
 **Invitation Token**:
 ```typescript
 InvitationToken {
-  token: string  // Unique, 64-char hex
+  token: string           // Unique, 64-char hex
   user_id: UUID
   email: string
+  first_name: string
+  last_name: string
   invited_by: UUID
-  expires_at: DateTime  // 72 hours from creation
-  status: enum ['Pending', 'Activated', 'Expired', 'Revoked']
+  expires_at: DateTime    // 7 days from creation
+  invitation_status: enum ['sent', 'pending', 'activated', 'expired', 'cancelled']
+    // sent      — email dispatched on creation
+    // pending   — user received email, not yet activated
+    // activated — user completed activation
+    // expired   — expiry passed without activation
+    // cancelled — admin cancelled before activation
   created_at: DateTime
 }
 ```
@@ -443,9 +500,10 @@ InvitationToken {
 - Optional: Upload profile photo
 
 **Step 3: OTP Verification**
-- System sends OTP to email and phone
-- User enters both OTPs
-- Validates against stored codes
+- OTP requirement depends on **OTP type** selected during invitation:
+  - OTP type = None → Skip OTP verification
+  - OTP type = Email → Send OTP to email; user enters OTP
+- System validates against stored code (max 3 attempts, 10-minute validity)
 
 **Step 4: Accept Terms**
 - Display Terms & Conditions
@@ -479,7 +537,7 @@ OTPRecord {
   otp_id: UUID
   user_id: UUID
   otp_code: string  // Hashed for security
-  otp_type: enum ['Email', 'SMS', 'Both']
+  otp_type: enum ['None', 'Email']  // Phase 1: SMS removed
   purpose: enum ['Registration', 'Activation', 'PasswordReset', 'MFA']
   generated_at: DateTime
   expires_at: DateTime  // 10 minutes
@@ -577,22 +635,28 @@ async function resendOTP(userId: UUID): Promise<void> {
 
 ## 6. Account Deactivation
 
+> **Related Story**: [US-007: Account Deactivation](../../04-backlog/stories/US-007-account-deactivation.md)
+
 ### 6.1 Deactivation Types
 
-**Temporary Suspension**:
-- User cannot login
-- Data preserved
-- Permissions retained
-- Can be reactivated
-- Use cases: Leave of absence, security incident investigation
+| Type | Status | Data | Reactivation | Use Cases |
+|------|--------|------|--------------|-----------|
+| **Temporary Suspension** | `Suspended` | Preserved, permissions retained | Yes (admin approval) | Leave of absence, security incident investigation, role transition |
+| **Permanent Deactivation** | `Inactive` | Archived (not deleted, for audit) | No | Employee termination, account closure, compliance action |
 
-**Permanent Deactivation**:
-- User cannot login
-- Data archived (not deleted, for audit)
-- Cannot be reactivated
-- Use cases: Employee termination, account closure
+**Rules**:
+- Deactivation type **cannot be changed** after confirmation
+- Only Platform Super Admin and Tenant Super Admin can deactivate users
+- Admin cannot deactivate their own account
+- At least one active Tenant Admin must remain per tenant
 
 ### 6.2 Deactivation Process
+
+**Required Fields**:
+- Deactivation type (Temporary / Permanent)
+- Reason (predefined dropdown or custom text)
+- Effective date (default: Immediate; supports future scheduling)
+- Admin remarks (mandatory text area)
 
 **Admin-Initiated Deactivation**:
 ```typescript
@@ -600,25 +664,46 @@ async function deactivateUser(
     userId: UUID,
     deactivationType: 'Temporary' | 'Permanent',
     reason: string,
+    adminRemarks: string,
     effectiveDate: DateTime,
-    adminId: UUID
-): Promise<void> {
+    adminId: UUID,
+    overrideActiveAssignments: boolean = false,
+    overrideRemarks?: string
+): Promise<DeactivationResult> {
     // 1. Validate admin has permission
-    await checkPermission(adminId, 'User.Deactivate');
+    await checkPermission(adminId, 'UserMgmt.User.Deactivate');
     
-    // 2. Check for active assignments
-    const activeAssignments = await getActiveAssignments(userId);
-    if (activeAssignments.length > 0) {
-        throw new Error(
-            'Cannot deactivate user with active assignments. ' +
-            'Reassign the following: ' + activeAssignments.map(a => a.description).join(', ')
-        );
+    // 2. Prevent self-deactivation
+    if (userId === adminId) {
+        throw new Error('Cannot deactivate your own account.');
     }
     
-    // 3. Terminate all active sessions
+    // 3. Ensure at least one active Tenant Admin remains
+    if (await isLastActiveTenantAdmin(userId)) {
+        throw new Error('At least one active Tenant Admin required.');
+    }
+    
+    // 4. Check for active critical assignments
+    const activeAssignments = await getActiveAssignments(userId);
+    // Checks: Active TOs, active trips, pending approvals, active QC inspections
+    if (activeAssignments.length > 0 && !overrideActiveAssignments) {
+        return {
+            status: 'blocked',
+            code: 'DA-409-ACTIVE-ASSIGNMENTS',
+            active_assignments: activeAssignments,
+            message: 'User has active critical assignments. Override required.'
+        };
+    }
+    
+    // 5. If future date, schedule deactivation instead
+    if (effectiveDate > NOW()) {
+        return await scheduleDeactivation(userId, deactivationType, reason, adminRemarks, effectiveDate, adminId);
+    }
+    
+    // 6. Terminate all active sessions immediately
     await terminateAllSessions(userId);
     
-    // 4. Update user status
+    // 7. Update user status
     await updateUser(userId, {
         status: deactivationType === 'Temporary' ? 'Suspended' : 'Inactive',
         deactivation_reason: reason,
@@ -626,53 +711,135 @@ async function deactivateUser(
         deactivated_by: adminId
     });
     
-    // 5. Send notification email
-    await sendDeactivationEmail(userId, deactivationType, reason);
+    // 8. Send notification email to user
+    await sendDeactivationEmail(userId, deactivationType, reason, effectiveDate);
     
-    // 6. Archive data (if permanent)
+    // 9. Send notification to admin who performed deactivation
+    await sendAdminDeactivationConfirmation(adminId, userId, deactivationType);
+    
+    // 10. Archive data (if permanent)
     if (deactivationType === 'Permanent') {
         await archiveUserData(userId);
     }
     
-    // 7. Audit log
+    // 11. Audit log (immutable)
     await auditLog({
         event: 'UserDeactivated',
         user_id: userId,
         actor_id: adminId,
-        details: { type: deactivationType, reason, effectiveDate }
+        ip_address: request.ip,
+        details: {
+            type: deactivationType,
+            reason,
+            admin_remarks: adminRemarks,
+            effectiveDate,
+            override_used: overrideActiveAssignments,
+            override_remarks: overrideRemarks,
+            active_assignments_at_time: activeAssignments.length
+        }
     });
+    
+    return { status: 'success', deactivation_id: generateUUID() };
 }
 ```
 
-### 6.3 Reactivation (Temporary Suspension Only)
+### 6.2.1 Bulk Deactivation
 
 ```typescript
-async function reactivateUser(userId: UUID, adminId: UUID): Promise<void> {
-    const user = await getUser(userId);
+async function bulkDeactivateUsers(
+    userIds: UUID[],
+    deactivationType: 'Temporary' | 'Permanent',
+    reason: string,
+    adminRemarks: string,
+    effectiveDate: DateTime,
+    adminId: UUID
+): Promise<BulkDeactivationResult> {
+    await checkPermission(adminId, 'UserMgmt.User.Deactivate');
     
-    // Can only reactivate temporarily suspended users
-    if (user.status !== 'Suspended') {
-        throw new Error('Only suspended users can be reactivated.');
+    if (userIds.length === 0) {
+        throw new Error('At least one user required.');
     }
     
-    // Update status
+    // Deduplicate and exclude admin's own account
+    const uniqueIds = [...new Set(userIds)].filter(id => id !== adminId);
+    
+    const results: DeactivationResult[] = [];
+    
+    for (const userId of uniqueIds) {
+        try {
+            const result = await deactivateUser(
+                userId, deactivationType, reason, adminRemarks,
+                effectiveDate, adminId, false
+            );
+            results.push({ user_id: userId, ...result });
+        } catch (error) {
+            results.push({ user_id: userId, status: 'failed', error: error.message });
+        }
+    }
+    
+    return {
+        success_count: results.filter(r => r.status === 'success').count(),
+        failure_count: results.filter(r => r.status !== 'success').count(),
+        results
+    };
+}
+```
+
+### 6.3 Assignment Prevention
+
+Deactivated users (`Suspended` or `Inactive` status) are excluded from all operational workflows:
+
+| Prevention Area | Behavior |
+|---|---|
+| User selection dropdowns | Deactivated users filtered out (only `Active` shown) |
+| Transport Order assignment | API rejects assignment with HTTP 400 |
+| Trip assignment | API rejects with "Cannot assign to deactivated user" |
+| Vehicle-driver pairing | Deactivated driver excluded from pairing |
+| Task/approval assignment | Deactivated user cannot receive new approvals |
+| Historical records | Deactivated user shown with "Deactivated" badge; data preserved |
+
+### 6.4 Reactivation (Temporary Suspension Only)
+
+```typescript
+async function reactivateUser(
+    userId: UUID,
+    adminId: UUID,
+    reactivationReason: string
+): Promise<void> {
+    // 1. Validate admin permission
+    await checkPermission(adminId, 'UserMgmt.User.Reactivate');
+    
+    const user = await getUser(userId);
+    
+    // 2. Only temporarily suspended users can be reactivated
+    if (user.status !== 'Suspended') {
+        throw new Error('Only suspended users can be reactivated. Permanently deactivated accounts cannot be reactivated.');
+    }
+    
+    // 3. Check subscription plan limit
+    if (await isOverPlanLimit(user.tenant_id)) {
+        throw new Error('User limit reached. Upgrade subscription before reactivating.');
+    }
+    
+    // 4. Update status and restore roles
     await updateUser(userId, {
         status: 'Active',
         reactivated_at: NOW(),
         reactivated_by: adminId
     });
     
-    // Send notification
+    // 5. Send notification to user
     await sendReactivationEmail(userId);
     
-    // Audit
+    // 6. Audit log
     await auditLog({
         event: 'UserReactivated',
         user_id: userId,
-        actor_id: adminId
+        actor_id: adminId,
+        ip_address: request.ip,
+        details: { reactivation_reason: reactivationReason }
     });
 }
-```
 
 ---
 
@@ -696,6 +863,12 @@ User sets new password → Confirmation
 
 ### 7.2 Admin-Assisted Reset
 
+**Prerequisites**:
+- Admin must have `UserMgmt.User.ResetPassword` permission (Tenant Admin or Department Admin)
+- Admin must verify user's identity offline before initiating the reset
+- Justification remarks are mandatory (minimum 10 characters)
+- Verification method must be selected: Phone, Email, or In-Person
+
 **Workflow**:
 ```typescript
 async function adminAssistedReset(
@@ -705,12 +878,17 @@ async function adminAssistedReset(
     justification: string
 ): Promise<string> {
     // 1. Validate admin permission
-    await checkPermission(adminId, 'User.ResetPassword');
+    await checkPermission(adminId, 'UserMgmt.User.ResetPassword');
     
-    // 2. Generate 6-digit OTP
+    // 2. Validate justification
+    if (justification.length < 10) {
+        throw new Error('Justification must be at least 10 characters');
+    }
+    
+    // 3. Generate 6-digit OTP
     const resetOTP = generateOTP();
     
-    // 3. Store OTP with metadata
+    // 4. Store OTP with metadata
     await createPasswordResetOTP({
         user_id: userId,
         otp_code: await bcrypt.hash(resetOTP, 10),
@@ -720,44 +898,62 @@ async function adminAssistedReset(
         justification: justification
     });
     
-    // 4. Audit log
+    // 5. Audit log (immutable)
     await auditLog({
         event: 'AdminAssistedPasswordReset',
         user_id: userId,
         actor_id: adminId,
-        details: { verificationMethod, justification }
+        details: { verificationMethod, justification },
+        ip_address: request.ip
     });
     
-    // 5. Return OTP to admin (display on screen, not logged)
+    // 6. Send notification to user about admin-assisted reset
+    await notifyUser(userId, 'PasswordResetInitiated', { method: 'admin-assisted' });
+    
+    // 7. Return OTP to admin (display on screen, not sent to user)
     return resetOTP;
 }
 ```
 
 ### 7.3 Self-Service Reset
 
+**Rate Limiting**: Maximum 3 reset requests per hour per user. Exceeding this returns HTTP 429.
+
 **Reset Link Generation**:
 ```typescript
 async function generateResetLink(email: string): Promise<string> {
-    const user = await getUserByEmail(email);
+    // Phase 1: accepts email address only
+    const user = await findUserByEmail(email);
     
     if (!user) {
-        // Don't reveal if email exists (security)
+        // Don't reveal if account exists (prevent enumeration)
         return 'success';
+    }
+    
+    // Check rate limit
+    const recentResets = await countResetRequestsLastHour(user.user_id);
+    if (recentResets >= 3) {
+        throw new RateLimitError('Too many reset requests. Please try again later.');
     }
     
     // Generate secure token
     const token = crypto.randomBytes(32).toString('hex');
     
-    // Store token
+    // Generate 6-digit OTP for mobile verification
+    const otp = generateOTP();
+    
+    // Store token and OTP
     await createPasswordResetToken({
         user_id: user.user_id,
         token: await bcrypt.hash(token, 10),
-        expires_at: NOW() + 15 * 60 * 1000,  // 15 minutes
+        otp_code: await bcrypt.hash(otp, 10),
+        expires_at: NOW() + 15 * 60 * 1000,  // Reset link: 15 minutes
+        otp_expires_at: NOW() + 10 * 60 * 1000,  // OTP: 10 minutes
         ip_address: request.ip
     });
     
-    // Send email
-    await sendPasswordResetEmail(user.email, token);
+    // Send reset link + OTP together via email (Phase 1: email only)
+    await sendPasswordResetEmail(user.email, { token, otp });
     
     return 'success';
 }
@@ -980,10 +1176,10 @@ function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
 - **[System Foundation](system-foundation.md)** - Overall architecture
 
 **Related User Stories:**
-- US-005: User Invitation & Activation
+- US-005: User Invitation, Activation & Password Reset (consolidated scope — includes password reset from US-008)
 - US-006: OTP Verification
-- US-007: Account Deactivation
-- US-008: Password & Account Reset
+- US-007: Account Deactivation (temporary suspension, permanent deactivation, bulk, assignment prevention, reactivation)
+- US-008: Password & Account Reset (scope consolidated into US-005)
 - US-009: User Activity & Audit Logs
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.2.1-6.2.8

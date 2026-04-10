@@ -73,7 +73,6 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 │
 ├── 02-master-data/
 │   ├── README.md                      # Module overview with cross-refs
-│   ├── master-data-configuration.md
 │   ├── product-inventory-management.md
 │   └── poi-management.md              # US-014
 │
@@ -100,7 +99,6 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 ├── 06-fleet-management/
 │   ├── README.md                      # Module overview with cross-refs
 │   ├── vehicle-management.md          # US-053
-│   ├── driver-management.md           # US-057
 │   ├── helper-management.md           # US-061, US-062
 │   └── fuel-management.md             # US-058
 │
@@ -127,9 +125,13 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 │   ├── phase-2.md
 │   └── phase-3.md
 │
-└── 11-reference/
+├── 11-reference/
+│   ├── README.md                      # Module overview with cross-refs
+│   └── glossary.md
+│
+└── 12-users/
     ├── README.md                      # Module overview with cross-refs
-    └── glossary.md
+    └── driver-user-profiles.md        # US-057 (moved from 01-foundation)
 ```
 
 ---

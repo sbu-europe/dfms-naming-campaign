@@ -123,11 +123,10 @@ Admin Dashboard Alert → Offline Verification → Admin Unlock
 
 ### 3.1 Role Hierarchy
 
-**Four-Tier Structure**:
+**Three-Tier Structure**:
 1. **Super Admin** (e.g., Brainstation 23): Platform-level access, cross-tenant, manages Tenant Admins
-2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages Department Admins and Operational Users
-3. **Department Admin** (e.g., Depot Manager, Procurement Head): Department-scoped, manages Operational Users within their department
-4. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
+2. **Tenant Admin** (e.g., Nourish): Organization-wide access, single tenant, manages users and role assignments across departments (with department scoping where applicable)
+3. **Operational User** (e.g., Command Center Officer, Driver Supervisor): Task-level access, execution-only
 
 ### 3.2 Permission Model
 
@@ -151,7 +150,6 @@ Module → Feature → Action (Create, Read, Update, Delete, Approve, etc.)
 **Administrative**:
 - Super Admin
 - Tenant Admin (Organization Admin)
-- Department Admin
 
 **Operational** (by department):
 - **Distribution**: Distribution Officer, Distribution Manager
@@ -205,21 +203,34 @@ System sends invitation email → Tenant Admin activates account
 ### 4.3 User Lifecycle
 
 **Invitation**:
-- Admin invites users with role, department, workflow type
-- Invitation email sent with 72-hour activation link
-- User completes profile, sets password, verifies OTP
+- Admin invites users with role, department, employment type, POI, workflow responsibility
+- Single invitation via form or bulk invitation via CSV upload (max 100 per batch)
+- Invitation email sent with 7-day activation link and optional custom message
+- Invitation scheduling supported for deferred sends
+- User completes profile, sets password, verifies OTP (email + SMS)
 - Account activated after T&C acceptance
+- Subscription plan user limit enforced before invitation
 
-**Deactivation**:
-- **Temporary**: Suspended status, can be reactivated
-- **Permanent**: Inactive status, data archived
+**Deactivation** (US-007):
+- **Temporary Suspension**: `Suspended` status, data preserved, roles retained, can be reactivated with admin approval
+- **Permanent Deactivation**: `Inactive` status, data archived, cannot be reactivated
+- Requires mandatory fields: reason, effective date, admin remarks
+- Active critical assignment check before deactivation (TOs, trips, approvals, QC inspections) with override option
+- Immediate session termination and login blocking
+- Bulk deactivation supported with per-user validation
+- Scheduled (future date) deactivation supported
+- Assignment prevention: deactivated users excluded from all dropdowns and assignment workflows
+- Email notification sent to user and admin upon deactivation/reactivation
+- Reactivation checks subscription plan user limit before restoring access
 
-**Password Reset (US-008)**:
+**Password Reset** (consolidated into US-005 from US-008):
 - **Admin-Assisted**: For low-literacy users (e.g., Drivers, Helpers); admin verifies identity offline, generates 6-digit OTP (10 min), communicates to user offline; mandatory justification logged
 - **Self-Service**: User requests reset link via email (15 min) + SMS OTP (10 min); rate limited to 3 requests/hour/user
 - **Password Complexity**: 8+ chars, upper/lower/number/special, last 3 passwords not reusable
 - **Session Termination**: All active sessions revoked immediately on successful reset
 - **Suspicious Activity Detection**: Unusual reset patterns trigger additional verification and admin alerts
+- **Post-Reset**: All active sessions terminated, confirmation email sent, audit logged
+
 
 ### 4.4 OTP Verification System
 
@@ -420,10 +431,10 @@ queryAuditLogs(filters) → audit_logs[]
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
 - US-004: Role Hierarchy & RBAC
-- US-005: User Invitation & Activation
+- US-005: User Invitation, Activation & Password Reset (consolidated scope)
 - US-006: OTP Verification
 - US-007: Account Deactivation
-- US-008: Password & Account Reset
+- US-008: Password & Account Reset (scope consolidated into US-005)
 - US-009: User Activity & Audit Logs
 
 ### Downstream Modules

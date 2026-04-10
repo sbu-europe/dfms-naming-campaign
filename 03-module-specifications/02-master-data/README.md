@@ -20,18 +20,20 @@ This module defines master data configuration and management for the DFMS platfo
 | File | Description | PRD Section | Related Stories | Lines |
 |------|-------------|-------------|-----------------|-------|
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
-| [product-inventory-management.md](product-inventory-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
-| [master-data-configuration.md](master-data-configuration.md) | Master data architecture (vehicles, drivers, helpers, vendors), vehicle capacity calculation, driver-vehicle assignment, bulk upload/management, referential integrity, data quality controls | 6.3.1-6.3.4 | US-053, US-057, US-061, US-047 | 513 |
+| [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
+| [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `12-users/driver-user-profiles.md`)
+
+**Helper (US-061) — full specification**: [helper-master-data.md](../12-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
 ---
 
 ## Key Features
 
 ### Master Data Configuration
-- **Entity Registration**: POIs, Vehicles, Drivers, Helpers, Vendors, Routes, Products, QC Checklists
-- **Bulk Upload**: CSV-based bulk data import with validation
+- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../12-users/driver-user-profiles.md))
+- **Bulk Upload**: CSV-based bulk data import with validation — canonical implementation plan: **[bulk-import-export.md](bulk-import-export.md)**
 - **Inline Management**: Create, edit, delete with full audit trail
 - **Referential Integrity**: Cascade rules and dependency validation
 - **Active/Inactive Control**: Soft delete with status management
@@ -85,7 +87,7 @@ This module defines master data configuration and management for the DFMS platfo
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
 - **US-053**: Vehicle Registration & Master Data
-- **US-057**: Driver Master Data
+- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`12-users/driver-user-profiles.md`](../12-users/driver-user-profiles.md) (not `master_data`)
 - **US-061**: Helper Profile
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
@@ -140,7 +142,8 @@ Product {
 ```typescript
 MasterEntity {
   entity_id: UUID
-  entity_type: enum [Vehicle, Driver, Helper, Vendor, Route, Product, POI, QCChecklist]
+  entity_type: enum [Vehicle, Helper, Vendor, Route, Product, POI, QCChecklist]
+  // Drivers: User + Driver on create (see 12-users/driver-user-profiles.md)
   entity_data: JSON
   status: enum [Active, Inactive]
   created_by: UUID
@@ -185,6 +188,8 @@ POST /api/v1/master-data/bulk-upload
 GET /api/v1/master-data/validation-rules
 ```
 
+**Bulk CSV import/export:** The implementation plan for async jobs, preview, Django admin, and REST (`/api/v1/master-data/bulk-imports/`, `/bulk-exports/`) is **[bulk-import-export.md](bulk-import-export.md)**. Entity-specific `/bulk-upload` paths above are illustrative; align with that document when wiring endpoints.
+
 ---
 
 ## Business Rules
@@ -202,7 +207,7 @@ GET /api/v1/master-data/validation-rules
 
 ### Data Consistency
 1. **Referential Integrity**: Cannot delete POI/Product referenced in active trips
-2. **Bulk Upload Validation**: All rows validated before commit, rollback on any error
+2. **Bulk Upload Validation**: Row-level validation, preview, and commit semantics are defined in **[bulk-import-export.md](bulk-import-export.md)** (async validation, optional import of valid rows only; not necessarily “all-or-nothing” rollback for every path)
 3. **Audit Trail**: All create/update/delete operations logged with user and timestamp
 
 ---
@@ -213,7 +218,7 @@ GET /api/v1/master-data/validation-rules
 1. POI Registration & CRUD ⭐⭐⭐
 2. Product Catalog Management ⭐⭐⭐
 3. POI Capacity Tracking (US-014) ⭐⭐⭐
-4. Bulk Upload (CSV) ⭐⭐
+4. Bulk Upload (CSV) ⭐⭐ — see **[bulk-import-export.md](bulk-import-export.md)**
 5. Geofencing Setup ⭐⭐
 6. Data Consistency Rules ⭐⭐
 7. Master Data Audit Trail ⭐
@@ -226,7 +231,7 @@ GET /api/v1/master-data/validation-rules
 - Create POI with GPS coordinates and geofence
 - Update POI capacity and validate free capacity calculation
 - Deactivate POI with active references (should fail)
-- Bulk upload POIs from CSV with validation errors
+- Bulk upload POIs from CSV with validation errors (per **[bulk-import-export.md](bulk-import-export.md)**)
 
 ### Product Management
 - Create product with QC requirements
@@ -244,6 +249,7 @@ GET /api/v1/master-data/validation-rules
 
 ## Quick Links
 
+- **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export implementation (Django admin, Celery, REST API)
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
@@ -251,7 +257,7 @@ GET /api/v1/master-data/validation-rules
 
 ---
 
-**Last Updated**: 2026-02-26  
+**Last Updated**: 2026-04-09  
 **Status**: Complete  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
 **Next Module**: [03-operations/](../03-operations/README.md) - Core Operations

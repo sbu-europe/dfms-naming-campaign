@@ -5,7 +5,7 @@ extracted_date: 2026-02-13
 last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
-related_stories: US-004, US-005, US-007, US-008
+related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008]
 ---
 
 # Security & Compliance
@@ -102,15 +102,75 @@ function maskNationalID(nid: string): string {
 
 ## Access Control (RBAC)
 
-**Role Hierarchy:**
-1. **Administrative Roles:** Super Admin, Tenant Admin, Department Admin
-2. **Operational Roles:** Transport Planner, QC Supervisor, Driver
-3. **External Roles:** Vendor, Vendor Driver
+For the full RBAC specification, see [rbac.md](../01-foundation/rbac.md) and [permission-catalog-phase1.md](../01-foundation/permission-catalog-phase1.md).
 
-**Permission Enforcement:**
-- UI level (button visibility)
-- API level (endpoint access)
-- Database level (row-level security)
+**Role Hierarchy (Four-Tier):**
+1. **Tier 1 – Super Admin:** Platform-level, cross-tenant (System-Wide access)
+2. **Tier 2 – Tenant Admin:** Organization-level, single tenant (Global access)
+3. **Tier 3 – Operational Users:** Task-level, day-to-day execution
+
+**Operational Roles by Department:**
+
+| Department | Roles | Functional Type | Access Scope |
+|------------|-------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer, Feed Mill Officer, Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO), Distribution Manager (DM) | DO=Executor, DM=Approver | DO=Local, DM=Global |
+| Transport | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical, QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer, Loading/Unloading Personnel, Driver Supervisor, Driver Helper | Executor | Local |
+
+**External Roles:** Vendor Admin (via Vendor Portal)
+
+**Functional Role Types:**
+- **Requester** – Creates requisitions/requests. Cannot approve own requests.
+- **Approver** – Approves/rejects requests. Cannot approve own requests (separation of duties).
+- **Executor** – Executes approved tasks. Cannot modify approval status.
+
+**Access Scope Levels:**
+- **Global Access** – Data and actions across all locations within the tenant.
+- **Local Access** – Data only within assigned department, POI, depot, feed mill, or operational unit.
+
+**Permission Enforcement (Defense in Depth):**
+- **UI level:** Menu visibility, page access, button availability based on role + functional type + access scope
+- **API level:** Middleware validates permissions before endpoint access. Unauthorized requests return HTTP 403.
+- **Database level:** Row-level security for tenant isolation and Local/Global access scope enforcement
+
+---
+
+## User Lifecycle Security (US-005)
+
+Security controls applied across the user invitation, activation, and password reset lifecycle:
+
+### Invitation & Activation Security
+- **Activation tokens**: 64-character cryptographically secure hex tokens, unique per invitation
+- **Token expiry**: 7 days from creation; expired tokens cannot be reused
+- **OTP verification**: Both email and SMS OTP required before account activation
+- **Email uniqueness**: Enforced per tenant to prevent duplicate accounts
+- **Mobile uniqueness**: Enforced per tenant for OTP delivery integrity
+- **Plan limit enforcement**: Invitation blocked if tenant exceeds subscription user limit
+- **Bulk upload validation**: CSV rows individually validated; partial processing supported
+
+### Password Reset Security
+- **Self-service reset**: Reset link valid 15 minutes; SMS OTP valid 10 minutes
+- **Admin-assisted reset**: OTP valid 10 minutes; admin must provide justification (min 10 chars) and verification method
+- **Rate limiting**: Max 3 self-service reset requests per hour per user
+- **Session termination**: All active sessions terminated upon successful password reset
+- **Password complexity**: Min 8 chars, uppercase + lowercase + number + special character
+- **Password history**: Last 3 passwords cannot be reused
+- **Enumeration prevention**: Self-service reset always returns success regardless of whether email exists
+- **OTP brute-force prevention**: Max 3 incorrect OTP attempts per token; token invalidated after
+
+### Password Reset Audit Trail
+All password reset events are logged with immutable audit entries:
+
+| Event | Logged Details |
+|---|---|
+| Self-Service Reset Initiated | User ID, IP address, timestamp |
+| Self-Service Reset Completed | User ID, IP address, device ID, timestamp |
+| Admin-Assisted Reset Initiated | Admin ID, User ID, justification, verification method, IP, timestamp |
+| Admin-Assisted Reset Completed | Admin ID, User ID, IP, timestamp |
+| Reset Failed (expired/wrong OTP) | User ID, failure reason, IP, timestamp |
 
 ---
 

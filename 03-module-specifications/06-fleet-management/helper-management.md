@@ -4,6 +4,8 @@ source_sections: Helper Profile, Helper Assignment
 extracted_date: 2026-02-13
 ---
 
+**Detailed design:** [Helper Master Data Management](../12-users/helper-master-data.md) (includes optional `user_id` FK to `User`).
+
 ## Helper Profile
 
 **Version 1.0, Phase 1**
