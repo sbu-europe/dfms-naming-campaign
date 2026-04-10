@@ -5,7 +5,7 @@ extracted_date: 2026-02-13
 last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
-related_stories: US-004, US-005, US-007, US-008
+related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008]
 ---
 
 # Security & Compliance
@@ -102,15 +102,39 @@ function maskNationalID(nid: string): string {
 
 ## Access Control (RBAC)
 
-**Role Hierarchy:**
-1. **Administrative Roles:** Super Admin, Tenant Admin, Department Admin
-2. **Operational Roles:** Transport Planner, QC Supervisor, Driver
-3. **External Roles:** Vendor, Vendor Driver
+For the full RBAC specification, see [rbac.md](../01-foundation/rbac.md) and [permission-catalog-phase1.md](../01-foundation/permission-catalog-phase1.md).
 
-**Permission Enforcement:**
-- UI level (button visibility)
-- API level (endpoint access)
-- Database level (row-level security)
+**Role Hierarchy (Four-Tier):**
+1. **Tier 1 – Super Admin:** Platform-level, cross-tenant (System-Wide access)
+2. **Tier 2 – Tenant Admin:** Organization-level, single tenant (Global access)
+3. **Tier 3 – Operational Users:** Task-level, day-to-day execution
+
+**Operational Roles by Department:**
+
+| Department | Roles | Functional Type | Access Scope |
+|------------|-------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer, Feed Mill Officer, Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO), Distribution Manager (DM) | DO=Executor, DM=Approver | DO=Local, DM=Global |
+| Transport | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical, QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer, Loading/Unloading Personnel, Driver Supervisor, Driver Helper | Executor | Local |
+
+**External Roles:** Vendor Admin (via Vendor Portal)
+
+**Functional Role Types:**
+- **Requester** – Creates requisitions/requests. Cannot approve own requests.
+- **Approver** – Approves/rejects requests. Cannot approve own requests (separation of duties).
+- **Executor** – Executes approved tasks. Cannot modify approval status.
+
+**Access Scope Levels:**
+- **Global Access** – Data and actions across all locations within the tenant.
+- **Local Access** – Data only within assigned department, POI, depot, feed mill, or operational unit.
+
+**Permission Enforcement (Defense in Depth):**
+- **UI level:** Menu visibility, page access, button availability based on role + functional type + access scope
+- **API level:** Middleware validates permissions before endpoint access. Unauthorized requests return HTTP 403.
+- **Database level:** Row-level security for tenant isolation and Local/Global access scope enforcement
 
 ---
 

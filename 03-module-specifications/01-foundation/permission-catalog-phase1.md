@@ -31,6 +31,41 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 ---
 
+## Permission Enforcement Model
+
+Permissions are determined by **Role → Permission matrix** and **Access Scope** only. The system evaluates `Role + Access Scope` to determine effective permissions.
+
+- **Role → Permission matrix** (this catalog) is the **sole enforcement authority** for what a user can do.
+- **Access Scope** (Global / Local) controls *which records* a user can act on — enforced at the database row-level security and API middleware layers.
+- **Self-approval prevention** is a **business rule**, not a permission gate: the system always checks `requester_id ≠ current_user_id` before allowing an approve action, regardless of role.
+
+> **Functional Role Type (Requester / Approver / Executor)** is kept as **role metadata** for UI display, documentation, and filtering. It is **not** an independent runtime permission gate. The permission rows below (Role → Permission) already fully encode what each role can and cannot do.
+
+### Role Metadata Reference
+
+| Role | Functional Type (metadata) | Access Scope |
+|------|---------------------------|-------------|
+| Depot Officer | Requester | Local |
+| Feed Mill Officer | Requester | Local |
+| Commercial Officer | Requester | Local |
+| Procurement Officer | Approver | Global |
+| Distribution Officer (DO) | Executor | Local |
+| Distribution Manager (DM) | Approver | Global |
+| Transport Planner (TP) | Executor | Global |
+| Transport Distribution Officer (TDO) - Own Fleet | Executor | Global |
+| Transport Distribution Officer (TDO) - Vendor Fleet | Executor | Global |
+| QC Inspector – Physical | Executor | Local |
+| QA Lab Technician | Executor | Local |
+| Command Center Officer | Executor | Local |
+| Loading Personnel | Executor | Local |
+| Unloading Personnel | Executor | Local |
+| Driver Supervisor | Executor | Local |
+| Driver Helper | Executor | Local |
+
+> Access Scope is enforced at runtime. Functional Type is display-only metadata — permission rows in this catalog are the authoritative source for what each role may do.
+
+---
+
 ## 1. Platform Administration
 
 ### Platform.Tenant
@@ -58,13 +93,13 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.User.Create` | Invite new users | Tenant Admin, Department Admin |
-| `UserMgmt.User.Read` | View user list and profiles | Tenant Admin, Department Admin |
-| `UserMgmt.User.Update` | Modify user details | Tenant Admin, Department Admin |
+| `UserMgmt.User.Create` | Invite new users | Tenant Admin |
+| `UserMgmt.User.Read` | View user list and profiles | Tenant Admin |
+| `UserMgmt.User.Update` | Modify user details | Tenant Admin |
 | `UserMgmt.User.Deactivate` | Suspend/deactivate users (single and bulk) | Super Admin, Tenant Admin |
 | `UserMgmt.User.Reactivate` | Reactivate suspended users | Super Admin, Tenant Admin |
 | `UserMgmt.User.BulkInvite` | Bulk CSV invitation | Tenant Admin |
-| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin, Department Admin |
+| `UserMgmt.User.ResetPassword` | Admin-assisted password reset | Tenant Admin |
 | `UserMgmt.User.Unlock` | Unlock locked accounts | Tenant Admin |
 | `UserMgmt.User.Export` | Export user list | Tenant Admin |
 
@@ -72,8 +107,8 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.Role.Read` | View available roles | Tenant Admin, Department Admin |
-| `UserMgmt.Role.Assign` | Assign roles to users | Tenant Admin, Department Admin |
+| `UserMgmt.Role.Read` | View available roles | Tenant Admin |
+| `UserMgmt.Role.Assign` | Assign roles to users | Tenant Admin |
 | `UserMgmt.Role.UpdatePermissions` | Modify role permissions | Tenant Admin |
 
 ### UserMgmt.AuditLog
@@ -155,11 +190,11 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Requisition.TR.Create` | Create Transport Requisitions | Depot Manager, Feed Mill Manager, Commercial Officer |
+| `Requisition.TR.Create` | Create Transport Requisitions | Depot Officer, Feed Mill Officer, Commercial Officer |
 | `Requisition.TR.Read` | View TR list and details | Distribution, Procurement, Transport roles |
 | `Requisition.TR.Update` | Modify TR details | Creator (draft only) |
 | `Requisition.TR.Cancel` | Cancel a TR | Creator, Tenant Admin |
-| `Requisition.TR.Export` | Export TR data | Tenant Admin, Department Admins |
+| `Requisition.TR.Export` | Export TR data | Tenant Admin |
 
 ### Requisition.Approval
 
@@ -422,9 +457,9 @@ This document enumerates all permissions available in Phase 1. Each permission f
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Reports.Report.Create` | Generate custom reports | Tenant Admin, Department Admins |
-| `Reports.Report.Read` | View reports | Tenant Admin, Department Admins |
-| `Reports.Report.Export` | Export reports | Tenant Admin, Department Admins |
+| `Reports.Report.Create` | Generate custom reports | Tenant Admin |
+| `Reports.Report.Read` | View reports | Tenant Admin |
+| `Reports.Report.Export` | Export reports | Tenant Admin |
 
 ---
 
@@ -455,7 +490,67 @@ This document enumerates all permissions available in Phase 1. Each permission f
 |------|-----------------|
 | **Super Admin** | `Platform.*`, `UserMgmt.*` (cross-tenant) |
 | **Tenant Admin** | `UserMgmt.*`, `MasterData.*`, `Reports.*` (own tenant) |
-| **Department Admin** | `UserMgmt.User.{Create,Read,Update}`, `MasterData.*.{Read}`, Department-specific modules |
 | **Operational User** | Feature-specific permissions based on assigned role |
 
 For the full per-role permission mapping, see the [RBAC specification](rbac.md).
+
+---
+
+## Appendix A: Role-Based Menu Access (Jira UI Matrix)
+
+This appendix maps Jira’s **menu/sub-menu access** to DFMS **permission codes**. It is used by the UI to translate navigation items into permission gates.
+
+> **Naming note**: Jira “Tenant Super Admin” is DFMS “Tenant Admin”. Jira “Gateman” is mapped to permissions currently labeled “Gate Operator” in some specs; UI labels should use Jira naming, permission codes remain stable.
+
+### A.1 User Management & Master Data
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Tenant Admin Dashboard | - | `Reports.Dashboard.Read` (or dedicated `Admin.Dashboard.Read` if introduced) |
+| Master Data Configuration → Dealers | - | `MasterData.Dealer.{Create,Read,Update,Delete}` |
+| Master Data Configuration → Suppliers | - | `MasterData.Supplier.{Create,Read,Update,Delete}` |
+| Master Data Configuration → POIs | - | `MasterData.POI.{Create,Read,Update,Delete}` |
+| PIM → Product Category | - | `MasterData.ProductCategory.{Create,Read,Update,Delete}` |
+| PIM → Product Listing | - | `MasterData.Product.{Create,Read,Update,Delete}` |
+| Vehicles | - | `MasterData.Vehicle.{Create,Read,Update,Delete}` |
+| Helpers | - | `MasterData.Helper.{Create,Read,Update,Delete}` |
+| User Management → Drivers Master | - | `MasterData.Driver.{Create,Read,Update,Delete}` + `UserMgmt.User.ResetPassword` (admin-assisted OTP during registration, if applicable) |
+| User Management → Users | - | `UserMgmt.User.{Create,Read,Update,Deactivate}` |
+
+### A.2 Core Operations (PR/TR/Planning/Transport)
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Product Shipments | Requisition (PR) | `Requisition.PR.{Create,Read,Update,Delete}` |
+| Requisition (TR) | - | `Requisition.TR.{Create,Read,Update,Delete}` |
+| Shipment Planning | - | `Requisition.Approval.{Read,Approve}` + related update permissions |
+| Transport Dashboard | Map | `Transport.Map.Read` |
+| Transport Planning | Fleet Management | `Transport.TO.Assign` + `Fleet.Assignment.{Create,Read,Update}` |
+| Bid Management | - | `Vendor.Bidding.{Create,Read,Update,Delete,Approve}` |
+| Transport Order (TO) | - | `Transport.TO.{Create,Read,Update,Cancel}` |
+
+### A.3 POI Operations (Gate/Scaling/QC/Load-Unload)
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Gate Management | Entry/Exit | `Gate.Entry.{Create,Read,Update}` and `Gate.Exit.{Create,Read,Update}` |
+| Scale Management | Scale In/Out | `Scaling.Weight.{Create,Read,Update}` |
+| Command Center Operations | Queue/Assign | `Operations.CommandCenter.{Read,Assign}` |
+| Load & Unload Operations | Load/Unload queues | `Operations.Loading.{Read,Update}` + `Operations.Unloading.{Read,Update}` |
+| QC & QA | Sampling/Analysis/Lab | `QC.Sample.{Create,Read,Update,Delete}` + `QC.Inspection.{Read,Update}` + `QC.LabTest.{Read,Update}` |
+
+### A.4 Reporting & Costing
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Reports | Transport & Trip | `Reports.Report.{Read,Export}` |
+| Reports | Vendor | `Reports.Report.{Read,Export}` |
+| Reports | Fleet Performance | `Reports.Report.{Read,Export}` |
+| Reports | Costing & Finance | `Reports.Report.{Read,Export}` |
+| Costing | Trip Costing | `Costing.TripCost.{Read,Export}` + approval permission (e.g., `Costing.Invoice.Approve`) |
+
+### A.5 Settings
+
+| Jira Menu | Sub-menu | Expected Permission Codes (examples) |
+|---|---|---|
+| Settings | - | `UserMgmt.User.Update` (profile/settings) or a dedicated `User.Settings.Update` if introduced |
