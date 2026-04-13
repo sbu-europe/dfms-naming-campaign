@@ -3,10 +3,10 @@
 | | |
 |---|---|
 | **Sprint Dates** | 2026-03-01 → 2026-03-31 |
-| **Total Story Points** | 62 SP |
-| **Done** | ~52 SP |
+| **Total Story Points** | 66 SP |
+| **Done** | ~56 SP |
 | **Remaining** | ~10 SP |
-| **Overall Completion** | ~84% |
+| **Overall Completion** | ~85% |
 
 ---
 
@@ -21,7 +21,9 @@
 | [Background job processing — Celery + Redis](01-infra/INFRA-03-background-job-processing.md) | DFS-003 | Done | 3 |
 | [Caching and session storage — Redis-backed](01-infra/INFRA-04-caching-session-storage.md) | DFS-004 | Done | 1 |
 | [Production-ready configuration & onboarding docs](01-infra/INFRA-05-production-ready-setup.md) | DFS-005 | Done | 2 |
-| **Subtotal** | | | **12** |
+| [Local DEV environment — Docker Compose single-command setup](01-infra/DEVOPS-01-01-local-env-dev.md) | DFS-D01 | Done | 2 |
+| [Local TEST environment — pytest CI pipeline](01-infra/DEVOPS-01-02-local-env-test.md) | DFS-D02 | Done | 2 |
+| **Subtotal** | | | **16** |
 
 ---
 

@@ -18,10 +18,10 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 10 |
-| Total Story Points | 49 |
+| Total Stories | 17 |
+| Total Story Points | 84 |
 | Status | Not Started |
-| Epics | Transfer Requisition, Transport Planning, Transport Order |
+| Epics | Transfer Requisition, Transport Planning, Transport Order, DevOps & Infrastructure |
 
 ---
 
@@ -115,6 +115,26 @@ TO-01 (fleet_type=VENDOR)   ─→  TO-03 (Vendor Direct Assignment)
 - MDM-02 (Route) — route distance/duration shown in TP-01
 - MDM-03 (Vendor) — vendor selection in TO-03
 - MDM-05/06/07 (Vehicle/Driver/Helper) — fleet assignment in TP-02, TO-02
+
+---
+
+## Epic: DevOps & Infrastructure Setup
+
+> Cloud environment provisioning, deployment automation, and domain configuration.
+
+| # | Story | Task ID | SP | Status |
+|---|-------|---------|-----|--------|
+| 1 | [Local STG — production-mode run](04-devops/DEVOPS-01-03-local-env-stg.md) | DEVOPS-01-03 | 2 | Pending |
+| 2 | [Local PROD pre-flight validation script](04-devops/DEVOPS-01-04-local-env-prod.md) | DEVOPS-01-04 | 1 | Pending |
+| 3 | [AWS DEV environment](04-devops/DEVOPS-02-01-aws-env-dev.md) | DEVOPS-02-01 | 5 | Pending |
+| 4 | [AWS TEST environment](04-devops/DEVOPS-02-02-aws-env-test.md) | DEVOPS-02-02 | 3 | Pending |
+| 5 | [AWS STG environment](04-devops/DEVOPS-02-03-aws-env-stg.md) | DEVOPS-02-03 | 8 | Pending |
+| 6 | [AWS PROD environment](04-devops/DEVOPS-02-04-aws-env-prod.md) | DEVOPS-02-04 | 13 | Pending |
+| 7 | [Domain name setup — Route 53, ACM, tenant DNS](04-devops/DEVOPS-03-domain-name-setup.md) | DEVOPS-03 | 3 | Pending |
+
+> Already done (Sprint 1): [DEVOPS-01-01](../sprint-1/01-infra/DEVOPS-01-01-local-env-dev.md) Local DEV · [DEVOPS-01-02](../sprint-1/01-infra/DEVOPS-01-02-local-env-test.md) Local TEST
+
+**Sub-total**: 35 SP
 
 ---
 

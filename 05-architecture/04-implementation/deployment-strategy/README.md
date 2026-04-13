@@ -10,6 +10,20 @@ DFMS will be deployed in three phases, aligned with the business deployment phas
 
 ---
 
+## AWS Cloud Documentation (Phase 1)
+
+> Detailed operational documents for AWS infrastructure, cost, and production readiness.
+
+| Document | Description |
+|----------|-------------|
+| [AWS Deployment Strategy](./aws-deployment-strategy.md) | Environment architecture, release pipeline, rollback procedures, secrets management |
+| [Resource & Cost Estimation](./aws-cost-estimation.md) | Per-environment cost tables, growth projections, savings plans, optimisation tips |
+| [Billing Safeguards & Cost Controls](./aws-billing-safeguards.md) | Budget alerts, IAM least-privilege, auto-stop rules, common billing mistake prevention |
+| [Pre-Production Checklist](./aws-pre-production-checklist.md) | Go-live gate criteria covering infra, app, security, observability, backup, and business sign-off |
+| [Post-Production Scalability Plan](./aws-scalability-plan.md) | Scaling tiers (Tier 0→3), trigger signals, DB/Celery scaling, cost-per-user ladder, ECS migration path |
+
+---
+
 ## 📁 Deployment Documents
 
 ### **[Phase 1 Deployment](./phase-1-deployment.md)**
@@ -90,6 +104,6 @@ Document all deployment steps and procedures.
 
 ---
 
-**Last Updated**: February 13, 2026  
+**Last Updated**: 2026-03-31  
 **Status**: 🚧 In Progress
 
