@@ -10,12 +10,17 @@
 
 ## 1. Environment Overview
 
-| Environment | Purpose | Users | Infrastructure Tier |
-|-------------|---------|-------|---------------------|
-| **DEV** | Active development, feature branches | Dev team only | Local Docker Compose |
-| **QA** | QA team testing, client UAT, stakeholder demos | QA team + client | Always-on EC2 (t3.small) |
-| **STG** | Pre-production release validation, load tests | Dev + QA leads | Always-on EC2 (t3.medium) |
-| **PROD** | Live production | Real end users | EC2 (t3.large) + Multi-AZ ready |
+Local domains mirror cloud — just swap `.com` → `.local`:
+
+| Environment | Domain | Purpose | Runs On |
+|-------------|--------|---------|---------|
+| **Local DEV** | `dev.dfms.local` | Individual dev, feature work | `make dev` (Docker Compose) |
+| **Local QA sim** | `qa.dfms.local` | Test prod image locally | `make qa` (Docker Compose) |
+| **Local STG sim** | `stg.dfms.local` | Validate release candidate locally | `make stg` (Docker Compose) |
+| **Cloud DEV** | `dev.dfms.com` | Shared team integration server | AWS EC2 t3.small (always-on) |
+| **Cloud QA** | `qa.dfms.com` | QA team testing, client UAT | AWS EC2 t3.small (always-on) |
+| **Cloud STG** | `stg.dfms.com` | Pre-release validation, load tests | AWS EC2 t3.medium (always-on) |
+| **Cloud PROD** | `dfms.com` | Live users | AWS EC2 t3.large |
 
 > **CI (GitHub Actions)** is not an environment — it runs automated tests on every push with no persistent infrastructure. It has no domain and no EC2.
 
@@ -80,15 +85,29 @@ Internet → Route 53 → CloudFront (CDN)
 
 ## 3. Environment Specifications
 
-### DEV
+### Local environments (DEV / QA sim / STG sim)
 
 | Component | Spec | Notes |
 |-----------|------|-------|
-| Compute | Local Docker Compose | `docker-compose.yml` |
-| DB | PostgreSQL in Docker | Local only |
+| Compute | Local Docker Compose | `make dev` / `make qa` / `make stg` |
+| DB | PostgreSQL in Docker | Local only — separate DB per env |
 | Cache | Redis in Docker | Local only |
-| Email | Mailpit (local catch-all) | No real email sent |
-| Secrets | `.env` file | Never committed |
+| Email | Console backend | No real email sent |
+| Secrets | `.env` / `.env.qa` / `.env.stg` files | Never committed |
+| Domain | `*.dev.dfms.local` / `*.qa.dfms.local` / `*.stg.dfms.local` | `/etc/hosts` via `make setup-hosts` |
+
+### Cloud DEV
+
+| Component | Spec | Monthly Cost |
+|-----------|------|-------------|
+| EC2 | t3.small (2 vCPU, 2 GB RAM) | ~$15 |
+| RDS | db.t3.micro (1 vCPU, 1 GB RAM), 20 GB GP3 | ~$15 |
+| ElastiCache | cache.t3.micro (0.5 GB) | ~$12 |
+| S3 | ~1 GB storage | ~$0.10 |
+| ACM | Free (TLS `*.dev.dfms.com`) | $0 |
+| **Total** | | **~$42/month** |
+
+> **Cost tip**: Auto-stop outside business hours → saves ~60% → ~$17/month effective.
 
 ### CI — GitHub Actions (no domain, no EC2)
 
@@ -148,14 +167,17 @@ Internet → Route 53 → CloudFront (CDN)
 
 ### Convention
 
-Every tenant gets its own subdomain under the environment's base domain. The base domain changes per environment so subdomains never collide.
+Every tenant gets its own subdomain under the environment's base domain. Local domains mirror cloud — just swap `.com` → `.local`:
 
 | Environment | `TENANT_DOMAIN_BASE` | Platform admin | Example tenant |
 |-------------|----------------------|----------------|----------------|
-| **Local DEV** | `dfms.local` | `admin.dfms.local:8000` | `nourish.dfms.local:8000` |
-| **QA** | `qa.dfms.com` | `admin.qa.dfms.com` | `nourish.qa.dfms.com` |
-| **STG** | `stg.dfms.com` | `admin.stg.dfms.com` | `nourish.stg.dfms.com` |
-| **PROD** | `dfms.com` | `admin.dfms.com` | `nourish.dfms.com` |
+| **Local DEV** (`make dev`) | `dev.dfms.local` | `admin.dev.dfms.local:8000` | `nourish.dev.dfms.local:8000` |
+| **Local QA sim** (`make qa`) | `qa.dfms.local` | `admin.qa.dfms.local:8000` | `nourish.qa.dfms.local:8000` |
+| **Local STG sim** (`make stg`) | `stg.dfms.local` | `admin.stg.dfms.local:8000` | `nourish.stg.dfms.local:8000` |
+| **Cloud DEV** | `dev.dfms.com` | `admin.dev.dfms.com` | `nourish.dev.dfms.com` |
+| **Cloud QA** | `qa.dfms.com` | `admin.qa.dfms.com` | `nourish.qa.dfms.com` |
+| **Cloud STG** | `stg.dfms.com` | `admin.stg.dfms.com` | `nourish.stg.dfms.com` |
+| **Cloud PROD** | `dfms.com` | `admin.dfms.com` | `nourish.dfms.com` |
 
 ### How it works in code
 
@@ -167,24 +189,26 @@ TENANT_DOMAIN_BASE=stg.dfms.com
 → platform admin lives at:        admin.stg.dfms.com
 ```
 
-### Local DEV setup (`dfms.local`)
+### Local setup (`*.dfms.local`)
 
-Subdomains don't resolve by default — you need `/etc/hosts` entries. Run once:
+Subdomains don't resolve by default — add them to `/etc/hosts` once:
 
 ```bash
-sudo ./scripts/setup-hosts.sh
-# Adds to /etc/hosts:
-#   127.0.0.1  admin.dfms.local
-#   127.0.0.1  nourish.dfms.local
+make setup-hosts
+# Adds entries for all three local environments:
+#   127.0.0.1  admin.dev.dfms.local     127.0.0.1  nourish.dev.dfms.local
+#   127.0.0.1  admin.qa.dfms.local      127.0.0.1  nourish.qa.dfms.local
+#   127.0.0.1  admin.stg.dfms.local     127.0.0.1  nourish.stg.dfms.local
 
-# To add a new tenant:
+# To add a new tenant across all local envs:
 sudo ./scripts/setup-hosts.sh acme
-# Adds: 127.0.0.1  acme.dfms.local
+# Adds: acme.dev.dfms.local, acme.qa.dfms.local, acme.stg.dfms.local
 ```
 
-Then access locally:
-- `http://admin.dfms.local:8000/admin/` → Platform admin
-- `http://nourish.dfms.local:8000/` → Nourish tenant portal
+Access per environment:
+- `http://admin.dev.dfms.local:8000/admin/` → Platform admin (DEV)
+- `http://admin.qa.dfms.local:8000/admin/`  → Platform admin (QA sim)
+- `http://nourish.dev.dfms.local:8000/`     → Nourish tenant (DEV)
 
 ### STG & PROD DNS (Route 53)
 
@@ -209,19 +233,23 @@ Cookies must be scoped to the base domain so a user's session on `admin.dfms.com
 
 | Env | `SESSION_COOKIE_DOMAIN` | `CSRF_COOKIE_DOMAIN` |
 |-----|-------------------------|----------------------|
-| Local | `.dfms.local` | `.dfms.local` |
-| QA | `.qa.dfms.com` | `.qa.dfms.com` |
-| STG | `.stg.dfms.com` | `.stg.dfms.com` |
-| PROD | `.dfms.com` | `.dfms.com` |
+| Local DEV sim | `.dev.dfms.local` | `.dev.dfms.local` |
+| Local QA sim | `.qa.dfms.local` | `.qa.dfms.local` |
+| Local STG sim | `.stg.dfms.local` | `.stg.dfms.local` |
+| Cloud DEV | `.dev.dfms.com` | `.dev.dfms.com` |
+| Cloud QA | `.qa.dfms.com` | `.qa.dfms.com` |
+| Cloud STG | `.stg.dfms.com` | `.stg.dfms.com` |
+| Cloud PROD | `.dfms.com` | `.dfms.com` |
 
 ### ALLOWED_HOSTS per environment
 
 | Env | `ALLOWED_HOSTS` |
 |-----|-----------------|
-| Local | `*` (DEBUG=True, safe since not internet-facing) |
-| QA | `.qa.dfms.com` |
-| STG | `.stg.dfms.com` |
-| PROD | `.dfms.com` |
+| Local (all) | `*` (DEBUG=True, not internet-facing) |
+| Cloud DEV | `.dev.dfms.com` |
+| Cloud QA | `.qa.dfms.com` |
+| Cloud STG | `.stg.dfms.com` |
+| Cloud PROD | `.dfms.com` |
 
 ---
 
@@ -230,10 +258,11 @@ Cookies must be scoped to the base domain so a user's session on `admin.dfms.com
 ### Branch → Environment Mapping
 
 ```
-feature/*  →  DEV (local only)
-develop    →  QA  (auto-deploy on merge → develop)
-release/*  →  STG (auto-deploy on merge → release branch)
-main       →  PROD (manual-approval deploy)
+feature/*  →  Local only (make dev / make qa)
+develop    →  Cloud DEV  (auto-deploy on merge → develop)
+             Cloud QA   (auto-deploy on merge → develop, after DEV passes)
+release/*  →  Cloud STG  (auto-deploy on merge → release/*)
+main       →  Cloud PROD (manual-approval required)
 ```
 
 ### Deployment Pipeline (GitHub Actions)
