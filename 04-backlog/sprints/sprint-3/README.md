@@ -4,7 +4,7 @@ title: Product Requisition, Transport Requests & Transport Orders
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 47
+total_story_points: 68
 status: Not Started
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
@@ -18,10 +18,10 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 8 |
-| Total Story Points | 47 |
+| Total Stories | 10 |
+| Total Story Points | 68 |
 | Status | Not Started |
-| Epics | Requisition, Distribution, Procurement, Transport |
+| Epics | Requisition, Distribution, Procurement, Transport, QA & Testing, DevOps & Infrastructure |
 
 ---
 
@@ -155,6 +155,30 @@ TRQ-01            ──→  TO-01 (TO creation)
 - MDM-02 (Route) — route distance/duration shown in TR assessment, ETA suggestion in TO-02
 - MDM-03 (Vendor) — vendor selection in TO-02 vendor fleet assignment
 - MDM-05 / MDM-06 / MDM-07 (Vehicle / Driver / Helper) — fleet assignment in TO-02
+
+---
+
+## Epic: QA & Testing
+
+> Automated test suite covering all Sprint 1 & 2 features — unit tests (pytest), API integration tests, Playwright UI end-to-end tests, code coverage enforcement, and SonarQube static analysis setup.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Automated Test Suite — Sprint 1 & 2 Features](05-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | 13 | Pending |
+
+**Sub-total**: 13 SP
+
+---
+
+## Epic: DevOps & Infrastructure
+
+> AWS shared dev environment — full stack deployed on AWS with Terraform IaC, CI/CD pipeline, HTTPS, S3, SES, and CloudWatch observability.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [AWS Dev Environment — Up & Running](06-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | 8 | Pending |
+
+**Sub-total**: 8 SP
 
 ---
 
