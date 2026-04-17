@@ -44,6 +44,14 @@ Comprehensive testing strategy:
 - Performance testing approach
 - Security testing requirements
 
+### **[Playwright Pytest Django Admin Core Setup Plan](./playwright-pytest-django-admin-core-setup-plan.md)**
+Core automation framework setup plan:
+- Django Admin UI flow automation scope
+- Env-driven credentials and base URL contract
+- Reusable pytest + Playwright fixture architecture
+- CI artifact and execution setup
+- Extension guidelines for module and feature suites
+
 ### **[Technology Considerations](./technology-considerations.md)**
 Technology choices and rationale:
 - Technology stack decisions
@@ -61,6 +69,7 @@ Technology choices and rationale:
 | **Migration** | Data & System | Data integrity, minimal downtime, rollback capability |
 | **Rollout** | Deployment | Phased approach, pilot testing, user training |
 | **Testing** | Quality Assurance | Comprehensive coverage, automation, performance |
+| **Playwright Core Setup** | Admin UI Automation | Reusable framework, env-driven config, CI readiness |
 | **Technology** | Stack & Infrastructure | Scalability, security, integration capabilities |
 
 ---
