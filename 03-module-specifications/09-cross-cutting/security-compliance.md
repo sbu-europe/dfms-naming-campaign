@@ -5,7 +5,7 @@ extracted_date: 2026-02-13
 last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
-related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008]
+related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008, US-009]
 ---
 
 # Security & Compliance
@@ -180,13 +180,45 @@ All password reset events are logged with immutable audit entries:
 - Annual security risk assessment
 - Access control policy documentation
 - Incident response plan
-- Comprehensive audit trail
+- Comprehensive audit trail (all user actions, authentication events, OTP operations)
 
 ### GDPR / Data Privacy
 - Right to access (data export)
 - Right to be forgotten (account deletion)
 - Right to rectification (profile updates)
 - Data portability (JSON/CSV export)
+
+---
+
+## Audit Log Compliance (US-009)
+
+### Log Scope
+
+All user and system interactions are logged for compliance, security monitoring, and forensic analysis:
+
+| Log Category | Events | Required Fields |
+|---|---|---|
+| Authentication | Login, Logout, Lockout, Session Timeout | User ID, IP, Device ID, Status, Failure Reason |
+| Password Reset | Self-service initiation/completion, Admin-assisted reset | User ID, Method, Admin ID (if assisted), IP, Status |
+| OTP Operations | Generation, Verification, Resend | User ID, Delivery Method, Attempts, Status |
+| CRUD Actions | Create, Read, Update, Delete | User ID, Entity Type, Entity ID, Before/After Values |
+| Admin Actions | Deactivation, Reactivation, Role Assignment, Invitation | Actor ID, Affected User ID, Justification, IP |
+| Audit Access | Dashboard view, Log detail view, Export | Accessor ID, Filters Applied, Export Format |
+
+### Log Immutability & Retention
+
+- **Immutability**: Logs stored in append-only tables; no UPDATE or DELETE operations permitted at any layer (API, ORM, or database)
+- **Minimum Retention**: 2 years (mandatory for all tenants)
+- **Extended Retention**: Configurable up to 7 years per tenant for regulatory compliance
+- **Archival**: Logs older than the active retention window are compressed and archived to cold storage while remaining queryable
+- **Encryption**: All logs encrypted at rest using AES-256; encryption keys rotated every 90 days
+
+### Log Access Control
+
+- Only users with `UserMgmt.AuditLog.Read` permission (Super Admin, Tenant Admin) can view audit logs
+- Only users with `UserMgmt.AuditLog.Export` permission can export logs (CSV, JSON)
+- Tenant isolation enforced: admins can only view logs from their own tenant
+- All access and export actions are themselves logged (meta-auditing)
 
 ---
 

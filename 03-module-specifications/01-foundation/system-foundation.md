@@ -242,25 +242,47 @@ System sends invitation email → Tenant Admin activates account
 - Max 5 OTPs per hour per user
 - 3 verification attempts max
 
-### 4.5 Audit Logging
+### 4.5 Audit Logging (US-009)
 
-**Logged Events**:
-- All login/logout attempts
+**Authentication Event Logging**:
+- All login/logout attempts (success/failure with failure reason)
 - Account lockouts and unlocks
-- Password resets and changes
+- Session timeouts
+- Password resets (admin-assisted and self-service, with method and admin ID)
+
+**User Action Logging**:
+- CRUD operations on all entities (create, read, update, delete)
+- Before/after values captured for update operations
+- Entity snapshots captured for delete operations
+
+**OTP Operation Logging**:
+- OTP generation (delivery method, operation type)
+- OTP verification (success/failure, attempt count)
+- OTP resend (resend count)
+
+**Admin Action Logging**:
 - User invitation and activation
+- Account deactivation and reactivation (with justification)
 - Role and permission changes
-- MFA and OTP verifications
+
+**Each Log Entry Includes**: User ID, Event Type, Timestamp, IP Address, Device ID, User Agent, Location (if available), Status, Failure Reason (if applicable)
 
 **Retention**:
-- Standard: 2 years
-- Compliance: 7 years (configurable)
+- Minimum: 2 years (mandatory for all tenants)
+- Extended: Up to 7 years (configurable per tenant for regulatory compliance)
 
-**Audit Log Access**:
-- Admin dashboard with filters
-- Export capabilities
-- Immutable records
-- Encrypted storage
+**Audit Log Properties**:
+- **Immutable**: Append-only storage; no modification or deletion within retention period
+- **Encrypted**: AES-256 at rest; key rotation every 90 days
+- **Tenant-Isolated**: Admins can only view logs from their own tenant
+- **Performant**: < 50ms write overhead; supports 1000+ log entries/second
+
+**Audit Dashboard** (Security Admin, Tenant Admin only):
+- Real-time log feed with auto-refresh
+- Filters: Date range, User, Event Type, Status, IP Address
+- Full-text search across log entries
+- Export to CSV and JSON (with filters applied)
+- All dashboard access and exports are themselves logged (meta-auditing)
 
 ---
 

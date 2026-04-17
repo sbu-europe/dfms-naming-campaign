@@ -4,7 +4,7 @@ specification: Phase 1 Permission Catalog
 version: 1.0
 phase: Phase 1
 related_to: rbac.md
-last_updated: 2026-04-07, 
+last_updated: 2026-04-07
 related_stories: US-004, US-005, US-007, US-008, US-009
 ---
 
@@ -115,8 +115,8 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `UserMgmt.AuditLog.Read` | View audit logs | Super Admin, Tenant Admin |
-| `UserMgmt.AuditLog.Export` | Export audit logs | Super Admin, Tenant Admin |
+| `UserMgmt.AuditLog.Read` | View audit logs and dashboard | Tenant Admin |
+| `UserMgmt.AuditLog.Export` | Export audit logs (CSV, JSON) | Tenant Admin |
 
 ---
 
