@@ -311,34 +311,51 @@ function validatePassword(password: string): boolean {
   - File storage (S3 server-side encryption)
   - Backups
 
-### Audit Logging
+### Audit Logging (US-009)
 
 **Comprehensive Audit Trail:**
-- **Logged Actions:**
-  - User login/logout
-  - Password reset and authenticated password change
-  - CRUD operations (create, update, delete)
-  - Permission changes
-  - Report access
-- **Log Retention:** 2 years
-- **Log Storage:** Immutable logs (append-only, cannot be deleted)
+- **Authentication Events:** Login (success/failure), logout, account lockout, session timeout, password reset (admin-assisted/self-service)
+- **User Actions:** CRUD operations (create, read, update, delete) on all entities, with before/after values for updates
+- **OTP Operations:** OTP generation, verification (success/failure with attempt count), resend
+- **Permission Changes:** Role assignment, permission updates
+- **Admin Actions:** User deactivation/reactivation, invitation, admin-assisted password resets (with justification)
+- **Log Retention:** Minimum 2 years (configurable up to 7 years per tenant)
+- **Log Storage:** Immutable, append-only (no UPDATE, no DELETE within retention period)
+- **Log Encryption:** AES-256 at rest
+
+**Audit Log Performance:**
+- Log writing must not impact operation performance (< 50ms per log entry)
+- Support 10M+ log entries per tenant
+- Support 1000+ log writes per second
+- Dashboard query response < 500ms for filtered queries
+- Export streaming for large datasets (100k+ entries)
 
 **Audit Log Format:**
 ```typescript
 interface AuditLog {
   log_id: string;
   timestamp: Date;
-  user_id: string;
+  user_id: string | null;           // null for system-generated events
+  actor_id: string | null;          // Admin who performed the action
   tenant_id: string;
-  action: string;                   // e.g., "CREATE_TRIP", "UPDATE_VEHICLE"
-  resource_type: string;            // e.g., "Trip", "Vehicle"
-  resource_id: string;
+  event_type: string;               // e.g., "LOGIN", "CREATE", "UPDATE", "OTP_GENERATION"
+  entity_type: string;              // e.g., "Trip", "Vehicle", "User"
+  entity_id: string;
+  action: string;                   // e.g., "Vehicle.Create", "User.Deactivate"
+  status: 'success' | 'failure';
+  failure_reason?: string;
   ip_address: string;
+  device_id: string;
   user_agent: string;
-  request_payload?: any;            // For sensitive actions
-  response_status: number;
+  location?: string;
+  details: Record<string, any>;     // before/after values, error messages, justification
 }
 ```
+
+**Audit Log Access Control:**
+- Only Security Admin and Tenant Admin can view audit logs (`UserMgmt.AuditLog.Read`)
+- Only Security Admin and Tenant Admin can export audit logs (`UserMgmt.AuditLog.Export`)
+- All audit log access and export operations are themselves audited
 
 ### API Security
 
