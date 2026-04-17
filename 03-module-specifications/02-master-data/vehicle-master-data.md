@@ -4,7 +4,7 @@ specification: Vehicle Master Data Management
 version: 1.1
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-last_updated: 2026-04-09
+last_updated: 2026-04-17
 related_stories: US-053
 ---
 
@@ -189,6 +189,16 @@ BulkUploadLog {
   total_distance_travelled: { read_only: true }
 }
 ```
+
+### 2.2 Implementation note (nourish-backend)
+
+The **`Vehicle`** model in **`apps/master_data`** deliberately keeps **many fields optional** (e.g. `chassis_number`, `body_type`, `fuel_type`, `capacity`, `number_of_wheels`, `model_name`, `fitness_expiry_date`, `insurance_expiry_date`) with database-level **null/blank** allowed. Import configs and forms may still require subsets for CSV or business rules.
+
+**Load capacity** is stored as **`capacity`** + **`capacity_unit`** (e.g. MT, KG, Bag), not a single `capacity_tonnage` field.
+
+**`allowed_product_category`** values in the database use **lowercase** keys (`fm`, `rm`, …) with human-readable labels.
+
+Telematics fields are **read-only** in **`VehicleAdmin`** after save; **`operational_status`** is **not** editable in admin on the change form (system/workflow owns transitions except **inactive → maintenance** / re-activation rules enforced in **`save_model`**).
 
 ---
 

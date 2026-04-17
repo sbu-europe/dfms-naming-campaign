@@ -4,6 +4,7 @@ specification: Supplier & Dealer Master Data Management Implementation Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-096, DFS-018
+last_updated: 2026-04-17
 ---
 
 # Supplier & Dealer Master Data Implementation Plan
@@ -145,6 +146,8 @@ Detailed steps (status machine, Celery, preview pagination, `import_valid_only`)
 ### 3.4 Audit Logging
 - Every `CREATE`, `UPDATE` (including soft-delete), and `DELETE` operation must generate an audit log entry.
 - Audit Log payload includes: `User ID`, `Timestamp`, `Action`, `Entity Type`, `Entity ID`, `Old Value(s)`, and `New Value(s)`.
+
+**Implementation:** **`VehicleAdmin`** integrates **`apps.audit.services`** for create/update/delete. **`SupplierAdmin`** / **`DealerAdmin`** enforce validation and hard-delete rules via forms and **`MasterEntityHardDeleteAdminMixin`**; extend the same audit hooks on those admins when full parity is required.
 
 ---
 

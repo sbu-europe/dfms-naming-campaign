@@ -1,5 +1,11 @@
 # 02-master-data - Master Data Management
 
+## Implementation alignment
+
+The **running backend** implements master data in **`apps/master_data/`** (models, admin, REST API, bulk job models/tasks) and related **`apps/users`** aggregates (**`Driver`**, **`Helper`**) that share the same bulk-import registry. This module’s documents describe domain behaviour **and** are kept consistent with those packages. A short code map lives in **[master-data-configuration.md](master-data-configuration.md)**.
+
+Conceptual PRD-level behaviours (e.g. full POI capacity accounting, generic `MasterEntity` rows) may still be **roadmap** items where the codebase uses **concrete models** and simpler fields today.
+
 ## Module Overview
 
 This module defines master data configuration and management for the DFMS platform, including product inventory management (PIM) and POI (Point of Interest) management with geofencing capabilities.
@@ -19,6 +25,7 @@ This module defines master data configuration and management for the DFMS platfo
 
 | File | Description | PRD Section | Related Stories | Lines |
 |------|-------------|-------------|-----------------|-------|
+| [master-data-configuration.md](master-data-configuration.md) | Maps product specs to **`apps/master_data`** (registry, models, admin, API) | — | — | short |
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
@@ -32,24 +39,23 @@ This module defines master data configuration and management for the DFMS platfo
 ## Key Features
 
 ### Master Data Configuration
-- **Entity Registration**: POIs, Vehicles, Helpers, Vendors, Routes, Products, QC Checklists; **`Driver`** + **`User`** on create — ([driver-user-profiles.md](../12-users/driver-user-profiles.md))
-- **Bulk Upload**: CSV-based bulk data import with validation — canonical implementation plan: **[bulk-import-export.md](bulk-import-export.md)**
-- **Inline Management**: Create, edit, delete with full audit trail
-- **Referential Integrity**: Cascade rules and dependency validation
-- **Active/Inactive Control**: Soft delete with status management
+- **Entity registration**: Concrete Django models per entity (e.g. `POI`, `Product`, `Vehicle`); **`Driver`** / **`Helper`** master screens live primarily under **`apps/users/`** — ([driver-user-profiles.md](../12-users/driver-user-profiles.md)), [helper-master-data.md](../12-users/helper-master-data.md).
+- **Bulk upload (CSV)**: Implemented for models registered in **`IMPORT_REGISTRY`**: **`master_data`** (supplier, dealer, product category, product, brand, vehicle) plus **`users.driver`** and **`users.helper`** (registered at app startup) — see **[bulk-import-export.md](bulk-import-export.md)** and **[master-data-configuration.md](master-data-configuration.md)**. **POI** bulk CSV is **not** wired in admin yet.
+- **Inline management**: Django admin plus REST CRUD where viewsets exist.
+- **Audit trail**: Vehicle admin integrates **`apps.audit`** for create/update/delete; extend the same pattern for other masters as needed.
+- **Referential Integrity**: Django `PROTECT`/`SET_NULL` and admin-side checks (e.g. supplier/dealer hard-delete) where implemented.
+- **Active / inactive**: Most masters use **`is_active`**; **`Vehicle`** also uses soft delete (`SoftDeleteMixin`) for removal from the fleet.
 
 ### Product Inventory Management (PIM)
-- **Product Catalog**: Finished Goods (FG) and Raw Material (RM) master
-- **Product Attributes**: SKU, category, UOM, weight, QC requirements
-- **Transport Attributes**: Vehicle type compatibility, load/unload requirements
-- **QC Attributes**: QC checklist mapping, sampling requirements, test parameters
+- **Product catalog**: Finished Goods (FG) and Raw Material (RM) via **`Product`** + **`ProductCategory`** / **`ProductSubCategory`**.
+- **Product attributes**: `product_sku_code`, `product_item_code`, UOM, `weight_per_unit`, optional **`amount`** (physical quantity field), **`requires_qc`** flag — *no* `qc_checklist` FK in the current model (see **product-master-data-management.md** §4).
+- **Transport attributes**: **`preferred_vehicle_body_type`**, **`special_handling_requirements`** (not a separate JSON “compatibility matrix” in DB).
 
 ### POI Management & Geofencing
-- **POI Types**: Factory, Feed Mill, Depot, Warehouse, Port, Dealer, Supplier
-- **GPS Coordinates**: Lat/long with geofence radius
-- **Capacity Tracking**: Total capacity, current stock, free capacity, in-transit
-- **Geofence Alerts**: Vehicle entry/exit detection
-- **Operational Role**: Inbound, outbound, neutral classification
+- **POI types**: Implemented as enums in **`POIType`** (poultry/logistics-specific labels such as feed mill, depot, hatchery — not the older illustrative short list alone).
+- **GPS + geofence**: Latitude/longitude and **`geofence_radius_meters`** on **`POI`**; validation bands may be tightened in forms/API later.
+- **Capacity**: The Django **`POI`** row stores **`storage_capacity_mt`** (limit) **without** `current_stock_mt` / `in_transit` / computed free capacity — those remain **operational/roadmap** unless computed in services or added as columns later.
+- **Operational role / inbound-outbound**: **Not** persisted on **`POI`** in the current schema — classify in downstream modules or future migrations.
 
 ---
 
@@ -96,114 +102,58 @@ Master data creation is integrated into workflow stories:
 
 ---
 
-## Data Model Highlights
+## Data Model Highlights (as implemented in `apps/master_data`)
 
-### POI (Point of Interest)
-```typescript
-POI {
-  poi_id: UUID
-  poi_name: string
-  poi_type: enum [Factory, FeedMill, Depot, Warehouse, Port, Dealer, Supplier]
-  address: string
-  latitude: Decimal
-  longitude: Decimal
-  geofence_radius: Integer (meters)
-  total_capacity: Decimal (MT)
-  current_stock: Decimal (MT)
-  free_capacity: Decimal (computed)
-  in_transit_stock: Decimal
-  operational_role: enum [Inbound, Outbound, Neutral]
-  contact_person: string
-  contact_phone: string
-  status: enum [Active, Inactive]
-  tenant_id: UUID
-}
+### POI (`POI`)
+```text
+Primary fields: poi_code (unique), name, poi_type (POIType), address, city, country,
+latitude/longitude (optional), geofence_radius_meters, storage_capacity_mt (optional),
+number_of_gates, number_of_scales, contact_person, contact_phone, is_active
+(+ tenant + timestamps via TenantAwareModel).
+Live stock / in-transit / operational_role: not on this model — see poi-management.md
+“Implementation status” and roadmap text.
 ```
 
-### Product
-```typescript
-Product {
-  product_id: UUID
-  product_code: string (SKU)
-  product_name: string
-  category: string
-  sub_category: string
-  unit_of_measure: enum [MT, KG, Bag, Pcs]
-  standard_weight_per_unit: Decimal
-  requires_qc: Boolean
-  qc_checklist_id: UUID (nullable)
-  vehicle_type_compatibility: JSON
-  status: enum [Active, Inactive]
-  tenant_id: UUID
-}
+### Product (`Product`)
+```text
+Identification: product_sku_code, product_item_code, product_name, product_type (FG/RM).
+Classification: FK category (ProductCategory), optional FK sub_category (ProductSubCategory).
+Physical: unit_of_measure, weight_per_unit (rules by UOM), standard_pack_size, amount (optional).
+Transport: preferred_vehicle_body_type, special_handling_requirements.
+QC: requires_qc (boolean only — no qc_checklist FK).
+Status: is_active.
 ```
 
-### Master Entity (Generic)
-```typescript
-MasterEntity {
-  entity_id: UUID
-  entity_type: enum [Vehicle, Helper, Vendor, Route, Product, POI, QCChecklist]
-  // Drivers: User + Driver on create (see 12-users/driver-user-profiles.md)
-  entity_data: JSON
-  status: enum [Active, Inactive]
-  created_by: UUID
-  created_at: DateTime
-  updated_by: UUID
-  updated_at: DateTime
-  tenant_id: UUID
-}
-```
+### Other notes
+- **No generic `MasterEntity` JSON table** for these records — each entity has its own table.
+- **Vehicle** uses **`capacity` + `capacity_unit`** (not only “tonnage”).
 
 ---
 
 ## API Endpoints
 
-### POI Management
-```typescript
-GET /api/v1/pois
-POST /api/v1/pois
-GET /api/v1/pois/{poi_id}
-PUT /api/v1/pois/{poi_id}
-DELETE /api/v1/pois/{poi_id}
-GET /api/v1/pois/{poi_id}/capacity
-POST /api/v1/pois/bulk-upload
-```
+REST routes are registered in **`apps/master_data/urls.py`** under the global **`/api/v1/`** prefix, for example:
 
-### Product Management
-```typescript
-GET /api/v1/products
-POST /api/v1/products
-GET /api/v1/products/{product_id}
-PUT /api/v1/products/{product_id}
-DELETE /api/v1/products/{product_id}
-POST /api/v1/products/bulk-upload
-```
+| Resource | Example path |
+|----------|----------------|
+| POIs | `GET/POST /api/v1/pois`, `GET/PATCH/DELETE /api/v1/pois/{id}/` |
+| Products | `GET/POST /api/v1/products`, … |
+| Bulk jobs | `GET/POST /api/v1/bulk-imports/`, `GET/POST /api/v1/bulk-exports/` |
 
-### Master Data Generic
-```typescript
-GET /api/v1/master-data/{entity_type}
-POST /api/v1/master-data/{entity_type}
-PUT /api/v1/master-data/{entity_type}/{entity_id}
-POST /api/v1/master-data/bulk-upload
-GET /api/v1/master-data/validation-rules
-```
-
-**Bulk CSV import/export:** The implementation plan for async jobs, preview, Django admin, and REST (`/api/v1/master-data/bulk-imports/`, `/bulk-exports/`) is **[bulk-import-export.md](bulk-import-export.md)**. Entity-specific `/bulk-upload` paths above are illustrative; align with that document when wiring endpoints.
+See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`** paths in older sketches are optional; the shared bulk API is **`bulk-imports` / `bulk-exports`** — **[bulk-import-export.md](bulk-import-export.md)**.
 
 ---
 
 ## Business Rules
 
 ### POI Management
-1. **Geofence Radius**: Minimum 50m, maximum 5000m
-2. **Capacity Tracking**: Updated on loading completion (source) and QC-passed unloading (destination)
-3. **In-Transit Stock**: Calculated from active trips with source/destination POI
-4. **Free Capacity**: `Total Capacity - Current Stock - In Transit (destination)`
+1. **Geofence radius**: Configurable per row (`geofence_radius_meters`); enforce min/max in validation when product rules are finalized (PRD ranges have varied — see **poi-management.md**).
+2. **Capacity tracking (roadmap)**: Operational modules may eventually maintain live stock/in-transit; the **`POI`** row today holds a **storage limit** (`storage_capacity_mt`), not live balances.
 
 ### Product Management
-1. **SKU Uniqueness**: Product codes must be unique per tenant
-2. **QC Requirement**: If `requires_qc = true`, must have valid `qc_checklist_id`
-3. **Vehicle Compatibility**: Liquid products → tanker only, bulk → covered trucks
+1. **Code uniqueness**: `product_sku_code`, `product_item_code`, and `product_name` are unique per tenant schema.
+2. **QC**: `requires_qc` is a boolean flag — **no** mandatory QC checklist FK in the current model.
+3. **Transport**: Prefer **`preferred_vehicle_body_type`** for compatibility hints — detailed liquid-vs-bulk routing rules live in operations modules.
 
 ### Data Consistency
 1. **Referential Integrity**: Cannot delete POI/Product referenced in active trips
@@ -229,15 +179,13 @@ GET /api/v1/master-data/validation-rules
 
 ### POI Management
 - Create POI with GPS coordinates and geofence
-- Update POI capacity and validate free capacity calculation
-- Deactivate POI with active references (should fail)
-- Bulk upload POIs from CSV with validation errors (per **[bulk-import-export.md](bulk-import-export.md)**)
+- Edit **`storage_capacity_mt`** and other static attributes
+- (Roadmap) Live capacity / free-capacity checks once stock fields or services exist
 
 ### Product Management
-- Create product with QC requirements
-- Update product attributes and vehicle compatibility
-- Link product to QC checklist
-- Deactivate product with active requisitions (should fail)
+- Create product with **`requires_qc`** and transport fields
+- Update safe fields; restricted fields lock after save in admin (see **product-master-data-management.md** §5.2)
+- (Roadmap) Tighter deactivation rules if stock/requisition checks are added server-side
 
 ### Capacity Tracking
 - Create requisition and check source/destination capacity warnings
@@ -257,7 +205,7 @@ GET /api/v1/master-data/validation-rules
 
 ---
 
-**Last Updated**: 2026-04-09  
-**Status**: Complete  
+**Last Updated**: 2026-04-17  
+**Status**: Complete (aligned with `apps/master_data` implementation)  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
 **Next Module**: [03-operations/](../03-operations/README.md) - Core Operations
