@@ -1,15 +1,15 @@
 ---
 sprint: Sprint 3
-title: Transfer Requisition, Transport Planning & Transport Orders
+title: Product Requisition, Transport Requests & Transport Orders
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 49
+total_story_points: 47
 status: Not Started
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
 
-# Sprint 3 — Transfer Requisition, Transport Planning & Transport Orders
+# Sprint 3 — Product Requisition, Transport Requests & Transport Orders
 
 > Full sprint backlog with stories, sub-tasks, and status.
 > Source story specs: [`04-backlog/stories/`](../../stories/)
@@ -18,82 +18,118 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 10 |
-| Total Story Points | 49 |
+| Total Stories | 8 |
+| Total Story Points | 47 |
 | Status | Not Started |
-| Epics | Transfer Requisition, Transport Planning, Transport Order |
+| Epics | Requisition, Distribution, Procurement, Transport |
 
 ---
 
-## Epic: Transfer Requisition
+## Menu Structure & Role Access
 
-> End-to-end TR creation (FG + Port/RM), stock & capacity validation, and approval workflows routing approved TRs to Transport Planners.
-
-| # | Story | Task ID | Jira | SP | Status |
-|---|-------|---------|------|----|--------|
-| 1 | [Finished Goods (FG) Transfer Requisition](01-transfer-requisition/TR-01-fg-transfer-requisition.md) | TR-01 | DFS-032 | 5 | Pending |
-| 2 | [Port Consignment / RM Transfer Requisition](01-transfer-requisition/TR-02-port-rm-transfer-requisition.md) | TR-02 | DFS-033 | 5 | Pending |
-| 3 | [Stock & Capacity Validation](01-transfer-requisition/TR-03-stock-capacity-validation.md) | TR-03 | DFS-034 | 3 | Pending |
-| 4 | [Distribution Approval Workflow (FG TR)](01-transfer-requisition/TR-04-distribution-approval.md) | TR-04 | DFS-035 | 5 | Pending |
-| 5 | [Procurement Approval Workflow (Port / RM TR)](01-transfer-requisition/TR-05-procurement-approval.md) | TR-05 | DFS-036 | 5 | Pending |
-
-**Sub-total**: 23 SP
+| Menu | Sub-menu | Actor | Key Action |
+|------|----------|-------|------------|
+| **Requisition** | Finished Goods | Depot / Feed Mill Officer | Create FG Product Requisition (PR) |
+| **Requisition** | Raw Materials | Depot / Feed Mill Officer | Create RM Product Requisition (PR) |
+| **Distribution** | Product Requisitions | Distribution Officer | View FG PR queue, navigate to TR creation |
+| **Distribution** | Transport Requests | Distribution Officer / Distribution Manager | Create TR(s) against FG PR; DM approves |
+| **Procurement** | Product Requisitions | Procurement Officer | View RM PR queue, navigate to TR creation |
+| **Procurement** | Transport Requests | Procurement Officer | Create TR(s) against RM PR (no approval step) |
+| **Transport** | Transport Requests → Finished Goods | Transport Planner | Review FG TRs, submit vehicle/type requirements |
+| **Transport** | Transport Requests → Raw Materials | Transport Planner | Review RM TRs, submit vehicle/type + C&F clearance |
+| **Transport** | Transport Orders | Transport Planner / TDO | Create TOs against TRs; TDO assigns vehicle/driver/helper/ETA |
 
 ---
 
-## Epic: Transport Planning
+## Epic: Requisition
 
-> TR assessment queue for Transport Planners + real-time fleet, driver, and helper availability.
+> Two PR types exist. **Finished Goods PRs** are raised by Depot/Feed Mill Officers and route to Distribution. **Port Consignment PRs** are raised by Commercial Officers with full LC and shipment documentation, and route to Procurement. PRs are the demand signal that drives the downstream TR → Transport workflow.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [TR Assessment by Transport Planner](02-transport-planning/TP-01-tr-assessment.md) | TP-01 | DFS-037 | 5 | Pending |
-| 2 | [Fleet Availability & Transport Planning](02-transport-planning/TP-02-fleet-availability-planning.md) | TP-02 | DFS-038 | 5 | Pending |
+| 1 | [FG Product Requisition](01-requisition/PR-01-fg-product-requisition.md) | PR-01 | DFS-032 | 5 | Pending |
+| 2 | [Port Consignment (LC-Based) Product Requisition](01-requisition/PR-02-rm-product-requisition.md) | PR-02 | DFS-033 | 5 | Pending |
 
 **Sub-total**: 10 SP
 
 ---
 
-## Epic: Transport Order
+## Epic: Distribution
 
-> TO creation with TR quantity allocation (single & multi-TO), own fleet vehicle/driver assignment, and vendor direct assignment.
+> Distribution Officers view FG Product Requisitions and create Transport Requests (TRs) against them, selecting the source POI per TR. The Destination is fixed from the PR. Total TR quantities are validated against the PR quantity — overflow is prevented. Distribution Manager approves (and optionally modifies) TRs before they reach Transport Planning.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [TO Creation — Single & Multi-TO per TR](03-transport-order/TO-01-to-creation.md) | TO-01 | DFS-039 | 8 | Pending |
-| 2 | [TO — Own Fleet Vehicle & Driver Assignment](03-transport-order/TO-02-to-own-fleet-assignment.md) | TO-02 | DFS-040 | 8 | Pending |
-| 3 | [TO — Vendor Fleet Direct Assignment](03-transport-order/TO-03-vendor-direct-assignment.md) | TO-03 | DFS-041 | 5 | Pending |
+| 1 | [Distribution — FG Product Requisitions View](02-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | 2 | Pending |
+| 2 | [Distribution — Transport Request Creation & Manager Approval](02-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | 8 | Pending |
 
-**Sub-total**: 21 SP (+ 5 SP carry-over from Sprint 2 if any)
+**Sub-total**: 10 SP
+
+---
+
+## Epic: Procurement
+
+> Procurement Officers view RM Product Requisitions and create Transport Requests against them, selecting the source POI per TR. The Destination is fixed from the PR. Total TR quantities are validated against the PR quantity. **No manager approval step** — submitted TRs are immediately available for Transport Planning.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Procurement — RM Product Requisitions View](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
+| 2 | [Procurement — Transport Request Creation](03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | 6 | Pending |
+
+**Sub-total**: 8 SP
+
+---
+
+## Epic: Transport
+
+> Transport Planners review a unified queue of FG and RM Transport Requests, submit vehicle/type requirements (and for RM: Raw C&F Clearance Note/Approval), then create Transport Orders (TOs) against each TR. TDOs assign vehicle, driver, helpers, and ETA to each TO. Drivers see their assigned TOs in their account.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Transport Requests Queue (FG & Port Consignment)](04-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | 3 | Pending |
+| 2 | [Transport Order Creation](04-transport/02-transport-orders.md) | TO-01 | DFS-039 | 8 | Pending |
+| 3 | [TDO Vehicle, Driver, Helper & ETA Assignment](04-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | 8 | Pending |
+
+**Sub-total**: 19 SP
 
 ---
 
 ## End-to-End Flow This Sprint Delivers
 
 ```
-[Distribution Officer]           [Procurement Officer]
-        ↓                                  ↓
-   TR-01: FG TR                   TR-02: Port/RM TR
-        ↓                                  ↓
-   TR-03: Stock & Capacity Validation (informational)
-        ↓                                  ↓
-   TR-04: Distribution Approval    TR-05: Procurement Approval
-        ↓                                  ↓
-   ←──────── Available for Planning ────────→
-                        ↓
-              TP-01: TR Assessment Queue
-                        ↓
-              TP-02: Fleet Availability Check
-                        ↓
-              TO-01: Create TO(s) from TR
-                        ↓
-         ┌──────────────┴──────────────┐
-         ↓                             ↓
-  TO-02: Own Fleet                TO-03: Vendor Fleet
-  Vehicle + Driver Assignment     Direct Assignment
-         ↓                             ↓
-  ←──────────── Dispatched ────────────→
-         ↓ (Sprint 4: Trip Lifecycle)
+[Depot/Feed Mill Officer]
+         ↓
+  PR-01: FG Product Requisition     PR-02: RM Product Requisition
+  (Dest: POI dropdown)               (Dest: POI dropdown)
+         ↓                                      ↓
+[Distribution Officer]                [Procurement Officer]
+  DR-01: View FG PR queue              PC-01: View RM PR queue
+         ↓                                      ↓
+  DR-02: Create TR(s) against PR       PC-02: Create TR(s) against PR
+  (Source: POI dropdown)               (Source: POI dropdown)
+  (Dest: inherited from PR)            (Dest: inherited from PR)
+  [Qty overflow → blocked]             [Qty overflow → blocked]
+         ↓                                      ↓
+  Distribution Manager approves TR     TR directly available (no approval)
+         ↓                                      ↓
+  ←──────────── Available for Transport Planning ────────────→
+                              ↓
+               [Transport Planner]
+         TRQ-01: Review TR queue (FG + RM tabs)
+         Submit: Qty of vehicles, Vehicle Type
+         For RM: + Raw C&F Clearance Note/Approval
+                              ↓
+               TO-01: Create TO(s) against TR
+               (Own Fleet / Vendor Fleet mode)
+               [Qty overflow → blocked]
+                              ↓
+               [Transport Distribution Officer (TDO)]
+         TO-02: Assign Vehicle + Driver + Helper(s) + ETA
+                              ↓
+               [Driver Account]
+               Driver sees assigned TO list
+                              ↓
+               (Sprint 4: Trip Lifecycle — Dispatch, In-Transit, POD)
 ```
 
 ---
@@ -101,20 +137,24 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ## Dependency Map
 
 ```
-TR-01 (FG TR)          ─→  TR-03 (Stock Validation)  ─→  TR-04 (Distribution Approval)
-TR-02 (Port/RM TR)     ─→  TR-03 (Stock Validation)  ─→  TR-05 (Procurement Approval)
-TR-04 + TR-05          ─→  TP-01 (Assessment Queue)
-TP-01 + TP-02          ─→  TO-01 (TO Creation)
-TO-01 (fleet_type=OWN)      ─→  TO-02 (Own Fleet Assignment)
-TO-01 (fleet_type=VENDOR)   ─→  TO-03 (Vendor Direct Assignment)
+PR-01 (FG PR)     ──→  DR-01 (Distribution PR queue)
+                        └──→  DR-02 (FG TR creation + DM approval)
+                                └──→  TRQ-01 (Transport Requests queue)
+
+PR-02 (RM PR)     ──→  PC-01 (Procurement PR queue)
+                        └──→  PC-02 (RM TR creation, no approval)
+                                └──→  TRQ-01 (Transport Requests queue)
+
+TRQ-01            ──→  TO-01 (TO creation)
+                        └──→  TO-02 (TDO assignment + Driver view)
 ```
 
 **Prerequisites from Sprint 2**:
-- MDM-04 (POI) — source/dest POI selection in TR forms
-- MDM-01 (Product) — product selection (FG / RM gating) in TR forms
-- MDM-02 (Route) — route distance/duration shown in TP-01
-- MDM-03 (Vendor) — vendor selection in TO-03
-- MDM-05/06/07 (Vehicle/Driver/Helper) — fleet assignment in TP-02, TO-02
+- MDM-04 (POI) — source/destination POI selection in PR and TR forms
+- MDM-01 (Product) — product selection (FG / RM type gating)
+- MDM-02 (Route) — route distance/duration shown in TR assessment, ETA suggestion in TO-02
+- MDM-03 (Vendor) — vendor selection in TO-02 vendor fleet assignment
+- MDM-05 / MDM-06 / MDM-07 (Vehicle / Driver / Helper) — fleet assignment in TO-02
 
 ---
 
@@ -132,8 +172,11 @@ TO-01 (fleet_type=VENDOR)   ─→  TO-03 (Vendor Direct Assignment)
 
 ## Notes
 
-- **TR-01 and TR-02 share the same `TransferRequisition` model** — TR-01 should be built first as it establishes the base model; TR-02 extends it with Port-specific fields
-- **TR-03 (Stock & Capacity Validation)** is a shared service — its widgets are embedded in TR-01 and TR-02 forms and re-run at approval time in TR-04 / TR-05
-- **TP-02 (Fleet Availability)** is a prerequisite for TO-02 and TO-03, and used inline by TP-01 — should be built before or in parallel with TP-01
-- **US-062 (Helper Assignment)** is incorporated into TP-02 rather than as a standalone story since helpers are part of the fleet resource pool
-- Jira Epics: `DFS-040` (Transfer Requisition), `DFS-041` (Transport Planning), `DFS-042` (Transport Order)
+- **PR and TR are distinct entities**: A Product Requisition (PR) is the demand signal raised by Depot/Feed Mill Officers. A Transport Request (TR) is the operational breakdown created by Distribution or Procurement Officers against a PR.
+- **Destination is always inherited from PR to TR** — each TR for the same PR goes to the same destination. Only the Source POI varies per TR (allowing multi-source fulfillment of one PR).
+- **Quantity overflow guard** applies at two levels: TR creation against PR (total TRs must not exceed PR qty), and TO creation against TR (total TOs must not exceed TR qty).
+- **No Procurement Manager approval** for RM TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
+- **Raw C&F Clearance Note/Approval** is an RM-specific field that the Transport Planner must confirm before or during Transport Order creation for RM TRs.
+- **TDO assigns all physical resources** (vehicle, driver, helpers, ETA) — this is a separate step from the Transport Planner creating the TO structure.
+- **Driver mobile view** delivers assigned TO list visibility to drivers — dispatch and trip lifecycle features follow in Sprint 4.
+- Jira Epics: `DFS-040` (Requisition), `DFS-041` (Distribution), `DFS-042` (Procurement), `DFS-043` (Transport)
