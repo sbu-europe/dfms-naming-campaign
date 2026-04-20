@@ -2,9 +2,9 @@
 
 > Environment architecture, release process, rollback procedures, and zero-downtime deployments for DFMS Phase 1.
 
-**Last Updated**: 2026-03-31  
+**Last Updated**: 2026-04-20  
 **Applies To**: Phase 1 — Single-tenant (Nourish) → multi-tenant ready  
-**Region**: ap-southeast-1 (Singapore) — closest to Bangladesh
+**Region**: ap-south-1 (Mumbai) — lowest latency (~266 ms) and lowest cost for Bangladesh
 
 ---
 
@@ -17,7 +17,7 @@ Local domains mirror cloud — just swap `.com` → `.local`:
 | **Local DEV** | `dev.dfms.local` | Individual dev, feature work | `make dev` (Docker Compose) |
 | **Local QA sim** | `qa.dfms.local` | Test prod image locally | `make qa` (Docker Compose) |
 | **Local STG sim** | `stg.dfms.local` | Validate release candidate locally | `make stg` (Docker Compose) |
-| **Cloud DEV** | `dev.dfms.com` | Shared team integration server | AWS EC2 t3.small (always-on) |
+| **Cloud DEV** | `dev.dfms.com` | Shared team integration server (≤20 testers) | AWS EC2 t3.micro (scheduled on/off) |
 | **Cloud QA** | `qa.dfms.com` | QA team testing, client UAT | AWS EC2 t3.small (always-on) |
 | **Cloud STG** | `stg.dfms.com` | Pre-release validation, load tests | AWS EC2 t3.medium (always-on) |
 | **Cloud PROD** | `dfms.com` | Live users | AWS EC2 t3.large |
@@ -98,16 +98,20 @@ Internet → Route 53 → CloudFront (CDN)
 
 ### Cloud DEV
 
-| Component | Spec | Monthly Cost |
-|-----------|------|-------------|
-| EC2 | t3.small (2 vCPU, 2 GB RAM) | ~$15 |
-| RDS | db.t3.micro (1 vCPU, 1 GB RAM), 20 GB GP3 | ~$15 |
-| ElastiCache | cache.t3.micro (0.5 GB) | ~$12 |
-| S3 | ~1 GB storage | ~$0.10 |
-| ACM | Free (TLS `*.dev.dfms.com`) | $0 |
-| **Total** | | **~$42/month** |
+> **Context**: Internal testing only, ≤20 testers. Cost minimised by running PostgreSQL and Redis in Docker on the same EC2 (no RDS, no ElastiCache). Scheduled auto-stop outside business hours (08:00–20:00 BDT, Mon–Sat).
 
-> **Cost tip**: Auto-stop outside business hours → saves ~60% → ~$17/month effective.
+| Component | Spec | Monthly Cost (ap-south-1) |
+|-----------|------|--------------------------|
+| EC2 | t3.micro (2 vCPU, 1 GB RAM) — Docker host for web + Nginx + Celery + **PostgreSQL + Redis** | ~$8 |
+| S3 | ~1 GB storage (media, attachments) | ~$0.02 |
+| ACM | Wildcard TLS `*.dev.dfms.com` | $0 |
+| Route 53 | Shared hosted zone (split across envs) | ~$0.50 |
+| SES | Sandbox — dev team emails only | $0 |
+| CloudWatch | Basic logs | ~$1 |
+| **Total (always-on)** | | **~$10/month** |
+
+> **With auto-stop** (EventBridge: stop at 20:00, start at 08:00 BDT Mon–Sat, off all Sunday): ~65% saving → **~$3–4/month effective**.  
+> ⚠️ PostgreSQL and Redis run in Docker containers on EC2 — acceptable for internal dev. Data persists on an EBS volume attached to the instance. Upgrade to RDS + ElastiCache when moving to Cloud QA or Staging.
 
 ### CI — GitHub Actions (no domain, no EC2)
 
@@ -222,10 +226,11 @@ Access per environment:
 No per-tenant DNS change needed when onboarding new clients — the wildcard handles it automatically. `django-tenants` matches the `Host` header to the `Domain` table to route to the correct schema.
 
 **SSL**: AWS Certificate Manager (ACM) wildcard certificates:
+- `*.dev.dfms.com` — Cloud DEV (free, auto-renews)
 - `*.qa.dfms.com` — QA (free, auto-renews)
 - `*.stg.dfms.com` — STG (free, auto-renews)
 - `*.dfms.com` — PROD (free, auto-renews)
-- All provisioned in `ap-southeast-1` (same region as EC2/Nginx)
+- All provisioned in `ap-south-1` (Mumbai — same region as EC2/Nginx)
 
 ### Session & CSRF cookie scope
 
