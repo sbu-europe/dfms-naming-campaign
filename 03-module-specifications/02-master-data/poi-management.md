@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.5.1-6.5.8
-last_updated: 2026-02-26
+last_updated: 2026-04-17
 related_stories: US-014
 ---
 
@@ -16,6 +16,24 @@ related_stories: US-014
 Points of Interest (POIs) are fundamental entities in the DFMS platform, representing physical locations where transport, logistics, and quality control operations occur. POIs include depots, feed mills, warehouses, factories, ports, dealer locations, and supplier sites. The POI management system provides GPS-based geofencing, capacity tracking, and operational classification to support requisition management, trip monitoring, and real-time vehicle tracking.
 
 This specification defines the POI data model, lifecycle management, geofencing capabilities, capacity tracking mechanisms, and integration with operational modules.
+
+---
+
+## Implementation status (nourish-backend / `apps.master_data`)
+
+The following reflects the **current Django implementation** so this document can be read as *target behaviour* (below) plus *what exists in code today*:
+
+| Area | Implemented now | Not in `POI` model / admin yet |
+|------|-------------------|--------------------------------|
+| Identity & location | `poi_code`, `name`, `poi_type` (**`POIType`** — poultry/logistics-specific enum), `address`, `city`, `country`, `latitude`/`longitude`, `geofence_radius_meters` | PRD TypeScript enum names in §1.1 differ from **`POIType`** labels — use DB choices as source of truth |
+| Capacity | `storage_capacity_mt` (configured limit), `number_of_gates`, `number_of_scales` | `current_stock_mt`, `in_transit_stock_mt`, computed **`free_capacity_mt`**, **`projected_capacity_mt`** |
+| Classification | — | **`operational_role`**, **`poi_category`** (source/destination/both) |
+| Contacts | `contact_person`, `contact_phone` | **`in_charge_name`** (use `contact_person` or extend model later) |
+| Status | `is_active` | Separate `status` enum — represented by **`is_active`** only |
+| Bulk CSV | — | **`POI`** is **not** in **`import_configs.IMPORT_REGISTRY`**; **`POIAdmin`** does not use **`BulkImportExportMixin`** |
+| Admin depth | List/search/filters on basic columns | Rich fieldsets, capacity dashboards, dependency-aware delete — roadmap |
+
+Sections **2–3** below remain the **intended** geofencing and capacity design; operational services may compute stock/in-transit before those fields are persisted on **`POI`**.
 
 ---
 

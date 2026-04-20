@@ -1,11 +1,11 @@
 ---
 module: 02-master-data
 specification: Bulk Import & Export — Master Data
-version: 1.2
+version: 1.3
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.3.1, 6.3.2, 6.3.3
-last_updated: 2026-04-01
+last_updated: 2026-04-17
 related_stories: US-047, US-053, US-057, US-061, US-095, US-096
 ---
 
@@ -13,20 +13,30 @@ related_stories: US-047, US-053, US-057, US-061, US-095, US-096
 
 ## Overview
 
-The DFMS platform provides CSV-based bulk import and export for all 8 master data entities. Tenant admins can upload a CSV file from the Django admin, preview a paginated validation report before committing, and confirm or retry. All import writes and export file generation are processed asynchronously by Celery workers to avoid blocking HTTP requests. Files are automatically purged after a 7-day retention window.
+The DFMS platform provides CSV-based bulk import and export for **each model that** (1) includes **`BulkImportExportMixin`** on its Django admin class and (2) has an entry in the **shared** **`IMPORT_REGISTRY`** (`apps/master_data/import_configs.IMPORT_REGISTRY`). The **`users`** app registers **`driver`** and **`helper`** configs at startup (`UsersConfig.ready` → `register_user_import_configs()`), reusing the same registry, Celery tasks, and **`BulkImportJob`** / **`BulkExportJob`** models from **`apps/master_data`**.
 
-**Scope of entities covered:**
+Tenant admins upload a CSV from the model’s changelist, preview a paginated validation report, then confirm. Celery processes validation and writes. Job rows and files use a retention window controlled by **`FILE_RETENTION_DAYS`** in **`apps/master_data/models.py`** (currently **30 days**).
 
-| Entity | Model | Admin |
-|---|---|---|
-| Point of Interest | `POI` | `POIAdmin` |
-| Product Category | `ProductCategory` | `TenantMasterDataAdmin` |
-| Product | `Product` | `ProductAdmin` |
-| Vehicle | `Vehicle` | `VehicleAdmin` |
-| Driver | `Driver` | `DriverAdmin` |
-| Helper | `Helper` | `TenantMasterDataAdmin` |
-| Supplier | `Supplier` | `TenantMasterDataAdmin` |
-| Dealer | `Dealer` | `TenantMasterDataAdmin` |
+**Registry-backed bulk import/export (implemented)**:
+
+| Registry key (`model_name`) | App | Model | Admin class |
+|---|---|---|---|
+| `productcategory` | `master_data` | `ProductCategory` | `ProductCategoryBulkAdmin` |
+| `product` | `master_data` | `Product` | `ProductBulkAdmin` |
+| `brand` | `master_data` | `Brand` | `BrandAdmin` |
+| `vehicle` | `master_data` | `Vehicle` | `VehicleAdmin` |
+| `supplier` | `master_data` | `Supplier` | `SupplierAdmin` |
+| `dealer` | `master_data` | `Dealer` | `DealerAdmin` |
+| `driver` | `users` | `Driver` | `DriverAdmin` |
+| `helper` | `users` | `Helper` | `HelperAdmin` |
+
+Admin import URLs follow the app label, e.g. **`/admin/users/driver/import/`**, **`/admin/users/helper/import/`** (mixin implemented in **`apps/users/admin.py`**).
+
+**Not in `IMPORT_REGISTRY` (no admin bulk template wired yet)**:
+
+| Entity | Notes |
+|---|---|
+| `POI` | CRUD via REST/admin; add **`POIImportConfig`** + mixin when POI CSV is required. |
 
 ---
 
@@ -147,7 +157,7 @@ with schema_context(schema_name):
 Tracks the full lifecycle of one CSV import attempt. Lives in the tenant's PostgreSQL schema (inherits `TenantAwareModel`).
 
 ```python
-FILE_RETENTION_DAYS     = 7    # module-level constant in models.py
+FILE_RETENTION_DAYS     = 30   # module-level constant in apps/master_data/models.py
 MAX_IMPORT_ROWS         = 5000 # hard cap on preview_data size; see §4.1
 STALE_JOB_TIMEOUT_MINUTES = 30 # jobs stuck in validating/importing beyond this → failed; see §5.5
 
@@ -255,7 +265,7 @@ class BulkExportJob(TenantAwareModel):
 
 ### 3.1 Design
 
-`apps/master_data/import_configs.py` defines a generic registry so all 8 models share one validation pipeline. Adding import support for a new model = write one config class.
+`apps/master_data/import_configs.py` defines a generic registry so **each** model with a config class shares the same validation pipeline. Adding import support for a new model = add one config class and register it in **`IMPORT_REGISTRY`**. Today the registry holds **six** `master_data` models plus **`driver`** and **`helper`** registered from **`apps/users/import_configs.py`** at app startup; **`POI`** is not registered yet.
 
 ```python
 @dataclass
@@ -724,7 +734,7 @@ class BulkImportExportMixin:
                  self.admin_site.admin_view(self.import_confirm_view),
                  name=f"master_data_{model_name}_import_confirm"),
             path("import/<uuid:job_id>/status.json",
-                 self.admin_site.admin_view(self.import_status_view),
+                 self.admin_site.admin_view(self.import_status_json_view),
                  name=f"master_data_{model_name}_import_status"),
             path("export/",
                  self.admin_site.admin_view(self.export_trigger_view),
@@ -782,11 +792,11 @@ class VehicleAdmin(BulkImportExportMixin, TenantOnlyAdminMixin, admin.ModelAdmin
     search_fields = ("registration_number",)
 ```
 
-All 8 model admins receive this mixin. For the four models currently using `admin.site.register(Model, TenantMasterDataAdmin)`, these are converted to `@admin.register` decorated classes that inherit `BulkImportExportMixin`.
+Apply this mixin **per model** that should expose bulk CSV, and ensure **`IMPORT_REGISTRY[self.model._meta.model_name]`** exists. Unregistered models (e.g. **`POI`** today) do not get import/export URLs.
 
-### 6.2 Job History Admins
+### 6.2 Job History Admins (optional pattern)
 
-Read-only admin views so tenant admins can audit all import/export activity without needing DB access:
+Dedicated read-only **`BulkImportJob` / `BulkExportJob`** `ModelAdmin` classes are **recommended** for operational audit; they are **not required** for the mixin workflow (recent jobs are often surfaced on the per-model upload page). Example:
 
 ```python
 @admin.register(BulkImportJob)
@@ -852,7 +862,7 @@ All templates extend `admin/base_site.html` and live in `templates/admin/master_
 
 ## 8. File Retention & Cleanup
 
-Both job models auto-populate `expires_at = created_at + 7 days` in their `save()` override on first creation. The `FILE_RETENTION_DAYS = 7` constant in `models.py` controls this globally.
+Both job models auto-populate `expires_at = created_at + FILE_RETENTION_DAYS` in their `save()` override on first creation. **`FILE_RETENTION_DAYS`** in **`apps/master_data/models.py`** (currently **30**) controls this globally.
 
 The `purge_expired_bulk_files` Celery Beat task (see §5.4) runs daily and:
 1. Iterates all non-public tenant schemas
@@ -934,7 +944,7 @@ tests/
 | `TestFieldConfig` | `test_date_coercion_invalid` | `"31-12-2026"` → error |
 | `TestFieldConfig` | `test_boolean_coercion_truthy_values` | `"true"/"1"/"yes"` → `True` |
 | `TestFieldConfig` | `test_boolean_coercion_falsy_values` | `"false"/"0"/"no"` → `False` |
-| `TestRegistryCompleteness` | `test_all_8_models_in_registry` | `IMPORT_REGISTRY.keys()` contains all 8 model names |
+| `TestRegistryCompleteness` | `test_registry_contains_expected_models` | `IMPORT_REGISTRY.keys()` matches the models that expose bulk CSV (master_data six + `driver` + `helper` when `users` app is loaded) |
 | `TestRegistryCompleteness` | `test_every_config_has_unique_lookup` | `config.unique_lookup` is non-empty for all configs |
 | `TestRegistryCompleteness` | `test_get_csv_headers_returns_list_of_strings` | For each config, `get_csv_headers()` returns `list[str]` with at least one entry |
 | `TestVehicleImportConfig` | `test_valid_row_passes` | Full valid vehicle row → `is_valid=True`, no errors |
@@ -942,7 +952,7 @@ tests/
 | `TestVehicleImportConfig` | `test_all_required_columns_present_in_headers` | Required field names are subset of `get_csv_headers()` |
 | `TestProductImportConfig` | `test_invalid_uom_choice` | `uom="gallons"` → error with valid choices listed |
 | `TestProductImportConfig` | `test_requires_qc_boolean_parsing` | `requires_qc="yes"` → `True` |
-| `TestDriverImportConfig` | `test_valid_driver_row` | Full driver row passes |
+| *(Future)* `TestDriverImportConfig` | *if Driver CSV is added under `users`* | Full driver row passes |
 
 ### 9.3 test_import_service.py — ImportService
 
@@ -1088,7 +1098,7 @@ The existing `VehicleViewSet`, `DriverViewSet` etc. are model-CRUD-focused (one 
 
 - Break Single Responsibility Principle — CRUD and async job management are different concerns
 - Produce awkward URLs: `/vehicles/import/{job_uuid}/` where `{job_uuid}` is not a vehicle PK
-- Force each of the 8 ViewSets to grow with import/export actions, making them hard to read
+- Force every entity ViewSet to grow with import/export actions, making them hard to read
 
 Two dedicated ViewSets registered alongside the existing ones is the clean separation.
 
@@ -1098,7 +1108,7 @@ RESTful nested routes (`/vehicles/bulk-imports/`) require either `drf-nested-rou
 
 ### 10.2 Endpoints
 
-Registered under `/api/v1/master-data/` (the existing prefix for this app).
+Registered at **`/api/v1/bulk-imports/`** and **`/api/v1/bulk-exports/`** (see `config/urls.py` → `apps/master_data/urls.py`).
 
 #### Import Endpoints
 
@@ -1676,7 +1686,7 @@ The recommended sequence ensures each layer is testable before the next builds o
 ```
 ── Shared Core ────────────────────────────────────────────────────────────
 1. models.py         — BulkImportJob, BulkExportJob, expires_at (+ migration)
-2. import_configs.py — IMPORT_REGISTRY + all 8 configs
+2. import_configs.py — `IMPORT_REGISTRY` + configs for each bulk-enabled model (`master_data` + `users` driver/helper)
 3. services.py       — ImportService + ExportService (.iterator streaming)
 4. tasks.py          — 4 Celery tasks (validate, execute, export, purge)
    ↑ Write unit tests §9.2 – §9.5 here
@@ -1684,9 +1694,9 @@ The recommended sequence ensures each layer is testable before the next builds o
 ── SSR Track ───────────────────────────────── ── REST API Track ──────────
 5a. admin.py                                   5b. serializers.py
     BulkImportExportMixin                           7 new serializers
-    8 updated ModelAdmins                     5c. views.py
-    BulkImportJobAdmin                              BulkImportViewSet
-    BulkExportJobAdmin                              BulkExportViewSet
+    ModelAdmins that mix in bulk + registry        5c. views.py
+    (optional) BulkImportJobAdmin                   BulkImportViewSet
+    (optional) BulkExportJobAdmin                   BulkExportViewSet
 6a. Templates                                  5d. urls.py
     4 new HTML templates                            2 new router.register()
     change_list.html buttons                   ↑ Write API tests §9.6 + §10.8
@@ -1703,10 +1713,10 @@ The recommended sequence ensures each layer is testable before the next builds o
 | File | Type | Change |
 |---|---|---|
 | `apps/master_data/models.py` | Modified | Add `BulkImportJob`, `BulkExportJob`, `FILE_RETENTION_DAYS` |
-| `apps/master_data/import_configs.py` | New | `FieldConfig`, `BaseImportConfig`, all 8 model configs, `IMPORT_REGISTRY` |
+| `apps/master_data/import_configs.py` | New | `FieldConfig`, `BaseImportConfig`, per-model configs, `IMPORT_REGISTRY` |
 | `apps/master_data/services.py` | Modified | Replace `BulkUploadService` with `ImportService` + `ExportService` |
 | `apps/master_data/tasks.py` | New | 5 Celery tasks (validate, execute, export, purge, mark_stale) |
-| `apps/master_data/admin.py` | Modified | `BulkImportExportMixin`, updated 8 admins, `BulkImportJobAdmin`, `BulkExportJobAdmin` |
+| `apps/master_data/admin.py` | Modified | `BulkImportExportMixin` on registry-backed admins (e.g. Product, Vehicle, Supplier, Dealer, Brand, ProductCategory); optional job history admins |
 | `apps/master_data/serializers.py` | Modified | Add `BulkImportUploadSerializer`, `BulkImportJobSerializer`, `BulkImportPreviewRowSerializer`, `BulkImportPreviewSerializer`, `BulkImportConfirmSerializer`, `BulkExportTriggerSerializer`, `BulkExportJobSerializer` |
 | `apps/master_data/views.py` | Modified | Add `BulkImportViewSet`, `BulkExportViewSet` |
 | `apps/master_data/urls.py` | Modified | Register `bulk-imports` and `bulk-exports` ViewSets |

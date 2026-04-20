@@ -5,7 +5,7 @@ version: 1.1
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.4.1-6.4.3
-last_updated: 2026-04-08
+last_updated: 2026-04-17
 related_stories: US-095
 ---
 
@@ -37,7 +37,7 @@ Product {
   unit_of_measure: enum ['Bag', 'Ton', 'KG', 'Liters', 'Pieces', 'Cartons']
   weight_per_unit: Decimal (nullable) // Hidden/null for Ton, KG, Liters. Required for Bag, Pieces, Cartons.
   standard_pack_size: string (nullable) // Pellet, Mash, Drum, etc.
-  volume: Decimal (nullable)
+  amount: Decimal (nullable)    // field name in DB: `amount` (optional quantity/volume-like attribute)
   
   // Product Details
   description: string (nullable)
@@ -90,7 +90,7 @@ Product {
 3. The Product Sub-Category Name dropdown dynamically populates based on the selected Category
 4. Admin selects Product Sub-Category Name
 5. Enter basic information (SKU, Item Code, Name, Description)
-6. Configure physical attributes (UOM, Weight Per Unit, Volume, Standard Pack Size)
+6. Configure physical attributes (UOM, Weight Per Unit, Amount, Standard Pack Size)
 7. Set transport requirements (Preferred Vehicle Body Type, Special Handling Requirements)
 8. Configure QC requirements (Requires QC checkmark)
 9. Set status (Is Active checkmark)
@@ -126,10 +126,12 @@ Product {
     required: true
   },
   sub_category_id: {
-    required: true
+    required: false   // nullable FK in Django; if set, must belong to category (validated in model + admin form)
   }
 }
 ```
+
+**Note (implementation):** The **`Product`** model allows **`sub_category`** to be **null**. Workflow steps 3–4 above remain recommended UX; validation does not hard-require a sub-category until product policy changes.
 
 ### 2.2 Category & Sub-Category Hierarchy
 
@@ -263,10 +265,12 @@ QC Configuration:
 
 ### 5.1 Product Status Management
 
-**Status Transitions**:
+**Status transitions (PRD)**:
 ```
 Draft → Active (Is Active: true) ↔ Inactive (Is Active: false)
 ```
+
+**Implementation:** Only **`is_active`** is stored — there is **no** separate `Draft` state in the database; treat “draft” as a UX concept or add a field in a future migration if needed.
 
 **Status Implications**:
 ```typescript
@@ -325,7 +329,9 @@ async function analyzeProductUpdateImpact(
 
 ### 6.1 Search Capabilities
 
-**Search Fields**:
+**Django admin (`ProductAdmin`)** uses `search_fields` on SKU, item code, and name (substring match). It does **not** expose PostgreSQL full-text ranking in the changelist by default, even where a `GinIndex`/`SearchVector` exists on the model for future use.
+
+**Search Fields** (product-wide / API):
 - Product SKU Code
 - Product Item Code
 - Product Name (fuzzy search)
@@ -337,7 +343,7 @@ async function analyzeProductUpdateImpact(
 - Category Name / Sub-Category Name
 - Status (Is Active)
 - Requires QC (yes/no)
-- Created date range
+- Created date range *(admin changelist may not include created-date filter unless added — use API or ORM query for reporting)*
 
 ### 6.2 Product Dropdown (Transaction Screens)
 
@@ -420,6 +426,8 @@ Deactivation Rules:
   ALWAYS preserve historical data
   ALWAYS log deactivation reason
 ```
+
+**Implementation:** Master-data admin currently toggles **`is_active`** without enforcing the stock/requisition checks above — add service-layer guards when inventory and requisition modules expose reliable queries.
 
 ### 8.3 Category Management
 

@@ -1,18 +1,18 @@
 ---
 module: 12-users
 specification: Driver Domain (User on Create)
-version: 1.3
+version: 1.4
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 related_stories: US-004, US-005, US-052, US-057
-last_updated: 2026-04-09
+last_updated: 2026-04-17
 ---
 
 # Driver Domain Specification
 
 ## Overview
 
-Fleet and compliance features use a **`Driver`** aggregate (outside `apps.master_data`). **On every driver creation**, the system **persists a row in the tenant `users` table** with a fixed operational profile, then links **`Driver.user_id`** to that user. Field-level detail for `User` lives in [User & Tenant Management](user-tenant-management.md) and [RBAC](rbac.md); this spec defines **what must be written at driver-create time** and **what stays on `Driver`**.
+Fleet and compliance features use a **`Driver`** aggregate in **`apps.users`** (outside `apps.master_data`). **On every driver creation**, the system **persists a row in the tenant `users` table** with a fixed operational profile, then links **`Driver.user`** (OneToOne FK) to that user. Field-level detail for `User` lives in [User & Tenant Management](user-tenant-management.md) and [RBAC](rbac.md); this spec defines **what must be written at driver-create time** and **what stays on `Driver`**.
 
 **Out of scope here**: **Invitation**, activation tokens, OTP, resend, and expiry—those follow a **separate invitation implementation plan** (US-005 / TUM) and are **not** part of the driver creation contract below.
 
@@ -23,6 +23,18 @@ Fleet and compliance features use a **`Driver`** aggregate (outside `apps.master
 | **`User` row** on create: name, role, department, phone, employee id | **Identity / users** module — invoked in the **same transaction** as `Driver` insert |
 | License, documents, fleet state, trip FKs | **`Driver`** module & `Driver` model |
 | Invitation & activation workflows | **Separate implementation plan** (not this document) |
+
+---
+
+## Implementation status (nourish-backend)
+
+| Topic | Behaviour in code |
+|--------|---------------------|
+| **Model** | **`users.Driver`**: `user` **OneToOne** to **`users.User`**; **`permanent_vehicle`** optional FK to **`master_data.Vehicle`**; compliance fields (`driving_license_number`, `license_type`, `license_expiry_date`, …); **`FileField`** document uploads; **`current_state`** / **`driver_type`** use **lowercase** enum values in DB (e.g. `available`, `permanent`). |
+| **Admin create** | **`DriverAdmin.save_model`** creates **`User`** (inactive, unusable password), assigns **Driver** role + **Operations** department via **`UserRole`**, may send **invitation** (`create_invitation_for_provisioned_user`), then saves **`Driver`** linked to that user — **this is the primary “User + Driver in one transaction” path** today. |
+| **REST API** | **`GET/POST/PATCH … /api/v1/drivers/`** via **`master_data.views.DriverViewSet`**; **`DriverSerializer`** is a thin **`ModelSerializer`** (`fields = "__all__"`). **List queryset** filters **`is_active=True`** only. **Nested User+Driver creation** as a single API payload is **not** implemented in the serializer — use **admin** or **CSV bulk import** for the full provisioning flow unless a dedicated create serializer is added later. |
+| **Bulk CSV** | **`DriverImportConfig`** in **`apps/users/import_configs.py`** registers **`IMPORT_REGISTRY["driver"]`**. Columns include **`user_email`**, **`first_name`**, **`last_name`**, **`employee_id`**, **`contact_number`**, optional **`email`** (driver row), **`driver_type`**, **`driving_license_number`**, **`license_type`**, **`license_expiry_date`**, optional **`national_id_number`**, optional **`is_active`**. Upserts by license; creates/links **`User`** and may enqueue **invitation** per row rules. Django admin: **`/admin/users/driver/import/`**. Shared bulk API: **`/api/v1/bulk-imports/`** with `model_name=driver` — see **[bulk-import-export.md](../02-master-data/bulk-import-export.md)**. |
+| **Search fields on ViewSet** | Declared as `full_name`, `employee_code`, … — align with model field names if you extend the API (Driver stores name on **`User`**, not `full_name` on **`Driver`**). |
 
 ---
 
@@ -41,7 +53,7 @@ When **`Driver`** is created (single `POST` or bulk row), the implementation **m
 
 Additional user fields (email, status `Pending` vs `Active`, etc.) follow the global user model and **invitation plan**—this spec does **not** mandate invitation timing or email delivery on create.
 
-**Transactional rule**: **`Driver.user_id`** is set to the new user’s id in the **same database transaction** as the `User` insert and `Driver` insert (or fail all). No “driver without user” state for the happy path.
+**Transactional rule**: **`Driver.user_id`** (via **`Driver.user`**) is set to the new user’s id in the **same database transaction** as the `User` insert and `Driver` insert (or fail all). No “driver without user” state for the happy path.
 
 ---
 
@@ -51,24 +63,25 @@ The **`Driver`** record holds US-057 compliance and fleet fields. Naming: model/
 
 ```typescript
 Driver {
-  driver_id: UUID
+  id: UUID
   tenant_id: UUID
 
-  // Required link — set when User row is created
+  // Required link — OneToOne User (column user_id)
   user_id: UUID
 
-  // Contact (align with User.phone_number; duplicate allowed for read-only denorm or single source of truth on User)
-  contact_number: string              // E.164; unique per tenant
+  // Optional fleet link (implementation)
+  permanent_vehicle_id: UUID | null   // FK to master_data.Vehicle
+
+  // Contact (align with User.phone_number)
+  contact_number: string              // unique per tenant
   email: string | null
 
-  // Employment / HR (employee_id may live on User only; if duplicated here, keep in sync)
-  driver_type: enum ['Permanent', 'Temporary', 'Own', 'Vendor']
+  driver_type: enum ['permanent', 'temporary', 'own', 'vendor']  // DB values; labels Title Case in UI
 
-  // License & compliance
   driving_license_number: string   // Unique per tenant
   license_type: string
   license_expiry_date: Date
-  national_id_number: string | null
+  national_id_number: string | null  // unique when set
 
   reference_contact_1: string | null
   reference_contact_2: string | null
@@ -76,17 +89,17 @@ Driver {
   last_training_assessment_info: string | null
   address: string | null
 
-  experience_certificate: Attachment | null
-  biodata: Attachment | null
-  medical_certificate: Attachment | null
+  experience_certificate: File | null
+  biodata: File | null
+  medical_certificate: File | null
   medical_certificate_expiry_date: Date | null
 
   is_active: boolean
-  current_state: enum ['Available', 'Assigned', 'On Leave']
+  current_state: enum ['available', 'assigned', 'on_leave']
 
-  created_by: UUID
+  created_by: UUID | null
   created_at: DateTime
-  updated_by: UUID
+  updated_by: UUID | null
   updated_at: DateTime
 }
 ```
@@ -130,7 +143,7 @@ Sending activation email, SMS, or in-app invite, **resend**, **revoke**, and tok
 - **Assignment history**: `driver_id`, `vehicle_id`, start/end, `assigned_by`.
 - **Performance metrics**: By `driver_id`.
 
-See [Master Data Configuration](../02-master-data/master-data-configuration.md) §3.
+See **[bulk-import-export.md](../02-master-data/bulk-import-export.md)** (shared **`IMPORT_REGISTRY`**, **`driver`** key) and **[master-data-configuration.md](../02-master-data/master-data-configuration.md)**.
 
 ---
 
@@ -143,24 +156,24 @@ See [Master Data Configuration](../02-master-data/master-data-configuration.md) 
 
 ## 7. API design (implementation plan)
 
-**Primary surface**: `/api/v1/drivers`. Create payload **includes** user fields required for the `User` row (`first_name`, `last_name`, `phone_number`, `employee_id`) plus driver/compliance fields.
+**Read/list/create surface**: **`/api/v1/drivers/`** (`apps.master_data.views.DriverViewSet`). **Full User+Driver provisioning** is implemented in **Django admin** and **CSV import** (see **Implementation status** above), not necessarily as a single nested POST body on the ViewSet.
 
 ### 7.1 Driver CRUD & list
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/drivers` | Create **`User`** (Driver role, Operations dept) + **`Driver`** in one transaction |
-| `GET` | `/api/v1/drivers` | List; include `first_name`/`last_name` from join or nested `user` |
-| `GET` | `/api/v1/drivers/{driver_id}` | Detail + linked `user` summary |
-| `PATCH` | `/api/v1/drivers/{driver_id}` | Update driver fields; **user** name/phone/employee_id updates if policy allows (same service or delegated) |
-| `PATCH` | `/api/v1/drivers/{driver_id}/status` | `is_active`, `current_state` |
+| `POST` | `/api/v1/drivers/` | Creates **`Driver`** with **`user`** FK — typically requires an existing **`User`** id unless extended |
+| `GET` | `/api/v1/drivers/` | List (**active drivers only** in current `get_queryset`) |
+| `GET` | `/api/v1/drivers/{id}/` | Detail |
+| `PATCH` | `/api/v1/drivers/{id}/` | Partial update |
+| `DELETE` | `/api/v1/drivers/{id}/` | Per DRF / model behaviour |
 
 ### 7.2 Bulk import
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/drivers/import` | Each row creates **User + Driver** as in §3.2 |
-| `GET` | `/api/v1/drivers/import/template` | Headers for user + driver columns |
+| `POST` | `/api/v1/bulk-imports/` | Multipart upload; body includes target model (e.g. **`model_name`: `driver`**) — see **[bulk-import-export.md](../02-master-data/bulk-import-export.md) §10** |
+| Django admin | `/admin/users/driver/import/` | Same pipeline as other bulk-enabled models; template/sample CSV from import config |
 
 ### 7.3 Documents, leave, performance, compliance
 

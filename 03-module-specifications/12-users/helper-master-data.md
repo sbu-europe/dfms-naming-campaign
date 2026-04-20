@@ -1,10 +1,10 @@
 ---
 module: 12-users
 specification: Helper Master Data Management
-version: 1.2
+version: 1.3
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
-last_updated: 2026-04-09
+last_updated: 2026-04-17
 related_stories: US-061
 ---
 
@@ -18,9 +18,21 @@ This specification defines the Helper data model, lifecycle management, assignme
 
 ### Architectural placement
 
-Helper behaviour spans **identity** (who can log in or be linked to audit context), **tenant-scoped master data** (employee profile, availability), and **operations** (trip assignment). The detailed implementation plan therefore lives under **01-foundation** alongside user/tenant models: helpers may exist only as operational profiles, or may be **linked to a platform `User`** when the same person is also a system user (e.g. mobile or back-office access). The optional `user_id` foreign key preserves that evolution without forcing every helper to have credentials on day one.
+The **`Helper`** model lives in **`apps.users`** (`users.Helper`). Helpers may be **linked to a platform `User`** via optional **`user`** OneToOne (nullable); most helpers are operational-only records.
 
-For the broader master-data catalogue (vehicles, drivers, vendors, bulk upload patterns), see the **02-master-data** module specifications.
+For bulk CSV patterns and **`IMPORT_REGISTRY`**, see **[bulk-import-export.md](../02-master-data/bulk-import-export.md)** and **[master-data-configuration.md](../02-master-data/master-data-configuration.md)**.
+
+---
+
+## Implementation status (nourish-backend)
+
+| Topic | Behaviour in code |
+|--------|---------------------|
+| **Model** | **`user`** OneToOne nullable; **`is_active`**; **`deleted_at`** soft delete; **`total_trips`**, **`last_trip_date`**, **`incident_count`**; **no `availability_status` field** (removed — use **`is_active`** + soft delete + trip logic elsewhere). |
+| **REST API** | **`HelperViewSet`** in **`apps/users/views.py`** — routes under **`/api/v1/users/helpers/`** (nested under **`users`** URL include). **`GET …/helpers/available/`** lists active non-deleted helpers. **`PATCH …/helpers/{id}/status/`** updates **`is_active`** only (`HelperStatusUpdateSerializer`). |
+| **Dead code note** | A duplicate **`HelperViewSet`** exists in **`apps/master_data/views.py`** but is **not** registered in **`master_data/urls.py`** — the live API is the **`users`** app. |
+| **Bulk CSV** | **`HelperImportConfig`** registers **`IMPORT_REGISTRY["helper"]`**. Columns: **`employee_id`**, **`full_name`**, **`contact_number`**, optional **`national_id_number`**, **`reference_contact_1`**, **`reference_contact_2`**, **`address`**, optional **`is_active`**. Upserts by **`employee_id`**. Admin: **`/admin/users/helper/import/`**. |
+| **HelperAssignment** | **Not implemented** as a Django model in this repository yet — §1.2 / §4 / §6 below remain **target** design for future trips/TO integration. |
 
 ---
 
@@ -44,14 +56,8 @@ Helper {
   reference_contact_2: string (nullable)
   address: string (nullable)
 
-  // Status & Availability
-  is_active: boolean               // Checkmark (Is Active?)
-  availability_status: enum [
-    'Available',
-    'OnTrip',
-    'OnLeave',
-    'Terminated'
-  ]
+  // Status (implementation: no separate availability_status column)
+  is_active: boolean               // Master toggle; soft-delete sets deleted_at + is_active false
 
   // Performance Tracking
   total_trips: integer             // Default: 0
@@ -74,9 +80,9 @@ Helper {
 - **When set**: Enforces **at most one Helper per User per tenant** (and typically one User linked per Helper). Enables shared audit identity, future mobile login as helper, and RBAC alignment without duplicating identity fields on `Helper`.
 - **Provisioning**: Linking or unlinking `user_id` is an admin/TDO action; changing linked users must respect uniqueness and active-trip constraints.
 
-### 1.2 Helper Assignment Model
+### 1.2 Helper Assignment Model (target / not in schema yet)
 
-To support the many-to-one mapping (multiple helpers per driver/trip) and retain assignment history, a dedicated mapping entity is used.
+To support the many-to-one mapping (multiple helpers per driver/trip) and retain assignment history, a dedicated mapping entity may be introduced. **There is no `HelperAssignment` table in the current codebase** — treat the following as **design intent**.
 
 ```typescript
 HelperAssignment {
@@ -103,15 +109,13 @@ HelperAssignment {
 
 ## 2. Availability & State Management
 
-### 2.1 State Transitions
+### 2.1 State transitions (product intent vs implementation)
 
-The `availability_status` of a helper is governed by a strict state machine to prevent assignment conflicts.
+The **`Helper`** row does **not** store **`availability_status`**. Operational states (**on trip**, **on leave**) are intended to be enforced by **trip assignment services** and/or future fields — today use **`is_active`**, **`deleted_at`**, and downstream modules.
 
-**Allowed Transitions:**
-- `Available` ↔ `OnLeave`: Manual toggle by TDO or Tenant Admin.
-- `Available` → `OnTrip`: Triggered **automatically** when assigned to an active trip.
-- `OnTrip` → `Available`: Triggered **automatically** when the associated trip is completed or cancelled.
-- `Any State` → `Terminated`: Manual override. Prevents any future assignments.
+**Target transitions (when assignment model exists):**
+- In service / trip layer: only assign helpers that are **active** and **not soft-deleted**.
+- **`PATCH /users/helpers/{id}/status/`** toggles **`is_active`** only (see **`HelperStatusUpdateSerializer`**).
 
 ### 2.2 Conflict Prevention
 
@@ -124,11 +128,9 @@ function validateHelperAssignment(helper_id: UUID): ValidationResult {
         return { valid: false, message: 'Helper is inactive.' };
     }
 
-    if (helper.availability_status !== 'Available') {
-        return {
-            valid: false,
-            message: `Helper cannot be assigned. Current status: ${helper.availability_status}`
-        };
+    // Implementation: use is_active && !deleted_at; optional trip-level checks when assignments exist
+    if (!helper.is_active || helper.deleted_at) {
+        return { valid: false, message: 'Helper is inactive or deleted.' };
     }
 
     // Double-check active assignments to prevent race conditions
@@ -151,7 +153,7 @@ function validateHelperAssignment(helper_id: UUID): ValidationResult {
 1. TDO/Tenant Admin enters helper details.
 2. System validates uniqueness of `employee_id`, `contact_number`, and `national_id_number` (if provided) within the tenant context.
 3. Optional: link `user_id` if a `User` already exists; otherwise leave null.
-4. System creates Helper record with `is_active = true` and `availability_status = 'Available'`.
+4. System creates Helper record with `is_active = true` (and `deleted_at` null).
 5. Audit log records the creation event.
 
 **Validation Rules:**
@@ -168,34 +170,28 @@ function validateHelperAssignment(helper_id: UUID): ValidationResult {
 
 ### 3.2 Bulk Upload (CSV)
 
-To facilitate onboarding, helpers can be uploaded in bulk via CSV.
+Helpers support the **shared bulk job pipeline**: Django admin **`/admin/users/helper/import/`** and REST **`POST /api/v1/bulk-imports/`** with **`model_name=helper`** (see **[bulk-import-export.md](../02-master-data/bulk-import-export.md)**).
 
-**Processing Rules:**
-- **Append-Only**: The upload only creates new records; it does not update existing ones.
-- **Row-Level Isolation**: Rows are processed independently. If Row 3 fails validation (e.g., duplicate Contact Number), Rows 1, 2, and 4 are still inserted successfully.
-- **Error Reporting**: The API returns a structured report detailing successful inserts and specific row-level errors.
+**Processing rules (implementation):**
+- **`HelperImportConfig`** upserts by **`employee_id`** (creates or updates the active row).
+- Preview / **`import_valid_only`** semantics match the global bulk spec.
 
 ### 3.3 Updates & Inline Editing
 
 **Editable Fields:**
-- Full Name, Contacts, Address, Status (`is_active`, `availability_status`), optional `user_id` (with uniqueness checks).
+- Full Name, Contacts, Address, **`is_active`**, optional **`user`** (with uniqueness checks). No separate **`availability_status`** field.
 - Inline row and column editing is supported on the frontend list view.
 - *Note*: Updating `employee_id`, `contact_number`, or `national_id_number` triggers re-validation of unique constraints.
 
 ### 3.4 Deactivation (Soft Delete)
 
 ```typescript
+// API perform_destroy (users.HelperViewSet): sets deleted_at, is_active=false
 async function deleteHelper(helper_id: UUID): Promise<void> {
-    const helper = await getHelper(helper_id);
-
-    if (helper.availability_status === 'OnTrip') {
-        throw new Error('Cannot delete a helper currently assigned to an active trip.');
-    }
-
+    // Add trip-assignment guard when HelperAssignment exists
     await db.update('helpers', helper_id, {
         deleted_at: NOW(),
         is_active: false,
-        availability_status: 'Terminated'
     });
 }
 ```
@@ -205,8 +201,8 @@ async function deleteHelper(helper_id: UUID): Promise<void> {
 ## 4. Integration Points
 
 ### 4.1 Trip & Transport Order (TO) Execution
-- **Assignment**: During trip dispatch, TDOs can assign one or more helpers to the driver/vehicle.
-- **Auto-Status Updates**: When a trip transitions to `InTransit`, assigned helpers move to `OnTrip`. When the trip transitions to `Completed`, helpers revert to `Available`.
+- **Assignment**: During trip dispatch, TDOs can assign one or more helpers to the driver/vehicle (**requires assignment persistence** — see §1.2 roadmap).
+- **Auto-Status Updates**: Intended trip-driven status changes are **not** stored on **`Helper.availability_status`**; implement in trip/assignment services when models exist.
 
 ### 4.2 Performance Tracking
 - **Total Trips**: Incremented automatically upon trip completion.
@@ -214,24 +210,24 @@ async function deleteHelper(helper_id: UUID): Promise<void> {
 - **Incident Count**: Incremented if the helper is linked to a logged trip incident (e.g., damage, delay).
 
 ### 4.3 User & identity integration
-- When `user_id` is set, permission checks for actions “as user” use **[RBAC](rbac.md)** / **[User & tenant management](user-tenant-management.md)**; operational helper rules (availability, trip assignment) still use the Helper aggregate.
+- When **`user`** (FK) is set, permission checks for actions “as user” use **[RBAC](rbac.md)** / **[User & tenant management](user-tenant-management.md)**; operational helper rules (trip assignment) still use the Helper aggregate.
 
 ---
 
 ## 5. API Endpoints
 
-All endpoints are prefixed with `/api/v1` and require TDO or Tenant Admin authorization.
+Implemented under **`/api/v1/users/helpers/`** (`apps.users.views.HelperViewSet`).
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/helpers` | List helpers (paginated, supports search and filtering by status). |
-| `GET` | `/helpers/available` | Convenience endpoint: lists helpers where `is_active=true` and `availability_status='Available'`. |
-| `POST` | `/helpers` | Create a new helper profile. |
-| `GET` | `/helpers/{id}` | Get detailed helper profile, including performance metrics. |
-| `PATCH` | `/helpers/{id}` | Update helper profile (supports inline field edits). |
-| `PATCH` | `/helpers/{id}/status` | Manually update helper status (e.g., mark `OnLeave`). |
-| `POST` | `/helpers/bulk-upload` | Upload helpers via CSV (returns row-level error report). |
-| `GET` | `/helpers/bulk-upload/template` | Download the CSV template for bulk upload. |
+| `GET` | `/api/v1/users/helpers/` | List helpers (`deleted_at` null); filter **`is_active`**, search employee/name/contact/NID. |
+| `GET` | `/api/v1/users/helpers/available/` | **`is_active=true`**, not deleted. |
+| `POST` | `/api/v1/users/helpers/` | Create helper. |
+| `GET` | `/api/v1/users/helpers/{id}/` | Retrieve. |
+| `PATCH` | `/api/v1/users/helpers/{id}/` | Partial update. |
+| `DELETE` | `/api/v1/users/helpers/{id}/` | Soft delete. |
+| `PATCH` | `/api/v1/users/helpers/{id}/status/` | **`is_active`** only. |
+| `POST` | `/api/v1/bulk-imports/` | CSV bulk with **`model_name=helper`**. |
 
 ---
 
@@ -239,22 +235,21 @@ All endpoints are prefixed with `/api/v1` and require TDO or Tenant Admin author
 
 ### 6.1 Indexes for Performance and Integrity
 
+Uniqueness is implemented via **`django.db.models.UniqueConstraint`** on **`Helper`** (see **`apps/users/models.py`**). Illustrative SQL:
+
 ```sql
--- Unique Constraints (Partial indexes to ignore soft-deleted records)
 CREATE UNIQUE INDEX idx_helper_emp_id ON helpers(tenant_id, employee_id) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX idx_helper_contact ON helpers(tenant_id, contact_number) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX idx_helper_nid ON helpers(tenant_id, national_id_number) WHERE national_id_number IS NOT NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX idx_helper_user_id ON helpers(tenant_id, user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
-
--- Query Performance
-CREATE INDEX idx_helper_status ON helpers(tenant_id, is_active, availability_status);
-CREATE INDEX idx_helper_assignment_active ON helper_assignments(helper_id, status) WHERE status = 'Active';
-CREATE INDEX idx_helper_assignment_trip ON helper_assignments(trip_id);
+-- helper_assignments: not in current schema
 ```
 
 ---
 
 ## 7. Testing Strategy (Target >80% Coverage)
+
+**Implementation note:** Tests below that reference **`availability_status`**, **`HelperAssignment`**, or trip-driven status flips describe **target** behaviour once those models and services exist; current tests should focus on **`Helper`** constraints, **`HelperViewSet`**, and **`HelperImportConfig`**.
 
 To ensure robustness and data integrity, the Helper Master Data Management module will employ a dual-layered testing approach focusing on domain logic isolation and database constraint verification.
 
