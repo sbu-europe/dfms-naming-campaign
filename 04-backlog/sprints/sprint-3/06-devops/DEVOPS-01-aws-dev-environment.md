@@ -199,19 +199,61 @@ Internet
 
 ## Cost Estimate (Dev — Monthly, ap-south-1 Mumbai)
 
-| Resource | Spec | Est. Cost/mo |
-|----------|------|--------------|
-| EC2 | t3.micro (PostgreSQL + Redis in Docker) | ~$8 |
-| S3 | ~1 GB media storage | ~$0.02 |
-| ECR | Docker image storage | ~$0.50 |
-| ACM | `*.dev.dfms.com` wildcard cert | $0 |
-| Route 53 | Shared hosted zone | ~$0.50 |
-| SES | Sandbox — no charge for verified addresses | $0 |
-| CloudWatch | Basic logs + alarms | ~$1 |
-| **Total (always-on)** | | **~$10/month** |
+> Pricing sourced from AWS public pricing pages (April 2026). All figures are USD, excl. tax.  
+> Free Tier = 12-month free tier from account creation date (unless marked "Always Free").
 
-> **With auto-stop** (EventBridge: 08:00–20:00 BDT Mon–Sat, off Sunday = ~65 hrs/week active vs 168 hrs): **~$3–4/month effective**.  
-> No RDS or ElastiCache in dev — PostgreSQL and Redis run in Docker containers on the EC2 instance. Upgrade to managed services in QA/STG.
+### Free Tier coverage
+
+| Service | Free Tier Allowance | Our Dev Usage | Covered? |
+|---------|-------------------|---------------|----------|
+| **EC2 t3.micro** | 750 hrs/mo for 12 months (t2.micro or t3.micro) | 1 × t3.micro = 720 hrs/mo | ✅ **100% free** (12 mo) |
+| **EBS** (root volume) | 30 GB/mo for 12 months | ~20 GB root volume | ✅ **100% free** (12 mo) |
+| **S3 storage** | 5 GB/mo for 12 months | ~1 GB media files | ✅ **100% free** (12 mo) |
+| **S3 requests** | 20,000 GET + 2,000 PUT/mo | Low dev traffic | ✅ **free** (12 mo) |
+| **ECR private storage** | 500 MB/mo for 12 months | ~400–600 MB image | ⚠️ **borderline** — use public ECR repo (50 GB always free) to be safe |
+| **SES email** | 3,000 message charges/mo for 12 months | ~200–500 OTP + invite emails | ✅ **100% free** (12 mo) |
+| **CloudWatch Logs** | 5 GB ingestion + storage/mo — **Always Free** | ~200 MB dev logs | ✅ **100% free** (always) |
+| **CloudWatch Alarms** | 10 alarms — **Always Free** | ~4 alarms (CPU, disk, errors, queue) | ✅ **100% free** (always) |
+| **CloudWatch Metrics** | 10 custom metrics — **Always Free** | ~4 custom metrics | ✅ **100% free** (always) |
+| **SSM Parameter Store** | Standard parameters — **Always Free** | ~8 SecureString params | ✅ **100% free** (always) |
+| **EventBridge Scheduler** | 14M invocations/mo — **Always Free** | 2 events/day (start + stop) | ✅ **100% free** (always) |
+| **ACM** | Wildcard cert — **Always Free** | `*.dev.dfms.com` | ✅ **100% free** (always) |
+| **Data transfer out** | 100 GB/mo across all services — **Always Free** | <1 GB dev traffic | ✅ **100% free** (always) |
+| **Route 53** | ❌ No free tier | 1 hosted zone | ❌ **not free** |
+
+### What you actually pay
+
+| Resource | Spec | Always-on/mo | With auto-stop¹ |
+|----------|------|-------------|-----------------|
+| EC2 t3.micro | ~~$0.0116/hr~~ | **$0** (free tier) | **$0** (free tier) |
+| EBS root volume | ~~20 GB GP2~~ | **$0** (free tier) | **$0** (free tier) |
+| S3 | ~~1 GB media~~ | **$0** (free tier) | **$0** (free tier) |
+| ECR | Use **public repo** (50 GB always free) | **$0** | **$0** |
+| SES | ~~≤500 emails/mo~~ | **$0** (free tier) | **$0** (free tier) |
+| CloudWatch | Logs + 4 alarms + 4 metrics | **$0** (always free) | **$0** (always free) |
+| SSM Parameter Store | ~8 Standard params | **$0** (always free) | **$0** (always free) |
+| EventBridge Scheduler | 2 invocations/day | **$0** (always free) | **$0** (always free) |
+| ACM | `*.dev.dfms.com` | **$0** (always free) | **$0** (always free) |
+| Route 53 | 1 hosted zone | **$0.50** | **$0.50** |
+| **Total** | | **~$0.50/month** | **~$0.50/month** |
+
+> ¹ Auto-stop (EventBridge: start 08:00, stop 20:00 BDT Mon–Sat; off Sunday = ~65 active hrs/wk) saves ~62% on EC2 — but EC2 is already free tier, so savings only matter **after month 12**.
+
+### After free tier expires (month 13+)
+
+| Resource | Always-on/mo | With auto-stop |
+|----------|-------------|----------------|
+| EC2 t3.micro | ~$8.50 | ~$3.20 |
+| EBS 20 GB GP3 | ~$1.60 | ~$1.60 |
+| S3 ~1 GB | ~$0.02 | ~$0.02 |
+| ECR public repo | $0 | $0 |
+| SES ≤500 emails | ~$0.05 | ~$0.05 |
+| CloudWatch | $0 | $0 |
+| SSM / EventBridge / ACM | $0 | $0 |
+| Route 53 | $0.50 | $0.50 |
+| **Total** | **~$10.70/mo** | **~$5.40/mo** |
+
+> **Recommendation**: Use the ECR **public repository** (50 GB always free) instead of a private repo during dev to eliminate ECR storage cost entirely. Switch to private ECR when moving to QA/STG.
 
 ---
 

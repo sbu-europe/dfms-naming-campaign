@@ -98,20 +98,25 @@ Internet → Route 53 → CloudFront (CDN)
 
 ### Cloud DEV
 
-> **Context**: Internal testing only, ≤20 testers. Cost minimised by running PostgreSQL and Redis in Docker on the same EC2 (no RDS, no ElastiCache). Scheduled auto-stop outside business hours (08:00–20:00 BDT, Mon–Sat).
+> **Context**: Internal testing only, ≤20 testers. Cost minimised by running PostgreSQL and Redis in Docker on the same EC2 (no RDS, no ElastiCache). EC2 t3.micro is fully covered by the **AWS 12-month free tier** (750 hrs/mo). ECR uses a public repository (50 GB always free).
 
-| Component | Spec | Monthly Cost (ap-south-1) |
-|-----------|------|--------------------------|
-| EC2 | t3.micro (2 vCPU, 1 GB RAM) — Docker host for web + Nginx + Celery + **PostgreSQL + Redis** | ~$8 |
-| S3 | ~1 GB storage (media, attachments) | ~$0.02 |
-| ACM | Wildcard TLS `*.dev.dfms.com` | $0 |
-| Route 53 | Shared hosted zone (split across envs) | ~$0.50 |
-| SES | Sandbox — dev team emails only | $0 |
-| CloudWatch | Basic logs | ~$1 |
-| **Total (always-on)** | | **~$10/month** |
+| Component | Spec | Free Tier? | Pay/mo (yr 1) | Pay/mo (yr 2+) |
+|-----------|------|-----------|--------------|----------------|
+| EC2 t3.micro | Docker: web + Nginx + Celery + PostgreSQL + Redis | ✅ 12-mo free | $0 | ~$3.20 (auto-stop) |
+| EBS 20 GB root | Data persistence for PostgreSQL + Redis volumes | ✅ 12-mo free | $0 | ~$1.60 |
+| S3 ~1 GB | Media files (Arrival Notice, attachments) | ✅ 12-mo free | $0 | ~$0.02 |
+| ECR (public repo) | Docker image storage | ✅ Always free (50 GB) | $0 | $0 |
+| SES | OTP + invite emails (≤500/mo) | ✅ 12-mo free | $0 | ~$0.05 |
+| CloudWatch | 5 GB logs + 10 alarms + 10 metrics | ✅ Always free | $0 | $0 |
+| SSM Parameter Store | ~8 SecureString params | ✅ Always free | $0 | $0 |
+| EventBridge Scheduler | Auto-stop/start (2 events/day) | ✅ Always free | $0 | $0 |
+| ACM | `*.dev.dfms.com` wildcard cert | ✅ Always free | $0 | $0 |
+| Route 53 | 1 hosted zone | ❌ Not free | **$0.50** | **$0.50** |
+| **Total** | | | **~$0.50/mo** | **~$5.40/mo** |
 
-> **With auto-stop** (EventBridge: stop at 20:00, start at 08:00 BDT Mon–Sat, off all Sunday): ~65% saving → **~$3–4/month effective**.  
-> ⚠️ PostgreSQL and Redis run in Docker containers on EC2 — acceptable for internal dev. Data persists on an EBS volume attached to the instance. Upgrade to RDS + ElastiCache when moving to Cloud QA or Staging.
+> **Year 1**: Effectively **$0.50/month** (only Route 53 is charged — everything else is free tier).  
+> **Year 2+**: ~$5.40/month with auto-stop (08:00–20:00 BDT Mon–Sat, off Sunday).  
+> ⚠️ PostgreSQL and Redis run in Docker on EC2 — acceptable for ≤20 internal testers. Data persists on EBS. Upgrade to RDS + ElastiCache when moving to Cloud QA/Staging.
 
 ### CI — GitHub Actions (no domain, no EC2)
 
