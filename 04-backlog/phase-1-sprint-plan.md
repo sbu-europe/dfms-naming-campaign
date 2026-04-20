@@ -96,36 +96,52 @@
 
 ---
 
-## Sprint 3 — Transfer Requisition, Transport Planning & Transport Orders
+## Sprint 3 — Product Requisition, Transport Requests & Transport Orders
 
 > Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-3/](sprints/sprint-3/README.md)
 
-### Epic: Transfer Requisition
+### Epic: Requisition
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Finished Goods (FG) Transfer Requisition](sprints/sprint-3/01-transfer-requisition/TR-01-fg-transfer-requisition.md) | TR-01 | DFS-032 | Pending | 5 |
-| [Port Consignment / RM Transfer Requisition](sprints/sprint-3/01-transfer-requisition/TR-02-port-rm-transfer-requisition.md) | TR-02 | DFS-033 | Pending | 5 |
-| [Stock & Capacity Validation](sprints/sprint-3/01-transfer-requisition/TR-03-stock-capacity-validation.md) | TR-03 | DFS-034 | Pending | 3 |
-| [Distribution Approval Workflow (FG TR)](sprints/sprint-3/01-transfer-requisition/TR-04-distribution-approval.md) | TR-04 | DFS-035 | Pending | 5 |
-| [Procurement Approval Workflow (Port / RM TR)](sprints/sprint-3/01-transfer-requisition/TR-05-procurement-approval.md) | TR-05 | DFS-036 | Pending | 5 |
+| [FG Product Requisition](sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md) | PR-01 | DFS-032 | Pending | 5 |
+| [Port Consignment (LC-Based) Product Requisition](sprints/sprint-3/01-requisition/PR-02-rm-product-requisition.md) | PR-02 | DFS-033 | Pending | 5 |
 
-### Epic: Transport Planning
+### Epic: Distribution
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [TR Assessment by Transport Planner](sprints/sprint-3/02-transport-planning/TP-01-tr-assessment.md) | TP-01 | DFS-037 | Pending | 5 |
-| [Fleet Availability & Transport Planning](sprints/sprint-3/02-transport-planning/TP-02-fleet-availability-planning.md) | TP-02 | DFS-038 | Pending | 5 |
+| [Distribution — FG Product Requisitions View](sprints/sprint-3/02-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | Pending | 2 |
+| [Distribution — Transport Request Creation & Manager Approval](sprints/sprint-3/02-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | Pending | 8 |
 
-### Epic: Transport Order
+### Epic: Procurement
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [TO Creation — Single & Multi-TO per TR](sprints/sprint-3/03-transport-order/TO-01-to-creation.md) | TO-01 | DFS-039 | Pending | 8 |
-| [TO — Own Fleet Vehicle & Driver Assignment](sprints/sprint-3/03-transport-order/TO-02-to-own-fleet-assignment.md) | TO-02 | DFS-040 | Pending | 8 |
-| [TO — Vendor Fleet Direct Assignment](sprints/sprint-3/03-transport-order/TO-03-vendor-direct-assignment.md) | TO-03 | DFS-041 | Pending | 5 |
+| [Procurement — RM Product Requisitions View](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
+| [Procurement — Transport Request Creation](sprints/sprint-3/03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
 
-| **Total** | | | | **49** |
+### Epic: Transport
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Transport Requests Queue (FG & Port Consignment)](sprints/sprint-3/04-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | Pending | 3 |
+| [Transport Order Creation](sprints/sprint-3/04-transport/02-transport-orders.md) | TO-01 | DFS-039 | Pending | 8 |
+| [TDO Vehicle, Driver, Helper & ETA Assignment](sprints/sprint-3/04-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | Pending | 8 |
+
+### Epic: QA & Testing
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Automated Test Suite — Sprint 1 & 2 Features](sprints/sprint-3/05-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | Pending | 13 |
+
+### Epic: DevOps & Infrastructure
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [AWS Dev Environment — Up & Running](sprints/sprint-3/06-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | Pending | 8 |
+
+| **Total** | | | | **68** |
 
 ---
 
