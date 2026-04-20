@@ -1,7 +1,7 @@
 ---
 module: 02-master-data
 specification: Supplier & Dealer Master Data Management - E2E Scenario Plan
-version: 1.0
+version: 1.1
 phase: Phase 1
 related_stories: US-096, DFS-018
 source_spec: ../../03-module-specifications/02-master-data/supplier-dealer-management.md
@@ -63,6 +63,31 @@ Scenario planning for Supplier and Dealer master data based on:
 | E2E-SDM-012 | Duplicate codes are append-only skipped/failed (no overwrite) | Existing entity code present | Import CSV containing existing codes | Existing rows unchanged; duplicates flagged in failure report |
 | E2E-SDM-013 | Row-level validation reporting accuracy | CSV with invalid email/coordinates | Import CSV | Failed rows include row number + exact validation reason |
 | E2E-SDM-014 | Admin import access control | Non-privileged or unauthenticated user | Attempt to open admin import page/template download/import action | Unauthenticated user redirected to admin login; unauthorized user receives permission denial |
+
+## Implementation Status (Current Test Suite)
+
+Status mapping:
+
+- Implemented: scenario intent is covered in both supplier and dealer E2E modules.
+- Partial: scenario is covered, but one or more expected-result assertions are not yet automated.
+- Pending: no automated scenario coverage yet.
+
+| Scenario ID | Current Status | Notes from Implementation |
+|-------------|----------------|---------------------------|
+| E2E-SDM-001 | Partial | `test_supplier_create_and_search` verifies create + search and default `is_active` checked; audit create log assertion is not implemented. |
+| E2E-SDM-002 | Partial | `test_dealer_create_and_search` verifies create + search and default `is_active` checked; audit create log assertion is not implemented. |
+| E2E-SDM-003 | Implemented | Duplicate code validation covered by `test_supplier_duplicate_code_rejected` and `test_dealer_duplicate_code_rejected`. |
+| E2E-SDM-004 | Implemented | Invalid email + invalid lat/long validation covered by `test_supplier_invalid_email_and_coordinates_rejected` and `test_dealer_invalid_email_and_coordinates_rejected`. |
+| E2E-SDM-005 | Implemented | Search, active/inactive filtering, and sorting behavior covered by `test_supplier_changelist_supports_search_filter_and_sort` and `test_dealer_changelist_supports_search_filter_and_sort`. |
+| E2E-SDM-006 | Partial | Update persistence covered by `test_supplier_update_via_change_form_persists_values` and `test_dealer_update_via_change_form_persists_values`; audit old/new assertion is not implemented. |
+| E2E-SDM-007 | Implemented | Deactivation via admin action and inactive listing checks covered by `test_supplier_deactivate_action_moves_entity_to_inactive_listing` and `test_dealer_deactivate_action_moves_entity_to_inactive_listing`. |
+| E2E-SDM-008 | Implemented | Permanent delete when no dependency covered by `test_supplier_delete_permanently_removes_row_when_no_dependency` and `test_dealer_delete_permanently_removes_row_when_no_dependency`. |
+| E2E-SDM-009 | Pending | Dependency-blocked hard delete scenario not yet automated (requires linked TR/TO/Trip/Gate fixture path). |
+| E2E-SDM-010 | Implemented | CSV template download and mandatory headers covered by `test_supplier_template_download_contains_required_columns` and `test_dealer_template_download_contains_required_columns`. |
+| E2E-SDM-011 | Pending | Mixed valid/invalid row import execution and summary assertion not yet implemented. |
+| E2E-SDM-012 | Pending | Append-only/duplicate import behavior assertion not yet implemented. |
+| E2E-SDM-013 | Pending | Row-level import failure reason + row number assertion not yet implemented. |
+| E2E-SDM-014 | Partial | Unauthenticated import-page access check covered by `test_supplier_import_page_requires_authentication` and `test_dealer_import_page_requires_authentication`; non-privileged permission-denied path is not yet implemented. |
 
 ## Execution Priority
 
