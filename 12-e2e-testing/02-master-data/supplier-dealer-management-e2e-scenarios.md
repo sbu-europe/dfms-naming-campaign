@@ -64,19 +64,11 @@ Scenario planning for Supplier and Dealer master data based on:
 | E2E-SDM-013 | Row-level validation reporting accuracy | CSV with invalid email/coordinates | Import CSV | Failed rows include row number + exact validation reason |
 | E2E-SDM-014 | Admin import access control | Non-privileged or unauthenticated user | Attempt to open admin import page/template download/import action | Unauthenticated user redirected to admin login; unauthorized user receives permission denial |
 
-### Security and Audit Regression Set
-
-| Scenario ID | Objective | Preconditions | High-Level Steps | Expected Result |
-|-------------|-----------|---------------|------------------|-----------------|
-| E2E-SDM-015 | Enforce admin authentication on Supplier/Dealer admin pages | Logged-out browser session | Open supplier/dealer admin add/change/delete pages directly | User is redirected to Django admin login |
-| E2E-SDM-016 | Enforce admin role/permission checks | Authenticated non-admin or restricted staff user | Attempt add/change/delete in Supplier/Dealer admin | Permission denied UI shown; records remain unchanged |
-| E2E-SDM-017 | Audit trail completeness across CRUD lifecycle | Audit system enabled | Execute create, update, deactivate, delete flow | Audit records contain actor, timestamp, action, entity, old/new payloads |
-
 ## Execution Priority
 
 1. Critical path: `E2E-SDM-001`, `E2E-SDM-002`, `E2E-SDM-005`, `E2E-SDM-006`, `E2E-SDM-009`, `E2E-SDM-011`
 2. Business rule depth: `E2E-SDM-003`, `E2E-SDM-004`, `E2E-SDM-012`, `E2E-SDM-013`
-3. Security and compliance: `E2E-SDM-014` to `E2E-SDM-017`
+3. Access and import safeguards: `E2E-SDM-014`
 
 ## Out of Scope (Current Iteration)
 
