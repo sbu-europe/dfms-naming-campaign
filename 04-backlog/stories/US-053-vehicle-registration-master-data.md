@@ -94,7 +94,7 @@ Without proper vehicle master data, the system cannot:
 - Vehicle Type (required): Pickup Van, Open Truck, Covered Truck, Nosimon, Auto, Tom Tom, Tractor
 - Number of Wheels (Numeric Input): 4, 6, 10, 12, 16, 18, 20+
 - Capacity (Max Load Capacity in Ton) - Numeric Input, Manual override allowed
-- Allowed Product Category (FG / RM / Both)
+- Allowed Product Category (FM, RM, Both, Byproducts, Machineries)
 - License/Registration Number (required, unique)
   - Format validation: Bangladesh vehicle registration pattern
   - Display format: Dhaka Metro-GA-11-1234
@@ -248,7 +248,7 @@ Vehicle {
   vehicle_type: Enum (Pickup_Van, Open_Truck, Covered_Truck, Nosimon, Auto, Tom_Tom, Tractor)
   number_of_wheels: Integer (4, 6, 10, 12, 16, 18, 20+)
   capacity_tonnage: Decimal (Max Load Capacity in Ton)
-  allowed_product_category: Enum (FG, RM, Both)
+  allowed_product_category: Enum (FM, RM, Both, Byproducts, Machineries)
   model: String (required)
   ownership: Enum (Own, Vendor)
   assigned_poi_id: UUID (FK to POI, required)

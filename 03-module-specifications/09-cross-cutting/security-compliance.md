@@ -2,9 +2,10 @@
 source_document: PRD_DFMS_v1.0.md
 source_sections: Security, Compliance, Data Security, Access Control
 extracted_date: 2026-02-13
-last_updated: 2026-02-26
+last_updated: 2026-04-07
 document_type: domain_specification
 related_modules: [authentication-security, rbac, user-tenant-management]
+related_stories: [US-001, US-002, US-003, US-004, US-005, US-007, US-008, US-009]
 ---
 
 # Security & Compliance
@@ -101,15 +102,75 @@ function maskNationalID(nid: string): string {
 
 ## Access Control (RBAC)
 
-**Role Hierarchy:**
-1. **Administrative Roles:** Super Admin, Tenant Admin, Department Admin
-2. **Operational Roles:** Transport Planner, QC Supervisor, Driver
-3. **External Roles:** Vendor, Vendor Driver
+For the full RBAC specification, see [rbac.md](../01-foundation/rbac.md) and [permission-catalog-phase1.md](../01-foundation/permission-catalog-phase1.md).
 
-**Permission Enforcement:**
-- UI level (button visibility)
-- API level (endpoint access)
-- Database level (row-level security)
+**Role Hierarchy (Four-Tier):**
+1. **Tier 1 – Super Admin:** Platform-level, cross-tenant (System-Wide access)
+2. **Tier 2 – Tenant Admin:** Organization-level, single tenant (Global access)
+3. **Tier 3 – Operational Users:** Task-level, day-to-day execution
+
+**Operational Roles by Department:**
+
+| Department | Roles | Functional Type | Access Scope |
+|------------|-------|-----------------|-------------|
+| Depot / Feed Mill / Commercial | Depot Officer, Feed Mill Officer, Commercial Officer | Requester | Local |
+| Procurement | Procurement Officer | Approver | Global |
+| Distribution | Distribution Officer (DO), Distribution Manager (DM) | DO=Executor, DM=Approver | DO=Local, DM=Global |
+| Transport | Transport Planner (TP), Transport Distribution Officer (TDO) | Executor | Global |
+| QA / QC | QC Inspector – Physical, QA Lab Technician | Executor | Local |
+| Operations | Command Center Officer, Loading/Unloading Personnel, Driver Supervisor, Driver Helper | Executor | Local |
+
+**External Roles:** Vendor Admin (via Vendor Portal)
+
+**Functional Role Types:**
+- **Requester** – Creates requisitions/requests. Cannot approve own requests.
+- **Approver** – Approves/rejects requests. Cannot approve own requests (separation of duties).
+- **Executor** – Executes approved tasks. Cannot modify approval status.
+
+**Access Scope Levels:**
+- **Global Access** – Data and actions across all locations within the tenant.
+- **Local Access** – Data only within assigned department, POI, depot, feed mill, or operational unit.
+
+**Permission Enforcement (Defense in Depth):**
+- **UI level:** Menu visibility, page access, button availability based on role + functional type + access scope
+- **API level:** Middleware validates permissions before endpoint access. Unauthorized requests return HTTP 403.
+- **Database level:** Row-level security for tenant isolation and Local/Global access scope enforcement
+
+---
+
+## User Lifecycle Security (US-005)
+
+Security controls applied across the user invitation, activation, and password reset lifecycle:
+
+### Invitation & Activation Security
+- **Activation tokens**: 64-character cryptographically secure hex tokens, unique per invitation
+- **Token expiry**: 7 days from creation; expired tokens cannot be reused
+- **OTP verification**: Both email and SMS OTP required before account activation
+- **Email uniqueness**: Enforced per tenant to prevent duplicate accounts
+- **Mobile uniqueness**: Enforced per tenant for OTP delivery integrity
+- **Plan limit enforcement**: Invitation blocked if tenant exceeds subscription user limit
+- **Bulk upload validation**: CSV rows individually validated; partial processing supported
+
+### Password Reset Security
+- **Self-service reset**: Reset link valid 15 minutes; SMS OTP valid 10 minutes
+- **Admin-assisted reset**: OTP valid 10 minutes; admin must provide justification (min 10 chars) and verification method
+- **Rate limiting**: Max 3 self-service reset requests per hour per user
+- **Session termination**: All active sessions terminated upon successful password reset
+- **Password complexity**: Min 8 chars, uppercase + lowercase + number + special character
+- **Password history**: Last 3 passwords cannot be reused
+- **Enumeration prevention**: Self-service reset always returns success regardless of whether email exists
+- **OTP brute-force prevention**: Max 3 incorrect OTP attempts per token; token invalidated after
+
+### Password Reset Audit Trail
+All password reset events are logged with immutable audit entries:
+
+| Event | Logged Details |
+|---|---|
+| Self-Service Reset Initiated | User ID, IP address, timestamp |
+| Self-Service Reset Completed | User ID, IP address, device ID, timestamp |
+| Admin-Assisted Reset Initiated | Admin ID, User ID, justification, verification method, IP, timestamp |
+| Admin-Assisted Reset Completed | Admin ID, User ID, IP, timestamp |
+| Reset Failed (expired/wrong OTP) | User ID, failure reason, IP, timestamp |
 
 ---
 
@@ -119,13 +180,45 @@ function maskNationalID(nid: string): string {
 - Annual security risk assessment
 - Access control policy documentation
 - Incident response plan
-- Comprehensive audit trail
+- Comprehensive audit trail (all user actions, authentication events, OTP operations)
 
 ### GDPR / Data Privacy
 - Right to access (data export)
 - Right to be forgotten (account deletion)
 - Right to rectification (profile updates)
 - Data portability (JSON/CSV export)
+
+---
+
+## Audit Log Compliance (US-009)
+
+### Log Scope
+
+All user and system interactions are logged for compliance, security monitoring, and forensic analysis:
+
+| Log Category | Events | Required Fields |
+|---|---|---|
+| Authentication | Login, Logout, Lockout, Session Timeout | User ID, IP, Device ID, Status, Failure Reason |
+| Password Reset | Self-service initiation/completion, Admin-assisted reset | User ID, Method, Admin ID (if assisted), IP, Status |
+| OTP Operations | Generation, Verification, Resend | User ID, Delivery Method, Attempts, Status |
+| CRUD Actions | Create, Read, Update, Delete | User ID, Entity Type, Entity ID, Before/After Values |
+| Admin Actions | Deactivation, Reactivation, Role Assignment, Invitation | Actor ID, Affected User ID, Justification, IP |
+| Audit Access | Dashboard view, Log detail view, Export | Accessor ID, Filters Applied, Export Format |
+
+### Log Immutability & Retention
+
+- **Immutability**: Logs stored in append-only tables; no UPDATE or DELETE operations permitted at any layer (API, ORM, or database)
+- **Minimum Retention**: 2 years (mandatory for all tenants)
+- **Extended Retention**: Configurable up to 7 years per tenant for regulatory compliance
+- **Archival**: Logs older than the active retention window are compressed and archived to cold storage while remaining queryable
+- **Encryption**: All logs encrypted at rest using AES-256; encryption keys rotated every 90 days
+
+### Log Access Control
+
+- Only users with `UserMgmt.AuditLog.Read` permission (Super Admin, Tenant Admin) can view audit logs
+- Only users with `UserMgmt.AuditLog.Export` permission can export logs (CSV, JSON)
+- Tenant isolation enforced: admins can only view logs from their own tenant
+- All access and export actions are themselves logged (meta-auditing)
 
 ---
 
@@ -141,11 +234,53 @@ function maskNationalID(nid: string): string {
 
 ---
 
+## User Lifecycle Security (US-005, US-007, US-008)
+
+### Password Reset Security Controls
+
+| Control | Self-Service | Admin-Assisted |
+|---|---|---|
+| Reset token validity | 15 minutes | N/A (OTP-based) |
+| OTP validity | 10 minutes | 10 minutes |
+| Max OTP attempts | 3 per token | 3 per OTP |
+| Rate limit | 3 requests/hour/user | No self-service limit |
+| Password complexity | Enforced | Enforced |
+| Password history | Last 3 passwords | Last 3 passwords |
+| Session termination | All active sessions revoked | All active sessions revoked |
+| Confirmation email | Sent on success | Sent on success |
+| Audit logging | User ID, IP, timestamp, device | Admin ID, User ID, justification, IP |
+
+### Account Deactivation Security Controls
+
+| Control | Description |
+|---|---|
+| Permission enforcement | Only Super Admin and Tenant Admin can deactivate |
+| Self-deactivation prevention | Users cannot deactivate their own account |
+| Active assignment check | System warns of active TOs, trips, approvals before deactivation |
+| Override with justification | Admin can override assignment check with mandatory remarks |
+| Session termination | Immediate logout from all active sessions |
+| Data preservation | All historical data preserved in audit trail; deactivated users remain in records |
+| Login prevention | Deactivated users blocked from login until reactivated (temporary) or permanently |
+
+### Audit Trail for Password Reset and Deactivation
+
+| Event | Logged Fields |
+|---|---|
+| Self-Service Reset (initiated) | user_id, ip_address, device_id, timestamp |
+| Self-Service Reset (completed) | user_id, ip_address, device_id, timestamp, status |
+| Self-Service Reset (failed) | user_id, ip_address, device_id, timestamp, failure_reason |
+| Admin-Assisted Reset | admin_id, user_id, justification, verification_method, ip_address, timestamp |
+| Account Deactivation | admin_id, user_id, deactivation_type, reason, effective_date, ip_address, timestamp |
+| Account Reactivation | admin_id, user_id, timestamp, ip_address |
+
+---
+
 ## Summary
 
 Security & Compliance provides:
 - **Layered Security:** Network, application, data, audit layers
 - **Data Protection:** AES-256 encryption, data masking, secure deletion
 - **Access Control:** RBAC with least privilege, multi-tenant isolation
+- **User Lifecycle Security:** Password reset (self-service + admin-assisted), account deactivation/reactivation, with comprehensive audit trails
 - **Regulatory Compliance:** ISO 27001, GDPR/data privacy
 - **Incident Response:** Detection, containment, recovery procedures

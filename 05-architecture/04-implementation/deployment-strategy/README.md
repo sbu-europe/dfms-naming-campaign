@@ -53,6 +53,23 @@ Environment setup and configuration:
 
 ---
 
+## 🌐 Environment & Domain Convention
+
+Local domains mirror cloud — just swap `.com` → `.local`:
+
+| Environment | Local domain | Cloud domain | Runs via |
+|-------------|-------------|--------------|----------|
+| Local DEV | `dev.dfms.local` | `dev.dfms.com` | `make dev` |
+| Local QA sim | `qa.dfms.local` | `qa.dfms.com` | `make qa` |
+| Local STG sim | `stg.dfms.local` | `stg.dfms.com` | `make stg` |
+| Cloud PROD | — | `dfms.com` | `pipeline.sh deploy prod` |
+
+Tenant subdomains: `{schema}.{TENANT_DOMAIN_BASE}` — e.g. `nourish.dev.dfms.local`, `nourish.qa.dfms.com`
+
+Run once: `make setup-hosts` — adds all three local env entries to `/etc/hosts`.
+
+---
+
 ## 🎯 Deployment Principles
 
 ### 1. **Zero-Downtime Deployment**

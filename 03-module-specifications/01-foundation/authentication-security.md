@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
-last_updated: 2026-02-26
-related_stories: US-001, US-002, US-003
+last_updated: 2026-04-07
+related_stories: US-001, US-002, US-003, US-005, US-007, US-008
 ---
 
 # Authentication & Security Specification
@@ -21,7 +21,10 @@ The DFMS platform implements a comprehensive authentication and security framewo
 
 ### 1.1 Login Flow (3-Step)
 
-All users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+Most users authenticate using a **3-step login flow**: Identity → OTP Verification → Password.
+
+**Exception (Phase 1): Driver SMS Quick Login (US-005)**  
+Driver users may authenticate via a mobile interface link + system-generated password (no OTP required in Phase 1) to support low digital literacy users.
 
 ```
 Step 1: Enter Email or Phone Number
@@ -237,10 +240,12 @@ Administrators can manually unlock locked accounts after offline verification:
 
 ### 3.1 OTP Overview
 
-OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1). Every login attempt requires OTP verification before the password step, making the system inherently multi-factor.
+OTP verification is **mandatory for all users** as part of the 3-step login flow (see Section 1.1), except:
+- **Driver SMS Quick Login** (US-005) where OTP is not required in Phase 1
+- **Invitation activation flows** where OTP may be **optional** depending on the invitation’s selected **OTP type** (None / Email / SMS) as defined in US-005
 
 **Applicability:**
-- **Required for**: All user types (Super Admin, Tenant Admin, Department Admin, Operational User)
+- **Required for**: All user types (Super Admin, Tenant Admin, Operational User)
 - **Delivery Methods**: Email (if logged in via email), SMS (if logged in via phone)
 
 ### 3.2 OTP Generation
@@ -464,46 +469,79 @@ Content-Security-Policy: default-src 'self'
 
 ---
 
-## 6. Audit & Compliance
+## 6. Audit & Compliance (US-009)
 
 ### 6.1 Audit Logging
 
-All authentication events are logged for compliance and security auditing:
+All authentication events, user actions (CRUD), and OTP operations are logged for compliance and security auditing. See **US-009: User Activity & Audit Logs** for full specification.
 
-**Logged Events:**
+**Authentication Event Logging (FR-069-001):**
 - Login attempts (success/failure)
+- Logout
 - Account lockouts
 - Admin unlocks
-- MFA verifications
-- Session creation/termination
-- Password changes
+- MFA/OTP verifications
+- Session creation/termination/timeout
+- Password changes and resets (self-service and admin-assisted)
 - Permission changes
+
+**User Action Logging (FR-069-002):**
+- Create: Entity type, Entity ID, created data
+- Read: Entity type, Entity ID, access timestamp (for sensitive entities)
+- Update: Entity type, Entity ID, old value, new value, changed fields
+- Delete: Entity type, Entity ID, deleted data snapshot
+
+**OTP Operation Logging (FR-069-003):**
+- OTP generation: User ID, operation type, delivery method
+- OTP verification: User ID, status, attempt count
+- OTP resend: User ID, resend count
 
 **Audit Log Structure:**
 ```typescript
 AuditLog {
   log_id: UUID
-  event_type: enum ['Login', 'Logout', 'AccountLock', 'AccountUnlock', 'MFAVerify', ...]
-  user_id: UUID
-  actor_id: UUID      // For admin actions
+  event_type: enum ['LOGIN', 'LOGOUT', 'ACCOUNT_LOCKOUT', 'ACCOUNT_UNLOCK',
+                     'SESSION_TIMEOUT', 'PASSWORD_RESET', 'OTP_GENERATION',
+                     'OTP_VERIFICATION', 'OTP_RESEND', 'CREATE', 'READ',
+                     'UPDATE', 'DELETE', 'PERMISSION_CHANGE']
+  user_id: UUID | null     // null for system actions
+  actor_id: UUID | null    // For admin actions
+  entity_type: string      // e.g., 'User', 'Vehicle', 'Trip'
+  entity_id: string | null
   ip_address: string
-  details: JSON       // Event-specific details
+  device_id: string
+  user_agent: string
+  location: string | null
+  status: enum ['success', 'failure']
+  failure_reason: string | null
+  details: JSON            // Event-specific details (before/after for updates)
   timestamp: DateTime
   tenant_id: UUID
 }
 ```
 
-### 6.2 Compliance Considerations
+### 6.2 Log Immutability
+
+- Logs are stored in append-only tables with database-level constraints preventing UPDATE and DELETE
+- No API endpoints exist for modifying or deleting audit log entries (HTTP 405 on attempts)
+- Log access itself is audited via a separate `AuditLogAccess` entity
+
+### 6.3 Compliance Considerations
 
 **Data Retention:**
-- Login attempt logs: 90 days
-- Audit logs: 7 years (configurable per tenant)
+- All audit logs: **Minimum 2 years** (mandatory, configurable up to 7 years per tenant)
 - Session records: 30 days after expiry
+- Archived logs remain accessible for compliance queries
 
 **Privacy:**
 - Passwords never logged (only hashes stored)
-- PII encrypted at rest
-- Audit logs accessible only to authorized admins
+- PII encrypted at rest (AES-256)
+- Audit logs accessible only to Security Admin and Tenant Admin
+
+**Access Control:**
+- Requires `UserMgmt.AuditLog.Read` permission to view logs
+- Requires `UserMgmt.AuditLog.Export` permission to export
+- All access and export operations are themselves logged
 
 ---
 
@@ -530,7 +568,123 @@ All authentication events sent to centralized audit logging system:
 
 ---
 
-## 8. Related Documentation
+## 8. Password Reset Integration (US-005, US-008)
+
+Password reset involves two distinct flows that integrate with the authentication layer:
+
+### 8.1 Self-Service Password Reset
+
+```
+User → "Forgot Password" → Enter email/mobile
+    → System sends reset link (15 min) + SMS OTP (10 min)
+    → User clicks link → Verifies OTP → Sets new password
+    → All active sessions terminated → Must login with new password
+```
+
+**Security Controls:**
+- Reset tokens are 64-char hex, cryptographically random (`crypto.randomBytes(32)`)
+- Tokens are stored hashed (bcrypt) — raw token only in the email link
+- OTP is 6-digit, stored hashed, valid for 10 minutes
+- Maximum 3 OTP verification attempts per token
+- **Rate Limiting**: Max 3 self-service reset requests per hour per user (HTTP 429 on exceed)
+- Only the latest token/OTP is valid — previous ones are automatically invalidated
+- Response to non-existent email returns same success message (prevents email enumeration)
+
+**Password Complexity Enforcement:**
+- Minimum 8 characters, uppercase, lowercase, number, special character
+- Cannot reuse last 3 passwords (history check)
+- Password strength meter displayed on UI
+
+### 8.2 Admin-Assisted Password Reset
+
+```
+Admin → Select user → Verify identity offline → Provide justification (≥10 chars)
+    → System generates 6-digit OTP (10 min validity) → Admin communicates OTP offline
+    → User enters OTP → Sets new password → All sessions terminated
+```
+
+**Security Controls:**
+- Requires `UserMgmt.User.ResetPassword` permission (Super Admin, Tenant Admin)
+- Admin must confirm offline identity verification method (Phone, Email, In-Person)
+- Justification is mandatory (minimum 10 characters) and immutable in audit log
+- OTP displayed only to the Admin (not sent to user directly)
+- Admin-assisted resets bypass self-service rate limits
+
+### 8.3 Password Reset Audit Logging
+
+All reset attempts (success and failure) are logged with:
+
+| Field | Description |
+|---|---|
+| `user_id` | User whose password is being reset |
+| `admin_id` | Admin who initiated (for assisted resets) |
+| `method` | `self_service` or `admin_assisted` |
+| `status` | `success`, `failure` |
+| `failure_reason` | `token_expired`, `otp_invalid`, `rate_limited`, etc. |
+| `ip_address` | IP of the requestor |
+| `device_id` | Device fingerprint |
+| `timestamp` | ISO 8601 timestamp |
+| `justification` | Admin justification (assisted only) |
+
+### 8.4 Suspicious Activity Detection
+
+System monitors password reset patterns for anomalies:
+- Multiple resets across different users from the same IP address
+- Rapid sequential reset requests from a single user
+- Reset attempts for accounts that don't exist (potential enumeration)
+
+When suspicious activity is detected:
+- Additional verification may be required (e.g., CAPTCHA, extended OTP validation)
+- Alert sent to Tenant Admin
+- Activity logged for security review
+
+### 8.5 Authenticated Change Password (US-008)
+
+Authenticated users can change their password from Profile/Settings.
+
+**Security Controls:**
+- Enforce password complexity + last 3 password history
+- Invalidate all active sessions after successful change (force re-login)
+- Optional OTP verification can be required based on policy (high-risk roles or suspicious activity)
+- Event is audit logged with user ID, timestamp, IP, device ID, and status
+
+---
+
+## 9. Account Deactivation Integration (US-007)
+
+Account deactivation directly impacts the authentication layer:
+
+### 9.1 Session Termination on Deactivation
+
+When a user account is deactivated (temporary or permanent):
+1. All active sessions are immediately revoked (`status → Revoked`)
+2. All JWT access tokens are added to the blacklist
+3. All refresh tokens are invalidated
+4. Client-side tokens are cleared on next API call (returns HTTP 401)
+
+### 9.2 Login Prevention for Deactivated Users
+
+```typescript
+// In loginFlow (Section 1.2), the status check handles deactivated users:
+if (user.status === 'Suspended' || user.status === 'Deactivated') {
+    throw new Error('Account is inactive or suspended.');
+}
+```
+
+- **Temporarily Suspended**: Login blocked until admin reactivates the account
+- **Permanently Deactivated**: Login permanently blocked; no reactivation possible
+
+### 9.3 Reactivation Impact
+
+When a temporarily suspended account is reactivated:
+- User status returns to `Active`
+- User can login again using normal 3-step flow
+- Previous sessions are NOT restored — user must create a new session
+- `password_must_change` may be set to `true` depending on admin policy
+
+---
+
+## 10. Related Documentation
 
 - **[RBAC Specification](rbac.md)** - Role-based access control details
 - **[User Management](user-tenant-management.md)** - User lifecycle management
@@ -540,5 +694,8 @@ All authentication events sent to centralized audit logging system:
 - US-001: User Login & Account Lockout
 - US-002: Multi-Factor Authentication
 - US-003: Session Control
+- US-005: User Invitation, Activation & Password Reset
+- US-007: Account Deactivation
+- US-008: Password & Account Reset (scope consolidated into US-005)
 
 **Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3
