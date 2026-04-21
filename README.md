@@ -24,6 +24,7 @@
 - **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
 - **`10-meta/`** - Repository meta-documentation (plans, reports, tracking)
 - **`11-design-system/`** - UI design system (colors, typography, spacing, components, platform guides)
+- **`12-e2e-testing/`** - E2E testcase and scenario planning by module story points
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
@@ -55,6 +56,7 @@ This repository serves as the **domain context and interface contract layer** fo
 - **[02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md)** - Repository architecture
 - **[Module Specifications](03-module-specifications/)** - Technical documentation (~20,500 lines)
 - **[Product Backlog](04-backlog/)** - 97 stories, 17 epics, organized by phase
+- **[E2E Scenario Plans](12-e2e-testing/)** - Module-wise E2E testcase planning mapped to stories
 
 ## 📊 Status
 

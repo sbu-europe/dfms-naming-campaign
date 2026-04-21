@@ -82,8 +82,27 @@ DFMS-product-context/
 │   ├── data-reference/                # Data dictionaries
 │   └── reports/                       # Project reports
 │
-└── 08-change-requests/                # Change management
-    └── CR-INDEX.md                    # Change requests index
+├── 08-change-requests/                # Change management
+│   └── CR-INDEX.md                    # Change requests index
+│
+├── 09-development-guides/             # Implementation guides
+│   ├── 01-backend/                    # Backend implementation standards
+│   └── README.md                      # Guide index and navigation
+│
+├── 10-meta/                           # Repository plans and reports
+│   ├── plans/                         # Execution and migration plans
+│   ├── reports/                       # Verification and audit reports
+│   ├── tracking/                      # Progress and status tracking
+│   └── archive/                       # Archived meta artifacts
+│
+├── 11-design-system/                  # UI design system
+│   ├── 01-foundation/                 # Tokens, colors, typography
+│   ├── 02-components/                 # Component standards
+│   ├── 03-patterns/                   # UX interaction patterns
+│   └── 04-platforms/                  # Web/mobile design guidance
+│
+└── 12-e2e-testing/                    # E2E testcase/scenario planning
+    └── 02-master-data/                # Master data scenario plans by story point
 ```
 
 ---
@@ -141,6 +160,7 @@ Follow this sequence to understand the repository:
 - [User Stories](./04-backlog/02-stories/) - With acceptance criteria
 - [Business Rules](./02-domain/03-business-rules/) - Validation logic
 - [Non-Functional Requirements](./02-domain/02-requirements/04-non-functional-requirements/) - Performance, security
+- [E2E Scenario Plans](./12-e2e-testing/) - Module-wise testcase/scenario planning
 
 ### **🏗️ Architects**
 - [Module Specifications](./03-module-specifications/) - Module boundaries & integration points
