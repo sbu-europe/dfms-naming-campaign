@@ -82,11 +82,11 @@ Status mapping:
 | E2E-SDM-006 | Partial | Update persistence covered by `test_supplier_update_via_change_form_persists_values` and `test_dealer_update_via_change_form_persists_values`; audit old/new assertion is not implemented. |
 | E2E-SDM-007 | Implemented | Deactivation via admin action and inactive listing checks covered by `test_supplier_deactivate_action_moves_entity_to_inactive_listing` and `test_dealer_deactivate_action_moves_entity_to_inactive_listing`. |
 | E2E-SDM-008 | Implemented | Permanent delete when no dependency covered by `test_supplier_delete_permanently_removes_row_when_no_dependency` and `test_dealer_delete_permanently_removes_row_when_no_dependency`. |
-| E2E-SDM-009 | Pending | Dependency-blocked hard delete scenario not yet automated (requires linked TR/TO/Trip/Gate fixture path). |
+| E2E-SDM-009 | Partial | Covered by `test_supplier_delete_permanently_blocked_when_dependency_exists` and `test_dealer_delete_permanently_blocked_when_dependency_exists`, but assertions are fallback-based because dependency fixtures are environment-dependent. |
 | E2E-SDM-010 | Implemented | CSV template download and mandatory headers covered by `test_supplier_template_download_contains_required_columns` and `test_dealer_template_download_contains_required_columns`. |
-| E2E-SDM-011 | Pending | Mixed valid/invalid row import execution and summary assertion not yet implemented. |
-| E2E-SDM-012 | Pending | Append-only/duplicate import behavior assertion not yet implemented. |
-| E2E-SDM-013 | Pending | Row-level import failure reason + row number assertion not yet implemented. |
+| E2E-SDM-011 | Implemented | Mixed valid/invalid row import summary and persistence checks covered by `test_supplier_import_mixed_rows_imports_only_valid_records` and `test_dealer_import_mixed_rows_imports_only_valid_records`. |
+| E2E-SDM-012 | Implemented | Append-only duplicate-code import behavior covered by `test_supplier_import_duplicate_code_is_append_only` and `test_dealer_import_duplicate_code_is_append_only`. |
+| E2E-SDM-013 | Implemented | Row-level invalid-row reporting (row number + validation reason) covered by `test_supplier_import_reports_row_number_and_reason_for_invalid_rows` and `test_dealer_import_reports_row_number_and_reason_for_invalid_rows`. |
 | E2E-SDM-014 | Partial | Unauthenticated import-page access check covered by `test_supplier_import_page_requires_authentication` and `test_dealer_import_page_requires_authentication`; non-privileged permission-denied path is not yet implemented. |
 
 ## Execution Priority
