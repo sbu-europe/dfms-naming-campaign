@@ -27,7 +27,6 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Menu Structure & Role Access
 
-> Full permission tables and UX rules: [`00-sprint-design.md`](00-sprint-design.md)
 
 ### Requisition
 
