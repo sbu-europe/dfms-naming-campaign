@@ -27,17 +27,69 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Menu Structure & Role Access
 
-| Menu | Sub-menu | Actor | Key Action |
-|------|----------|-------|------------|
-| **Requisition** | Finished Goods | Depot / Feed Mill Officer | Create FG Product Requisition (PR) |
-| **Requisition** | Raw Materials | Depot / Feed Mill Officer | Create RM Product Requisition (PR) |
-| **Distribution** | Product Requisitions | Distribution Officer | View FG PR queue, navigate to TR creation |
-| **Distribution** | Transport Requests | Distribution Officer / Distribution Manager | Create TR(s) against FG PR; DM approves |
-| **Procurement** | Product Requisitions | Procurement Officer | View RM PR queue, navigate to TR creation |
-| **Procurement** | Transport Requests | Procurement Officer | Create TR(s) against RM PR (no approval step) |
-| **Transport** | Transport Requests → Finished Goods | Transport Planner | Review FG TRs, submit vehicle/type requirements |
-| **Transport** | Transport Requests → Raw Materials | Transport Planner | Review RM TRs, submit vehicle/type + C&F clearance |
-| **Transport** | Transport Orders | Transport Planner / TDO | Create TOs against TRs; TDO assigns vehicle/driver/helper/ETA |
+> Full permission tables and UX rules: [`00-sprint-design.md`](00-sprint-design.md)
+
+### Requisition
+
+| Sub-menu | Can View | Can Create | Can Edit (Draft) | Can Cancel |
+|----------|----------|------------|------------------|------------|
+| Finished Goods | Depot / Feed Mill Officer (own PRs) | Depot / Feed Mill Officer | Depot / Feed Mill Officer | Depot / Feed Mill Officer (before TR created) |
+| Port Consignment | Commercial Officer (own PRs) | Commercial Officer | Commercial Officer | Commercial Officer (before TR created) |
+
+**Key rules:**
+- **Finished Goods**: Destination POI pre-filled from user's assigned POI (editable); Source POI not captured — defined by Distribution at TR creation
+- **Port Consignment**: Source and Destination POIs not captured on PR — source is always a Port; Procurement defines destination allocation at TR creation
+- Role gate: Depot/Feed Mill Officers can only create FG PRs; Commercial Officers can only create Port Consignment PRs — each role sees only their sub-menu
+- Port Consignment PRs require mandatory LC + shipment fields (BL Number, LC Number, Vessel, Voyage, Container, C&F Agent, POL, ETA) and Arrival Notice attachment before submission
+
+### Distribution
+
+| Sub-menu | Can View | Can Create | Can Approve / Modify | Can Reject |
+|----------|----------|------------|----------------------|------------|
+| Product Requisitions | Distribution Officer, Distribution Manager | — | — | — |
+| Transport Requests | Distribution Officer (own TRs), Distribution Manager (all) | Distribution Officer | Distribution Manager | Distribution Manager |
+
+**Key rules:**
+- Distribution Officer sees all submitted FG PRs in the Product Requisitions queue
+- Distribution Officer creates TRs against a PR — source POI selected per TR; destination inherited from the PR (read-only)
+- Multiple TRs can be created for one PR (different source POIs); total TR quantity must not exceed PR quantity — overflow is blocked
+- Distribution Manager can approve as-is, approve with modification (qty, date, priority, vehicle requirements), reject with reason, or request clarification
+- Approved TRs transition to `Available for Transport Planning`
+
+### Procurement
+
+| Sub-menu | Can View | Can Create | Can Approve / Modify | Can Reject |
+|----------|----------|------------|----------------------|------------|
+| Product Requisitions | Procurement Officer | — | — | — |
+| Transport Requests | Procurement Officer (own TRs) | Procurement Officer | — | — |
+
+**Key rules:**
+- Procurement Officer sees all submitted **Port Consignment PRs** (raised by Commercial Officers)
+- Each TR specifies: Source POI (Port), Destination POI (any active POI — per-TR allocation), and quantity for that destination
+- Multiple TRs can be created for one PR (one per destination); total TR quantity must not exceed PR quantity — overflow is blocked
+- **No manager approval step** — submitted TRs are immediately `Available for Transport Planning`
+
+### Transport
+
+| Sub-menu | Can View | Can Submit Planning Details |
+|----------|---------|-----------------------------|
+| Transport Requests → Finished Goods | Transport Planner | Transport Planner |
+| Transport Requests → Raw Materials | Transport Planner | Transport Planner |
+
+| Action | Actor |
+|--------|-------|
+| Create TO(s) against a TR | Transport Planner |
+| View all TOs | Transport Planner, TDO |
+| Assign Vehicle / Driver / Helper(s) / ETA | Transport Distribution Officer (TDO) |
+| View assigned TOs | Driver (own assignments only) |
+
+**Key rules:**
+- Transport Planner sees a unified queue of TRs with status `Available for Transport Planning` or `Under Planning`; FG and RM separated into sub-tabs
+- Before creating TOs, Transport Planner submits planning details: qty of vehicles, vehicle type, and for RM TRs: Raw C&F Clearance Note/Approval
+- Submitting planning details transitions TR to `Under Planning`
+- Multiple TOs can be created per TR; total TO quantity must not exceed TR quantity — overflow is blocked
+- For Own Fleet TOs: vehicle and driver selected from MDM fleet records; for Vendor Fleet TOs: vendor from contractual list, vehicle/driver entered manually
+- Driver logs in and sees only TOs assigned to them
 
 ---
 
@@ -97,39 +149,69 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ## End-to-End Flow This Sprint Delivers
 
 ```
-[Depot/Feed Mill Officer]
-         ↓
-  PR-01: FG Product Requisition     PR-02: RM Product Requisition
-  (Dest: POI dropdown)               (Dest: POI dropdown)
-         ↓                                      ↓
-[Distribution Officer]                [Procurement Officer]
-  DR-01: View FG PR queue              PC-01: View RM PR queue
-         ↓                                      ↓
-  DR-02: Create TR(s) against PR       PC-02: Create TR(s) against PR
-  (Source: POI dropdown)               (Source: POI dropdown)
-  (Dest: inherited from PR)            (Dest: inherited from PR)
-  [Qty overflow → blocked]             [Qty overflow → blocked]
-         ↓                                      ↓
-  Distribution Manager approves TR     TR directly available (no approval)
-         ↓                                      ↓
-  ←──────────── Available for Transport Planning ────────────→
-                              ↓
-               [Transport Planner]
-         TRQ-01: Review TR queue (FG + RM tabs)
-         Submit: Qty of vehicles, Vehicle Type
-         For RM: + Raw C&F Clearance Note/Approval
-                              ↓
-               TO-01: Create TO(s) against TR
-               (Own Fleet / Vendor Fleet mode)
-               [Qty overflow → blocked]
-                              ↓
-               [Transport Distribution Officer (TDO)]
-         TO-02: Assign Vehicle + Driver + Helper(s) + ETA
-                              ↓
-               [Driver Account]
-               Driver sees assigned TO list
-                              ↓
-               (Sprint 4: Trip Lifecycle — Dispatch, In-Transit, POD)
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│  REQUISITION MODULE                                                                          │
+│                                                                                              │
+│  Depot/Feed Mill Officer                          Commercial Officer                         │
+│  └── Requisition > Finished Goods                 └── Requisition > Port Consignment        │
+│      Create FG PR                                     Create Port PR                        │
+│      (dest: pre-filled/editable; no source)           (LC + shipment fields; no POIs)       │
+└──────────────────────────────┬───────────────────────────────┬──────────────────────────────┘
+                               │                               │
+                   FG PR submitted                   Port Consignment PR submitted
+                       │                                       │
+         ┌─────────────▼──────┐              ┌────────────────▼───────────────────┐
+         │  DISTRIBUTION      │              │  PROCUREMENT                        │
+         │  Distribution      │              │  Procurement Officer                │
+         │  Officer           │              │  ├── Product Requisitions           │
+         │  ├── Product Reqs  │              │  │   (view Port Consign. PRs)       │
+         │  │   (view FG PRs) │              │  └── Transport Requests             │
+         │  └── Transport Reqs│              │      Create TR(s) vs PR             │
+         │      Create TR(s)  │              │      Source: Port POI               │
+         │      Source: POIs  │              │      Dest: per-TR (any active POI)  │
+         │      Dest: from PR │              │      [qty overflow → ✗]             │
+         │      [qty overflow]│              │      ↓                              │
+         │      ↓             │              │  No approval step                   │
+         │  Distribution Mgr  │              │  TR → Available for                 │
+         │  Approve / Modify  │              │  Transport Planning                 │
+         │  Reject / Clarify  │              └─────────────────────────────────────┘
+         │      ↓             │
+         │  TR → Available    │
+         │  for Transport     │
+         └─────────┬──────────┘
+                   │
+                   └──────────────────────────┐
+                                              │
+         ┌────────────────────────────────────▼────────────────────────────┐
+         │  TRANSPORT MODULE                                                │
+         │  Transport Planner                                               │
+         │  ├── Transport Requests > Finished Goods  (approved FG TRs)     │
+         │  └── Transport Requests > Raw Materials   (submitted RM TRs)    │
+         │      ↓                                                           │
+         │      Submit planning details:                                    │
+         │        • Qty of vehicles required                                │
+         │        • Vehicle type required                                   │
+         │        • [RM only] Raw C&F Clearance Note/Approval              │
+         │      TR → Under Planning                                         │
+         │      ↓                                                           │
+         │  Transport Orders                                                │
+         │      Create TO(s) against TR                                     │
+         │        • Transport Mode: Own Fleet / Vendor Fleet                │
+         │        • Quantity per TO  [overflow → ✗]                        │
+         │      ↓                                                           │
+         │  Transport Distribution Officer (TDO)                            │
+         │      Assign to each TO:                                          │
+         │        • Vehicle (from fleet / manual for vendor)                │
+         │        • Driver (from pool / manual for vendor)                  │
+         │        • Helper(s) (optional)                                    │
+         │        • ETA                                                     │
+         │      TO → Assigned → Ready for Dispatch                         │
+         │      ↓                                                           │
+         │  Driver Account                                                  │
+         │      Driver sees assigned TO list                                │
+         └─────────────────────────────────────────────────────────────────┘
+                   ↓
+         (Sprint 4: Dispatch → In-Transit → POD → Trip Closure)
 ```
 
 ---
@@ -194,13 +276,38 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 ---
 
+## Quantity Overflow Rules
+
+| Level | Rule | Behaviour |
+|-------|------|-----------|
+| TR creation against PR | Sum of all TRs for a PR must not exceed PR total quantity | Creation blocked with error if overflow |
+| TO creation against TR | Sum of all TOs for a TR must not exceed TR total quantity | Creation blocked with error if overflow |
+
+---
+
+## Role Summary
+
+| Role | Module Access | Key Permissions |
+|------|--------------|-----------------|
+| Depot / Feed Mill Officer | Requisition → Finished Goods | Create FG PRs; view own PRs |
+| Commercial Officer | Requisition → Port Consignment | Create Port Consignment PRs with LC + shipment details; view own PRs |
+| Distribution Officer | Distribution | View FG PR queue; create FG TRs |
+| Distribution Manager | Distribution | View all FG TRs pending approval; approve / modify / reject TRs |
+| Procurement Officer | Procurement | View Port Consignment PR queue; create RM TRs (no approval needed) |
+| Transport Planner | Transport | View TR queue (FG + RM tabs); submit planning details; create TOs |
+| Transport Distribution Officer (TDO) | Transport | Assign vehicle / driver / helpers / ETA to TOs |
+| Driver | Driver Account | View own assigned TO list |
+
+---
+
 ## Notes
 
-- **PR and TR are distinct entities**: A Product Requisition (PR) is the demand signal raised by Depot/Feed Mill Officers. A Transport Request (TR) is the operational breakdown created by Distribution or Procurement Officers against a PR.
-- **Destination is always inherited from PR to TR** — each TR for the same PR goes to the same destination. Only the Source POI varies per TR (allowing multi-source fulfillment of one PR).
+- **PR and TR are distinct entities**: A Product Requisition (PR) is the demand signal. A Transport Request (TR) is the operational breakdown created by Distribution or Procurement Officers against a PR.
+- **FG TRs**: Destination is inherited from the PR (read-only on TR form). Source POI is selected per TR — enabling multi-source fulfillment of one PR.
+- **Port Consignment TRs**: Destination is defined per TR by the Procurement Officer (any active POI) — not inherited from the PR. Source is always a Port POI.
 - **Quantity overflow guard** applies at two levels: TR creation against PR (total TRs must not exceed PR qty), and TO creation against TR (total TOs must not exceed TR qty).
-- **No Procurement Manager approval** for RM TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
-- **Raw C&F Clearance Note/Approval** is an RM-specific field that the Transport Planner must confirm before or during Transport Order creation for RM TRs.
+- **No Procurement Manager approval** for Port Consignment TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
+- **Raw C&F Clearance Note/Approval** is an RM-specific field the Transport Planner must confirm before or during Transport Order creation.
 - **TDO assigns all physical resources** (vehicle, driver, helpers, ETA) — this is a separate step from the Transport Planner creating the TO structure.
-- **Driver mobile view** delivers assigned TO list visibility to drivers — dispatch and trip lifecycle features follow in Sprint 4.
+- **Driver mobile view** delivers assigned TO list visibility — dispatch and trip lifecycle features follow in Sprint 4.
 - Jira Epics: `DFS-040` (Requisition), `DFS-041` (Distribution), `DFS-042` (Procurement), `DFS-043` (Transport)
