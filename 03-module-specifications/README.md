@@ -19,17 +19,22 @@ These are **module specifications** (not just business requirements or just tech
 
 ## Module Structure
 
-| Module | Files | Lines | Description |
-|--------|-------|-------|-------------|
-| [01-foundation/](01-foundation/) | 7 | ~2,730 | Authentication, RBAC, user/tenant management, system foundation, helper master data (optional user link) |
-| [02-master-data/](02-master-data/) | 3 | ~1,650 | POI management, product inventory, master data configuration |
-| [03-operations/](03-operations/) | 4 | 3,275 | Product/transport requisitions, transport orders, trip management |
-| [04-poi-operations/](04-poi-operations/) | 4 | 3,460 | Gate management, scaling, QC workflow, command center |
-| [05-vendor-management/](05-vendor-management/) | 3 | 2,265 | Vendor onboarding, bidding system, vendor portal |
-| [06-fleet-management/](06-fleet-management/) | 4 | 1,501 | Vehicles, drivers, helpers, fuel management |
-| [07-mobile-apps/](07-mobile-apps/) | 3 | 1,534 | Driver mobile, QC mobile, vendor mobile applications |
-| [08-reporting/](08-reporting/) | 2 | 924 | Reports and analytics dashboards |
-| [09-cross-cutting/](09-cross-cutting/) | 3 | 835 | Non-functional requirements, security, integrations |
+| # | Module | Files | Description | Django App | Sprint |
+|---|--------|-------|-------------|-----------|--------|
+| [01-foundation/](01-foundation/) | Auth, RBAC, tenant management, system foundation | ~7 | Authentication, RBAC, user/tenant management | `apps/tenants`, `apps/users`, `apps/core` | Sprint 1 |
+| [02-master-data/](02-master-data/) | POI, Product, Vehicle, Supplier/Dealer master data | ~8 | Master data management — bulk import/export | `apps/master_data` | Sprint 2 |
+| [03-users/](03-users/) | Driver and Helper user profiles | 2 | Driver compliance, Helper profiles with optional User link | `apps/users` | Sprint 2 |
+| [04-requisitions/](04-requisitions/) | FG PR, Port Consignment PR, Distribution management | 2+ | Product Requisitions, TR creation & approval | `apps/requisitions` | Sprint 3 |
+| [05-transport/](05-transport/) | Transport Requests queue, Transport Orders, Trip management | 3 | Transport Planning, TO execution, Trip lifecycle | `apps/transport` | Sprint 3–4 |
+| [06-poi-operations/](06-poi-operations/) | Gate, Scaling, QC, Command Center | 4 | POI-level physical operations | `apps/operations` | Sprint 4 |
+| [07-vendor-management/](07-vendor-management/) | Vendor onboarding, bidding, portal | 3 | Vendor ecosystem management | `apps/vendors` | Sprint 4 |
+| [08-fleet-management/](08-fleet-management/) | Vehicles, drivers, helpers, fuel | 4 | Fleet lifecycle management | `apps/users`, `apps/master_data` | Sprint 4 |
+| [09-mobile-apps/](09-mobile-apps/) | Driver, QC, Vendor mobile apps | 3 | Mobile interfaces for field users | — | Sprint 5 |
+| [10-audit/](10-audit/) | Audit log implementation | 1 | Entity audit trail | `apps/audit` | Sprint 2+ |
+| [11-reporting/](11-reporting/) | Reports and analytics | 2 | Dashboards, KPIs, reports | `apps/reporting` | Phase 2 |
+| [12-cross-cutting/](12-cross-cutting/) | Security, NFRs, integrations | 3 | Cross-cutting concerns | — | All phases |
+| [13-phases/](13-phases/) | Phase-wise rollout plan | 3 | Feature roadmap by phase | — | Reference |
+| [14-reference/](14-reference/) | Glossary, terminology | 1 | Domain terms and acronyms | — | Reference |
 
 **Total**: 35 files, ~20,000 lines of comprehensive technical documentation
 
@@ -83,23 +88,28 @@ frontmatter: (metadata, source references)
 ### By Use Case
 | I want to... | Go to |
 |--------------|-------|
-| Understand authentication | [foundation/authentication-security.md](foundation/authentication-security.md) |
-| See trip management workflow | [operations/trip-management.md](operations/trip-management.md) |
-| Learn about vendor bidding | [vendor-management/vendor-bidding.md](vendor-management/vendor-bidding.md) |
-| Review QC workflow | [poi-operations/qc-workflow.md](poi-operations/qc-workflow.md) |
-| Check mobile app specs | [mobile-apps/](mobile-apps/) |
-| See non-functional requirements | [cross-cutting/non-functional-requirements.md](cross-cutting/non-functional-requirements.md) |
+| Understand authentication | [01-foundation/authentication-security.md](01-foundation/authentication-security.md) |
+| See how PRs work | [04-requisitions/product-requisition-management.md](04-requisitions/product-requisition-management.md) |
+| Understand Distribution TR workflow | [04-requisitions/distribution-management.md](04-requisitions/distribution-management.md) |
+| See trip management workflow | [05-transport/trip-management.md](05-transport/trip-management.md) |
+| Learn about vendor bidding | [07-vendor-management/vendor-bidding.md](07-vendor-management/vendor-bidding.md) |
+| Review QC workflow | [06-poi-operations/qc-workflow.md](06-poi-operations/qc-workflow.md) |
+| Check mobile app specs | [09-mobile-apps/](09-mobile-apps/) |
+| See non-functional requirements | [12-cross-cutting/non-functional-requirements.md](12-cross-cutting/non-functional-requirements.md) |
 
 ### By Module
-- **Foundation**: [foundation/](foundation/) - Auth, RBAC, users, system
-- **Master Data**: [master-data/](master-data/) - POI, products, configuration
-- **Operations**: [operations/](operations/) - Requisitions, TOs, trips
-- **POI Operations**: [poi-operations/](poi-operations/) - Gate, scaling, QC, command center
-- **Vendor**: [vendor-management/](vendor-management/) - Onboarding, bidding, portal
-- **Fleet**: [fleet-management/](fleet-management/) - Vehicles, drivers, helpers, fuel
-- **Mobile**: [mobile-apps/](mobile-apps/) - Driver, QC, vendor apps
-- **Reporting**: [reporting/](reporting/) - Reports, dashboards
-- **Cross-Cutting**: [cross-cutting/](cross-cutting/) - Security, integrations, NFRs
+- **01-foundation**: Auth, RBAC, users, system
+- **02-master-data**: POI, products, vehicles, suppliers/dealers
+- **03-users**: Driver, Helper profiles
+- **04-requisitions**: FG PR, Port Consignment PR, Distribution management
+- **05-transport**: TR queue, Transport Orders, Trip lifecycle
+- **06-poi-operations**: Gate, Scaling, QC, Command Center
+- **07-vendor-management**: Vendor onboarding, bidding, portal
+- **08-fleet-management**: Vehicles, drivers, helpers, fuel
+- **09-mobile-apps**: Driver, QC, Vendor mobile apps
+- **10-audit**: Entity audit trail
+- **11-reporting**: Reports, dashboards
+- **12-cross-cutting**: Security, NFRs, integrations
 
 ## Related Documentation
 

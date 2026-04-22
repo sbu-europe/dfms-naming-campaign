@@ -83,40 +83,92 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-### [03-operations/](03-operations/README.md) - Core Business Operations
-**Purpose**: End-to-end transport and logistics workflow management  
-**PRD Sections**: 6.6, 6.7, 6.8  
+### [03-users/](03-users/README.md) - User Profiles
+**Purpose**: Driver and Helper user profiles and domain logic  
+**PRD Sections**: 6.3.3  
 **Phase**: Phase 1 (Critical)  
-**Dependencies**: `01-foundation/`, `02-master-data/`
+**Sprint Coverage**: Sprint 2  
+**Dependencies**: `01-foundation/`  
+**Django App**: `apps/users/`
 
 #### Specifications
-- [product-requisition-management.md](03-operations/product-requisition-management.md) - Product Requisition Management
-- [transport-requisition-management.md](03-operations/transport-requisition-management.md) - Transport Requisition (TR) Management
-- [transport-order-management.md](03-operations/transport-order-management.md) - Transport Order (TO) Management
-- [trip-management.md](03-operations/trip-management.md) - Trip Management, Trip Closure, Trip Costing
+- [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver profile, compliance, user account link
+- [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User
 
 #### Related User Stories
-- US-010 to US-025: PR, TR, TO, Trip workflows
-- Key workflows: Requisition → Approval → TR → TO → Trip → Closure
+- US-057: Driver user profiles & compliance
+- US-061: Helper Master Data Management
 
 #### Cross-References
-- **Depends on**: `01-foundation/` (RBAC), `02-master-data/` (POI, Product, Vehicle)
-- **Drives**: `04-poi-operations/` (gate, scaling, QC), `05-vendor-management/` (bidding), `06-fleet-management/` (fleet assignment)
-- **Provides**: PR/TR/TO/Trip entities and workflows
+- **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
+- **Referenced by**: `08-fleet-management/`, `05-transport/`
 
 ---
 
-### [04-poi-operations/](04-poi-operations/README.md) - Operations Support
+### [04-requisitions/](04-requisitions/README.md) - Requisition, Distribution & Procurement Management
+**Purpose**: Product Requisition origination and Distribution/Procurement TR workflow  
+**PRD Sections**: 6.6 (Requisitions, Distribution, Procurement)  
+**Phase**: Phase 1 (Critical)  
+**Sprint Coverage**: Sprint 3  
+**Dependencies**: `01-foundation/`, `02-master-data/`, `03-users/`  
+**Django App**: `apps/requisitions/`
+
+#### Specifications
+- [product-requisition-management.md](04-requisitions/product-requisition-management.md) — FG PR + Port Consignment PR: data model, menu structure, status lifecycle, role gates, LC/shipment docs, product item code lookup, overflow rules, audit trail *(DFS-032, DFS-033)*
+- [distribution-management.md](04-requisitions/distribution-management.md) — FG PR queue, TR creation by Distribution Officer, Distribution Manager approval (approve / modify / reject), capacity snapshots, notifications *(DFS-034, DFS-035)*
+- [procurement-management.md](04-requisitions/procurement-management.md) — Port Consignment PR queue for Procurement Officer, destination breakdown plan, RM TR creation (Port-only source gate, per-destination quantity allocation, overflow guard), no approval step — TRs immediately Available for Planning *(DFS-036, DFS-037)*
+
+#### Related User Stories
+- DFS-032: FG Product Requisition
+- DFS-033: Port Consignment Requisition
+- DFS-034: Distribution FG PR Queue
+- DFS-035: Distribution TR Creation & Manager Approval
+- DFS-036: Procurement Port Consignment PR Queue
+- DFS-037: Procurement Destination Breakdown & TR Creation
+
+#### Cross-References
+- **Depends on**: `01-foundation/` (RBAC), `02-master-data/` (POI, Product)
+- **Drives**: `05-transport/` (approved/submitted TRs — both Distribution and Procurement)
+- **Provides**: PR and TR entities, Distribution workflow, Procurement destination breakdown workflow
+
+---
+
+### [05-transport/](05-transport/README.md) - Transport Management
+**Purpose**: Transport Request planning inputs, Transport Order creation and TDO resource assignment, Trip lifecycle  
+**PRD Sections**: 6.7, 6.8  
+**Phase**: Phase 1 (Critical)  
+**Sprint Coverage**: Sprint 3 (TR queue + planning inputs + TO creation + TDO assignment), Sprint 4 (Trip lifecycle)  
+**Dependencies**: `04-requisitions/`, `02-master-data/`, `07-vendor-management/`  
+**Django App**: `apps/transport/` (TR model in `apps/requisitions/`)
+
+#### Specifications
+- [transport-requisition-management.md](05-transport/transport-requisition-management.md) — TR queue (FG tab + Port Consignment tab), Transport Planner planning inputs (vehicle qty, type, C&F clearance), fleet availability counts, urgency/overdue flags, `UNDER_PLANNING` gate before TO creation *(TRQ-01, DFS-038)*
+- [transport-order-management.md](05-transport/transport-order-management.md) — TO creation against TRs (own fleet / vendor fleet), TR quantity allocation + overflow guard, multi-TO per TR, auto-routing to TDO queue by fleet type, `TO-YYYYMMDD-XXXX` numbering, TR status auto-update (Partially → Fully Allocated) *(TO-01, DFS-039)*
+- [trip-management.md](05-transport/trip-management.md) — TDO Own Fleet assignment (vehicle, driver, helpers, ETA — with conflict checks), TDO Vendor Fleet assignment (contractual vendor, auto-rate application), driver account assigned TO list, Trip 17-state machine (Sprint 4), `TripStatusHistory`, `TripIncident` *(TO-02, DFS-040)*
+
+#### Related User Stories
+- DFS-038 (TRQ-01): Transport Requests Queue & Planning Input
+- DFS-039 (TO-01): Transport Order Creation
+- DFS-040 (TO-02): TDO Vehicle, Driver, Helper & ETA Assignment
+
+#### Cross-References
+- **Depends on**: `04-requisitions/` (approved FG TRs + submitted Port TRs), `02-master-data/` (Vehicle, Driver, Helper, Route, POI), `07-vendor-management/` (contractual vendors + rates)
+- **Drives**: `06-poi-operations/` (gate, QC, scale triggered by Trip state transitions in Sprint 4)
+- **Provides**: TO/Trip entities, TDO assignment workflow, driver account visibility
+
+---
+
+### [06-poi-operations/](06-poi-operations/README.md) - POI Operations
 **Purpose**: Supporting operational workflows (gate, scaling, QC, command center)  
 **PRD Sections**: 6.9, 6.10, 6.13  
 **Phase**: Phase 1 (Critical)  
-**Dependencies**: `03-operations/`
+**Dependencies**: `05-transport/`
 
 #### Specifications
-- [gate-management.md](04-poi-operations/gate-management.md) - Gate-In, Gate-Out, On-Demand TO Creation
-- [scaling-management.md](04-poi-operations/scaling-management.md) - Scale-In, Scale-Out, Queue Token
-- [command-center.md](04-poi-operations/command-center.md) - Command Center Operations
-- [qc-workflow.md](04-poi-operations/qc-workflow.md) - Quality Control Workflow
+- [gate-management.md](06-poi-operations/gate-management.md) - Gate-In, Gate-Out, On-Demand TO Creation
+- [scaling-management.md](06-poi-operations/scaling-management.md) - Scale-In, Scale-Out, Queue Token
+- [command-center.md](06-poi-operations/command-center.md) - Command Center Operations
+- [qc-workflow.md](06-poi-operations/qc-workflow.md) - Quality Control Workflow
 
 #### Related User Stories
 - US-026, US-035-046: Gate, Scaling, Loading operations
@@ -125,22 +177,22 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-071-076: Command Center, Loading/Unloading
 
 #### Cross-References
-- **Depends on**: `03-operations/` (Trip entity and state)
-- **Integrates with**: `02-master-data/` (POI), `06-fleet-management/` (Vehicle)
+- **Depends on**: `05-transport/` (Trip entity and state)
+- **Integrates with**: `02-master-data/` (POI), `08-fleet-management/` (Vehicle)
 - **Provides**: Gate logs, weight data, QC results, loading/unloading timestamps
 
 ---
 
-### [05-vendor-management/](05-vendor-management/README.md) - Vendor Management
+### [07-vendor-management/](07-vendor-management/README.md) - Vendor Management
 **Purpose**: Vendor ecosystem and lifecycle management  
 **PRD Sections**: 6.11  
 **Phase**: Phase 1 (High)  
 **Dependencies**: `03-operations/`, `02-master-data/`
 
 #### Specifications
-- [vendor-onboarding.md](05-vendor-management/vendor-onboarding.md) - Vendor Onboarding & Registration
-- [vendor-bidding.md](05-vendor-management/vendor-bidding.md) - Vendor Bidding Portal, Bid Evaluation
-- [vendor-portal.md](05-vendor-management/vendor-portal.md) - Vendor Portal, Real-time TO Updates
+- [vendor-onboarding.md](07-vendor-management/vendor-onboarding.md) - Vendor Onboarding & Registration
+- [vendor-bidding.md](07-vendor-management/vendor-bidding.md) - Vendor Bidding Portal, Bid Evaluation
+- [vendor-portal.md](07-vendor-management/vendor-portal.md) - Vendor Portal, Real-time TO Updates
 
 #### Related User Stories
 - US-024: Vendor Bidding Portal
@@ -149,23 +201,22 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-094: Vendor Application Access
 
 #### Cross-References
-- **Depends on**: `03-operations/` (TO entity), `02-master-data/` (Vendor master)
-- **Integrates with**: `07-mobile-apps/` (Vendor mobile app)
+- **Depends on**: `05-transport/` (TO entity), `02-master-data/` (Vendor master)
+- **Integrates with**: `09-mobile-apps/` (Vendor mobile app)
 - **Provides**: Vendor bidding, TO assignment, vendor performance tracking
 
 ---
 
-### [06-fleet-management/](06-fleet-management/README.md) - Fleet Management
+### [08-fleet-management/](08-fleet-management/README.md) - Fleet Management
 **Purpose**: Fleet, vehicle, driver, and helper lifecycle management  
 **PRD Sections**: 6.6 (partial), 6.10 (partial)  
 **Phase**: Phase 1 (High)  
 **Dependencies**: `02-master-data/`
 
 #### Specifications
-- [vehicle-management.md](06-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
-- [vehicle-management.md](06-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
-- [helper-management.md](06-fleet-management/helper-management.md) - Helper Profile & Assignment
-- [fuel-management.md](06-fleet-management/fuel-management.md) - Fuel Management System
+- [vehicle-management.md](08-fleet-management/vehicle-management.md) - Fleet & Vehicle Management
+- [helper-management.md](08-fleet-management/helper-management.md) - Helper Profile & Assignment
+- [fuel-management.md](08-fleet-management/fuel-management.md) - Fuel Management System
 
 #### Related User Stories
 - US-053: Vehicle Registration & Master Data
@@ -174,22 +225,22 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-061-062: Helper Profile & Assignment
 
 #### Cross-References
-- **Depends on**: `02-master-data/` (Vehicle, Helper masters), `01-foundation/` (**Driver** domain + identity on invite)
-- **Referenced by**: `03-operations/` (TO/Trip assignment)
+- **Depends on**: `02-master-data/` (Vehicle, Helper masters), `01-foundation/`, `03-users/` (Driver + Helper profiles)
+- **Referenced by**: `05-transport/` (TO/Trip assignment)
 - **Provides**: Fleet availability, vehicle/driver assignment, fuel tracking
 
 ---
 
-### [07-mobile-apps/](07-mobile-apps/README.md) - Mobile Interfaces
+### [09-mobile-apps/](09-mobile-apps/README.md) - Mobile Interfaces
 **Purpose**: Mobile applications for drivers, vendors, and QC supervisors  
 **PRD Sections**: 11, 12  
 **Phase**: Phase 1 (High)  
 **Dependencies**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`
 
 #### Specifications
-- [driver-mobile.md](07-mobile-apps/driver-mobile.md) - Driver Mobile Interface
-- [qc-mobile.md](07-mobile-apps/qc-mobile.md) - QC Supervisor Mobile Interface
-- [vendor-mobile.md](07-mobile-apps/vendor-mobile.md) - Vendor Mobile Application
+- [driver-mobile.md](09-mobile-apps/driver-mobile.md) - Driver Mobile Interface
+- [qc-mobile.md](09-mobile-apps/qc-mobile.md) - QC Supervisor Mobile Interface
+- [vendor-mobile.md](09-mobile-apps/vendor-mobile.md) - Vendor Mobile Application
 
 #### Related User Stories
 - US-052: Driver Mobile Interface
@@ -198,20 +249,20 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - US-094: Vendor Application Access
 
 #### Cross-References
-- **Depends on**: `03-operations/` (Trip), `04-poi-operations/` (QC, Gate), `05-vendor-management/` (Vendor TO)
+- **Depends on**: `05-transport/` (Trip), `06-poi-operations/` (QC, Gate), `07-vendor-management/` (Vendor TO)
 - **Provides**: Mobile access for field users
 
 ---
 
-### [08-reporting/](08-reporting/README.md) - Reporting & Analytics
+### [11-reporting/](11-reporting/README.md) - Reporting & Analytics
 **Purpose**: Business intelligence, reports, dashboards, and KPIs  
 **PRD Sections**: 6.13 (Reporting)  
 **Phase**: Phase 1-2 (Medium)  
 **Dependencies**: All operational modules
 
 #### Specifications
-- [reporting.md](08-reporting/reporting.md) - Standard Reports
-- [analytics.md](08-reporting/analytics.md) - Dashboards, KPIs, Analytics
+- [reporting.md](11-reporting/reporting.md) - Standard Reports
+- [analytics.md](11-reporting/analytics.md) - Dashboards, KPIs, Analytics
 
 #### Related User Stories
 - Integrated across operational modules (no dedicated stories)
@@ -222,16 +273,16 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-###  [09-cross-cutting/](09-cross-cutting/README.md) - Non-Functional Requirements
+### [12-cross-cutting/](12-cross-cutting/README.md) - Non-Functional Requirements
 **Purpose**: Cross-cutting concerns (performance, security, integration)  
 **PRD Sections**: 7, 9, 10  
 **Phase**: Phase 1 (Critical)  
 **Dependencies**: Cross-cutting (applies to all modules)
 
 #### Specifications
-- [non-functional-requirements.md](09-cross-cutting/non-functional-requirements.md) - Performance, Scalability, Availability
-- [security-compliance.md](09-cross-cutting/security-compliance.md) - Security & Compliance
-- [integration-requirements.md](09-cross-cutting/integration-requirements.md) - GPS/VTS Integration, Map APIs
+- [non-functional-requirements.md](12-cross-cutting/non-functional-requirements.md) - Performance, Scalability, Availability
+- [security-compliance.md](12-cross-cutting/security-compliance.md) - Security & Compliance
+- [integration-requirements.md](12-cross-cutting/integration-requirements.md) - GPS/VTS Integration, Map APIs
 
 #### Related User Stories
 - Cross-cutting requirements integrated into all modules
@@ -244,16 +295,16 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-### [10-phases/](10-phases/README.md) - Implementation Phases
+### [13-phases/](13-phases/README.md) - Implementation Phases
 **Purpose**: Phase-wise feature rollout plan and roadmap  
 **PRD Sections**: Phase-wise Feature Structure  
 **Phase**: All Phases  
 **Dependencies**: All modules (organizational)
 
 #### Specifications
-- [phase-1.md](10-phases/phase-1.md) - Phase 1: Core Foundation & Operational Enablement (MVP)
-- [phase-2.md](10-phases/phase-2.md) - Phase 2: Intermediate Enhancements & Analytics
-- [phase-3.md](10-phases/phase-3.md) - Phase 3: Workshop, Advanced Analytics, Alerts
+- [phase-1.md](13-phases/phase-1.md) - Phase 1: Core Foundation & Operational Enablement (MVP)
+- [phase-2.md](13-phases/phase-2.md) - Phase 2: Intermediate Enhancements & Analytics
+- [phase-3.md](13-phases/phase-3.md) - Phase 3: Workshop, Advanced Analytics, Alerts
 
 #### Related User Stories
 - Phase 1: US-001 to US-094
@@ -265,35 +316,44 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-### [11-reference/](11-reference/README.md) - Reference Materials
+### [14-reference/](14-reference/README.md) - Reference Materials
 **Purpose**: Glossary, terminology, acronyms, and reference documentation  
 **PRD Sections**: Glossary & Terminology, Appendix A  
 **Phase**: All Phases (Reference)  
 **Dependencies**: None (reference only)
 
 #### Specifications
-- [glossary.md](11-reference/glossary.md) - Glossary, Domain Terms, Acronyms
+- [glossary.md](14-reference/glossary.md) - Glossary, Domain Terms, Acronyms
 
 #### Cross-References
 - **Referenced by**: All modules for terminology
 
 ---
 
-### [12-users/](12-users/README.md) - User Management
-**Purpose**: User profiles, helper profiles, and user-related domain logic  
+### [03-users/](03-users/README.md) - User Profiles
+**Purpose**: Driver and Helper user profiles and domain logic  
 **PRD Sections**: 6.3.3  
 **Phase**: Phase 1 (Critical)  
+**Sprint Coverage**: Sprint 2  
 **Dependencies**: `01-foundation/`
 
 #### Specifications
-- [helper-master-data.md](12-users/helper-master-data.md) - Helper entity model, optional `user_id` FK to User, assignments, availability, APIs
+- [tenant-user-management.md](03-users/tenant-user-management.md) — Tenant Admin user & role management: invite, assign roles, lifecycle, deactivation, audit trail *(US-004, US-005, US-007, US-008, US-009)*
+- [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver entity beyond User account: compliance, license, state tracking *(US-057)*
+- [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User, availability state machine, trip assignment *(US-061)*
 
 #### Related User Stories
+- US-004: Role Hierarchy & RBAC
+- US-005: User Invitation & Activation
+- US-007: Account Deactivation & Reactivation
+- US-008: Password & Account Reset
+- US-009: User Activity & Audit Logs
+- US-057: Driver user profiles & compliance
 - US-061: Helper Master Data Management
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
-- **Referenced by**: `06-fleet-management/`, `03-operations/`, `02-master-data/`
+- **Referenced by**: `08-fleet-management/`, `05-transport/`, `02-master-data/`
 
 ---
 
@@ -324,20 +384,22 @@ Each specification file includes PRD section references in frontmatter.
 
 ## 📊 Dependency Matrix
 
-| Module | Depends On | Required By |
-|--------|-----------|-------------|
-| 01-foundation | None | All operational modules |
-| 02-master-data | 01-foundation | 03, 04, 05, 06 |
-| 03-operations | 01, 02 | 04, 05, 06, 07, 08 |
-| 04-poi-operations | 03 | 08 |
-| 05-vendor-management | 02, 03 | 07, 08 |
-| 06-fleet-management | 02, 12 | 03, 08 |
-| 07-mobile-apps | 03, 04, 05 | - |
-| 08-reporting | All operational | - |
-| 09-cross-cutting | Cross-cutting | All |
-| 10-phases | All (organizational) | - |
-| 11-reference | None | All (reference) |
-| 12-users | 01 | 02, 03, 06 |
+| Module | Depends On | Required By | Sprint |
+|--------|-----------|-------------|--------|
+| 01-foundation | None | All modules | Sprint 1 |
+| 02-master-data | 01 | 03, 04, 05, 06, 07, 08 | Sprint 2 |
+| 03-users | 01 | 04, 05, 08 | Sprint 2 |
+| 04-requisitions | 01, 02, 03 | 05, 11 | Sprint 3 |
+| 05-transport | 04, 02, 07 | 06, 09, 11 | Sprint 3–4 |
+| 06-poi-operations | 05 | 11 | Sprint 4 |
+| 07-vendor-management | 02, 05 | 09, 11 | Sprint 4 |
+| 08-fleet-management | 02, 03 | 05, 11 | Sprint 4 |
+| 09-mobile-apps | 05, 06, 07 | — | Sprint 5 |
+| 10-audit | Cross-cutting | All | Sprint 2+ |
+| 11-reporting | All operational | — | Phase 2 |
+| 12-cross-cutting | Cross-cutting | All | All phases |
+| 13-phases | All (organizational) | — | Reference |
+| 14-reference | None | All | Reference |
 
 ---
 
