@@ -1,790 +1,513 @@
 # User Stories Grouped by Epic
 
-## EPIC-001: System Foundation
+> **Last Updated**: 2026-04-20  
+> **Source of truth**: [`phase-1-sprint-plan.md`](phase-1-sprint-plan.md) and [`sprints/`](sprints/) folder  
+> Sprint assignments reflect the current 10-sprint Phase 1 plan.
 
-**Epic Name:** System Foundation  
+---
+
+## EPIC-001: System Foundation (Infrastructure)
+
 **Epic ID:** EPIC-001
 
 ### User Stories:
-- **US-001**: User Login & Account Lockout
-  - Module: System Foundation
-  - Priority: Critical
-  - Sprint: Sprint 1
-  - Story Points: 10
+
+- **INFRA-01**: Local Development Environment Setup
+  - Sprint: Sprint 1 | Status: Done | SP: 3
+
+- **INFRA-02**: Isolated Database per Client (Schema-per-Tenant)
+  - Sprint: Sprint 1 | Status: Done | SP: 3
+
+- **INFRA-03**: Background Job Processing (Celery + Redis)
+  - Sprint: Sprint 1 | Status: Done | SP: 3
+
+- **INFRA-04**: Caching and Session Storage (Redis-backed)
+  - Sprint: Sprint 1 | Status: Done | SP: 1
+
+- **INFRA-05**: Production-Ready Configuration & Onboarding Docs
+  - Sprint: Sprint 1 | Status: Done | SP: 2
 
 ---
 
-## EPIC-002: User & Tenant Foundation
+## EPIC-002: Platform Admin Portal
 
-**Epic Name:** User & Tenant Foundation  
-**Epic ID:** EPIC-002
+**Epic ID:** EPIC-002 (Platform Admin)
 
 ### User Stories:
-- **US-098**: Tenant Onboarding & Schema Provisioning
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 1
-  - Story Points: 13
 
-- **US-002**: Multi-Factor Authentication (MFA)
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 1
-  - Story Points: 8
+- **PAP-01**: Custom-Branded Admin Interface (DFMS Design System)
+  - Sprint: Sprint 1 | Status: Done | SP: 5
 
-- **US-003**: Session Control & Management
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 5
+- **PAP-02**: Platform Admin Login (Username & Password)
+  - Sprint: Sprint 1 | Status: Done | SP: 2
 
-- **US-004**: Role Hierarchy & Permission Management
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 13
+- **PAP-03**: Platform Admin 2FA — Email OTP Challenge
+  - Sprint: Sprint 1 | Status: Done | SP: 3
 
-- **US-005**: User Invitation & Activation
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 3
-  - Story Points: 8
+- **PAP-04**: Platform Admin Dashboard — Key Metrics
+  - Sprint: Sprint 1 | Status: Done | SP: 3
 
-- **US-006**: OTP Verification System
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 3
-  - Story Points: 5
+- **PAP-05**: Tenant Onboarding — Register a New Client Organisation
+  - Sprint: Sprint 1 | Status: ~80% | SP: 13
 
-- **US-007**: Account Deactivation & Reactivation
-  - Module: User & Tenant Management
-  - Priority: High
-  - Sprint: Sprint 3
-  - Story Points: 5
-
-- **US-008**: Password & Account Reset
-  - Module: User & Tenant Management
-  - Priority: Critical
-  - Sprint: Sprint 3
-  - Story Points: 5
-
-- **US-009**: User Activity & Audit Logs
-  - Module: User & Tenant Management
-  - Priority: High
-  - Sprint: Sprint 4
-  - Story Points: 8
+- **PAP-06**: Tenant Management — View, Update, and Suspend Accounts
+  - Sprint: Sprint 1 | Status: Done | SP: 3
 
 ---
 
-## EPIC-003: Master Data Configuration (Routes, Suppliers & Dealers)
+## EPIC-003: Client Portal
 
-**Epic Name:** Master Data Configuration
-**Epic ID:** EPIC-003
+**Epic ID:** EPIC-003 (Client Portal)
 
 ### User Stories:
-- **US-096**: Route, Supplier & Dealer Master Data Configuration
-  - Module: Master Data Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 5
+
+- **CP-01**: Custom-Branded Client Portal Interface
+  - Sprint: Sprint 1 | Status: Done | SP: 3
+
+- **CP-02**: Branded Login Page Served on the Client's Domain
+  - Sprint: Sprint 1 | Status: Done | SP: 2
+
+- **CP-03**: 2FA — Email OTP (3-Step Secure Login)
+  - Sprint: Sprint 1 | Status: Done | SP: 8
+
+- **CP-04**: Account Activation Flow via Invitation Link
+  - Sprint: Sprint 1 | Status: ~70% | SP: 5
+
+- **CP-05**: Tenant Dashboard — Basic Live Operational Metrics
+  - Sprint: Sprint 1 | Status: Done | SP: 3
 
 ---
 
-## EPIC-004: POI Management & Geofencing
+## EPIC-004: Master Data Management
 
-**Epic Name:** POI Management & Geofencing
 **Epic ID:** EPIC-004
 
 ### User Stories:
-- **US-097**: POI Management & Geofencing
-  - Module: Master Data Management
-  - Priority: Critical
-  - Sprint: Sprint 3
-  - Story Points: 13
+
+- **MDM-04 / US-097**: POI Setup & Management
+  - Sprint: Sprint 2 | Status: Pending | SP: 8
+
+- **MDM-01 / US-095**: Product Master Data Management (CRUD)
+  - Sprint: Sprint 2 | Status: Pending | SP: 13
+
+- **MDM-02 / US-096**: Route, Supplier & Dealer Master Data
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **MDM-03 / US-047**: Vendor Master Data (Admin CRUD & Bulk Upload)
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **MDM-05 / US-053**: Vehicle Registration & Master Data
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **MDM-06 / US-057**: Driver Master Data Management
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **MDM-07 / US-061**: Helper Master Data Management
+  - Sprint: Sprint 2 | Status: Pending | SP: 3
 
 ---
 
-## EPIC-005: Product Inventory Management (PIM)
+## EPIC-005: Tenant User Management
 
-**Epic Name:** Product Inventory Management  
 **Epic ID:** EPIC-005
 
 ### User Stories:
-- **US-095**: Product Master Data Management (CRUD)
-  - Module: Master Data Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 13
+
+- **TUM-01 / US-005**: User Invitation & Activation
+  - Sprint: Sprint 2 | Status: In Progress (~70%) | SP: 5
+
+- **TUM-02 / US-006**: OTP Verification System
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **TUM-03 / US-007**: Account Deactivation & Reactivation
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **TUM-04 / US-008**: Password & Account Reset
+  - Sprint: Sprint 2 | Status: Pending | SP: 5
+
+- **TUM-05 / US-009**: User Activity & Audit Logs
+  - Sprint: Sprint 2 | Status: Pending | SP: 8
 
 ---
 
-## EPIC-006: Fleet & Vehicle Management
+## EPIC-006: Vehicle Tracking & Geofencing
 
-**Epic Name:** Fleet & Vehicle Management  
 **Epic ID:** EPIC-006
 
 ### User Stories:
-- **US-047**: Vendor Master Data Configuration (Admin CRUD & Bulk Upload)
-  - Module: Master Data Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 5
 
-- **US-053**: Vehicle Registration & Master Data Management
-  - Module: Fleet & Vehicle Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 5
-
-- **US-057**: Manage Driver Master Data
-  - Module: Master Data Management
-  - Priority: Critical
-  - Sprint: Sprint 2
-  - Story Points: 5
-
-- **US-058**: Fuel Management & Tracking
-  - Module: Fleet Management
-  - Priority: Medium
-  - Sprint: Sprint 18
-  - Story Points: 3
-
-- **US-061**: Helper Profile Management
-  - Module: Fleet Management
-  - Priority: Medium
-  - Sprint: Sprint 18
-  - Story Points: 3
-
-- **US-062**: Helper Assignment to Trips
-  - Module: Fleet Management
-  - Priority: Medium
-  - Sprint: Sprint 18
-  - Story Points: 3
+- **VTG-01**: Geofencing Engine — Arrival & Departure Detection
+  - Sprint: Sprint 2 | Status: Pending | SP: 8
 
 ---
 
-## EPIC-007: Product Transfer Requisition Management
+## EPIC-007: Requisition
 
-**Epic Name:** Product Transfer Requisition Management  
 **Epic ID:** EPIC-007
 
 ### User Stories:
-- **US-010**: Create Port Consignment Transfer Requisition (TR)
-  - Module: Product Requisition Management
-  - Priority: Critical
-  - Sprint: Sprint 4
-  - Story Points: 5
 
-- **US-011**: Distribution Approval Workflow
-  - Module: Approval Management
-  - Priority: Critical
-  - Sprint: Sprint 4
-  - Story Points: 8
+- **PR-01**: FG Product Requisition
+  - Sprint: Sprint 3 | Status: Pending | SP: 5
 
-- **US-012**: Procurement Approval Workflow
-  - Module: Approval Management
-  - Priority: Critical
-  - Sprint: Sprint 4
-  - Story Points: 8
-
-- **US-013**: Stock Validation & Availability Check
-  - Module: Inventory Management
-  - Priority: High
-  - Sprint: Sprint 4
-  - Story Points: 5
+- **PR-02**: Port Consignment (LC-Based) Product Requisition
+  - Sprint: Sprint 3 | Status: Pending | SP: 5
 
 ---
 
-## EPIC-008: Transport Capacity & Fleet Planning
+## EPIC-008: Distribution
 
-**Epic Name:** Transport Capacity & Fleet Planning  
 **Epic ID:** EPIC-008
 
 ### User Stories:
-- **US-014**: Capacity Checking & Route Validation
-  - Module: Transport Management
-  - Priority: High
-  - Sprint: Sprint 5
-  - Story Points: 5
 
-- **US-016**: Fleet Availability Dashboard
-  - Module: Fleet Management
-  - Priority: High
-  - Sprint: Sprint 5
-  - Story Points: 5
+- **DR-01**: Distribution — FG Product Requisitions View
+  - Sprint: Sprint 3 | Status: Pending | SP: 2
+
+- **DR-02**: Distribution — Transport Request Creation & Manager Approval
+  - Sprint: Sprint 3 | Status: Pending | SP: 8
 
 ---
 
-## EPIC-009: Transport Order (TO) Management
+## EPIC-009: Procurement
 
-**Epic Name:** Transport Order (TO) Management  
 **Epic ID:** EPIC-009
 
 ### User Stories:
-- **US-015**: Transport Requisition (TR) Assessment by Transport Planner
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 5
-  - Story Points: 5
 
-- **US-017**: Transport Order (TO) Creation - Multiple TOs per TR
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 5
-  - Story Points: 8
+- **PC-01**: Procurement — RM Product Requisitions View
+  - Sprint: Sprint 3 | Status: Pending | SP: 2
 
-- **US-018**: TO Creation by Transport Planner
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 6
-  - Story Points: 13
-
-- **US-019**: TO Execution - Vendor Direct Assignment
-  - Module: Transport Management
-  - Priority: High
-  - Sprint: Sprint 6
-  - Story Points: 8
-
-- **US-020**: TO Execution - Own Fleet Assignment
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 6
-  - Story Points: 8
-
-- **US-021**: Trip Lifecycle Management
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 7
-  - Story Points: 13
-
-- **US-022**: Partial Delivery Handling
-  - Module: Transport Management
-  - Priority: High
-  - Sprint: Sprint 7
-  - Story Points: 5
-
-- **US-023**: Incident Management & Exception Handling
-  - Module: Transport Management
-  - Priority: High
-  - Sprint: Sprint 7
-  - Story Points: 8
-
-- **US-024**: Vendor Bidding Portal
-  - Module: Vendor Management
-  - Priority: High
-  - Sprint: Sprint 8
-  - Story Points: 8
-
-- **US-025**: Trip Closure with Proof of Delivery (POD)
-  - Module: Transport Management
-  - Priority: Critical
-  - Sprint: Sprint 7
-  - Story Points: 8
-
-- **US-026**: Real-time Map & Tracking Dashboard
-  - Module: Monitoring & Analytics
-  - Priority: High
-  - Sprint: Sprint 14
-  - Story Points: 13
-
-- **US-071**: TO Dispatch Planning (Calendar View)
-  - Module: Transport Management
-  - Priority: High
-  - Sprint: Sprint 11
-  - Story Points: 8
-
-- **US-072**: TR Conjoinment (Combining Multiple TRs)
-  - Module: Transport Management
-  - Priority: Medium
-  - Sprint: Sprint 11
-  - Story Points: 5
+- **PC-02**: Procurement — Transport Request Creation
+  - Sprint: Sprint 3 | Status: Pending | SP: 6
 
 ---
 
-## EPIC-010: Vendor Management
+## EPIC-010: Transport Order (TO) Management
 
-**Epic Name:** Vendor Management  
 **Epic ID:** EPIC-010
 
 ### User Stories:
-- **US-027**: Vendor Registration & Verification
-  - Module: Vendor Management
-  - Priority: Critical
-  - Sprint: Sprint 8
-  - Story Points: 8
 
-- **US-028**: Vendor Performance Tracking & Metrics
-  - Module: Vendor Management
-  - Priority: High
-  - Sprint: Sprint 8
-  - Story Points: 5
+- **TRQ-01**: Transport Requests Queue (FG & Port Consignment)
+  - Sprint: Sprint 3 | Status: Pending | SP: 3
 
-- **US-029**: Vendor Payment Management
-  - Module: Vendor Management
-  - Priority: High
-  - Sprint: Sprint 9
-  - Story Points: 8
+- **TO-01**: Transport Order Creation
+  - Sprint: Sprint 3 | Status: Pending | SP: 8
 
-- **US-030**: Vendor Fleet Management
-  - Module: Vendor Management
-  - Priority: High
-  - Sprint: Sprint 9
-  - Story Points: 5
+- **TO-02**: TDO Vehicle, Driver, Helper & ETA Assignment
+  - Sprint: Sprint 3 | Status: Pending | SP: 8
 
-- **US-031**: Vendor Portal & Self-Service
-  - Module: Vendor Management
-  - Priority: Medium
-  - Sprint: Sprint 9
-  - Story Points: 8
+- **TE-01 / US-020**: TO Execution — Own Fleet (Vehicle/Driver Assignment)
+  - Sprint: Sprint 4 | Status: Pending | SP: 8
 
-- **US-032**: Vendor Rating & Reviews
-  - Module: Vendor Management
-  - Priority: Medium
-  - Sprint: Sprint 9
-  - Story Points: 5
+- **TE-02 / US-021**: Trip Lifecycle Management (12 States)
+  - Sprint: Sprint 4 | Status: Pending | SP: 13
 
-- **US-033**: Vendor Contract Management
-  - Module: Vendor Management
-  - Priority: Medium
-  - Sprint: Sprint 10
-  - Story Points: 8
+- **TE-03 / US-023**: Incident Management & Exception Handling
+  - Sprint: Sprint 4 | Status: Pending | SP: 5
 
-- **US-034**: Vendor Blacklist & Suspension
-  - Module: Vendor Management
-  - Priority: Medium
-  - Sprint: Sprint 10
-  - Story Points: 5
+- **US-043**: Command Center Operations Monitoring
+  - Sprint: Sprint 7 | Status: Pending | SP: 8
 
 ---
 
-## EPIC-011: Gate Management
+## EPIC-011: Trip Closure & Tracking
 
-**Epic Name:** Gate Management  
 **Epic ID:** EPIC-011
 
 ### User Stories:
-- **US-035**: Gate-In Entry at Source POI
-  - Module: Operations (Gate Management)
-  - Priority: Critical
-  - Sprint: Sprint 11
-  - Story Points: 5
 
-- **US-036**: Gate-Out Entry at Source POI
-  - Module: Operations (Gate Management)
-  - Priority: High
-  - Sprint: Sprint 11
-  - Story Points: 3
+- **TC-01 / US-022**: Partial Delivery Handling
+  - Sprint: Sprint 4 | Status: Pending | SP: 5
 
-- **US-037**: Gate-In Entry at Destination POI
-  - Module: Operations (Gate Management)
-  - Priority: Critical
-  - Sprint: Sprint 12
-  - Story Points: 5
+- **TC-02 / US-025**: Trip Closure with Proof of Delivery (POD)
+  - Sprint: Sprint 4 | Status: Pending | SP: 8
 
-- **US-038**: Gate-Out Entry at Destination POI
-  - Module: Operations (Gate Management)
-  - Priority: High
-  - Sprint: Sprint 12
-  - Story Points: 3
-
-- **US-063**: Gate-in TO/Challan Lookup
-  - Module: Gate Management
-  - Priority: Critical
-  - Sprint: Sprint 9
-  - Story Points: 8
-
-- **US-064**: On Demand TO Creation - Dealer Entry
-  - Module: Gate Management
-  - Priority: High
-  - Sprint: Sprint 9
-  - Story Points: 8
-
-- **US-065**: On Demand Third Party TO Creation against PO copy for Supplier Entry
-  - Module: Gate Management
-  - Priority: High
-  - Sprint: Sprint 10
-  - Story Points: 8
-
-- **US-066**: Gate-Out Entry
-  - Module: Gate Management
-  - Priority: Critical
-  - Sprint: Sprint 10
-  - Story Points: 5
-
-- **US-067**: Remarks Logging
-  - Module: Gate Management
-  - Priority: Medium
-  - Sprint: Sprint 10
-  - Story Points: 3
+- **TC-03 / US-026**: Real-time Map & Tracking Dashboard
+  - Sprint: Sprint 4 | Status: Pending | SP: 8
 
 ---
 
-## EPIC-012: Scaling / Weight Management
+## EPIC-012: Vendor Management
 
-**Epic Name:** Scaling / Weight Management  
 **Epic ID:** EPIC-012
 
 ### User Stories:
-- **US-039**: Scaling/Weighing at Source POI
-  - Module: Operations (Scaling)
-  - Priority: High
-  - Sprint: Sprint 12
-  - Story Points: 5
 
-- **US-040**: Scaling/Weighing at Destination POI
-  - Module: Operations (Scaling)
-  - Priority: High
-  - Sprint: Sprint 13
-  - Story Points: 5
+- **US-027**: Vendor Registration & Verification Workflow
+  - Sprint: Sprint 5 | Status: Pending | SP: 8
 
-- **US-068**: Weight Entry
-  - Module: Scaling / Weight Management
-  - Priority: Critical
-  - Sprint: Sprint 10
-  - Story Points: 8
+- **US-024**: Vendor Bidding Portal (Non-Contractual TOs)
+  - Sprint: Sprint 5 | Status: Pending | SP: 8
 
-- **US-069**: Queue Token Generation
-  - Module: Scaling / Weight Management
-  - Priority: High
-  - Sprint: Sprint 10
-  - Story Points: 5
+- **US-030**: Vendor Fleet Management
+  - Sprint: Sprint 5 | Status: Pending | SP: 3
 
-- **US-070**: Weight Exit
-  - Module: Scaling / Weight Management
-  - Priority: High
-  - Sprint: Sprint 10
-  - Story Points: 5
+- **US-031**: Vendor Portal (Self-Service)
+  - Sprint: Sprint 5 | Status: Pending | SP: 8
+
+- **US-028**: Vendor Performance Tracking & Metrics
+  - Sprint: Sprint 5 | Status: Pending | SP: 5
+
+- **US-029**: Vendor Payment Management
+  - Sprint: Sprint 5 | Status: Pending | SP: 8
+
+- **US-032**: Vendor Rating & Reviews
+  - Sprint: Sprint 5 | Status: Pending | SP: 3
+
+- **US-033**: Vendor Contract Management
+  - Sprint: Sprint 5 | Status: Pending | SP: 5
+
+- **US-034**: Vendor Blacklist & Suspension
+  - Sprint: Sprint 5 | Status: Pending | SP: 3
 
 ---
 
-## EPIC-013: Loading / Unloading Operations
+## EPIC-013: Gate Management
 
-**Epic Name:** Loading / Unloading Operations  
 **Epic ID:** EPIC-013
 
 ### User Stories:
-- **US-041**: Loading Operations Management
-  - Module: Operations (Loading/Unloading)
-  - Priority: Critical
-  - Sprint: Sprint 12
-  - Story Points: 5
 
-- **US-042**: Unloading Operations Management
-  - Module: Operations (Loading/Unloading)
-  - Priority: Critical
-  - Sprint: Sprint 13
-  - Story Points: 5
+- **US-063**: Gate-in TO/Challan Lookup
+  - Sprint: Sprint 6 | Status: Pending | SP: 8
 
-- **US-071**: View All Waiting Vehicles
-  - Module: Operations (Command Center)
-  - Priority: High
-  - Sprint: Sprint 11
-  - Story Points: 5
+- **US-064**: On-Demand TO Creation — Dealer Entry
+  - Sprint: Sprint 6 | Status: Pending | SP: 8
 
-- **US-072**: Assign Loading/Unloading Point
-  - Module: Operations (Command Center)
-  - Priority: Critical
-  - Sprint: Sprint 11
-  - Story Points: 5
+- **US-065**: On-Demand TO Creation — Supplier Entry
+  - Sprint: Sprint 6 | Status: Pending | SP: 8
 
-- **US-073**: Assignment Alert/Notification
-  - Module: Operations (Command Center)
-  - Priority: Medium
-  - Sprint: Sprint 11
-  - Story Points: 3
+- **US-035**: Gate-In at Source POI
+  - Sprint: Sprint 6 | Status: Pending | SP: 5
 
-- **US-074**: Assign Waiting Serial
-  - Module: Operations (Command Center)
-  - Priority: Medium
-  - Sprint: Sprint 11
-  - Story Points: 3
+- **US-036**: Gate-Out at Source POI
+  - Sprint: Sprint 6 | Status: Pending | SP: 3
 
-- **US-075**: Load Start/End Time Entry
-  - Module: Operations (Loading)
-  - Priority: Critical
-  - Sprint: Sprint 12
-  - Story Points: 5
+- **US-066**: Gate-Out Entry
+  - Sprint: Sprint 6 | Status: Pending | SP: 5
 
-- **US-076**: Unload Start/End Time Entry
-  - Module: Operations (Unloading)
-  - Priority: Critical
-  - Sprint: Sprint 13
-  - Story Points: 5
+- **US-067**: Remarks Logging
+  - Sprint: Sprint 6 | Status: Pending | SP: 3
+
+- **US-037**: Gate-In at Destination POI
+  - Sprint: Sprint 7 | Status: Pending | SP: 5
+
+- **US-038**: Gate-Out at Destination POI
+  - Sprint: Sprint 7 | Status: Pending | SP: 3
 
 ---
 
-## EPIC-014: Quality Control & Quality Assurance Workflow
+## EPIC-014: Scaling / Weight Management
 
-**Epic Name:** Quality Control & Quality Assurance Workflow  
 **Epic ID:** EPIC-014
 
 ### User Stories:
-- **US-044**: QC Lab Testing Workflow
-  - Module: Quality Control
-  - Priority: Critical
-  - Sprint: Sprint 14
-  - Story Points: 8
 
-- **US-045**: QC Sample Collection & Labeling
-  - Module: Quality Control
-  - Priority: Critical
-  - Sprint: Sprint 14
-  - Story Points: 5
+- **US-068**: Weight Entry (Scale-In)
+  - Sprint: Sprint 6 | Status: Pending | SP: 8
 
-- **US-046**: QC Test Configuration & Checklist Management
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 8
-  - Story Points: 3
+- **US-069**: Queue Token Generation
+  - Sprint: Sprint 6 | Status: Pending | SP: 5
 
-- **US-048**: QC Report Generation & Distribution
-  - Module: Quality Control
-  - Priority: High
-  - Sprint: Sprint 15
-  - Story Points: 5
+- **US-070**: Weight Exit (Scale-Out)
+  - Sprint: Sprint 6 | Status: Pending | SP: 8 (note: listed as 5 SP in phase plan — verify)
 
-- **US-049**: QC Rejection Workflow
-  - Module: Quality Control
-  - Priority: High
-  - Sprint: Sprint 16
-  - Story Points: 5
+- **US-039**: Scaling/Weighing at Source POI
+  - Sprint: Sprint 7 | Status: Pending | SP: 5
 
-- **US-050**: QC Dashboard & Analytics
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 16
-  - Story Points: 5
-
-- **US-051**: QC Checklist Management
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-053b**: QC Certificate Management
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-054**: QC Audit Trail
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 16
-  - Story Points: 3
-
-- **US-055**: QC Vendor Quality Tracking
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 16
-  - Story Points: 3
-
-- **US-056**: QC Compliance Reporting
-  - Module: Quality Control
-  - Priority: Medium
-  - Sprint: Sprint 16
-  - Story Points: 3
-
-- **US-077**: Pre-QC Context Display
-  - Module: Quality Control (Pre-QC)
-  - Priority: Critical
-  - Sprint: Sprint 14
-  - Story Points: 5
-
-- **US-078**: Sample Creation
-  - Module: Quality Control (Sampling)
-  - Priority: Critical
-  - Sprint: Sprint 14
-  - Story Points: 5
-
-- **US-079**: Sample Labeling
-  - Module: Quality Control (Sampling)
-  - Priority: High
-  - Sprint: Sprint 14
-  - Story Points: 3
-
-- **US-080**: Exception Recording
-  - Module: Quality Control (Sampling)
-  - Priority: Medium
-  - Sprint: Sprint 14
-  - Story Points: 3
-
-- **US-081**: QC Context Display
-  - Module: Quality Control (QC)
-  - Priority: Critical
-  - Sprint: Sprint 15
-  - Story Points: 5
-
-- **US-082**: Sample Collection Event
-  - Module: Quality Control (QC)
-  - Priority: High
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-083**: Configurable Form/Checklist for Sampling
-  - Module: Quality Control (QC)
-  - Priority: High
-  - Sprint: Sprint 15
-  - Story Points: 5
-
-- **US-084**: QR/Barcode Label
-  - Module: Quality Control (QC)
-  - Priority: Medium
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-085**: Sampling Timestamp
-  - Module: Quality Control (QC)
-  - Priority: Medium
-  - Sprint: Sprint 15
-  - Story Points: 2
-
-- **US-086**: Create Lab Request
-  - Module: Quality Control (Lab)
-  - Priority: Critical
-  - Sprint: Sprint 15
-  - Story Points: 5
-
-- **US-087**: Lab Estimated Completion Time
-  - Module: Quality Control (Lab)
-  - Priority: Medium
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-088**: Lab Report Upload
-  - Module: Quality Control (Lab)
-  - Priority: Critical
-  - Sprint: Sprint 15
-  - Story Points: 5
-
-- **US-089**: Lab Status Monitoring
-  - Module: Quality Control (Lab)
-  - Priority: High
-  - Sprint: Sprint 15
-  - Story Points: 3
-
-- **US-090**: QC Pass/Fail/Aut-Pass Tracking
-  - Module: Quality Control (QC Decision)
-  - Priority: Critical
-  - Sprint: Sprint 16
-  - Story Points: 5
-
-- **US-091**: Escalation Workflow
-  - Module: Quality Control (QC Decision)
-  - Priority: High
-  - Sprint: Sprint 16
-  - Story Points: 5
+- **US-040**: Scaling/Weighing at Destination POI
+  - Sprint: Sprint 7 | Status: Pending | SP: 5
 
 ---
 
-## EPIC-015: Command Center & Monitoring
+## EPIC-015: Loading / Unloading Operations
 
-**Epic Name:** Command Center & Monitoring  
 **Epic ID:** EPIC-015
 
 ### User Stories:
-- **US-043**: Command Center Monitoring & Dashboard
-  - Module: Operations (Command Center)
-  - Priority: High
-  - Sprint: Sprint 13
-  - Story Points: 13
+
+- **US-041**: Loading Operations Management
+  - Sprint: Sprint 7 | Status: Pending | SP: 5
+
+- **US-042**: Unloading Operations Management
+  - Sprint: Sprint 7 | Status: Pending | SP: 5
+
+- **US-075**: Load Start/End Time Entry
+  - Sprint: Sprint 7 | Status: Pending | SP: 3
+
+- **US-076**: Unload Start/End Time Entry
+  - Sprint: Sprint 7 | Status: Pending | SP: 3
+
+- **US-073**: Assignment Alert/Notification
+  - Sprint: Sprint 7 | Status: Pending | SP: 2
+
+- **US-074**: Assign Waiting Serial
+  - Sprint: Sprint 7 | Status: Pending | SP: 2
 
 ---
 
-## EPIC-016: Mobile Interface (Driver / QC)
+## EPIC-016: Quality Control & QA Workflow
 
-**Epic Name:** Mobile Applications (Driver)  
 **Epic ID:** EPIC-016
 
 ### User Stories:
-- **US-052**: Driver Mobile Interface
-  - Module: Mobile Interfaces
-  - Priority: High
-  - Sprint: Sprint 12
-  - Story Points: 8
 
-- **US-092**: Trip Management (Driver Interface)
-  - Module: Mobile Applications
-  - Priority: Critical
-  - Sprint: Sprint 17
-  - Story Points: 13
+- **US-051**: QC Checklist Management (Visual Inspection)
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
 
-- **US-093**: QC Interface
-  - Module: Mobile Applications
-  - Priority: Medium
-  - Sprint: Sprint 17
-  - Story Points: 8
+- **US-046**: QC Test Configuration & Checklist Management
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-044**: QC Lab Testing Workflow
+  - Sprint: Sprint 8 | Status: Pending | SP: 5
+
+- **US-045**: QC Sample Collection
+  - Sprint: Sprint 8 | Status: Pending | SP: 5
+
+- **US-077**: Pre-QC Context Display
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-078**: Sample Creation
+  - Sprint: Sprint 8 | Status: Pending | SP: 5
+
+- **US-079**: Sample Labeling
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-083**: Configurable Form/Checklist for Sampling
+  - Sprint: Sprint 8 | Status: Pending | SP: 5
+
+- **US-084**: QR/Barcode Label
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-080**: Exception Recording
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-081**: QC Context Display
+  - Sprint: Sprint 8 | Status: Pending | SP: 3
+
+- **US-082**: Sample Collection Event
+  - Sprint: Sprint 8 | Status: Pending | SP: 4
+
+- **US-085**: Sampling Timestamp
+  - Sprint: Sprint 8 | Status: Pending | SP: 2
+
+- **US-086**: Create Lab Request
+  - Sprint: Sprint 9 | Status: Pending | SP: 5
+
+- **US-087**: Lab Estimated Completion Time
+  - Sprint: Sprint 9 | Status: Pending | SP: 2
+
+- **US-088**: Lab Report Upload
+  - Sprint: Sprint 9 | Status: Pending | SP: 3
+
+- **US-089**: Lab Status Monitoring
+  - Sprint: Sprint 9 | Status: Pending | SP: 3
+
+- **US-090**: QC Pass/Fail/Auto-Pass Tracking
+  - Sprint: Sprint 9 | Status: Pending | SP: 5
+
+- **US-091**: Escalation Workflow
+  - Sprint: Sprint 9 | Status: Pending | SP: 5
+
+- **US-049**: QC Rejection Workflow
+  - Sprint: Sprint 9 | Status: Pending | SP: 5
+
+- **US-048**: QC Report Generation
+  - Sprint: Sprint 9 | Status: Pending | SP: 3
+
+- **US-050**: QC Dashboard & Analytics
+  - Sprint: Sprint 9 | Status: Pending | SP: 5
+
+- **US-053b**: QC Certificate Management
+  - Sprint: Sprint 9 | Status: Pending | SP: 2
+
+- **US-054**: QC Audit Trail & History
+  - Sprint: Sprint 9 | Status: Pending | SP: 2
+
+- **US-055**: QC Vendor Quality Tracking
+  - Sprint: Sprint 9 | Status: Pending | SP: 3
+
+- **US-056**: QC Compliance & Regulatory Reporting
+  - Sprint: Sprint 9 | Status: Pending | SP: 3
 
 ---
 
-## EPIC-017: Mobile Applications (Vendor)
+## EPIC-017: Mobile Applications
 
-**Epic Name:** Mobile Applications (Vendor)  
 **Epic ID:** EPIC-017
 
 ### User Stories:
-- **US-094**: Vendor Application Access
-  - Module: Mobile Applications
-  - Priority: Medium
-  - Sprint: Sprint 17
-  - Story Points: 8
+
+- **US-052**: Driver Mobile Interface
+  - Sprint: Sprint 10 | Status: Pending | SP: 8
+
+- **US-092**: Trip Management — Driver Interface
+  - Sprint: Sprint 10 | Status: Pending | SP: 8
+
+- **US-093**: QC Supervisor Mobile Interface
+  - Sprint: Sprint 10 | Status: Pending | SP: 8
+
+- **US-094**: Vendor Mobile Application Access
+  - Sprint: Sprint 10 | Status: Pending | SP: 8
 
 ---
 
 ## EPIC-018: Financial Management
 
-**Epic Name:** Financial Management  
 **Epic ID:** EPIC-018
 
 ### User Stories:
-- **US-059**: Trip Cost Calculation
-  - Module: Financial Management
-  - Priority: High
-  - Sprint: Sprint 18
-  - Story Points: 8
 
-- **US-060**: Profitability Analysis
-  - Module: Financial Management
-  - Priority: Medium
-  - Sprint: Sprint 18
-  - Story Points: 5
+- **US-058**: Fuel Management & Tracking
+  - Sprint: Sprint 10 | Status: Pending | SP: 3
+
+- **US-059**: Trip Cost Calculation & Analysis
+  - Sprint: Sprint 10 | Status: Pending | SP: 5
+
+- **US-060**: Trip Profitability Analysis
+  - Sprint: Sprint 10 | Status: Pending | SP: 3
 
 ---
 
 ## Summary Statistics
 
-### Total User Stories by Epic:
+### Stories by Epic
 
-| Epic ID | Epic Name | Story Count | Total Story Points |
-|---------|-----------|-------------|-------------------|
-| EPIC-001 | System Foundation | 1 | 10 |
-| EPIC-002 | User & Tenant Foundation | 9 | 70 |
-| EPIC-003 | Master Data Configuration (Routes, Suppliers & Dealers) | 1 | 5 |
-| EPIC-004 | POI Management & Geofencing | 1 | 13 |
-| EPIC-005 | Product Inventory Management | 1 | 13 |
-| EPIC-006 | Fleet & Vehicle Management | 6 | 24 |
-| EPIC-007 | Product Transfer Requisition Management | 4 | 26 |
-| EPIC-008 | Transport Capacity & Fleet Planning | 2 | 10 |
-| EPIC-009 | Transport Order Management | 12 | 99 |
-| EPIC-010 | Vendor Management | 8 | 52 |
-| EPIC-011 | Gate Management | 9 | 48 |
-| EPIC-012 | Scaling / Weight Management | 5 | 28 |
-| EPIC-013 | Loading / Unloading Operations | 8 | 36 |
-| EPIC-014 | Quality Control & QA Workflow | 27 | 116 |
-| EPIC-015 | Command Center & Monitoring | 1 | 13 |
-| EPIC-016 | Mobile Interface (Driver / QC) | 3 | 29 |
-| EPIC-017 | Mobile Applications (Vendor) | 1 | 8 |
-| EPIC-018 | Financial Management | 2 | 13 |
+| Epic ID | Epic Name | Stories | SP |
+|---------|-----------|---------|-----|
+| EPIC-001 | System Foundation (Infrastructure) | 5 | 12 |
+| EPIC-002 | Platform Admin Portal | 6 | 29 |
+| EPIC-003 | Client Portal | 5 | 21 |
+| EPIC-004 | Master Data Management | 7 | 44 |
+| EPIC-005 | Tenant User Management | 5 | 28 |
+| EPIC-006 | Vehicle Tracking & Geofencing | 1 | 8 |
+| EPIC-007 | Requisition | 2 | 10 |
+| EPIC-008 | Distribution | 2 | 10 |
+| EPIC-009 | Procurement | 2 | 8 |
+| EPIC-010 | Transport Order Management | 7 | 53 |
+| EPIC-011 | Trip Closure & Tracking | 3 | 21 |
+| EPIC-012 | Vendor Management | 9 | 51 |
+| EPIC-013 | Gate Management | 9 | 48 |
+| EPIC-014 | Scaling / Weight Management | 5 | 31 |
+| EPIC-015 | Loading / Unloading Operations | 6 | 20 |
+| EPIC-016 | Quality Control & QA Workflow | 26 | 92 |
+| EPIC-017 | Mobile Applications | 4 | 32 |
+| EPIC-018 | Financial Management | 3 | 11 |
+| **Total** | | **107** | **~529** |
 
-**Total:** 101 User Stories across 18 Epics
+### Sprint Distribution
 
-### Priority Distribution:
-- **Critical**: 42 stories
-- **High**: 30 stories
-- **Medium**: 24 stories
-
-### Sprint Distribution:
-- **Sprint 1-5**: Foundation & Setup (20 stories)
-- **Sprint 6-10**: Transport & Vendor Management (25 stories)
-- **Sprint 11-13**: POI Operations (21 stories)
-- **Sprint 14-16**: Quality Control (20 stories)
-- **Sprint 17-18**: Mobile & Financial (10 stories)
+| Sprint | Theme | Stories | SP |
+|--------|-------|---------|-----|
+| Sprint 1 | Infrastructure, Onboarding & Secure Login | 16 | ~62 |
+| Sprint 2 | Master Data, User Management & Vehicle Tracking | 13 | 83 |
+| Sprint 3 | Requisition, Transport Requests & Orders | 10 | 68 |
+| Sprint 4 | Trip Execution & Closure | 6 | 47 |
+| Sprint 5 | Vendor Management | 9 | 51 |
+| Sprint 6 | Gate Management & Weighing | 10 | 61 |
+| Sprint 7 | Destination Operations & Loading/Unloading | 11 | 46 |
+| Sprint 8 | QC Sampling & Lab Workflow | 13 | 47 |
+| Sprint 9 | QC Lab Results, Decisions & Compliance | 13 | 46 |
+| Sprint 10 | Mobile Applications & Financial Reporting | 7 | 43 |
