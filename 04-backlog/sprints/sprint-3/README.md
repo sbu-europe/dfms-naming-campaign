@@ -271,7 +271,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 ## Demo Feedback
 
-> No demo feedback recorded for Sprint 3 yet.
+> No demo feedback recorded for Sprint 3 yet. Full feedback log: [`07-feedback/README.md`](07-feedback/README.md)
 
 ---
 
