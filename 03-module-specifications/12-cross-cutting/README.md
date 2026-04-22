@@ -1,10 +1,10 @@
-# 09-non-functional - Non-Functional Requirements
+# 12-cross-cutting — Cross-Cutting Concerns
 
 ## Module Overview
 
-Cross-cutting concerns including performance, security, and integration
+Cross-cutting concerns that span all modules: non-functional requirements, security, integrations, automated testing strategy, and DevOps/infrastructure.
 
-**Purpose**: Cross-cutting concerns including performance, security, and integration  
+**Purpose**: System-wide quality attributes, security standards, testing architecture, and infrastructure specifications  
 **PRD Sections**: 7, 9, 10  
 **Phase**: Phase 1 (Critical)  
 **Dependencies**: Cross-cutting (applies to all modules)
@@ -13,17 +13,13 @@ Cross-cutting concerns including performance, security, and integration
 
 ## Module Contents
 
-### 📄 Specifications
-
-**Note**: All specification files are written in **domain knowledge format**, explaining how the system works conceptually with technical details, data models, and implementation guidance.
-
-| File | Description | PRD Section | Related Stories | Lines |
-|------|-------------|-------------|-----------------|-------|
-| [non-functional-requirements.md](non-functional-requirements.md) | System quality attributes with performance targets (3s page load, 500ms API response, 500 concurrent users), scalability strategy (100+ tenants, 10M+ trips/year, horizontal auto-scaling), availability SLA (99.5% uptime, daily backups, 1-hour RPO, 4-hour RTO), security standards (MFA, TLS 1.3, AES-256, 2-year audit logs), usability requirements (responsive design, WCAG 2.1 AA, 2-hour training time), compatibility (GPS providers, ERP connectors, payment gateways) | 7 | Cross-cutting | 439 |
-| [security-compliance.md](security-compliance.md) | Security architecture with layered defense (network, application, data, audit layers), data protection mechanisms (AES-256 encryption, data masking, secure deletion), RBAC implementation with least privilege principle, regulatory compliance (ISO 27001, GDPR/data privacy), incident response procedures, multi-tenant data isolation, vendor security controls | 10 | Integrated in US-001-009 | 198 |
-| [integration-requirements.md](integration-requirements.md) | External system integration requirements including GPS/VTS integration (real-time tracking every 30s, geofencing, historical playback), map & routing APIs (Google Maps, OSM for geocoding, route optimization, ETA calculation), ERP system connectors (SAP, Oracle, Dynamics for master data sync and financial export), payment gateway integration (bKash, Nagad, Rocket for vendor/driver payments), SMS/email gateway for notifications and OTP delivery | 9 | Integrated | 198 |
-
-**Total Documentation**: ~835 lines of comprehensive technical specifications
+| File | Description | Sprint | Related Stories |
+|------|-------------|--------|-----------------|
+| [non-functional-requirements.md](non-functional-requirements.md) | System quality attributes — performance targets (3s page load, 500ms API), scalability (100+ tenants, 10M+ trips/year), availability SLA (99.5% uptime, 4h RTO), security standards (MFA, TLS 1.3, AES-256) | Phase 1 | Cross-cutting |
+| [security-compliance.md](security-compliance.md) | Security architecture — layered defence, data protection (AES-256), RBAC least-privilege, regulatory compliance (ISO 27001, GDPR), incident response, multi-tenant isolation | Phase 1 | US-001–009 |
+| [integration-requirements.md](integration-requirements.md) | External system integrations — GPS/VTS (30s tracking, geofencing), map & routing APIs, ERP connectors (SAP/Oracle/Dynamics), payment gateways (bKash, Nagad), SMS/email gateways | Phase 1 | Cross-cutting |
+| [testing-strategy.md](testing-strategy.md) | Automated test suite — pytest unit + API integration tests (Sprint 1 & 2 coverage), Playwright E2E tests (POM pattern), code coverage enforcement (≥ 80% overall, per-app thresholds), SonarQube Quality Gate, CI pipeline integration | Sprint 3 | DFS-041 (QA-01) |
+| [aws-dev-environment.md](aws-dev-environment.md) | AWS dev environment — EC2 t3.micro (ap-south-1), Docker Compose stack (Django + Celery + PostgreSQL + Redis), Terraform IaC, Nginx HTTPS, S3 media, SES, CloudWatch observability, CI/CD deploy pipeline, auto-stop scheduler, ~$0.50/mo cost | Sprint 3 | DFS-042 (DEVOPS-01) |
 
 ---
 

@@ -78,8 +78,11 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | Action | Actor |
 |--------|-------|
 | Create TO(s) against a TR | Transport Planner |
-| View all TOs | Transport Planner, TDO |
-| Assign Vehicle / Driver / Helper(s) / ETA | Transport Distribution Officer (TDO) |
+| View all TOs | Transport Planner |
+| View own-fleet TOs (Own Fleet queue) | TDO (Own Fleet) |
+| View vendor-fleet TOs (Vendor Fleet queue) | TDO (Vendor Fleet) |
+| Assign Vehicle / Driver / Helper(s) / ETA | TDO (Own Fleet) |
+| Assign Vendor | TDO (Vendor Fleet) |
 | View assigned TOs | Driver (own assignments only) |
 
 **Key rules:**
@@ -120,7 +123,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Procurement
 
-> Procurement Officers view RM Product Requisitions and create Transport Requests against them, selecting the source POI per TR. The Destination is fixed from the PR. Total TR quantities are validated against the PR quantity. **No manager approval step** — submitted TRs are immediately available for Transport Planning.
+> Procurement Officers view Port Consignment Product Requisitions (raised by Commercial Officers) and create Transport Requests against them — one TR per destination POI. The Source POI is always a Port-type POI (selected per TR). The Destination POI is defined **per TR** by the Procurement Officer (any active non-Port POI) — it is **not** inherited from the PR, because Port Consignment PRs capture no destination. Total TR quantity across all TRs for a PR must not exceed the PR total quantity. **No manager approval step** — submitted TRs are immediately available for Transport Planning.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
@@ -206,7 +209,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
          │        • ETA                                                     │
          │      TO → Assigned → Ready for Dispatch                         │
          │      ↓                                                           │
-         │  Driver Account                                                  │
+         │  Driver (My Assignments sidebar)                                 │
          │      Driver sees assigned TO list                                │
          └─────────────────────────────────────────────────────────────────┘
                    ↓
@@ -306,7 +309,8 @@ TRQ-01            ──→  TO-01 (TO creation)
 - **Port Consignment TRs**: Destination is defined per TR by the Procurement Officer (any active POI) — not inherited from the PR. Source is always a Port POI.
 - **Quantity overflow guard** applies at two levels: TR creation against PR (total TRs must not exceed PR qty), and TO creation against TR (total TOs must not exceed TR qty).
 - **No Procurement Manager approval** for Port Consignment TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
-- **Raw C&F Clearance Note/Approval** is an RM-specific field the Transport Planner must confirm before or during Transport Order creation.
+- **Raw C&F Clearance Note/Approval** is an RM-specific field the Transport Planner must confirm at planning input submission (before TO creation). It is captured as a Yes/No confirmation that the clearance has been obtained.
 - **TDO assigns all physical resources** (vehicle, driver, helpers, ETA) — this is a separate step from the Transport Planner creating the TO structure.
 - **Driver mobile view** delivers assigned TO list visibility — dispatch and trip lifecycle features follow in Sprint 4.
-- Jira Epics: `DFS-040` (Requisition), `DFS-041` (Distribution), `DFS-042` (Procurement), `DFS-043` (Transport)
+- Jira Epics: `DFS-043` (Requisition), `DFS-044` (Distribution), `DFS-045` (Procurement), `DFS-046` (Transport) — **note**: story IDs `DFS-032`–`DFS-042` are individual story/task keys; epic keys above are separate.
+- Story IDs in Transport table: TRQ-01=DFS-038, TO-01=DFS-039, TO-02=DFS-040 are story-level keys, not epic keys.

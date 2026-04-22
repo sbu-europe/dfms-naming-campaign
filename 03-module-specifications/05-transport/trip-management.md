@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 sprint: Sprint 3 (TDO assignment — TO-02), Sprint 4 (Trip dispatch → completion)
 last_updated: 2026-04-22
-related_stories: DFS-040 (TO-02)
+related_stories: DFS-040 (TO-02 — TDO Vehicle, Driver, Helper & ETA Assignment)
 jira_epic: DFS-043
 ---
 

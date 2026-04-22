@@ -49,7 +49,7 @@ Sidebar
 | Role | Product Requisitions | Transport Requests |
 |------|---------------------|--------------------|
 | Distribution Officer | View queue + PR detail; navigate to Create TR | View own TRs; Create TR (from PR detail) |
-| Distribution Manager | View queue + PR detail | View all Pending Approval TRs; Approve / Approve-with-modify / Reject |
+| Distribution Manager | View queue + PR detail | View all Pending Approval TRs; Approve / Approve-with-modify / Reject / Request Clarification |
 
 ### Screen hierarchy
 
@@ -71,7 +71,8 @@ Distribution → Transport Requests
                           └── Approval panel (DM only)
                                 ├── [Approve]                ──► TR → Available for Transport Planning
                                 ├── [Approve with Modify]    ──► Modify qty / date + mandatory remarks → Approved
-                                └── [Reject]                 ──► Mandatory remarks → Rejected → DO notified
+                                ├── [Reject]                 ──► Mandatory remarks → Rejected → DO notified
+                                └── [Request Clarification]  ──► Mandatory remarks → TR stays Pending Approval → DO notified
 
 TR Creation Form  (reached from PR Detail)
   Pre-filled: Parent PR, Destination POI, product line items, delivery date
@@ -227,7 +228,8 @@ TRActivityLog {
   tr_id: UUID
   action: enum [
     'Created', 'Submitted', 'Approved', 'ApprovedWithModification',
-    'Rejected', 'Cancelled', 'StatusChanged', 'QuantityModified', 'DeliveryDateModified'
+    'Rejected', 'RequestedClarification', 'Cancelled', 'StatusChanged',
+    'QuantityModified', 'DeliveryDateModified'
   ]
   performed_by: UUID
   timestamp: DateTime
@@ -275,23 +277,24 @@ Generated atomically at TR creation; unique per tenant.
 ### 4.1 Status Transitions
 
 ```
-                    ┌──────── Rejected ◄─────────────────────┐
-                    │           │                             │
-Created             │           │ (returned to DO)            │
-    │               │           ▼                             │
-    ▼               │        [DO sees]                    Reject
-Pending Approval ───┤                                         │
-                    │                                  Distribution
-                    └── Approve / Approve w/ Modify ──► Manager
-                              │
-                              ▼
-                    Available for Transport Planning
-                              │
-                              ▼ (Transport Planner claims)
-                         Under Planning
-                              │
-                              ▼
-                           Fulfilled
+                    ┌──────── Rejected ◄──────────────────────────────┐
+                    │           │                                      │
+Created             │           │ (returned to DO; PR qty released)    │
+    │               │           ▼                                      │
+    ▼               │       [DO sees]                             Reject│
+Pending Approval ───┤                                                   │
+    ▲               │                                        Distribution
+    │ (stays in     │                                           Manager
+    │  queue)       ├── Request Clarification ──► DO notified; TR stays Pending
+    └───────────────┘
+                    │
+                    └── Approve / Approve w/ Modify ──► Available for Transport Planning
+                                                               │
+                                                               ▼ (Transport Planner claims)
+                                                          Under Planning
+                                                               │
+                                                               ▼
+                                                            Fulfilled
 ```
 
 Additionally: any TR in `Pending Approval` or `Approved` may be `Cancelled` (by DO or admin).
@@ -304,6 +307,7 @@ Additionally: any TR in `Pending Approval` or `Approved` may be `Cancelled` (by 
 | Pending Approval → Approved | DM approves | `approved_by ≠ created_by` (no self-approval) |
 | Pending Approval → ApprovedWithModification | DM modifies + approves | Remarks mandatory; `approved_by ≠ created_by` |
 | Pending Approval → Rejected | DM rejects | Rejection reason mandatory; `approved_by ≠ created_by` |
+| Pending Approval → Pending Approval (clarification) | DM requests clarification | Remarks mandatory; DO notified; TR stays in queue |
 | Approved → Available for Transport Planning | Automatic on approval | None |
 | Available for Transport Planning → Under Planning | Transport Planner submits planning details | Transport module |
 | Under Planning → Fulfilled | All TOs fulfilled | Transport module |
@@ -316,6 +320,14 @@ When a TR is rejected:
 - DO receives in-app notification with the rejection reason
 - PR allocation for this TR's quantities is released (remaining qty increases back)
 - DO can create a new TR against the same PR if remaining quantity allows
+
+### 4.4 Clarification Request Behaviour
+
+When DM requests clarification:
+- TR status remains `Pending Approval` (no status change — TR stays in DM's queue)
+- DO receives in-app notification containing the DM's question / remarks
+- DO provides context (updates TR remarks or contacts DM), then DM acts (Approve / Approve with Modification / Reject)
+- Clarification requests are immutably recorded in the audit log (`action = 'RequestedClarification'`)
 
 ---
 
@@ -333,6 +345,7 @@ When a TR is rejected:
 | Approve TR | ✗ | ✓ (cannot self-approve) |
 | Approve TR with modification | ✗ | ✓ (cannot self-approve) |
 | Reject TR | ✗ | ✓ (cannot self-approve) |
+| Request clarification on TR | ✗ | ✓ (cannot on own TR) |
 | Cancel TR (pre-approval) | ✓ (own) | ✓ |
 
 ### 5.2 Queue Visibility Rules
@@ -604,6 +617,21 @@ Effect:
   Notification: DO notified — "Your TR has been rejected: {remarks}"
 ```
 
+#### Request Clarification
+
+```
+POST /api/v1/transport-requests/{tr_id}/request-clarification
+Body: { remarks: string }  // MANDATORY
+
+Guard: remarks must not be empty — 400 Bad Request if omitted
+Guard: tr.created_by ≠ request.user.id
+
+Effect:
+  TR status: unchanged (remains Pending Approval)
+  Audit log: action=RequestedClarification, remarks, requested_by, timestamp
+  Notification: DO notified — "Distribution Manager has requested clarification on TR {tr_number}: {remarks}"
+```
+
 ### 8.4 Self-Approval Prevention
 
 The system always checks `tr.created_by ≠ request.user.id` before executing any approval action, regardless of role. Returns `403 Forbidden` with message: `"You cannot approve a TR you created"`.
@@ -617,6 +645,7 @@ The system always checks `tr.created_by ≠ request.user.id` before executing an
 | TR approved | Distribution Officer (creator) | In-app | "Transport Request {tr_number} has been approved" |
 | TR approved with modification | Distribution Officer (creator) | In-app | "Transport Request {tr_number} was approved with modifications. See remarks." |
 | TR rejected | Distribution Officer (creator) | In-app | "Transport Request {tr_number} has been rejected: {remarks}" |
+| Clarification requested | Distribution Officer (creator) | In-app | "Distribution Manager requested clarification on TR {tr_number}: {remarks}" |
 | TR available for planning | All Transport Planners (tenant) | In-app | "New Transport Request {tr_number} is available for planning" |
 
 Notifications are stored in the platform notification table and displayed in the in-app notification bell. Email/SMS is a future enhancement.
@@ -645,8 +674,9 @@ All endpoints require authentication. Tenant context is resolved from the authen
 | `GET` | `/api/v1/transport-requests/{tr_id}` | TR detail | Distribution Officer, Distribution Manager |
 | `POST` | `/api/v1/transport-requests/{tr_id}/cancel` | Cancel TR | Distribution Officer (own), admin |
 | `POST` | `/api/v1/transport-requests/{tr_id}/approve` | Approve TR | Distribution Manager |
-| `POST` | `/api/v1/transport-requests/{tr_id}/approve-with-modify` | Approve with modification | Distribution Manager |
-| `POST` | `/api/v1/transport-requests/{tr_id}/reject` | Reject TR | Distribution Manager |
+| `POST` | `/api/v1/transport-requests/{tr_id}/approve-with-modify` | Approve with modification (qty + date) | Distribution Manager |
+| `POST` | `/api/v1/transport-requests/{tr_id}/reject` | Reject TR with mandatory remarks | Distribution Manager |
+| `POST` | `/api/v1/transport-requests/{tr_id}/request-clarification` | Request clarification from DO | Distribution Manager |
 | `GET` | `/api/v1/transport-requests/{tr_id}/audit-trail` | TR activity log | Distribution Officer (own), Distribution Manager, admin |
 
 ### 10.3 Query Parameters
@@ -784,11 +814,14 @@ Immutable from that point until DM acts.
 ```
 Remarks optional: TR creation by DO
 Remarks optional: DM pure Approve
-Remarks MANDATORY: DM Approve with modification
+Remarks MANDATORY: DM Approve with modification (qty / date changes only — no priority or vehicle requirement changes)
 Remarks MANDATORY: DM Reject
+Remarks MANDATORY: DM Request Clarification
 
 API returns 400 Bad Request if remarks absent when mandatory.
 ```
+
+> **Note on approve-with-modify scope**: DM may only modify **quantity per line item** and **delivery date**. Urgency/priority modification is not supported (urgency lives on the PR, not the TR). Vehicle count/type is set by the **Transport Planner** at TRQ-01 — Distribution Manager cannot modify these fields.
 
 ### 11.6 TR Cancellation
 
@@ -925,6 +958,8 @@ def reject_transport_requests(modeladmin, request, queryset):
 - DM approves with modification without remarks → 400 Bad Request
 - DM rejects TR with remarks → status = Rejected; DO notified; PR allocation released
 - DM rejects TR without remarks → 400 Bad Request
+- DM requests clarification with remarks → TR stays Pending Approval; DO notified; audit logged
+- DM requests clarification without remarks → 400 Bad Request
 - DM approves TR they created → 403 Forbidden (self-approval block)
 - DM modifies quantity beyond available PR allocation → 409 Conflict
 
@@ -940,7 +975,7 @@ def reject_transport_requests(modeladmin, request, queryset):
 - Second TR can be created after first is rejected (up to original PR qty)
 
 **Audit Trail Tests**
-- Create, Approve, ApprovedWithModification, Reject all generate audit log entries
+- Create, Approve, ApprovedWithModification, Reject, RequestedClarification all generate audit log entries
 - Modification audit log contains before/after values in `modified_fields` JSON
 
 **Notification Tests**

@@ -15,7 +15,7 @@ jira_epic: DFS-043
 
 This is the **entry point for the Transport module**. Once a Transport Request (TR) is available for planning — FG TRs after Distribution Manager approval, Port Consignment TRs immediately on Procurement Officer submission — they appear in the Transport Planner's queue.
 
-The Transport Planner's mandatory first action is to **submit planning inputs** (number of vehicles, vehicle type, and for Port Consignment TRs, C&F Clearance approval). **Transport Order creation is blocked until planning inputs are submitted.**
+The Transport Planner's mandatory first action is to **submit planning inputs** (number of vehicles, vehicle type, and for Port Consignment TRs, Raw C&F Clearance Note/Approval). **Transport Order creation is blocked until planning inputs are submitted.**
 
 **Module path**: `apps/transport/` + `apps/requisitions/` (TR model lives in requisitions)  
 **Dependencies**: `04-requisitions` (approved FG TRs, submitted Port TRs), `02-master-data` (Fleet, POI)  
@@ -53,9 +53,9 @@ Transport → Transport Requests
     TR Queue (GET /transport-requests?type=PORT_CONSIGNMENT&status=available_for_planning,under_planning)
       └── [row click] ──► TR Detail
                             ├── Port Consignment shipment fields (read-only)
-                            ├── C&F Clearance Note / Approval (Yes / No)
+                            ├── Raw C&F Clearance Note / Approval (Yes / No)
                             ├── Fleet availability counts
-                            ├── Planning input form: C&F clearance + vehicle qty + vehicle type
+                            ├── Planning input form: Raw C&F Clearance Note/Approval + vehicle qty + vehicle type
                             └── [Submit Planning Inputs] ──► status: under_planning
 ```
 
@@ -86,7 +86,7 @@ TransportRequisition {
     # Planning inputs (set by Transport Planner at TRQ-01)
     vehicles_required: int              # Number of vehicles needed
     vehicle_type_required: string       # e.g. "covered_truck", "open_truck", "flatbed"
-    cf_clearance_approved: bool (null)  # PORT_CONSIGNMENT only — Yes / No / Pending (null)
+    cf_clearance_approved: bool (null)  # PORT_CONSIGNMENT only — Raw C&F Clearance Note/Approval: Yes / No / Pending (null)
     planning_submitted_by: FK → User    # Transport Planner who submitted
     planning_submitted_at: datetime (null)
 
@@ -214,7 +214,7 @@ Sourced from `GET /api/v1/fleet/availability?vehicle_type=&poi_id=`. Information
 
 | Field | FG TR | Port Consignment TR | Notes |
 |-------|:-----:|:-------------------:|-------|
-| C&F Clearance Note / Approval | — | Required | Yes / No dropdown |
+| Raw C&F Clearance Note / Approval | — | Required | Yes / No dropdown |
 | Quantity of Vehicles Required | Required | Required | Positive integer |
 | Vehicle Type | Required | Required | Dropdown from vehicle type catalog |
 
@@ -302,7 +302,7 @@ PATCH /api/v1/transport-requests/{tr_id}/planning
           "cf_clearance_approved": true    // PORT_CONSIGNMENT only
       }
       → 200 { status: "under_planning", planning_submitted_at: "..." }
-      → 400 { "detail": "C&F Clearance approval is required for Port Consignment TRs" }
+      → 400 { "detail": "Raw C&F Clearance Note/Approval is required for Port Consignment TRs" }
       → 409 { "detail": "TR is already under planning by another planner" }
 
 # Fleet availability
@@ -321,7 +321,7 @@ GET  /api/v1/transport-requests/{tr_id}/transport-orders
 | # | Rule | Enforcement |
 |---|------|-------------|
 | BR-1 | TO creation is blocked if TR planning inputs have not been submitted | TO creation API checks `tr.planning_submitted_at is not None` |
-| BR-2 | C&F Clearance Note / Approval field is mandatory for Port Consignment TRs | Validated on `PATCH /planning` endpoint |
+| BR-2 | Raw C&F Clearance Note / Approval is mandatory for Port Consignment TRs | Validated on `PATCH /planning` endpoint |
 | BR-3 | C&F field is hidden/absent for FG TRs | UI and API — field ignored for FG type |
 | BR-4 | TR transitions to `UNDER_PLANNING` on planning input submission | Automatic, no manual trigger |
 | BR-5 | TR is locked to the submitting planner once `UNDER_PLANNING` | `planning_submitted_by` set; conflict check on re-submission |
