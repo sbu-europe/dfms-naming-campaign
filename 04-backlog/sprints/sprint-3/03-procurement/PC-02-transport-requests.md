@@ -36,7 +36,7 @@ Procurement Officer reviews PR → Creates TR(s) with destination breakdown (one
 - [ ] Procurement Officer creates a TR from a specific Port Consignment PR with:
   - **Parent PR**: Pre-filled and read-only (PR Number + full shipment reference: BL, LC, Vessel, Voyage, Container, C&F Agent, POL, ETA, Arrival Notice)
   - **Source POI**: Always a Port — filtered to Port-type POIs only (from MDM-04)
-  - **Destination POI**: Dropdown of active non-Port POIs (warehouses, feed mills, depots, silos)
+  - **Destination POI**: Dropdown of all active POIs (no type filter)
   - **Quantity Allocation**: Per RM product line item — how much of each RM goes to this destination (≤ remaining unallocated PR quantity for that line)
   - **Delivery Date**: Pre-filled from PR; editable
   - **Remarks** (optional)
