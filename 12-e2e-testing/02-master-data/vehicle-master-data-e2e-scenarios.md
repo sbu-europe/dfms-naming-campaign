@@ -30,8 +30,8 @@ last_updated: 2026-04-22
 | TC14 | Verify import sample CSV download | Verify sample template download returns expected sample row format for vehicle import. | P1 | Automated (Passing) |
 | TC15 | Verify import upload file validations | Verify missing file and non-CSV file uploads are rejected with proper admin error messages. | P0 | Automated (Passing) |
 | TC16 | Verify import preview and status lifecycle | Verify vehicle CSV upload reaches preview, shows row counts, transitions through import execution, and reaches completion state with imported record visible in changelist. | P1 | Automated (Passing) |
-| TC17 | Verify mixed-row import processing | Verify mixed valid/invalid vehicle CSV rows produce accurate totals and only valid rows are imported. | P0 | Planned |
-| TC18 | Verify duplicate key handling in import | Verify duplicate `registration_number`/`chassis_number` rows are rejected (or skipped per configured policy) and do not overwrite existing records. | P0 | Planned |
+| TC17 | Verify mixed-row import processing | Verify mixed valid/invalid vehicle CSV rows produce accurate totals and only valid rows are imported. | P0 | Automated (Passing) |
+| TC18 | Verify duplicate key handling in import | Verify duplicate `registration_number`/`chassis_number` rows are rejected (or skipped per configured policy) and do not overwrite existing records. | P0 | Automated (Passing: existing-record duplicates rejected, no overwrite) |
 | TC19 | Verify import confirm guardrails | Verify direct `GET` access to import confirm route does not execute confirm action and redirects back to preview page. | P1 | Automated (Passing) |
 | TC20 | Verify export trigger and status flow | Verify vehicle and brand export endpoints redirect correctly, trigger export job on form submit, and render terminal export status page. | P1 | Automated (Passing) |
 | TC21 | Verify export download availability rules | Verify completed vehicle/brand export jobs render `Download CSV` and downloadable files contain CSV content. | P1 | Automated (Passing) |
