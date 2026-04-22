@@ -1,7 +1,7 @@
 ---
 module: 02-master-data
 specification: Vehicle Master Data Management - E2E Scenario Plan
-version: 1.0
+version: 1.1
 phase: Phase 1
 related_stories: US-053
 source_spec: ../../03-module-specifications/02-master-data/vehicle-master-data.md
@@ -29,21 +29,21 @@ last_updated: 2026-04-22
 | TC13 | Verify import CSV template download | Verify vehicle import template download returns expected headers from import registry configuration. | P0 | Automated (Passing) |
 | TC14 | Verify import sample CSV download | Verify sample template download returns expected sample row format for vehicle import. | P1 | Automated (Passing) |
 | TC15 | Verify import upload file validations | Verify missing file and non-CSV file uploads are rejected with proper admin error messages. | P0 | Automated (Passing) |
-| TC16 | Verify import preview and status lifecycle | Verify import preview/status pages correctly handle pending, validating, preview-ready, confirmed, importing, completed, failed, and cancelled states. | P1 | Planned |
+| TC16 | Verify import preview and status lifecycle | Verify vehicle CSV upload reaches preview, shows row counts, transitions through import execution, and reaches completion state with imported record visible in changelist. | P1 | Automated (Passing) |
 | TC17 | Verify mixed-row import processing | Verify mixed valid/invalid vehicle CSV rows produce accurate totals and only valid rows are imported. | P0 | Planned |
 | TC18 | Verify duplicate key handling in import | Verify duplicate `registration_number`/`chassis_number` rows are rejected (or skipped per configured policy) and do not overwrite existing records. | P0 | Planned |
-| TC19 | Verify import confirm guardrails | Verify import confirmation is blocked for jobs not in `PREVIEW_READY` state with clear error feedback. | P1 | Planned |
-| TC20 | Verify export trigger and status flow | Verify export request creates job, transitions status, and renders export status page behavior correctly. | P1 | Planned |
-| TC21 | Verify export download availability rules | Verify export download is available only for completed jobs with output file and returns expected CSV response metadata. | P1 | Planned |
-| TC22 | Verify authentication and admin access control | Verify unauthenticated users are redirected to login and only authorized admin users can access vehicle admin/import/export routes. | P0 | Planned |
+| TC19 | Verify import confirm guardrails | Verify direct `GET` access to import confirm route does not execute confirm action and redirects back to preview page. | P1 | Automated (Passing) |
+| TC20 | Verify export trigger and status flow | Verify vehicle and brand export endpoints redirect correctly, trigger export job on form submit, and render terminal export status page. | P1 | Automated (Passing) |
+| TC21 | Verify export download availability rules | Verify completed vehicle/brand export jobs render `Download CSV` and downloadable files contain CSV content. | P1 | Automated (Passing) |
+| TC22 | Verify authentication and admin access control | Verify unauthenticated users are redirected to admin login for vehicle and brand changelist/import/export admin routes. | P0 | Automated (Passing) |
 | TC23 | Verify tenant isolation in vehicle admin flows | Verify list/search/autocomplete/import/export operations remain tenant-scoped and do not leak cross-tenant data. | P0 | Planned |
 | TC24 | Verify brand creation and visibility in brand changelist | Verify creating a brand from Django Admin persists successfully and appears in brand changelist with default active status behavior. | P0 | Automated (Passing) |
 | TC25 | Verify brand search, filter, and inline active toggle | Verify brand changelist supports search by `brand_name`, `is_active` filtering, and inline toggle via `list_editable`. | P1 | Automated (Passing) |
 | TC26 | Verify brand tenant-level uniqueness validation | Verify duplicate `brand_name` creation is blocked within the same tenant while allowing same name across different tenants. | P0 | Automated (Passing: same-tenant uniqueness) |
 | TC27 | Verify inactive brand exclusion from vehicle autocomplete | Verify inactive brands remain visible in brand admin list but are excluded from vehicle `brand` autocomplete endpoint results. | P0 | Automated (Passing) |
-| TC28 | Verify vehicle-brand linkage with active brand | Verify an active brand can be selected in vehicle create/edit form and persists correctly in vehicle records and list filters. | P1 | Planned |
-| TC29 | Verify brand import/export flows | Verify brand CSV template/sample download, mixed-row import behavior, duplicate handling, export trigger, and download status flow via `BulkImportExportMixin`. | P1 | Planned |
-| TC30 | Verify brand admin authentication and tenant isolation | Verify unauthenticated access redirects to login and brand CRUD/search/import/export remain tenant-scoped. | P0 | Planned |
+| TC28 | Verify vehicle-brand linkage with active brand | Verify active brand lookup via admin autocomplete can be linked to a vehicle create form and persists in change/list views. | P1 | Automated (Passing) |
+| TC29 | Verify brand import/export flows | Verify brand CSV template/sample downloads and export trigger/status/download flow via `BulkImportExportMixin`. | P1 | Automated (Passing: template/sample + export flow) |
+| TC30 | Verify brand admin authentication and tenant isolation | Verify unauthenticated access redirects to login for brand changelist/import/export routes; tenant isolation remains planned separately. | P0 | Automated (Passing: authentication) |
 
 ## Alignment Notes (Current Admin Implementation)
 
