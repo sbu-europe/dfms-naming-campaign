@@ -20,7 +20,7 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 |------|-------------|--------|-----------------|
 | [product-requisition-management.md](product-requisition-management.md) | FG PR and Port Shipment (import) registration — data model, status lifecycle, role gates, LC/shipment fields, product item code lookup, menu structure, API endpoints, overflow rules, audit trail | Sprint 3 | DFS-032, DFS-033 |
 | [distribution-management.md](distribution-management.md) | FG PR queue for Distribution team, TR creation (source POI, quantity allocation, overflow guard), Distribution Manager approval (approve / modify / reject), capacity snapshots, notifications, menu structure | Sprint 3 | DFS-034, DFS-035 |
-| [procurement-management.md](procurement-management.md) | Port Shipment queue for Procurement Officer, destination breakdown plan, RM TR creation (Port-only source gate, per-destination allocation, overflow guard), no approval step — TRs immediately Available for Planning | Sprint 3 | DFS-036, DFS-037 |
+| [procurement-management.md](procurement-management.md) | **Inbound shipment queue** (read/planning view of Port Shipments), destination breakdown plan, RM TR creation (Port-only source gate, per-destination allocation, overflow guard), no approval step — TRs immediately Available for Planning | Sprint 3 | DFS-036, DFS-037 |
 
 ---
 
@@ -86,7 +86,7 @@ Sidebar
 │           └── TR Detail  (Approve / Approve-with-modify / Reject)
 │
 └── Procurement                              [procurement-management]
-      ├── Port Shipments                     Procurement Officer — import shipment queue
+      ├── Inbound shipment queue             Procurement Officer — read/plan same Port Shipment records Commercial submitted
       └── Transport Requests                 Procurement Officer — destination breakdown + TR list
 ```
 

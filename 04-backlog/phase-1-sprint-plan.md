@@ -118,7 +118,7 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Procurement — Port Shipments Queue (View)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
+| [Procurement — Inbound Shipment Queue (View)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
 | [Procurement — Transport Request Creation](sprints/sprint-3/03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
 
 ### Epic: Transport

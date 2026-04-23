@@ -28,7 +28,7 @@ Unlike the Distribution flow, there is **no manager approval step** in Procureme
 ```
 Sidebar (Procurement Officer only)
 └── Procurement
-      ├── Port Shipments (queue)      — read-only list of submitted import registrations (Commercial Officer)
+      ├── Inbound shipment queue     — org-wide read-only list of **Port Shipment** records Commercial submitted (not a second “Port Shipments” app)
       │     └── Shipment Detail       — full shipment reference, RM lines, capacity snapshots, linked TRs
       └── Transport Requests          — TRs created by this Procurement Officer
             ├── TR List               — own TRs; filter by shipment, destination POI, status, date
@@ -60,7 +60,7 @@ Procurement → Transport Requests
 
 | Role | Port Shipments | Transport Requests |
 |------|------------------|--------------------|
-| Procurement Officer | View Port Shipment queue; view detail; download Arrival Notice | Create TR against shipment; view own TRs; cancel TR |
+| Procurement Officer | **Inbound shipment queue** (all Port Shipments); view detail; download Arrival Notice | Create TR against shipment; view own TRs; cancel TR |
 
 > There is **no Procurement Manager** role. No approval gate exists in this workflow.
 
@@ -594,7 +594,7 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 
 | Permission code | Description | Assigned to |
 |-----------------|-------------|-------------|
-| `Procurement.PR.Read` | View Port Shipment queue and detail | Procurement Officer |
+| `Procurement.PR.Read` | View Inbound shipment queue and Port Shipment detail | Procurement Officer |
 | `Procurement.Document.Download` | Download Arrival Notice attachment | Procurement Officer |
 | `Procurement.TR.Create` | Create TR (destination breakdown) against a Port Shipment | Procurement Officer |
 | `Procurement.TR.Read` | View own TR list and TR detail | Procurement Officer |

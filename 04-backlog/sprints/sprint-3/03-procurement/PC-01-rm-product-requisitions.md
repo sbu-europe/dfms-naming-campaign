@@ -4,14 +4,14 @@ jira_type: Story
 jira_epic: DFS-042
 jira_sprint: "Sprint 3"
 story_id: ~
-title: Procurement — Port Shipments Queue (View)
+title: Procurement — Inbound Shipment Queue (View)
 epic: Procurement
 status: Pending
 story_points: 2
 assignee: ~
 ---
 
-# PC-01 — Procurement: Port Shipments Queue (View)
+# PC-01 — Procurement: Inbound Shipment Queue (View)
 
 ## User Story
 
@@ -21,7 +21,7 @@ assignee: ~
 
 ## Business Context
 
-The Procurement module surfaces **Port Shipments** registered by Commercial Officers (Requisition module → **Port Shipment** flow). These records reflect import data entered from **external systems** into DFMS; they are **not** internal FG requisitions.
+The Procurement **Inbound shipment queue** lists the same **Port Shipment** records Commercial registered under the top-level **Port Shipments** menu (not a second “Port Shipments” product — same entity, Procurement’s org-wide read/planning view). Data is import cargo from **external systems**; it is **not** FG requisition data.
 
 Unlike Distribution (FG), the Procurement Officer defines a **destination breakdown plan** — allocating quantities across one or more POIs — by creating **one TR per destination** (PC-02). **Transport Orders** are created later by the Transport Planner from those TRs (TO-01 / TRQ-01).
 
@@ -32,7 +32,7 @@ PR-02 (Port Shipment submitted by Commercial Officer) → Procurement reviews qu
 
 ## Acceptance Criteria
 
-### AC-1: Port Shipment Queue
+### AC-1: Inbound Shipment Queue (all submitted Port Shipments)
 - [ ] Procurement Officer sees all Port Shipments with status `Submitted` or `In Progress`
 - [ ] Filters: Vessel Name, LC Number, ETA (date range), Urgency, Status
 - [ ] Sort: ETA (ascending default), Urgency, Submission Date
@@ -80,7 +80,7 @@ GET  /api/v1/pois/{poi_id}/capacity
 
 | Action | Role |
 |--------|------|
-| View Port Shipment queue | Procurement Officer |
+| View Inbound shipment queue | Procurement Officer |
 | View shipment detail; download Arrival Notice | Procurement Officer |
 | Open TR creation (PC-02) | Procurement Officer |
 
@@ -94,7 +94,7 @@ GET  /api/v1/pois/{poi_id}/capacity
 
 ## Definition of Done
 
-- [ ] Port Shipment queue with LC / vessel / ETA filters
+- [ ] Inbound shipment queue with LC / vessel / ETA filters
 - [ ] Detail view with full shipment reference, RM lines, Arrival Notice download, linked TRs, remaining qty
 - [ ] "Create TR" navigates to PC-02 with shipment context
 - [ ] Unit tests > 80%

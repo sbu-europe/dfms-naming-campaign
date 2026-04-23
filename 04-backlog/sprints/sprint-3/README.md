@@ -70,11 +70,12 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Sub-menu | Can View | Can Create | Can Approve / Modify | Can Reject |
 |----------|----------|------------|----------------------|------------|
-| Port Shipments *(queue)* | Procurement Officer | — | — | — |
+| Inbound shipment queue | Procurement Officer | — | — | — |
 | Transport Requests | Procurement Officer (own TRs) | Procurement Officer | — | — |
 
 **Key rules:**
-- Procurement Officer sees all submitted **Port Shipments** (registered by Commercial Officers)
+- **Same data, different job**: the **Inbound shipment queue** is not a second “Port Shipments” product area — it is Procurement’s org-wide, read-only list of **Port Shipment** records that Commercial already registered (analogous to Distribution’s **Product Requisitions** queue for FG PRs, not a duplicate Requisition app)
+- From the queue, Procurement reviews LC/cargo and creates TRs (PC-02)
 - Each TR specifies: Source POI (Port), Destination POI (any active POI — per-TR allocation), and quantity for that destination
 - Multiple TRs can be created for one Port Shipment (typically one per destination); total TR quantity must not exceed shipment line totals — overflow is blocked
 - **No manager approval step** — submitted TRs are immediately `Available for Transport Planning`
@@ -145,11 +146,11 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Procurement
 
-> Procurement Officers view **Port Shipments** (registered by Commercial Officers) and create **Transport Requests** to plan distribution — typically one TR per destination POI. Source POI is always a Port (per TR). Destination POI is defined **per TR** (any active POI). Total TR allocations must not exceed the **Port Shipment** line quantities. **No manager approval** — submitted TRs go straight to Transport Planning; **Transport Orders** are created later by the Transport Planner (TO-01).
+> Procurement Officers work from the **Inbound shipment queue** (all submitted **Port Shipments** from Commercial) and create **Transport Requests** to plan distribution — typically one TR per destination POI. Source POI is always a Port (per TR). Destination POI is defined **per TR** (any active POI). Total TR allocations must not exceed the **Port Shipment** line quantities. **No manager approval** — submitted TRs go straight to Transport Planning; **Transport Orders** are created later by the Transport Planner (TO-01).
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Procurement — Port Shipments Queue (View)](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
+| 1 | [Procurement — Inbound Shipment Queue (View)](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
 | 2 | [Procurement — Transport Request Creation](03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | 6 | Pending |
 
 **Sub-total**: 8 SP
@@ -187,8 +188,8 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
          ┌─────────────▼──────┐              ┌────────────────▼───────────────────┐
          │  DISTRIBUTION      │              │  PROCUREMENT                        │
          │  Distribution      │              │  Procurement Officer                │
-         │  Officer           │              │  ├── Port Shipments (queue)         │
-         │  ├── Product Reqs  │              │  │   (import registrations)         │
+         │  Officer           │              │  ├── Inbound shipment queue         │
+         │  ├── Product Reqs  │              │  │   (same Port Shipment records)  │
          │  │   (view FG PRs) │              │  └── Transport Requests             │
          │  └── Transport Reqs│              │      Create TR(s) vs shipment       │
          │      Create TR(s)  │              │      Source: Port POI               │
@@ -318,7 +319,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 | Commercial Officer | **Port Shipments** (top-level) | Register import shipments; view own records (no Requisition/FG access) |
 | Distribution Officer | Distribution | View FG PR queue; create FG TRs |
 | Distribution Manager | Distribution | View all FG TRs pending approval; approve / modify / reject TRs |
-| Procurement Officer | Procurement | View Port Shipment queue; create RM TRs for destination breakdown (no approval needed) |
+| Procurement Officer | Procurement | **Inbound shipment queue** (read/plan); create RM TRs for destination breakdown (no approval needed) |
 | Transport Planner | Transport | View TR queue (FG + RM tabs); submit planning details; create TOs |
 | Transport Distribution Officer (TDO) | Transport | Assign vehicle / driver / helpers / ETA to TOs |
 | Driver | Driver Account | View own assigned TO list |
