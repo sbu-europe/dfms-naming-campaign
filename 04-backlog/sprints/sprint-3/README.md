@@ -85,7 +85,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | Sub-menu | Can View | Can Submit Planning Details |
 |----------|---------|-----------------------------|
 | Transport Requests → Finished Goods | Transport Planner | Transport Planner |
-| Transport Requests → Raw Materials | Transport Planner | Transport Planner |
+| Transport Requests → **Port Consignment** *(import / Port Shipment–linked — `type=PORT_CONSIGNMENT`; not all RM moves)* | Transport Planner | Transport Planner |
 
 | Action | Actor |
 |--------|-------|
@@ -98,8 +98,8 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | View assigned TOs | Driver (own assignments only) |
 
 **Key rules:**
-- Transport Planner sees a unified queue of TRs with status `Available for Transport Planning` or `Under Planning`; FG and RM separated into sub-tabs
-- Before creating TOs, Transport Planner submits planning details: qty of vehicles, vehicle type, and for RM TRs: Raw C&F Clearance Note/Approval
+- Transport Planner sees a unified queue of TRs with status `Available for Transport Planning` or `Under Planning`; **Finished Goods** and **Port Consignment** tabs (see TRQ-01 — aligns with `type=FG` vs `type=PORT_CONSIGNMENT`)
+- Before creating TOs, Transport Planner submits planning details: qty of vehicles, vehicle type, and for **Port Consignment** TRs only: **Raw C&F** Clearance Note/Approval
 - Submitting planning details transitions TR to `Under Planning`
 - Multiple TOs can be created per TR; total TO quantity must not exceed TR quantity — overflow is blocked
 - For Own Fleet TOs: vehicle and driver selected from MDM fleet records; for Vendor Fleet TOs: vendor from contractual list, vehicle/driver entered manually
@@ -159,7 +159,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Transport
 
-> Transport Planners review a unified queue of FG and RM Transport Requests, submit vehicle/type requirements (and for RM: Raw C&F Clearance Note/Approval), then create Transport Orders (TOs) against each TR. TDOs assign vehicle, driver, helpers, and ETA to each TO. Drivers see their assigned TOs in their account.
+> Transport Planners review a unified queue of **FG** and **Port Consignment** Transport Requests, submit vehicle/type requirements (and for **Port Consignment** TRs: Raw C&F Clearance Note/Approval), then create Transport Orders (TOs) against each TR. TDOs assign vehicle, driver, helpers, and ETA to each TO. Drivers see their assigned TOs in their account.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
@@ -211,12 +211,12 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
          │  TRANSPORT MODULE                                                │
          │  Transport Planner                                               │
          │  ├── Transport Requests > Finished Goods  (approved FG TRs)     │
-         │  └── Transport Requests > Raw Materials   (submitted RM TRs)    │
+         │  └── Transport Requests > Port Consignment  (TRs from Port Shipments) │
          │      ↓                                                           │
          │      Submit planning details:                                    │
          │        • Qty of vehicles required                                │
          │        • Vehicle type required                                   │
-         │        • [RM only] Raw C&F Clearance Note/Approval              │
+         │        • [Port Consignment only] Raw C&F Clearance Note/Approval  │
          │      TR → Under Planning                                         │
          │      ↓                                                           │
          │  Transport Orders                                                │
@@ -249,7 +249,7 @@ PR-01 (FG PR)     ──→  DR-01 (Distribution PR queue)
                                 └──→  TRQ-01 (Transport Requests queue)
 
 PR-02 (Port Shipment) ──→  PC-01 (org view in same Port Shipments menu)
-                        └──→  PC-02 (RM TR creation, no approval)
+                        └──→  PC-02 (Port Consignment TR creation, no approval)
                                 └──→  TRQ-01 (Transport Requests queue)
 
 TRQ-01            ──→  TO-01 (TO creation)
@@ -319,8 +319,8 @@ TRQ-01            ──→  TO-01 (TO creation)
 | Commercial Officer | **Port Shipments** (top-level) | Register import shipments; view own records (no Requisition/FG access) |
 | Distribution Officer | Distribution | View FG PR queue; create FG TRs |
 | Distribution Manager | Distribution | View all FG TRs pending approval; approve / modify / reject TRs |
-| Procurement Officer | **Port Shipments** (top — all submitted) + **Procurement → Transport Requests** | Read/plan in Port Shipments; create RM TRs (no approval) |
-| Transport Planner | Transport | View TR queue (FG + RM tabs); submit planning details; create TOs |
+| Procurement Officer | **Port Shipments** (top — all submitted) + **Procurement → Transport Requests** | Read/plan in Port Shipments; create **Port Consignment** TRs (no approval) |
+| Transport Planner | Transport | TR queue: **FG** + **Port Consignment** tabs; planning inputs; create TOs |
 | Transport Distribution Officer (TDO) | Transport | Assign vehicle / driver / helpers / ETA to TOs |
 | Driver | Driver Account | View own assigned TO list |
 
@@ -333,7 +333,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 - **Port Consignment TRs** (transport type): Destination is defined per TR by Procurement (any active POI) — not on the shipment record. Source is always a Port POI. **TOs** are created by the Transport Planner after planning inputs (TRQ-01 / TO-01).
 - **Quantity overflow guard**: TR allocations vs parent FG PR or Port Shipment totals; TO quantities vs TR totals.
 - **No Procurement Manager approval** for Port Consignment TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
-- **Raw C&F Clearance Note/Approval** is an RM-specific field the Transport Planner must confirm at planning input submission (before TO creation). It is captured as a Yes/No confirmation that the clearance has been obtained.
+- **Raw C&F Clearance Note/Approval** applies to **Port Consignment** TRs (port import from **Port Shipments**); the Transport Planner confirms at planning input submission (before TO creation), Yes/No.
 - **TDO assigns all physical resources** (vehicle, driver, helpers, ETA) — this is a separate step from the Transport Planner creating the TO structure.
 - **Driver mobile view** delivers assigned TO list visibility — dispatch and trip lifecycle features follow in Sprint 4.
 - Jira Epics: `DFS-043` (Requisition), `DFS-044` (Distribution), `DFS-045` (Procurement), `DFS-046` (Transport) — **note**: story IDs `DFS-032`–`DFS-042` are individual story/task keys; epic keys above are separate.
