@@ -30,7 +30,7 @@ App shell (Procurement Officer)
 ├── Port Shipments          — **top-level** — org-wide list of submitted shipments (same module as Commercial; RBAC)
 │     └── Shipment Detail   — read-only; Create TR → PC-02
 └── Procurement
-      └── Transport Requests — TRs this officer created; filter by shipment, destination, status
+      └── Transport requests (Port consignment) — TRs this officer created; filter by shipment, destination, status
             ├── TR List
             └── TR Detail / Create
 ```
@@ -51,7 +51,7 @@ Port Shipments (top-level)
                           └── [Create TR / Destination Breakdown] ──► TR Creation Form
                                                                           └── [Submit] ──► TR Detail
 
-Procurement → Transport Requests (module)
+Procurement → Transport requests (module)
   TR List (GET /transport-requests?type=PORT_CONSIGNMENT)
     └── [row click] ──► TR Detail (read-only after submission)
 ```
@@ -60,7 +60,7 @@ Procurement → Transport Requests (module)
 
 ## 1. Roles & Access
 
-| Role | Port Shipments (top-level) | Procurement → Transport Requests |
+| Role | Port Shipments (top-level) | Procurement → Transport requests |
 |------|------------------|--------------------|
 | Procurement Officer | **All submitted** shipments (read); detail; Arrival Notice download; **Create TR** | Create/manage own TRs; cancel TR |
 
@@ -627,3 +627,11 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 | `05-transport` — TRQ-01 | Transport Planning queue — Port Consignment TRs appear alongside FG TRs after submission |
 | `01-foundation/rbac.md` | Procurement Officer role and permission gating |
 | `01-foundation/permission-catalog-phase1.md` | `Procurement.*` permission codes |
+
+---
+
+## 18. Related documentation (Sprint 3 backlog)
+
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Full menu, role access, end-to-end flow
+- **[PC-01 — Port Shipments org-wide list & detail](../../04-backlog/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md)** (lives under `04-procurement/` in sprint-3; story PC-01)
+- **[PC-02 — Procurement transport request creation](../../04-backlog/sprints/sprint-3/04-procurement/PC-02-transport-requests.md)**

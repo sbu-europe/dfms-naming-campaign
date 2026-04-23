@@ -508,3 +508,9 @@ GET   /api/v1/transport-orders/{to_id}
 | `07-vendor-management` | Contractual vendor list and pre-agreed rates |
 | `06-poi-operations` — Gate, QC, Scaling | Triggered by Trip state transitions (`gate_in_source`, `qc_in_progress`, `scale_in`, etc.) in Sprint 4 |
 | `09-mobile-apps` | Driver mobile view of assigned TOs and Trip state updates |
+
+### Related documentation (Sprint 3)
+
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)**
+- **[TO-02 — TDO assignment](../../04-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md)**
+- **[TO-01 — Transport order creation](../../04-backlog/sprints/sprint-3/05-transport/02-transport-orders.md)**

@@ -12,13 +12,15 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
 **Dependencies**: `04-requisitions` (approved/submitted TRs), `02-master-data` (Vehicle, Driver, Helper, Route, POI), `07-vendor-management` (vendor fleet + rates)  
 **Django App**: `apps/transport/`
 
+**Sprint 3 backlog** (menu + roles + flow): [Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md) — on-disk order includes Requisition first (`01-requisition`), then `02-port-shipments` … `05-transport` (TRQ-01, TO-01, TO-02) … `08-feedback`. This module maps to the **Transport** epic: [TRQ-01](../../04-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md) · [TO-01](../../04-backlog/sprints/sprint-3/05-transport/02-transport-orders.md) · [TO-02](../../04-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md).
+
 ---
 
 ## Module Contents
 
 | File | Description | Sprint | Related Stories |
 |------|-------------|--------|-----------------|
-| [transport-requisition-management.md](transport-requisition-management.md) | TR queue (FG tab + RM/Port Consignment tab), Transport Planner planning inputs (vehicle qty, vehicle type, C&F clearance), fleet availability counts, urgency/overdue flags, `UNDER_PLANNING` status gate for TO creation | Sprint 3 | DFS-038 (TRQ-01) |
+| [transport-requisition-management.md](transport-requisition-management.md) | TR queue (FG + **Port Consignment** tabs), Transport Planner planning inputs (vehicle qty, vehicle type, C&F clearance), fleet availability counts, urgency/overdue flags, `UNDER_PLANNING` status gate for TO creation | Sprint 3 | DFS-038 (TRQ-01) |
 | [transport-order-management.md](transport-order-management.md) | TO creation against TRs (own fleet / vendor fleet), TR quantity allocation + overflow guard, multi-TO per TR, auto-routing to TDO queue by fleet type, `TO-YYYYMMDD-XXXX` numbering, TR status auto-updates | Sprint 3 | DFS-039 (TO-01) |
 | [trip-management.md](trip-management.md) | TDO Own Fleet assignment (vehicle, driver, helpers, ETA — conflict checks), TDO Vendor Fleet assignment (contractual vendor, auto-rate), TO status lifecycle (`CREATED → VEHICLE_ASSIGNED/VENDOR_ASSIGNED → CONFIRMED`), driver account assigned TO list, Trip 17-state machine (Sprint 4) | Sprint 3 (TDO assignment), Sprint 4 (Trip) | DFS-040 (TO-02) |
 
@@ -66,26 +68,26 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
 ```
 Sidebar (Transport Planner)
 └── Transport
-      ├── Transport Requests
+      ├── Transport requests
       │     ├── Finished Goods tab     — approved FG TRs; planning inputs form
-      │     └── Raw Materials tab      — Port Consignment TRs; planning inputs + C&F
-      └── Transport Orders             — all TOs; create; cancel
+      │     └── Port Consignment tab   — import / Port Shipment–linked TRs; planning inputs + C&F (see TRQ-01, `type=PORT_CONSIGNMENT`)
+      └── Transport orders (TO)         — all TOs; create; cancel
 
 Sidebar (TDO — Own Fleet)
 └── Transport
-      └── Transport Orders
+      └── Transport orders (TO)
             └── Assignment Queue       — Own Fleet TOs (status: created)
                   └── Assign: Vehicle / Driver / Helper(s) / ETA
 
 Sidebar (TDO — Vendor Fleet)
 └── Transport
-      └── Transport Orders
+      └── Transport orders (TO)
             └── Assignment Queue       — Vendor Fleet TOs (status: created)
                   └── Assign: Contractual Vendor
 
 Sidebar (Driver)
-└── My Assignments
-      └── Transport Orders             — own assigned TOs (read-only)
+└── Transport                          — (or “My assignments”, product-dependent)
+      └── Transport orders (TO)         — own assigned TOs (read-only)
 ```
 
 ---

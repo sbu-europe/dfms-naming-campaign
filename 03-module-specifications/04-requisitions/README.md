@@ -9,6 +9,7 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 **PRD Sections**: 6.6 (Requisitions, Distribution, Procurement)
 **Phase**: Phase 1 (Critical)
 **Sprint Coverage**: Sprint 3
+**Sprint 3 backlog (stories, menu order)**: [Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md) — on-disk layout is `01-requisition` → `02-port-shipments` → `03-distribution` → `04-procurement` → `05-transport` → `06-qa-testing` → `07-devops` → `08-feedback`, matching Requisition-first epic ordering.
 **Dependencies**: `01-foundation` (auth/RBAC), `02-master-data` (Product MDM-01, POI MDM-04), `03-users` (role assignment)
 **Django App**: `apps/requisitions/`
 
@@ -48,7 +49,7 @@ It maps directly to `apps/requisitions/` in the backend codebase.
   │     └── Submitted Port TRs ──► 05-transport
   │
   ▼
-05-transport  (TR queue · TO · TDO · trip)
+05-transport  (TRQ-01 TR **Transport requests** queue · TO-01 / TO-02 **Transport orders** · trip — see [05-transport README](../05-transport/README.md))
 ```
 
 ### Spec-to-spec cross-references
@@ -81,13 +82,15 @@ Sidebar
 ├── Distribution                             [distribution-management]
 │     ├── Product Requisitions               Distribution Officer, Distribution Manager
 │     │     └── PR Detail → [Create Transport Request]
-│     └── Transport Requests
+│     └── Transport requests (FG)
 │           ├── TR List  (DO: own TRs; DM: all Pending Approval)
 │           └── TR Detail  (Approve / Approve-with-modify / Reject)
 │
 └── Procurement                              [procurement-management]
-      └── Transport Requests                 Procurement Officer — TR list / create (shipment triage: **Port Shipments** top-level)
+      └── Transport requests (Port consignment)   Procurement Officer — own TR list / create (triage: **top-level Port Shipments**, not a duplicate queue here)
 ```
+
+Downstream, **Transport** (05-transport) uses sibling areas **Transport requests** (unified TR queue + planning) and **Transport orders** (TO create + TDO + driver) — see **Menu structure & role access → Transport** in the [Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md).
 
 ---
 

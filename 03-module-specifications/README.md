@@ -24,8 +24,8 @@ These are **module specifications** (not just business requirements or just tech
 | [01-foundation/](01-foundation/) | Auth, RBAC, tenant management, system foundation | ~7 | Authentication, RBAC, user/tenant management | `apps/tenants`, `apps/users`, `apps/core` | Sprint 1 |
 | [02-master-data/](02-master-data/) | POI, Product, Vehicle, Supplier/Dealer master data | ~8 | Master data management — bulk import/export | `apps/master_data` | Sprint 2 |
 | [03-users/](03-users/) | Driver and Helper user profiles | 2 | Driver compliance, Helper profiles with optional User link | `apps/users` | Sprint 2 |
-| [04-requisitions/](04-requisitions/) | FG PR, Port Shipment (import), Distribution management | 2+ | Product Requisitions, TR creation & approval | `apps/requisitions` | Sprint 3 |
-| [05-transport/](05-transport/) | Transport Requests queue, Transport Orders, Trip management | 3 | Transport Planning, TO execution, Trip lifecycle | `apps/transport` | Sprint 3–4 |
+| [04-requisitions/](04-requisitions/) | FG PR, Port Shipment (import), Distribution & Procurement TRs | 3+ | Requisition → Port Shipments (top) → TR flows (FG + Port) | `apps/requisitions` | Sprint 3 |
+| [05-transport/](05-transport/) | Transport **requests** (unified TR queue) + **Transport orders** (TO) + TDO, Trip (Sprint 4) | 3 | TRQ-01, TO-01, TO-02; planning + execution | `apps/transport` | Sprint 3–4 |
 | [06-poi-operations/](06-poi-operations/) | Gate, Scaling, QC, Command Center | 4 | POI-level physical operations | `apps/operations` | Sprint 4 |
 | [07-vendor-management/](07-vendor-management/) | Vendor onboarding, bidding, portal | 3 | Vendor ecosystem management | `apps/vendors` | Sprint 4 |
 | [08-fleet-management/](08-fleet-management/) | Vehicles, drivers, helpers, fuel | 4 | Fleet lifecycle management | `apps/users`, `apps/master_data` | Sprint 4 |
@@ -101,8 +101,8 @@ frontmatter: (metadata, source references)
 - **01-foundation**: Auth, RBAC, users, system
 - **02-master-data**: POI, products, vehicles, suppliers/dealers
 - **03-users**: Driver, Helper profiles
-- **04-requisitions**: FG PR, Port Shipment (import), Distribution management
-- **05-transport**: TR queue, Transport Orders, Trip lifecycle
+- **04-requisitions**: FG PR, Port Shipment (import), Distribution, Procurement (aligned with [Sprint 3 backlog](../04-backlog/sprints/sprint-3/README.md) — `01-requisition` … `04-procurement`)
+- **05-transport**: Transport **requests** + **Transport orders** (TRQ-01, TO-01, TO-02) — see same Sprint 3 doc (`05-transport` folder in backlog)
 - **06-poi-operations**: Gate, Scaling, QC, Command Center
 - **07-vendor-management**: Vendor onboarding, bidding, portal
 - **08-fleet-management**: Vehicles, drivers, helpers, fuel
@@ -113,10 +113,11 @@ frontmatter: (metadata, source references)
 
 ## Related Documentation
 
-- **Source PRD**: `../1-source/prd/PRD_DFMS_v1.0.md` - Original product requirements
-- **User Stories**: `../4-backlog/stories/` - Implementation-ready user stories
-- **Domain Context**: `../2-domain/` - High-level business context
-- **Technical Architecture**: `../5-architecture/` - System architecture diagrams
+- **Source PRD**: [../01-source/01-prd/PRD_DFMS_v1.0.md](../01-source/01-prd/PRD_DFMS_v1.0.md) — original product requirements
+- **Sprint 3 backlog (Requisition–first)**: [../04-backlog/sprints/sprint-3/README.md](../04-backlog/sprints/sprint-3/README.md) — menu, roles, story paths `01-requisition` … `08-feedback`
+- **User stories (legacy path)**: `../04-backlog/stories/` — use Sprint folders under `04-backlog/sprints/` for phase-1 delivery
+- **Domain Context**: `../02-domain/` — high-level business context
+- **Technical Architecture**: `../05-architecture/` — system architecture diagrams
 
 ## Supporting Files
 

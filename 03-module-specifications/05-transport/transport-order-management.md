@@ -397,3 +397,9 @@ GET   /api/v1/transport-requests/{tr_id}/transport-orders
 | `02-master-data` — MDM-05 (Vehicle) | Fleet availability count for planning form |
 | `07-vendor-management` | Vendor fleet availability; contractual vendor list for TDO assignment |
 | `05-transport/trip-management.md` | Downstream — TDO resource assignment and Trip lifecycle begin after TO creation |
+
+### Related documentation (Sprint 3)
+
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)**
+- **[TO-01 — Transport order creation](../../04-backlog/sprints/sprint-3/05-transport/02-transport-orders.md)**
+- **[TRQ-01 — prerequisite TR queue & planning inputs](../../04-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**

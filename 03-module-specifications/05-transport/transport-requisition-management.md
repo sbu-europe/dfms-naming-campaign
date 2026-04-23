@@ -371,3 +371,8 @@ GET  /api/v1/transport-requests/{tr_id}/transport-orders
 | `02-master-data` — MDM-06 (Driver) | Not consumed here; used in TO-02 (TDO assignment) |
 | `07-vendor-management` | Vendor fleet availability count |
 | `05-transport/transport-order-management.md` | Downstream — TO creation requires TR in `under_planning` status |
+
+### Related documentation (Sprint 3)
+
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Menu, roles, end-to-end flow; **Transport** = **Transport requests** + **Transport orders**
+- **[TRQ-01 — Transport requests queue (FG & Port Consignment)](../../04-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**

@@ -839,8 +839,9 @@ CREATE INDEX idx_pr_document_pr ON pr_documents(pr_id);
 | Module | Interaction |
 |--------|-------------|
 | Distribution (DR-01) | Reads submitted FG PRs queue; creates TRs against FG PRs |
-| Procurement (PC-01) | **Port Shipments** top-level org view + TR allocation (PC-02) |
-| Transport Planning | Receives approved TRs (FG) and submitted TRs (RM) for TO creation |
+| Procurement (PC-01) | **Port Shipments** top-level org view — [PC-01 story](../../04-backlog/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md) |
+| Procurement (PC-02) | TR destination breakdown from Port Shipment / Procurement list — [PC-02 story](../../04-backlog/sprints/sprint-3/04-procurement/PC-02-transport-requests.md) |
+| Transport Planning (TRQ-01 / TO-01) | `05-transport` — [Sprint 3 transport epic](../../04-backlog/sprints/sprint-3/README.md) — unified TR queue then TO creation |
 
 ### 16.3 Events Emitted (for downstream)
 
