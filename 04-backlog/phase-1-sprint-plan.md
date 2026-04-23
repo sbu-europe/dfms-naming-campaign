@@ -110,41 +110,41 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Port Shipment (Import) Registration](sprints/sprint-3/01-port-shipments/PR-02-port-shipment.md) | PR-02 | DFS-033 | Pending | 5 |
-| [Port Shipments — org-wide list & detail (Procurement role)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
+| [Port Shipment (Import) Registration](sprints/sprint-3/02-port-shipments/PR-02-port-shipment.md) | PR-02 | DFS-033 | Pending | 5 |
+| [Port Shipments — org-wide list & detail (Procurement role)](sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
 
 ### Epic: Distribution
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Distribution — FG Product Requisitions View](sprints/sprint-3/02-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | Pending | 2 |
-| [Distribution — Transport Request Creation & Manager Approval](sprints/sprint-3/02-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | Pending | 8 |
+| [Distribution — FG Product Requisitions View](sprints/sprint-3/03-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | Pending | 2 |
+| [Distribution — Transport Request Creation & Manager Approval](sprints/sprint-3/03-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | Pending | 8 |
 
 ### Epic: Procurement
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Procurement — Transport Request Creation](sprints/sprint-3/03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
+| [Procurement — Transport Request Creation](sprints/sprint-3/04-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
 
 ### Epic: Transport
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Transport Requests Queue (FG & Port Consignment)](sprints/sprint-3/04-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | Pending | 3 |
-| [Transport Order Creation](sprints/sprint-3/04-transport/02-transport-orders.md) | TO-01 | DFS-039 | Pending | 8 |
-| [TDO Vehicle, Driver, Helper & ETA Assignment](sprints/sprint-3/04-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | Pending | 8 |
+| [Transport Requests Queue (FG & Port Consignment)](sprints/sprint-3/05-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | Pending | 3 |
+| [Transport Order Creation](sprints/sprint-3/05-transport/02-transport-orders.md) | TO-01 | DFS-039 | Pending | 8 |
+| [TDO Vehicle, Driver, Helper & ETA Assignment](sprints/sprint-3/05-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | Pending | 8 |
 
 ### Epic: QA & Testing
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Automated Test Suite — Sprint 1 & 2 Features](sprints/sprint-3/05-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | Pending | 13 |
+| [Automated Test Suite — Sprint 1 & 2 Features](sprints/sprint-3/06-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | Pending | 13 |
 
 ### Epic: DevOps & Infrastructure
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [AWS Dev Environment — Up & Running](sprints/sprint-3/06-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | Pending | 8 |
+| [AWS Dev Environment — Up & Running](sprints/sprint-3/07-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | Pending | 8 |
 
 | **Total** | | | | **68** |
 

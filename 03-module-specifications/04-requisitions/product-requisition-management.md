@@ -868,7 +868,7 @@ PRStatusChanged {
 - **[POI Management](../02-master-data/poi-management.md)** — Destination POI, capacity snapshot
 - **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Menu structure, role access matrix, end-to-end workflow
 - **[PR-01: FG Product Requisition Story](../../04-backlog/sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md)**
-- **[PR-02: Port Shipment (Import) Registration](../../04-backlog/sprints/sprint-3/01-port-shipments/PR-02-port-shipment.md)**
+- **[PR-02: Port Shipment (Import) Registration](../../04-backlog/sprints/sprint-3/02-port-shipments/PR-02-port-shipment.md)**
 
 **Related Jira Keys**:
 - DFS-032 — FG Product Requisition

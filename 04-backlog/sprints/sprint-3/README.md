@@ -117,8 +117,8 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Port Shipment (Import) Registration](01-port-shipments/PR-02-port-shipment.md) | PR-02 | DFS-033 | 5 | Pending |
-| 2 | [Port Shipments — org-wide list & detail (Procurement role)](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
+| 1 | [Port Shipment (Import) Registration](02-port-shipments/PR-02-port-shipment.md) | PR-02 | DFS-033 | 5 | Pending |
+| 2 | [Port Shipments — org-wide list & detail (Procurement role)](04-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
 
 **Sub-total**: 7 SP
 
@@ -130,8 +130,8 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Distribution — FG Product Requisitions View](02-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | 2 | Pending |
-| 2 | [Distribution — Transport Request Creation & Manager Approval](02-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | 8 | Pending |
+| 1 | [Distribution — FG Product Requisitions View](03-distribution/DR-01-fg-product-requisitions.md) | DR-01 | DFS-034 | 2 | Pending |
+| 2 | [Distribution — Transport Request Creation & Manager Approval](03-distribution/DR-02-transport-requests.md) | DR-02 | DFS-035 | 8 | Pending |
 
 **Sub-total**: 10 SP
 
@@ -143,7 +143,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Procurement — Transport Request Creation](03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | 6 | Pending |
+| 1 | [Procurement — Transport Request Creation](04-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | 6 | Pending |
 
 **Sub-total**: 6 SP
 
@@ -155,9 +155,9 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Transport Requests Queue (FG & Port Consignment)](04-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | 3 | Pending |
-| 2 | [Transport Order Creation](04-transport/02-transport-orders.md) | TO-01 | DFS-039 | 8 | Pending |
-| 3 | [TDO Vehicle, Driver, Helper & ETA Assignment](04-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | 8 | Pending |
+| 1 | [Transport Requests Queue (FG & Port Consignment)](05-transport/01-transport-requests-queue.md) | TRQ-01 | DFS-038 | 3 | Pending |
+| 2 | [Transport Order Creation](05-transport/02-transport-orders.md) | TO-01 | DFS-039 | 8 | Pending |
+| 3 | [TDO Vehicle, Driver, Helper & ETA Assignment](05-transport/03-tdo-assignment.md) | TO-02 | DFS-040 | 8 | Pending |
 
 **Sub-total**: 19 SP
 
@@ -247,7 +247,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Automated Test Suite — Sprint 1 & 2 Features](05-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | 13 | Pending |
+| 1 | [Automated Test Suite — Sprint 1 & 2 Features](06-qa-testing/QA-01-automated-test-suite-sprint-1-2.md) | QA-01 | DFS-041 | 13 | Pending |
 
 **Sub-total**: 13 SP
 
@@ -259,7 +259,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [AWS Dev Environment — Up & Running](06-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | 8 | Pending |
+| 1 | [AWS Dev Environment — Up & Running](07-devops/DEVOPS-01-aws-dev-environment.md) | DEVOPS-01 | DFS-042 | 8 | Pending |
 
 **Sub-total**: 8 SP
 
@@ -273,7 +273,7 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 ## Demo Feedback
 
-> No demo feedback recorded for Sprint 3 yet. Full feedback log: [`07-feedback/README.md`](07-feedback/README.md)
+> No demo feedback recorded for Sprint 3 yet. Full feedback log: [`08-feedback/README.md`](08-feedback/README.md)
 
 ---
 
