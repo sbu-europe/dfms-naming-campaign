@@ -100,12 +100,18 @@
 
 > Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-3/](sprints/sprint-3/README.md)
 
-### Epic: Requisition
+### Epic: Requisition (Finished Goods)
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
 | [FG Product Requisition](sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md) | PR-01 | DFS-032 | Pending | 5 |
+
+### Epic: Port Shipments
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
 | [Port Shipment (Import) Registration](sprints/sprint-3/01-port-shipments/PR-02-port-shipment.md) | PR-02 | DFS-033 | Pending | 5 |
+| [Port Shipments — org-wide list & detail (Procurement role)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
 
 ### Epic: Distribution
 
@@ -118,7 +124,6 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Procurement — Inbound Shipment Queue (View)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
 | [Procurement — Transport Request Creation](sprints/sprint-3/03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
 
 ### Epic: Transport

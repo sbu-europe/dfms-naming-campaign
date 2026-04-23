@@ -155,6 +155,9 @@
 - **PR-02**: Port Shipment (Import) Registration
   - Sprint: Sprint 3 | Status: Pending | SP: 5
 
+- **PC-01**: Port Shipments — org-wide list & detail (Procurement role, same top-level menu)
+  - Sprint: Sprint 3 | Status: Pending | SP: 2
+
 ---
 
 ## EPIC-008: Distribution
@@ -176,9 +179,6 @@
 **Epic ID:** EPIC-009
 
 ### User Stories:
-
-- **PC-01**: Procurement — RM Product Requisitions View
-  - Sprint: Sprint 3 | Status: Pending | SP: 2
 
 - **PC-02**: Procurement — Transport Request Creation
   - Sprint: Sprint 3 | Status: Pending | SP: 6
@@ -485,9 +485,9 @@
 | EPIC-004 | Master Data Management | 7 | 44 |
 | EPIC-005 | Tenant User Management | 5 | 28 |
 | EPIC-006 | Vehicle Tracking & Geofencing | 1 | 8 |
-| EPIC-007 | Requisition | 2 | 10 |
+| EPIC-007 | Requisition & Port Shipments | 3 | 12 |
 | EPIC-008 | Distribution | 2 | 10 |
-| EPIC-009 | Procurement | 2 | 8 |
+| EPIC-009 | Procurement | 1 | 6 |
 | EPIC-010 | Transport Order Management | 7 | 53 |
 | EPIC-011 | Trip Closure & Tracking | 3 | 21 |
 | EPIC-012 | Vendor Management | 9 | 51 |

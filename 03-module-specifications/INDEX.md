@@ -114,16 +114,16 @@ This index provides a comprehensive mapping of all module specifications, cross-
 **Django App**: `apps/requisitions/`
 
 #### Specifications
-- [product-requisition-management.md](04-requisitions/product-requisition-management.md) — FG PR + Port Shipment (import) registration: data model, menu structure, status lifecycle, role gates, LC/shipment docs, product item code lookup, overflow rules, audit trail *(DFS-032, DFS-033)*
+- [product-requisition-management.md](04-requisitions/product-requisition-management.md) — FG PR + Port Shipment (import) + Procurement org list (PC-01, top-level **Port Shipments**): data model, menu structure, status lifecycle, role gates, LC/shipment docs, product item code lookup, overflow rules, audit trail *(DFS-032, DFS-033, DFS-036)*
 - [distribution-management.md](04-requisitions/distribution-management.md) — FG PR queue, TR creation by Distribution Officer, Distribution Manager approval (approve / modify / reject), capacity snapshots, notifications *(DFS-034, DFS-035)*
-- [procurement-management.md](04-requisitions/procurement-management.md) — **Inbound shipment queue** (read/planning of Port Shipments), destination breakdown plan, RM TR creation (Port-only source gate, per-destination quantity allocation, overflow guard), no approval step — TRs immediately Available for Planning *(DFS-036, DFS-037)*
+- [procurement-management.md](04-requisitions/procurement-management.md) — Procurement **Transport Requests** (PC-02) and TR lifecycle; **Port Shipment** triage is **top-level** (PC-01 in `product-requisition-management` / Port Shipments module) — Port-only source gate, per-destination allocation, overflow guard, no approval — TRs immediately Available for Planning *(DFS-037)*
 
 #### Related User Stories
 - DFS-032: FG Product Requisition
 - DFS-033: Port Shipment (Import) Registration
 - DFS-034: Distribution FG PR Queue
 - DFS-035: Distribution TR Creation & Manager Approval
-- DFS-036: Procurement Inbound Shipment Queue
+- DFS-036: Port Shipments — org-wide list & detail (Procurement role)
 - DFS-037: Procurement Destination Breakdown & TR Creation
 
 #### Cross-References

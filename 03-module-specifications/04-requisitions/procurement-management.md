@@ -26,20 +26,22 @@ Unlike the Distribution flow, there is **no manager approval step** in Procureme
 ## 0. Menu Structure & Navigation
 
 ```
-Sidebar (Procurement Officer only)
+App shell (Procurement Officer)
+├── Port Shipments          — **top-level** — org-wide list of submitted shipments (same module as Commercial; RBAC)
+│     └── Shipment Detail   — read-only; Create TR → PC-02
 └── Procurement
-      ├── Inbound shipment queue     — org-wide read-only list of **Port Shipment** records Commercial submitted (not a second “Port Shipments” app)
-      │     └── Shipment Detail       — full shipment reference, RM lines, capacity snapshots, linked TRs
-      └── Transport Requests          — TRs created by this Procurement Officer
-            ├── TR List               — own TRs; filter by shipment, destination POI, status, date
-            └── TR Detail / Create    — destination breakdown + read-only shipment reference
+      └── Transport Requests — TRs this officer created; filter by shipment, destination, status
+            ├── TR List
+            └── TR Detail / Create
 ```
+
+> **Port Shipment** triage is **not** a sub-menu under **Procurement** — it uses the shared **Port Shipments** entry point (see `product-requisition-management.md`).
 
 ### Screen hierarchy
 
 ```
-Procurement → Port Shipments
-  Queue (GET /product-requisitions?type=PORT_CONSIGNMENT&status=submitted,in_progress)
+Port Shipments (top-level)
+  Org-wide list for Procurement (GET … scope=org)
     └── [row click] ──► Shipment Detail
                           ├── Shipment reference (read-only)
                           ├── RM cargo line items
@@ -49,7 +51,7 @@ Procurement → Port Shipments
                           └── [Create TR / Destination Breakdown] ──► TR Creation Form
                                                                           └── [Submit] ──► TR Detail
 
-Procurement → Transport Requests
+Procurement → Transport Requests (module)
   TR List (GET /transport-requests?type=PORT_CONSIGNMENT)
     └── [row click] ──► TR Detail (read-only after submission)
 ```
@@ -58,9 +60,9 @@ Procurement → Transport Requests
 
 ## 1. Roles & Access
 
-| Role | Port Shipments | Transport Requests |
+| Role | Port Shipments (top-level) | Procurement → Transport Requests |
 |------|------------------|--------------------|
-| Procurement Officer | **Inbound shipment queue** (all Port Shipments); view detail; download Arrival Notice | Create TR against shipment; view own TRs; cancel TR |
+| Procurement Officer | **All submitted** shipments (read); detail; Arrival Notice download; **Create TR** | Create/manage own TRs; cancel TR |
 
 > There is **no Procurement Manager** role. No approval gate exists in this workflow.
 
@@ -594,7 +596,7 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 
 | Permission code | Description | Assigned to |
 |-----------------|-------------|-------------|
-| `Procurement.PR.Read` | View Inbound shipment queue and Port Shipment detail | Procurement Officer |
+| `Procurement.PR.Read` | View org-wide Port Shipment list (top-level menu) and detail | Procurement Officer |
 | `Procurement.Document.Download` | Download Arrival Notice attachment | Procurement Officer |
 | `Procurement.TR.Create` | Create TR (destination breakdown) against a Port Shipment | Procurement Officer |
 | `Procurement.TR.Read` | View own TR list and TR detail | Procurement Officer |

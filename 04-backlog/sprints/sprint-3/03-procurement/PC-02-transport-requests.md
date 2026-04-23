@@ -103,7 +103,7 @@ POST   /api/v1/transport-requests/{tr_id}/cancel
 
 ## Dependencies
 
-- **Requires**: PR-02 (Port Shipment), MDM-04 (POI — Port filter for source)
+- **Requires**: PR-02 (Port Shipment), PC-01 (Procurement org view in **Port Shipments** — entry to TR flow), MDM-04 (POI — Port filter for source)
 - **Enables**: TRQ-01 (Port Consignment / RM TR tab in planning queue)
 
 ## Definition of Done

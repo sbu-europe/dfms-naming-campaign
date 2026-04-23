@@ -105,7 +105,7 @@ FG PR (Depot/Feed Mill Officer)
 Port Shipment (Commercial Officer)
   └─ Draft → Submitted → (In Progress when TR created) → Fulfilled / Cancelled
              ↓
-        Procurement Officer views **Inbound shipment queue** (submitted Port Shipments)
+        Procurement Officer opens **top-level Port Shipments** (org-wide submitted list)
         Reviews LC + shipment details
         Creates TR(s) vs shipment (Source: Port POI; Dest per TR — destination allocation)
         No approval step → TR immediately Available for Transport Planning → TO creation by Transport Planner
@@ -330,7 +330,7 @@ The `pr_type` is auto-selected and read-only based on the user's role. Attemptin
 |------|--------|
 | Distribution Officer | View all submitted FG PRs queue |
 | Distribution Manager | View all FG TRs pending approval |
-| Procurement Officer | **Inbound shipment queue** — all submitted Port Shipments |
+| Procurement Officer | **Port Shipments** (top-level) — all submitted (read/plan) |
 
 ---
 
@@ -839,7 +839,7 @@ CREATE INDEX idx_pr_document_pr ON pr_documents(pr_id);
 | Module | Interaction |
 |--------|-------------|
 | Distribution (DR-01) | Reads submitted FG PRs queue; creates TRs against FG PRs |
-| Procurement (PC-01) | **Inbound shipment queue** (same Port Shipment records); creates TRs with destination allocation |
+| Procurement (PC-01) | **Port Shipments** top-level org view + TR allocation (PC-02) |
 | Transport Planning | Receives approved TRs (FG) and submitted TRs (RM) for TO creation |
 
 ### 16.3 Events Emitted (for downstream)
