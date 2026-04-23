@@ -141,14 +141,16 @@
 
 ---
 
-## EPIC-007: Requisition
+## EPIC-007: Requisition & Port Shipments (Sprint 3)
 
-**Epic ID:** EPIC-007
+**Epic ID:** EPIC-007 (two top-level menus: **Requisition** = FG only; **Port Shipments** = import registration)
 
-### User Stories:
+### Requisition (Finished Goods) — `Requisition` menu
 
 - **PR-01**: FG Product Requisition
   - Sprint: Sprint 3 | Status: Pending | SP: 5
+
+### Port Shipments (import) — separate **`Port Shipments` top-level menu** (not under Requisition)
 
 - **PR-02**: Port Shipment (Import) Registration
   - Sprint: Sprint 3 | Status: Pending | SP: 5

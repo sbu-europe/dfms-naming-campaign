@@ -5,7 +5,7 @@ jira_epic: DFS-040
 jira_sprint: "Sprint 3"
 story_id: PR-02
 title: Port Shipment (Import) Registration
-epic: Requisition
+epic: Port Shipments
 status: Pending
 story_points: 5
 assignee: ~
@@ -23,6 +23,8 @@ assignee: ~
 
 A **Port Shipment** is **not** a product requisition. It is a **structured record of an inbound import shipment** (typically raw materials arriving at port). The Commercial Officer **transcribes** shipment facts from **external systems** (e.g. shipping lines, freight forwarders, LC banks, customs / clearance portals, spreadsheets, or paper packs) into DFMS so the organisation has a single operational source of truth.
 
+**Information architecture**: The Commercial Officer uses a **dedicated top-level app menu — Port Shipments** — not the **Requisition** menu (which is **Finished Goods / internal demand only**). This keeps the mental model and navigation aligned with the domain.
+
 **Downstream flow**:
 ```
 Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival Notice)
@@ -33,24 +35,25 @@ Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival 
 
 **Key distinctions from FG Product Requisition (PR-01)**:
 - **Domain object**: Import **shipment registration**, not an internal “demand requisition”
+- **Menu**: **Port Shipments** (top-level), separate from **Requisition → Finished Goods**
 - **Creator**: Commercial Officer only (data entry from external shipment sources)
 - **Product scope**: Raw materials on the shipment manifest
 - **Routing**: Submitted shipments are visible to **Procurement** (not Distribution)
 - **Source / destination POIs**: Not captured on the shipment record — **source Port** and **per–destination POI** are set when Procurement creates TRs
 - **No approval** on the shipment record itself — Procurement acts by creating TRs
 
-**Implementation note (technical)**: The persisted entity may reuse the existing `ProductRequisition` model with `pr_type = PORT_CONSIGNMENT` and existing APIs under `/api/v1/product-requisitions` until a dedicated `port-shipments` resource is introduced. User-facing labels and this specification use **Port Shipment** terminology.
+**Implementation note (technical)**: The persisted entity may reuse the existing `ProductRequisition` model with `pr_type = PORT_CONSIGNMENT` and existing APIs under `/api/v1/product-requisitions` until a dedicated `port-shipments` resource is introduced. User-facing **navigation and labels** use the **Port Shipments** top-level menu.
 
 ## Acceptance Criteria
 
 ### AC-1: Port Shipment Header Fields
-- [ ] Commercial Officer can create a Port Shipment with:
-  - **Record type**: Port Shipment / import (auto-selected; Commercial Officers only see this flow — FG requisition is hidden for this role)
-  - **Entered by**: Auto-filled from logged-in user (read-only)
-  - **Department**: Auto-filled from logged-in user (read-only)
-  - **Preferred availability / delivery window** (required) — when cargo should be ready for inland movement after port operations
-  - **Urgency**: Normal / High / Critical
-  - **Remarks** (optional) — e.g. reference to external system ID, broker notes
+- [ ] Commercial Officer can create a Port Shipment from **Port Shipments** in the main navigation (not under Requisition)
+- [ ] **Record type**: Port Shipment / import (auto-selected; Commercial Officers only see **Port Shipments** + **Procurement** as applicable — no access to **Requisition → Finished Goods**)
+- [ ] **Entered by**: Auto-filled from logged-in user (read-only)
+- [ ] **Department**: Auto-filled from logged-in user (read-only)
+- [ ] **Preferred availability / delivery window** (required) — when cargo should be ready for inland movement after port operations
+- [ ] **Urgency**: Normal / High / Critical
+- [ ] **Remarks** (optional) — e.g. reference to external system ID, broker notes
 - [ ] System auto-generates **Port Shipment reference**: `PS-PORT-YYYYMMDD-XXXX`
 - [ ] **Source Port and destination POIs are not captured** on the shipment record — Port is chosen per TR by Procurement; destinations are defined per TR
 
@@ -110,12 +113,12 @@ Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival 
 | PR-02-5 | Product Item Code lookup — MDM-01 RM gate | DFS-033-5 | Pending |
 | PR-02-6 | Total weight per line and grand total | DFS-033-6 | Pending |
 | PR-02-7 | Arrival Notice upload — secure storage, linked record, downloadable | DFS-033-7 | Pending |
-| PR-02-8 | Commercial Officer role gate — Port Shipment flow only; FG PR hidden | DFS-033-8 | Pending |
+| PR-02-8 | Commercial Officer role — **Port Shipments** app area only; no **Requisition (FG)** access | DFS-033-8 | Pending |
 | PR-02-9 | List API (filters: status, date, search) | DFS-033-9 | Pending |
 | PR-02-10 | Detail API | DFS-033-10 | Pending |
 | PR-02-11 | Cancel API with reason | DFS-033-11 | Pending |
-| PR-02-12 | UI — LC/shipment section + multi-line RM table + attachment | DFS-033-12 | Pending |
-| PR-02-13 | List + detail UI (shared shell with PR-01 where practical; type badge **Port Shipment**) | DFS-033-13 | Pending |
+| PR-02-12 | UI — top-level **Port Shipments** nav; LC/shipment + RM table + attachment | DFS-033-12 | Pending |
+| PR-02-13 | List + detail under **Port Shipments** (not under Requisition) | DFS-033-13 | Pending |
 
 ## API Endpoints
 
@@ -149,10 +152,11 @@ GET    /api/v1/product-requisitions/{id}/documents
 
 ## Definition of Done
 
+- [ ] **Port Shipments** appears as its own top-level menu; no Port flow under Requisition
 - [ ] Port Shipment registration with mandatory LC + shipment fields and Arrival Notice
 - [ ] RM lines with item code lookup and weight totals
 - [ ] Draft / submit lifecycle; reference `PS-PORT-YYYYMMDD-XXXX` (or documented mapping)
-- [ ] Role gate: Commercial Officer sees Port Shipment flow only
+- [ ] Role gate: Commercial Officer uses **Port Shipments** only (not FG Requisition)
 - [ ] Audit + document storage
 - [ ] Unit tests > 80%
 - [ ] UAT: Commercial Officer registers a shipment from sample external data; Procurement can open it in PC-01

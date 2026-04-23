@@ -14,7 +14,7 @@ jira_epic: DFS-040
 
 ## Overview
 
-The Requisition module is the demand-origination layer for **Finished Goods (FG)**: **FG Product Requisitions** raised by Depot/Feed Mill Officers. Separately, **Commercial Officers register Port Shipments** — inbound **import cargo records** transcribed from external systems (not FG requisitions). Port Shipment records use the same technical persistence as legacy “Port Consignment” requisitions where applicable (`PORT_CONSIGNMENT` type) but the **domain name is Port Shipment**.
+The **Requisition** specification covers **Finished Goods (FG) Product Requisitions** only. **Port Shipments** (import registration) are a **separate top-level application menu** — not a sub-menu under Requisition; see the same file’s Port Shipment sections and `procurement-management.md` for the handoff to Procurement. Technically, Port Shipment may still persist as `PORT_CONSIGNMENT` on a shared model until a dedicated resource exists.
 
 A submitted **FG PR** triggers Distribution TR creation. A submitted **Port Shipment** triggers Procurement TR creation (destination breakdown), then Transport Planning creates **Transport Orders**.
 
@@ -26,29 +26,28 @@ A submitted **FG PR** triggers Distribution TR creation. A submitted **Port Ship
 
 ## 0. Menu Structure & Navigation
 
-The Requisition module exposes **two completely separate sub-menus**, each scoped to a distinct role. A user only ever sees the sub-menu that matches their role — the other is hidden.
+**Requisition** exposes **one sub-menu: Finished Goods**. **Port Shipments** is a **sibling top-level item** in the app shell (not nested under Requisition). Each role only sees the module they need.
 
 ```
 Sidebar
-└── Requisition
-      ├── Finished Goods                    [Depot Officer / Feed Mill Officer only]
-      │     ├── PR List                     — own PRs; filter by status / date / search
-      │     ├── Create FG PR                — header + multi-line product table + capacity widget
-      │     └── PR Detail                   — read-only after submit; actions: Edit (Draft) / Submit / Cancel
-      │
-      └── Port Shipments (import)           [Commercial Officer only]
-            ├── Shipment List               — own records; filter by status / date / search
-            ├── Register Port Shipment      — header + LC/shipment fields + RM cargo lines + Arrival Notice upload
-            └── Shipment Detail             — read-only after submit; actions: Edit (Draft) / Submit / Cancel / Upload Document
+├── Requisition
+│     └── Finished Goods                    [Depot Officer / Feed Mill Officer only]
+│           ├── PR List                     — own PRs; filter by status / date / search
+│           ├── Create FG PR                — header + multi-line product table + capacity widget
+│           └── PR Detail                   — read-only after submit; actions: Edit (Draft) / Submit / Cancel
+│
+└── Port Shipments   (separate top-level — NOT under Requisition)
+      ├── Shipment List                     [Commercial Officer only]
+      ├── Register Port Shipment            — LC/shipment + RM cargo lines + Arrival Notice
+      └── Shipment Detail                 — Edit (Draft) / Submit / Cancel / Upload Document
 ```
 
-### Role → Sub-menu mapping
+### Role → menu mapping
 
-| Role | Sub-menu visible | Sub-menu hidden |
-|------|-----------------|-----------------|
-| Depot Officer | Finished Goods | Port Shipments |
-| Feed Mill Officer | Finished Goods | Port Shipments |
-| Commercial Officer | Port Shipments | Finished Goods |
+| Role | Requisition (FG) | Port Shipments (top-level) |
+|------|-------------------|----------------------------|
+| Depot / Feed Mill Officer | ✓ | ✗ |
+| Commercial Officer | ✗ | ✓ |
 
 ### Screen hierarchy
 
@@ -62,7 +61,7 @@ Finished Goods sub-menu
                           ├── [Submit] ──► PR Detail (Submitted)
                           └── [Cancel] ──► PR Detail (Cancelled)
 
-Port Shipments sub-menu
+Port Shipments (top-level module — not under Requisition)
   List (GET /product-requisitions?type=PORT)
     └── [+ Create] ──► Register Port Shipment
                           ├── [Save Draft] ──► Shipment Detail (Draft)
@@ -307,10 +306,10 @@ Status Rules:
 
 ### 5.1 PR Type Restrictions
 
-| Role | Can Create | Sub-menu visible | Sub-menu hidden |
-|------|------------|------------------|-----------------|
-| Depot / Feed Mill Officer | FG PR only | Requisition → Finished Goods | Port Shipments hidden/disabled |
-| Commercial Officer | Port Shipment only | Requisition → Port Shipments | Finished Goods hidden/disabled |
+| Role | Can Create | Menu visible | Menu hidden |
+|------|------------|--------------|-------------|
+| Depot / Feed Mill Officer | FG PR only | **Requisition → Finished Goods** | **Port Shipments** (top-level) |
+| Commercial Officer | Port Shipment only | **Port Shipments** (top-level) | **Requisition** (entire FG module) |
 
 The `pr_type` is auto-selected and read-only based on the user's role. Attempting to create the wrong type via API returns `403 Forbidden`.
 
@@ -869,7 +868,7 @@ PRStatusChanged {
 - **[POI Management](../02-master-data/poi-management.md)** — Destination POI, capacity snapshot
 - **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Menu structure, role access matrix, end-to-end workflow
 - **[PR-01: FG Product Requisition Story](../../04-backlog/sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md)**
-- **[PR-02: Port Shipment (Import) Registration](../../04-backlog/sprints/sprint-3/01-requisition/PR-02-port-shipment.md)**
+- **[PR-02: Port Shipment (Import) Registration](../../04-backlog/sprints/sprint-3/01-port-shipments/PR-02-port-shipment.md)**
 
 **Related Jira Keys**:
 - DFS-032 — FG Product Requisition

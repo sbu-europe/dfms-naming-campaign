@@ -35,19 +35,20 @@ It maps directly to `apps/requisitions/` in the backend codebase.
        │
 04-requisitions  (this module)                        apps/requisitions/
   │
-  ├── product-requisition-management
-  │     ├── FG PR  (Depot / Feed Mill Officer)  ──────────────────────┐
-  │     └── Port Shipment  (Commercial Officer)  ──────────────────┐ │
-  │                                                                  │ │
-  ├── distribution-management                                        │ │
-  │     FG PR queue  ·  TR creation  ·  DM approval  ◄──────────────┘ │
-  │                                     │                              │
-  └── procurement-management ◄──────────────────────────────────────┘
-        Port Shipment queue  ·  TR creation (no approval)
-                                         │
-                                         ▼
-                              05-transport  (approved/submitted TRs)
-                              TR queue · TO creation · TDO assignment · Trip
+  ├── product-requisition-management — FG PR (Depot / Feed Mill)
+  │     └── Submitted FG PRs ──► distribution-management (TR + DM approval)
+  │
+  ├── Port Shipments (PR-02) — top-level menu, Commercial Officer (separate from Requisition)
+  │     └── Submitted shipments ──► procurement-management (TR, no approval)
+  │
+  ├── distribution-management
+  │     └── Approved FG TRs ──► 05-transport
+  │
+  ├── procurement-management
+  │     └── Submitted Port TRs ──► 05-transport
+  │
+  ▼
+05-transport  (TR queue · TO · TDO · trip)
 ```
 
 ### Spec-to-spec cross-references
@@ -65,15 +66,17 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 ```
 Sidebar
 │
-├── Requisition                              [product-requisition-management]
-│     ├── Finished Goods                     Depot Officer / Feed Mill Officer only
-│     │     ├── PR List
-│     │     ├── Create FG PR
-│     │     └── PR Detail  (Edit / Submit / Cancel)
-│     └── Port Shipments                     Commercial Officer only
-│           ├── Shipment List
-│           ├── Register Port Shipment  (+ LC fields + Arrival Notice)
-│           └── Shipment Detail  (Edit / Submit / Cancel / Upload Document)
+├── Requisition                              [product-requisition-management — FG only]
+│     └── Finished Goods                     Depot Officer / Feed Mill Officer only
+│           ├── PR List
+│           ├── Create FG PR
+│           └── PR Detail  (Edit / Submit / Cancel)
+│
+├── Port Shipments                           [PR-02 — top-level; not under Requisition]
+│     (Commercial Officer only)
+│     ├── Shipment List
+│     ├── Register Port Shipment  (+ LC fields + Arrival Notice)
+│     └── Shipment Detail  (Edit / Submit / Cancel / Upload Document)
 │
 ├── Distribution                             [distribution-management]
 │     ├── Product Requisitions               Distribution Officer, Distribution Manager
