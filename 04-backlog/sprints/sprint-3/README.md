@@ -82,28 +82,20 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ### Transport
 
-| Sub-menu | Can View | Can Submit Planning Details |
-|----------|---------|-----------------------------|
-| Transport Requests → Finished Goods | Transport Planner | Transport Planner |
-| Transport Requests → **Port Consignment** *(import / Port Shipment–linked — `type=PORT_CONSIGNMENT`; not all RM moves)* | Transport Planner | Transport Planner |
-
-| Action | Actor |
-|--------|-------|
-| Create TO(s) against a TR | Transport Planner |
-| View all TOs | Transport Planner |
-| View own-fleet TOs (Own Fleet queue) | TDO (Own Fleet) |
-| View vendor-fleet TOs (Vendor Fleet queue) | TDO (Vendor Fleet) |
-| Assign Vehicle / Driver / Helper(s) / ETA | TDO (Own Fleet) |
-| Assign Vendor | TDO (Vendor Fleet) |
-| View assigned TOs | Driver (own assignments only) |
+| Sub-menu / area | Primary roles | What happens here |
+|----------|---------------|-------------------|
+| **Transport requests** → Finished Goods | Transport Planner | TR queue; **planning inputs** (vehicles, type) before TOs; see TRQ-01 (`type=FG`) |
+| **Transport requests** → **Port Consignment** *(import / Port Shipment–linked — `type=PORT_CONSIGNMENT`)* | Transport Planner | TR queue; planning + **Raw C&F** (Port path only) |
+| **Transport orders (TO)** | Transport Planner, TDO, Driver | **TO-01** — create/manage TOs vs TR; list all. **TO-02** — TDO assigns vehicle, driver, helper, ETA; own-fleet or vendor. Driver: **my assigned** TOs only (same TO entity) |
 
 **Key rules:**
-- Transport Planner sees a unified queue of TRs with status `Available for Transport Planning` or `Under Planning`; **Finished Goods** and **Port Consignment** tabs (see TRQ-01 — aligns with `type=FG` vs `type=PORT_CONSIGNMENT`)
-- Before creating TOs, Transport Planner submits planning details: qty of vehicles, vehicle type, and for **Port Consignment** TRs only: **Raw C&F** Clearance Note/Approval
-- Submitting planning details transitions TR to `Under Planning`
-- Multiple TOs can be created per TR; total TO quantity must not exceed TR quantity — overflow is blocked
-- For Own Fleet TOs: vehicle and driver selected from MDM fleet records; for Vendor Fleet TOs: vendor from contractual list, vehicle/driver entered manually
-- Driver logs in and sees only TOs assigned to them
+- **Two sibling areas under Transport (like Distribution’s PR queue + TRs):** **Transport requests** = *planning on the TR*; **Transport orders** = *execution* (TO). Flow: TR → planning inputs → then create/manage under **Transport orders** (TRQ-01 → TO-01 → TO-02).
+- Transport Planner: unified **TR** queue — **Finished Goods** and **Port Consignment** tabs; status `Available for Transport Planning` or `Under Planning` (TRQ-01; `type=FG` vs `type=PORT_CONSIGNMENT`)
+- **TR planning inputs** (before TOs): vehicle qty, vehicle type; **Port Consignment** only: **Raw C&F** Clearance — then **Transport orders** for TO work
+- Submitting planning details sets TR to `Under Planning`
+- **Transport orders:** sum of TO qty per TR ≤ TR qty (overflow blocked). Own Fleet: vehicle/driver from MDM; Vendor Fleet: vendor + manual vehicle/driver
+- TDO works in **Transport orders** (own-fleet / vendor queues) — not a separate TO “list” product
+- Driver: only **Transport orders** (my assignments) for their TOs
 
 ---
 
@@ -159,7 +151,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Transport
 
-> Transport Planners review a unified queue of **FG** and **Port Consignment** Transport Requests, submit vehicle/type requirements (and for **Port Consignment** TRs: Raw C&F Clearance Note/Approval), then create Transport Orders (TOs) against each TR. TDOs assign vehicle, driver, helpers, and ETA to each TO. Drivers see their assigned TOs in their account.
+> In **Transport → Transport requests**: Planners work a unified **FG** + **Port Consignment** TR queue, submit planning inputs (and for **Port Consignment** TRs: Raw C&F). In **Transport → Transport orders (TO)**: Planners create TOs against each TR (TO-01). TDOs assign vehicle, driver, helpers, and ETA (TO-02). Drivers work **my assigned** TOs under the same **Transport orders** area.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
@@ -209,31 +201,15 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
                                               │
          ┌────────────────────────────────────▼────────────────────────────┐
          │  TRANSPORT MODULE                                                │
-         │  Transport Planner                                               │
-         │  ├── Transport Requests > Finished Goods  (approved FG TRs)     │
-         │  └── Transport Requests > Port Consignment  (TRs from Port Shipments) │
-         │      ↓                                                           │
-         │      Submit planning details:                                    │
-         │        • Qty of vehicles required                                │
-         │        • Vehicle type required                                   │
-         │        • [Port Consignment only] Raw C&F Clearance Note/Approval  │
-         │      TR → Under Planning                                         │
-         │      ↓                                                           │
-         │  Transport Orders                                                │
-         │      Create TO(s) against TR                                     │
-         │        • Transport Mode: Own Fleet / Vendor Fleet                │
-         │        • Quantity per TO  [overflow → ✗]                        │
-         │      ↓                                                           │
-         │  Transport Distribution Officer (TDO)                            │
-         │      Assign to each TO:                                          │
-         │        • Vehicle (from fleet / manual for vendor)                │
-         │        • Driver (from pool / manual for vendor)                  │
-         │        • Helper(s) (optional)                                    │
-         │        • ETA                                                     │
-         │      TO → Assigned → Ready for Dispatch                         │
-         │      ↓                                                           │
-         │  Driver (My Assignments sidebar)                                 │
-         │      Driver sees assigned TO list                                │
+         │  Transport Planner + TDO + Driver                                │
+         │  ├── Transport requests > Finished Goods  (FG TRs)               │
+         │  ├── Transport requests > Port Consignment  (Port Shipment TRs)  │
+         │  │   Planning → TR Under Planning; [PC] Raw C&F                  │
+         │  └── Transport orders (TO)  — list / create vs TR (TO-01)         │
+         │        Own Fleet or Vendor; qty per TO  [overflow → ✗]            │
+         │      TDO (TO-02): vehicle, driver, helper, ETA (own or vendor)   │
+         │      → TO Assigned → Ready for Dispatch                           │
+         │      Driver: my assigned TOs (Transport orders)                    │
          └─────────────────────────────────────────────────────────────────┘
                    ↓
          (Sprint 4: Dispatch → In-Transit → POD → Trip Closure)
@@ -320,15 +296,16 @@ TRQ-01            ──→  TO-01 (TO creation)
 | Distribution Officer | Distribution | View FG PR queue; create FG TRs |
 | Distribution Manager | Distribution | View all FG TRs pending approval; approve / modify / reject TRs |
 | Procurement Officer | **Port Shipments** (top — all submitted) + **Procurement → Transport Requests** | Read/plan in Port Shipments; create **Port Consignment** TRs (no approval) |
-| Transport Planner | Transport | TR queue: **FG** + **Port Consignment** tabs; planning inputs; create TOs |
-| Transport Distribution Officer (TDO) | Transport | Assign vehicle / driver / helpers / ETA to TOs |
-| Driver | Driver Account | View own assigned TO list |
+| Transport Planner | Transport | **Transport requests:** **FG** + **Port Consignment** tabs, planning. **Transport orders (TO):** create/manage TOs (TO-01) |
+| Transport Distribution Officer (TDO) | Transport | **Transport orders (TO):** assign vehicle / driver / helpers / ETA (TO-02) — own- / vendor-fleet |
+| Driver | Transport | **Transport orders** — *my assigned* TOs only |
 
 ---
 
 ## Notes
 
-- **Navigation**: **Requisition** = **Finished Goods only**. **Port Shipments** = **one top-level menu** — Commercial (own) and Procurement (all, read) share it; no duplicate queue under Procurement. **TR** = operational breakdown: Distribution vs FG PRs; Procurement TRs from **Port Shipment** detail or **Procurement → Transport Requests** list.
+- **Navigation**: **Requisition** = **Finished Goods only**. **Port Shipments** = **one top-level menu** — Commercial (own) and Procurement (all, read) share it; no duplicate queue under Procurement. **Transport** = **Transport requests** (TR, planning — FG + Port Consignment) + **Transport orders (TO)** (create TO-01, assign TO-02, driver execution). **TR** from Distribution vs FG PRs, or from **Port Shipment** / **Procurement → Transport requests**.
+- **Menu structure alignment (FG vs Port)**: **Distribution** keeps both **Product requisitions** and **FG transport requests** under one module. The **Port** path uses the same idea (entity + TRs) but lists **Port Shipments** at **top level** (shared with Commercial) and only **Procurement → Transport requests** under **Procurement** — so the shipment list is not repeated as a Procurement sub-menu; it is the same pattern with a different shell shape.
 - **FG TRs**: Destination is inherited from the PR (read-only on TR form). Source POI is selected per TR — enabling multi-source fulfillment of one PR.
 - **Port Consignment TRs** (transport type): Destination is defined per TR by Procurement (any active POI) — not on the shipment record. Source is always a Port POI. **TOs** are created by the Transport Planner after planning inputs (TRQ-01 / TO-01).
 - **Quantity overflow guard**: TR allocations vs parent FG PR or Port Shipment totals; TO quantities vs TR totals.
