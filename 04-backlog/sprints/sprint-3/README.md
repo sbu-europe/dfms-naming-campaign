@@ -33,13 +33,13 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | Sub-menu | Can View | Can Create | Can Edit (Draft) | Can Cancel |
 |----------|----------|------------|------------------|------------|
 | Finished Goods | Depot / Feed Mill Officer (own PRs) | Depot / Feed Mill Officer | Depot / Feed Mill Officer | Depot / Feed Mill Officer (before TR created) |
-| Port Consignment | Commercial Officer (own PRs) | Commercial Officer | Commercial Officer | Commercial Officer (before TR created) |
+| Port Shipments (import) | Commercial Officer (own records) | Commercial Officer | Commercial Officer | Commercial Officer (before TR created) |
 
 **Key rules:**
 - **Finished Goods**: Destination POI pre-filled from user's assigned POI (editable); Source POI not captured — defined by Distribution at TR creation
-- **Port Consignment**: Source and Destination POIs not captured on PR — source is always a Port; Procurement defines destination allocation at TR creation
-- Role gate: Depot/Feed Mill Officers can only create FG PRs; Commercial Officers can only create Port Consignment PRs — each role sees only their sub-menu
-- Port Consignment PRs require mandatory LC + shipment fields (BL Number, LC Number, Vessel, Voyage, Container, C&F Agent, POL, ETA) and Arrival Notice attachment before submission
+- **Port Shipments**: Not a requisition — Commercial Officers **register import shipments** (data from external systems). Source Port and destination POIs are **not** on the shipment record; Procurement sets Port source and per-destination allocation when creating TRs
+- Role gate: Depot/Feed Mill Officers can only create FG PRs; Commercial Officers only see **Port Shipment** registration — each role sees only their sub-menu
+- Port Shipments require mandatory LC + shipment fields (BL Number, LC Number, Vessel, Voyage, Container, C&F Agent, POL, ETA) and Arrival Notice attachment before submission
 
 ### Distribution
 
@@ -63,9 +63,9 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | Transport Requests | Procurement Officer (own TRs) | Procurement Officer | — | — |
 
 **Key rules:**
-- Procurement Officer sees all submitted **Port Consignment PRs** (raised by Commercial Officers)
+- Procurement Officer sees all submitted **Port Shipments** (registered by Commercial Officers)
 - Each TR specifies: Source POI (Port), Destination POI (any active POI — per-TR allocation), and quantity for that destination
-- Multiple TRs can be created for one PR (one per destination); total TR quantity must not exceed PR quantity — overflow is blocked
+- Multiple TRs can be created for one Port Shipment (typically one per destination); total TR quantity must not exceed shipment line totals — overflow is blocked
 - **No manager approval step** — submitted TRs are immediately `Available for Transport Planning`
 
 ### Transport
@@ -97,12 +97,12 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Requisition
 
-> Two PR types exist. **Finished Goods PRs** are raised by Depot/Feed Mill Officers and route to Distribution. **Port Consignment PRs** are raised by Commercial Officers with full LC and shipment documentation, and route to Procurement. PRs are the demand signal that drives the downstream TR → Transport workflow.
+> The Requisition area has two entry paths: **Finished Goods PRs** (internal demand) raised by Depot/Feed Mill Officers → Distribution. **Port Shipments** (import registration — not a requisition) are entered by Commercial Officers from external shipment data → Procurement plans distribution via TRs, then Transport creates TOs.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
 | 1 | [FG Product Requisition](01-requisition/PR-01-fg-product-requisition.md) | PR-01 | DFS-032 | 5 | Pending |
-| 2 | [Port Consignment (LC-Based) Product Requisition](01-requisition/PR-02-rm-product-requisition.md) | PR-02 | DFS-033 | 5 | Pending |
+| 2 | [Port Shipment (Import) Registration](01-requisition/PR-02-port-shipment.md) | PR-02 | DFS-033 | 5 | Pending |
 
 **Sub-total**: 10 SP
 
@@ -123,11 +123,11 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 ## Epic: Procurement
 
-> Procurement Officers view Port Consignment Product Requisitions (raised by Commercial Officers) and create Transport Requests against them — one TR per destination POI. The Source POI is always a Port-type POI (selected per TR). The Destination POI is defined **per TR** by the Procurement Officer (any active non-Port POI) — it is **not** inherited from the PR, because Port Consignment PRs capture no destination. Total TR quantity across all TRs for a PR must not exceed the PR total quantity. **No manager approval step** — submitted TRs are immediately available for Transport Planning.
+> Procurement Officers view **Port Shipments** (registered by Commercial Officers) and create **Transport Requests** to plan distribution — typically one TR per destination POI. Source POI is always a Port (per TR). Destination POI is defined **per TR** (any active POI). Total TR allocations must not exceed the **Port Shipment** line quantities. **No manager approval** — submitted TRs go straight to Transport Planning; **Transport Orders** are created later by the Transport Planner (TO-01).
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Procurement — RM Product Requisitions View](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
+| 1 | [Procurement — Port Shipments Queue (View)](03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | 2 | Pending |
 | 2 | [Procurement — Transport Request Creation](03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | 6 | Pending |
 
 **Sub-total**: 8 SP
@@ -155,20 +155,20 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 │  REQUISITION MODULE                                                                          │
 │                                                                                              │
 │  Depot/Feed Mill Officer                          Commercial Officer                         │
-│  └── Requisition > Finished Goods                 └── Requisition > Port Consignment        │
-│      Create FG PR                                     Create Port PR                        │
-│      (dest: pre-filled/editable; no source)           (LC + shipment fields; no POIs)       │
+│  └── Requisition > Finished Goods                 └── Requisition > Port Shipments         │
+│      Create FG PR                                     Register Port Shipment               │
+│      (dest: pre-filled/editable; no source)           (LC + shipment + RM lines; no POIs) │
 └──────────────────────────────┬───────────────────────────────┬──────────────────────────────┘
                                │                               │
-                   FG PR submitted                   Port Consignment PR submitted
+                   FG PR submitted                   Port Shipment submitted
                        │                                       │
          ┌─────────────▼──────┐              ┌────────────────▼───────────────────┐
          │  DISTRIBUTION      │              │  PROCUREMENT                        │
          │  Distribution      │              │  Procurement Officer                │
-         │  Officer           │              │  ├── Product Requisitions           │
-         │  ├── Product Reqs  │              │  │   (view Port Consign. PRs)       │
+         │  Officer           │              │  ├── Port Shipments (queue)         │
+         │  ├── Product Reqs  │              │  │   (import registrations)         │
          │  │   (view FG PRs) │              │  └── Transport Requests             │
-         │  └── Transport Reqs│              │      Create TR(s) vs PR             │
+         │  └── Transport Reqs│              │      Create TR(s) vs shipment       │
          │      Create TR(s)  │              │      Source: Port POI               │
          │      Source: POIs  │              │      Dest: per-TR (any active POI)  │
          │      Dest: from PR │              │      [qty overflow → ✗]             │
@@ -225,7 +225,7 @@ PR-01 (FG PR)     ──→  DR-01 (Distribution PR queue)
                         └──→  DR-02 (FG TR creation + DM approval)
                                 └──→  TRQ-01 (Transport Requests queue)
 
-PR-02 (RM PR)     ──→  PC-01 (Procurement PR queue)
+PR-02 (Port Shipment) ──→  PC-01 (Procurement shipment queue)
                         └──→  PC-02 (RM TR creation, no approval)
                                 └──→  TRQ-01 (Transport Requests queue)
 
@@ -292,10 +292,10 @@ TRQ-01            ──→  TO-01 (TO creation)
 | Role | Module Access | Key Permissions |
 |------|--------------|-----------------|
 | Depot / Feed Mill Officer | Requisition → Finished Goods | Create FG PRs; view own PRs |
-| Commercial Officer | Requisition → Port Consignment | Create Port Consignment PRs with LC + shipment details; view own PRs |
+| Commercial Officer | Requisition → Port Shipments | Register Port Shipments (import data from external systems); view own records |
 | Distribution Officer | Distribution | View FG PR queue; create FG TRs |
 | Distribution Manager | Distribution | View all FG TRs pending approval; approve / modify / reject TRs |
-| Procurement Officer | Procurement | View Port Consignment PR queue; create RM TRs (no approval needed) |
+| Procurement Officer | Procurement | View Port Shipment queue; create RM TRs for destination breakdown (no approval needed) |
 | Transport Planner | Transport | View TR queue (FG + RM tabs); submit planning details; create TOs |
 | Transport Distribution Officer (TDO) | Transport | Assign vehicle / driver / helpers / ETA to TOs |
 | Driver | Driver Account | View own assigned TO list |
@@ -304,10 +304,10 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 ## Notes
 
-- **PR and TR are distinct entities**: A Product Requisition (PR) is the demand signal. A Transport Request (TR) is the operational breakdown created by Distribution or Procurement Officers against a PR.
+- **FG PR vs Port Shipment**: FG **Product Requisition** is internal demand. **Port Shipment** is import cargo registration (not a requisition). **TR** is the operational breakdown: Distribution creates TRs vs FG PRs; Procurement creates TRs vs Port Shipments.
 - **FG TRs**: Destination is inherited from the PR (read-only on TR form). Source POI is selected per TR — enabling multi-source fulfillment of one PR.
-- **Port Consignment TRs**: Destination is defined per TR by the Procurement Officer (any active POI) — not inherited from the PR. Source is always a Port POI.
-- **Quantity overflow guard** applies at two levels: TR creation against PR (total TRs must not exceed PR qty), and TO creation against TR (total TOs must not exceed TR qty).
+- **Port Consignment TRs** (transport type): Destination is defined per TR by Procurement (any active POI) — not on the shipment record. Source is always a Port POI. **TOs** are created by the Transport Planner after planning inputs (TRQ-01 / TO-01).
+- **Quantity overflow guard**: TR allocations vs parent FG PR or Port Shipment totals; TO quantities vs TR totals.
 - **No Procurement Manager approval** for Port Consignment TRs — unlike FG TRs which require Distribution Manager approval, Procurement TRs go directly to Transport Planning on submission.
 - **Raw C&F Clearance Note/Approval** is an RM-specific field the Transport Planner must confirm at planning input submission (before TO creation). It is captured as a Yes/No confirmation that the clearance has been obtained.
 - **TDO assigns all physical resources** (vehicle, driver, helpers, ETA) — this is a separate step from the Transport Planner creating the TO structure.

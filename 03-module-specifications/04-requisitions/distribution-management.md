@@ -19,7 +19,7 @@ The Distribution module bridges the Requisition and Transport Planning layers of
 1. **FG PR Queue** (DR-01) — Distribution Officers and Distribution Managers view all submitted Finished Goods Product Requisitions and navigate to TR creation.
 2. **Transport Request Management** (DR-02) — Distribution Officers create Transport Requests (TRs) against PRs; Distribution Managers review, optionally modify, and approve or reject TRs before handover to Transport Planning.
 
-Distribution handles **Finished Goods PRs only**. Port Consignment PRs (Raw Materials) are handled by the Procurement module.
+Distribution handles **Finished Goods PRs only**. **Port Shipments** (import RM cargo registered by Commercial) are handled by the Procurement module.
 
 **Module path**: `apps/requisitions/` (Distribution role views on `TransportRequisition`)  
 **Dependencies**: `04-requisitions/product-requisition-management.md` (PR-01), MDM-04 (POI + capacity), `01-foundation` (RBAC)  
@@ -1056,7 +1056,7 @@ TRAvailableForPlanning {
 
 - **[Product Requisition Management](product-requisition-management.md)** — FG PR data model, status lifecycle, PR-01 story
 - **[POI Management](../02-master-data/poi-management.md)** — POI capacity snapshot data source
-- **[Sprint 3 Design](../../04-backlog/sprints/sprint-3/00-sprint-design.md)** — Full role access matrix and end-to-end workflow
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Full role access matrix and end-to-end workflow
 - **[DR-01: Distribution FG PR Queue Story](../../04-backlog/sprints/sprint-3/02-distribution/DR-01-fg-product-requisitions.md)**
 - **[DR-02: Distribution TR Creation & Approval Story](../../04-backlog/sprints/sprint-3/02-distribution/DR-02-transport-requests.md)**
 - **[Permission Catalog Phase 1](../01-foundation/permission-catalog-phase1.md)** — Distribution Officer / Distribution Manager permissions

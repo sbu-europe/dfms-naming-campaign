@@ -197,7 +197,7 @@ TransportRequisition {
 
 **FG TRs**: Product Item Code, Product Name, Category, Sub-Category, Type of Packing, Quantity, Weight per Unit, Total Calculated Weight, UOM, Urgency, Source POI, Destination POI, Delivery Date.
 
-**Port Consignment TRs**: All FG fields plus BL Number, LC Number, Voyage Name, Vessel Name, Container Number(s), C&F Agent, POL, ETA, Arrival Notice (downloadable), Destination Breakdown Plan (all TRs from parent PR with destinations + quantities).
+**Port Consignment TRs**: All FG fields plus BL Number, LC Number, Voyage Name, Vessel Name, Container Number(s), C&F Agent, POL, ETA, Arrival Notice (downloadable), Destination Breakdown Plan (all TRs from the linked **Port Shipment** with destinations + quantities).
 
 ### 5.2 Fleet availability display
 

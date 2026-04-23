@@ -24,7 +24,7 @@ These are **module specifications** (not just business requirements or just tech
 | [01-foundation/](01-foundation/) | Auth, RBAC, tenant management, system foundation | ~7 | Authentication, RBAC, user/tenant management | `apps/tenants`, `apps/users`, `apps/core` | Sprint 1 |
 | [02-master-data/](02-master-data/) | POI, Product, Vehicle, Supplier/Dealer master data | ~8 | Master data management — bulk import/export | `apps/master_data` | Sprint 2 |
 | [03-users/](03-users/) | Driver and Helper user profiles | 2 | Driver compliance, Helper profiles with optional User link | `apps/users` | Sprint 2 |
-| [04-requisitions/](04-requisitions/) | FG PR, Port Consignment PR, Distribution management | 2+ | Product Requisitions, TR creation & approval | `apps/requisitions` | Sprint 3 |
+| [04-requisitions/](04-requisitions/) | FG PR, Port Shipment (import), Distribution management | 2+ | Product Requisitions, TR creation & approval | `apps/requisitions` | Sprint 3 |
 | [05-transport/](05-transport/) | Transport Requests queue, Transport Orders, Trip management | 3 | Transport Planning, TO execution, Trip lifecycle | `apps/transport` | Sprint 3–4 |
 | [06-poi-operations/](06-poi-operations/) | Gate, Scaling, QC, Command Center | 4 | POI-level physical operations | `apps/operations` | Sprint 4 |
 | [07-vendor-management/](07-vendor-management/) | Vendor onboarding, bidding, portal | 3 | Vendor ecosystem management | `apps/vendors` | Sprint 4 |
@@ -101,7 +101,7 @@ frontmatter: (metadata, source references)
 - **01-foundation**: Auth, RBAC, users, system
 - **02-master-data**: POI, products, vehicles, suppliers/dealers
 - **03-users**: Driver, Helper profiles
-- **04-requisitions**: FG PR, Port Consignment PR, Distribution management
+- **04-requisitions**: FG PR, Port Shipment (import), Distribution management
 - **05-transport**: TR queue, Transport Orders, Trip lifecycle
 - **06-poi-operations**: Gate, Scaling, QC, Command Center
 - **07-vendor-management**: Vendor onboarding, bidding, portal

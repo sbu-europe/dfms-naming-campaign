@@ -21,7 +21,7 @@ assignee: ~
 
 ## Business Context
 
-This is the entry point for the Transport module. Once a TR is available for Transport Planning (FG TRs after DM approval; Port Consignment TRs immediately on Procurement submission), they appear in this queue.
+This is the entry point for the Transport module. Once a TR is available for Transport Planning (FG TRs after DM approval; **RM / Port Consignment TRs** — created by Procurement from **Port Shipments** — immediately on submission), they appear in this queue.
 
 The Transport Planner's mandatory first action on a TR is to **submit planning inputs** — number of vehicles required, vehicle type, and for Port Consignment TRs, the C&F Clearance Note/Approval status. **TO creation is blocked until these inputs are submitted.**
 
@@ -100,7 +100,7 @@ GET   /api/v1/transport-requests/{tr_id}/transport-orders # Linked TOs + remaini
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
 |--------|------|

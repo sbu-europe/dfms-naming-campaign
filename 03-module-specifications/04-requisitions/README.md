@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `04-requisitions` module covers demand origination and the distribution/procurement workflow layer — from Product Requisition (PR) creation through Transport Request (TR) creation, approval, and handoff to Transport Planning.
+The `04-requisitions` module covers demand origination and the distribution/procurement workflow layer — **FG Product Requisitions**, **Port Shipment** (import) registration, Transport Request (TR) creation, Distribution Manager approval where applicable, and handoff to Transport Planning.
 
 It maps directly to `apps/requisitions/` in the backend codebase.
 
@@ -18,9 +18,9 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 
 | File | Description | Sprint | Related Stories |
 |------|-------------|--------|-----------------|
-| [product-requisition-management.md](product-requisition-management.md) | FG PR and Port Consignment PR — data model, status lifecycle, role gates, LC/shipment fields, product item code lookup, menu structure, API endpoints, overflow rules, audit trail | Sprint 3 | DFS-032, DFS-033 |
+| [product-requisition-management.md](product-requisition-management.md) | FG PR and Port Shipment (import) registration — data model, status lifecycle, role gates, LC/shipment fields, product item code lookup, menu structure, API endpoints, overflow rules, audit trail | Sprint 3 | DFS-032, DFS-033 |
 | [distribution-management.md](distribution-management.md) | FG PR queue for Distribution team, TR creation (source POI, quantity allocation, overflow guard), Distribution Manager approval (approve / modify / reject), capacity snapshots, notifications, menu structure | Sprint 3 | DFS-034, DFS-035 |
-| [procurement-management.md](procurement-management.md) | Port Consignment PR queue for Procurement Officer, destination breakdown plan, RM TR creation (Port-only source gate, per-destination allocation, overflow guard), no approval step — TRs immediately Available for Planning | Sprint 3 | DFS-036, DFS-037 |
+| [procurement-management.md](procurement-management.md) | Port Shipment queue for Procurement Officer, destination breakdown plan, RM TR creation (Port-only source gate, per-destination allocation, overflow guard), no approval step — TRs immediately Available for Planning | Sprint 3 | DFS-036, DFS-037 |
 
 ---
 
@@ -37,13 +37,13 @@ It maps directly to `apps/requisitions/` in the backend codebase.
   │
   ├── product-requisition-management
   │     ├── FG PR  (Depot / Feed Mill Officer)  ──────────────────────┐
-  │     └── Port Consignment PR  (Commercial Officer)  ─────────────┐ │
+  │     └── Port Shipment  (Commercial Officer)  ──────────────────┐ │
   │                                                                  │ │
   ├── distribution-management                                        │ │
   │     FG PR queue  ·  TR creation  ·  DM approval  ◄──────────────┘ │
   │                                     │                              │
   └── procurement-management ◄──────────────────────────────────────┘
-        Port PR queue  ·  TR creation (no approval)
+        Port Shipment queue  ·  TR creation (no approval)
                                          │
                                          ▼
                               05-transport  (approved/submitted TRs)
@@ -54,9 +54,9 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 
 | Spec | Reads from | Writes / triggers |
 |------|-----------|-------------------|
-| `product-requisition-management` | `02-master-data` MDM-01 (product lookup), MDM-04 (POI + capacity) | Submitted FG PRs → `distribution-management`; Port PRs → `procurement-management` |
+| `product-requisition-management` | `02-master-data` MDM-01 (product lookup), MDM-04 (POI + capacity) | Submitted FG PRs → `distribution-management`; Port Shipments → `procurement-management` |
 | `distribution-management` | `product-requisition-management` (FG PRs), MDM-04 (capacity snapshots) | Approved TRs → `05-transport/transport-requisition-management` |
-| `procurement-management` | `product-requisition-management` (Port Consignment PRs), MDM-04 (POI Port-type filter, capacity snapshots) | Submitted TRs (no approval) → `05-transport/transport-requisition-management` |
+| `procurement-management` | `product-requisition-management` (Port Shipments), MDM-04 (POI Port-type filter, capacity snapshots) | Submitted TRs (no approval) → `05-transport/transport-requisition-management` |
 
 ---
 
@@ -70,10 +70,10 @@ Sidebar
 │     │     ├── PR List
 │     │     ├── Create FG PR
 │     │     └── PR Detail  (Edit / Submit / Cancel)
-│     └── Port Consignment                   Commercial Officer only
-│           ├── PR List
-│           ├── Create Port PR  (+ LC fields + Arrival Notice)
-│           └── PR Detail  (Edit / Submit / Cancel / Upload Document)
+│     └── Port Shipments                     Commercial Officer only
+│           ├── Shipment List
+│           ├── Register Port Shipment  (+ LC fields + Arrival Notice)
+│           └── Shipment Detail  (Edit / Submit / Cancel / Upload Document)
 │
 ├── Distribution                             [distribution-management]
 │     ├── Product Requisitions               Distribution Officer, Distribution Manager
@@ -83,7 +83,7 @@ Sidebar
 │           └── TR Detail  (Approve / Approve-with-modify / Reject)
 │
 └── Procurement                              [procurement-management]
-      ├── Product Requisitions               Procurement Officer — Port Consignment PR queue
+      ├── Port Shipments                     Procurement Officer — import shipment queue
       └── Transport Requests                 Procurement Officer — destination breakdown + TR list
 ```
 

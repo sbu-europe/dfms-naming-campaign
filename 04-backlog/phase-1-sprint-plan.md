@@ -105,7 +105,7 @@
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
 | [FG Product Requisition](sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md) | PR-01 | DFS-032 | Pending | 5 |
-| [Port Consignment (LC-Based) Product Requisition](sprints/sprint-3/01-requisition/PR-02-rm-product-requisition.md) | PR-02 | DFS-033 | Pending | 5 |
+| [Port Shipment (Import) Registration](sprints/sprint-3/01-requisition/PR-02-port-shipment.md) | PR-02 | DFS-033 | Pending | 5 |
 
 ### Epic: Distribution
 
@@ -118,7 +118,7 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Procurement — RM Product Requisitions View](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
+| [Procurement — Port Shipments Queue (View)](sprints/sprint-3/03-procurement/PC-01-rm-product-requisitions.md) | PC-01 | DFS-036 | Pending | 2 |
 | [Procurement — Transport Request Creation](sprints/sprint-3/03-procurement/PC-02-transport-requests.md) | PC-02 | DFS-037 | Pending | 6 |
 
 ### Epic: Transport

@@ -101,7 +101,7 @@ Depot/Feed Mill Officer creates FG PR → Distribution receives PR → Distribut
 | PR-01-6 | Product Item Code lookup — auto-populates Name, Category, Sub-Category, Packing Type from MDM-01 | DFS-032-6 | Pending |
 | PR-01-7 | Total weight calculation per line item (Qty × Weight per Unit) and grand total | DFS-032-7 | Pending |
 | PR-01-8 | Destination POI inventory capacity snapshot widget (read-only, informational) | DFS-032-8 | Pending |
-| PR-01-9 | FG-only role gate — Depot/Feed Mill Officers cannot create Port Consignment PRs | DFS-032-9 | Pending |
+| PR-01-9 | FG-only role gate — Depot/Feed Mill Officers cannot create Port Shipments | DFS-032-9 | Pending |
 | PR-01-10 | PR list view API (GET with filters: status, date, search) | DFS-032-10 | Pending |
 | PR-01-11 | PR detail view API | DFS-032-11 | Pending |
 | PR-01-12 | PR cancellation API with reason | DFS-032-12 | Pending |
@@ -121,7 +121,7 @@ POST   /api/v1/product-requisitions/{pr_id}/cancel           # Cancel with reaso
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
 |--------|------|
@@ -132,7 +132,7 @@ POST   /api/v1/product-requisitions/{pr_id}/cancel           # Cancel with reaso
 
 - Destination POI is pre-filled from the user's assigned POI but is editable (officer can change to any active POI)
 - Source POI is not captured on the PR — defined later by the Distribution team on Transport Requests
-- Role gate: Depot/Feed Mill Officers can only create FG PRs — Port Consignment PR type is hidden/disabled for this role
+- Role gate: Depot/Feed Mill Officers can only create FG PRs — Port Shipment (import) flow is hidden/disabled for this role
 
 ## Dependencies
 

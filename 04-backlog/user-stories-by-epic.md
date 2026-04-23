@@ -150,7 +150,7 @@
 - **PR-01**: FG Product Requisition
   - Sprint: Sprint 3 | Status: Pending | SP: 5
 
-- **PR-02**: Port Consignment (LC-Based) Product Requisition
+- **PR-02**: Port Shipment (Import) Registration
   - Sprint: Sprint 3 | Status: Pending | SP: 5
 
 ---

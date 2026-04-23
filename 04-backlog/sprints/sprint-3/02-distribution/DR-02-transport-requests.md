@@ -122,7 +122,7 @@ POST   /api/v1/transport-requests/{tr_id}/approve-with-modify   # DM: { quantity
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
 |--------|------|

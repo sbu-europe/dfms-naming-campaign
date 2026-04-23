@@ -14,9 +14,9 @@ jira_epic: DFS-040
 
 ## Overview
 
-The Product Requisition (PR) module is the demand-origination layer of the DFMS distribution workflow. It provides two distinct PR types — **Finished Goods (FG) PRs** raised by Depot/Feed Mill Officers and **Port Consignment PRs** raised by Commercial Officers — each with their own creator roles, mandatory fields, routing destinations, and product-type gates.
+The Requisition module is the demand-origination layer for **Finished Goods (FG)**: **FG Product Requisitions** raised by Depot/Feed Mill Officers. Separately, **Commercial Officers register Port Shipments** — inbound **import cargo records** transcribed from external systems (not FG requisitions). Port Shipment records use the same technical persistence as legacy “Port Consignment” requisitions where applicable (`PORT_CONSIGNMENT` type) but the **domain name is Port Shipment**.
 
-A submitted PR becomes the authoritative demand signal that triggers Transport Request (TR) creation downstream by either Distribution (for FG) or Procurement (for Port Consignment).
+A submitted **FG PR** triggers Distribution TR creation. A submitted **Port Shipment** triggers Procurement TR creation (destination breakdown), then Transport Planning creates **Transport Orders**.
 
 **Module path**: `apps/requisitions/`  
 **Dependencies**: MDM-01 (Product Master), MDM-04 (POI Master), `01-foundation` (RBAC)  
@@ -36,19 +36,19 @@ Sidebar
       │     ├── Create FG PR                — header + multi-line product table + capacity widget
       │     └── PR Detail                   — read-only after submit; actions: Edit (Draft) / Submit / Cancel
       │
-      └── Port Consignment                  [Commercial Officer only]
-            ├── PR List                     — own PRs; filter by status / date / search
-            ├── Create Port PR              — header + LC/shipment fields + RM product table + Arrival Notice upload
-            └── PR Detail                   — read-only after submit; actions: Edit (Draft) / Submit / Cancel / Upload Document
+      └── Port Shipments (import)           [Commercial Officer only]
+            ├── Shipment List               — own records; filter by status / date / search
+            ├── Register Port Shipment      — header + LC/shipment fields + RM cargo lines + Arrival Notice upload
+            └── Shipment Detail             — read-only after submit; actions: Edit (Draft) / Submit / Cancel / Upload Document
 ```
 
 ### Role → Sub-menu mapping
 
 | Role | Sub-menu visible | Sub-menu hidden |
 |------|-----------------|-----------------|
-| Depot Officer | Finished Goods | Port Consignment |
-| Feed Mill Officer | Finished Goods | Port Consignment |
-| Commercial Officer | Port Consignment | Finished Goods |
+| Depot Officer | Finished Goods | Port Shipments |
+| Feed Mill Officer | Finished Goods | Port Shipments |
+| Commercial Officer | Port Shipments | Finished Goods |
 
 ### Screen hierarchy
 
@@ -62,16 +62,16 @@ Finished Goods sub-menu
                           ├── [Submit] ──► PR Detail (Submitted)
                           └── [Cancel] ──► PR Detail (Cancelled)
 
-Port Consignment sub-menu
-  PR List (GET /product-requisitions?type=PORT)
-    └── [+ Create] ──► Create Port PR
-                          ├── [Save Draft] ──► PR Detail (Draft)
-                          └── [Submit]     ──► PR Detail (Submitted)
-    └── [row click] ──► PR Detail
-                          ├── [Edit]            ──► Edit Port PR   (Draft only)
+Port Shipments sub-menu
+  List (GET /product-requisitions?type=PORT)
+    └── [+ Create] ──► Register Port Shipment
+                          ├── [Save Draft] ──► Shipment Detail (Draft)
+                          └── [Submit]     ──► Shipment Detail (Submitted)
+    └── [row click] ──► Shipment Detail
+                          ├── [Edit]            ──► Edit (Draft only)
                           ├── [Upload Document] ──► (attach Arrival Notice; available in Draft + Submitted)
-                          ├── [Submit]          ──► PR Detail (Submitted)
-                          └── [Cancel]          ──► PR Detail (Cancelled)
+                          ├── [Submit]          ──► Shipment Detail (Submitted)
+                          └── [Cancel]          ──► Shipment Detail (Cancelled)
 ```
 
 ---
@@ -80,15 +80,16 @@ Port Consignment sub-menu
 
 ### 1.1 PR Type Overview
 
-| Attribute | FG PR (PR-01) | Port Consignment PR (PR-02) |
-|-----------|--------------|------------------------------|
+| Attribute | FG PR (PR-01) | Port Shipment (PR-02) |
+|-----------|--------------|------------------------|
+| Domain | Internal demand requisition | Import shipment registration (data from external systems) |
 | Creator role | Depot / Feed Mill Officer | Commercial Officer |
-| Product type gate | Finished Goods only | Raw Materials only |
-| Source POI on PR | Not captured — set by Distribution at TR creation | Not captured — always a Port; set by Procurement at TR creation |
-| Destination POI on PR | Pre-filled from requester's assigned POI (editable) | Not captured — allocation defined per TR by Procurement |
+| Product type gate | Finished Goods only | Raw Materials (cargo lines) only |
+| Source POI on record | Not captured — set by Distribution at TR creation | Not captured — Port chosen per TR by Procurement |
+| Destination POI on record | Pre-filled from requester's assigned POI (editable) | Not captured — allocation per TR by Procurement |
 | Routes to | Distribution department | Procurement department |
 | TR approval required | Yes — Distribution Manager | No — TRs immediately Available for Transport Planning |
-| PR number format | `PR-FG-YYYYMMDD-XXXX` | `PR-PORT-YYYYMMDD-XXXX` |
+| Reference number | `PR-FG-YYYYMMDD-XXXX` | `PS-PORT-YYYYMMDD-XXXX` (domain); may map to existing `pr_number` field |
 | Extra mandatory fields | None beyond header | LC + shipment documentation + Arrival Notice attachment |
 
 ### 1.2 End-to-End Flow
@@ -102,13 +103,13 @@ FG PR (Depot/Feed Mill Officer)
         Distribution Manager approves/rejects TR
         TR → Available for Transport Planning
 
-Port Consignment PR (Commercial Officer)
+Port Shipment (Commercial Officer)
   └─ Draft → Submitted → (In Progress when TR created) → Fulfilled / Cancelled
              ↓
-        Procurement Officer views Port PR queue
+        Procurement Officer views Port Shipment queue
         Reviews LC + shipment details
-        Creates TR(s) vs PR (Source: Port POI; Dest per TR — destination allocation)
-        No approval step → TR immediately Available for Transport Planning
+        Creates TR(s) vs shipment (Source: Port POI; Dest per TR — destination allocation)
+        No approval step → TR immediately Available for Transport Planning → TO creation by Transport Planner
 ```
 
 ---
@@ -120,7 +121,7 @@ Port Consignment PR (Commercial Officer)
 ```typescript
 ProductRequisition {
   pr_id: UUID                          // Primary Key
-  pr_number: string                    // Auto-generated: PR-FG-YYYYMMDD-XXXX / PR-PORT-YYYYMMDD-XXXX
+  pr_number: string                    // FG: PR-FG-YYYYMMDD-XXXX; Port Shipment: PS-PORT-YYYYMMDD-XXXX (or legacy PR-PORT until migrated)
   pr_type: enum ['FINISHED_GOODS', 'PORT_CONSIGNMENT']
 
   // Requester (auto-filled from logged-in user)
@@ -129,7 +130,7 @@ ProductRequisition {
   requester_department: string         // Denormalised snapshot
 
   // FG PR: destination POI (pre-filled from user's assigned POI, editable)
-  // Port PR: null — allocation defined at TR level by Procurement
+  // Port Shipment: null — allocation defined at TR level by Procurement
   destination_poi_id: UUID (nullable)  // FK → POI
 
   // Scheduling
@@ -140,9 +141,9 @@ ProductRequisition {
 
   // Notes
   special_instructions: string (nullable)  // FG PR label
-  remarks: string (nullable)               // Port PR label (same field)
+  remarks: string (nullable)               // Port Shipment / FG notes (same field)
 
-  // Port Consignment only — LC & Shipment Documentation
+  // Port Shipment only — LC & Shipment Documentation
   bill_of_lading_number: string (nullable)
   lc_number: string (nullable)
   vessel_name: string (nullable)
@@ -192,7 +193,7 @@ ProductRequisitionLineItem {
   // Calculated
   total_weight_kg: Decimal             // product_quantity × weight_per_unit (auto-calculated)
 
-  // Port Consignment only
+  // Port Shipment only
   // Informational target location at line-item level (before Procurement defines allocation at TR)
   target_poi_id: UUID (nullable)       // FK → POI
 
@@ -201,7 +202,7 @@ ProductRequisitionLineItem {
 }
 ```
 
-### 2.3 PRDocument (Port Consignment — Arrival Notice)
+### 2.3 PRDocument (Port Shipment — Arrival Notice)
 
 ```typescript
 PRDocument {
@@ -230,16 +231,16 @@ These values are computed by the service layer on save and stored as denormalise
 
 ### 3.1 Format
 
-| PR Type | Format | Example |
+| Record type | Format | Example |
 |---------|--------|---------|
-| Finished Goods | `PR-FG-YYYYMMDD-XXXX` | `PR-FG-20260422-0001` |
-| Port Consignment | `PR-PORT-YYYYMMDD-XXXX` | `PR-PORT-20260422-0001` |
+| Finished Goods PR | `PR-FG-YYYYMMDD-XXXX` | `PR-FG-20260422-0001` |
+| Port Shipment | `PS-PORT-YYYYMMDD-XXXX` | `PS-PORT-20260422-0001` |
 
 ### 3.2 Generation Logic
 
 ```python
 def generate_pr_number(pr_type: str, tenant_id: UUID) -> str:
-    prefix = 'PR-FG' if pr_type == 'FINISHED_GOODS' else 'PR-PORT'
+    prefix = 'PR-FG' if pr_type == 'FINISHED_GOODS' else 'PS-PORT'
     date_str = datetime.today().strftime('%Y%m%d')
     
     # Sequence resets per type per tenant per day
@@ -281,7 +282,7 @@ Draft ──────────────► Submitted ──► In Progr
 Status Rules:
   Draft → Submitted:
     - All required header fields must be valid
-    - Port Consignment: all LC + shipment fields mandatory; Arrival Notice must be attached
+    - Port Shipment: all LC + shipment fields mandatory; Arrival Notice must be attached
     - At least one line item required
 
   Submitted → In Progress:
@@ -306,10 +307,10 @@ Status Rules:
 
 ### 5.1 PR Type Restrictions
 
-| Role | Can Create | PR Type Visible | PR Type Restricted |
-|------|------------|-----------------|-------------------|
-| Depot / Feed Mill Officer | FG PR only | Requisition → Finished Goods | Port Consignment hidden/disabled |
-| Commercial Officer | Port Consignment PR only | Requisition → Port Consignment | Finished Goods hidden/disabled |
+| Role | Can Create | Sub-menu visible | Sub-menu hidden |
+|------|------------|------------------|-----------------|
+| Depot / Feed Mill Officer | FG PR only | Requisition → Finished Goods | Port Shipments hidden/disabled |
+| Commercial Officer | Port Shipment only | Requisition → Port Shipments | Finished Goods hidden/disabled |
 
 The `pr_type` is auto-selected and read-only based on the user's role. Attempting to create the wrong type via API returns `403 Forbidden`.
 
@@ -318,7 +319,7 @@ The `pr_type` is auto-selected and read-only based on the user's role. Attemptin
 | Action | Depot / Feed Mill Officer | Commercial Officer |
 |--------|--------------------------|-------------------|
 | Create FG PR | ✓ | ✗ |
-| Create Port Consignment PR | ✗ | ✓ |
+| Register Port Shipment | ✗ | ✓ |
 | Edit own Draft PR | ✓ | ✓ |
 | View own PR list | ✓ | ✓ |
 | Cancel own PR (before TR) | ✓ | ✓ |
@@ -330,7 +331,7 @@ The `pr_type` is auto-selected and read-only based on the user's role. Attemptin
 |------|--------|
 | Distribution Officer | View all submitted FG PRs queue |
 | Distribution Manager | View all FG TRs pending approval |
-| Procurement Officer | View all submitted Port Consignment PRs queue |
+| Procurement Officer | View all submitted Port Shipments queue |
 
 ---
 
@@ -380,20 +381,20 @@ CapacitySnapshot {
 
 ---
 
-## 7. Port Consignment PR — Specific Behaviour (PR-02)
+## 7. Port Shipment (Import) Registration — Specific Behaviour (PR-02)
 
 ### 7.1 Header Fields
 
 | Field | Type | Notes |
 |-------|------|-------|
-| Requisition Type | Auto: `PORT_CONSIGNMENT` | Read-only; set from role |
+| Record / technical type | Auto: `PORT_CONSIGNMENT` | Read-only; Commercial Officer role; user-facing label **Port Shipment** |
 | Requester Name | Auto-filled | From `request.user` |
 | Requester Department | Auto-filled | From user profile |
 | Preferred Delivery Date & Time | DateTime | Required |
 | Urgency | Enum | Normal / High / Critical |
 | Remarks | Text | Optional |
 
-Source POI and Destination POI are **not** captured on the PR.
+Source Port and destination POIs are **not** captured on the shipment record (set on TRs by Procurement).
 
 ### 7.2 LC & Shipment Documentation (Mandatory before Submit)
 
@@ -423,11 +424,11 @@ Upload Rules:
 
 ### 7.4 RM Product Gate
 
-Port Consignment line items only accept products with `product_type = 'RawMaterial'`. Entering a Finished Goods item code returns a validation error: `"Only Raw Material products are allowed in Port Consignment requisitions"`.
+Port Shipment line items only accept products with `product_type = 'RawMaterial'`. Entering a Finished Goods item code returns a validation error: `"Only Raw Material products are allowed on a Port Shipment"`.
 
 ### 7.5 Line Item POI Field
 
-Each RM line item in a Port PR captures an optional `target_poi_id` — the intended destination warehouse/feed mill/depot/silo. This is **informational only** at the PR stage; Procurement Officer defines the authoritative allocation when creating TRs.
+Each RM line item may capture an optional `target_poi_id` — intended destination. This is **informational only** on the shipment record; Procurement defines authoritative allocation when creating TRs.
 
 ---
 
@@ -460,7 +461,7 @@ OnItemCodeEntry(item_code: string) {
 | PR Type | Allowed Product Types | Error if Wrong |
 |---------|----------------------|----------------|
 | FG PR | `FinishedGoods` only | "Only Finished Goods products can be added to an FG Requisition" |
-| Port Consignment PR | `RawMaterial` only | "Only Raw Material products are allowed in Port Consignment requisitions" |
+| Port Shipment | `RawMaterial` only | "Only Raw Material products are allowed on a Port Shipment" |
 
 ### 8.3 Manual Entry Fields (after auto-fill)
 
@@ -549,7 +550,7 @@ All endpoints require authentication. Tenant context is resolved from the authen
 | `POST` | `/api/v1/product-requisitions/{pr_id}/cancel` | Cancel PR with reason | Owner only (before TR created) |
 | `GET` | `/api/v1/product-requisitions/{pr_id}/audit-trail` | PR activity log | Owner + admin |
 
-### 11.2 PR Documents (Port Consignment)
+### 11.2 PR Documents (Port Shipment)
 
 | Method | Endpoint | Description | Auth / Role |
 |--------|----------|-------------|-------------|
@@ -592,7 +593,7 @@ GET /api/v1/product-requisitions
 }
 ```
 
-**Create Port Consignment PR (POST `/api/v1/product-requisitions`)**
+**Register Port Shipment (POST `/api/v1/product-requisitions`, `type=PORT_CONSIGNMENT`)**
 ```json
 {
   "pr_type": "PORT_CONSIGNMENT",
@@ -637,7 +638,7 @@ GET /api/v1/product-requisitions
 Depot/Feed Mill Officer:
   - pr_type is always FINISHED_GOODS
   - Can only add FinishedGoods products to line items
-  - Port Consignment form/endpoint returns 403
+  - Port Shipment form/endpoint returns 403
 
 Commercial Officer:
   - pr_type is always PORT_CONSIGNMENT
@@ -658,7 +659,7 @@ On Submit:
   - All Draft Save rules apply
   - At least 1 line item required
   - Each line item: product_item_code, unit_of_measure, product_quantity, weight_per_unit all required
-  - Port Consignment additionally:
+  - Port Shipment additionally:
     - All 8 LC/shipment fields required
     - At least 1 Arrival Notice document uploaded
 ```
@@ -731,7 +732,7 @@ class PRLineItemInline(admin.TabularInline):
 
 ### 13.3 PR Type-Conditional Field Display
 
-Admin forms should conditionally display Port Consignment fields (LC, BL, Vessel, etc.) only when `pr_type = PORT_CONSIGNMENT`. Use `fieldsets` with override of `get_fieldsets` based on the instance's `pr_type`.
+Admin forms should conditionally display Port Shipment fields (LC, BL, Vessel, etc.) only when `pr_type = PORT_CONSIGNMENT`. Use `fieldsets` with override of `get_fieldsets` based on the instance's `pr_type`.
 
 ---
 
@@ -748,8 +749,8 @@ Admin forms should conditionally display Port Consignment fields (LC, BL, Vessel
 **Model & Validation Tests**
 - FG PR creation with valid FinishedGoods line items succeeds
 - FG PR creation with RawMaterial line item fails validation
-- Port Consignment PR creation with valid RM line items succeeds
-- Port Consignment PR creation with FG line item fails validation
+- Port Shipment registration with valid RM line items succeeds
+- Port Shipment registration with FG line item fails validation
 - PR number uniqueness per tenant per type per day
 - PR number sequence increments correctly (no gaps within a day)
 - Total weight auto-calculation: `product_quantity × weight_per_unit`
@@ -839,7 +840,7 @@ CREATE INDEX idx_pr_document_pr ON pr_documents(pr_id);
 | Module | Interaction |
 |--------|-------------|
 | Distribution (DR-01) | Reads submitted FG PRs queue; creates TRs against FG PRs |
-| Procurement (PC-01) | Reads submitted Port Consignment PRs queue; creates TRs with destination allocation |
+| Procurement (PC-01) | Reads submitted Port Shipments queue; creates TRs with destination allocation |
 | Transport Planning | Receives approved TRs (FG) and submitted TRs (RM) for TO creation |
 
 ### 16.3 Events Emitted (for downstream)
@@ -866,13 +867,13 @@ PRStatusChanged {
 
 - **[Product Master Data Management](../02-master-data/product-master-data-management.md)** — Product Item Code lookup, product type (FG/RM), UOM
 - **[POI Management](../02-master-data/poi-management.md)** — Destination POI, capacity snapshot
-- **[Sprint 3 Design](../../04-backlog/sprints/sprint-3/00-sprint-design.md)** — Menu structure, role access matrix, end-to-end workflow
+- **[Sprint 3 README](../../04-backlog/sprints/sprint-3/README.md)** — Menu structure, role access matrix, end-to-end workflow
 - **[PR-01: FG Product Requisition Story](../../04-backlog/sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md)**
-- **[PR-02: Port Consignment Story](../../04-backlog/sprints/sprint-3/01-requisition/PR-02-rm-product-requisition.md)**
+- **[PR-02: Port Shipment (Import) Registration](../../04-backlog/sprints/sprint-3/01-requisition/PR-02-port-shipment.md)**
 
 **Related Jira Keys**:
 - DFS-032 — FG Product Requisition
-- DFS-033 — Port Consignment Requisition
+- DFS-033 — Port Shipment (Import) Registration
 - DFS-040 — Requisition Epic
 
 **Source**: PRD_DFMS_v1.0.md — Requisition module sections

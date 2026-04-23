@@ -13,13 +13,13 @@ jira_epic: DFS-042
 
 ## Overview
 
-The Procurement module gives the **Procurement Officer** visibility into Port Consignment Product Requisitions (raised by Commercial Officers) and the ability to create a **Destination Breakdown Plan** — allocating the incoming RM shipment quantity across one or more destination POIs by creating one Transport Request (TR) per destination.
+The Procurement module gives the **Procurement Officer** visibility into **Port Shipments** — import cargo records registered by Commercial Officers (from external shipment data) — and the ability to create a **Destination Breakdown Plan** by creating one **Transport Request (TR)** per destination POI. **Transport Orders (TOs)** are created later by the Transport Planner from those TRs.
 
 Unlike the Distribution flow, there is **no manager approval step** in Procurement. Submitted TRs are immediately `Available for Transport Planning`.
 
-**Module path**: `apps/requisitions/` (`pr_type = "procurement"`, TR type `PORT_CONSIGNMENT`)  
-**Dependencies**: MDM-04 (POI Master — Port-type filter), `04-requisitions/product-requisition-management.md` (PR-02), `01-foundation` (RBAC)  
-**Enables**: `05-transport` Transport Planning queue (Port Consignment TRs appear alongside FG TRs)
+**Module path**: `apps/requisitions/` (TR type `PORT_CONSIGNMENT`; shipment records may persist as `ProductRequisition` / `PORT_CONSIGNMENT`)  
+**Dependencies**: MDM-04 (POI Master — Port-type filter), `04-requisitions/product-requisition-management.md` (PR-02 Port Shipment), `01-foundation` (RBAC)  
+**Enables**: `05-transport` Transport Planning queue (Port Consignment / RM TRs appear alongside FG TRs)
 
 ---
 
@@ -28,23 +28,23 @@ Unlike the Distribution flow, there is **no manager approval step** in Procureme
 ```
 Sidebar (Procurement Officer only)
 └── Procurement
-      ├── Product Requisitions        — read-only queue of Port Consignment PRs (raised by Commercial Officers)
-      │     └── PR Detail             — full shipment reference, RM line items, capacity snapshots, linked TRs
+      ├── Port Shipments (queue)      — read-only list of submitted import registrations (Commercial Officer)
+      │     └── Shipment Detail       — full shipment reference, RM lines, capacity snapshots, linked TRs
       └── Transport Requests          — TRs created by this Procurement Officer
-            ├── TR List               — own TRs; filter by PR, destination POI, status, date
-            └── TR Detail / Create    — destination breakdown form + read-only PR shipment reference
+            ├── TR List               — own TRs; filter by shipment, destination POI, status, date
+            └── TR Detail / Create    — destination breakdown + read-only shipment reference
 ```
 
 ### Screen hierarchy
 
 ```
-Procurement → Product Requisitions
-  PR Queue (GET /product-requisitions?type=PORT_CONSIGNMENT&status=submitted,in_progress)
-    └── [row click] ──► PR Detail
+Procurement → Port Shipments
+  Queue (GET /product-requisitions?type=PORT_CONSIGNMENT&status=submitted,in_progress)
+    └── [row click] ──► Shipment Detail
                           ├── Shipment reference (read-only)
-                          ├── RM product line items
+                          ├── RM cargo line items
                           ├── Capacity snapshots (informational)
-                          ├── Linked TRs (destination breakdown plan built so far)
+                          ├── Linked TRs (destination breakdown so far)
                           ├── Remaining quantity per line item
                           └── [Create TR / Destination Breakdown] ──► TR Creation Form
                                                                           └── [Submit] ──► TR Detail
@@ -58,16 +58,16 @@ Procurement → Transport Requests
 
 ## 1. Roles & Access
 
-| Role | Product Requisitions | Transport Requests |
-|------|----------------------|--------------------|
-| Procurement Officer | View Port Consignment PR queue; view PR detail; download Arrival Notice | Create TR against PR; view own TRs; cancel TR |
+| Role | Port Shipments | Transport Requests |
+|------|------------------|--------------------|
+| Procurement Officer | View Port Shipment queue; view detail; download Arrival Notice | Create TR against shipment; view own TRs; cancel TR |
 
 > There is **no Procurement Manager** role. No approval gate exists in this workflow.
 
 ### Role gate
 
-- Procurement Officer sees **only** Port Consignment PRs (`pr_type = "procurement"`) — FG PRs are not visible
-- Procurement Officer cannot edit or cancel the PR itself (read-only)
+- Procurement Officer sees **only** Port Shipment records (`PORT_CONSIGNMENT` / procurement-visible type) — FG PRs are not visible
+- Procurement Officer cannot edit or cancel the shipment record (Commercial Officer ownership)
 - Source POI is always a **Port-type POI** — enforced server-side; non-Port POIs are excluded from the source dropdown
 
 ---
@@ -76,7 +76,7 @@ Procurement → Transport Requests
 
 Models live in `apps/requisitions/models.py`. The Procurement flow reuses the same `ProductRequisition` and `TransportRequisition` models used by the Distribution flow, differentiated by `pr_type` and TR number format.
 
-### 2.1 ProductRequisition (read by Procurement Officer — created by Commercial Officer)
+### 2.1 ProductRequisition (Port Shipment — read by Procurement Officer; created by Commercial Officer)
 
 ```python
 ProductRequisition {
@@ -84,7 +84,7 @@ ProductRequisition {
     pr_type: "procurement"          # Filters this PR to Procurement Officer queue
     status: PRStatus                # See §3 for status lifecycle
 
-    # Port Consignment shipment reference (set at PR creation by Commercial Officer)
+    # Port Shipment / import reference (entered at registration by Commercial Officer)
     bl_number: string               # Bill of Lading
     lc_number: string               # Letter of Credit
     vessel_name: string
@@ -95,7 +95,7 @@ ProductRequisition {
     eta: date                       # Estimated Time of Arrival
     arrival_notice: FileField       # Uploadable attachment; downloadable by Procurement Officer
 
-    destination_poi: FK → POI       # Not used for Port Consignment PRs — destination defined per TR
+    destination_poi: FK → POI       # Not used for Port Shipments — destination defined per TR
     origin_poi: FK → POI (null)     # Not set on PR; Source (Port) defined per TR
 
     requested_by: FK → User         # Commercial Officer
@@ -110,7 +110,7 @@ ProductRequisition {
 }
 ```
 
-### 2.2 PRLineItem (RM line items on a Port Consignment PR)
+### 2.2 PRLineItem (RM cargo lines on a Port Shipment)
 
 ```python
 PRLineItem {
@@ -132,7 +132,7 @@ TransportRequisition {
     tr_type: "PORT_CONSIGNMENT"     # Differentiates from FG TRs in Transport Planning
     status: TRStatus                # Submitted → Available for Transport Planning (no approval step)
 
-    source_pr: FK → ProductRequisition   # Parent Port Consignment PR
+    source_pr: FK → ProductRequisition   # Parent Port Shipment (technical: PORT_CONSIGNMENT)
 
     # Shipment reference inherited from PR (read-only on TR form)
     bl_number: string               # Denormalised from PR for TR context
@@ -178,7 +178,7 @@ TRLineItem {
 
 ## 3. Status Lifecycles
 
-### 3.1 Port Consignment PR status (managed by `PRStatus` in `apps/requisitions/constants.py`)
+### 3.1 Port Shipment status (managed by `PRStatus` in `apps/requisitions/constants.py`)
 
 ```
 Commercial Officer submits PR
@@ -239,7 +239,7 @@ Procurement Officer fills TR creation form
 
 ---
 
-## 4. Port Consignment PR Queue
+## 4. Port Shipment Queue
 
 **URL**: `GET /api/v1/product-requisitions?type=PORT_CONSIGNMENT&status=submitted,in_progress`
 
@@ -467,7 +467,7 @@ Response: {
 
 - After creating one TR, `remaining_mt > 0` means further TRs can be added
 - "Add Another Destination" link on TR success screen + PR Detail "Create TR" button
-- Each TR has a **different `destination_poi`** (same source port, same parent PR)
+- Each TR has a **different `destination_poi`** (same source port, same linked Port Shipment)
 - No limit on number of TRs per PR as long as total allocated ≤ PR quantity
 - Once all quantity allocated: PR status → `FULLY_ALLOCATED`; "Create TR" button disabled
 
@@ -488,7 +488,7 @@ GET  /api/v1/product-requisitions/{pr_id}/documents/{doc_id}/download  # Downloa
 
 ## 11. API Endpoints
 
-### Port Consignment PR endpoints (read by Procurement Officer)
+### Port Shipment endpoints (read by Procurement Officer)
 
 ```http
 GET  /api/v1/product-requisitions
@@ -594,9 +594,9 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 
 | Permission code | Description | Assigned to |
 |-----------------|-------------|-------------|
-| `Procurement.PR.Read` | View Port Consignment PR queue and detail | Procurement Officer |
+| `Procurement.PR.Read` | View Port Shipment queue and detail | Procurement Officer |
 | `Procurement.Document.Download` | Download Arrival Notice attachment | Procurement Officer |
-| `Procurement.TR.Create` | Create TR (destination breakdown) against a Port Consignment PR | Procurement Officer |
+| `Procurement.TR.Create` | Create TR (destination breakdown) against a Port Shipment | Procurement Officer |
 | `Procurement.TR.Read` | View own TR list and TR detail | Procurement Officer |
 | `Procurement.TR.Cancel` | Cancel own TR (before UNDER_PLANNING) | Procurement Officer |
 
@@ -611,7 +611,7 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 | API — happy path | PR list with filters; PR detail with shipment reference; TR creation (Port source gated); immediate Available for Planning status | |
 | API — error path | TR quantity overflow → 400; non-Port source → 400; cancel after UNDER_PLANNING → 400 | |
 | Business rules | BR-1 through BR-9 (see §12) | |
-| UAT | Procurement Officer creates 2 TRs from one Port PR (two destinations); both immediately in Transport Planning queue | |
+| UAT | Procurement Officer creates 2 TRs from one Port Shipment (two destinations); both immediately in Transport Planning queue | |
 
 ---
 
@@ -619,7 +619,7 @@ list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
 
 | Dependency | Description |
 |------------|-------------|
-| `04-requisitions/product-requisition-management.md` | PR-02 — Port Consignment PR creation by Commercial Officer; this spec consumes those PRs |
+| `04-requisitions/product-requisition-management.md` | PR-02 — Port Shipment registration by Commercial Officer; this spec consumes those records |
 | `02-master-data` — MDM-04 (POI Master) | Port-type POI filter for source POI dropdown |
 | `02-master-data` — MDM-01 (Product Master) | RM product catalog for line items |
 | `05-transport` — TRQ-01 | Transport Planning queue — Port Consignment TRs appear alongside FG TRs after submission |

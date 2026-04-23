@@ -105,7 +105,7 @@ GET   /api/v1/fleet/availability?vehicle_type=&poi_id=    # Own + vendor fleet c
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
 |--------|------|

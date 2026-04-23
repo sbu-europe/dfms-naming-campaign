@@ -125,7 +125,7 @@ GET    /api/v1/transport-orders/{to_id}            # TO detail
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
 |--------|------|

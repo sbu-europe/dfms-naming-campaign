@@ -16,74 +16,72 @@ assignee: ~
 ## User Story
 
 **As a** Procurement Officer  
-**I want to** define a destination-wise quantity allocation plan against a Port Consignment PR and create Transport Requests per destination  
-**So that** each TR represents a confirmed shipment leg from port to a specific receiving POI, and is immediately available for Transport Planning
+**I want to** allocate inbound RM quantities from a **Port Shipment** across destination POIs and create **Transport Requests** (one per destination)  
+**So that** distribution is planned per POI; TRs feed Transport Planning where **Transport Orders** are created for execution
 
 ## Business Context
 
-Port Consignment PRs carry a total incoming RM quantity that must be distributed to one or more destination POIs (warehouses, feed mills, depots). The Procurement Officer creates the **Destination Breakdown Plan** by creating one TR per destination, specifying the Port as Source and a specific POI as Destination for each TR.
+A **Port Shipment** (PR-02) holds total incoming RM cargo. Procurement **plans distribution** by creating TRs: each TR is one port-to-destination leg with quantity allocation per RM line. This is the procurement breakdown plan.
 
-Unlike the Distribution flow, **there is no manager approval step** — submitted TRs from Procurement are immediately available for Transport Planning. Vehicle count and type are **not** defined here — those are the Transport Planner's inputs when assessing TRs (TRQ-01).
+After TRs are submitted, they are immediately **Available for Transport Planning**. The Transport Planner then submits planning inputs and creates **Transport Orders (TOs)** against each TR (TO-01 / TRQ-01) — Procurement does not create TOs in this story.
 
 **TR flow**:
 ```
-Procurement Officer reviews PR → Creates TR(s) with destination breakdown (one TR per destination POI) → Quantity validation → TRs immediately available for Transport Planning
+Procurement opens Port Shipment → Creates TR(s): Port source + destination POI + per-line quantities → Submit → Available for Transport Planning → (later) TO creation
 ```
 
 ## Acceptance Criteria
 
 ### AC-1: Destination Breakdown / TR Creation Form
-- [ ] Procurement Officer creates a TR from a specific Port Consignment PR with:
-  - **Parent PR**: Pre-filled and read-only (PR Number + full shipment reference: BL, LC, Vessel, Voyage, Container, C&F Agent, POL, ETA, Arrival Notice)
-  - **Source POI**: Always a Port — filtered to Port-type POIs only (from MDM-04)
-  - **Destination POI**: Dropdown of all active POIs (no type filter)
-  - **Quantity Allocation**: Per RM product line item — how much of each RM goes to this destination (≤ remaining unallocated PR quantity for that line)
-  - **Delivery Date**: Pre-filled from PR; editable
+- [ ] Procurement creates a TR from a specific **Port Shipment** with:
+  - **Linked Port Shipment**: Pre-filled and read-only (Shipment Ref + BL, LC, Vessel, Voyage, Container, C&F Agent, POL, ETA, Arrival Notice)
+  - **Source POI**: Port-type POI only (MDM-04)
+  - **Destination POI**: Dropdown of **all active POIs** (no type filter)
+  - **Quantity allocation**: Per RM line — amount to this destination (≤ remaining unallocated for that line on the shipment)
+  - **Delivery date**: Pre-filled from shipment; editable
   - **Remarks** (optional)
-- [ ] System auto-generates TR number: `TR-PORT-YYYYMMDD-XXXX`
-- [ ] All shipment reference fields from PR displayed read-only on the TR form for context
-- [ ] TR cannot be submitted without complete mandatory allocation — quantity per line item required
+- [ ] TR number: `TR-PORT-YYYYMMDD-XXXX`
+- [ ] Shipment reference fields read-only on TR form
+- [ ] Submit blocked until allocations complete for this TR
 
 ### AC-2: Quantity Validation
-- [ ] System tracks per PR: Total PR Quantity per RM line, Total Allocated across all TRs, Remaining
-- [ ] If TR quantity causes total allocated to exceed PR quantity for any line → **block TR creation** with clear error
-- [ ] Remaining quantity shown on the TR creation form in real time per line item
-- [ ] Partial allocation allowed — Procurement Officer can create TR for one destination now and add more TRs for other destinations later
+- [ ] Per shipment: total line qty vs sum of TR allocations; block overflow
+- [ ] Clear error if allocation exceeds remaining
+- [ ] Real-time remaining qty per line on form
+- [ ] Partial allocation supported — additional TRs for other destinations later
 
-### AC-3: Multi-TR per PR (Multiple Destinations)
-- [ ] After creating one TR (for one destination), "Add Another Destination" available if remaining qty > 0
-- [ ] Each TR has a different Destination POI
-- [ ] All TRs share the same Source POI (Port) and same parent PR
-- [ ] PR detail shows the full destination breakdown plan: all TRs with their destinations and allocated quantities
+### AC-3: Multi-TR per Shipment
+- [ ] "Add another destination" when remaining qty > 0
+- [ ] Each TR has a distinct destination POI (for a given planning step)
+- [ ] TRs share source Port and linked **Port Shipment**
+- [ ] Shipment detail shows full breakdown: all TRs, destinations, quantities
 
-### AC-4: TR Status Lifecycle (No Approval Step)
-- [ ] Status: `Submitted` → **directly** `Available for Transport Planning`
-- [ ] On submission, TR is immediately visible to Transport Planners — no manager approval gate
-- [ ] No Draft state — TR submitted directly on creation
+### AC-4: TR Status (No Approval)
+- [ ] On submit: **Available for Transport Planning** immediately (no manager approval)
+- [ ] No Draft — submit on creation (or single-step save+submit as per implementation)
 
-### AC-5: TR List View (Procurement Officer)
-- [ ] Procurement Officer sees TRs they created with PR reference, source (Port), destination, allocated quantities, and status
-- [ ] Filter by PR, status, destination POI, date
+### AC-5: TR List (Procurement)
+- [ ] Procurement sees own TRs with shipment ref, source, destination, quantities, status
+- [ ] Filter by shipment, status, destination, date
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| PC-02-1 | Extend TransportRequest model — PORT_CONSIGNMENT type (reuse DR-02 base; add shipment reference FK, Port-only source gate) | DFS-037-1 | Pending |
-| PC-02-2 | Port TR creation API (POST) — Port-only source gate, PR quantity allocation validation per line | DFS-037-2 | Pending |
-| PC-02-3 | TR number auto-generation: `TR-PORT-YYYYMMDD-XXXX` | DFS-037-3 | Pending |
-| PC-02-4 | Direct submit → Available for Transport Planning (no approval routing) | DFS-037-4 | Pending |
-| PC-02-5 | TR list API for Procurement Officer (GET /transport-requests?type=PORT_CONSIGNMENT) | DFS-037-5 | Pending |
-| PC-02-6 | TR detail view API — includes read-only shipment reference fields from parent PR | DFS-037-6 | Pending |
-| PC-02-7 | TR creation form UI — shipment reference (read-only from PR), Port source selector, destination POI picker, qty allocation per line, remaining qty indicator | DFS-037-7 | Pending |
+| PC-02-1 | TransportRequest model — `PORT_CONSIGNMENT` type; link to parent shipment; Port-only source | DFS-037-1 | Pending |
+| PC-02-2 | POST TR — validation vs remaining shipment quantities | DFS-037-2 | Pending |
+| PC-02-3 | TR number `TR-PORT-YYYYMMDD-XXXX` | DFS-037-3 | Pending |
+| PC-02-4 | Submit → Available for Transport Planning | DFS-037-4 | Pending |
+| PC-02-5 | GET TR list for Procurement (`type=PORT_CONSIGNMENT`) | DFS-037-5 | Pending |
+| PC-02-6 | TR detail — read-only shipment fields from linked Port Shipment | DFS-037-6 | Pending |
+| PC-02-7 | UI — shipment context, Port source, destination POI (all active), per-line allocation | DFS-037-7 | Pending |
 | PC-02-8 | TR list + detail UI | DFS-037-8 | Pending |
 
 ## API Endpoints
 
 ```
 POST   /api/v1/transport-requests
-Body:  { pr_id, type: "PORT_CONSIGNMENT", source_poi_id (Port), destination_poi_id, quantity_lines[], delivery_date, remarks? }
-Response: 201 Created + TR object (status = AVAILABLE_FOR_PLANNING on submit)
+Body:  { pr_id (linked Port Shipment), type: "PORT_CONSIGNMENT", source_poi_id (Port), destination_poi_id, quantity_lines[], delivery_date, remarks? }
 
 GET    /api/v1/transport-requests?pr_id=&type=PORT_CONSIGNMENT&status=&page=
 GET    /api/v1/transport-requests/{tr_id}
@@ -92,34 +90,27 @@ POST   /api/v1/transport-requests/{tr_id}/cancel
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`00-sprint-design.md`](../00-sprint-design.md)
+> Menu and roles: [`../README.md`](../README.md)
 
 | Action | Role |
 |--------|------|
-| View TR list (own) | Procurement Officer |
-| Create TR (destination breakdown) against a Port Consignment PR | Procurement Officer |
+| Create TR (destination breakdown) against a Port Shipment | Procurement Officer |
+| View own TR list | Procurement Officer |
 | Cancel TR | Procurement Officer |
 
-- Source POI is always a Port (Port-type POIs only — filtered from MDM-04)
-- Destination POI is selected per TR from active non-Port POIs
-- Vehicle count and vehicle type are **not** captured here — defined by Transport Planner at TRQ-01
-- Total TR quantity across all TRs for one PR must not exceed PR quantity — overflow blocked
-- **No approval step** — submitted TRs are immediately `Available for Transport Planning`
-- No Procurement Manager role in this workflow
+- Vehicle count/type captured at TRQ-01, not here
+- **TO creation** is out of scope — Transport Planner (TO-01)
 
 ## Dependencies
 
-- **Requires**: PR-02 (Port Consignment Product Requisition), MDM-04 (POI — Port-type filter)
-- **Enables**: TRQ-01 (Transport Planning queue — Port Consignment TRs appear alongside FG TRs)
+- **Requires**: PR-02 (Port Shipment), MDM-04 (POI — Port filter for source)
+- **Enables**: TRQ-01 (Port Consignment / RM TR tab in planning queue)
 
 ## Definition of Done
 
-- [ ] TR creation with Port-only source gate; destination from active non-Port POI dropdown
-- [ ] Shipment reference fields from PR displayed read-only on TR form
-- [ ] Quantity allocation per line item with overflow validation
-- [ ] Multi-TR per PR for multiple destination POIs
-- [ ] TR number auto-generation
-- [ ] Submit → directly Available for Transport Planning (no approval gate)
-- [ ] Audit logging
+- [ ] TR creation with Port source and per-line allocation; overflow guard vs shipment totals
+- [ ] Read-only shipment context on TR
+- [ ] Multi-TR per shipment supported
+- [ ] Submit → Available for Transport Planning
 - [ ] Unit tests > 80%
-- [ ] UAT: Procurement Officer creates 2 TRs from one Port PR (two different destinations); both immediately available in Transport Planning queue
+- [ ] UAT: Two TRs from one Port Shipment (two destinations); both appear in Transport Planning queue
