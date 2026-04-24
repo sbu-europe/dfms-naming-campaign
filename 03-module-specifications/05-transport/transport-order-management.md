@@ -28,7 +28,7 @@ Each TO is tagged as **Own Fleet** or **Vendor Fleet** and automatically routed 
 ```
 Sidebar (Transport Planner + TDO)
 └── Transport
-      └── Transport Orders
+      └── Transport orders (TO)
             ├── TO List                — all TOs; filterable by fleet type, status, TR, POI
             └── TO Detail              — read-only TR context + assignment status
 ```
@@ -47,7 +47,7 @@ TR Detail (status: under_planning)
                           └── [Submit] ──► TO created + routed to TDO queue
                                            └── [Create Another TO] (if remaining > 0)
 
-Transport → Transport Orders
+Transport → Transport orders (TO)
   TO List (GET /transport-orders?...)
     └── [row click] ──► TO Detail (read-only)
 ```

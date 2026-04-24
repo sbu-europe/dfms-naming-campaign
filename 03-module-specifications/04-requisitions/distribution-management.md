@@ -17,7 +17,7 @@ jira_epic: DFS-041
 The Distribution module bridges the Requisition and Transport Planning layers of the DFMS workflow. It provides the Distribution team with:
 
 1. **FG PR Queue** (DR-01) — Distribution Officers and Distribution Managers view all submitted Finished Goods Product Requisitions and navigate to TR creation.
-2. **Transport Request Management** (DR-02) — Distribution Officers create Transport Requests (TRs) against PRs; Distribution Managers review, optionally modify, and approve or reject TRs before handover to Transport Planning.
+2. **Transport request management (FG)** (DR-02) — Distribution Officers create **FG** TRs against PRs; Distribution Managers review, optionally modify, and approve or reject TRs before handover to **Transport** planning (TRQ-01).
 
 Distribution handles **Finished Goods PRs only**. **Port Shipments** (import RM cargo registered by Commercial) are handled by the Procurement module.
 
@@ -34,11 +34,11 @@ The Distribution module exposes **two sub-menus** visible to both Distribution O
 ```
 Sidebar
 └── Distribution
-      ├── Product Requisitions              [Distribution Officer, Distribution Manager]
+      ├── Product requisitions (FG)       [Distribution Officer, Distribution Manager]
       │     ├── FG PR Queue                 — all Submitted / In Progress PRs; filter by POI / category / urgency / date
       │     └── PR Detail                   — line items, capacity snapshot, linked TRs, remaining qty; action: Create TR
       │
-      └── Transport Requests                [Distribution Officer (own), Distribution Manager (all pending)]
+      └── Transport requests (FG)         [Distribution Officer (own), Distribution Manager (all pending)]
             ├── TR List                     — DO: own TRs; DM: all Pending Approval TRs
             ├── TR Detail                   — source/dest POIs, capacity snapshots, line quantities, approval panel
             └── (TR creation reached via PR Detail → "Create Transport Request" button)
@@ -46,7 +46,7 @@ Sidebar
 
 ### Role → Sub-menu access
 
-| Role | Product Requisitions | Transport Requests |
+| Role | Product requisitions (FG) | Transport requests (FG) |
 |------|---------------------|--------------------|
 | Distribution Officer | View queue + PR detail; navigate to Create TR | View own TRs; Create TR (from PR detail) |
 | Distribution Manager | View queue + PR detail | View all Pending Approval TRs; Approve / Approve-with-modify / Reject / Request Clarification |
@@ -54,14 +54,14 @@ Sidebar
 ### Screen hierarchy
 
 ```
-Distribution → Product Requisitions
+Distribution → Product requisitions (FG)
   FG PR Queue  (GET /product-requisitions?type=FG&status=SUBMITTED,IN_PROGRESS)
     └── [row click] ──► PR Detail
                           ├── Capacity snapshot (destination POI)
                           ├── Linked TRs section
                           └── [Create Transport Request] ──► TR Creation Form   (DO only; disabled if Fully Allocated)
 
-Distribution → Transport Requests
+Distribution → Transport requests (FG)
   TR List
     ├── DO view  (GET /transport-requests?created_by=me)
     └── DM view  (GET /transport-requests?status=PENDING_APPROVAL)
@@ -90,7 +90,7 @@ FG PR Submitted (PR-01)
        │
        ▼
 Distribution Officer
-  └── Distribution → Product Requisitions queue
+  └── Distribution → Product requisitions (FG) queue
         View submitted FG PRs (DR-01)
         ↓
   └── Create TR(s) against PR (DR-02)
@@ -101,7 +101,7 @@ Distribution Officer
         TR status → Pending Approval
         ↓
 Distribution Manager
-  └── Distribution → Transport Requests approval queue (DR-02)
+  └── Distribution → Transport requests (FG) approval queue (DR-02)
         Review TR (capacity snapshots for source + dest POI)
         ├── Approve → TR → Available for Transport Planning
         ├── Approve with Modification (mandatory remarks) → TR → Available for Transport Planning
@@ -665,7 +665,7 @@ All endpoints require authentication. Tenant context is resolved from the authen
 | `GET` | `/api/v1/product-requisitions/{pr_id}/transport-requests` | Linked TRs for a PR + remaining quantity | Distribution Officer, Distribution Manager |
 | `GET` | `/api/v1/pois/{poi_id}/capacity` | Capacity snapshot for a POI | Distribution Officer, Distribution Manager |
 
-### 10.2 Transport Requests
+### 10.2 Transport requests (FG) — API
 
 | Method | Endpoint | Description | Role |
 |--------|----------|-------------|------|
@@ -854,7 +854,7 @@ Generated atomically using select_for_update to prevent race conditions.
 ## 12. Indexes for Performance
 
 ```sql
--- Transport Requests
+-- Transport requisitions (TR — FG, Port Consignment, …)
 CREATE INDEX idx_tr_tenant_type_status ON transport_requests(tenant_id, tr_type, status);
 CREATE INDEX idx_tr_pr ON transport_requests(pr_id);
 CREATE INDEX idx_tr_source_poi ON transport_requests(source_poi_id);

@@ -29,19 +29,19 @@ Once the Transport Planner creates a Transport Order (TO), it is automatically r
 ```
 Sidebar (TDO — Own Fleet)
 └── Transport
-      └── Transport Orders
+      └── Transport orders (TO)
             ├── Assignment Queue       — Own Fleet TOs with status: created
             └── TO Detail / Assign     — vehicle picker, driver picker, helper picker, ETA
 
 Sidebar (TDO — Vendor Fleet)
 └── Transport
-      └── Transport Orders
+      └── Transport orders (TO)
             ├── Assignment Queue       — Vendor Fleet TOs with status: created
             └── TO Detail / Assign     — contractual vendor picker
 
 Sidebar (Driver — read-only)
-└── My Assignments
-      └── Transport Orders            — TOs assigned to this driver
+└── Transport  (or “My assignments” — product shell may vary)
+      └── Transport orders (TO)        — TOs assigned to this driver
             └── TO Detail             — read-only: route, products, ETA, status
 ```
 

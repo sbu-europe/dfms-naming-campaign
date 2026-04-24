@@ -1,6 +1,6 @@
 ---
 module: 05-transport
-specification: Transport Requests Queue & Planning Input
+specification: Transport requests queue & planning input (TRQ-01)
 version: 1.0
 phase: Phase 1
 sprint: Sprint 3
@@ -9,7 +9,7 @@ related_stories: DFS-038 (TRQ-01)
 jira_epic: DFS-043
 ---
 
-# Transport Requests Queue & Planning Input
+# Transport requests queue & planning input (TRQ-01)
 
 ## Overview
 
@@ -28,16 +28,16 @@ The Transport Planner's mandatory first action is to **submit planning inputs** 
 ```
 Sidebar (Transport Planner)
 └── Transport
-      └── Transport Requests
+      └── Transport requests
             ├── Finished Goods tab         — approved FG TRs (from Distribution)
-            └── Raw Materials tab          — submitted Port Consignment TRs (from Procurement)
+            └── Port Consignment tab       — Port Shipment–linked TRs (`type=PORT_CONSIGNMENT`; from Procurement) — *not* all RM moves, only this import path
                   └── TR Detail / Planning — read-only TR fields + planning input form
 ```
 
 ### Screen hierarchy
 
 ```
-Transport → Transport Requests
+Transport → Transport requests
   [Finished Goods tab]
     TR Queue (GET /transport-requests?type=FG&status=available_for_planning,under_planning)
       └── [row click] ──► TR Detail
@@ -49,7 +49,7 @@ Transport → Transport Requests
                             └── [Submit Planning Inputs] ──► status: under_planning
                                                               └── [Create TO] ──► TO creation form
 
-  [Raw Materials tab]
+  [Port Consignment tab]
     TR Queue (GET /transport-requests?type=PORT_CONSIGNMENT&status=available_for_planning,under_planning)
       └── [row click] ──► TR Detail
                             ├── Port Consignment shipment fields (read-only)
@@ -63,7 +63,7 @@ Transport → Transport Requests
 
 ## 1. Roles & Access
 
-| Role | TR Queue (FG tab) | TR Queue (RM tab) | Submit Planning Inputs | Create TO |
+| Role | TR queue (FG tab) | TR queue (Port Consignment tab) | Submit planning inputs | Create TO |
 |------|:-----------------:|:-----------------:|:----------------------:|:---------:|
 | Transport Planner | ✓ | ✓ | ✓ | ✓ |
 | TDO (Own Fleet) | — | — | — | — |
@@ -112,7 +112,7 @@ TransportRequisition {
 
 ---
 
-## 3. TR Queue — Finished Goods Tab
+## 3. TR queue — Finished Goods tab
 
 **URL**: `GET /api/v1/transport-requests?type=FG&status=available_for_planning,under_planning`
 
@@ -149,9 +149,11 @@ TransportRequisition {
 
 ---
 
-## 4. TR Queue — Port Consignment (Raw Materials) Tab
+## 4. TR queue — Port Consignment tab
 
 **URL**: `GET /api/v1/transport-requests?type=PORT_CONSIGNMENT&status=available_for_planning,under_planning`
+
+Cargo lines use **RM** products from the Port Shipment; the **UI tab label** is **Port Consignment** (Sprint 3 / TRQ-01 — `type=PORT_CONSIGNMENT`), not a generic “Raw Materials” transport tab.
 
 ### 4.1 List columns
 
