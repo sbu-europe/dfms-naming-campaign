@@ -80,6 +80,34 @@ This section adds the missing **tenant portal permission-based access** coverage
 | audit_logs | Audit Logs | `/audit-logs/` | `Menu.AuditLogs.View` |
 | departments | Departments | `/departments/` | `Menu.Departments.View` |
 
+### Test cases (role × expected portal menu)
+
+| Test Case ID | Role | Expected portal menu items (IDs) | Priority | Status |
+|--------------|------|----------------------------------|----------|--------|
+| TC03 | Tenant Admin | All menu items (full portal) | P0 | Automated (Implemented) |
+| TC04 | Depot Officer | `requisitions`, `reports`, plus Master Data items permitted by role matrix | P0 | Automated (Implemented) |
+| TC05 | Feed Mill Officer | `requisitions`, `reports`, and limited Master Data (Product/Category read) | P0 | Automated (Implemented) |
+| TC06 | Commercial Officer | `requisitions`, `reports` | P0 | Automated (Implemented) |
+| TC07 | Procurement Officer | `command_center`, `requisitions`, `transport_orders`, `vendors`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
+| TC08 | Distribution Officer (DO) | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
+| TC09 | Distribution Manager (DM) | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
+| TC10 | Transport Planner (TP) | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
+| TC11 | Transport Distribution Officer (TDO) – Own Fleet | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
+| TC12 | Transport Distribution Officer (TDO) – Vendor Fleet | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
+| TC13 | Command Center Officer | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, plus Master Data read items granted by role | P0 | Automated (Implemented) |
+| TC14 | Gateman | `command_center`, `gate` | P0 | Automated (Implemented) |
+| TC15 | Scaling Operator | `command_center`, `gate`, `trip_costs` | P0 | Automated (Implemented) |
+| TC16 | Loading Personnel | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
+| TC17 | Unloading Personnel | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
+| TC18 | QC Inspector – Physical | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
+| TC19 | QA Lab Technician | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
+| TC20 | Driver Supervisor | `command_center`, `transport_orders`, `trips`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
+| TC21 | Driver | `trips` | P0 | Automated (Implemented) |
+| TC22 | Driver Helper | `trips` | P0 | Automated (Implemented) |
+| TC23 | Account Officer | `requisitions`, `trip_costs`, `vendors`, `reports` | P0 | Automated (Implemented) |
+
+## What This Automation Validates (US-004 alignment)
+
 - **Role catalog enforcement (predefined roles)**: Role selection is dropdown-driven; tests do not rely on role-name string checks in code, only UI outcomes.
 - **Department derivation**: Department is derived from `Role.department` and submitted as a hidden field in invitation flow.
 - **Single-role assignment behavior**: The user ends up with one effective operational role in the admin UX and is visible in the Users list.
