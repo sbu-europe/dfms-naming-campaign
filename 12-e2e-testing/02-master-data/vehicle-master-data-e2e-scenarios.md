@@ -5,7 +5,7 @@ version: 1.1
 phase: Phase 1
 related_stories: US-053
 source_spec: ../../03-module-specifications/02-master-data/vehicle-master-data.md
-last_updated: 2026-04-22
+last_updated: 2026-04-28
 ---
 
 # Vehicle Master Data - E2E Scenario Plan
@@ -44,10 +44,20 @@ last_updated: 2026-04-22
 | TC28 | Verify vehicle-brand linkage with active brand | Verify active brand lookup via admin autocomplete can be linked to a vehicle create form and persists in change/list views. | P1 | Automated (Passing) |
 | TC29 | Verify brand import/export flows | Verify brand CSV template/sample downloads and export trigger/status/download flow via `BulkImportExportMixin`. | P1 | Automated (Passing: template/sample + export flow) |
 | TC30 | Verify brand admin authentication and tenant isolation | Verify unauthenticated access redirects to login for brand changelist/import/export routes; tenant isolation remains planned separately. | P0 | Automated (Passing: authentication) |
+| TC31 | Verify required-field validation on vehicle create form | Verify save is blocked when required admin form fields are missing (`registration_number`, `vehicle_type`) and inline validation messages are shown. | P0 | Automated (Passing) |
+| TC32 | Verify duplicate registration number rejection | Verify creating/updating a vehicle with an existing `registration_number` is rejected with uniqueness error and record is not persisted. | P0 | Automated (Passing) |
+| TC33 | Verify duplicate chassis number rejection (non-empty) | Verify creating/updating a vehicle with an existing non-empty `chassis_number` is rejected with uniqueness error and record is not persisted. | P0 | Automated (Passing) |
+| TC34 | Verify optional field behavior on create | Verify create succeeds when implementation-optional fields are omitted (`chassis_number`, `body_type`, `fuel_type`, `capacity`, `number_of_wheels`, `model_name`, `fitness_expiry_date`, `insurance_expiry_date`). | P1 | Automated (Passing) |
+| TC35 | Verify invalid choice/value rejection on vehicle form | Verify invalid payload values (e.g., unsupported `allowed_product_category` or enum values) are rejected by admin/model validation and save is blocked. | P1 | Automated (Passing) |
+| TC36 | Verify import row required-field validation | Verify vehicle CSV rows missing required import headers/values (`registration_number`, `vehicle_type`) are marked invalid with row-level errors. | P0 | Automated (Passing) |
+| TC37 | Verify import enum/type/date validation errors | Verify invalid `vehicle_type/body_type/fuel_type/capacity_unit/allowed_product_category`, non-decimal `capacity`, non-positive integer values, and bad ISO dates are rejected with row-level error reasons. | P0 | Automated (Passing) |
+| TC38 | Verify import unknown brand_name rejection | Verify CSV rows with non-existent `brand_name` fail validation (`brand_name: Brand 'X' does not exist.`) and are not imported. | P0 | Automated (Passing) |
 
 ## Alignment Notes (Current Admin Implementation)
 
 - `VehicleAdmin` derives `operational_status` in `save_model`; e2e assertions should validate resulting status from changelist rows, not rely on change-form widget presence.
 - Change-form rendering varies between editable widgets and readonly text for some fields; e2e selectors should support both DOM patterns.
 - `remarks` uses a textarea widget in admin forms.
+- Implementation currently enforces fewer create-form mandatory fields than the module spec; `TC34` intentionally tracks this implementation-aligned behavior to prevent false failures.
+- `registration_number`, `chassis_number`, and `brand_name` are currently unique at model/DB level in this codebase; treat tenant-scoped uniqueness as a separate gap-validation stream when running cross-tenant tests.
 - Current passing automated coverage corresponds to the implemented e2e module `tests/e2e/modules/test_vehicle_model_master_data_e2e.py`.
