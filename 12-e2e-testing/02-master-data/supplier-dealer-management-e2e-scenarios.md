@@ -5,7 +5,7 @@ version: 1.2
 phase: Phase 1
 related_stories: US-096, DFS-018
 source_spec: ../../03-module-specifications/02-master-data/supplier-dealer-management.md
-last_updated: 2026-04-22
+last_updated: 2026-04-28
 ---
 
 # Supplier & Dealer Master Data - E2E Scenario Plan
@@ -28,6 +28,14 @@ last_updated: 2026-04-22
 | TC12 | Verify append-only behavior for duplicate code import | Verify that importing rows with existing supplier/dealer code marks row invalid and does not overwrite existing record values. | Pass |
 | TC13 | Verify invalid-row reporting includes row and reason | Verify that import preview includes failing CSV row number and explicit validation reasons for invalid latitude/longitude values. | Pass |
 | TC14 | Verify import page requires authentication | Verify that authenticated admin can open import page and unauthenticated user is redirected to admin login page. | Pass |
+| TC15 | Verify supplier/dealer duplicate name rejection on create | Verify that creating a supplier/dealer with an existing name in the same tenant (case-insensitive) is rejected with form validation error and record is not created. | Pass |
+| TC16 | Verify supplier/dealer duplicate name rejection on update | Verify that updating an existing supplier/dealer name to another existing name in the same tenant (case-insensitive) is rejected and original value remains unchanged. | Pass |
+| TC17 | Verify supplier/dealer code required validation | Verify that submitting supplier/dealer create form with empty or whitespace-only code is rejected with required/code validation feedback and record is not created. | Pass |
+| TC18 | Verify supplier/dealer name required validation | Verify that submitting supplier/dealer create form with empty or whitespace-only name is rejected with required/name validation feedback and record is not created. | Pass |
+| TC19 | Verify import upload requires CSV file selection | Verify that import upload without choosing a file is blocked by file-required validation and does not create import job. | Pass |
+| TC20 | Verify import upload rejects non-CSV files | Verify that uploading a non-`.csv` file on supplier/dealer import page shows extension validation error and does not create import job. | Pass |
+| TC21 | Verify import confirm blocked for invalid job state | Verify that confirming import when job status is not `PREVIEW_READY` is rejected with status-specific error message and no import execution starts. | Pass |
+| TC22 | Verify import confirm route rejects GET execution | Verify that accessing import confirm endpoint via GET does not execute import and redirects back to import preview page. | Pass |
 
 ## Notes
 
@@ -35,3 +43,7 @@ last_updated: 2026-04-22
   - `tests/e2e/modules/test_supplier_master_data_e2e.py`
   - `tests/e2e/modules/test_dealer_master_data_e2e.py`
 - `TC09` remains `Partial` due to fixture-dependent branch where deletion may proceed if dependency links are not present in environment.
+- `TC15`-`TC22` are now covered by implemented E2E automation in:
+  - `tests/e2e/modules/test_supplier_master_data_e2e.py`
+  - `tests/e2e/modules/test_dealer_master_data_e2e.py`
+- Validation behavior for `TC17`-`TC19` may surface as browser/Django required-field messaging depending on runtime/UI flow; assertions are aligned to implementation behavior in `apps/master_data/admin.py` and current admin UI.
