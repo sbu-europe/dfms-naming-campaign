@@ -38,11 +38,9 @@ last_updated: 2026-04-27
 | TC04 | Reinvite cooldown surfaced | Open invitation detail and click **Reinvite** twice; second attempt should show cooldown/too-many-requests style feedback. | P1 | Implemented |
 | TC05 | Activation requires OTP step when otp_type=email | Create email-OTP invite; open `/activate/?token=...`; assert OTP step is shown and trying to submit password without OTP shows “verify OTP first”. | P0 | Implemented |
 | TC06 | Activation succeeds when otp_type=none | Create invite with otp_type=none; open `/activate/?token=...`; set password + accept T&C; assert redirect to `/activate/success/`. | P0 | Implemented |
-
-## Edge Cases (documented for completeness)
-
-- **Email uniqueness**: duplicate invite for same email should be rejected.
-- **Role restrictions**: `super_admin` must not be selectable and must be rejected server-side.
-- **Cooldown**: reinvite within 2 minutes should be rate-limited.
-- **Activation gating**: when otp_type=email, password step is blocked unless OTP verified.
-- **Expired/cancelled**: activation should show an expired/used message (not implemented in Playwright yet; can be added by manipulating expiry in DB fixtures or via admin tools).
+| TC07 | Activation missing token | Open `/activate/` (no token) and assert “Link Invalid / No invitation token provided” message is shown. | P1 | Implemented |
+| TC08 | Activation invalid token | Open `/activate/?token=<random>` and assert “Invalid invitation token” message is shown. | P1 | Implemented |
+| TC09 | Activation link re-use blocked (used token) | Activate successfully once (otp_type=none), then re-open same `/activate/?token=...` and assert “expired or already been used” message is shown. | P0 | Implemented |
+| TC10 | OTP invite cannot skip OTP via direct password POST | For otp_type=email invite, on OTP step force-submit a password-step POST; assert server responds with OTP step + “Please verify your OTP first.” | P1 | Implemented |
+| TC11 | Activation password validation errors | For otp_type=none invite, submit invalid password (too short / missing uppercase / missing number), mismatch confirm, and missing T&C; assert validation errors are shown (client-side + server-side T&C). | P1 | Implemented |
+| TC12 | Activation blocked for cancelled invitation | Create invite, cancel it (API/admin tooling), then open `/activate/?token=...`; assert “expired or already been used” style message is shown. | P2 | Implemented |
