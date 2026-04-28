@@ -1,5 +1,6 @@
 ---
-module: 12-users
+
+## module: 12-users
 specification: Password & Account Reset (US-008) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
@@ -13,7 +14,6 @@ implementation_reference:
   - ../../../templates/auth/reset_password.html
 test_implementation_reference: ../../../tests/e2e/modules/test_password_account_reset_e2e.py
 last_updated: 2026-04-27
----
 
 # Password & Account Reset (US-008) - Playwright E2E Plan
 
@@ -47,25 +47,23 @@ last_updated: 2026-04-27
 
 ## Test Cases
 
-| Test Case ID | Scenario | Description | Priority | Status |
-|---|---|---|---:|---|
-| TC01 | Self-service reset completes | Create a tenant user via invite+activate → request reset → open reset URL → verify OTP → set new password → assert old password rejected and new password accepted. | P0 | Implemented |
-| TC02 | Invalid OTP rejected | Request reset → open reset URL → enter wrong OTP → assert error surfaced and cannot proceed to password step. | P0 | Implemented |
-| TC03 | Expired token rejected | Request reset → force-expire the reset record in DB → open reset URL → attempt OTP verify → assert “expired/invalid” error. | P0 | Implemented |
-| TC04 | Rate limit enforced | Call reset request endpoint 4 times within an hour → assert 4th attempt returns HTTP 429. | P0 | Implemented |
-| TC05 | Admin-assisted password page loads | From Django admin user change page, open `admin-assisted-password` URL and assert the form renders (target user context + required inputs). | P0 | Planned |
-| TC06 | Admin-assisted reset requires justification | Submit the assisted reset form with empty/short justification → assert validation error is shown and no reset is initiated. | P0 | Planned |
-| TC07 | Admin-assisted reset requires permitted admin | Attempt to access the `admin-assisted-password` URL as a non-tenant-admin/non-super-admin (or by forcing permissions off in DB) → assert HTTP 403 / permission denied surfaced. | P0 | Planned |
-| TC08 | Admin-assisted reset initiation success (admin-side) | Submit assisted reset with valid justification (+ verification method if present) → assert success message is shown (reset link/OTP dispatch is queued) and an audit/log entry is created (when visible in admin/log UI). | P0 | Planned |
 
-## Edge Cases (tracked for completeness; some require extra UI or env support)
+| Test Case ID | Scenario                                                                | Description                                                                                                                                                                                                      | Priority | Status      |
+| ------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| TC01         | Unknown email anti-enumeration (UI)                                     | Open `GET /forgot-password/` → submit an **unknown email** → assert a generic success message is shown (no account enumeration).                                                                                 | P0       | Implemented |
+| TC02         | Unknown email anti-enumeration (API)                                    | Call `POST /api/v1/auth/password/reset/request` with an **unknown email** → assert HTTP 200 + generic success (no account enumeration).                                                                          | P0       | Implemented |
+| TC03         | Missing token rejected (UI)                                             | Open `GET /reset-password/` without `token` → assert “missing token” warning shown.                                                                                                                              | P0       | Implemented |
+| TC04         | Invalid token rejected on verify (UI)                                   | Open `GET /reset-password/?token=<fake>` → submit OTP verify → assert invalid/expired error shown.                                                                                                               | P0       | Implemented |
+| TC05         | Rate limit enforced (API)                                               | For an active user: call `POST /api/v1/auth/password/reset/request` **4 times** within an hour → assert the 4th is rejected with rate-limit error (repo currently returns HTTP 400 + code `PWD-429-RATE-LIMIT`). | P0       | Implemented |
+| TC06         | Deactivated user treated as unknown (API)                               | For an inactive user: call `POST /api/v1/auth/password/reset/request` repeatedly → assert it always returns HTTP 200 with generic success (no rate-limit and no reset initiated).                                | P0       | Implemented |
+| TC07         | OTP brute-force lockout (API)                                           | Create a reset record → call `POST /api/v1/auth/password/reset/verify` with wrong OTP until `OTP_MAX_ATTEMPTS` reached → assert reset is cancelled and further verifies show “no longer valid”.                  | P0       | Implemented |
+| TC08         | Concurrent reset requests cancel older token (API)                      | Create two resets for same user where the older is cancelled and a newer is pending → verify OTP against old token → assert message indicates a newer reset link exists.                                         | P0       | Implemented |
+| TC09         | Password policy enforced (API)                                          | With a verified reset token: call `POST /api/v1/auth/password/reset` using a weak password → assert policy validation error returned.                                                                            | P0       | Implemented |
+| TC10         | Password history enforced (API)                                         | With a verified reset token: attempt to set password equal to current password or one of last-3 → assert password reuse is rejected.                                                                             | P0       | Implemented |
+| TC11         | Admin-assisted password page loads (Admin UI)                           | From Django admin, open `GET /admin/users/user/<id>/admin-assisted-password/` → assert the form renders and required inputs exist.                                                                               | P0       | Implemented |
+| TC12         | Admin-assisted password mismatch rejected (Admin UI)                    | Submit admin-assisted password form with mismatched confirmation → assert validation error shown.                                                                                                                | P0       | Implemented |
+| TC13         | Admin-assisted password generate + set shows one-time banner (Admin UI) | Use “Generate password” → submit → assert success + one-time banner shows the generated password value.                                                                                                          | P0       | Implemented |
+| TC14         | Admin-assisted reset cancels prior pending resets (Service/DB)          | Create a pending self-service reset for a user → initiate an admin-assisted reset → assert prior pending/verified resets are cancelled.                                                                          | P1       | Implemented |
+| TC15         | Admin-assisted reset fails for inactive user (Service/DB)               | Attempt admin-assisted reset for an inactive user → assert user-friendly validation error returned.                                                                                                              | P1       | Implemented |
 
-- **Unknown email anti-enumeration**: endpoint returns HTTP 200 with generic message and does not send an email.
-- **Deactivated user cannot reset**: service only resets `is_active=True` users.
-- **OTP brute-force lockout**: after `OTP_MAX_ATTEMPTS` failures, reset is cancelled and must be re-requested.
-- **Concurrent reset requests**: issuing a new reset cancels prior `pending/verified` resets; older links should stop working.
-- **Password history enforcement**: cannot reuse current password or last 3 passwords (requires test users with history set up).
-- **Password policy enforcement**: reset rejects weak passwords according to `apps/users/password_policy.py`.
-- **Admin-assisted reset cancels prior pending resets**: assisted initiation should cancel any prior `pending/verified` reset attempts for the same user.
-- **Admin-assisted reset on inactive user**: should fail with a user-friendly error (service only targets `is_active=True`).
 
