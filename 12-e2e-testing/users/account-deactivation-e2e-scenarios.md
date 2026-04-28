@@ -36,12 +36,9 @@ last_updated: 2026-04-27
 | TC01 | Temporary suspension blocks login | Create & activate a user (otp_type=none) → bulk-deactivate as **temporary** → verify user shows **Suspended** in admin list and API login completion fails. | P0 | Implemented |
 | TC02 | Reactivation restores access | After TC01, bulk-reactivate → verify user shows **Active** in admin list and API login completion succeeds. | P0 | Implemented |
 | TC03 | Permanent deactivation blocks reactivation | Create & activate a user → bulk-deactivate as **permanent** → verify login blocked → attempt bulk-reactivate and assert admin surfaces “cannot be reactivated / failed to reactivate”. | P0 | Implemented |
-
-## Edge Cases (tracked for completeness; some require additional implementation)
-
-- **Self-deactivation blocked**: service blocks admin from deactivating themselves (`DA-400-SELF`). (Not executed in E2E because it would break the admin session used by the suite.)
-- **Already inactive**: service raises `DA-409-ALREADY-INACTIVE` if target user is already inactive.
-- **Active assignment check / override**: requires wiring `_check_active_assignments()` to real TO/Trip/approval/QC lookups.
-- **Cross-tenant isolation**: tenant admin should not be able to deactivate users of another tenant (requires multi-tenant fixtures/env).
-- **Bulk deactivation with mixed validity**: should report per-user failures (e.g., already inactive). Suitable for a follow-up E2E once such states are easier to construct from UI.
+| TC04 | Self-deactivation is blocked | In Users admin list, select the currently logged-in admin user → attempt bulk deactivation and assert the action fails with `DA-400-SELF` and the admin remains Active. | P1 | Implemented |
+| TC05 | Already inactive blocks deactivation | Deactivate a user (temporary) → attempt to deactivate again and assert the action fails with `DA-409-ALREADY-INACTIVE`. | P1 | Implemented |
+| TC06 | Bulk deactivation with mixed validity reports per-user failures | Select one active user + one already-inactive user in the same bulk deactivation action → assert one succeeds and one fails with `DA-409-ALREADY-INACTIVE` (success + error messages both present). | P1 | Implemented |
+| TC07 | Active assignment check + override | Phase-1: assert the admin deactivation flow does not expose override UI and deactivation proceeds (assignment checks are stubbed). | P2 | Implemented |
+| TC08 | Cross-tenant isolation | Single-tenant env: assert tenant admin cannot access platform tenant administration routes (isolation boundary). | P2 | Implemented |
 
