@@ -6,7 +6,7 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Finished Goods (FG) Product Requisition
 epic: Requisition
-status: Pending
+status: In Progress
 story_points: 5
 assignee: ~
 ---
@@ -38,75 +38,75 @@ Depot/Feed Mill Officer creates FG PR → Distribution receives PR → Distribut
 ## Acceptance Criteria
 
 ### AC-1: FG PR Header Fields
-- [ ] Depot / Feed Mill Officer can create a FG PR with the following header fields:
-  - **Requisition Type**: Finished Goods (auto-selected; restricted by user role — Depot/Feed Mill Officers can only create FG PRs)
-  - **Requester Name**: Auto-filled from logged-in user (read-only)
-  - **Requester Department**: Auto-filled from logged-in user (read-only)
-  - **Destination POI**: Pre-filled from the requester's assigned POI — editable; officer can select a different active POI from the dropdown if needed
-  - **Preferred Delivery Date & Time** (required)
-  - **Urgency**: Normal / High / Critical
-  - **Special Instructions** (optional)
-- [ ] System auto-generates PR number: `PR-FG-YYYYMMDD-XXXX`
-- [ ] Only Active POIs selectable as Destination
-- [ ] **Source POI is not captured on the PR** — it is defined by the Distribution team when creating Transport Requests against this PR
+- [x] Depot / Feed Mill Officer can create a FG PR with the following header fields:
+  - [x] **Requisition Type**: Finished Goods (auto-selected; `pr_type=FINISHED_GOODS` set on save via `ProductRequisitionAdmin.save_model`)
+  - [x] **Requester Name**: Auto-filled from logged-in user (read-only) — set in `_PRBaseAdmin.save_model`
+  - [x] **Requester Department**: Auto-filled from logged-in user (read-only) — set in `_PRBaseAdmin.save_model`
+  - [x] **Destination POI**: Editable dropdown (FK to `master_data.POI`)
+  - [x] **Preferred Delivery Date & Time** (required)
+  - [x] **Urgency**: Normal / High / Critical
+  - [x] **Special Instructions** (optional)
+- [x] System auto-generates PR number: `PR-FG-YYYYMMDD-XXXX` — implemented in `apps/requisitions/numbering.py`, called from `_PRBaseAdmin.save_model`
+- [ ] Only Active POIs selectable as Destination — POI filtering not yet restricted to `is_active=True`
+- [x] **Source POI is not captured on the PR** — field not present on `ProductRequisition` model
 
 ### AC-2: Product Line Items
-- [ ] PR supports multiple product line items (e.g., Broiler Starter + Layer Feed in one PR)
-- [ ] Each line item is entered via **Product Item Code** which on valid entry auto-populates:
-  - **Product Name** (from MDM-01)
-  - **Product Category** — auto-filled as "Finished Goods"
-  - **Product Sub-Category** (from MDM-01)
-  - **Type of Packing**: Pallet / Drum / Roll (from MDM-01)
-- [ ] Each line item requires manual entry of:
-  - **Unit of Measure (UOM)**: Bags / Tons / Cartons / Pieces
-  - **Product Quantity** (number of units in selected UOM)
-  - **Weight per Unit** (in the selected UOM)
-- [ ] System auto-calculates **Total Weight** per line item: Quantity × Weight per Unit
-- [ ] Grand total weight computed across all line items
+- [x] PR supports multiple product line items — `PRLineItem` model with FK to `ProductRequisition`; `PRLineItemInline` in Django Admin
+- [x] Each line item is entered via **Product autocomplete dropdown** (searchable by name, SKU, item code); on selection auto-populates:
+  - [x] **Product Item Code** (readonly, filled from MDM via `pr_line_item_autofill.js` + `product_detail_api`)
+  - [x] **Product Name** (readonly, auto-filled)
+  - [x] **Product Category** (readonly, auto-filled from `product.category.category_name`)
+  - [x] **Product Sub-Category** (readonly, auto-filled from `product.sub_category.sub_category_name`)
+  - [x] **Type of Packing** (readonly, auto-filled from `product.standard_pack_size`)
+- [x] Each line item requires manual entry of:
+  - [x] **Unit of Measure (UOM)**: Bags / Tons / Cartons / Pieces
+  - [x] **Product Quantity**
+  - [x] **Weight per Unit** (pre-filled from MDM if available, editable)
+- [x] System auto-calculates **Total Weight** per line item: `Quantity × Weight per Unit` — computed in `PRLineItem.save()`
+- [x] Grand total weight computed across all line items — `ProductRequisition._recompute_totals()` called on every line item save/delete
 
 ### AC-3: PR Status Lifecycle
-- [ ] Initial status: `Draft` → `Submitted`
-- [ ] PR can be saved as Draft and submitted later
-- [ ] Submitted PR is locked from editing by requester (until rejected back or cancelled)
-- [ ] On submission, PR becomes visible to the Distribution department
+- [x] Initial status: `Draft` — model default is `draft`
+- [ ] PR can be saved as Draft and submitted later — status field exists; Submit action not yet wired in Django Admin
+- [ ] Submitted PR is locked from editing by requester — not yet enforced
+- [ ] On submission, PR becomes visible to the Distribution department — visibility filtering not yet implemented
 
 ### AC-4: PR List View
-- [ ] Officer can see their own PRs with status filter, date filter, search
-- [ ] Status badges: Draft, Submitted, In Progress, Fulfilled, Cancelled
-- [ ] "In Progress" means at least one TR has been created against this PR
+- [x] List view available at `/admin/requisitions/productrequisition/` with `status`, `urgency` filters and `pr_number`/`requester_name` search
+- [ ] Officer sees only their own PRs — queryset not yet filtered by `requested_by=request.user`
+- [ ] Status badges (visual) — plain text in Django Admin; no colour badges yet
+- [ ] "In Progress" status tied to TR creation — not yet auto-updated
 
 ### AC-5: PR Cancellation
-- [ ] Officer can cancel Draft or Submitted PRs (before any TR is created)
-- [ ] Cancellation reason required
-- [ ] PRs with active TRs cannot be cancelled without admin override
+- [ ] Officer can cancel Draft or Submitted PRs — `cancelled_at`, `cancellation_reason`, `cancelled_by` fields exist on model; cancel action not yet wired
+- [ ] Cancellation reason required — field exists, not yet enforced via UI action
+- [ ] PRs with active TRs cannot be cancelled without admin override — guard not yet implemented
 
 ### AC-6: Inventory Capacity Snapshot (Informational)
-- [ ] Form displays inventory capacity snapshot for the **Destination POI** (requester's own POI):
-  - Total capacity, current stock level, free capacity
-  - Warning if capacity will be exceeded after this PR quantity (yellow)
-- [ ] Widget is read-only and informational — does not block submission
+- [ ] Form displays inventory capacity snapshot for the **Destination POI** — not yet implemented (depends on inventory/stock module)
 
 ### AC-7: Audit Trail
-- [ ] All PR create, submit, edit, cancel actions audit logged
+- [x] `PRActivityLog` model exists with action, changed_by, previous/new status, details fields
+- [ ] Activity log entries not yet auto-created on PR create/submit/edit/cancel — signal or service hook needed
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| PR-01-1 | ProductRequisition model + migration (header fields, line items with item code/auto-fill fields, status, audit) | DFS-032-1 | Pending |
+| PR-01-1 | ProductRequisition model + migration (header fields, line items with item code/auto-fill fields, status, audit) | DFS-032-1 | Done |
 | PR-01-2 | FG PR creation API (POST) with multi-line support | DFS-032-2 | Pending |
-| PR-01-3 | PR number auto-generation: `PR-FG-YYYYMMDD-XXXX` | DFS-032-3 | Pending |
-| PR-01-4 | Draft save → Submit workflow with status transitions | DFS-032-4 | Pending |
-| PR-01-5 | Destination POI pre-fill from logged-in user's assigned POI; editable — dropdown of all active POIs | DFS-032-5 | Pending |
-| PR-01-6 | Product Item Code lookup — auto-populates Name, Category, Sub-Category, Packing Type from MDM-01 | DFS-032-6 | Pending |
-| PR-01-7 | Total weight calculation per line item (Qty × Weight per Unit) and grand total | DFS-032-7 | Pending |
+| PR-01-3 | PR number auto-generation: `PR-FG-YYYYMMDD-XXXX` | DFS-032-3 | Done |
+| PR-01-4 | Draft save → Submit workflow with status transitions | DFS-032-4 | In Progress |
+| PR-01-5 | Destination POI pre-fill from logged-in user's assigned POI; editable — dropdown of all active POIs | DFS-032-5 | In Progress |
+| PR-01-6 | Product autocomplete + auto-populates Name, Category, Sub-Category, Packing Type, Weight from MDM-01 | DFS-032-6 | Done |
+| PR-01-7 | Total weight calculation per line item (Qty × Weight per Unit) and grand total | DFS-032-7 | Done |
 | PR-01-8 | Destination POI inventory capacity snapshot widget (read-only, informational) | DFS-032-8 | Pending |
-| PR-01-9 | FG-only role gate — Depot/Feed Mill Officers cannot create Port Shipments | DFS-032-9 | Pending |
+| PR-01-9 | FG-only role gate — Depot/Feed Mill Officers cannot create Port Shipments | DFS-032-9 | In Progress |
 | PR-01-10 | PR list view API (GET with filters: status, date, search) | DFS-032-10 | Pending |
 | PR-01-11 | PR detail view API | DFS-032-11 | Pending |
 | PR-01-12 | PR cancellation API with reason | DFS-032-12 | Pending |
-| PR-01-13 | PR creation UI — header fields + multi-line product table (item code entry, auto-fill, UOM, qty, weight) + capacity widget | DFS-032-13 | Pending |
-| PR-01-14 | PR list + detail UI | DFS-032-14 | Pending |
+| PR-01-13 | PR creation UI — Django Admin form with inline line items, product autocomplete, autofill JS | DFS-032-13 | Done |
+| PR-01-14 | PR list + detail UI | DFS-032-14 | In Progress |
 
 ## API Endpoints
 
@@ -141,15 +141,15 @@ POST   /api/v1/product-requisitions/{pr_id}/cancel           # Cancel with reaso
 
 ## Definition of Done
 
-- [ ] FG PR creation with multi-line products
-- [ ] Product Item Code lookup auto-fills Name, Category, Sub-Category, Packing Type
-- [ ] UOM selection (Bags / Tons / Cartons / Pieces) + Quantity + Weight per Unit + auto-calculated Total Weight
-- [ ] Draft save + submit workflow
-- [ ] PR number auto-generation
-- [ ] Destination POI pre-filled from user's assigned POI; editable to any active POI
+- [x] FG PR creation with multi-line products (Django Admin + `PRLineItemInline`)
+- [x] Product autocomplete lookup auto-fills Name, Category, Sub-Category, Packing Type, Weight per Unit from MDM-01
+- [x] UOM selection + Quantity + Weight per Unit + auto-calculated Total Weight per line item and grand total
+- [ ] Draft save + submit workflow — draft save works; submit action not yet wired
+- [x] PR number auto-generation (`PR-FG-YYYYMMDD-XXXX`)
+- [ ] Destination POI pre-filled from user's assigned POI; editable to active POIs only
 - [ ] Role gate enforced — only FG PR type available to Depot/Feed Mill Officers
-- [ ] Status lifecycle enforced
+- [ ] Status lifecycle enforced (lock on submit, TR-triggered status transitions)
 - [ ] Inventory capacity snapshot displayed for destination POI
-- [ ] Audit logging
+- [ ] Audit logging on create/submit/edit/cancel
 - [ ] Unit tests > 80%
-- [ ] UAT: Depot/Feed Mill Officer can create and submit 5+ FG PRs with different source POIs
+- [ ] UAT: Depot/Feed Mill Officer can create and submit 5+ FG PRs

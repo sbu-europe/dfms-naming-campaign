@@ -5,7 +5,7 @@ phase: phase-1
 start_date: ~
 end_date: ~
 total_story_points: 68
-status: Not Started
+status: In Progress
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
 
@@ -20,7 +20,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 |--------|-------|
 | Total Stories | 10 |
 | Total Story Points | 68 |
-| Status | Not Started |
+| Status | In Progress |
 | Epics | Requisition (FG), Port Shipments, Distribution, Procurement, Transport, QA & Testing, DevOps & Infrastructure |
 
 ---
@@ -96,6 +96,71 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 - **Transport orders:** sum of TO qty per TR ≤ TR qty (overflow blocked). Own Fleet: vehicle/driver from MDM; Vendor Fleet: vendor + manual vehicle/driver
 - TDO works in **Transport orders** (own-fleet / vendor queues) — not a separate TO “list” product
 - Driver: only **Transport orders** (my assignments) for their TOs
+
+---
+
+## Implementation Status
+
+### Django Modules & Admin
+
+| Django App | Admin Class | Menu Heading | Sub-menu Label | Roles |
+|-----------|-------------|--------------|----------------|-------|
+| `apps.requisitions` | `ProductRequisitionAdmin` | Requisition | Finished Goods | Depot / Feed Mill Officer |
+| `apps.requisitions` | `PortShipmentAdmin` (proxy) | Port Shipments | Port Shipments | Commercial Officer |
+| `apps.requisitions` | `TransportRequisitionAdmin` (Distribution) | Distribution | Transport Requests | Distribution Officer / Manager |
+| `apps.requisitions` | `TransportRequisitionAdmin` (Procurement) | Procurement | Transport Requests | Procurement Officer |
+| `apps.transport` | *(TO-01 / TO-02 — pending)* | Transport | Transport Orders | Transport Planner / TDO / Driver |
+
+### Portal Navigation (`apps/core/portal_navigation.py`)
+
+| Section heading | Item id | URL | Permission code(s) |
+|-----------------|---------|-----|--------------------|
+| **Requisition** | `requisition_fg` | `/requisitions/finished-goods/` | `Menu.Requisition.FG.View` |
+| **Port Shipments** | `port_shipments` | `/port-shipments/` | `Menu.PortShipments.View` |
+| **Distribution** | `distribution_pr_queue` | `/distribution/product-requisitions/` | `Menu.Distribution.PRQueue.View` |
+| **Distribution** | `distribution_transport_requests` | `/distribution/transport-requests/` | `Menu.Distribution.TR.View` |
+| **Procurement** | `procurement_transport_requests` | `/procurement/transport-requests/` | `Menu.Procurement.TR.View` |
+| **Transport** | `transport_requests` | `/transport/transport-requests/` | `Menu.Transport.FG.TR.View`, `Menu.Transport.Port.TR.View` |
+| **Transport** | `transport_orders` | `/transport-orders/` | `Menu.Transport.TO.View` |
+
+### RBAC Permission Codes (`apps/core/constants_rbac.py`)
+
+| Code | Role(s) | Notes |
+|------|---------|-------|
+| `Menu.Requisition.FG.View` | depot_officer, feed_mill_officer | FG PR creation; no Port Shipments access |
+| `Menu.PortShipments.View` | commercial_officer, procurement_officer | Shared top-level menu; Commercial sees own, Procurement sees all submitted |
+| `Menu.Distribution.PRQueue.View` | distribution_officer, distribution_manager | All submitted FG PRs |
+| `Menu.Distribution.TR.View` | distribution_officer (own), distribution_manager (all) | FG TRs; manager approval |
+| `Menu.Procurement.TR.View` | procurement_officer | Own Port Consignment TRs; NOT a duplicate Port Shipments screen |
+| `Menu.Transport.FG.TR.View` | transport_planner | FG TR tab in unified queue |
+| `Menu.Transport.Port.TR.View` | transport_planner | Port Consignment TR tab in unified queue |
+| `Menu.Transport.TO.View` | transport_planner, tdo_own_fleet, tdo_vendor_fleet, driver | Transport Orders |
+
+### Django Admin Separation — FG vs Port Shipments
+
+Both `ProductRequisitionAdmin` and `PortShipmentAdmin` manage the **same underlying `ProductRequisition` model** but use different proxy models to appear as separate entries in the Django Admin:
+
+```
+Requisitions ──┬── Product Requisitions   → ProductRequisitionAdmin
+               │   (pr_type=FINISHED_GOODS)
+               └── Port Shipments         → PortShipmentAdmin (via PortShipmentProxy)
+                   (pr_type=PORT_CONSIGNMENT)
+```
+
+Key admin behaviours:
+- `save_model` auto-fills `requested_by`, `created_by`, `requester_name`, `requester_department` from the logged-in user on creation.
+- **Add form** shows only editable fields; read-only metadata (PR number, status, timestamps) appear only on the change form.
+- `PRLineItemInline` with `extra=1` is attached to both.
+- **Port Shipments add form** includes LC/shipping document fields (`lc_number`, `bl_number`, `vessel_name`, `arrival_notice`) that are absent from the FG form.
+
+### Migrations Applied
+
+| File | Description |
+|------|-------------|
+| `apps/requisitions/0003_pr_core.py` | `ProductRequisition` Sprint 3 fields (FG demand model) |
+| `apps/requisitions/0004_tr_sprint3.py` | `TransportRequisition` Sprint 3 fields |
+| `apps/requisitions/0005_port_shipment_proxy.py` | `PortShipmentProxy` proxy model registration |
+| `apps/transport/0006_to_sprint3.py` | Transport model Sprint 3 updates |
 
 ---
 
