@@ -27,6 +27,9 @@ This section captures end-to-end testing scenarios aligned with module specifica
 | Master Data - Supplier & Dealer Management | US-096, DFS-018 | Planned | [`02-master-data/supplier-dealer-management-e2e-scenarios.md`](./02-master-data/supplier-dealer-management-e2e-scenarios.md) |
 | Users - User Invitation & Activation | US-005 | Planned | [`users/user-invitation-activation-e2e-scenarios.md`](./users/user-invitation-activation-e2e-scenarios.md) |
 | Users - Account Deactivation | US-007 | Planned | [`users/account-deactivation-e2e-scenarios.md`](./users/account-deactivation-e2e-scenarios.md) |
+| Foundation - Multi-Factor Auth | US-002 | Implemented | [`01-foundation/multi-factor-auth-us002-e2e-scenarios.md`](./01-foundation/multi-factor-auth-us002-e2e-scenarios.md) |
+| Foundation - Session Control | US-003 | Implemented | [`01-foundation/session-control-us003-e2e-scenarios.md`](./01-foundation/session-control-us003-e2e-scenarios.md) |
+| Foundation - User Login & Account Lockout | US-001 | Implemented | [`01-foundation/user-login-account-lockout-us001-e2e-scenarios.md`](./01-foundation/user-login-account-lockout-us001-e2e-scenarios.md) |
 
 ## Naming Convention
 
