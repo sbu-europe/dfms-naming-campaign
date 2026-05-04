@@ -35,12 +35,12 @@ last_updated: 2026-04-28
 
 ## Implementation Notes
 
-- This plan is now synchronized with implemented coverage in `tests/e2e/modules/test_helper_master_data_e2e.py`.
+- This plan is now synchronized with implemented coverage in `tests/e2e/modules/users/test_helper_master_data_e2e.py`.
 - Assertions intentionally use resilient UI patterns (form submit via DOM, tolerant validation text checks, dynamic test data generation for phone/national ID) to reduce flakiness in shared test environments.
 - `TC12` import checks are aligned with runtime variability: completion and row-level outcomes are asserted without over-constraining update semantics where backend behavior may differ by data state.
 - `TC14` reflects current `HelperAdmin.get_fieldsets()` behavior: helper add form does not expose the `user` field, but the autocomplete endpoint remains test-covered.
 - Add/edit helper validation currently enforced by admin form and model constraints includes: required `employee_id`, required `contact_number`, duplicate-active checks for `employee_id`/`contact_number`/non-empty `national_id_number`, and soft-delete-aware uniqueness reuse.
 - `HelperAdminForm.clean_user()` contains duplicate-linked-user validation, but current helper admin fieldsets intentionally hide `user`; this is covered indirectly by model/admin behavior, not direct add-form UI interaction.
 - Product spec mentions contact number pattern (`^\\+?[0-9]{10,15}$`), but helper admin currently enforces required/uniqueness only. Keep E2E assertions aligned to implementation unless/until pattern validators are added.
-- Queue-failure scenarios (`TC16`, `TC17`) are implemented as opt-in tests in `tests/e2e/modules/test_helper_master_data_e2e.py` and require `E2E_EXPECT_IMPORT_QUEUE_FAILURE=1` to run.
+- Queue-failure scenarios (`TC16`, `TC17`) are implemented as opt-in tests in `tests/e2e/modules/users/test_helper_master_data_e2e.py` and require `E2E_EXPECT_IMPORT_QUEUE_FAILURE=1` to run.
 - Docker verification result (current environment): deterministic import validation/error tests passed (`TC08`, `TC09`, `TC15`); queue-failure tests are skipped unless explicitly enabled.

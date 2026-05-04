@@ -38,6 +38,6 @@ last_updated: 2026-04-23
 ## Alignment Notes
 
 - Coverage maps to `ProductAdmin` implementation in `apps/master_data/admin.py` and bulk import/export via `BulkImportExportMixin`.
-- Scenario list is aligned to current automated suite in `tests/e2e/modules/test_product_master_data_e2e.py` (TC01-TC08 implemented), plus planned implementation-aligned validation/error additions (TC09-TC20).
+- Scenario list is aligned to current automated suite in `tests/e2e/modules/02-master-data/test_product_master_data_e2e.py` (8 implemented tests).
 - Current UI behavior prevents mismatched category/sub-category pairings in normal interaction; negative-path validation is exercised via controlled form tampering to assert server-side enforcement.
 - `weight_per_unit` rule is captured per current model behavior: required for `Bag`/`Pieces`/`Cartons`. Current implementation does not reject populated `weight_per_unit` for `Ton`/`KG`/`Liters`.

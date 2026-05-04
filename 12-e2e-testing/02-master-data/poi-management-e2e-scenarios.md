@@ -33,6 +33,6 @@ last_updated: 2026-04-28
 ## Alignment Notes
 
 - Status is derived from implemented automation in:
-  - `tests/e2e/modules/test_poi_master_data_e2e.py`
+  - `tests/e2e/modules/02-master-data/test_poi_master_data_e2e.py`
 - Test coverage is aligned with current POI admin registration in `apps/master_data/admin.py` (`POIAdmin` with list/search/filter support).
 - `poi-management.md` contains target-state geofencing/capacity behavior; current Phase 1 admin e2e coverage focuses on implemented admin CRUD/search/filter/auth and field-level validation currently enforceable in the Django admin/model layer.

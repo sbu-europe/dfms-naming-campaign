@@ -60,4 +60,4 @@ last_updated: 2026-04-28
 - `remarks` uses a textarea widget in admin forms.
 - Implementation currently enforces fewer create-form mandatory fields than the module spec; `TC34` intentionally tracks this implementation-aligned behavior to prevent false failures.
 - `registration_number`, `chassis_number`, and `brand_name` are currently unique at model/DB level in this codebase; treat tenant-scoped uniqueness as a separate gap-validation stream when running cross-tenant tests.
-- Current passing automated coverage corresponds to the implemented e2e module `tests/e2e/modules/test_vehicle_model_master_data_e2e.py`.
+- Current passing automated coverage corresponds to the implemented e2e module `tests/e2e/modules/02-master-data/test_vehicle_model_master_data_e2e.py`.
