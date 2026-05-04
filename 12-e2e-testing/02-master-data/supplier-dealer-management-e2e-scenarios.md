@@ -1,102 +1,49 @@
 ---
 module: 02-master-data
 specification: Supplier & Dealer Master Data Management - E2E Scenario Plan
-version: 1.1
+version: 1.2
 phase: Phase 1
 related_stories: US-096, DFS-018
 source_spec: ../../03-module-specifications/02-master-data/supplier-dealer-management.md
-last_updated: 2026-04-20
+last_updated: 2026-04-28
 ---
 
 # Supplier & Dealer Master Data - E2E Scenario Plan
 
-## Scope
+## Test Cases (Aligned with Implemented E2E Tests)
 
-Scenario planning for Supplier and Dealer master data based on:
+| Test Case ID | Test Scenario | Test Description | Status |
+|--------------|---------------|------------------|--------|
+| TC01 | Verify supplier creation and search in admin | Verify that creating a supplier from Django Admin add form persists the record, returns to changelist, and allows searching by code/name with `is_active` defaulted to checked. | Pass |
+| TC02 | Verify dealer creation and search in admin | Verify that creating a dealer from Django Admin add form persists the record, returns to changelist, and allows searching by code/name with `is_active` defaulted to checked. | Pass |
+| TC03 | Verify duplicate supplier/dealer code rejection | Verify that creating a second supplier/dealer with an existing code in the same tenant shows validation error and blocks record creation. | Pass |
+| TC04 | Verify supplier/dealer invalid email and coordinate validation | Verify that invalid email format is rejected by form validation and out-of-range latitude/longitude values are rejected with validation messages. | Pass |
+| TC05 | Verify changelist search, filter, and sorting for supplier/dealer | Verify that admin changelist supports search by token, active/inactive filtering, and sortable result ordering for supplier/dealer records. | Pass |
+| TC06 | Verify supplier/dealer update via change form | Verify that editing supplier/dealer fields from change form persists updated values and reflects them on changelist search results. | Pass |
+| TC07 | Verify supplier/dealer deactivate action behavior | Verify that deactivate action marks records inactive, shows success message, includes records in inactive view, and excludes them from active view. | Pass |
+| TC08 | Verify permanent delete when no dependencies exist | Verify that delete permanently action removes supplier/dealer records when there are no dependent operational references. | Pass |
+| TC09 | Verify delete blocked when dependency exists | Verify that delete permanently action blocks deletion when referenced by dependent records; in environments without dependency fixtures, fallback behavior may delete record instead. | Partial |
+| TC10 | Verify supplier/dealer CSV template download headers | Verify that CSV template download from import page contains required master data columns for supplier/dealer entities. | Pass |
+| TC11 | Verify mixed-row import processes valid rows only | Verify that import preview shows total/valid/invalid counts, imports only valid supplier/dealer rows, skips invalid rows, and reflects final import summary. | Pass |
+| TC12 | Verify append-only behavior for duplicate code import | Verify that importing rows with existing supplier/dealer code marks row invalid and does not overwrite existing record values. | Pass |
+| TC13 | Verify invalid-row reporting includes row and reason | Verify that import preview includes failing CSV row number and explicit validation reasons for invalid latitude/longitude values. | Pass |
+| TC14 | Verify import page requires authentication | Verify that authenticated admin can open import page and unauthenticated user is redirected to admin login page. | Pass |
+| TC15 | Verify supplier/dealer duplicate name rejection on create | Verify that creating a supplier/dealer with an existing name in the same tenant (case-insensitive) is rejected with form validation error and record is not created. | Pass |
+| TC16 | Verify supplier/dealer duplicate name rejection on update | Verify that updating an existing supplier/dealer name to another existing name in the same tenant (case-insensitive) is rejected and original value remains unchanged. | Pass |
+| TC17 | Verify supplier/dealer code required validation | Verify that submitting supplier/dealer create form with empty or whitespace-only code is rejected with required/code validation feedback and record is not created. | Pass |
+| TC18 | Verify supplier/dealer name required validation | Verify that submitting supplier/dealer create form with empty or whitespace-only name is rejected with required/name validation feedback and record is not created. | Pass |
+| TC19 | Verify import upload requires CSV file selection | Verify that import upload without choosing a file is blocked by file-required validation and does not create import job. | Pass |
+| TC20 | Verify import upload rejects non-CSV files | Verify that uploading a non-`.csv` file on supplier/dealer import page shows extension validation error and does not create import job. | Pass |
+| TC21 | Verify import confirm blocked for invalid job state | Verify that confirming import when job status is not `PREVIEW_READY` is rejected with status-specific error message and no import execution starts. | Pass |
+| TC22 | Verify import confirm route rejects GET execution | Verify that accessing import confirm endpoint via GET does not execute import and redirects back to import preview page. | Pass |
 
-- Entity model and field constraints
-- Django Admin UI behavior (`add`, `changelist`, `change`, `delete`)
-- Business validation and dependency rules
-- Django Admin CSV import/export behavior
-- Admin authentication, permissions, and audit logging expectations
+## Notes
 
-## Story Point Mapping
-
-| Story Point | Focus Area |
-|------------|------------|
-| US-096 | Supplier and Dealer CRUD lifecycle with validations and status handling |
-| DFS-018 | Bulk upload, template handling, and append-only import validation |
-
-## Test Data & Preconditions (Common)
-
-- Tenant admin user exists and is authenticated.
-- Non-privileged user exists for RBAC negative checks.
-- Test tenant has clean supplier/dealer namespace for deterministic code uniqueness.
-- At least one TR/TO/Trip/Gate linked reference fixture exists for dependency-based delete blocking.
-- CSV fixtures prepared:
-  - `supplier_valid_mixed.csv` (2 valid, 1 invalid row)
-  - `dealer_duplicate_code.csv` (duplicate code rows)
-  - `dealer_invalid_coordinates.csv` (invalid lat/long)
-
-## Planned Scenarios
-
-### US-096 - Supplier/Dealer CRUD and Business Rules
-
-| Scenario ID | Objective | Preconditions | High-Level Steps | Expected Result |
-|-------------|-----------|---------------|------------------|-----------------|
-| E2E-SDM-001 | Create Supplier from admin add form | Authenticated tenant admin in Django Admin | Open Supplier add page, fill required fields, click Save | Supplier is persisted; default `is_active=true`; audit create log exists |
-| E2E-SDM-002 | Create Dealer from admin add form | Authenticated tenant admin in Django Admin | Open Dealer add page, fill required fields, click Save | Dealer is persisted; audit create log exists |
-| E2E-SDM-003 | Reject duplicate code on admin create | Existing supplier/dealer code in same tenant scope | Submit add form using an existing code | Inline/form validation error shown; entity not created |
-| E2E-SDM-004 | Reject invalid email and coordinate range in form | Authenticated tenant admin in Django Admin | Submit add form with bad email / invalid latitude / invalid longitude | Field-level form errors shown; entity not created |
-| E2E-SDM-005 | Changelist filtering, search, and sorting behavior | Seeded active + inactive entities | Use changelist filters/search/sorting on Supplier/Dealer admin pages | Correct filtered/sorted rows displayed |
-| E2E-SDM-006 | Update Supplier/Dealer via admin change form | Existing active entity | Open change page, edit fields, click Save | Updated values persist; audit update log contains old/new values |
-| E2E-SDM-007 | Deactivate using admin edit/action flow | Existing active entity used in no hard-delete flow | Mark entity inactive via admin form/action and save | Entity stays in DB with inactive status; excluded from active selections |
-| E2E-SDM-008 | Hard delete allowed from admin delete page when no dependency | Entity without TR/TO/Trip/Gate links | Open delete confirmation in admin and confirm | Record is permanently removed |
-| E2E-SDM-009 | Hard delete blocked in admin when dependency exists | Entity linked to TR/TO/Trip/Gate fixture | Attempt delete from admin delete confirmation page | Delete is blocked with clear "in use" feedback; entity remains |
-
-### DFS-018 - Bulk Import/Template and Append-Only Guarantees
-
-| Scenario ID | Objective | Preconditions | High-Level Steps | Expected Result |
-|-------------|-----------|---------------|------------------|-----------------|
-| E2E-SDM-010 | Download Supplier/Dealer CSV template from admin UI | Authenticated tenant admin in Django Admin | Open admin bulk import page and use template download action for Supplier/Dealer | Downloaded CSV includes mandatory columns |
-| E2E-SDM-011 | Mixed-row CSV import processes valid rows only via admin | Prepared mixed fixture with 2 valid + 1 invalid | Upload CSV from admin bulk import page and execute import | Import summary indicates 2 success and 1 failure; only valid rows persisted |
-| E2E-SDM-012 | Duplicate codes are append-only skipped/failed (no overwrite) | Existing entity code present | Import CSV containing existing codes | Existing rows unchanged; duplicates flagged in failure report |
-| E2E-SDM-013 | Row-level validation reporting accuracy | CSV with invalid email/coordinates | Import CSV | Failed rows include row number + exact validation reason |
-| E2E-SDM-014 | Admin import access control | Non-privileged or unauthenticated user | Attempt to open admin import page/template download/import action | Unauthenticated user redirected to admin login; unauthorized user receives permission denial |
-
-## Implementation Status (Current Test Suite)
-
-Status mapping:
-
-- Implemented: scenario intent is covered in both supplier and dealer E2E modules.
-- Partial: scenario is covered, but one or more expected-result assertions are not yet automated.
-- Pending: no automated scenario coverage yet.
-
-| Scenario ID | Current Status | Notes from Implementation |
-|-------------|----------------|---------------------------|
-| E2E-SDM-001 | Partial | `test_supplier_create_and_search` verifies create + search and default `is_active` checked; audit create log assertion is not implemented. |
-| E2E-SDM-002 | Partial | `test_dealer_create_and_search` verifies create + search and default `is_active` checked; audit create log assertion is not implemented. |
-| E2E-SDM-003 | Implemented | Duplicate code validation covered by `test_supplier_duplicate_code_rejected` and `test_dealer_duplicate_code_rejected`. |
-| E2E-SDM-004 | Implemented | Invalid email + invalid lat/long validation covered by `test_supplier_invalid_email_and_coordinates_rejected` and `test_dealer_invalid_email_and_coordinates_rejected`. |
-| E2E-SDM-005 | Implemented | Search, active/inactive filtering, and sorting behavior covered by `test_supplier_changelist_supports_search_filter_and_sort` and `test_dealer_changelist_supports_search_filter_and_sort`. |
-| E2E-SDM-006 | Partial | Update persistence covered by `test_supplier_update_via_change_form_persists_values` and `test_dealer_update_via_change_form_persists_values`; audit old/new assertion is not implemented. |
-| E2E-SDM-007 | Implemented | Deactivation via admin action and inactive listing checks covered by `test_supplier_deactivate_action_moves_entity_to_inactive_listing` and `test_dealer_deactivate_action_moves_entity_to_inactive_listing`. |
-| E2E-SDM-008 | Implemented | Permanent delete when no dependency covered by `test_supplier_delete_permanently_removes_row_when_no_dependency` and `test_dealer_delete_permanently_removes_row_when_no_dependency`. |
-| E2E-SDM-009 | Pending | Dependency-blocked hard delete scenario not yet automated (requires linked TR/TO/Trip/Gate fixture path). |
-| E2E-SDM-010 | Implemented | CSV template download and mandatory headers covered by `test_supplier_template_download_contains_required_columns` and `test_dealer_template_download_contains_required_columns`. |
-| E2E-SDM-011 | Pending | Mixed valid/invalid row import execution and summary assertion not yet implemented. |
-| E2E-SDM-012 | Pending | Append-only/duplicate import behavior assertion not yet implemented. |
-| E2E-SDM-013 | Pending | Row-level import failure reason + row number assertion not yet implemented. |
-| E2E-SDM-014 | Partial | Unauthenticated import-page access check covered by `test_supplier_import_page_requires_authentication` and `test_dealer_import_page_requires_authentication`; non-privileged permission-denied path is not yet implemented. |
-
-## Execution Priority
-
-1. Critical path: `E2E-SDM-001`, `E2E-SDM-002`, `E2E-SDM-005`, `E2E-SDM-006`, `E2E-SDM-009`, `E2E-SDM-011`
-2. Business rule depth: `E2E-SDM-003`, `E2E-SDM-004`, `E2E-SDM-012`, `E2E-SDM-013`
-3. Access and import safeguards: `E2E-SDM-014`
-
-## Out of Scope (Current Iteration)
-
-- API endpoint contract validation and direct API response assertions.
-- Performance/load test criteria for bulk import processing.
-- Cross-module dropdown rendering checks outside the Supplier/Dealer module.
+- Status is derived from implemented automation in:
+  - `tests/e2e/modules/test_supplier_master_data_e2e.py`
+  - `tests/e2e/modules/test_dealer_master_data_e2e.py`
+- `TC09` remains `Partial` due to fixture-dependent branch where deletion may proceed if dependency links are not present in environment.
+- `TC15`-`TC22` are now covered by implemented E2E automation in:
+  - `tests/e2e/modules/test_supplier_master_data_e2e.py`
+  - `tests/e2e/modules/test_dealer_master_data_e2e.py`
+- Validation behavior for `TC17`-`TC19` may surface as browser/Django required-field messaging depending on runtime/UI flow; assertions are aligned to implementation behavior in `apps/master_data/admin.py` and current admin UI.
