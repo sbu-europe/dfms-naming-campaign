@@ -35,7 +35,7 @@ last_updated: 2026-04-28
 
 ## Implementation Notes
 
-- This plan is now synchronized with implemented coverage in `tests/e2e/modules/test_helper_master_data_e2e.py`.
+- This plan is now synchronized with implemented coverage in `tests/e2e/modules/users/test_helper_master_data_e2e.py`.
 - Assertions intentionally use resilient UI patterns (form submit via DOM, tolerant validation text checks, dynamic test data generation for phone/national ID) to reduce flakiness in shared test environments.
 - `TC12` import checks are aligned with runtime variability: completion and row-level outcomes are asserted without over-constraining update semantics where backend behavior may differ by data state.
 - `TC14` reflects current `HelperAdmin.get_fieldsets()` behavior: helper add form does not expose the `user` field, but the autocomplete endpoint remains test-covered.

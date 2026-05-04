@@ -40,8 +40,8 @@ last_updated: 2026-04-28
 ## Notes
 
 - Status is derived from implemented automation in:
-  - `tests/e2e/modules/test_supplier_master_data_e2e.py`
-  - `tests/e2e/modules/test_dealer_master_data_e2e.py`
+  - `tests/e2e/modules/02-master-data/test_supplier_master_data_e2e.py`
+  - `tests/e2e/modules/02-master-data/test_dealer_master_data_e2e.py`
 - `TC09` remains `Partial` due to fixture-dependent branch where deletion may proceed if dependency links are not present in environment.
 - `TC15`-`TC22` are now covered by implemented E2E automation in:
   - `tests/e2e/modules/test_supplier_master_data_e2e.py`

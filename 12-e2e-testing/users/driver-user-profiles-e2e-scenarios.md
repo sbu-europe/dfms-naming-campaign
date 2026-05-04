@@ -6,7 +6,7 @@ phase: Phase 1
 related_stories: US-004, US-005, US-052, US-057
 source_spec: ../../03-module-specifications/12-users/driver-user-profiles.md
 implementation_reference: ../../../apps/users/admin.py
-test_implementation_reference: ../../../tests/e2e/modules/test_driver_user_profiles_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/users/test_driver_user_profiles_e2e.py
 last_updated: 2026-04-24
 ---
 
@@ -34,7 +34,7 @@ last_updated: 2026-04-24
 - This plan is aligned with `DriverAdmin.save_model()` behavior that provisions `User` + `UserRole` + `Driver` in one admin transaction and links via `Driver.user`.
 - Role/department expectations for create-path assertions: role code `driver` and department `operations` (per current `DriverAdmin` implementation and module spec).
 - Invitation side-effects are intentionally out of scope for driver profile E2E assertions unless explicitly covered by a dedicated invitation E2E plan.
-- Automation target file: `tests/e2e/modules/test_driver_user_profiles_e2e.py`.
+- Automation target file: `tests/e2e/modules/users/test_driver_user_profiles_e2e.py`.
 
 ## Current Runtime Constraints Reflected in Tests
 
