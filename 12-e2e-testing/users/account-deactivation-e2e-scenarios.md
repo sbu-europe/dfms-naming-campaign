@@ -10,7 +10,7 @@ implementation_reference:
   - ../../../apps/users/admin.py (UserAdmin: bulk deactivate/reactivate actions)
   - ../../../templates/admin/users/user/deactivate_selected.html
   - ../../../templates/admin/users/user/reactivate_selected.html
-test_implementation_reference: ../../../tests/e2e/modules/test_account_deactivation_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/users/test_account_deactivation_e2e.py
 last_updated: 2026-04-27
 ---
 

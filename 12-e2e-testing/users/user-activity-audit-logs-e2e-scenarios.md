@@ -11,7 +11,7 @@ implementation_reference:
   - ../../../apps/audit/services.py
   - ../../../apps/master_data/views.py (Vehicle CRUD audit hooks)
   - ../../../apps/users/services.py (login audit hooks)
-test_implementation_reference: ../../../tests/e2e/modules/test_user_activity_audit_logs_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/users/test_user_activity_audit_logs_e2e.py
 last_updated: 2026-04-28
 ---
 
@@ -28,7 +28,7 @@ These E2E scenarios validate the tenant-scoped Audit Logs feature set:
 - **Access control** (Tenant Admin / Super Admin only)
 - **Self-auditing** of audit-log access and export operations
 
-Test implementation: `tests/e2e/modules/test_user_activity_audit_logs_e2e.py`
+Test implementation: `tests/e2e/modules/users/test_user_activity_audit_logs_e2e.py`
 
 ## Test data & assumptions (E2E environment)
 

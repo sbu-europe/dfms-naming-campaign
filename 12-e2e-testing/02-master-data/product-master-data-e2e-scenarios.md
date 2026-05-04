@@ -26,5 +26,5 @@ last_updated: 2026-04-23
 ## Alignment Notes
 
 - Coverage maps to `ProductAdmin` implementation in `apps/master_data/admin.py` and bulk import/export via `BulkImportExportMixin`.
-- Scenario list is aligned to current automated suite in `tests/e2e/modules/test_product_master_data_e2e.py` (8 implemented tests).
+- Scenario list is aligned to current automated suite in `tests/e2e/modules/02-master-data/test_product_master_data_e2e.py` (8 implemented tests).
 - Current UI behavior prevents mismatched category/sub-category pairings in normal interaction; negative-path validation is exercised via controlled form tampering to assert server-side enforcement.

@@ -50,4 +50,4 @@ last_updated: 2026-04-22
 - `VehicleAdmin` derives `operational_status` in `save_model`; e2e assertions should validate resulting status from changelist rows, not rely on change-form widget presence.
 - Change-form rendering varies between editable widgets and readonly text for some fields; e2e selectors should support both DOM patterns.
 - `remarks` uses a textarea widget in admin forms.
-- Current passing automated coverage corresponds to the implemented e2e module `tests/e2e/modules/test_vehicle_model_master_data_e2e.py`.
+- Current passing automated coverage corresponds to the implemented e2e module `tests/e2e/modules/02-master-data/test_vehicle_model_master_data_e2e.py`.

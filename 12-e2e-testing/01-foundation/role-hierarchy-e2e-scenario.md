@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 related_stories: US-004
 source_spec: ../../03-module-specifications/01-foundation/rbac.md
-test_implementation_reference: ../../../tests/e2e/modules/test_rbac_role_hierarchy_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/01-foundation/test_rbac_role_hierarchy_e2e.py
 last_updated: 2026-04-24
 ---
 
@@ -115,8 +115,8 @@ This section adds the missing **tenant portal permission-based access** coverage
 
 ## Implementation Notes
 
-- Automated suite: `tests/e2e/modules/test_rbac_role_hierarchy_e2e.py`
-- Tenant portal menu suite: `tests/e2e/modules/test_portal_role_menu_access_e2e.py`
+- Automated suite: `tests/e2e/modules/01-foundation/test_rbac_role_hierarchy_e2e.py`
+- Tenant portal menu suite: `tests/e2e/modules/01-foundation/test_portal_role_menu_access_e2e.py`
 - Test data is generated dynamically to avoid collisions in shared environments.
 - Admin UI actions use resilient interactions (DOM form submit + keyboard search) to reduce flakiness under debug toolbar overlays.
 

@@ -12,7 +12,7 @@ implementation_reference:
   - ../../../apps/users/web_views.py (SSR pages)
   - ../../../templates/auth/forgot_password.html
   - ../../../templates/auth/reset_password.html
-test_implementation_reference: ../../../tests/e2e/modules/test_password_account_reset_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/users/test_password_account_reset_e2e.py
 last_updated: 2026-04-27
 
 # Password & Account Reset (US-008) - Playwright E2E Plan

@@ -9,7 +9,7 @@ implementation_reference:
   - ../../../apps/users/admin.py (InviteUserAdmin)
   - ../../../apps/users/web_views.py (activate_account SSR)
   - ../../../apps/users/invitation_views.py (API)
-test_implementation_reference: ../../../tests/e2e/modules/test_user_invitation_activation_e2e.py
+test_implementation_reference: ../../../tests/e2e/modules/users/test_user_invitation_activation_e2e.py
 last_updated: 2026-04-27
 ---
 
