@@ -18,10 +18,10 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 6 |
-| Total Story Points | 47 |
+| Total Stories | 6 + 9 *(Vendor Management planning)* |
+| Total Story Points | 47 + TBD *(Vendor Management planning)* |
 | Status | Not Started |
-| Epics | Trip Execution, Trip Closure & Tracking |
+| Epics | Trip Execution, Trip Closure & Tracking, Vendor Management *(planning context)* |
 
 ---
 
@@ -50,6 +50,25 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | 3 | [Real-time Map & Tracking Dashboard](02-trip-closure-tracking/TC-03-realtime-map-tracking.md) | TC-03 | DFS-047 | 8 | Pending |
 
 **Sub-total**: 21 SP
+
+---
+
+## Epic: Vendor Management (Planning Context)
+
+> Adds Sprint 4 backlog context for vendor onboarding, verification, tenant join, portal, bidding, and post-award submission. This does **not** change the Trip Execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing.
+
+| # | Story / Context | Task ID | Jira | SP | Status |
+|---|------------------|---------|------|----|--------|
+| 1 | [Vendor Management — Backlog Index](03-vendor-management/README.md) | VM-00 | ~ | ~ | Draft |
+| 2 | [Vendor Onboarding Entry (Self-registration + Invite)](03-vendor-management/VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
+| 3 | [Compliance Docs + Reference + Multi-vehicle Profile](03-vendor-management/VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
+| 4 | [Platform Verification Queue + Approve/Reject + Resubmission](03-vendor-management/VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
+| 5 | [Vendor Portal Views + Visibility Rules](03-vendor-management/VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
+| 6 | [Vendor ↔ Tenant Join Requests + Tenant Approval](03-vendor-management/VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
+| 7 | [Bid Submission (windows + late-bid prevention)](03-vendor-management/VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
+| 8 | [TDO Bid Evaluation (compare + award + winning log)](03-vendor-management/VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
+| 9 | [Vehicle & Driver Submission After Award + Audit Trail](03-vendor-management/VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
+| 10 | [Real-time TO Updates in Vendor Portal](03-vendor-management/VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
 
 ---
 
@@ -94,6 +113,11 @@ TC-01 (or full delivery)                ──→  TC-02 (POD / Closure)
 TE-02 (Active Trip)                     ──→  TC-03 (Map Tracking)
 TE-02 (Active Trip)                     ──→  TE-03 (Incident Mgmt)
 TC-02 (Delivered)                       ──→  Sprint 10 Financial (Costing)
+
+Vendor Onboarding (VM-01/02/03)          ──→  Tenant Join (VM-09)
+Tenant Join (VM-09)                      ──→  Vendor Portal Visibility + Bidding (VM-04/05/08)
+Bid Award (VM-08)                        ──→  Vehicle/Driver Submission (VM-06)
+Transport Order status changes            ──→  Vendor Portal TO Updates (VM-07)
 ```
 
 **Prerequisites from Sprint 3**:
