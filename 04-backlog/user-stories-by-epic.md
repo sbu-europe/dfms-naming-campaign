@@ -213,7 +213,7 @@
 
 ### User Stories:
 
-- **Sprint 4 — lifecycle & closure** (replaces removed TC-\* drafts): **[TLS-01](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-states-audit.md)** (**§6.8.5** TO substates), **[POD-01](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-trip-closure-pod.md)** (POD / **TO** closure); live map (**§6.8.2**) deferred out of Sprint 4 backlog; partial / incident re-delivery (**US-022** / PRD §6.8.6) remains **Phase 2**.
+- **Sprint 4 — lifecycle & closure** (replaces removed TC-\* drafts): **[TLS-01](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md)** (**§6.8.5** TO substates), **[POD-01](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md)** (POD / **TO** closure); live map (**§6.8.2**) deferred out of Sprint 4 backlog; partial / incident re-delivery (**US-022** / PRD §6.8.6) remains **Phase 2**.
 
 ---
 

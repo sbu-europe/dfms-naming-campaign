@@ -159,14 +159,14 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Vehicle licence, health & handover checklists](sprints/sprint-4/01-driver-supervisor/DS-01-vehicle-license-handover-checklists.md) | DS-01 | DFS-050 | Pending | 5 |
+| [Vehicle licence, health & handover checklists](sprints/sprint-4/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01 | DFS-050 | Pending | 5 |
 | [Driver state, attendance & leave (supervisor)](sprints/sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DS-02 | DFS-051 | Pending | 5 |
 
 ### Epic: Driver Mobile
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [TO list, execution milestones & POD](sprints/sprint-4/03-driver-mobile/DM-01-trip-navigation-status-pod.md) | DM-01 | DFS-053 | Pending | 8 |
+| [TO list, execution milestones & POD](sprints/sprint-4/03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01 | DFS-053 | Pending | 8 |
 
 ### Epic: Gate
 
@@ -193,8 +193,8 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [TO lifecycle — execution, yard & closure substates](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-states-audit.md) | TLS-01 | DFS-059 | Pending | 13 |
-| [TO closure — POD & gate-out linkage](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-trip-closure-pod.md) | POD-01 | DFS-060 | Pending | 5 |
+| [TO lifecycle — execution, yard & closure substates](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01 | DFS-059 | Pending | 13 |
+| [TO closure — POD & gate-out linkage](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | POD-01 | DFS-060 | Pending | 5 |
 
 | **Total** | | | | **78** |
 

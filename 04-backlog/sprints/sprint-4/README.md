@@ -73,7 +73,7 @@ Wave E — Closure
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-license-handover-checklists.md) | DS-01 | DFS-050 | 5 | Pending |
+| 1 | [Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01 | DFS-050 | 5 | Pending |
 | 2 | [Driver state, attendance & leave (supervisor)](01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DS-02 | DFS-051 | 5 | Pending |
 
 **Sub-total**: 10 SP
@@ -86,7 +86,7 @@ Wave E — Closure
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [TO list, execution milestones & POD capture](03-driver-mobile/DM-01-trip-navigation-status-pod.md) | DM-01 | DFS-053 | 8 | Pending |
+| 1 | [TO list, execution milestones & POD capture](03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01 | DFS-053 | 8 | Pending |
 
 **Sub-total**: 8 SP
 
@@ -133,8 +133,8 @@ Wave E — Closure
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [TO lifecycle — execution, yard & closure substates (+ audit)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-states-audit.md) | TLS-01 | DFS-059 | 13 | Pending |
-| 2 | [TO closure — POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-trip-closure-pod.md) | POD-01 | DFS-060 | 5 | Pending |
+| 1 | [TO lifecycle — execution, yard & closure substates (+ audit)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01 | DFS-059 | 13 | Pending |
+| 2 | [TO closure — POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | POD-01 | DFS-060 | 5 | Pending |
 | 3 | [Raw-material QC — sampling & pass/fail decision](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md) | QC-01 | DFS-064 | 5 | Pending |
 
 **Sub-total**: 23 SP
