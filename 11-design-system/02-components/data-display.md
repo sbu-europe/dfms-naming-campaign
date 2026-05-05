@@ -108,33 +108,125 @@ Padding: `--space-6` (24px) default, `--space-4` (16px) compact.
 
 ## Status Badges
 
-Maps to DFMS trip/workflow lifecycle states (colors from `colors.md`).
+DFMS uses a single reusable `.dfms-badge` base class combined with semantic modifier classes. **Always use the CSS class approach — never hardcode inline colours.** This ensures automatic light/dark mode adaptation via CSS variables.
 
-| Component | Size | Padding | Border radius | Font |
-|-----------|------|---------|---------------|------|
-| Status badge | 20px height | 4px 10px | `radius-full` | 11px / semibold / uppercase |
+### Anatomy
 
-```html
-<!-- Examples -->
-<span class="badge badge-status status-in-transit">In Transit</span>
-<span class="badge badge-status status-qc-hold">QC Hold</span>
-<span class="badge badge-status status-completed">Completed</span>
-<span class="badge badge-status status-approved">Approved</span>
+| Property | Value |
+|----------|-------|
+| Height | 20px |
+| Padding | 3px 10px |
+| Border radius | `--dfms-radius-pill` (9999px) |
+| Font size | 11px |
+| Font weight | 600 (semibold) |
+| Letter spacing | 0.04em |
+| Text transform | uppercase |
+| Icon | Bootstrap Icon at 10px, left of label |
+
+### Usage — Django Admin (Python)
+
+```python
+from django.utils.html import format_html
+
+PR_STATUS_BADGE = {
+    "draft":           ("dfms-badge--draft",           "bi-pencil",            "Draft"),
+    "submitted":       ("dfms-badge--submitted",       "bi-send",              "Submitted"),
+    "in_progress":     ("dfms-badge--in-progress",     "bi-arrow-repeat",      "In Progress"),
+    "fully_allocated": ("dfms-badge--fully-allocated", "bi-check2-all",        "Fully Allocated"),
+    "fulfilled":       ("dfms-badge--fulfilled",       "bi-check-circle-fill", "Fulfilled"),
+    "cancelled":       ("dfms-badge--cancelled",       "bi-x-octagon-fill",    "Cancelled"),
+}
+
+def status_badge(self, obj):
+    modifier, icon, label = PR_STATUS_BADGE.get(
+        obj.status, ("dfms-badge--neutral", "bi-circle", obj.get_status_display()))
+    return format_html(
+        '<span class="dfms-badge {}">'
+        '<i class="bi {} " style="font-size:10px;"></i>{}'
+        '</span>',
+        modifier, icon, label,
+    )
+status_badge.short_description = "Status"
 ```
 
+### Usage — HTML template
+
+```html
+<span class="dfms-badge dfms-badge--submitted">
+  <i class="bi bi-send" style="font-size:10px;"></i>Submitted
+</span>
+```
+
+---
+
+### Modifier Catalogue
+
+#### User Account Status
+
+| State | CSS Modifier | Icon | Colour |
+|-------|-------------|------|--------|
+| Active | `dfms-badge--active` | `bi-check-circle-fill` | Green |
+| Invited | `dfms-badge--trial` | `bi-clock-fill` | Blue (info) |
+| Suspended | `dfms-badge--suspended` | `bi-x-octagon-fill` | Amber |
+| Invitation Expired | `dfms-badge--neutral` | `bi-slash-circle` | Grey |
+
+#### PR (Product Requisition) Status
+
+| State | CSS Modifier | Icon | Colour |
+|-------|-------------|------|--------|
+| Draft | `dfms-badge--draft` | `bi-pencil` | Grey |
+| Submitted | `dfms-badge--submitted` | `bi-send` | Blue (info) |
+| In Progress | `dfms-badge--in-progress` | `bi-arrow-repeat` | Amber |
+| Fully Allocated | `dfms-badge--fully-allocated` | `bi-check2-all` | Purple |
+| Fulfilled | `dfms-badge--fulfilled` | `bi-check-circle-fill` | Green |
+| Cancelled | `dfms-badge--cancelled` | `bi-x-octagon-fill` | Red |
+
+#### TR (Transport Requisition) Status
+
+| State | CSS Modifier | Icon | Colour |
+|-------|-------------|------|--------|
+| Submitted | `dfms-badge--submitted` | `bi-send` | Blue (info) |
+| Pending Approval | `dfms-badge--pending-approval` | `bi-clock-fill` | Amber |
+| Approved | `dfms-badge--approved` | `bi-check-circle-fill` | Green |
+| Rejected | `dfms-badge--rejected` | `bi-x-octagon-fill` | Red |
+| Available for Planning | `dfms-badge--available-planning` | `bi-box-arrow-right` | Purple |
+| Under Planning | `dfms-badge--under-planning` | `bi-kanban` | Light blue |
+| Partially Allocated | `dfms-badge--partially-allocated` | `bi-pie-chart` | Amber |
+| Fully Allocated | `dfms-badge--fully-allocated` | `bi-check2-all` | Purple |
+| Fulfilled | `dfms-badge--fulfilled` | `bi-check-circle-fill` | Green |
+| Cancelled | `dfms-badge--cancelled` | `bi-x-octagon-fill` | Red |
+
+#### Urgency
+
+| Level | CSS Modifier | Icon | Colour |
+|-------|-------------|------|--------|
+| Normal | `dfms-badge--urgency-normal` | `bi-dash-circle` | Grey |
+| High | `dfms-badge--urgency-high` | `bi-exclamation-circle` | Amber |
+| Critical | `dfms-badge--urgency-critical` | `bi-exclamation-triangle-fill` | Red |
+
+#### Fallback
+
+| State | CSS Modifier | Icon |
+|-------|-------------|------|
+| Unknown / unrecognised | `dfms-badge--neutral` | `bi-circle` |
+
+---
+
+### Rules
+
+- **Never hardcode hex colours** in `format_html` or templates — always use a modifier class.
+- **Never create a one-off badge class** — add to the catalogue above and `custom.css` simultaneously.
+- All modifier classes use CSS variables (`--dfms-success`, `--dfms-warning-bg`, etc.) for automatic light/dark mode support.
+- Badge classes live in `static/admin/css/custom.css` under the section `PR / TR Workflow Status Badges`.
+- Icon size inside a badge is always `font-size: 10px` inline style (Bootstrap Icons don't reliably inherit 11px at this size).
+
+---
+
+### Legacy (Trip states — pre-Sprint-3)
+
+These older classes remain for the Trip workflow but **should not be used for new features**. Use `dfms-badge--*` modifiers instead.
+
 ```css
-.badge-status {
-  display: inline-flex;
-  align-items: center;
-  height: 20px;
-  padding: 0 10px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
 .status-in-transit  { background: var(--color-primary-muted); color: var(--color-primary); }
 .status-pending     { background: var(--color-warning-light); color: var(--color-warning); }
 .status-approved    { background: var(--color-success-light); color: var(--color-success); }
