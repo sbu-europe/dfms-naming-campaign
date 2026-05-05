@@ -6,7 +6,7 @@ phase: Phase 1
 related_stories: US-004
 source_spec: ../../03-module-specifications/01-foundation/rbac.md
 test_implementation_reference: ../../../tests/e2e/modules/01-foundation/test_rbac_role_hierarchy_e2e.py
-last_updated: 2026-04-24
+last_updated: 2026-05-05
 ---
 
 # US-004 Role Hierarchy - Playwright E2E Implementation Plan
@@ -20,26 +20,26 @@ This document tracks the **implemented** Playwright E2E coverage for the US-004 
 | TC01 | Admin (RBAC) | Tenant Admin | Invite user + assign role via Users admin (single-role UX) | N/A | P0 | Implemented (Pass) |
 | TC02 | Admin (RBAC) | Tenant Admin | Change existing user role and verify persistence | N/A | P0 | Implemented (Pass) |
 | TC03 | Tenant Portal | Tenant Admin | Role-based portal navigation matches permissions | All menu items (full portal) | P0 | Automated (Implemented) |
-| TC04 | Tenant Portal | Depot Officer | Role-based portal navigation matches permissions | `requisitions`, `reports`, plus Master Data items permitted by role matrix | P0 | Automated (Implemented) |
-| TC05 | Tenant Portal | Feed Mill Officer | Role-based portal navigation matches permissions | `requisitions`, `reports`, and limited Master Data (Product/Category read) | P0 | Automated (Implemented) |
-| TC06 | Tenant Portal | Commercial Officer | Role-based portal navigation matches permissions | `requisitions`, `reports` | P0 | Automated (Implemented) |
-| TC07 | Tenant Portal | Procurement Officer | Role-based portal navigation matches permissions | `command_center`, `requisitions`, `transport_orders`, `vendors`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
-| TC08 | Tenant Portal | Distribution Officer (DO) | Role-based portal navigation matches permissions | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC09 | Tenant Portal | Distribution Manager (DM) | Role-based portal navigation matches permissions | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC10 | Tenant Portal | Transport Planner (TP) | Role-based portal navigation matches permissions | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
-| TC11 | Tenant Portal | Transport Distribution Officer (TDO) – Own Fleet | Role-based portal navigation matches permissions | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC12 | Tenant Portal | Transport Distribution Officer (TDO) – Vendor Fleet | Role-based portal navigation matches permissions | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
+| TC04 | Tenant Portal | Depot Officer | Role-based portal navigation matches permissions | `requisition_fg` only | P0 | Automated (Implemented) |
+| TC05 | Tenant Portal | Feed Mill Officer | Role-based portal navigation matches permissions | `requisition_fg` only | P0 | Automated (Implemented) |
+| TC06 | Tenant Portal | Commercial Officer | Role-based portal navigation matches permissions | `port_shipments` only | P0 | Automated (Implemented) |
+| TC07 | Tenant Portal | Procurement Officer | Role-based portal navigation matches permissions | `port_shipments`, `procurement_transport_requests`, `vendors` | P0 | Automated (Implemented) |
+| TC08 | Tenant Portal | Distribution Officer (DO) | Role-based portal navigation matches permissions | `command_center`, `distribution_pr_queue`, `distribution_transport_requests`, `trips` | P0 | Automated (Implemented) |
+| TC09 | Tenant Portal | Distribution Manager (DM) | Role-based portal navigation matches permissions | `command_center`, `distribution_pr_queue`, `distribution_transport_requests`, `trips` | P0 | Automated (Implemented) |
+| TC10 | Tenant Portal | Transport Planner (TP) | Role-based portal navigation matches permissions | `command_center`, `gate`, `transport_requests`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
+| TC11 | Tenant Portal | Transport Distribution Officer (TDO) – Own Fleet | Role-based portal navigation matches permissions | `command_center`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
+| TC12 | Tenant Portal | Transport Distribution Officer (TDO) – Vendor Fleet | Role-based portal navigation matches permissions | `command_center`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
 | TC13 | Tenant Portal | Command Center Officer | Role-based portal navigation matches permissions | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, plus Master Data read items granted by role | P0 | Automated (Implemented) |
 | TC14 | Tenant Portal | Gateman | Role-based portal navigation matches permissions | `command_center`, `gate` | P0 | Automated (Implemented) |
 | TC15 | Tenant Portal | Scaling Operator | Role-based portal navigation matches permissions | `command_center`, `gate`, `trip_costs` | P0 | Automated (Implemented) |
 | TC16 | Tenant Portal | Loading Personnel | Role-based portal navigation matches permissions | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
 | TC17 | Tenant Portal | Unloading Personnel | Role-based portal navigation matches permissions | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
-| TC18 | Tenant Portal | QC Inspector – Physical | Role-based portal navigation matches permissions | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
-| TC19 | Tenant Portal | QA Lab Technician | Role-based portal navigation matches permissions | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
+| TC18 | Tenant Portal | QC Inspector – Physical | Role-based portal navigation matches permissions | `qc`, `requisitions` | P0 | Automated (Implemented) |
+| TC19 | Tenant Portal | QA Lab Technician | Role-based portal navigation matches permissions | `qc`, `requisitions` | P0 | Automated (Implemented) |
 | TC20 | Tenant Portal | Driver Supervisor | Role-based portal navigation matches permissions | `command_center`, `transport_orders`, `trips`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
 | TC21 | Tenant Portal | Driver | Role-based portal navigation matches permissions | `trips` | P0 | Automated (Implemented) |
 | TC22 | Tenant Portal | Driver Helper | Role-based portal navigation matches permissions | `trips` | P0 | Automated (Implemented) |
-| TC23 | Tenant Portal | Account Officer | Role-based portal navigation matches permissions | `requisitions`, `trip_costs`, `vendors`, `reports` | P0 | Automated (Implemented) |
+| TC23 | Tenant Portal | Account Officer | Role-based portal navigation matches permissions | `requisitions`, `trip_costs`, `vendors` | P0 | Automated (Implemented) |
 
 ## Tenant Portal — Role-Based Menu Access (Expanded Matrix)
 
@@ -85,26 +85,26 @@ This section adds the missing **tenant portal permission-based access** coverage
 | Test Case ID | Role | Expected portal menu items (IDs) | Priority | Status |
 |--------------|------|----------------------------------|----------|--------|
 | TC03 | Tenant Admin | All menu items (full portal) | P0 | Automated (Implemented) |
-| TC04 | Depot Officer | `requisitions`, `reports`, plus Master Data items permitted by role matrix | P0 | Automated (Implemented) |
-| TC05 | Feed Mill Officer | `requisitions`, `reports`, and limited Master Data (Product/Category read) | P0 | Automated (Implemented) |
-| TC06 | Commercial Officer | `requisitions`, `reports` | P0 | Automated (Implemented) |
-| TC07 | Procurement Officer | `command_center`, `requisitions`, `transport_orders`, `vendors`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
-| TC08 | Distribution Officer (DO) | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC09 | Distribution Manager (DM) | `command_center`, `requisitions`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC10 | Transport Planner (TP) | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, `reports`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
-| TC11 | Transport Distribution Officer (TDO) – Own Fleet | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC12 | Transport Distribution Officer (TDO) – Vendor Fleet | `command_center`, `transport_orders`, `trips`, `reports` | P0 | Automated (Implemented) |
-| TC13 | Command Center Officer | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips`, plus Master Data read items granted by role | P0 | Automated (Implemented) |
+| TC04 | Depot Officer | `requisition_fg` | P0 | Automated (Implemented) |
+| TC05 | Feed Mill Officer | `requisition_fg` | P0 | Automated (Implemented) |
+| TC06 | Commercial Officer | `port_shipments` | P0 | Automated (Implemented) |
+| TC07 | Procurement Officer | `port_shipments`, `procurement_transport_requests`, `vendors` | P0 | Automated (Implemented) |
+| TC08 | Distribution Officer (DO) | `command_center`, `distribution_pr_queue`, `distribution_transport_requests`, `trips` | P0 | Automated (Implemented) |
+| TC09 | Distribution Manager (DM) | `command_center`, `distribution_pr_queue`, `distribution_transport_requests`, `trips` | P0 | Automated (Implemented) |
+| TC10 | Transport Planner (TP) | `command_center`, `gate`, `transport_requests`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
+| TC11 | Transport Distribution Officer (TDO) – Own Fleet | `command_center`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
+| TC12 | Transport Distribution Officer (TDO) – Vendor Fleet | `command_center`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
+| TC13 | Command Center Officer | `command_center`, `gate`, `requisitions`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
 | TC14 | Gateman | `command_center`, `gate` | P0 | Automated (Implemented) |
 | TC15 | Scaling Operator | `command_center`, `gate`, `trip_costs` | P0 | Automated (Implemented) |
 | TC16 | Loading Personnel | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
 | TC17 | Unloading Personnel | `command_center`, `gate`, `trips` | P0 | Automated (Implemented) |
-| TC18 | QC Inspector – Physical | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
-| TC19 | QA Lab Technician | `qc`, `requisitions`, `reports` | P0 | Automated (Implemented) |
-| TC20 | Driver Supervisor | `command_center`, `transport_orders`, `trips`, plus any Master Data items granted by role | P0 | Automated (Implemented) |
+| TC18 | QC Inspector – Physical | `qc`, `requisitions` | P0 | Automated (Implemented) |
+| TC19 | QA Lab Technician | `qc`, `requisitions` | P0 | Automated (Implemented) |
+| TC20 | Driver Supervisor | `command_center`, `transport_orders`, `trips` | P0 | Automated (Implemented) |
 | TC21 | Driver | `trips` | P0 | Automated (Implemented) |
 | TC22 | Driver Helper | `trips` | P0 | Automated (Implemented) |
-| TC23 | Account Officer | `requisitions`, `trip_costs`, `vendors`, `reports` | P0 | Automated (Implemented) |
+| TC23 | Account Officer | `requisitions`, `trip_costs`, `vendors` | P0 | Automated (Implemented) |
 
 ## What This Automation Validates (US-004 alignment)
 
@@ -112,6 +112,12 @@ This section adds the missing **tenant portal permission-based access** coverage
 - **Department derivation**: Department is derived from `Role.department` and submitted as a hidden field in invitation flow.
 - **Single-role assignment behavior**: The user ends up with one effective operational role in the admin UX and is visible in the Users list.
 - **Portal menu gating**: Tenant portal sidebar is generated from stable permission codes (`Menu.*` and Master Data read/write) and reflects the effective role assignment.
+
+## Role Permission Design Decisions (Sprint 3)
+
+- **Reports menu hidden for all operational roles** — `MENU_REPORTS_VIEW` removed from all roles until the reporting module is built (no `apps/reporting/admin.py` exists). Will be re-added per role when Reports is implemented.
+- **Master Data admin access** — Operational roles (`depot_officer`, `feed_mill_officer`, `commercial_officer`, etc.) do **not** have direct MDM admin access. Master Data is managed by Tenant Admin only. MDM access permission codes (`MasterData.*`) are reserved for Tenant Admin in `role_seed_data.py`.
+- **MDM admin permission enforcement** — `TenantMasterDataAdmin` (base class for all MDM admin classes in `apps/master_data/admin.py`) checks custom RBAC permission codes (`_mdm_read_perm` / `_mdm_write_perm`) rather than Django model permissions, since operational users have custom role codes but no Django `auth` model permissions.
 
 ## Implementation Notes
 
