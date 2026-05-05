@@ -21,4 +21,3 @@ See `vendor-mobile/README.md`:
 - Trip tracking + history: `vendor-mobile/04-trip-tracking-and-history.md`
 - Profile management: `vendor-mobile/05-profile-management.md`
 - Technical/security/integration: `vendor-mobile/06-technical-security-integration.md`
-```
