@@ -18,10 +18,29 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 | Metric | Value |
 |--------|-------|
-| Total Stories | 10 |
-| Total Story Points | 68 |
+| Total Stories | 11 |
+| Total Story Points | 73 |
 | Status | In Progress |
-| Epics | Requisition (FG), Port Shipments, Distribution, Procurement, Transport, QA & Testing, DevOps & Infrastructure |
+| Epics | Dashboard, Requisition (FG), Port Shipments, Distribution, Procurement, Transport, QA & Testing, DevOps & Infrastructure |
+
+---
+
+## Epic: Dashboard (Universal Landing Page)
+
+> Every tenant user lands on a **role-scoped dashboard** at `/admin/`. The page and its KPI widgets are dynamically filtered based on the user's role — no blank screens, no 403s for operational staff.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Role-Based Dashboard](09-dashboard/DB-01-role-based-dashboard.md) | DB-01 | DFS-043 | 5 | Pending |
+
+**Key rules:**
+- `/admin/` is the universal landing page for **all** tenant roles after login
+- Dashboard content (KPI widgets) is **role-scoped** — depot officer sees own PR counts, distribution manager sees pending TR approvals, transport planner sees available TRs, etc.
+- Roles with no specific KPIs (e.g. `gateman`) see a minimal welcome screen
+- A new `Menu.Dashboard.View` permission code is added and assigned to every operational role
+- Tenant Admin retains the existing full Django admin index behaviour
+
+**Sub-total**: 5 SP
 
 ---
 
@@ -285,6 +304,8 @@ Key admin behaviours:
 ## Dependency Map
 
 ```
+DB-01 (Role-Based Dashboard) ── prerequisite: all roles have a landing page
+
 PR-01 (FG PR)     ──→  DR-01 (Distribution PR queue)
                         └──→  DR-02 (FG TR creation + DM approval)
                                 └──→  TRQ-01 (unified TR queue: FG + Port Consignment)
@@ -354,18 +375,19 @@ TRQ-01            ──→  TO-01 (TO creation)
 
 ## Role Summary
 
-> Cross-check: **Menu structure & role access** (section above) is authoritative; this table is a compact matrix of the same **Sprint 3** access.
+> Cross-check: **Menu structure & role access** (section above) is authoritative; this table is a compact matrix of the same **Sprint 3** access. All roles have **Dashboard** as their landing page.
 
-| Role | Module access | List / read scope | Create / act |
-|------|--------------|-------------------|-------------|
-| Depot / Feed Mill Officer | Requisition → **Finished Goods** | Own PRs | Create, edit, cancel own PRs (cancel before any TR from PR); **no** Port Shipments |
-| Commercial Officer | **Port Shipments** (top-level) | **Own** shipments (tenant) | Register, edit (draft), cancel (before any TR); **no** Requisition (FG) |
-| Distribution Officer | **Distribution** | **Product requisitions** — all submitted FG PRs; **Transport requests** — own TRs | Create TRs against FG PRs (source POI per TR; dest from PR) |
-| Distribution Manager | **Distribution** | **Product requisitions** — all submitted FG PRs; **Transport requests** — **all** FG TRs | Approve, modify, reject, or request clarification (pending **FG** TRs) |
-| Procurement Officer | **Port Shipments** (all submitted, read) + **Procurement → Transport requests** | Shipment list/detail (PC-01); **own** Port Consignment TRs in Procurement | Create TR from shipment / list (PC-02) — no approval; **no** create/edit of shipment (Commercial) |
-| Transport Planner | **Transport** | **Transport requests** — all FG + Port Consignment in scope (unified queue); **Transport orders (TO)** — all TOs | TR planning inputs (TRQ-01); create and manage TOs (TO-01) |
-| Transport Distribution Officer (TDO) | **Transport** | **Transport orders (TO)** — own-fleet and/or vendor queue per assignment | Assign vehicle, driver, helpers, ETA (TO-02) |
-| Driver | **Transport** (driver) | **Transport orders** — *my assigned* TOs only | View assigned TOs (execution handoff; dispatch in Sprint 4) |
+| Role | Dashboard widgets | Module access | List / read scope | Create / act |
+|------|-------------------|--------------|-------------------|-------------|
+| Depot / Feed Mill Officer | Draft / Submitted / In-Progress own PRs | Requisition → **Finished Goods** | Own PRs | Create, edit, cancel own PRs (cancel before any TR from PR); **no** Port Shipments |
+| Commercial Officer | Draft / Submitted own shipments | **Port Shipments** (top-level) | **Own** shipments (tenant) | Register, edit (draft), cancel (before any TR); **no** Requisition (FG) |
+| Distribution Officer | Pending FG PRs, own active TRs | **Distribution** | **Product requisitions** — all submitted FG PRs; **Transport requests** — own TRs | Create TRs against FG PRs (source POI per TR; dest from PR) |
+| Distribution Manager | Pending FG PRs, pending TR approvals | **Distribution** | **Product requisitions** — all submitted FG PRs; **Transport requests** — **all** FG TRs | Approve, modify, reject, or request clarification (pending **FG** TRs) |
+| Procurement Officer | Port Shipments awaiting TR, own Port TRs | **Port Shipments** (all submitted, read) + **Procurement → Transport requests** | Shipment list/detail (PC-01); **own** Port Consignment TRs in Procurement | Create TR from shipment / list (PC-02) — no approval; **no** create/edit of shipment (Commercial) |
+| Transport Planner | FG + Port TRs available for planning, open TOs | **Transport** | **Transport requests** — all FG + Port Consignment in scope (unified queue); **Transport orders (TO)** — all TOs | TR planning inputs (TRQ-01); create and manage TOs (TO-01) |
+| Transport Distribution Officer (TDO) | Open TOs (own queue) | **Transport** | **Transport orders (TO)** — own-fleet and/or vendor queue per assignment | Assign vehicle, driver, helpers, ETA (TO-02) |
+| Driver | My assigned TOs | **Transport** (driver) | **Transport orders** — *my assigned* TOs only | View assigned TOs (execution handoff; dispatch in Sprint 4) |
+| Tenant Admin | Full tenant KPI summary | All modules | All tenant data | Full admin CRUD |
 
 ---
 
