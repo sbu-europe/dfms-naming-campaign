@@ -37,7 +37,8 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 - [ ] For **TO-linked** flow: lookup TO by number; validate vehicle matches assigned vehicle on TO *(or warn + supervisor override policy — document)*
 
 ### AC-2: Routing hint
-- [ ] Store routing classification per PRD: Supplier/Port inbound vs Dealer outbound vs Internal TO workflow *(drives later QC paths — Sprint 4 may only persist flags)*
+- [ ] At gate-in, store routing type per PRD: **Supplier/Port Inbound**, **Dealer Outbound**, or **Internal Transfer (TO/Challan)**
+- [ ] In Sprint 4, this AC only requires persisting the routing flag; downstream QC/flow enforcement is handled in later stories
 
 ### AC-3: Gate-out
 - [ ] Gate-out allowed only when business rules satisfied: **after scale-out** for flows that use scaling; **QC not blocking** for unloading flows per PRD §6.10.3 *(implement minimum rule set for E2E FG outbound: scale-out completed + loading completed — exact matrix in tech design with TLS-01)*
