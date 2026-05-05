@@ -44,7 +44,6 @@ Implements **§6.16.1.1** (Phase 1) **without** map, external navigation, or bac
 
 ### AC-3: POD capture
 - [ ] Driver submits **POD** with **photo** (optional signature if product confirms) **linked to the TO**
-- [ ] Upload retry; **offline**: queue POD payload and sync when online *(MVP: clear “pending sync” state)*
 
 ### AC-4: Technical NFRs (Sprint 4)
 - [ ] Photo auto-compress before upload
