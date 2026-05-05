@@ -277,7 +277,7 @@ Key admin behaviours:
          │      Driver: my assigned TOs (Transport orders)                    │
          └─────────────────────────────────────────────────────────────────┘
                    ↓
-         (Sprint 4: Dispatch → In-Transit → POD → Trip Closure)
+         (Sprint 4: Supervisor → Dispatch/Trip → Driver app → Gate → Scale → Command Center → Load/Unload → Map/Lifecycle → POD — see [Sprint 4 README](../sprint-4/README.md))
 ```
 
 ---

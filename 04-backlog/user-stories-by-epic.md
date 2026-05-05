@@ -200,14 +200,7 @@
 - **TO-02**: TDO Vehicle, Driver, Helper & ETA Assignment
   - Sprint: Sprint 3 | Status: Pending | SP: 8
 
-- **TE-01 / US-020**: TO Execution — Own Fleet (Vehicle/Driver Assignment)
-  - Sprint: Sprint 4 | Status: Pending | SP: 8
-
-- **TE-02 / US-021**: Trip Lifecycle Management (12 States)
-  - Sprint: Sprint 4 | Status: Pending | SP: 13
-
-- **TE-03 / US-023**: Incident Management & Exception Handling
-  - Sprint: Sprint 4 | Status: Pending | SP: 5
+- **Sprint 4 — own-fleet execution** (replaces removed TE-\* drafts): see [`sprints/sprint-4/README.md`](sprints/sprint-4/README.md) — **TO-centric** (no Trip backlog): **DM-01** (driver **TO** list, milestones & POD), **TLS-01** (**§6.8.5**), **GT-01 / GT-02**, **SC-01 / CC-01 / LD-01 / LUP-01**, **POD-01**, **DS-01 / DS-02**; map/live tracking and QA/E2E ticket **not** in Sprint 4 backlog until finalized.
 
 - **US-043**: Command Center Operations Monitoring
   - Sprint: Sprint 7 | Status: Pending | SP: 8
@@ -220,14 +213,7 @@
 
 ### User Stories:
 
-- **TC-01 / US-022**: Partial Delivery Handling
-  - Sprint: Sprint 4 | Status: Pending | SP: 5
-
-- **TC-02 / US-025**: Trip Closure with Proof of Delivery (POD)
-  - Sprint: Sprint 4 | Status: Pending | SP: 8
-
-- **TC-03 / US-026**: Real-time Map & Tracking Dashboard
-  - Sprint: Sprint 4 | Status: Pending | SP: 8
+- **Sprint 4 — lifecycle & closure** (replaces removed TC-\* drafts): **[TLS-01](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-states-audit.md)** (**§6.8.5** TO substates), **[POD-01](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-trip-closure-pod.md)** (POD / **TO** closure); live map (**§6.8.2**) deferred out of Sprint 4 backlog; partial / incident re-delivery (**US-022** / PRD §6.8.6) remains **Phase 2**.
 
 ---
 
