@@ -57,6 +57,9 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 > Adds Sprint 4 backlog context for vendor onboarding, verification, tenant join, portal, bidding, and post-award submission. This does **not** change the Trip Execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing.
 
+**Vendor mobile app context (from Sprint 4)**:
+- [`03-vendor-management/VENDOR-MOBILE-CONTEXT.md`](03-vendor-management/VENDOR-MOBILE-CONTEXT.md)
+
 | # | Story / Context | Task ID | Jira | SP | Status |
 |---|------------------|---------|------|----|--------|
 | 1 | [Vendor Management — Backlog Index](03-vendor-management/README.md) | VM-00 | ~ | ~ | Draft |

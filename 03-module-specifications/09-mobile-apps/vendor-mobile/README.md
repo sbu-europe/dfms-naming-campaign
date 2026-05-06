@@ -9,7 +9,7 @@ related_modules: [vendor-portal, vendor-bidding, trip-management]
 
 # Vendor Mobile Application — Split Context Index
 
-This directory contains the Vendor Mobile Application specification split into focused context files.
+This directory is the **source-of-truth index** for the Vendor Mobile Application specification (split into focused context files).
 
 ## Contents
 

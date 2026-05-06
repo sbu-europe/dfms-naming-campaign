@@ -13,6 +13,11 @@ last_updated: 2026-05-05
 
 > Use this as the Sprint 4 vendor-management context sheet. It mirrors the sprint README style: summary → epic table → E2E flow → dependencies → notes.
 
+## Mobile app context (quick entrypoint)
+
+- Sprint 4 entrypoint (this folder): [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)
+- Source-of-truth specs: [`03-module-specifications/09-mobile-apps/vendor-mobile/`](../../../03-module-specifications/09-mobile-apps/vendor-mobile/)
+
 ## Sprint Goal (Vendor Management)
 
 Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be verified, view/pursue bids, submit vehicle/driver details post-award, and receive real-time TO updates through the vendor portal.
