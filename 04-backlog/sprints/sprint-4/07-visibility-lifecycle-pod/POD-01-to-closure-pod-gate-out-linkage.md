@@ -52,7 +52,11 @@ All closure rules apply to the **TO** only (no separate Trip id).
 - [ ] Gate-out timestamp required in closure path (**GT-01**)
 
 ### AC-5: Auto-close rule
-- [ ] When rules satisfied, system transitions **TO** to **Closed** (sub-state per **§6.8.5**); audit entry
+- [ ] Closure matrix is flow-lane aware and auditable:
+  - FG outbound: loading complete + scale-out + gate-out + POD
+  - FG inbound: unloading complete + scale-out + gate-out + POD
+  - RM inbound: unloading complete + sampling done + QC pass + scale-out + gate-out + POD
+- [ ] When lane-specific rules are satisfied, system transitions **TO** to **Closed** (sub-state per **§6.8.5**); audit entry
 
 ## Sub-tasks
 
@@ -67,5 +71,6 @@ All closure rules apply to the **TO** only (no separate Trip id).
 
 ## Definition of Done
 
-- [ ] UAT: missing POD → cannot close; with POD + gate-out + QC pass → **TO** closes
+- [ ] UAT: FG inbound TO closes only after unload + scale-out + gate-out + POD
+- [ ] UAT: missing POD → cannot close; with POD + gate-out + QC pass (RM lane) → **TO** closes
 - [ ] No §6.8.8 costing scope in Sprint 4

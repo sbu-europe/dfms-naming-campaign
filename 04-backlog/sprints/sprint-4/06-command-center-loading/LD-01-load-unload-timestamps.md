@@ -27,6 +27,8 @@ prd_refs:
 
 **§6.13.2** loading notifications = Phase 3 — excluded. This story is **data capture** at source (load) and destination (unload) for E2E.
 
+For finished-goods inbound TOs (e.g., Port Consignment planner TO lane), unloading timestamps are part of the closure prerequisites in POD-01.
+
 For raw-material TOs, this story provides the unloading event context consumed by **QC-01**.  
 Sampling/QC decision capture is intentionally kept in a separate story.
 
@@ -41,6 +43,7 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 ### AC-2: Unloading
 - [ ] Enter **unload start** and **unload end** with bags unloaded + weight
 - [ ] Chronological validation; link to **TO**
+- [ ] Applies to both FG inbound and RM inbound lanes; QC handoff remains RM-specific in Sprint 4
 
 ### AC-3: QC handoff context (raw-material path)
 - [ ] After unload event capture, TO has enough context for **QC-01** to run sampling + QC decision

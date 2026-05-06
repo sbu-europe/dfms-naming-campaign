@@ -36,6 +36,10 @@ Sprint 4 extends **§6.8.5** with **execution**, **yard**, and **closure** subst
 ### AC-1: States & sub-states
 - [ ] Model **TO** lifecycle per **§6.8.5**: reconcile with Sprint 3 TO statuses already shipped; add forward-only **execution** (post–Ready for Dispatch), **yard** (gate, scale, queue, load/unload per PRD naming), and **closure** substates in technical design
 - [ ] **One TO = one execution thread** (Phase 1)
+- [ ] Include explicit flow-lane mapping in lifecycle rules:
+  - FG outbound lane (loading path)
+  - FG inbound lane (unloading path)
+  - RM inbound lane (unloading + QC checkpoint path)
 - [ ] Include raw-material checkpoint states/events for QC-01 (sampling + QC decision; Sprint 4 simplified yes/no outcome only)
 
 ### AC-2: Transition rules

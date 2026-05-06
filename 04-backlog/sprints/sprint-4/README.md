@@ -55,9 +55,10 @@ Wave B — TLS-01 state machine (§6.8.5 extensions) + TO Ready for Dispatch →
 Wave C — Driver field channel (no map / GPS in Sprint 4)
   DM-01   (§6.16.1.1 — TO list when Ready for Dispatch; milestones; POD)
 
-Wave D — Source yard chain (typical outbound load — adjust POI type in AC if inbound-first)
+Wave D — Yard chain (outbound + inbound)
   LUP-01 (loading/unloading **points** per POI — can start once POI exists; before first CC assignment)
   GT-02 (on-demand TO when no planner TO) → GT-01 → SC-01 → CC-01 → LD-01
+  Finished-goods inbound path (e.g., Port Consignment TO from planner): after **CC-01 unloading-point assignment** and unload capture (LD-01), proceed to closure gate in POD-01 (QC optional per policy)
   Raw-material path: after **CC-01 unloading-point assignment** and unload capture (LD-01), run **QC-01** (sampling + QC yes/no), then proceed to closure gate in POD-01
   (planner TO path: skip GT-02)
 
@@ -169,13 +170,14 @@ Wave E — Closure
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  YARD: [GT-02 on-demand TO if needed] Gate (§6.10) → Scale-in (§6.11.1) → …   │
 │  **L/U points (LUP-01)** → Command Center assign point + serial (§6.12) →     │
-│  Load / unload times (§6.13.1, §6.14.1) → QC-01 sampling + QC yes/no          │
-│  (§6.14.2 trigger + §6.15.1.2 + §6.15.4.1 simplified) → Scale-out → Gate-out  │
+│  FG outbound: load path; FG inbound (Port/internal): unload path; RM inbound:  │
+│  unload + QC-01 sampling + QC yes/no (§6.14.2 + §6.15.4.1 simplified)         │
+│  → Scale-out → Gate-out                                                         │
 └───────────────────────────────┬───────────────────────────────────────────┘
                                 ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  CLOSE                                                                       │
-│  TLS-01 timeline + KPIs (§6.8.5); POD + gate-out + QC pass/fail checkpoint    │
+│  TLS-01 timeline + KPIs (§6.8.5); POD + gate-out (+ QC checkpoint for RM flow)│
 │  (§6.8.7 / §6.14.2 / §6.15.4.1 simplified) — **no §6.8.8** costing in Sprint 4│
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -195,7 +197,9 @@ Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
     │
     ├──► GT-02 (gate-created TO) → TDO assignment as needed — gate path when no planner TO
     │
-    ├──► LUP-01 → GT-01 → SC-01 → CC-01 → LD-01 → QC-01 (raw-material checkpoint)
+    ├──► LUP-01 → GT-01 → SC-01 → CC-01 → LD-01
+    │         ├──► FG outbound / FG inbound closure path (POD-01 rules)
+    │         └──► QC-01 (raw-material checkpoint) → POD-01
     │
     └──► POD-01 (after DM-01 + TLS-01 + LD/GT path as applicable)
 ```

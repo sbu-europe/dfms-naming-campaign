@@ -40,6 +40,9 @@ prd_refs:
 ### AC-3: Bay assignment
 - [ ] Officer assigns vehicle to **loading or unloading** point; assignment considers product type, vehicle type, urgency (manual selection with **warnings** if mismatch — automation = later)
 - [ ] Assignment immediately visible to operational roles with access to that bay view
+- [ ] Sprint 4 lane expectations:
+  - FG outbound → assign to loading point
+  - FG inbound / RM inbound → assign to unloading point
 
 ### AC-4: Waiting serial
 - [ ] Unique **waiting serial per loading point** per vehicle; immutable after issue; issuer + timestamp audit
@@ -50,6 +53,7 @@ prd_refs:
 ### AC-6: Raw-material QC checkpoint trigger
 - [ ] For **raw-material unloading** assignments, system records a sampling/QC checkpoint as required next step in TO timeline (Sprint 4 simplified flow)
 - [ ] QC capture itself is handled in **QC-01** (this story only creates the trigger/handoff context)
+- [ ] For **finished-goods inbound unloading** assignments, system records unload path states without mandatory QC checkpoint in Sprint 4
 
 ## Sub-tasks
 

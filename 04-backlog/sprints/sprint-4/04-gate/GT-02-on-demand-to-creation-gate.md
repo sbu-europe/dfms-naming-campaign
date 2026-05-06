@@ -26,6 +26,8 @@ prd_refs:
 
 PRD **§6.10.2.1** (Dealer / finished goods outbound) and **§6.10.2.2** (Supplier / raw material inbound). These TOs are **gate-originated**, tagged and classified for downstream routing (outbound FG vs inbound RM per PRD).
 
+FG inbound (e.g., Port Consignment transfer from planner-created TO per PRD §6.8.1.3) is part of Sprint 4 execution lanes but is **not** created via GT-02 on-demand endpoints unless a dedicated business document type is added later.
+
 **Relationship to [GT-01](GT-01-gate-in-out-remarks.md):** After GT-02 creates the TO, **gate-in** (PRD §6.10.1) should reference the new TO/challan context (same visit session as GT-01 or linked record).
 
 **Relationship to Sprint 3:** Planner-created TOs remain **TO-01 / TO-02**. Gate-created TOs still need **fleet assignment** when the movement is own fleet: either **TDO assigns** vehicle/driver ([TO-02](../../sprint-3/05-transport/03-tdo-assignment.md)) after creation, or a **minimal gate-captured** vehicle/driver identity is stored on the TO until TDO confirms — **pick one rule in technical design** and document in API.

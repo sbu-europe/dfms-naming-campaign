@@ -38,10 +38,17 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 
 ### AC-2: Routing hint
 - [ ] At gate-in, store routing type per PRD: **Supplier/Port Inbound**, **Dealer Outbound**, or **Internal Transfer (TO/Challan)**
-- [ ] In Sprint 4, this AC only requires persisting the routing flag; downstream QC/flow enforcement is handled in later stories
+- [ ] In Sprint 4, routing type must map to TO execution lane used by TLS-01/POD-01:
+  - `Dealer Outbound` → FG outbound lane
+  - `Supplier/Port Inbound` → inbound lane (FG inbound or RM inbound by product type)
+  - `Internal Transfer` → load/unload lane per source/destination movement
 
 ### AC-3: Gate-out
-- [ ] Gate-out allowed only when business rules satisfied: **after scale-out** for flows that use scaling; **QC not blocking** for unloading flows per PRD §6.10.3 *(implement minimum rule set for E2E FG outbound: scale-out completed + loading completed — exact matrix in tech design with TLS-01)*
+- [ ] Gate-out allowed only when business rules satisfied: **after scale-out** for flows that use scaling
+- [ ] Minimum Sprint 4 guard matrix (to align TLS-01/POD-01):
+  - FG outbound: scale-out completed + loading completed
+  - FG inbound: scale-out completed + unloading completed
+  - RM inbound: scale-out completed + unloading completed + QC not failed
 
 ### AC-4: Remarks / discrepancy
 - [ ] Free-text remarks on gate-in and gate-out events; audit who/when

@@ -26,6 +26,7 @@ prd_refs:
 ## Business Context
 
 Implements §6.11.1–§6.11.3. Scale-in **after** gate-in. Weight entries **immutable after scale-out** (per PRD). **Net weight** auto-calculated at scale-out.
+Supports both outbound and inbound TO visits (FG outbound loading lane, FG inbound unloading lane, RM inbound unloading lane).
 
 ## Acceptance Criteria
 
