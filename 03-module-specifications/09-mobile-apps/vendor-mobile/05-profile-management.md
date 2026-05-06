@@ -6,7 +6,7 @@ last_updated: 2026-05-05
 
 ## Vendor Profile Management
 
-**Purpose:** Allow vendors to update their profile, add/edit drivers, vehicles, and helpers for operational flexibility.
+**Purpose:** Allow vendors to update their vendor profile information. In **Phase 1**, vendors do **not** maintain driver/vehicle master lists inside the app—driver/vehicle/helper details are submitted **per awarded/assigned TO** during post-award actions.
 
 ### Profile Sections
 
@@ -17,20 +17,13 @@ last_updated: 2026-05-05
 - Address
 - Vendor Type (Contractual / Non-Contractual)
 
-**2. Driver Management**
-- **List View:** All registered drivers
-- **Add Driver:** Name, Phone, License Number, License Expiry
-- **Edit Driver:** Update details, mark Active/Inactive
-- **Validation:** License number unique, expiry date > today
+**2. Driver/Vehicle details (Phase 1 behavior)**
+- No driver list / vehicle list screens for vendors
+- Details are captured **only when needed** (post-award / assigned TO flow):
+  - Driver name + phone + NID/license
+  - Vehicle number + type + capacity
+  - Helper details (if required)
 
-**3. Vehicle Management**
-- **List View:** All registered vehicles
-- **Add Vehicle:** Registration, Type, Capacity, Fitness Expiry
-- **Edit Vehicle:** Update details, mark Active/Under Maintenance
-- **Validation:** Registration unique, fitness valid
-
-**4. Helper Management** (Phase 2)
-- **List View:** All registered helpers
-- **Add Helper:** Name, Phone, National ID
-- **Edit Helper:** Update details, mark Active/Inactive
+**3. Helper Management** (Phase 2)
+- If Phase 2 introduces helper master data, this section can include list/add/edit for helpers.
 

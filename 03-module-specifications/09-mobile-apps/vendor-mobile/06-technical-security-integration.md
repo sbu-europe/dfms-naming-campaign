@@ -53,7 +53,7 @@ last_updated: 2026-05-05
 ### Data Access Control
 
 **Vendor Isolation:**
-- Vendors can only view/edit their own data (bids, TOs, trips, drivers, vehicles)
+- Vendors can only view/edit their own data (bids, TOs, trips, post-award assignments)
 - Strict `vendor_id` filtering on all API endpoints
 
 **Tenant Scope (Vendor Membership):**
@@ -90,7 +90,7 @@ last_updated: 2026-05-05
 **Rationale:**
 - Push notifications critical for time-sensitive bid alerts
 - Mobile convenience for on-the-go vendor management
-- Better UX for driver/vehicle assignment (dropdowns, camera access)
+- Better UX for post-award driver/vehicle detail submission (form entry, camera access)
 
 ### Why Limited Offline (Not Full Offline)?
 **Rationale:**

@@ -17,6 +17,6 @@ This directory is the **source-of-truth index** for the Vendor Mobile Applicatio
 - [02-bids.md](02-bids.md) — available bids list + bid submission rules
 - [03-assigned-tos-and-post-award.md](03-assigned-tos-and-post-award.md) — assigned TO list + driver/vehicle/helper assignment
 - [04-trip-tracking-and-history.md](04-trip-tracking-and-history.md) — active tracking + completed trip history
-- [05-profile-management.md](05-profile-management.md) — vendor/driver/vehicle management
+- [05-profile-management.md](05-profile-management.md) — vendor profile updates (Phase 1: no driver/vehicle lists)
 - [06-technical-security-integration.md](06-technical-security-integration.md) — platforms, notifications, offline, security, integration points, design decisions
 

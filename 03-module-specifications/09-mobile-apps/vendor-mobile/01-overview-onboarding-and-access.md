@@ -19,7 +19,7 @@ The app complements the desktop-based Vendor Portal, offering mobile convenience
 - **Post-Award Actions:** Assign drivers, vehicles, and helpers to awarded TOs
 - **Trip Tracking:** Monitor active trip progress and status
 - **Trip History:** Review completed trips for invoicing and performance analysis
-- **Profile Management:** Update vendor profile, add/edit drivers and vehicles
+- **Profile Management:** Update vendor profile (Phase 1 does not include driver/vehicle master lists)
 - **Notifications:** Real-time alerts for new bids, TO assignments, trip updates
 
 ---
