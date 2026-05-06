@@ -2,7 +2,7 @@
 last_updated: 2026-05-05
 ---
 
-# Vendor Mobile Application — Overview, Onboarding, and Gating
+# Vendor Mobile Application — Overview, Onboarding, and Access
 
 ## Overview
 
@@ -31,12 +31,12 @@ The app complements the desktop-based Vendor Portal, offering mobile convenience
 - **Self-registration:** Vendor signs up and submits required profile + documents for verification.
 - **Invite-based onboarding:** Platform admin creates vendor and sends an invite; vendor completes missing details + documents and submits for verification.
 
-### Verification Gate
+### Verification (access requirement)
 
 - Vendor status remains **inactive** until verification is complete.
 - Unverified vendors cannot view tenant bids or tenant TO/trip details.
 
-### Tenant Join Gate (after verification)
+### Tenant join approval (after verification)
 
 - Vendor can view all **active tenants**.
 - Vendor can request to join one or more tenants.

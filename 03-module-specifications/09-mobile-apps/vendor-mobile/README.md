@@ -13,7 +13,7 @@ This directory is the **source-of-truth index** for the Vendor Mobile Applicatio
 
 ## Contents
 
-- [01-overview-and-gates.md](01-overview-and-gates.md) — overview, onboarding entry (self/invite), verification gate, tenant membership gate
+- [01-overview-onboarding-and-access.md](01-overview-onboarding-and-access.md) — overview, onboarding entry (self/invite), verification requirement, tenant membership approval
 - [02-bids.md](02-bids.md) — available bids list + bid submission rules
 - [03-assigned-tos-and-post-award.md](03-assigned-tos-and-post-award.md) — assigned TO list + driver/vehicle/helper assignment
 - [04-trip-tracking-and-history.md](04-trip-tracking-and-history.md) — active tracking + completed trip history
