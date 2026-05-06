@@ -8,8 +8,9 @@
 
 | Ref | Source | Feedback | Affects | Priority | Target Sprint |
 |-----|--------|----------|---------|----------|---------------|
-
-> No feedback recorded yet — populate after the Sprint 3 demo.
+| FB-001 | QA / Dev | `IntegrityError: duplicate key uniq_pr_line_number` when creating a Port Shipment with more than one cargo line item — `line_number` defaulted to `1` for all rows | Port Shipment creation (`PortShipmentAdmin`) | Critical | ✅ Fixed Sprint 3 — `a5e95df` |
+| FB-002 | QA / Dev | RM Cargo Line Items and Arrival Notices & Documents sections on Port Shipment detail were editable by the Procurement Officer (should be read-only) | `PRLineItemInline`, `PRDocumentInline` | High | ✅ Fixed Sprint 3 — `2137a07` |
+| FB-003 | QA / Dev | FG PR line item inline rows not visible for Distribution Officer/Manager (headers showed but table body was empty) — CSS rule `[id^="line_items-"] td > p:not(.help)` was hiding all readonly `<p>` values | `ProductRequisitionAdmin` inline, `custom.css` | High | ✅ Fixed Sprint 3 — `2137a07` |
 
 ---
 

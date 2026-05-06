@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 sprint: Sprint 3
-last_updated: 2026-04-22
+last_updated: 2026-05-06
 related_stories: DFS-032 (PR-01), DFS-033 (PR-02)
 jira_epic: DFS-040
 ---
@@ -196,8 +196,8 @@ ProductRequisitionLineItem {
   // Informational target location at line-item level (before Procurement defines allocation at TR)
   target_poi_id: UUID (nullable)       // FK → POI
 
-  // Line order
-  line_number: Integer
+  // Line order — auto-assigned sequentially on save; guaranteed unique per requisition
+  line_number: Integer   // auto-incremented: max(existing line_numbers) + 1 on INSERT
 }
 ```
 

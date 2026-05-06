@@ -4,7 +4,7 @@ specification: Procurement Management
 version: 1.0
 phase: Phase 1
 sprint: Sprint 3
-last_updated: 2026-04-22
+last_updated: 2026-05-06
 related_stories: DFS-036 (PC-01), DFS-037 (PC-02)
 jira_epic: DFS-042
 ---
@@ -70,6 +70,7 @@ Procurement → Transport requests (module)
 
 - Procurement Officer sees **only** Port Shipment records (`PORT_CONSIGNMENT` / procurement-visible type) — FG PRs are not visible
 - Procurement Officer cannot edit or cancel the shipment record (Commercial Officer ownership)
+- **RM Cargo Line Items** and **Arrival Notices & Documents** inline sections are strictly read-only for Procurement Officer — no add, edit, or delete actions are available on those rows
 - Source POI is always a **Port-type POI** — enforced server-side; non-Port POIs are excluded from the source dropdown
 
 ---
