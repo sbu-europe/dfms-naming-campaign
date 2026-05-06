@@ -247,6 +247,7 @@ DFMS-product-context/
 │   │   │
 │   │   ├── sprint-3/                            # Requisitions, transport, QA, DevOps
 │   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 3 completion report
 │   │   │   ├── 01-requisition/                  # PR-01
 │   │   │   ├── 02-port-shipments/               # PR-02
 │   │   │   ├── 03-distribution/                 # DR-01, DR-02
@@ -254,8 +255,8 @@ DFMS-product-context/
 │   │   │   ├── 05-transport/                    # TO queue, orders, TDO assignment
 │   │   │   ├── 06-qa-testing/                   # QA-01
 │   │   │   ├── 07-devops/                       # DEVOPS-01 AWS env + plan
-│   │   │   ├── 08-feedback/                     # README
-│   │   │   └── 09-dashboard/                   # DB-01
+│   │   │   ├── 08-feedback/                     # Post-sprint bug reports & feedback log
+│   │   │   └── 09-dashboard/                    # DB-01
 │   │   │
 │   │   └── sprint-4/                            # Trip execution & closure
 │   │       ├── README.md
@@ -464,7 +465,7 @@ DFMS-product-context/
 │   │   ├── prd-alignment-plan.md
 │   │   ├── technical-documentation-plan.md
 │   │   └── transformation-guide.md
-│   ├── reports/                                 # Completion reports
+│   ├── reports/                                 # Cross-sprint & project-level reports (not per-sprint)
 │   │   ├── all-epics-verification.md
 │   │   ├── broken-story-list-links.md
 │   │   ├── cleanup-report.md
@@ -481,6 +482,7 @@ DFMS-product-context/
 │   │   ├── submodule-adjustments-report.md
 │   │   ├── transformation-progress-report.md
 │   │   └── verification-report.md
+│   │   # NOTE: per-sprint completion reports live in 04-backlog/sprints/<sprint-N>/completion-report.md
 │   └── tracking/                                # Status tracking
 │       ├── documentation-status.md
 │       ├── specs-backlog-fixes-progress.md
