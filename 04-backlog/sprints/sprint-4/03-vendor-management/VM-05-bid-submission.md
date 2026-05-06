@@ -40,10 +40,8 @@ TDO publishes TOs to the bidding portal (VM-10) with defined windows and require
 ### AC-2: Structured Bid Submission
 - [ ] Vendor can submit a bid with:
   - Proposed cost / rate (mandatory, numeric, > 0)
-  - Vehicle selection (from vendor fleet; must match required type and capacity)
-  - Driver details (selected/auto-filled from vendor records; mandatory)
-  - Helper details (optional)
   - Remarks (optional)
+- [ ] **Phase 1 simplification**: bid submission does **not** collect vehicle/driver/helper information.
 - [ ] System enforces one active bid per vendor per TO (edit/withdraw allowed before deadline)
 - [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
@@ -78,7 +76,7 @@ TDO publishes TOs to the bidding portal (VM-10) with defined windows and require
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | Bid submission API + validation (rate, vehicle, driver/helper) | ~ | Pending |
+| VM-05-1 | Bid submission API + validation (rate, optional remarks) | ~ | Pending |
 | VM-05-2 | Bid window enforcement (server-side) | ~ | Pending |
 | VM-05-3 | Store bid timestamp + validity window metadata | ~ | Pending |
 | VM-05-4 | Edit/withdraw endpoints + audit events | ~ | Pending |
@@ -90,14 +88,11 @@ TDO publishes TOs to the bidding portal (VM-10) with defined windows and require
 POST   /api/v1/vendor/bidding-sessions/{session_id}/bids
 Body: {
   proposed_cost,
-  vehicle_id,
-  driver_id,
-  helper_id?,
   remarks?
 }
 
 PATCH  /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
-Body: { proposed_cost?, vehicle_id?, driver_id?, helper_id?, remarks? }
+Body: { proposed_cost?, remarks? }
 
 DELETE /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 

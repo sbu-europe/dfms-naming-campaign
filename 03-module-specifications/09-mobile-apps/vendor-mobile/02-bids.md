@@ -69,7 +69,7 @@ interface BidOpportunity {
 
 ## Bid Submission
 
-**Purpose:** Allow vendors to submit competitive bids with pricing and vehicle details.
+**Purpose:** Allow vendors to submit competitive bids with pricing.
 
 ### Bid Submission Workflow
 
@@ -84,13 +84,10 @@ interface BidOpportunity {
 3. Vendor taps "Submit Bid" button
 4. App displays bid submission form:
    - Bid amount (currency: BDT)
-   - Proposed vehicle registration (dropdown of vendor's vehicles)
-   - Estimated delivery date
    - Additional notes (optional)
 5. Vendor confirms bid
 6. App validates:
    - Bid amount > 0
-   - Vehicle meets TO requirements (type, capacity)
    - Bid submitted before close time
 7. App submits bid via API
 8. Confirmation: "Bid submitted! You'll be notified if you win."
@@ -107,9 +104,6 @@ interface VendorBidSubmission {
   // Bid Details
   bid_amount: number;
   bid_currency: 'BDT';
-  proposed_vehicle_id: string;
-  proposed_driver_id?: string;      // Optional at bid stage
-  estimated_delivery_date: Date;
   additional_notes?: string;
   
   // Submission Metadata

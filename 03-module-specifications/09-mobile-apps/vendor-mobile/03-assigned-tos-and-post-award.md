@@ -68,13 +68,11 @@ interface AssignedTO {
 ```
 1. Vendor taps "Assign Driver & Vehicle" on assigned TO
 2. App displays assignment form:
-   - Driver (dropdown of vendor's registered drivers)
-   - Vehicle (dropdown of vendor's registered vehicles)
-   - Helpers (multi-select, optional)
-3. Vendor selects driver and vehicle
+   - Driver info (name, phone, NID/license)
+   - Vehicle info (registration/number, type, capacity)
+   - Helpers (optional: name + NID)
+3. Vendor fills required info
 4. App validates:
-   - Driver status = ACTIVE, not on another trip
-   - Vehicle status = ACTIVE, not under maintenance
    - Vehicle capacity >= TO quantity
    - Vehicle type matches TO requirements
 5. Vendor submits assignment
@@ -91,9 +89,15 @@ interface PostAwardAssignment {
   vendor_id: string;
   
   // Assignments
-  assigned_driver_id: string;
-  assigned_vehicle_id: string;
-  assigned_helper_ids?: string[];
+  driver_name: string;
+  driver_phone: string;
+  driver_nid_or_license: string;
+
+  vehicle_number: string;
+  vehicle_type: string;
+  vehicle_capacity_tons: number;
+
+  helpers?: Array<{ name: string; nid: string }>;
   
   // Metadata
   assigned_by: string;              // Vendor user ID

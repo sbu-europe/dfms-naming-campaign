@@ -22,6 +22,10 @@ assignee: ~
 
 After a vendor wins a bid (non-contractual) or receives assignment (contractual), vehicle/driver details must be provided before trip start. Changes must be controlled via audit trail and reasoning.
 
+## Phase 1 Simplification (no vendor fleet/driver master data)
+
+In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead, after award/assignment the vendor provides the required vehicle/driver/helper information as a **one-off submission** against the specific Transport Order (TO). This submitted data is what Transport/TDO uses for dispatch readiness.
+
 ## Acceptance Criteria
 
 ### AC-1: Required Submission After Winning (before trip start)

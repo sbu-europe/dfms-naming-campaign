@@ -48,10 +48,9 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 - [ ] Only **non-contractual** vendors are eligible to bid
 - [ ] Vendor eligibility is scoped to:
   - Vendors approved to join the TO’s tenant (VM-09 gating)
-  - Vendor vehicle type matches TO requirement
-  - Vendor vehicle capacity meets TO requirement
   - Vendor rating ≥ minimum threshold (if configured/available)
   - Vendor is not blacklisted (if blacklist exists)
+  - **Phase 1 simplification**: do not filter eligibility by vendor fleet/vehicle profile (no pre-created vehicles). Vehicle type/capacity are enforced during post-award vehicle/driver submission (VM-06) and/or dispatch readiness checks.
 
 ### AC-5: State Transitions + Audit Trail
 - [ ] Publishing creates a bidding session linked to the TO
