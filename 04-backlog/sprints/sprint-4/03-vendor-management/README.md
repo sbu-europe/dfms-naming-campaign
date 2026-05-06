@@ -23,10 +23,11 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
 - Vendor verification workflow (platform): platform admin verification queue, approve/reject with mandatory remarks, real-time status updates.
 - Vendor ↔ tenant membership: verified vendor can see all active tenants, request to join, and tenants can approve/reject vendor join.
-- Vendor bidding portal: vendor can view active bids + submit structured bids (rate + vehicle availability) **only for tenants the vendor has joined and been approved for**, bid windows, prevent late bids, allow manual close/cancel.
-- Bid evaluation (TDO): side-by-side bid comparison; select a single winner; winning log with user + timestamp.
-- Vehicle & driver information submission: post-award submission; editable with reasoning + audit trail; substitution visibility to Transport.
+- Vendor bidding portal: vendor can view active bids + submit competitive bids **only for tenants the vendor has joined and been approved for**. Bid lifecycle includes: bid windows + late-bid prevention, **one-bid-per-vendor-per-TO** (edit/withdraw allowed until deadline), and manual close/cancel.
+- Bid evaluation (TDO): side-by-side bid comparison; sortable views; select a single winner; reject-all with reason; **winning log with user + timestamp**; basic statistics (min/avg/max) and optional recommendation logic.
+- Vehicle & driver information submission: vendors provide vehicle/driver/helper details for execution. **Default: submit at bid time** (select vehicle, driver, helper) and allow **post-award update with reason + audit trail**; substitutions must be visible to Transport.
 - Real-time TO updates (vendor portal): vendor portal reflects TO status changes (Assigned/Completed/Closed); vendor cannot modify TO status.
+- Notifications: vendors + TDO receive in-app/email notifications for publish, new bids, deadline reminders, award/rejection, cancel/close events.
 
 ## Out of Scope (Sprint 4)
 
@@ -69,7 +70,8 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Bid Comparison (side-by-side) + select single winner + winning log](VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
+| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-10-tdo-publish-to-bidding-portal.md) | VM-10 | ~ | ~ | Pending |
+| 2 | [Bid Comparison (side-by-side) + select single winner + reject-all + winning log](VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
 
 ---
 
@@ -111,13 +113,15 @@ Vendor selects tenant(s):
   - Request to join one or more tenants
   - Tenant approves vendor join request(s)
   ↓
+TDO publishes TO to bidding portal (per tenant) with deadline + eligibility criteria
+  ↓
 Vendor portal (per joined tenant):
-  - View bids (if Non-Contractual) within submission window → Submit bid
+  - View TOs open for bidding (Non-Contractual) within submission window → Submit/Update/Withdraw bid
   - View TO/trip lists (active/completed) for joined tenants
   ↓
-TDO evaluates bids → selects winner (single winner per TO) → winning log
+TDO evaluates bids → selects winner (single winner per TO) OR reject-all → winning log + notifications
   ↓
-Vendor submits vehicle + driver + helper details (required after win, before trip start)
+Vendor confirms/updates vehicle + driver + helper details (required after win, before trip start; updates require reason)
   ↓
 Vendor sees real-time TO status updates (Assigned/Completed/Closed)
 ```
@@ -132,7 +136,7 @@ Master Data (vendor core) ──→  Vendor profile + portal identity
 Notifications service  ──→  approve/reject + action-required alerts
 Tenant membership  ──→  vendor visibility for bids/trips per tenant
 Transport Orders / Trips  ──→  real-time TO status updates + active/completed trip lists
-Vendor Bidding  ──→  bid windows + bid submission + TDO evaluation + award
+Vendor Bidding  ──→  publish → bid windows + bid submission (edit/withdraw) + TDO evaluation + award/reject-all
 ```
 
 ---

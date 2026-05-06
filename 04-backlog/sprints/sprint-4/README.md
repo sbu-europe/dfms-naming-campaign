@@ -65,10 +65,11 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | 4 | [Platform Verification Queue + Approve/Reject + Resubmission](03-vendor-management/VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
 | 5 | [Vendor Portal Views + Visibility Rules](03-vendor-management/VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
 | 6 | [Vendor ↔ Tenant Join Requests + Tenant Approval](03-vendor-management/VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
-| 7 | [Bid Submission (windows + late-bid prevention)](03-vendor-management/VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
-| 8 | [TDO Bid Evaluation (compare + award + winning log)](03-vendor-management/VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
-| 9 | [Vehicle & Driver Submission After Award + Audit Trail](03-vendor-management/VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
-| 10 | [Real-time TO Updates in Vendor Portal](03-vendor-management/VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
+| 7 | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](03-vendor-management/VM-10-tdo-publish-to-bidding-portal.md) | VM-10 | ~ | ~ | Pending |
+| 8 | [Bid Submission (windows + edit/withdraw + late-bid prevention)](03-vendor-management/VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
+| 9 | [TDO Bid Evaluation (compare + award/reject-all + winning log)](03-vendor-management/VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
+| 10 | [Vehicle & Driver Submission After Award + Audit Trail](03-vendor-management/VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
+| 11 | [Real-time TO Updates in Vendor Portal](03-vendor-management/VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
 
 ---
 

@@ -20,7 +20,7 @@ assignee: ~
 
 ## Business Context
 
-TDO publishes bids with defined windows and requirements. Vendors submit structured bids containing rate and vehicle availability within the submission window. The system must prevent late submissions.
+TDO publishes TOs to the bidding portal (VM-10) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions and support the bid lifecycle (submit, edit, withdraw) with auditability.
 
 ## Acceptance Criteria
 
@@ -39,8 +39,13 @@ TDO publishes bids with defined windows and requirements. Vendors submit structu
 
 ### AC-2: Structured Bid Submission
 - [ ] Vendor can submit a bid with:
-  - Rate (price)
-  - Number of vehicles available for TO execution
+  - Proposed cost / rate (mandatory, numeric, > 0)
+  - Vehicle selection (from vendor fleet; must match required type and capacity)
+  - Driver details (selected/auto-filled from vendor records; mandatory)
+  - Helper details (optional)
+  - Remarks (optional)
+- [ ] System enforces one active bid per vendor per TO (edit/withdraw allowed before deadline)
+- [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
 ### AC-3: Bid Window Enforcement
 - [ ] System supports configurable bid submission windows
@@ -53,6 +58,16 @@ TDO publishes bids with defined windows and requirements. Vendors submit structu
 ### AC-5: Manual Close/Cancel
 - [ ] Bids may be manually closed or cancelled without awarding
 
+### AC-6: Edit / Withdraw Before Deadline
+- [ ] Vendor can edit their bid before the deadline
+- [ ] Vendor can withdraw their bid before the deadline
+- [ ] Withdrawn bids are not deleted; they remain for audit
+- [ ] All edits/withdrawals are logged (who/when/what changed)
+
+### AC-7: Notifications
+- [ ] Vendor receives confirmation after bid submit/edit/withdraw (in-app; optional email)
+- [ ] TDO is notified on new bid submission events (in-app; optional email)
+
 ## Functional Requirements (from PRD)
 
 - [ ] **[Critical]** System SHALL provide support configurable bid submission windows.
@@ -63,18 +78,30 @@ TDO publishes bids with defined windows and requirements. Vendors submit structu
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | Bid submission API + validation (rate, vehicle count) | ~ | Pending |
+| VM-05-1 | Bid submission API + validation (rate, vehicle, driver/helper) | ~ | Pending |
 | VM-05-2 | Bid window enforcement (server-side) | ~ | Pending |
 | VM-05-3 | Store bid timestamp + validity window metadata | ~ | Pending |
-| VM-05-4 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
+| VM-05-4 | Edit/withdraw endpoints + audit events | ~ | Pending |
+| VM-05-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
 
 ## API Endpoints (suggested)
 
 ```
-POST /api/v1/vendor/bids/{bid_id}/submit
-Body: { rate, available_vehicle_count }
+POST   /api/v1/vendor/bidding-sessions/{session_id}/bids
+Body: {
+  proposed_cost,
+  vehicle_id,
+  driver_id,
+  helper_id?,
+  remarks?
+}
 
-GET  /api/v1/vendor/bids/{bid_id}
+PATCH  /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
+Body: { proposed_cost?, vehicle_id?, driver_id?, helper_id?, remarks? }
+
+DELETE /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
+
+GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 ```
 
 ## Dependencies
@@ -86,5 +113,6 @@ GET  /api/v1/vendor/bids/{bid_id}
 
 - [ ] Vendor can submit bid within window; submissions blocked after closure
 - [ ] Bid is stored with timestamp and rate validity metadata
+- [ ] Vendor can edit/withdraw before deadline; actions audited
 - [ ] Admin/TDO can close/cancel bid without awarding
 
