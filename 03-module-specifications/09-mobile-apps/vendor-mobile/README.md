@@ -13,10 +13,16 @@ This directory is the **source-of-truth index** for the Vendor Mobile Applicatio
 
 ## Contents
 
-- [01-overview-onboarding-and-access.md](01-overview-onboarding-and-access.md) — overview, onboarding entry (self/invite), verification requirement, tenant membership approval
-- [02-bids.md](02-bids.md) — available bids list + bid submission rules
-- [03-assigned-tos-and-post-award.md](03-assigned-tos-and-post-award.md) — assigned TO list + driver/vehicle/helper assignment
-- [04-trip-tracking-and-history.md](04-trip-tracking-and-history.md) — active tracking + completed trip history
-- [05-profile-management.md](05-profile-management.md) — vendor profile updates (Phase 1: no driver/vehicle lists)
-- [06-technical-security-integration.md](06-technical-security-integration.md) — platforms, notifications, offline, security, integration points, design decisions
+- [01-onboarding-and-verification.md](01-onboarding-and-verification.md)
+- [02-tenant-membership.md](02-tenant-membership.md)
+- [03-bid-opportunities-list.md](03-bid-opportunities-list.md)
+- [04-bid-submission.md](04-bid-submission.md)
+- [05-assigned-tos-list.md](05-assigned-tos-list.md)
+- [06-post-award-driver-vehicle-submission.md](06-post-award-driver-vehicle-submission.md)
+- [07-active-trip-tracking.md](07-active-trip-tracking.md)
+- [08-completed-trip-history.md](08-completed-trip-history.md)
+- [09-profile-management.md](09-profile-management.md)
+- [10-notifications-and-offline.md](10-notifications-and-offline.md)
+- [11-security-and-access-control.md](11-security-and-access-control.md)
+- [12-integration-and-design-decisions.md](12-integration-and-design-decisions.md)
 
