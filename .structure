@@ -234,6 +234,7 @@ DFMS-product-context/
 │   ├── sprints/                                 # Sprint-organized tasks
 │   │   ├── sprint-1/                            # Infra, platform admin, client portal
 │   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 1 completion report
 │   │   │   ├── 01-infra/                        # INFRA-01..05, DEVOPS-01-01/02
 │   │   │   ├── 02-platform-admin-portal/        # PAP-01..06
 │   │   │   ├── 03-client-portal/                # CP-01..05
@@ -241,6 +242,7 @@ DFMS-product-context/
 │   │   │
 │   │   ├── sprint-2/                            # Master data, user mgmt, geofencing
 │   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 2 completion report
 │   │   │   ├── 01-master-data-management/       # MDM-01..05, MDM-07
 │   │   │   ├── 02-tenant-user-management/       # TUM-01..05
 │   │   │   └── 03-vehicle-tracking-geofencing/  # VTG-01
