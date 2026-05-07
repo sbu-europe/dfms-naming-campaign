@@ -20,7 +20,7 @@ last_updated: 2026-05-06
 ## Key design decisions
 
 ### Why mobile app (not just web)?
-- Push notifications for time-sensitive bid alerts
+- Mobile-friendly workflows for time-sensitive bid management
 - Mobile convenience for on-the-go vendor management
 - Better UX for post-award driver/vehicle detail submission (form entry, camera access)
 

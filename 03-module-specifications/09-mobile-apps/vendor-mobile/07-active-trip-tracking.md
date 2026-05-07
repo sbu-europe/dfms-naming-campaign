@@ -58,6 +58,6 @@ interface ActiveTrip {
 
 ### Real-time updates
 
-- Trip status via push notifications or polling (every 30 seconds)
+- Trip status via polling (every 30 seconds)
 - GPS location refresh every 1 minute
 

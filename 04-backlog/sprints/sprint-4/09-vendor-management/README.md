@@ -159,9 +159,9 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 | VM-09 Vendor ↔ tenant join | `03-module-specifications/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
 | VM-04 Vendor portal views | `03-module-specifications/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
 | VM-05 Bid submission | `03-module-specifications/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
-| VM-08 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status + notifications)* | Award endpoint + winning log + vendor notification trigger |
+| VM-08 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
 | VM-06 Vehicle/driver submission after award | `03-module-specifications/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
-| VM-07 Real-time TO updates | `03-module-specifications/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../11-security-and-access-control.md` | TO/trip status event feed (polling/push) |
+| VM-07 Real-time TO updates | `03-module-specifications/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
 
 ---
 
@@ -172,6 +172,6 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
 - Contractual vs Non-Contractual must be captured at onboarding and used for portal feature gating:
   - **Contractual**: direct TO assignment (no bidding).
-  - **Non-Contractual**: bidding notifications + bid submission.
+  - **Non-Contractual**: bid submission.
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
 

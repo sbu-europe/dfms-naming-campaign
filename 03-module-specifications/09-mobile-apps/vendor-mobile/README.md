@@ -22,7 +22,6 @@ This directory is the **source-of-truth index** for the Vendor Mobile Applicatio
 - [07-active-trip-tracking.md](07-active-trip-tracking.md)
 - [08-completed-trip-history.md](08-completed-trip-history.md)
 - [09-profile-management.md](09-profile-management.md)
-- [10-notifications-and-offline.md](10-notifications-and-offline.md)
-- [11-security-and-access-control.md](11-security-and-access-control.md)
-- [12-integration-and-design-decisions.md](12-integration-and-design-decisions.md)
+- [10-security-and-access-control.md](10-security-and-access-control.md)
+- [11-integration-and-design-decisions.md](11-integration-and-design-decisions.md)
 
