@@ -120,7 +120,7 @@ branch: main (merged from sprint-1/*, feat/*)
 | Email read-only on activation page | CP-04 | High |
 | Session timeout → 24h sliding window | INFRA-04 | Medium |
 | OTP skip for trusted device / known browser | CP-03, PAP-03 | High |
-| OTP channel configurable per user (email/SMS) | CP-03 | High |
+| OTP channel configurable per user (email/SMS) — SMS scaffolded, not wired | CP-03 | Low |
 
 ---
 
