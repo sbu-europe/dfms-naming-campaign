@@ -213,12 +213,25 @@ branch: feat/requisition
 
 ## ⏳ Carry-Forward to Sprint 4
 
+### Deferred Stories
+
 | Story | Task ID | SP | Reason |
 |-------|---------|-----|--------|
 | Automated Test Suite (Sprint 1 & 2) | QA-01 | 13 | Deferred — bandwidth |
 | AWS Dev Environment | DEVOPS-01 | 8 | Infrastructure setup ongoing |
-| Vendor admin + TDO vendor fleet read-only access | — | — | Vendor model exists; admin not yet built |
-| Trip dispatch & in-progress lifecycle | Trip-01 | — | Sprint 4 |
+| Vendor admin + TDO vendor fleet read-only access | — | — | `tdo_vendor_fleet` role exists; Vehicles/Drivers/Helpers sidebar + read-only admin mirrors `tdo_own_fleet` — not yet built |
+| Trip dispatch & in-progress lifecycle | Trip-01 | — | TO status after `Ready for Dispatch` (trip start, in-transit, delivered) — Sprint 4 |
+| Challan generation | Challan-01 | — | Data model complete (`TOLineItem`); no Challan admin/template yet |
+
+### Partial Acceptance Criteria (delivered stories with carry-forward sub-tasks)
+
+| Story | What Remains |
+|-------|-------------|
+| **PR-01** — FG Product Requisition | Capacity snapshot at TR creation time; unit tests |
+| **DR-01** — Distribution PR Queue | Capacity snapshot display; unit tests |
+| **DR-02** — Transport Requests | In-app notifications on DM approve/reject; unit tests |
+| **PC-02** — Procurement TRs | "Add another destination" loop (multi-destination TRs in one session); unit tests |
+| **TO-01/TO-02** — Transport Orders | TR status → `Fully Allocated` auto-advance when all lines are covered (currently stops at `Partially Allocated`); Challan generation template |
 
 ---
 
