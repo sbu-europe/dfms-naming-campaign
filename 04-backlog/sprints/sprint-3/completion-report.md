@@ -5,14 +5,14 @@ phase: Phase 1
 date: 2026-05-07
 status: COMPLETE
 total_story_points_planned: 73
-branch: feat/requisition
+branch: feat/sprint-3
 ---
 
 # Sprint 3 Completion Report
 ## Requisition (FG), Port Shipments, Distribution, Transport Requests, Transport Orders & Dashboard
 
 **Date**: May 7, 2026
-**Branch**: `feat/requisition`
+**Branch**: `feat/sprint-3`
 **Status**: ✅ **COMPLETE** (all core stories delivered including Transport Orders; QA & DevOps epics carry forward)
 
 ---
