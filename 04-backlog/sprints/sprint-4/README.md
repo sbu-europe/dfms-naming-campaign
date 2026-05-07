@@ -1,128 +1,234 @@
 ---
 sprint: Sprint 4
-title: Trip Execution & Closure
+title: Own-Fleet TO Execution — Supervisor, Driver, Yard (Gate & Scale), Command Center, POD
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 47
-status: Not Started
+total_story_points: 83
+status: Planned
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
 
-# Sprint 4 — Trip Execution & Closure
+# Sprint 4 — Own-Fleet Yard & Field Execution (TO-Centric)
 
-> Full sprint backlog with stories, sub-tasks, and status.
-> Source story specs: [`04-backlog/stories/`](../../stories/)
+> Full sprint backlog with stories, sub-tasks, and PRD traceability.  
+> **Vendor fleet, vendor portal, and non-contractual bidding remain out of scope** for this sprint narrative (own-fleet FG / Port execution thread only).
 
-## Sprint Summary
+## Sprint boundary (contract with Sprint 3)
 
-| Metric | Value |
-|--------|-------|
-| Total Stories | 6 |
-| Total Story Points | 47 |
-| Status | Not Started |
-| Epics | Trip Execution, Trip Closure & Tracking |
+| Sprint 3 **ends with** | Sprint 4 **starts from** |
+|------------------------|---------------------------|
+| TO created; **vehicle, driver, helper, ETA** assigned (TO-02); TDO may set TO to **`Ready for Dispatch`** | **Pre-movement compliance** (supervisor), **driver TO list & execution milestones**, **yard chain** (gate → scale → queue → load/unload), **§6.8.5 execution + yard + closure substates** (TLS-01), **POD / closure** |
+
+**Do not re-implement** PRD §6.8.1.4 *TO Execution – Own Fleet (TDO assignment)* — that is TO-02.
+
+**No separate Trip record in Sprint 4:** all operational events, yard steps, driver actions, and POD attach to the **Transport Order (TO)** created in Sprint 3. When TDO sets **`Ready for Dispatch`**, the TO becomes **visible to the assigned driver** for execution (DM-01). **§6.8.1.7** (fleet availability validation) is enforced on **first driver execution action** (e.g. marking execution started) unless an earlier hook is agreed in technical design.
+
+**Out of Sprint 4 backlog (deferred):** live **map / GPS / location** features (PRD §6.8.2 map layer & related); **§6.8.8 trip costing** — add in a later backlog tranche. **QA/E2E ticket** for this sprint is **removed** until stories are finalized.
+
+## PRD Phase 1 spine (this sprint)
+
+| Theme | PRD refs |
+|-------|----------|
+| Driver Supervisor / crew | §6.6.1.2; §6.6.3.3–§6.6.3.4 *(supervisor-led operational data — not master-data duplication of §6.6.3.1 / §6.6.3.6 or TDO assignment §6.6.3.2 / §6.6.3.7)* |
+| TO lifecycle & execution | §6.8.1.7; §6.8.5 (**execution + yard + closure substates** — Sprint 4 scope); §6.8.7; §7.1.9 *(tracking against TO; no separate trip entity in implementation)* |
+| Driver mobile | §6.16.1.1 + **Mobile Interface Requirements** → Driver Mobile (**map, navigation, background GPS deferred** out of Sprint 4; offline-safe read + POD capture in scope per DM-01) |
+| Gate | §6.10.1; §6.10.3; §6.10.4; **§6.10.2.1–§6.10.2.2** (on-demand TO at gate) |
+| Scaling | §6.11.1–§6.11.3 |
+| Command Center + load / unload ops | §6.5.1 (POI as site for CC/LU context); §6.12.1; §6.12.2; §6.12.4; §6.13.1; §6.14.1; §6.14.2 |
+| Raw-material sampling & QC decision (Sprint 4 simplified) | §6.15.1.2 (sample creation); §6.15.4.1 (QC Pass/Fail/Auto-Pass tracking) — implemented as **yes/no QC outcome only** in Sprint 4 (no physical/lab branch workflow) |
+| Explicitly **not** Sprint 4 backlog | §6.8.2 live map dashboard; §6.8.8 costing; §6.6.1.3 (fleet health dashboard — P2); §6.6.2.x fuel (P2); §6.6.3.5 driver performance (P3); §6.8.3 calendar dispatch (P2); §6.8.4 TR conjoinment (P2); §6.8.6 incident / re-delivery (P2); §6.12.3 / §6.13.2 **push** notifications (P3 — use **in-app** visibility instead) |
 
 ---
 
-## Epic: Trip Execution
+## Development flow (recommended build order)
 
-> Covers the dispatch-to-delivery operational loop — assigning vehicles/drivers, managing the 12-state trip lifecycle, and handling in-trip exceptions and incidents.
+Stories are **numbered for dependency flow**, not menu order.
+
+```
+Wave A — Crew & compliance (parallel with early TLS stub)
+  DS-01 → DS-02
+
+Wave B — TLS-01 state machine (§6.8.5 extensions) + TO Ready for Dispatch → driver eligibility
+  TLS-01   (execution + yard + closure substates; event ingest from yard + driver)
+
+Wave C — Driver field channel (no map / GPS in Sprint 4)
+  DM-01   (§6.16.1.1 — TO list when Ready for Dispatch; milestones; POD)
+
+Wave D — Yard chain (outbound + inbound)
+  LUP-01 (loading/unloading **points** per POI — can start once POI exists; before first CC assignment)
+  GT-02 (on-demand TO when no planner TO) → GT-01 → SC-01 → CC-01 → LD-01
+  Finished-goods inbound path (e.g., Port Consignment TO from planner): after **CC-01 unloading-point assignment** and unload capture (LD-01), proceed to closure gate in POD-01 (QC optional per policy)
+  Raw-material path: after **CC-01 unloading-point assignment** and unload capture (LD-01), run **QC-01** (sampling + QC yes/no), then proceed to closure gate in POD-01
+  (planner TO path: skip GT-02)
+
+Wave E — Closure
+  POD-01  (depends on DM-01 + TLS-01 + destination unload path + GT-01 gate-out)
+```
+
+---
+
+## Epic: Driver Supervisor & Crew Operations
+
+> **Fleet → TO readiness**: licence / health / handover checklists; driver **state** and **manual attendance**; **On Leave** maintenance. Does **not** replace MDM driver/vehicle records (Sprint 2) or TDO assignment (Sprint 3).
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [TO Execution — Own Fleet (Vehicle/Driver Assignment)](01-trip-execution/TE-01-to-execution-own-fleet.md) | TE-01 | DFS-042 | 8 | Pending |
-| 2 | [Trip Lifecycle Management (12 States)](01-trip-execution/TE-02-trip-lifecycle-management.md) | TE-02 | DFS-043 | 13 | Pending |
-| 3 | [Incident Management & Exception Handling](01-trip-execution/TE-03-incident-management.md) | TE-03 | DFS-044 | 5 | Pending |
+| 1 | [Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01 | DFS-050 | 5 | Pending |
+| 2 | [Driver state, attendance & leave (supervisor)](01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DS-02 | DFS-051 | 5 | Pending |
 
-**Sub-total**: 26 SP
+**Sub-total**: 10 SP
 
 ---
 
-## Epic: Trip Closure & Tracking
+## Epic: Driver Mobile (Phase 1 — no map / location)
 
-> Covers delivery completion — partial delivery handling, Proof of Delivery (POD) capture, PDF generation, and real-time map tracking dashboard.
+> Responsive web **or** dedicated mobile shell — single driver identity; **assigned TOs only**. **Map, turn-by-turn navigation, and background GPS are not in Sprint 4.**
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Partial Delivery Handling](02-trip-closure-tracking/TC-01-partial-delivery.md) | TC-01 | DFS-045 | 5 | Pending |
-| 2 | [Trip Closure with Proof of Delivery (POD)](02-trip-closure-tracking/TC-02-trip-closure-pod.md) | TC-02 | DFS-046 | 8 | Pending |
-| 3 | [Real-time Map & Tracking Dashboard](02-trip-closure-tracking/TC-03-realtime-map-tracking.md) | TC-03 | DFS-047 | 8 | Pending |
+| 1 | [TO list, execution milestones & POD capture](03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01 | DFS-053 | 8 | Pending |
 
-**Sub-total**: 21 SP
+**Sub-total**: 8 SP
 
 ---
 
-## End-to-End Flow This Sprint Delivers
+## Epic: Gate Operations
+
+> Gate-in / gate-out / remarks for **TO-linked internal transfer** (and other document categories per PRD); supports **source and destination** POIs. **On-demand TO** for dealer DO and supplier PO per **§6.10.2.1–§6.10.2.2**.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md) | GT-01 | DFS-054 | 8 | Pending |
+| 2 | [On-demand TO creation — Dealer DO & Supplier PO](04-gate/GT-02-on-demand-to-creation-gate.md) | GT-02 | DFS-062 | 8 | Pending |
+
+**Sub-total**: 16 SP
+
+---
+
+## Epic: Scaling / Weighing
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Scale-in, queue token (P.C. code) & scale-out](05-scaling/SC-01-scale-in-out-queue-token.md) | SC-01 | DFS-055 | 8 | Pending |
+
+**Sub-total**: 8 SP
+
+---
+
+## Epic: Command Center & Loading / Unloading
+
+> **§6.12.3** push notifications → **out of scope**; Command Center and bay crews see assignments via **live queue UI** and **TO** context. **Loading/unloading points** are sub-locations **under a POI** (PRD §6.12.2); they are defined in **LUP-01** and referenced through assignment and LD-01 timestamps.
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [Loading & unloading points — create & maintain per POI](06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md) | LUP-01 | DFS-063 | 5 | Pending |
+| 2 | [Queue monitoring, bay assignment & waiting serial](06-command-center-loading/CC-01-queue-assign-serial.md) | CC-01 | DFS-056 | 8 | Pending |
+| 3 | [Load / unload start–end capture (E2E)](06-command-center-loading/LD-01-load-unload-timestamps.md) | LD-01 | DFS-057 | 5 | Pending |
+
+**Sub-total**: 18 SP
+
+---
+
+## Epic: Lifecycle & POD
+
+| # | Story | Task ID | Jira | SP | Status |
+|---|-------|---------|------|----|--------|
+| 1 | [TO lifecycle — execution, yard & closure substates (+ audit)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01 | DFS-059 | 13 | Pending |
+| 2 | [TO closure — POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | POD-01 | DFS-060 | 5 | Pending |
+| 3 | [Raw-material QC — sampling & pass/fail decision](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md) | QC-01 | DFS-064 | 5 | Pending |
+
+**Sub-total**: 23 SP
+
+---
+
+## QA & Testing
+
+> No QA / E2E backlog item is defined in Sprint 4 yet. Add Playwright (or project-standard) coverage **after** stories are finalized. When added, reference: TO-centric execution (no Trip record), yard chain (GT → SC → CC → LD), TLS-01 §6.8.5 substates, and POD-01 closure — **without** map/GPS or §6.8.8 costing unless those are pulled into scope in a later sprint.
+
+---
+
+## End-to-End flow this sprint delivers (Own Fleet, TO from Sprint 3)
 
 ```
-[Sprint 3 output: TO Confirmed, fleet type = OWN]
-         ↓
-TE-01: Assign Vehicle + Driver → Pre-dispatch Check → Dispatch
-         ↓
-TE-02: Trip Created (Dispatched)
-         ↓
-  [12-state lifecycle]
-  Dispatched → Departed Source → In Transit
-         ↓
-  Arrived Destination → Gate-In → Unloading
-         ↓                ↓ (partial?)
-  TC-01: Partial Delivery Recording + Shortfall Re-plan
-         ↓
-  Unloaded → Gate-Out Destination
-         ↓
-TC-02: POD Capture (signature + photos) → Delivery Confirmed
-         ↓
-  TO → Delivered, TR → Fulfilled
-         ↓
-  Returning → Returned → Completed
-  (vehicle + driver → Available)
-
-TC-03: Real-time Map Dashboard (overlaid throughout)
-TE-03: Incident Reporting (can occur at any In-Transit state)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  SUPERVISOR / COMPLIANCE (Sprint 4)                                          │
+│  Handover checklist (§6.6.1.2) + driver attendance / leave (§6.6.3.3–4)     │
+└───────────────────────────────┬───────────────────────────────────────────┘
+                                ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  TDO / SPRINT 3 HANDOFF                                                      │
+│  TO **Ready for Dispatch** → same TO visible to assigned driver (DM-01);      │
+│  §6.8.5 substates progressed via TLS-01 (+ §6.8.1.7 on first driver action)     │
+└───────────────────────────────┬───────────────────────────────────────────┘
+                                ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  DRIVER APP (§6.16.1.1 — no map/GPS backlog in Sprint 4)                    │
+│  My **TOs** → execution milestones; POD capture linked to **TO**              │
+└───────────────────────────────┬───────────────────────────────────────────┘
+                                ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  YARD: [GT-02 on-demand TO if needed] Gate (§6.10) → Scale-in (§6.11.1) → …   │
+│  **L/U points (LUP-01)** → Command Center assign point + serial (§6.12) →     │
+│  FG outbound: load path; FG inbound (Port/internal): unload path; RM inbound:  │
+│  unload + QC-01 sampling + QC yes/no (§6.14.2 + §6.15.4.1 simplified)         │
+│  → Scale-out → Gate-out                                                         │
+└───────────────────────────────┬───────────────────────────────────────────┘
+                                ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  CLOSE                                                                       │
+│  TLS-01 timeline + KPIs (§6.8.5); POD + gate-out (+ QC checkpoint for RM flow)│
+│  (§6.8.7 / §6.14.2 / §6.15.4.1 simplified) — **no §6.8.8** costing in Sprint 4│
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Dependency Map
+## Dependency map
 
 ```
-Sprint 3 TO-02 / TO-03 (Confirmed TO)  ──→  TE-01 (Execution / Dispatch)
-TE-01 (Dispatch)                        ──→  TE-02 (Trip Lifecycle)
-TE-02 (Trip state: Unloading)           ──→  TC-01 (Partial Delivery)
-TC-01 (or full delivery)                ──→  TC-02 (POD / Closure)
-TE-02 (Active Trip)                     ──→  TC-03 (Map Tracking)
-TE-02 (Active Trip)                     ──→  TE-03 (Incident Mgmt)
-TC-02 (Delivered)                       ──→  Sprint 10 Financial (Costing)
+Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
+    │
+    ├──► DS-01, DS-02 (can start early; optional gate on driver execution per policy)
+    │
+    ├──► TLS-01 (§6.8.5 execution + yard + closure substates)
+    │         └──► DM-01 (driver TO list & milestones)
+    │         └──► yard + POD-01
+    │
+    ├──► GT-02 (gate-created TO) → TDO assignment as needed — gate path when no planner TO
+    │
+    ├──► LUP-01 → GT-01 → SC-01 → CC-01 → LD-01
+    │         ├──► FG outbound / FG inbound closure path (POD-01 rules)
+    │         └──► QC-01 (raw-material checkpoint) → POD-01
+    │
+    └──► POD-01 (after DM-01 + TLS-01 + LD/GT path as applicable)
 ```
 
-**Prerequisites from Sprint 3**:
-- TO-01 (TO with TR reference and quantity)
-- TO-02 (Confirmed Own Fleet TO with vehicle type)
-- TP-02 (Helper assignment from fleet availability)
+**Prerequisites from earlier sprints**: MDM POI / vehicle / driver / helper / route (Sprint 2); TR → TO → assignment (Sprint 3). **LUP-01** extends each POI with operational load/unload **points** used by Sprint 4 yard apps.
 
-**Prerequisites from Sprint 2**:
-- MDM-02 (Route — polylines for TC-03 map overlay)
-- MDM-05 (Vehicle) / US-057 Driver domain (for TE-01 assignment)
+## Menu structure & role access (Sprint 4 additions)
 
----
+| Area | Roles | Purpose |
+|------|-------|---------|
+| **Fleet / Driver Supervisor** *(exact menu TBD — may live under Fleet or Operations)* | `driver_supervisor` | Checklists, attendance, leave, vehicle Under Maintenance from handover |
+| **Transport** | Planner, TDO, Driver | TDO sets **Ready for Dispatch**; driver **my TOs** |
+| **Gate** | `gateman` | Gate-in / gate-out / remarks; **on-demand TO** (Dealer DO / Supplier PO) |
+| **Scaling / Weighbridge** | `scaling_operator` | Scale-in, token, scale-out |
+| **Command Center** | `command_center_officer` | Post-scale queue, **assignment to POI loading/unloading point** (see LUP-01), waiting serial |
+| **Loading / Unloading** | Loading / unloading personnel | Start–end timestamps at **assigned point**, bags, weight, seal (load) |
+| **Master / POI** | `tenant_admin` (or same as POI master) | **LUP-01**: create/load/edit **L/U points** under each POI |
 
-## Pending Items
+> Portal keys and permission codes to be added in implementation (`portal_navigation.py`, `constants_rbac.py`) when stories are pulled into development.
 
-> No carry-overs into Sprint 4 at planning time.
+## Demo feedback
 
----
-
-## Demo Feedback
-
-> No demo feedback recorded for Sprint 4 yet.
+> No demo feedback recorded for Sprint 4 yet. Log: [`feedback.md`](feedback.md)
 
 ---
 
 ## Notes
 
-- **TE-02 (Trip Lifecycle)** is the central story of this sprint — it creates the Trip entity and drives all downstream stories. Build TE-01 first to populate the trip, then TE-02, then TE-03 / TC-01 / TC-02 in parallel.
-- **TC-03 (Tracking Dashboard)** can be built in parallel from Sprint 4 using simulated GPS data; real GPS pings arrive with the Sprint 10 Driver Mobile app (US-052 / US-092).
-- **TC-01 (Partial Delivery)** is a prerequisite edge case for TC-02 — the POD form checks for an unresolved shortfall before allowing submission.
-- **Jira Epics**: `DFS-043` (Trip Execution), `DFS-046` (Trip Closure & Tracking)
-- **Story point split**: Trip Execution = 26 SP, Trip Closure & Tracking = 21 SP
+- **Incident / halt / re-delivery** (§6.8.6) is **Phase 2** — do not scope into TLS-01 beyond documenting a future hook.  
+- **§6.8.8 Trip costing** is **not** in Sprint 4 backlog — track for a later sprint.  
+- **Unloading personnel** fields in §6.8.7 overlap **LD-01** at destination; **POD-01** ties driver app POD + **TO** closure rules.
+- `QC-01` owns Sprint 4 raw-material QC gate after unloading assignment/capture: sampling event + `QC Passed` yes/no only. Detailed physical/lab sub-workflows from §6.15 remain for a later sprint.

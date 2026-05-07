@@ -150,27 +150,53 @@
 
 ---
 
-## Sprint 4 — Trip Execution & Closure
+## Sprint 4 — Own-Fleet Yard & Field Execution
 
-> Full breakdown (stories, sub-tasks, pending items): [sprints/sprint-4/](sprints/sprint-4/README.md)
+> Full breakdown (stories, sub-tasks, PRD traceability, build order): [sprints/sprint-4/](sprints/sprint-4/README.md)  
+> **Sprint 3** delivers TO + assignment; **TDO** may set **`Ready for Dispatch`** → TO is **visible to assigned driver**. **Sprint 4** is **TO-centric** (no separate Trip backlog): **Driver Supervisor**, **driver mobile** (milestones & POD — **no map/GPS backlog**), **gate**, **scaling**, **command center**, **loading/unloading points per POI**, **§6.8.5 execution + yard + closure substates** (TLS-01), **POD closure** (**no §6.8.8 costing** in this sprint). **QA/E2E story** omitted until backlog finalized. **Own fleet**; vendor portal out of scope.
 
-### Epic: Trip Execution
-
-| Story | Task ID | Jira | Status | SP |
-|-------|---------|------|--------|----|
-| [TO Execution — Own Fleet (Vehicle/Driver Assignment)](sprints/sprint-4/01-trip-execution/TE-01-to-execution-own-fleet.md) | TE-01 | DFS-042 | Pending | 8 |
-| [Trip Lifecycle Management (12 States)](sprints/sprint-4/01-trip-execution/TE-02-trip-lifecycle-management.md) | TE-02 | DFS-043 | Pending | 13 |
-| [Incident Management & Exception Handling](sprints/sprint-4/01-trip-execution/TE-03-incident-management.md) | TE-03 | DFS-044 | Pending | 5 |
-
-### Epic: Trip Closure & Tracking
+### Epic: Driver Supervisor & Crew
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [Partial Delivery Handling](sprints/sprint-4/02-trip-closure-tracking/TC-01-partial-delivery.md) | TC-01 | DFS-045 | Pending | 5 |
-| [Trip Closure with Proof of Delivery (POD)](sprints/sprint-4/02-trip-closure-tracking/TC-02-trip-closure-pod.md) | TC-02 | DFS-046 | Pending | 8 |
-| [Real-time Map & Tracking Dashboard](sprints/sprint-4/02-trip-closure-tracking/TC-03-realtime-map-tracking.md) | TC-03 | DFS-047 | Pending | 8 |
+| [Vehicle licence, health & handover checklists](sprints/sprint-4/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01 | DFS-050 | Pending | 5 |
+| [Driver state, attendance & leave (supervisor)](sprints/sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DS-02 | DFS-051 | Pending | 5 |
 
-| **Total** | | | | **47** |
+### Epic: Driver Mobile
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [TO list, execution milestones & POD](sprints/sprint-4/03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01 | DFS-053 | Pending | 8 |
+
+### Epic: Gate
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Gate-in, gate-out & remarks](sprints/sprint-4/04-gate/GT-01-gate-in-out-remarks.md) | GT-01 | DFS-054 | Pending | 8 |
+| [On-demand TO creation — Dealer DO & Supplier PO](sprints/sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md) | GT-02 | DFS-062 | Pending | 8 |
+
+### Epic: Scaling
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Scale-in, queue token & scale-out](sprints/sprint-4/05-scaling/SC-01-scale-in-out-queue-token.md) | SC-01 | DFS-055 | Pending | 8 |
+
+### Epic: Command Center & Load / Unload
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [Loading & unloading points — per POI](sprints/sprint-4/06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md) | LUP-01 | DFS-063 | Pending | 5 |
+| [Queue monitoring, bay assignment & waiting serial](sprints/sprint-4/06-command-center-loading/CC-01-queue-assign-serial.md) | CC-01 | DFS-056 | Pending | 8 |
+| [Load / unload start–end capture (E2E)](sprints/sprint-4/06-command-center-loading/LD-01-load-unload-timestamps.md) | LD-01 | DFS-057 | Pending | 5 |
+
+### Epic: Lifecycle & POD
+
+| Story | Task ID | Jira | Status | SP |
+|-------|---------|------|--------|----|
+| [TO lifecycle — execution, yard & closure substates](sprints/sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01 | DFS-059 | Pending | 13 |
+| [TO closure — POD & gate-out linkage](sprints/sprint-4/07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | POD-01 | DFS-060 | Pending | 5 |
+
+| **Total** | | | | **78** |
 
 ---
 
@@ -304,14 +330,14 @@
 | Sprint 1 | Infrastructure, Onboarding & Secure Login | ~62 |
 | Sprint 2 | Master Data, User Management & Vehicle Tracking | 83 |
 | Sprint 3 | Transfer Requisition, Transport Planning & Transport Orders | 49 |
-| Sprint 4 | Trip Execution & Closure | 47 |
+| Sprint 4 | TO execution, yard & closure (no map / costing / QA ticket) | 78 |
 | Sprint 5 | Vendor Management | 51 |
 | Sprint 6 | Gate Management & Weighing | 61 |
 | Sprint 7 | Destination Operations & Loading/Unloading | 46 |
 | Sprint 8 | QC Sampling & Lab Workflow | 47 |
 | Sprint 9 | QC Lab Results, Decisions & Compliance | 46 |
 | Sprint 10 | Mobile Applications & Financial Reporting | 43 |
-| **Total** | **10 sprints** | **~535 SP** |
+| **Total** | **10 sprints** | **~569 SP** |
 
 > ⚠️ **Sprint 5 (51 SP)** and **Sprint 6 (61 SP)** are above the typical 45 SP target.
 > - Sprint 5 can be split: Vendor Onboarding + Bidding (Sprint 5a) / Portal + Compliance (Sprint 5b) if needed
