@@ -35,6 +35,7 @@ updated: 2026-03-12
 | [Colors](./01-foundation/colors.md) | Brand palette, semantic colors, dark theme, status colors, accessibility ratios |
 | [Typography](./01-foundation/typography.md) | Typefaces, type scale, heading styles, font weights, implementation |
 | [Spacing & Layout](./01-foundation/spacing.md) | Spacing scale, border radius, shadows, page grid, breakpoints, z-index |
+| [Typography & Label Conventions](./01-foundation/typography-and-labels.md) | Label capitalisation rules — sentence-case default, acronym ALL CAPS (POI, TR, TO, PR, UOM), `verbose_name` source fixes, JS safety net (`dfms_labels.js`) |
 
 ### Components
 
@@ -164,6 +165,7 @@ The design system is owned by the **Tech Lead** and maintained by the frontend t
 | 1.0 | 2026-02-23 | Initial design system — foundation, components, patterns, platform guides |
 | 1.1 | 2026-03-12 | Brand colors updated to Brainstation-23 palette (Pantone 2766 C + 2726 C); dark theme added; design philosophy documented |
 | 1.2 | 2026-03-12 | Design influences documented: IBM Carbon (web), M3 structural (Flutter), Radix (accessibility), Ant Design (behaviour); binding design principles defined; M3 anti-patterns called out |
+| 1.3 | 2026-05-07 | Label capitalisation convention documented — sentence-case default, acronym ALL CAPS rule, `verbose_name` source fixes across 13 fields, `dfms_labels.js` JS safety net |
 
 ---
 
