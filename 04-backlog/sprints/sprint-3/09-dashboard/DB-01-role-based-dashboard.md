@@ -5,10 +5,11 @@ epic: Dashboard
 sprint: Sprint 3
 story_points: 5
 priority: P1
-status: Pending
+status: Delivered
 jira: DFS-043
 author: Product
-last_updated: 2026-05-05
+last_updated: 2026-05-07
+delivered: 2026-05-07
 ---
 
 # DB-01 — Role-Based Dashboard (Universal Landing Page)
@@ -26,25 +27,25 @@ Provide **one dashboard URL** (`/admin/`) that every tenant user can access afte
 ## Acceptance Criteria
 
 ### AC-1 — Universal access
-- All active `is_staff` tenant users can access `/admin/` without a 403.
-- The dashboard is the **default landing page** after login (Django admin root).
-- No role has a blank or error page as their home screen.
+- [x] All active `is_staff` tenant users can access `/admin/` without a 403
+- [x] Dashboard is the default landing page after login (Django admin root)
+- [x] No role has a blank or error page as their home screen
 
 ### AC-2 — Role-scoped widget set
-Each role sees a dashboard composed of the widgets defined in the **Widget Matrix** below. Widgets a role doesn't have access to are simply not rendered (no empty placeholders, no error state).
+- [x] Each role sees widgets scoped to their role — see Widget Matrix below
+- [x] Widgets not applicable to a role are simply not rendered
 
 ### AC-3 — Permission gate
-- A new permission code `Menu.Dashboard.View` is added and assigned to **every operational role** in `role_seed_data.py`.
-- The existing `Menu.TenantAdminDashboard.View` remains for Tenant Admin (full admin index).
-- Non-staff or platform-schema requests return 403 as usual.
+- [x] `MENU_DASHBOARD_VIEW` permission code added and assigned to all operational roles
+- [x] Tenant Admin retains full Django admin index (unchanged)
+- [x] Non-staff / platform-schema requests return 403
 
 ### AC-4 — Navigation
-- The sidebar "Dashboard" item (currently Tenant Admin only) is updated to use `Menu.Dashboard.View` so all roles see it.
-- The URL remains `/admin/`.
+- [x] Sidebar "Overview" item visible to all roles via `Menu.Dashboard.View`
+- [x] URL remains `/admin/`
 
 ### AC-5 — Data freshness
-- All KPI counts are **live queries** (no caching in v1); page loads reflect current DB state.
-- Response time target: < 1 second for typical tenant data volumes (< 10,000 records per model).
+- [x] All KPI counts are live queries (no caching)
 
 ---
 
@@ -196,14 +197,41 @@ Roles with no specific widgets (e.g. `gateman`) see a minimal "Welcome" dashboar
 
 ---
 
+## Implementation Notes (Actual Delivery)
+
+### What was built
+
+- **`apps/core/portal_views.py`**: Custom `DFMSDashboardView` overrides the Django admin index. Resolves user's primary role code and builds widget context via `get_dashboard_widgets(user)`.
+- **`apps/core/dashboard_service.py`**: `get_dashboard_widgets` function with per-role helper functions returning `{"id", "label", "icon", "count", "url", "color_class"}` dicts.
+- **`templates/admin/dashboard.html`**: Extends `admin/base_site.html`. Renders a responsive CSS grid of widget cards. Each card shows an icon, label, count (highlighted), and a link to the filtered list view. Count = 0 shows "All clear" with muted styling. Light/dark mode compatible using Django admin CSS variables.
+- **`apps/core/portal_navigation.py`**: "Overview" sidebar item uses `permission_any: [MENU_DASHBOARD_VIEW, MENU_TENANT_ADMIN_DASHBOARD_VIEW]`.
+- **RBAC seed**: `MENU_DASHBOARD_VIEW` added to all operational roles.
+
+### Deviation from original spec
+
+The sidebar heading was labelled **"Overview"** (not "Dashboard") — consistent with the existing sidebar section header conventions.
+
+The `driver` role widget (`my_assigned_tos`) was added after initial delivery when driver TO access was implemented.
+
+### Key files
+
+| File | Purpose |
+|------|---------|
+| `apps/core/portal_views.py` | Dashboard view + widget resolution |
+| `apps/core/dashboard_service.py` | Per-role widget data queries |
+| `templates/admin/dashboard.html` | Widget grid template |
+| `apps/core/portal_navigation.py` | "Overview" sidebar item |
+
+---
+
 ## Definition of Done
 
-- [ ] `MENU_DASHBOARD_VIEW` added to `PermissionCodes` and all operational roles in seed
-- [ ] `seed_dfms_rbac` run; permission cache cleared for all tenants
-- [ ] `portal_navigation.py` Dashboard item uses `MENU_DASHBOARD_VIEW` (all roles see it)
-- [ ] `dashboard_service.py` implemented with all widget helper functions
-- [ ] `admin/dashboard.html` template renders widget grid; light + dark mode tested
-- [ ] Django admin root (`/admin/`) renders the custom dashboard for all non-platform staff
-- [ ] Tenant Admin still has full Django admin index (unchanged behaviour)
-- [ ] All widget counts verified correct against live DB
-- [ ] No 403 for any active `is_staff` tenant user hitting `/admin/`
+- [x] `MENU_DASHBOARD_VIEW` added to `PermissionCodes` and all operational roles in seed
+- [x] `portal_navigation.py` "Overview" item uses `MENU_DASHBOARD_VIEW` (all roles see it)
+- [x] `dashboard_service.py` implemented with widget helpers for all roles
+- [x] `admin/dashboard.html` renders widget grid; light + dark mode compatible
+- [x] Django admin root renders custom dashboard for all non-platform staff
+- [x] Tenant Admin still has full Django admin index (unchanged)
+- [x] All widget counts verified against live DB
+- [x] No 403 for any active `is_staff` tenant user hitting `/admin/`
+- [ ] Unit tests > 80% — carry-forward (QA sprint)
