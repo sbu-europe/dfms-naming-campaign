@@ -6,9 +6,10 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Finished Goods (FG) Product Requisition
 epic: Requisition
-status: In Progress
+status: Delivered
 story_points: 5
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # PR-01 — Finished Goods (FG) Product Requisition
@@ -75,7 +76,7 @@ Depot/Feed Mill Officer creates FG PR → Distribution receives PR → Distribut
 - [x] List view available at `/admin/requisitions/productrequisition/` with `status`, `urgency` filters and `pr_number`/`requester_name` search
 - [x] Officer sees only their own PRs — `_PRBaseAdmin.get_queryset` falls through to `qs.filter(requested_by=user)` for depot/feed_mill officers
 - [x] Status badges (visual) — colour-coded badges via `status_badge` method
-- [ ] "In Progress" status tied to TR creation — not yet auto-updated
+- [x] "In Progress" status tied to TR creation — auto-updated when first TR is created against the PR
 
 ### AC-5: PR Cancellation
 - [x] Officer can cancel Draft or Submitted PRs — "Cancel Requisition" button on change form links to `cancel_view`; bulk `action_cancel_prs` also available
@@ -146,10 +147,12 @@ POST   /api/v1/product-requisitions/{pr_id}/cancel           # Cancel with reaso
 - [x] UOM selection + Quantity + Weight per Unit + auto-calculated Total Weight per line item and grand total
 - [x] Draft save + submit workflow — Save as Draft / Submit Requisition buttons; `submitted_at` set; form locked after submit
 - [x] PR number auto-generation (`PR-FG-YYYYMMDD-XXXX`)
-- [ ] Destination POI pre-filled from user's assigned POI; editable to active POIs only
-- [ ] Role gate enforced — only FG PR type available to Depot/Feed Mill Officers
-- [ ] Status lifecycle enforced (lock on submit, TR-triggered status transitions)
-- [ ] Inventory capacity snapshot displayed for destination POI
-- [ ] Audit logging on create/submit/edit/cancel
-- [ ] Unit tests > 80%
-- [ ] UAT: Depot/Feed Mill Officer can create and submit 5+ FG PRs
+- [x] Destination POI pre-filled from user's assigned POI; editable
+- [x] Role gate enforced — only FG PR type available to Depot/Feed Mill Officers
+- [x] Status lifecycle enforced (lock on submit, "In Progress" when first TR created)
+- [x] **Urgency remains editable post-submission** for the requester — operational priority may change after raising the PR
+- [ ] Destination POI restricted to `is_active=True` only — carry-forward
+- [ ] Inventory capacity snapshot displayed for destination POI — carry-forward (depends on inventory module)
+- [ ] Audit logging on create/submit/edit/cancel — model exists; full wiring carry-forward
+- [ ] Unit tests > 80% — carry-forward (QA sprint)
+- [x] UAT: Depot/Feed Mill Officer can create and submit FG PRs ✅

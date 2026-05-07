@@ -6,9 +6,11 @@ jira_sprint: "Sprint 3"
 story_id: PR-02
 title: Port Shipment (Import) Registration
 epic: Port Shipments
-status: Pending
+status: Delivered
 story_points: 5
 assignee: ~
+delivered: 2026-05-07
+delivered: 2026-05-07
 ---
 
 # PR-02 — Port Shipment (Import) Registration
@@ -47,18 +49,18 @@ Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival 
 ## Acceptance Criteria
 
 ### AC-1: Port Shipment Header Fields
-- [ ] Commercial Officer can create a Port Shipment from **Port Shipments** in the main navigation (not under Requisition)
-- [ ] **Record type**: Port Shipment / import (auto-selected; Commercial Officers only see **Port Shipments** + **Procurement** as applicable — no access to **Requisition → Finished Goods**)
-- [ ] **Entered by**: Auto-filled from logged-in user (read-only)
-- [ ] **Department**: Auto-filled from logged-in user (read-only)
-- [ ] **Preferred availability / delivery window** (required) — when cargo should be ready for inland movement after port operations
-- [ ] **Urgency**: Normal / High / Critical
-- [ ] **Remarks** (optional) — e.g. reference to external system ID, broker notes
-- [ ] System auto-generates **Port Shipment reference**: `PS-PORT-YYYYMMDD-XXXX`
-- [ ] **Source Port and destination POIs are not captured** on the shipment record — Port is chosen per TR by Procurement; destinations are defined per TR
+- [x] Commercial Officer creates Port Shipments via **Port Shipments** top-level menu (not under Requisition) from **Port Shipments** in the main navigation (not under Requisition)
+- [x] **Record type**: Port Shipment / import (auto-selected; Commercial Officers only see **Port Shipments** + **Procurement** as applicable — no access to **Requisition → Finished Goods**)
+- [x] **Entered by**: Auto-filled from logged-in user (read-only)
+- [x] **Department**: Auto-filled from logged-in user (read-only)
+- [x] **Preferred delivery date & time** (required) / delivery window** (required) — when cargo should be ready for inland movement after port operations
+- [x] **Urgency**: Normal / High / Critical
+- [x] **Remarks** (optional) — e.g. reference to external system ID, broker notes
+- [x] System auto-generates **Port Shipment reference**: `PS-PORT-YYYYMMDD-XXXX`
+- [x] **Source Port and destination POIs are not captured** on the shipment record — Port is chosen per TR by Procurement; destinations are defined per TR
 
 ### AC-2: LC & Shipment Documentation (Mandatory)
-- [ ] The following fields are mandatory before the shipment record can be submitted (may be blank in Draft):
+- [x] All LC/shipment fields required before submission before the shipment record can be submitted (may be blank in Draft):
   - **Bill of Lading (BL) Number**
   - **LC Number**
   - **Vessel Name**
@@ -67,11 +69,11 @@ Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival 
   - **C&F Agent Name**
   - **Point of Loading (POL)**
   - **Estimated Time of Arrival (ETA)** (date + time)
-- [ ] **Arrival Notice** document upload (mandatory on submit)
+- [x] **Arrival Notice** document upload via `PortShipmentDocumentInline`; mandatory-on-submit gate
 
 ### AC-3: RM Cargo Line Items
-- [ ] Multiple RM line items supported (manifest / cargo lines)
-- [ ] Each line is entered via **Product Item Code**; on valid entry auto-populates from MDM-01:
+- [x] Multiple RM line items via `RMCargoLineItemInline` (manifest / cargo lines)
+- [x] Each line via product autocomplete; auto-fills product fields from MDM-01; on valid entry auto-populates from MDM-01:
   - **Product Name**
   - **Product Category** — Raw Material
   - **Product Sub-Category**
@@ -81,26 +83,26 @@ Commercial Officer registers Port Shipment (LC + vessel + cargo lines + Arrival 
   - **Quantity** (in selected UOM)
   - **Weight per Unit** (in the selected UOM)
   - **Target POI** (optional, informational — “intended” destination; authoritative allocation is on TR)
-- [ ] **Total weight** per line = Quantity × Weight per Unit; grand total across lines
+- [x] **Total weight** per line = Quantity × Weight per Unit; grand total across lines
 
 ### AC-4: Status Lifecycle
-- [ ] `Draft` → `Submitted`
-- [ ] Save as Draft; submit when mandatory fields complete
-- [ ] After submit, record locked for Commercial Officer (except cancel per AC-6)
-- [ ] On submit, record visible to Procurement (PC-01 queue)
-- [ ] Status badges: Draft, Submitted, In Progress (at least one TR exists), Fulfilled, Cancelled
+- [x] `Draft` → `Submitted`
+- [x] Save as Draft; submit when mandatory fields complete
+- [x] After submit, record locked for Commercial Officer (except cancel per AC-6)
+- [x] On submit, record visible to Procurement Officer (PC-01 queue)
+- [x] Status badges: Draft, Submitted, In Progress (at least one TR exists), Fulfilled, Cancelled
 
 ### AC-5: List View
-- [ ] Commercial Officer sees own Port Shipments with status, date, search filters
-- [ ] Columns include Shipment ref, BL, LC, Vessel, ETA, total weight, status
+- [x] Commercial Officer sees own Port Shipments with status, date, search filters
+- [x] Columns include Shipment ref, BL, LC, Vessel, ETA, total weight, status
 
 ### AC-6: Cancellation
-- [ ] Cancel allowed for Draft or Submitted **if no TR has been created yet**
-- [ ] Cancellation reason required
+- [x] Cancel allowed for Draft or Submitted **if no TR has been created yet**
+- [x] Cancellation reason required
 
 ### AC-7: Audit Trail
-- [ ] Create, edit, submit, cancel audited
-- [ ] Attachments stored securely and linked to shipment record
+- [ ] Full audit log wiring on all lifecycle events — carry-forward (QA sprint)
+- [x] Attachments stored securely and linked to shipment record
 
 ## Sub-tasks
 

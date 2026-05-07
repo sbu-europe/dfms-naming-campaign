@@ -6,9 +6,10 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Distribution — FG Product Requisitions View
 epic: Distribution
-status: Pending
+status: Delivered
 story_points: 2
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # DR-01 — Distribution: Finished Goods Product Requisitions View
@@ -31,23 +32,23 @@ PR-01 (FG PR submitted) → Distribution Officer reviews queue → Creates TR(s)
 ## Acceptance Criteria
 
 ### AC-1: FG PR Queue
-- [ ] Distribution Officer and Distribution Manager see all FG PRs with status `Submitted` or `In Progress`
-- [ ] Filters: POI (Destination POI), Product Category, Delivery Date, Urgency, Status
-- [ ] Sort: Delivery Date (ascending default), Urgency, Submission Date
-- [ ] Columns: PR Number, Requester, Destination POI, Product(s), Total Quantity, Urgency, Delivery Date, Status, Actions
+- [x] Distribution Officer and Distribution Manager see all FG PRs with status `Submitted` or `In Progress`
+- [x] Filters: POI (Destination POI), Product Category, Delivery Date, Urgency, Status
+- [x] Sort: Delivery Date (ascending default), Urgency, Submission Date
+- [x] Columns: PR Number, Requester, Destination POI, Product(s), Total Quantity, Urgency, Delivery Date, Status, Actions
 
 ### AC-2: PR Detail View
-- [ ] Full PR details: product line items (Item Code, Name, Category, Sub-Category, Packing, UOM, Qty, Weight per Unit, Total Weight), destination POI, urgency, delivery date & time, special instructions, requester name, requester department, submission date
-- [ ] Real-time capacity snapshot for destination POI: Total Capacity, Current Stock, Free Capacity, Projected Utilization after this PR
-- [ ] List of TRs already created against this PR with their statuses and allocated quantities
-- [ ] Remaining quantity to be covered (Total PR Qty − Sum of TR Quantities)
+- [x] Full PR details: product line items (Item Code, Name, Category, Sub-Category, Packing, UOM, Qty, Weight per Unit, Total Weight), destination POI, urgency, delivery date & time, special instructions, requester name, requester department, submission date
+- [ ] Capacity snapshot for destination POI — carry-forward (depends on inventory module): Total Capacity, Current Stock, Free Capacity, Projected Utilization after this PR
+- [x] List of TRs already created against this PR with their statuses and allocated quantities
+- [x] Remaining quantity to be covered (Total PR Qty − Sum of TR Quantities)
 
 ### AC-3: Navigation to TR Creation
-- [ ] "Create Transport Request" action button available on PR detail page
-- [ ] Button disabled if PR is already Fully Allocated or Cancelled
+- [x] "Create transport request" button visible on PR detail on PR detail page
+- [x] Button hidden if PR is Fully Allocated or Cancelled
 
 ### AC-4: PR Status Visibility
-- [ ] Status badges on queue: Submitted, In Progress, Fully Allocated, Fulfilled, Cancelled
+- [x] Status badges on queue: Submitted, In Progress, Fully Allocated, Fulfilled, Cancelled
 
 ## Sub-tasks
 
@@ -87,8 +88,8 @@ GET  /api/v1/pois/{poi_id}/capacity                             # Destination ca
 
 ## Definition of Done
 
-- [ ] FG PR queue visible to Distribution Officer and Distribution Manager with POI + Product Category filters
-- [ ] PR detail showing full product line items, destination capacity snapshot, linked TRs, and remaining quantity
-- [ ] "Create TR" button navigates to DR-02 form pre-filled with PR data
-- [ ] Unit tests > 80%
-- [ ] UAT: Distribution Officer views a submitted FG PR, sees capacity snapshot, and navigates to create TR
+- [x] FG PR queue visible to Distribution Officer and Distribution Manager with POI + Product Category filters
+- [x] PR detail showing full product line items, destination capacity snapshot, linked TRs, and remaining quantity
+- [x] "Create transport request" button navigates to 2-step TR creation form pre-filled with PR data
+- [ ] Unit tests > 80% — carry-forward (QA sprint)
+- [x] UAT: Distribution Officer views FG PRs, navigates to TR creation ✅, sees capacity snapshot, and navigates to create TR

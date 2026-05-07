@@ -1,11 +1,11 @@
 ---
 module: 04-requisitions
 specification: Product Requisition Management
-version: 1.0
+version: 1.1
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 sprint: Sprint 3
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 related_stories: DFS-032 (PR-01), DFS-033 (PR-02)
 jira_epic: DFS-040
 ---
@@ -667,7 +667,9 @@ On Submit:
 
 ```
 Once status = Submitted:
-  - Requester cannot edit any field
+  - Requester cannot edit most fields
+  - EXCEPTION: Urgency field remains editable by the requester (Depot/Feed Mill Officer)
+    even after submission — operational priority can change after the PR is raised
   - Requester can only Cancel (if no TRs exist)
   - Distribution/Procurement can read but not edit the PR
   - Only status transitions are permitted (system-driven: Submitted → In Progress → Fulfilled)
@@ -694,44 +696,74 @@ Generated atomically using DB-level sequence or select_for_update to prevent rac
 
 ## 13. Django Admin SSR Implementation
 
-### 13.1 Admin Changeist Configuration
+### 13.1 Admin Class Hierarchy
 
-```python
-class ProductRequisitionAdmin(admin.ModelAdmin):
-    list_display = [
-        'pr_number', 'pr_type', 'requester_name', 'destination_poi',
-        'preferred_delivery_datetime', 'urgency', 'status', 'created_at'
-    ]
-    list_filter = ['pr_type', 'status', 'urgency', 'created_at']
-    search_fields = ['pr_number', 'requester_name', 'lc_number']
-    readonly_fields = ['pr_number', 'requester_name', 'requester_department', 'status']
+The admin implementation uses a shared base class `_PRBaseAdmin` with two concrete classes registered against proxy models:
 
-    def get_queryset(self, request):
-        # Filter by tenant context
-        return super().get_queryset(request).filter(
-            tenant_id=request.user.tenant_id
-        )
+```
+ProductRequisition (model)
+  ├── ProductRequisitionAdmin     — registered for FG PRs (pr_type=FINISHED_GOODS)
+  └── PortShipmentAdmin           — registered for PortShipmentProxy (pr_type=PORT_CONSIGNMENT)
 ```
 
-### 13.2 Inline Line Items
+Both share the `_PRBaseAdmin` logic for inline management and readonly-field role detection.
+
+### 13.2 Role-Based Readonly Fields
+
+Fields transition to read-only after submission for the requester, with **one exception**:
 
 ```python
-class PRLineItemInline(admin.TabularInline):
-    model = ProductRequisitionLineItem
-    extra = 0
-    readonly_fields = [
-        'product_name', 'product_category',
-        'product_sub_category', 'type_of_packing', 'total_weight_kg'
-    ]
-    fields = [
-        'line_number', 'product_item_code', 'product_name',
-        'unit_of_measure', 'product_quantity', 'weight_per_unit', 'total_weight_kg'
-    ]
+def get_readonly_fields(self, request, obj=None):
+    # After submission, all fields locked EXCEPT urgency for the requester
+    if obj and obj.status != PRStatus.DRAFT:
+        if _is_requester_role(request):
+            # urgency remains editable — operational priority can change post-submission
+            return [f for f in all_fields if f != 'urgency']
+        return all_fields  # downstream roles (Distribution, Procurement) are fully read-only
 ```
 
-### 13.3 PR Type-Conditional Field Display
+### 13.3 Inline Line Items
 
-Admin forms should conditionally display Port Shipment fields (LC, BL, Vessel, etc.) only when `pr_type = PORT_CONSIGNMENT`. Use `fieldsets` with override of `get_fieldsets` based on the instance's `pr_type`.
+`PRLineItemInline` and `PRDocumentInline` are attached to both admin classes. For the **Procurement Officer** role, both inlines are enforced strictly read-only:
+
+```python
+_is_readonly_role = ("procurement_officer",)
+
+def get_formset(self, request, obj=None, **kwargs):
+    role = get_primary_role_code(request.user)
+    if role in self._is_readonly_role:
+        kwargs["form"] = forms.ModelForm  # prevents custom form overriding prefix
+    return super().get_formset(request, obj, **kwargs)
+```
+
+The CSS rule `[id^="line_items-"] td > p` was scoped to `td.original > p` to prevent inline row content from being hidden for read-only viewers.
+
+### 13.4 PR Type-Conditional Fieldsets
+
+Admin uses `get_fieldsets` to conditionally show/hide Port Shipment LC fields based on `pr_type`:
+- FG PR: shows **Requisition Details**, **Product Line Items**
+- Port Shipment: additionally shows **LC & Shipment Documentation**, **Documents**
+
+### 13.5 `line_number` Auto-Assignment
+
+`PRLineItem.save()` auto-assigns `line_number` using `_state.adding` guard to prevent `IntegrityError` on Port Shipment inline saves:
+
+```python
+def save(self, *args, **kwargs):
+    if self._state.adding and not self.line_number:
+        max_line = PRLineItem.objects.filter(requisition=self.requisition)\
+                       .aggregate(m=Max('line_number'))['m'] or 0
+        self.line_number = max_line + 1
+    super().save(*args, **kwargs)
+```
+
+### 13.6 Naming Conventions
+
+`verbose_name` and `verbose_name_plural` on the `ProductRequisition` model omit the `(FG)` suffix:
+- `verbose_name = "Product Requisition"` (was `"Product Requisition (FG)"`)
+- `verbose_name_plural = "Product Requisitions"` (was `"Product Requisitions (FG)"`)
+
+Field `verbose_name` values set explicitly for acronym correctness: `"PR number"`, `"PR type"`, `"target POI"`, `"destination POI"`.
 
 ---
 
