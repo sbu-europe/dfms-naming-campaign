@@ -1,13 +1,13 @@
 ---
-
-## sprint: Sprint 4
-title: Own-Fleet TO Execution — Supervisor, Driver, Yard (Gate & Scale), Command Center, POD
+sprint: Sprint 4
+title: Own-Fleet TO Execution - Supervisor, Driver, Yard (Gate & Scale), Command Center, POD
 phase: phase-1
 start_date: ~
 end_date: ~
 total_story_points: 83
 status: Planned
-jira_board: [https://your-org.atlassian.net/jira/software/projects/DFS/boards](https://your-org.atlassian.net/jira/software/projects/DFS/boards)
+jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
+---
 
 # Sprint 4 — Own-Fleet Yard & Field Execution (TO-Centric)
 
@@ -42,8 +42,6 @@ jira_board: [https://your-org.atlassian.net/jira/software/projects/DFS/boards](h
 | Raw-material sampling & QC decision (Sprint 4 simplified) | §6.15.1.2 (sample creation); §6.15.4.1 (QC Pass/Fail/Auto-Pass tracking) — implemented as **yes/no QC outcome only** in Sprint 4 (no physical/lab branch workflow)                                                                                                                                                        |
 | Explicitly **not** Sprint 4 backlog                       | §6.8.2 live map dashboard; §6.8.8 costing; §6.6.1.3 (fleet health dashboard — P2); §6.6.2.x fuel (P2); §6.6.3.5 driver performance (P3); §6.8.3 calendar dispatch (P2); §6.8.4 TR conjoinment (P2); §6.8.6 incident / re-delivery (P2); §6.12.3 / §6.13.2 **push** notifications (P3 — use **in-app** visibility instead) |
 
-
----
 
 ## Development flow (recommended build order)
 
@@ -169,17 +167,16 @@ Wave E — Closure
 
 | #   | Story / Context                                                                                                                   | Task ID | Jira | SP  | Status  |
 | --- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | ---- | --- | ------- |
-| 1   | [Vendor Management — Backlog Index](08-vendor-management/README.md)                                                               | VM-00   | ~    | ~   | Draft   |
-| 2   | [Vendor Onboarding Entry (Self-registration + Invite)](08-vendor-management/VM-01-vendor-onboarding-entry.md)                     | VM-01   | ~    | ~   | Pending |
-| 3   | [Compliance Docs + Reference + Multi-vehicle Profile](08-vendor-management/VM-02-compliance-docs-and-profile.md)                  | VM-02   | ~    | ~   | Pending |
-| 4   | [Platform Verification Queue + Approve/Reject + Resubmission](08-vendor-management/VM-03-admin-verification-workflow.md)          | VM-03   | ~    | ~   | Pending |
-| 5   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-04-vendor-portal-views.md)                                       | VM-04   | ~    | ~   | Pending |
-| 6   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-09-vendor-tenant-join-and-approval.md)                  | VM-09   | ~    | ~   | Pending |
-| 7   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-10-tdo-publish-to-bidding-portal.md) | VM-10   | ~    | ~   | Pending |
-| 8   | [Bid Submission (windows + edit/withdraw + late-bid prevention)](08-vendor-management/VM-05-bid-submission.md)                    | VM-05   | ~    | ~   | Pending |
-| 9   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-08-bid-evaluation.md)                     | VM-08   | ~    | ~   | Pending |
-| 10  | [Vehicle & Driver Submission After Award + Audit Trail](08-vendor-management/VM-06-vehicle-driver-submission.md)                  | VM-06   | ~    | ~   | Pending |
-| 11  | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-07-realtime-to-updates.md)                                        | VM-07   | ~    | ~   | Pending |
+| 1   | [Vendor Onboarding Entry (Self-registration + Invite)](08-vendor-management/VM-01-vendor-onboarding-entry.md)                     | VM-01   | ~    | ~   | Pending |
+| 2   | [Compliance Docs + Reference + Multi-vehicle Profile](08-vendor-management/VM-02-compliance-docs-and-profile.md)                  | VM-02   | ~    | ~   | Pending |
+| 3   | [Platform Verification Queue + Approve/Reject + Resubmission](08-vendor-management/VM-03-admin-verification-workflow.md)          | VM-03   | ~    | ~   | Pending |
+| 4   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-04-vendor-portal-views.md)                                       | VM-04   | ~    | ~   | Pending |
+| 5   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-09-vendor-tenant-join-and-approval.md)                  | VM-09   | ~    | ~   | Pending |
+| 6   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-10-tdo-publish-to-bidding-portal.md) | VM-10   | ~    | ~   | Pending |
+| 7   | [Bid Submission (windows + edit/withdraw + late-bid prevention)](08-vendor-management/VM-05-bid-submission.md)                    | VM-05   | ~    | ~   | Pending |
+| 8   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-08-bid-evaluation.md)                     | VM-08   | ~    | ~   | Pending |
+| 9   | [Vehicle & Driver Submission After Award + Audit Trail](08-vendor-management/VM-06-vehicle-driver-submission.md)                  | VM-06   | ~    | ~   | Pending |
+| 10  | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-07-realtime-to-updates.md)                                        | VM-07   | ~    | ~   | Pending |
 
 
 ---
