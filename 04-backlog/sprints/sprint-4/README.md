@@ -24,7 +24,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 **No separate Trip record in Sprint 4:** all operational events, yard steps, driver actions, and POD attach to the **Transport Order (TO)** created in Sprint 3. When TDO sets **`Ready for Dispatch`**, the TO becomes **visible to the assigned driver** for execution (DM-01). **§6.8.1.7** (fleet availability validation) is enforced on **first driver execution action** (e.g. marking execution started) unless an earlier hook is agreed in technical design.
 
-**Out of Sprint 4 backlog (deferred):** live **map / GPS / location** features (PRD §6.8.2 map layer & related); **§6.8.8 trip costing** — add in a later backlog tranche. **QA/E2E ticket** for this sprint is **removed** until stories are finalized (see `08-qa-testing/README.md`).
+**Out of Sprint 4 backlog (deferred):** live **map / GPS / location** features (PRD §6.8.2 map layer & related); **§6.8.8 trip costing** — add in a later backlog tranche. **QA/E2E ticket** for this sprint is **removed** until stories are finalized.
 
 ## PRD Phase 1 spine (this sprint)
 
@@ -144,7 +144,7 @@ Wave E — Closure
 
 ## QA & Testing
 
-> No QA story in this sprint folder until backlog is finalized. See [`08-qa-testing/README.md`](08-qa-testing/README.md).
+> No QA / E2E backlog item is defined in Sprint 4 yet. Add Playwright (or project-standard) coverage **after** stories are finalized. When added, reference: TO-centric execution (no Trip record), yard chain (GT → SC → CC → LD), TLS-01 §6.8.5 substates, and POD-01 closure — **without** map/GPS or §6.8.8 costing unless those are pulled into scope in a later sprint.
 
 ---
 
@@ -222,7 +222,7 @@ Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
 
 ## Demo feedback
 
-> No demo feedback recorded for Sprint 4 yet. Log: [`09-feedback/README.md`](09-feedback/README.md)
+> No demo feedback recorded for Sprint 4 yet. Log: [`feedback.md`](feedback.md)
 
 ---
 
