@@ -137,15 +137,15 @@ flowchart TD
   L --> B
 
   B -- Yes --> V{Vendor verified?}
-  V -- No --> VP[Verification Pending\n(no tenant data)]
+  V -- No --> VP[Verification Pending<br/>(no tenant data)]
   VP --> V
 
   V -- Yes --> T{Any tenant membership approved?}
-  T -- No --> TDY[Tenant Directory\nJoin one or more tenants]
-  TDY --> TRQ[Join Request Status\nRequested / Approved / Rejected]
+  T -- No --> TDY[Tenant Directory<br/>Join one or more tenants]
+  TDY --> TRQ[Join Request Status<br/>Requested / Approved / Rejected]
   TRQ --> T
 
-  T -- Yes --> H[Main App Shell\nBottom Tabs + Tenant Switcher]
+  T -- Yes --> H[Main App Shell<br/>Bottom Tabs + Tenant Switcher]
 
   H --> BIDS[Bids Tab]
   BIDS --> BL[Bid Opportunities List]
