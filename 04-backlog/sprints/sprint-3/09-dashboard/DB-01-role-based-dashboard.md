@@ -51,139 +51,171 @@ Provide **one dashboard URL** (`/admin/`) that every tenant user can access afte
 
 ## Widget Matrix (Role → Widgets)
 
-> Widget IDs are stable identifiers used in the template include system.
+> Widget IDs are stable identifiers from `dashboard_service.py`. Each widget has: `id`, `label`, `icon` (Bootstrap Icon name), `count`, `url` (pre-filtered admin URL), `color`, `urgency` (bool — tints card when count > 0).
 
-| Widget ID | Label | Roles that see it | Data source |
-|-----------|-------|-------------------|-------------|
-| `my_draft_prs` | My Draft PRs | `depot_officer`, `feed_mill_officer` | `ProductRequisition` where `requested_by=user`, `status=DRAFT`, `pr_type=FINISHED_GOODS` |
-| `my_submitted_prs` | My Submitted PRs | `depot_officer`, `feed_mill_officer` | Same model, `status=SUBMITTED` |
-| `my_inprogress_prs` | My In-Progress PRs | `depot_officer`, `feed_mill_officer` | Same model, `status=IN_PROGRESS` |
-| `my_draft_shipments` | My Draft Port Shipments | `commercial_officer` | `ProductRequisition` where `requested_by=user`, `status=DRAFT`, `pr_type=PORT_CONSIGNMENT` |
-| `my_submitted_shipments` | My Submitted Shipments | `commercial_officer` | Same model, `status=SUBMITTED` |
-| `pending_fg_prs` | Pending FG Requisitions | `distribution_officer`, `distribution_manager` | `ProductRequisition` where `pr_type=FINISHED_GOODS`, `status=SUBMITTED` |
-| `pending_tr_approvals` | Pending TR Approvals | `distribution_manager` | `TransportRequisition` where `tr_type=FG`, `status=PENDING_APPROVAL` |
-| `my_active_trs` | My Active TRs | `distribution_officer` | `TransportRequisition` where `created_by=user`, `status__in=[PENDING_APPROVAL, APPROVED]` |
-| `pending_port_shipments` | Port Shipments Awaiting TR | `procurement_officer` | `ProductRequisition` where `pr_type=PORT_CONSIGNMENT`, `status=SUBMITTED`, no TR created yet |
-| `my_port_trs` | My Port TRs | `procurement_officer` | `TransportRequisition` where `created_by=user`, `tr_type=PORT_CONSIGNMENT` |
-| `available_fg_trs` | FG TRs Available for Planning | `transport_planner` | `TransportRequisition` where `tr_type=FG`, `status=APPROVED` |
-| `available_port_trs` | Port TRs Available for Planning | `transport_planner` | `TransportRequisition` where `tr_type=PORT_CONSIGNMENT`, `status=SUBMITTED` |
-| `open_tos` | Open Transport Orders | `transport_planner`, `tdo_own_fleet`, `tdo_vendor_fleet` | `TransportOrder` where `status__in=[CREATED, ASSIGNED]` |
-| `my_assigned_tos` | My Assigned TOs | `driver` | `TransportOrder` where `driver=user`, `status=ASSIGNED` |
-| `tenant_summary` | Tenant Summary (all KPIs) | `tenant_admin` | Aggregate counts: users, PRs, TRs, TOs |
+### Depot / Feed Mill Officer
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `my_draft_prs` | Draft Requisitions | `pencil-square` | muted | `ProductRequisition` where `requested_by=user`, `status=DRAFT`, `pr_type=FINISHED_GOODS` |
+| `my_submitted_prs` | Submitted Requisitions | `send-check` | primary | Same model, `status=SUBMITTED` |
+| `my_inprogress_prs` | In-Progress Requisitions | `arrow-repeat` | warning | Same model, `status=IN_PROGRESS` |
+| `my_fulfilled_prs` | Fulfilled Requisitions | `check2-circle` | success | Same model, `status=FULFILLED` |
+
+### Commercial Officer
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `my_draft_shipments` | Draft Port Shipments | `pencil-square` | muted | `ProductRequisition` where `requested_by=user`, `status=DRAFT`, `pr_type=PORT_CONSIGNMENT` |
+| `my_submitted_shipments` | Submitted Shipments | `box-arrow-up` | primary | Same model, `status=SUBMITTED` |
+
+### Distribution Officer
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `pending_fg_prs` | Pending FG Requisitions | `inbox` | warning | `ProductRequisition` where `pr_type=FINISHED_GOODS`, `status=SUBMITTED` (org-wide) |
+| `my_active_trs` | My Active Transport Requests | `arrow-right-circle` | primary | `TransportRequisition` where `requested_by=user`, `tr_type=FG`, `status__in=[SUBMITTED, PENDING_APPROVAL, APPROVED]` |
+
+### Distribution Manager
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `pending_tr_approvals` | TRs Awaiting Your Approval | `hourglass-split` | danger | `TransportRequisition` where `tr_type=FG`, `status=PENDING_APPROVAL` (org-wide) |
+| `pending_fg_prs` | Submitted FG Requisitions | `inbox` | warning | `ProductRequisition` where `pr_type=FINISHED_GOODS`, `status=SUBMITTED` |
+| `inprogress_fg_prs` | FG Requisitions In Progress | `arrow-repeat` | primary | Same model, `status=IN_PROGRESS` |
+| `approved_trs` | Approved TRs (Awaiting Planning) | `check-circle` | success | `TransportRequisition` where `tr_type=FG`, `status=APPROVED` |
+
+### Procurement Officer
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `shipments_needing_tr` | Shipments Awaiting TR | `box-seam` | danger | `ProductRequisition` `PORT_CONSIGNMENT`, `status=SUBMITTED`, **excluding** those with at least one `TransportRequisition` already |
+| `shipments_in_progress` | Shipments In Progress | `arrow-repeat` | warning | Same model, `status=IN_PROGRESS` |
+| `my_trs_pending_approval` | My TRs Awaiting Approval | `hourglass-split` | warning | `TransportRequisition` where `requested_by=user`, `tr_type=PORT_CONSIGNMENT`, `status=PENDING_APPROVAL` |
+| `my_trs_approved` | My Approved TRs | `check-circle` | success | Same filter, `status=APPROVED` |
+
+> Note: Procurement TRs do not require manager approval — these widgets reflect the status values as-stored (e.g. `APPROVED` = immediately available for planning after submission).
+
+### Transport Planner
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `available_fg_trs` | FG TRs Ready to Plan | `list-task` | primary | `TransportRequisition` where `tr_type=FG`, `status=AVAILABLE_FOR_TRANSPORT_PLANNING` |
+| `available_port_trs` | Port TRs Ready to Plan | `list-task` | info | `TransportRequisition` where `tr_type=PORT_CONSIGNMENT`, `status=SUBMITTED` |
+| `open_tos` | Open Transport Orders | `truck` | warning | `TransportOrder` where `status__in=[created, assigned]` |
+
+### TDO (Own Fleet & Vendor Fleet)
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `open_tos` | Open Transport Orders | `truck` | primary | `TransportOrder` where `status__in=[created, assigned]` (org-wide) |
+
+### Driver
+
+| Widget ID | Label | Icon | Color | Data source |
+|-----------|-------|------|-------|-------------|
+| `my_assigned_tos` | My Assigned Transport Orders | `person-badge` | primary | `TransportOrder` where `driver__user=user`, `status=assigned` |
+
+### Tenant Admin
+
+Tenant Admin sees the existing full KPI summary dashboard (platform + tenant aggregate stats via `get_tenant_stats()`). No role widgets are rendered — `get_role_widgets()` returns `[]` for `is_tenant_admin=True`.
 
 ---
 
 ## Widget Design
 
-Each widget is a **card** with:
-- **Icon** (Bootstrap Icon)
-- **Label** (e.g. "Pending FG Requisitions")
-- **Count** (large number, highlighted)
-- **Link** → the relevant admin list URL pre-filtered (e.g. `?status=SUBMITTED`)
-- **Empty state**: if count = 0, show "All clear" with a muted style (not hidden)
+Each widget is a **card** rendered in `templates/admin/index.html` (`role_widgets` context block) with:
+- **Bootstrap Icon** (`bi-{icon}`)
+- **Label** (display text)
+- **Count** (large number, colour-tinted when `urgency=True`)
+- **Link** → pre-filtered admin changelist URL
+- **Empty state**: count = 0 shows "All clear" with muted styling (card still visible)
 
-Widgets are grouped into a **responsive grid** (3 columns on desktop, 1 on mobile) using Django admin's existing CSS variables for light/dark mode compatibility.
+Widgets rendered in a **responsive CSS grid** using Django admin CSS variables — compatible with light and dark mode.
 
 ---
 
-## Role → Widget Groups
+## Role → Widget Groups (actual delivery)
 
 ```
-depot_officer / feed_mill_officer
-  ├── my_draft_prs          (Draft PRs)
-  ├── my_submitted_prs      (Submitted PRs)
-  └── my_inprogress_prs     (In-Progress PRs)
+depot_officer / feed_mill_officer  (4 widgets)
+  ├── my_draft_prs
+  ├── my_submitted_prs
+  ├── my_inprogress_prs
+  └── my_fulfilled_prs
 
-commercial_officer
-  ├── my_draft_shipments    (Draft Port Shipments)
-  └── my_submitted_shipments (Submitted Shipments)
+commercial_officer  (2 widgets)
+  ├── my_draft_shipments
+  └── my_submitted_shipments
 
-distribution_officer
-  ├── pending_fg_prs        (FG PR queue — view only)
-  └── my_active_trs         (Own TRs)
+distribution_officer  (2 widgets)
+  ├── pending_fg_prs
+  └── my_active_trs
 
-distribution_manager
-  ├── pending_fg_prs        (All submitted FG PRs)
-  └── pending_tr_approvals  (Pending TR approvals)
+distribution_manager  (4 widgets)
+  ├── pending_tr_approvals        ← shown first (highest urgency)
+  ├── pending_fg_prs
+  ├── inprogress_fg_prs
+  └── approved_trs
 
-procurement_officer
-  ├── pending_port_shipments (Port Shipments needing a TR)
-  └── my_port_trs           (Own Port Consignment TRs)
+procurement_officer  (4 widgets)
+  ├── shipments_needing_tr        ← Exists() subquery excludes already-TR'd shipments
+  ├── shipments_in_progress
+  ├── my_trs_pending_approval
+  └── my_trs_approved
 
-transport_planner
-  ├── available_fg_trs      (FG TRs ready to plan)
-  ├── available_port_trs    (Port TRs ready to plan)
-  └── open_tos              (Open TOs)
+transport_planner  (3 widgets)
+  ├── available_fg_trs
+  ├── available_port_trs
+  └── open_tos
 
-tdo_own_fleet / tdo_vendor_fleet
-  └── open_tos              (Open TOs — own queue)
+tdo_own_fleet / tdo_vendor_fleet  (1 widget)
+  └── open_tos
 
-driver
-  └── my_assigned_tos       (My assigned TOs)
+driver  (1 widget)
+  └── my_assigned_tos
 
 tenant_admin
-  └── tenant_summary        (Full tenant KPI summary)
+  └── (no role widgets — existing KPI summary dashboard unchanged)
 ```
 
 ---
 
-## Technical Implementation
+## Technical Implementation (Actual)
 
-### 1. Permission — `role_seed_data.py`
-Add `PermissionCodes.MENU_DASHBOARD_VIEW` to every operational role. Update `portal_navigation.py` so the **Dashboard** menu item uses `permission_any: [MENU_DASHBOARD_VIEW, MENU_TENANT_ADMIN_DASHBOARD_VIEW]`.
+### 1. Admin index monkey-patch — `config/admin.py`
 
-### 2. Dashboard view — `apps/core/portal_views.py` (or `admin.py` override)
-Override the Django admin index (`AdminSite.index`) or register a custom URL at `/admin/` that:
-- Calls `has_permission(request)` — active staff, not platform tenant.
-- Resolves the user's roles.
-- Builds a `widgets` context list by checking role codes.
-- Renders `templates/admin/dashboard.html`.
+The Django admin `index` method is monkey-patched at startup. For tenant schemas, `get_role_widgets(request.user)` is called and injected as `role_widgets` into the template context:
 
-### 3. Template — `templates/admin/dashboard.html`
-Extends `admin/base_site.html`. Renders widget cards in a CSS grid. Each widget is a partial include (`templates/admin/widgets/_card.html`).
-
-### 4. Widget data helper — `apps/core/dashboard_service.py`
 ```python
-def get_dashboard_widgets(user) -> list[dict]:
-    """Return a list of widget dicts for the user's roles."""
-    widgets = []
-    roles = set(user.user_roles.values_list("role__role_code", flat=True))
-
-    if roles & {"depot_officer", "feed_mill_officer"}:
-        widgets += _fg_requester_widgets(user)
-    if "commercial_officer" in roles:
-        widgets += _commercial_widgets(user)
-    if "distribution_officer" in roles:
-        widgets += _distribution_officer_widgets(user)
-    if "distribution_manager" in roles:
-        widgets += _distribution_manager_widgets(user)
-    if "procurement_officer" in roles:
-        widgets += _procurement_widgets(user)
-    if "transport_planner" in roles:
-        widgets += _transport_planner_widgets(user)
-    if roles & {"tdo_own_fleet", "tdo_vendor_fleet"}:
-        widgets += _tdo_widgets(user)
-    if "driver" in roles:
-        widgets += _driver_widgets(user)
-    if getattr(user, "is_tenant_admin", False):
-        widgets += _tenant_admin_widgets()
-
-    return widgets
+# config/admin.py — patched_index
+from apps.core.dashboard_service import get_role_widgets
+extra_context["role_widgets"] = get_role_widgets(request.user)
 ```
 
-Each private function returns a list of `{"id", "label", "icon", "count", "url", "color"}` dicts.
+Tenant Admin and platform admins are handled separately — they see the existing `get_tenant_stats()` / `get_platform_stats()` KPI dashboard. Role widgets are only rendered for operational users (`is_tenant_admin=False`).
 
-### 5. RBAC seed update
-Add `MENU_DASHBOARD_VIEW` to:
-- `depot_officer`, `feed_mill_officer`, `commercial_officer`
-- `procurement_officer`, `distribution_officer`, `distribution_manager`
-- `transport_planner`, `tdo_own_fleet`, `tdo_vendor_fleet`
-- `driver`, `driver_helper`, `driver_supervisor`
-- `gateman`, `scaling_operator`, `loading_personnel`, `unloading_personnel`
-- `qc_inspector_physical`, `qa_lab_technician`
-- `account_officer`
+### 2. Widget data helper — `apps/core/dashboard_service.py`
 
-Roles with no specific widgets (e.g. `gateman`) see a minimal "Welcome" dashboard with no KPI cards.
+`get_role_widgets(user)` resolves role codes via cross-schema lookup (`public_schema_context`), then calls per-role private functions. Each returns a list of widget dicts:
+
+```python
+{"id", "label", "icon", "count", "url", "color", "urgency"}
+```
+
+Distribution Manager and Distribution Officer use `elif` — DM widgets take precedence if a user has both roles.
+
+### 3. Template — `templates/admin/index.html`
+
+The existing admin `index.html` template was extended with a `{% if role_widgets %}` block that renders widget cards in a CSS grid. No separate `dashboard.html` file — widgets are injected inline into the standard admin index.
+
+### 4. Sidebar navigation — `apps/core/portal_navigation.py`
+
+The "Overview" sidebar item uses `permission_any: [MENU_DASHBOARD_VIEW, MENU_TENANT_ADMIN_DASHBOARD_VIEW]` so all roles see the entry.
+
+### 5. RBAC seed
+
+`MENU_DASHBOARD_VIEW` added to all operational roles including `tdo_own_fleet`, `tdo_vendor_fleet`, and `driver` (added when those roles were implemented).
 
 ---
 
@@ -197,30 +229,30 @@ Roles with no specific widgets (e.g. `gateman`) see a minimal "Welcome" dashboar
 
 ---
 
-## Implementation Notes (Actual Delivery)
+## Implementation Notes
 
-### What was built
+### Deviations from original spec
 
-- **`apps/core/portal_views.py`**: Custom `DFMSDashboardView` overrides the Django admin index. Resolves user's primary role code and builds widget context via `get_dashboard_widgets(user)`.
-- **`apps/core/dashboard_service.py`**: `get_dashboard_widgets` function with per-role helper functions returning `{"id", "label", "icon", "count", "url", "color_class"}` dicts.
-- **`templates/admin/dashboard.html`**: Extends `admin/base_site.html`. Renders a responsive CSS grid of widget cards. Each card shows an icon, label, count (highlighted), and a link to the filtered list view. Count = 0 shows "All clear" with muted styling. Light/dark mode compatible using Django admin CSS variables.
-- **`apps/core/portal_navigation.py`**: "Overview" sidebar item uses `permission_any: [MENU_DASHBOARD_VIEW, MENU_TENANT_ADMIN_DASHBOARD_VIEW]`.
-- **RBAC seed**: `MENU_DASHBOARD_VIEW` added to all operational roles.
-
-### Deviation from original spec
-
-The sidebar heading was labelled **"Overview"** (not "Dashboard") — consistent with the existing sidebar section header conventions.
-
-The `driver` role widget (`my_assigned_tos`) was added after initial delivery when driver TO access was implemented.
+| Spec | Actual |
+|------|--------|
+| Sidebar heading: "Dashboard" | Labelled **"Overview"** — consistent with sidebar section conventions |
+| Separate `dashboard.html` template | Widgets injected inline into existing `templates/admin/index.html` via `{% if role_widgets %}` block |
+| `apps/core/portal_views.py` override | Implemented as a monkey-patch on `AdminSite.index` in `config/admin.py` |
+| `get_dashboard_widgets()` function name | Built as `get_role_widgets()` in `dashboard_service.py` |
+| Distribution Manager: 2 widgets | Delivered with **4 widgets** (added `inprogress_fg_prs` and `approved_trs`) |
+| Procurement Officer: 2 widgets | Delivered with **4 widgets** (added `shipments_in_progress` and `my_trs_approved`) |
+| Depot/Feed Mill Officer: 3 widgets | Delivered with **4 widgets** (added `my_fulfilled_prs`) |
+| `driver` widget added mid-sprint | Added when driver TO access was implemented |
+| `tenant_admin` sees `tenant_summary` widget | Tenant Admin uses the existing full KPI stats dashboard — no role widget cards |
 
 ### Key files
 
 | File | Purpose |
 |------|---------|
-| `apps/core/portal_views.py` | Dashboard view + widget resolution |
-| `apps/core/dashboard_service.py` | Per-role widget data queries |
-| `templates/admin/dashboard.html` | Widget grid template |
-| `apps/core/portal_navigation.py` | "Overview" sidebar item |
+| `config/admin.py` | `patched_index` injects `role_widgets` into admin index context |
+| `apps/core/dashboard_service.py` | `get_role_widgets(user)` + per-role helper functions |
+| `templates/admin/index.html` | Widget card grid rendered inside `{% if role_widgets %}` block |
+| `apps/core/portal_navigation.py` | "Overview" sidebar item with `MENU_DASHBOARD_VIEW` |
 
 ---
 
