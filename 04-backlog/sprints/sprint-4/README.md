@@ -142,11 +142,33 @@ Wave E — Closure
 
 ---
 
+## Epic: Vendor Management (Planning Context)
+
+> Adds Sprint 4 backlog context for vendor onboarding, verification, tenant join, portal, bidding, and post-award submission. This does **not** change the Trip Execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing.
+
+**Vendor mobile app context (from Sprint 4)**:
+- [`08-vendor-management/VENDOR-MOBILE-CONTEXT.md`](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
+
+| # | Story / Context | Task ID | Jira | SP | Status |
+|---|------------------|---------|------|----|--------|
+| 1 | [Vendor Management — Backlog Index](08-vendor-management/README.md) | VM-00 | ~ | ~ | Draft |
+| 2 | [Vendor Onboarding Entry (Self-registration + Invite)](08-vendor-management/VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
+| 3 | [Compliance Docs + Reference + Multi-vehicle Profile](08-vendor-management/VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
+| 4 | [Platform Verification Queue + Approve/Reject + Resubmission](08-vendor-management/VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
+| 5 | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
+| 6 | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
+| 7 | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-10-tdo-publish-to-bidding-portal.md) | VM-10 | ~ | ~ | Pending |
+| 8 | [Bid Submission (windows + edit/withdraw + late-bid prevention)](08-vendor-management/VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
+| 9 | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
+| 10 | [Vehicle & Driver Submission After Award + Audit Trail](08-vendor-management/VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
+| 11 | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
+
+---
+
 ## QA & Testing
 
 > No QA / E2E backlog item is defined in Sprint 4 yet. Add Playwright (or project-standard) coverage **after** stories are finalized. When added, reference: TO-centric execution (no Trip record), yard chain (GT → SC → CC → LD), TLS-01 §6.8.5 substates, and POD-01 closure — **without** map/GPS or §6.8.8 costing unless those are pulled into scope in a later sprint.
 
----
 
 ## End-to-End flow this sprint delivers (Own Fleet, TO from Sprint 3)
 
@@ -202,6 +224,11 @@ Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
     │         └──► QC-01 (raw-material checkpoint) → POD-01
     │
     └──► POD-01 (after DM-01 + TLS-01 + LD/GT path as applicable)
+
+Vendor Onboarding (VM-01/02/03)          ──→  Tenant Join (VM-09)
+Tenant Join (VM-09)                      ──→  Vendor Portal Visibility + Bidding (VM-04/05/08)
+Bid Award (VM-08)                        ──→  Vehicle/Driver Submission (VM-06)
+Transport Order status changes            ──→  Vendor Portal TO Updates (VM-07)
 ```
 
 **Prerequisites from earlier sprints**: MDM POI / vehicle / driver / helper / route (Sprint 2); TR → TO → assignment (Sprint 3). **LUP-01** extends each POI with operational load/unload **points** used by Sprint 4 yard apps.
