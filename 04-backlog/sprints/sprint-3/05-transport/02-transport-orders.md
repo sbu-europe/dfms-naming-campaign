@@ -4,11 +4,12 @@ jira_type: Story
 jira_epic: DFS-043
 jira_sprint: "Sprint 3"
 story_id: ~
-title: Transport — Transport Order Creation
+title: Transport — Transport Order Creation & TDO Assignment
 epic: Transport
-status: Pending
+status: Delivered
 story_points: 8
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # TO-01 — Transport: Transport Order Creation
@@ -35,59 +36,71 @@ TR under planning (planning inputs submitted) → Transport Planner creates TO(s
 ## Acceptance Criteria
 
 ### AC-1: TO Creation from TR
-- [ ] Transport Planner can create TOs only from TRs with planning inputs submitted (status `Under Planning`)
-- [ ] All product-related attributes inherited from TR and displayed read-only:
-  - **For FG TOs**: Product Item Code, Product Name, Product Category + Sub-Category, Type of Packing, Quantity, Weight per Unit, Source POI, Destination POI, Delivery Date, Vehicles Required, Vehicle Type
-  - **For Port Consignment TOs**: All FG fields plus BL Number, LC Number, Voyage Name, Vessel Name, Container Number, C&F Agent Name, POL, ETA, Arrival Notice Attachment, Commodity, Destination Breakdown Plan
-- [ ] Transport Planner inputs per TO:
-  - **Fleet Type**: Own Fleet / Vendor Fleet
-  - **Allocated Quantity** (≤ remaining TR quantity — load split per TO)
-  - **Planned Delivery Date & Time**
-  - **For Port Consignment TOs additionally**: C&F Clearance Note (confirmation field)
-- [ ] System displays **Own Fleet vs Vendor Fleet availability count** to support the planner's fleet type decision
-- [ ] System auto-generates TO number: `TO-YYYYMMDD-XXXX`
-- [ ] A TO cannot be tagged as both fleet types simultaneously
+- [x] Transport Planner can create TOs from TRs with status `Under Planning` or `Partially Allocated`
+- [x] TR summary shown read-only on creation form (TR number, type, source/dest POI, vehicle type, vehicles required, delivery date)
+- [x] Per-line product allocation table in TO creation form — one row per TR line item
+- [x] Transport Planner inputs: fleet type, planned delivery date & time, C&F clearance note, notes
+- [x] Per-line allocation input (UOM) with "already allocated" column (UOM + kg equivalent)
+- [x] System auto-generates TO number: `TO-YYYYMMDD-XXXX`
+- [ ] Fleet availability counts (own fleet / vendor fleet) — **carry-forward Sprint 4**
+- [ ] C&F Clearance Note required gate for Port Consignment TOs — **currently optional**
 
 ### AC-2: TR Quantity Allocation Validation
-- [ ] System tracks per TR: Total TR Quantity, Allocated (sum of TOs), Remaining
-- [ ] TO quantity must not exceed Remaining TR quantity → **block creation if overflowed**, with clear error
-- [ ] Remaining quantity shown on the TO creation form in real time
-- [ ] TR status auto-updates:
-  - First TO created → `Partially Allocated`
-  - All quantity allocated → `Fully Allocated`
+- [x] `TOLineItem` model tracks per-line allocation (UOM), not just total kg on TO
+- [x] Per-line validation: allocated qty ≤ remaining (requested − already allocated to other TOs)
+- [x] Total allocated qty across all lines must be > 0
+- [x] TR status advances to `Partially Allocated` after first TO created
+- [ ] `Fully Allocated` auto-advance when all lines exhausted — **carry-forward Sprint 4**
 
 ### AC-3: Multi-TO per TR
-- [ ] After creating first TO, "Create Another TO" available while remaining qty > 0
-- [ ] Each TO can have a different Fleet Type (mix Own + Vendor Fleet TOs against same TR)
-- [ ] Each TO references parent TR ID
-- [ ] TR detail shows all linked TOs with their fleet type, allocated qty, and status
+- [x] Each TO references parent TR and line items via `TOLineItem`
+- [x] TR list and detail show assigned TOs count with link to filtered TO list
+- [ ] "Create Another TO" available from success screen — **carry-forward; currently redirect to list**
 
 ### AC-4: TO Routing by Fleet Type
-- [ ] On creation, TO is automatically forwarded to the appropriate TDO queue:
-  - Fleet Type = OWN → visible to TDO (Own Fleet) for vehicle/driver assignment
-  - Fleet Type = VENDOR → visible to TDO (Vendor Fleet) for vendor assignment
+- [x] TDO Own Fleet sees own fleet assignment section; vendor section hidden
+- [x] TDO Vendor Fleet sees vendor assignment section; own fleet section hidden
+- [x] Driver sees own assigned TOs only (filtered queryset)
+- [x] Fleet section toggles dynamically on `fleet_type` dropdown change (JS)
 
-### AC-5: TO Status Lifecycle
-- [ ] Initial TO status: `Created` → forwarded to TDO → `Assigned` → `Ready for Dispatch`
+### AC-5: TO Status Lifecycle (revised)
+- [x] `Created` → `Assigned` → `Ready for Dispatch` (3-state simplified lifecycle)
+- [x] `ASSIGNED_TO_VENDOR` removed — single `Assigned` status for both fleet types
+- [x] Status auto-advances on save based on assignment completeness (single-pass)
+- [x] Status badge styled (colour-coded pill with Bootstrap icon)
 
-### AC-6: Audit Trail
-- [ ] TO create / cancel actions logged with planner + timestamp
+### AC-6: TDO Resource Assignment
+- [x] TDO Own Fleet: vehicle, driver (select2 autocomplete), helpers (multi-select autocomplete), ETA datetime
+- [x] TDO Vendor Fleet: assigned vendor, vehicle registration, driver name
+- [x] Read-only access to Vehicles, Drivers, Helpers master data for `tdo_own_fleet`
+- [x] Import/Export hidden for TDO read-only users
+- [x] `tdo_own_fleet` / `tdo_vendor_fleet` / `driver` roles see Transport Orders in sidebar
+
+### AC-7: Driver Access
+- [x] Driver role sees only TOs where `driver = request.user.driver_profile`
+- [x] Read-only detail view (no edit permissions)
+- [x] Transport Orders menu visible in sidebar for driver role
+
+### AC-8: Urgency on PR
+- [x] Requester can edit `urgency` on a submitted PR (all other fields remain locked)
 
 ## Sub-tasks
 
-| # | Sub-task | Jira | Status |
-|---|----------|------|--------|
-| TO-01-1 | TransportOrder model + migration (TR FK, fleet type, allocated qty, planned delivery date, status, audit) | DFS-039-1 | Pending |
-| TO-01-2 | TO creation API (POST) — planning inputs gate + TR quantity allocation validation | DFS-039-2 | Pending |
-| TO-01-3 | TO number auto-generation: `TO-YYYYMMDD-XXXX` | DFS-039-3 | Pending |
-| TO-01-4 | TR quantity tracking service — allocated, remaining, status auto-update | DFS-039-4 | Pending |
-| TO-01-5 | Multi-TO workflow — remaining quantity tracking + "Create Another TO" | DFS-039-5 | Pending |
-| TO-01-6 | Fleet availability count display (own fleet available + vendor fleet available) on TO creation form | DFS-039-6 | Pending |
-| TO-01-7 | TO routing on creation: own fleet → TDO Own Fleet queue; vendor fleet → TDO Vendor Fleet queue | DFS-039-7 | Pending |
-| TO-01-8 | TO list API (GET /transport-orders?tr_id=&fleet_type=&status=) | DFS-039-8 | Pending |
-| TO-01-9 | TR detail view — linked TOs section with fleet type, allocated qty, and status | DFS-039-9 | Pending |
-| TO-01-10 | TO creation form UI — read-only TR fields (FG fields; + LC/shipment fields for Port), fleet type selector, qty input, planned delivery date, fleet counts, C&F note for Port | DFS-039-10 | Pending |
-| TO-01-11 | TO list + detail UI | DFS-039-11 | Pending |
+| # | Sub-task | Status | Notes |
+|---|----------|--------|-------|
+| TO-01-1 | `TransportOrder` model + migration | ✅ Done | `TOLineItem` added for per-line allocation |
+| TO-01-2 | TO creation admin view — 2-step (select TR → create form) | ✅ Done | `select_tr_view` + `create_from_tr_view` in admin |
+| TO-01-3 | TO number auto-generation | ✅ Done | |
+| TO-01-4 | Per-line TR quantity validation | ✅ Done | In `create_from_tr_view` |
+| TO-01-5 | Multi-TO per TR | ✅ Partial | Multi-TO works; "Create Another" loop carry-forward |
+| TO-01-6 | Fleet availability counts on form | ❌ Carry-forward | |
+| TO-01-7 | TDO routing by fleet type | ✅ Done | Role-based fieldset visibility + sidebar |
+| TO-01-8 | TO list (admin changelist) | ✅ Done | Role-tailored columns |
+| TO-01-9 | TR detail — linked TOs display | ✅ Done | `assigned_tos_display` column |
+| TO-01-10 | TO creation form UI (templates) | ✅ Done | `select_tr.html`, `create_from_tr.html` |
+| TO-01-11 | TO detail UI — role-based sections + JS toggle | ✅ Done | `change_form.html` with fleet_type JS |
+| TO-02 | TDO resource assignment + status auto-advance | ✅ Done | `save_model` in `TransportOrderAdmin` |
+| TO-02-D | Driver read-only TO access | ✅ Done | `get_queryset` + permission overrides |
 
 ## API Endpoints
 

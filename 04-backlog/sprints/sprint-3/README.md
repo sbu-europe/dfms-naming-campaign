@@ -5,7 +5,7 @@ phase: phase-1
 start_date: ~
 end_date: ~
 total_story_points: 68
-status: In Progress
+status: Complete
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
 
@@ -20,7 +20,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 |--------|-------|
 | Total Stories | 11 |
 | Total Story Points | 73 |
-| Status | In Progress |
+| Status | ✅ Complete |
 | Epics | Dashboard, Requisition (FG), Port Shipments, Distribution, Procurement, Transport, QA & Testing, DevOps & Infrastructure |
 
 ---
@@ -128,19 +128,24 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | `apps.requisitions` | `PortShipmentAdmin` (proxy) | Port Shipments | Port Shipments | Commercial Officer |
 | `apps.requisitions` | `TransportRequisitionAdmin` (Distribution) | Distribution | Transport Requests | Distribution Officer / Manager |
 | `apps.requisitions` | `TransportRequisitionAdmin` (Procurement) | Procurement | Transport Requests | Procurement Officer |
-| `apps.transport` | *(TO-01 / TO-02 — pending)* | Transport | Transport Orders | Transport Planner / TDO / Driver |
+| `apps.transport` | `TransportOrderAdmin` ✅ | Transport | Transport orders | Transport Planner / TDO Own Fleet / TDO Vendor Fleet / Driver |
 
 ### Portal Navigation (`apps/core/portal_navigation.py`)
 
-| Section heading | Item id | URL | Permission code(s) |
-|-----------------|---------|-----|--------------------|
-| **Requisition** | `requisition_fg` | `/requisitions/finished-goods/` | `Menu.Requisition.FG.View` |
-| **Port Shipments** | `port_shipments` | `/port-shipments/` | `Menu.PortShipments.View` |
-| **Distribution** | `distribution_pr_queue` | `/distribution/product-requisitions/` | `Menu.Distribution.PRQueue.View` |
-| **Distribution** | `distribution_transport_requests` | `/distribution/transport-requests/` | `Menu.Distribution.TR.View` |
-| **Procurement** | `procurement_transport_requests` | `/procurement/transport-requests/` | `Menu.Procurement.TR.View` |
-| **Transport** | `transport_requests` | `/transport/transport-requests/` | `Menu.Transport.FG.TR.View`, `Menu.Transport.Port.TR.View` |
-| **Transport** | `transport_orders` | `/transport-orders/` | `Menu.Transport.TO.View` |
+| Section heading | Item id | URL | Permission / role access |
+|-----------------|---------|-----|--------------------------|
+| **Requisition** | `requisition_fg` | `/requisitions/finished-goods/` | `permission_any: Menu.Requisition.FG.View` |
+| **Port Shipments** | `port_shipments` | `/port-shipments/` | `permission_any: Menu.PortShipments.View` |
+| **Distribution** | `distribution_pr_queue` | `/distribution/product-requisitions/` | `permission_any: Menu.Distribution.PRQueue.View` |
+| **Distribution** | `distribution_transport_requests` | `/distribution/transport-requests/` | `permission_any: Menu.Distribution.TR.View` |
+| **Procurement** | `procurement_transport_requests` | `/procurement/transport-requests/` | `permission_any: Menu.Procurement.TR.View` |
+| **Transport** | `transport_requests` | `/transport/transport-requests/` | `permission_any: Menu.Transport.FG.TR.View, Menu.Transport.Port.TR.View` |
+| **Transport** | `transport_orders` | `/transport-orders/` | `permission_any: Menu.Transport.TO.View` OR `role_any: tdo_own_fleet, tdo_vendor_fleet, driver` |
+| **Master Data** | `vehicles` | `/master-data/vehicles/` | `permission_any: ...` OR `role_any: tdo_own_fleet` |
+| **People & Access** | `drivers` | `/users/drivers/` | `permission_any: ...` OR `role_any: tdo_own_fleet` |
+| **People & Access** | `helpers` | `/users/helpers/` | `permission_any: ...` OR `role_any: tdo_own_fleet` |
+
+> **Implementation note**: `role_any` acts as an OR path alongside `permission_any` — a user satisfying either condition sees the menu item. This allows TDO roles to access Transport Orders and read-only master data without needing explicit DB permission codes.
 
 ### RBAC Permission Codes (`apps/core/constants_rbac.py`)
 
@@ -153,7 +158,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | `Menu.Procurement.TR.View` | procurement_officer | Own Port Consignment TRs; NOT a duplicate Port Shipments screen |
 | `Menu.Transport.FG.TR.View` | transport_planner | FG TR tab in unified queue |
 | `Menu.Transport.Port.TR.View` | transport_planner | Port Consignment TR tab in unified queue |
-| `Menu.Transport.TO.View` | transport_planner, tdo_own_fleet, tdo_vendor_fleet, driver | Transport Orders |
+| `Menu.Transport.TO.View` | transport_planner | Transport Orders via permission code; TDO/driver via `role_any` |
 
 ### Django Admin Separation — FG vs Port Shipments
 

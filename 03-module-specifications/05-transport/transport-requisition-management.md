@@ -77,27 +77,28 @@ Transport → Transport requests
 
 The `TransportRequisition` model lives in `apps/requisitions/models.py`. The Transport module reads and updates planning input fields on the existing TR.
 
-### Planning input fields added to `TransportRequisition`
+### Planning input fields on `TransportRequisition`
 
 ```python
 TransportRequisition {
     # ... existing fields from 04-requisitions ...
 
-    # Planning inputs (set by Transport Planner at TRQ-01)
+    # Planning inputs (set by Transport Planner)
     vehicles_required: int              # Number of vehicles needed
-    vehicle_type_required: string       # e.g. "covered_truck", "open_truck", "flatbed"
-    cf_clearance_approved: bool (null)  # PORT_CONSIGNMENT only — Raw C&F Clearance Note/Approval: Yes / No / Pending (null)
-    planning_submitted_by: FK → User    # Transport Planner who submitted
-    planning_submitted_at: datetime (null)
+    vehicle_type: string                # FK-like choice from VehicleType master data
+    cf_clearance_note: string (blank)   # PORT_CONSIGNMENT TRs — optional note
 
-    # Status progression (managed by TRStatus in requisitions/constants.py)
+    # No locked_to_planner field — removed; not needed at current scale
+
+    # Status progression
     status: TRStatus
-    # AVAILABLE_FOR_PLANNING → UNDER_PLANNING (on planning input submission)
-    # UNDER_PLANNING → PARTIALLY_ALLOCATED → FULLY_ALLOCATED (on TO creation)
+    # AVAILABLE_FOR_TRANSPORT_PLANNING → UNDER_PLANNING (auto on planner save with vehicle_type + vehicles_required)
+    # UNDER_PLANNING → PARTIALLY_ALLOCATED (first TO created)
+    # PARTIALLY_ALLOCATED → FULLY_ALLOCATED (manual / Sprint 4)
 }
 ```
 
-> **Current model note**: `TRStatus` in `apps/requisitions/constants.py` has `DRAFT`, `SUBMITTED`, `APPROVED`, `REJECTED`, `ASSIGNED`, `CANCELLED`. At implementation time, statuses should be extended / reconciled to include `AVAILABLE_FOR_PLANNING`, `UNDER_PLANNING`, `PARTIALLY_ALLOCATED`, `FULLY_ALLOCATED` to match this specification.
+> **Implementation note**: `vehicle_type` is rendered as a dropdown in the admin using `VehicleType.choices` from master data (via `TransportRequisitionAdminForm`). `vehicle_type` appears before `vehicles_required` in the fieldset. The `locked_to_planner` FK field (originally in spec) was removed — the system does not lock TRs to individual planners at this scale.
 
 ### TRStatus for Transport module
 
@@ -216,21 +217,20 @@ Sourced from `GET /api/v1/fleet/availability?vehicle_type=&poi_id=`. Information
 
 | Field | FG TR | Port Consignment TR | Notes |
 |-------|:-----:|:-------------------:|-------|
-| Raw C&F Clearance Note / Approval | — | Required | Yes / No dropdown |
-| Quantity of Vehicles Required | Required | Required | Positive integer |
-| Vehicle Type | Required | Required | Dropdown from vehicle type catalog |
+| Vehicle Type | Required | Required | Dropdown from `VehicleType` choices; shown first in fieldset |
+| Vehicles Required | Required | Required | Positive integer; shown second |
+| C&F Clearance Note | — | Optional | Free text; not a hard gate at save |
 
-**Vehicle type options**: Covered Truck, Open Truck, Flatbed, Tanker, Refrigerated Truck (from MDM vehicle type catalog).
+**Vehicle type options**: choices from `VehicleType` master data (e.g., Pickup Van, Covered Truck, Open Truck, Flatbed, Tanker, Refrigerated Truck).
+
+> Note: The "Planning Inputs" fieldset is **hidden entirely** for Distribution Officer and Procurement Officer. Only Transport Planner (and Tenant Admin) can see and edit it.
 
 ### 5.4 Submit behaviour
 
-1. Validates all planning input fields are filled
-2. Sets `tr.vehicles_required`, `tr.vehicle_type_required`, `tr.cf_clearance_approved` (Port only)
-3. Sets `tr.planning_submitted_by = request.user`, `tr.planning_submitted_at = now()`
-4. TR status → `UNDER_PLANNING`
-5. TR is now **locked to this planner** — other planners cannot submit inputs or create TOs against it
-6. Audit log entry written
-7. "Create TO" button becomes enabled on TR Detail
+1. Transport Planner saves TR with `vehicle_type` and `vehicles_required` filled
+2. `save_model` auto-advances status: `AVAILABLE_FOR_TRANSPORT_PLANNING` → `UNDER_PLANNING`
+3. "Create Transport Order" button becomes visible on TR detail and TR list
+4. No `locked_to_planner` field — any Transport Planner can create TOs against the TR
 
 ---
 
@@ -322,13 +322,13 @@ GET  /api/v1/transport-requests/{tr_id}/transport-orders
 
 | # | Rule | Enforcement |
 |---|------|-------------|
-| BR-1 | TO creation is blocked if TR planning inputs have not been submitted | TO creation API checks `tr.planning_submitted_at is not None` |
-| BR-2 | Raw C&F Clearance Note / Approval is mandatory for Port Consignment TRs | Validated on `PATCH /planning` endpoint |
-| BR-3 | C&F field is hidden/absent for FG TRs | UI and API — field ignored for FG type |
-| BR-4 | TR transitions to `UNDER_PLANNING` on planning input submission | Automatic, no manual trigger |
-| BR-5 | TR is locked to the submitting planner once `UNDER_PLANNING` | `planning_submitted_by` set; conflict check on re-submission |
-| BR-6 | Fleet availability counts are informational only — do not block submission | No validation against counts |
-| BR-7 | Urgency and overdue flags are computed at read time, not stored | Calculated from `required_date` / `eta` vs `now()` |
+| BR-1 | TO creation requires TR status `Under Planning` or `Partially Allocated` | `create_from_tr_view` shows only eligible TRs in dropdown |
+| BR-2 | C&F Clearance Note available for Port Consignment TRs (optional field) | Not a hard validation gate at current implementation |
+| BR-3 | `vehicle_type` shown before `vehicles_required` in Planning Inputs fieldset | Fieldset ordering in `TransportRequisitionAdmin.fieldsets` |
+| BR-4 | TR transitions to `UNDER_PLANNING` automatically when planner saves with vehicle_type + vehicles_required | `save_model` auto-advance in `TransportRequisitionAdmin` |
+| BR-5 | No TR locking to individual planner — `locked_to_planner` removed | Not implemented; not needed at current scale |
+| BR-6 | Planning Inputs fieldset hidden for Distribution Officer and Procurement Officer | `get_fieldsets` role check |
+| BR-7 | TR list columns tailored per role — Planner/Tenant Admin see vehicles required, assigned TOs count, create TO button | `get_list_display` role branching |
 
 ---
 
@@ -346,9 +346,11 @@ GET  /api/v1/transport-requests/{tr_id}/transport-orders
 
 | Permission code | Description | Assigned to |
 |-----------------|-------------|-------------|
-| `Transport.TR.Read` | View TR queue (both tabs) and TR detail | Transport Planner, TDO |
-| `Transport.TR.PlanningInput` | Submit planning inputs (vehicle qty, type, C&F) | Transport Planner |
-| `Transport.Fleet.Availability` | View fleet availability counts | Transport Planner |
+| `Transport.TR.Read` | View TR queue and TR detail | Transport Planner, Tenant Admin |
+| `Transport.TR.PlanningInput` | Submit planning inputs (vehicle type, qty) | Transport Planner |
+| `Transport.TR.Change` | `has_change_permission` on TR admin | Transport Planner (planning inputs only) |
+
+> Note: Distribution Officer and Distribution Manager also see TR detail (read-only) in their own Distribution section of the admin, not the Transport section.
 
 ---
 
