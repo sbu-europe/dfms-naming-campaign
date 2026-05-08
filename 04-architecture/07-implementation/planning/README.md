@@ -15,7 +15,7 @@ This folder contains the strategic implementation planning documents for DFMS, p
 
 ## 📁 Documents
 
-### **[Implementation Plan](../../../../_meta/plans/implementation-plan.md)** 📦 Moved
+### **[Implementation Plan](../../../_meta/plans/implementation-plan.md)** 📦 Moved
 Comprehensive implementation plan moved to [`_meta/plans/`](../../../_meta/plans/implementation-plan.md)
 
 Original content covered:

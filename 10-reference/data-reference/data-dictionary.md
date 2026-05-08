@@ -594,7 +594,7 @@ TR ──> TO ──> Trip ──> QC
 - [Master Data Overview](./master-data/master-data-overview.md) - Detailed master data documentation
 - [Transactional Data Overview](./transactional-data/transactional-data-overview.md) - Detailed transactional data documentation
 - [Business Rules](../../02-domain/03-business-rules/business-rules.md) - Business rules governing data
-- [User Stories](../../../03-backlog/README.md) - Features using this data model
+- [User Stories](../../03-backlog/README.md) - Features using this data model
 
 ---
 

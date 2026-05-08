@@ -18,7 +18,7 @@ The high-level architecture, contracts, workflows, and architectural decisions a
 - **[Event Contracts (AsyncAPI 2.6.0)](../../06-contracts/03-events/README.md)** - Domain events
 - **[Data Models](../../06-contracts/02-data-models/README.md)** - Shared data entities
 - **[Technical Workflows](../../04-architecture/02-workflows/)** - Operational and user workflows
-- **[Deployment Strategy](../../04-architecture/03-implementation/deployment-strategy/)** - Phase 1 deployment approach
+- **[Deployment Strategy](../../04-architecture/06-deployment/README.md)** - Phase 1 deployment approach
 
 ### Implementation-Specific Documentation
 > **Source**: This `docs/` directory

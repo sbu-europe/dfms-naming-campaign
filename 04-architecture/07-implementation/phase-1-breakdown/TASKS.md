@@ -325,7 +325,7 @@
 - **[Epic Breakdown](./EPICS.md)** - Epic-level breakdown
 - **[Story Breakdown](./STORIES.md)** - Story-level breakdown
 - **[Implementation Timeline](./TIMELINE.md)** - Sprint timeline
-- **[SOW Phase 1](../../../../01-source/README.md)** - Statement of Work
+- **[SOW Phase 1](../../../01-source/README.md)** - Statement of Work
 
 ---
 
