@@ -79,7 +79,7 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### stakeholders.md
 **Primary Sources**:
-- `../../source-documents/03-sow/user-roles.md` ✅ **Main source** (current)
+- `../../01-source/03-sow/user-roles.md` ✅ **Main source** (current)
 - Historical: Meeting minutes and discovery phase documents (archived)
 
 > ✅ **Updated**: User roles now documented in `03-sow/user-roles.md` with 19 roles.
@@ -98,9 +98,9 @@ This document provides a comprehensive mapping between all business-context docu
 #### business-objectives.md
 **Primary Sources**:
 - `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
-- `../../source-documents/03-sow/SOW Phase-1.md` - Phase 1 objectives
-- `../../source-documents/03-sow/SOW Phase-2.md` - Phase 2 objectives
-- `../../source-documents/03-sow/SOW Phase-3.md` - Phase 3 objectives
+- `../../01-source/03-sow/SOW Phase-1.md` - Phase 1 objectives
+- `../../01-source/03-sow/SOW Phase-2.md` - Phase 2 objectives
+- `../../01-source/03-sow/SOW Phase-3.md` - Phase 3 objectives
 - Historical: Business proposal and meeting minutes (archived)
 - `../../01-PRODUCT_VISION.md`
 
@@ -120,7 +120,7 @@ This document provides a comprehensive mapping between all business-context docu
 #### user-personas.md
 **Primary Sources**:
 - `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
-- `../../source-documents/03-sow/user-roles.md` ✅ **Role definitions**
+- `../../01-source/03-sow/user-roles.md` ✅ **Role definitions**
 - Historical: Meeting minutes and questionnaires (archived)
 
 > ✅ **Updated**: PRD moved to `01-prd/`. User roles consolidated in `03-sow/user-roles.md`.
@@ -433,7 +433,7 @@ unzip -p "filename.pptx" ppt/slides/*.xml | sed 's/<[^>]*>//g'
 
 - **[Source Documents README](../../so../../01-source/README.md)** - Overview of all source materials (updated structure)
 - **[WBS README](../../so../../01-source/04-wbs/README.md)** - Work Breakdown Structure documentation
-- **[SOW Documents](../../source-documents/03-sow/)** - Statement of Work for all phases
+- **[SOW Documents](../../01-source/03-sow/)** - Statement of Work for all phases
 - **[Product Vision](../../01-PRODUCT_VISION.md)** - Strategic context
 
 ---

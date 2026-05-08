@@ -18,13 +18,13 @@ updated: 2026-02-11
 1. **[Project Summary](../../02-domain/01-overview/project-summary.md)** - 5-minute overview
 2. **[Glossary](../../02-domain/01-overview/glossary.md)** - Key terms and acronyms
 3. **[Business Context](../../02-domain/01-overview/business-context.md)** - Domain knowledge
-4. **[Feature Overview](../03-backlog/feature-overview.md)** - All features at a glance
+4. **[Feature Overview](../../03-backlog/README.md)** - All features at a glance
 
 ### For Developers
-1. **[Phase 1 Summary](../03-backlog/phase-1/phase-1-summary.md)** - All Phase 1 user stories
+1. **[Phase 1 Summary](../../03-backlog/README.md)** - All Phase 1 user stories
 2. **[Data Dictionary](../../10-reference/data-reference/data-dictionary.md)** - Complete data model
 3. **[Business Rules](../../02-domain/03-business-rules/business-rules.md)** - 112 business rules
-4. **[Feature Dependencies](../03-backlog/feature-dependencies.md)** - What depends on what
+4. **[Feature Dependencies](../../03-backlog/README.md)** - What depends on what
 
 ### For Product Managers
 1. **[Business Objectives](../../02-domain/01-overview/business-objectives.md)** - Goals and KPIs
@@ -33,7 +33,7 @@ updated: 2026-02-11
 ### For QA
 1. **[Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/functional-requirements-summary.md)** - 91 user stories
 2. **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md)** - Performance, security, etc.
-3. **[User Stories](../03-backlog/phase-1/user-stories/)** - Detailed acceptance criteria
+3. **[User Stories](../../03-backlog/stories/README.mdREADME.md)** - Detailed acceptance criteria
 
 ---
 
@@ -192,9 +192,9 @@ TR → TO → Trip → QC
 ## 🔍 Common Lookups
 
 ### Find a User Story
-- **By Module**: See [Phase 1 Summary](../03-backlog/phase-1/phase-1-summary.md)
+- **By Module**: See [Phase 1 Summary](../../03-backlog/README.md)
 - **By Number**: `US-###` files in `03-backlog/phase-1/user-stories/`
-- **By Feature**: See [Feature Overview](../03-backlog/feature-overview.md)
+- **By Feature**: See [Feature Overview](../../03-backlog/README.md)
 
 ### Find a Business Rule
 - **By Module**: See [Business Rules](../../02-domain/03-business-rules/business-rules.md)
@@ -246,9 +246,9 @@ TR → TO → Trip → QC
 - API contracts: See `04-architecture/` folder (in parent directory)
 
 ### Business Questions
-- Requirements: See [Functional Requirements](../02-requirements/functional-requirements/)
+- Requirements: See [Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/README.md)
 - Objectives: See [Business Objectives](../../02-domain/01-overview/business-objectives.md)
-- Processes: See [Business Processes](../01-business-domain/business-processes/)
+- Processes: See [Business Processes](../../02-domain/04-business-processes/README.md)
 
 ---
 

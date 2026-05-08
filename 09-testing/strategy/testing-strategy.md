@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../04-architecture/README.md)
 
 - **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
-- **[User Stories](../../DFMS-product-context/business-context/03-features/phase-1/user-stories/)** - Acceptance criteria
+- **[User Stories](../../03-backlog/stories/README.mdREADME.md)** - Acceptance criteria
 
 This document provides **Django-specific testing implementation** (pytest-django, test patterns, fixtures).
 

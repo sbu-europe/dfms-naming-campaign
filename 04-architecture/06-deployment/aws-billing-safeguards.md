@@ -311,4 +311,4 @@ Do not commit to reserved capacity until all conditions are met:
 
 - [Resource & Cost Estimation](./aws-cost-estimation.md)
 - [AWS Deployment Strategy](./aws-deployment-strategy.md)
-- [Pre-Production Checklist](./aws-pre-production-checklist.md)
+- [Pre-Production Checklist](./README.md)

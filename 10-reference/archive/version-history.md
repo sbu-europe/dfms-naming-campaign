@@ -277,8 +277,8 @@ This document tracks all versions, updates, and changes to the business context 
 
 ## 📚 Related Documents
 
-- [BUSINESS_CONTEXT_PLAN.md](../../BUSINESS_CONTEXT_PLAN.md) - Original documentation plan
-- [BUSINESS_CONTEXT_STATUS.md](../BUSINESS_CONTEXT_STATUS.md) - Current status report
+- [BUSINESS_CONTEXT_PLAN.md](../../README.md) - Original documentation plan
+- [BUSINESS_CONTEXT_STATUS.md](../README.md) - Current status report
 - [Cross-Reference Index](./cross-reference-index.md) - Document relationships
 
 ---

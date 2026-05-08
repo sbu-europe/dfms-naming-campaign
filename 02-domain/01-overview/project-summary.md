@@ -7,7 +7,7 @@ created: 2026-02-10
 updated: 2026-02-10
 source_documents:
   - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
+  - ../../01-source/README.mdBS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
   - ./product-vision.md
   - ./scope.md
 tags: [overview, project-summary, prd-aligned]
@@ -216,7 +216,7 @@ The **Distribution and Fleet Management System (DFMS)** is a comprehensive, prod
 
 ### External References
 - [Product Vision](../../01-PRODUCT_VISION.md) - Strategic vision and design principles
-- [Business Proposal](../../source-documents/business-proposal/) - Detailed proposal and pricing
+- [Business Proposal](../../01-source/README.md) - Detailed proposal and pricing
 
 ---
 

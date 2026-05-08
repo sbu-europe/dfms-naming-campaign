@@ -92,7 +92,7 @@ This technical context follows the **C4 Model** for architecture documentation:
 ### **Business Context**
 - [Business Context Overview](../../02-domain/01-overview/README.md)
 - [Business Processes](../../02-domain/04-business-processes/README.md)
-- [User Stories](../../03-backlog/stories/)
+- [User Stories](../../03-backlog/stories/README.mdREADME.md)
 
 ### **Strategic Documents**
 - [Product Vision](../../01-PRODUCT_VISION.md)

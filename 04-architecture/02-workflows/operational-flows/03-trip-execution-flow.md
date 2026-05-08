@@ -649,7 +649,7 @@ TripCompleted(
 - [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-052](../../../03-backlog/stories/US-052-driver-mobile-interface.md)
+- [User Story: US-052](../../../03-backlog/stories/README.mdREADME.mdREADME.mdUS-052-driver-mobile-interface.md)
 - [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
 
 ### Other Workflows

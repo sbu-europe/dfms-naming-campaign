@@ -465,7 +465,7 @@ def user(tenant):
 
 ## Related Documentation
 
-- **[System Architecture](./system-architecture.md)** - Overall Django architecture
+- **[System Architecture](./django-system-architecture.md)** - Overall Django architecture
 - **[Module Boundaries](../01-system-design/modules/module-boundaries.md)** - High-level module organization
 
 ---

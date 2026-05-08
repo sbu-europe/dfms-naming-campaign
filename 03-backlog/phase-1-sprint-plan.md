@@ -70,10 +70,10 @@
 |-------|---------|------|--------|----|
 | [POI Setup & Management](sprints/sprint-2/01-master-data-management/MDM-04-poi-management.md) | MDM-04 | DFS-020 | Pending | 8 |
 | [Product Master Data Management (CRUD)](sprints/sprint-2/01-master-data-management/MDM-01-product-master-data.md) | MDM-01 | DFS-017 | Pending | 13 |
-| [Route, Supplier & Dealer Master Data](sprints/sprint-2/01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | Pending | 5 |
+| [Route, Supplier & Dealer Master Data](sprints/sprint-2/README.md) | MDM-02 | DFS-018 | Pending | 5 |
 | [Vendor Master Data (Admin CRUD & Bulk Upload)](sprints/sprint-2/01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | Pending | 5 |
 | [Vehicle Registration & Master Data](sprints/sprint-2/01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | Pending | 5 |
-| [Driver Master Data Management](sprints/sprint-2/01-master-data-management/MDM-06-driver-master-data.md) | MDM-06 | DFS-022 | Pending | 5 |
+| [Driver Master Data Management](sprints/sprint-2/README.md) | MDM-06 | DFS-022 | Pending | 5 |
 | [Helper Master Data Management](sprints/sprint-2/01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | Pending | 3 |
 
 ### Epic: Tenant User Management
@@ -166,7 +166,7 @@
 
 | Story | Task ID | Jira | Status | SP |
 |-------|---------|------|--------|----|
-| [TO list, execution milestones & POD](sprints/sprint-4/03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01 | DFS-053 | Pending | 8 |
+| [TO list, execution milestones & POD](sprints/sprint-4/README.md) | DM-01 | DFS-053 | Pending | 8 |
 
 ### Epic: Gate
 

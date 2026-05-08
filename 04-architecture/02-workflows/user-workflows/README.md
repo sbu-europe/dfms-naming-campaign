@@ -54,12 +54,12 @@ This section documents user workflows for different roles in DFMS. Each workflow
 
 ### Advanced User Roles (Phase 2-3)
 
-6. **[Fleet Manager Workflows](./06-fleet-manager-workflows.md)**
+6. **[Fleet Manager Workflows](README.md)**
    - Fleet health monitoring
    - Maintenance scheduling
    - Utilization analysis
 
-7. **[System Administrator Workflows](./07-system-administrator-workflows.md)**
+7. **[System Administrator Workflows](README.md)**
    - User management
    - System configuration
    - Monitoring and alerts

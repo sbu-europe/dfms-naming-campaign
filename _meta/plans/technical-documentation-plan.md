@@ -233,7 +233,7 @@ docs/
 #### `docs/api/serializers.md`
 **Purpose**: Low-level Django REST Framework serializer implementation
 
-**High-Level Context**: See [Submodule API Contracts](../../DF../../06-contracts/api/) for data models and schemas
+**High-Level Context**: See [Submodule API Contracts](../../06-contracts/01-apis/README.md) for data models and schemas
 
 **Low-Level Content**:
 - Serializer implementation code
@@ -309,7 +309,7 @@ docs/
 #### `docs/database/models.md`
 **Purpose**: Low-level Django ORM models implementation
 
-**High-Level Context**: See [Submodule Data Models](../../DF../../06-contracts/data-models/) for entity definitions
+**High-Level Context**: See [Submodule Data Models](../../06-contracts/02-data-models/README.md) for entity definitions
 
 **Low-Level Content**:
 - Django model code per app

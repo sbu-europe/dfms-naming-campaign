@@ -749,4 +749,4 @@ Menu.Scaling.View
 ---
 
 **Last Updated**: 2026-05-06  
-**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [command-center-sprint4.md](./command-center-sprint4.md), [05-transport](../05-transport/README.md)
+**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [command-center-sprint4.md](./command-center-loading-sprint4.md), [05-transport](../05-transport/README.md)

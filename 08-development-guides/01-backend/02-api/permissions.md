@@ -272,7 +272,7 @@ class TestPermissions:
 
 ## Related Documentation
 
-- **[Authorization Implementation](../architecture/authorization.md)** - Authorization implementation
+- **[Authorization Implementation](../../../04-architecture/04-backend/authorization-implementation.md)** - Authorization implementation
 - **[Viewsets](./viewsets.md)** - ViewSet implementation
 
 ---

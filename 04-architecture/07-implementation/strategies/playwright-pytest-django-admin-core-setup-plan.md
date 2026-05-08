@@ -30,13 +30,13 @@ Establish a maintainable, env-driven automation core for tenant-aware Django Adm
 ## 2) References
 
 ### Repository References
-- Existing pytest config: [`pytest.ini`](/home/bs-01426/Europe/real_project/nourish-backend/pytest.ini)
-- Existing Playwright fixture baseline: [`tests/e2e/conftest.py`](/home/bs-01426/Europe/real_project/nourish-backend/tests/e2e/conftest.py)
-- Existing development dependencies: [`requirements/development.txt`](/home/bs-01426/Europe/real_project/nourish-backend/requirements/development.txt)
-- Existing CI pipeline: [`.github/workflows/ci.yml`](/home/bs-01426/Europe/real_project/nourish-backend/.github/workflows/ci.yml)
-- Current env variable conventions: [`.env.example`](/home/bs-01426/Europe/real_project/nourish-backend/.env.example)
-- Django Admin customization surface: [`templates/admin/users/user/change_list.html`](/home/bs-01426/Europe/real_project/nourish-backend/templates/admin/users/user/change_list.html)
-- Django Admin business UI entrypoint example: [`apps/users/admin.py`](/home/bs-01426/Europe/real_project/nourish-backend/apps/users/admin.py)
+- Existing pytest config: ``pytest.ini``
+- Existing Playwright fixture baseline: ``tests/e2e/conftest.py``
+- Existing development dependencies: ``requirements/development.txt``
+- Existing CI pipeline: ``.github/workflows/ci.yml``
+- Current env variable conventions: ``.env.example``
+- Django Admin customization surface: ``templates/admin/users/user/change_list.html``
+- Django Admin business UI entrypoint example: ``apps/users/admin.py``
 
 ### Product Context References
 - Module specifications root: [`05-modules/README.md`](../../../README.md)

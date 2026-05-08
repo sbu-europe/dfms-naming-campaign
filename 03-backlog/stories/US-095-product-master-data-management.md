@@ -601,7 +601,7 @@ ProductAuditLog {
 
 - **PRD Section**: 6.4 Product Inventory Management (PIM)
 - **Module Spec**: `05-modules/02-master-data/product-master-data-management.md`
-- **Epic**: [EPIC-005](../01-epics/EPIC-005-product-inventory-management-pim.md)
+- **Epic**: [EPIC-005](../README.md)
 - **Related Stories**: US-010, US-011, US-012, US-013, US-044, US-046, US-059
 - **WBS Source**: `01-source/04-wbs/epics-table.md` (EPIC-005)
 

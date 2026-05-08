@@ -153,8 +153,8 @@ tags: [constraints-assumptions, limitations]
 ## Related Documents
 
 - [Business Objectives](../../01-overview/business-objectives.md) - Strategic goals
-- [Functional Requirements](./functional-requirements/) - Feature specifications
-- [Non-Functional Requirements](./non-functional-requirements/) - System quality attributes
+- [Functional Requirements](../03-functional-requirements/README.md) - Feature specifications
+- [Non-Functional Requirements](../04-non-functional-requirements/README.md) - System quality attributes
 - [Project Summary](../../01-overview/project-summary.md) - Project overview
 
 ---

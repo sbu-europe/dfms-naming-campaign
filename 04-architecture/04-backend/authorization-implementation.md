@@ -8,7 +8,7 @@
 
 - **[Security Architecture](../00-overview/architecture-summary.md#6-security-first)** - High-level security approach
 - **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
-- **[User Story US-007](../../DFMS-product-context/02-domain/03-features/phase-1/user-stories/US-007-user-role-management.md)** - RBAC requirements
+- **[User Story US-007](../../03-backlog/stories/README.mdREADME.mdREADME.md)** - RBAC requirements
 
 This document provides **Django-specific authorization implementation** (permission classes, RBAC code, middleware).
 
@@ -540,7 +540,7 @@ class TestPermissions:
 
 ## Related Documentation
 
-- **[Authentication Implementation](./authentication.md)** - Authentication implementation
+- **[Authentication Implementation](./authentication-implementation.md)** - Authentication implementation
 - **[API Reference](../../08-development-guides/01-backend/02-api/api-reference.md)** - API authorization endpoints
 - **[Security Testing](../../08-development-guides/01-backend/08-guides/security-testing.md)** - Security testing guide
 

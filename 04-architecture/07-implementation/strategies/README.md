@@ -82,7 +82,7 @@ Technology choices and rationale:
 - **[Deployment Strategy](../../06-deployment/)** - Deployment plans
 
 ### Source Documents
-- **[SOW Phase 1](../../../01-source/03-sow/SOW%20Phase-1.md)**
+- **[SOW Phase 1](../../../01-source/README.md)**
 - **[PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)**
 
 ---

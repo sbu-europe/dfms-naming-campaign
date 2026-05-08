@@ -430,6 +430,6 @@ Migrations that are destructive (drop column, remove table) require a **backward
 
 - [Resource & Cost Estimation](./aws-cost-estimation.md)
 - [Billing Safeguards & Cost Controls](./aws-billing-safeguards.md)
-- [Pre-Production Checklist](./aws-pre-production-checklist.md)
+- [Pre-Production Checklist](./README.md)
 - [Post-Production Scalability Plan](./aws-scalability-plan.md)
 - [AWS Setup Guide](../../08-development-guides/01-backend/07-deployment/aws-setup.md)

@@ -959,7 +959,7 @@ POST   /api/v1/auth/change-password
 - [Module Interactions](./module-interactions.md) - Communication patterns
 - [Container View](../container-view.md) - Technical containers
 - [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
-- [User Stories](../../../02-domain/03-backlog/phase-1/user-stories/)
+- [User Stories](../../../03-backlog/stories/README.mdREADME.mdREADME.md)
 
 ---
 

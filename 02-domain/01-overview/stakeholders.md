@@ -8,7 +8,7 @@ updated: 2026-02-10
 source_documents:
   - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
   - ./user-personas.md
-  - ../../source-documents/meeting-minutes/
+  - ../../01-source/README.md
   - ../../source-documents/discovery-phase/
 tags: [stakeholders, personas, users, prd-aligned]
 ---
@@ -635,7 +635,7 @@ Based on meeting minutes, the following departments participated in discovery:
 
 - [Project Summary](./project-summary.md) - Overall project context
 - [User Personas](../02-requirements/02-user-personas/user-personas.md) - Detailed persona descriptions
-- [Meeting Minutes](../../source-documents/meeting-minutes/) - Discovery session records
+- [Meeting Minutes](../../01-source/README.md) - Discovery session records
 
 ---
 

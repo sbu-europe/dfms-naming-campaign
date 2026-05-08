@@ -520,7 +520,7 @@ UnloadingCompleted(
 
 ### Business Context
 - [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
-- [User Story: US-035](../../../03-backlog/stories/US-035-gate-in-source.md)
+- [User Story: US-035](../../../03-backlog/stories/README.mdREADME.mdREADME.mdUS-035-gate-in-source.md)
 
 ### Other Workflows
 - [Trip Execution Flow](./03-trip-execution-flow.md) - Part of trip execution

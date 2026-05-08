@@ -56,7 +56,7 @@ This section contains detailed operational flows for all major DFMS business pro
 
 ### Advanced Workflows (Phase 2)
 
-8. **[Fleet Management Flow](./08-fleet-management-flow.md)**
+8. **[Fleet Management Flow](README.md)**
    - Fleet health monitoring
    - Maintenance scheduling
    - Downtime management

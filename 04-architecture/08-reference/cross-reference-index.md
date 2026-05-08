@@ -102,7 +102,7 @@ This document provides a comprehensive index of all technical context documents 
 - [Business Context](../../02-domain/)
 - [Repository Purpose](../../02-REPOSITORY_PURPOSE.md)
 - [Product Vision](../../01-PRODUCT_VISION.md)
-- [Source Documents](../../../source-documents/)
+- [Source Documents](../../01-source/README.md)
 
 ---
 

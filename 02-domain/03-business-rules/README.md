@@ -54,8 +54,8 @@ This folder contains comprehensive business rules organized by category:
 
 ## 🔗 Related Sections
 
-- **[Business Processes](../business-processes/)** - Process workflows that use these rules
-- **[Functional Requirements](../../02-requirements/functional-requirements/)** - Feature specifications
+- **[Business Processes](../04-business-processes/README.md)** - Process workflows that use these rules
+- **[Functional Requirements](../02-requirements/03-functional-requirements/README.md)** - Feature specifications
 - **[Constraints & Assumptions](../02-requirements/05-constraints-assumptions/constraints-assumptions.md)** - Project constraints
 
 ---

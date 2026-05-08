@@ -63,14 +63,14 @@ This folder contains all functional requirements for DFMS, organized by business
 
 For detailed, production-ready user stories with acceptance criteria, functional requirements, and business rules, see:
 
-📁 **[Phase 1 User Stories](../../03-backlog/phase-1/user-stories/)** - 70 detailed stories
+📁 **[Phase 1 User Stories](../../../03-backlog/stories/README.mdREADME.mdREADME.md)** - 70 detailed stories
 - Each story includes: User Story, Acceptance Criteria, Functional Requirements, Business Rules, Dependencies, Data Model, API Endpoints, Testing Scenarios
 
-📄 **[Phase 1 Summary](../../03-backlog/phase-1/phase-1-summary.md)** - Complete index of all Phase 1 stories
+📄 **[Phase 1 Summary](../../../03-backlog/README.md)** - Complete index of all Phase 1 stories
 
-📄 **[Phase 2 Summary](../../03-backlog/phase-2/phase-2-summary.md)** - High-level Phase 2 features (14 stories)
+📄 **[Phase 2 Summary](../../../03-backlog/sprints/sprint-2/README.md)** - High-level Phase 2 features (14 stories)
 
-📄 **[Phase 3 Summary](../../03-backlog/phase-3/phase-3-summary.md)** - High-level Phase 3 features (14 stories)
+📄 **[Phase 3 Summary](../../../03-backlog/sprints/sprint-3/README.md)** - High-level Phase 3 features (14 stories)
 
 ---
 
@@ -187,8 +187,8 @@ Each functional requirement follows this structure:
 
 - [Business Objectives](../../01-overview/business-objectives.md) - Strategic goals
 - [User Personas](../02-user-personas/user-personas.md) - User profiles and needs
-- [Non-Functional Requirements](../non-functional-requirements/) - System quality attributes
-- [Business Processes](../../01-business-domain/business-processes/) - Process workflows
+- [Non-Functional Requirements](../04-non-functional-requirements/non-functional-requirements.md) - System quality attributes
+- [Business Processes](../../04-business-processes/README.md) - Process workflows
 
 ---
 

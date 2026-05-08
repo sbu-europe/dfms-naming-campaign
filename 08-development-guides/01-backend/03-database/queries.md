@@ -6,8 +6,8 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Data Architecture](../../../04-architecture/01-architecture/data-architecture/)** - High-level data architecture
-- **[Database Design](../architecture/database-design.md)** - PostgreSQL schema
+- **[Data Architecture](../../../04-architecture/01-system-design/data-architecture/README.md)** - High-level data architecture
+- **[Database Design](../../../04-architecture/04-backend/database-implementation.md)** - PostgreSQL schema
 
 This document provides **Django ORM query optimization** (patterns, techniques, performance).
 
@@ -252,7 +252,7 @@ for order in orders:
 ## Related Documentation
 
 - **[Models](./models.md)** - Django ORM models
-- **[Database Design](../architecture/database-design.md)** - Schema design
+- **[Database Design](../../../04-architecture/04-backend/database-implementation.md)** - Schema design
 
 ---
 

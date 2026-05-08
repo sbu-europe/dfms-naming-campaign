@@ -87,8 +87,8 @@ related_stories: [US-XXX, US-YYY]
 
 ## X+1. Related Documentation
 
-- **[Related Spec](link)** - Description
-- **[Related Spec](link)** - Description
+- **[Related Spec](../../README.md)** - Description
+- **[Related Spec](../../README.md)** - Description
 
 **Related User Stories:**
 - US-XXX: [Title]

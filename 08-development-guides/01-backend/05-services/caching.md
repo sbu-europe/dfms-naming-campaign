@@ -528,7 +528,7 @@ class TestCaching:
 ## Related Documentation
 
 - **[Background Tasks](./background-tasks.md)** - Celery tasks (uses Redis)
-- **[System Architecture](../architecture/system-architecture.md)** - Overall architecture
+- **[System Architecture](../../../04-architecture/04-backend/django-system-architecture.md)** - Overall architecture
 
 ---
 

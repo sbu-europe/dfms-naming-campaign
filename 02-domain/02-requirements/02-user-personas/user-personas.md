@@ -96,7 +96,7 @@ This document serves as an overview and index for detailed user personas across 
 
 - **[Stakeholders](../../01-overview/stakeholders.md)** - Stakeholder mapping and roles
 - **[Business Objectives](../../01-overview/business-objectives.md)** - Business goals and success criteria
-- **[Functional Requirements](./functional-requirements/)** - Detailed functional requirements by module
+- **[Functional Requirements](../03-functional-requirements/README.md)** - Detailed functional requirements by module
 
 ## 📝 Source
 

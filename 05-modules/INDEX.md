@@ -375,7 +375,7 @@ Use the dependency information in each module's README to understand:
 
 ### By User Story
 Use the "Related User Stories" sections to map stories to specifications.  
-All stories are located in: `../03-backlog/02-stories/`
+All stories are located in: `../03-backlog/stories/README.md`
 
 ### By Phase
 See `10-phases/` for phase-wise organization of features.

@@ -15,8 +15,8 @@ This folder contains the strategic implementation planning documents for DFMS, p
 
 ## 📁 Documents
 
-### **[Implementation Plan](../../../_meta/plans/implementation-plan.md)** 📦 Moved
-Comprehensive implementation plan moved to [`_meta/plans/`](../../_meta/plans/)
+### **[Implementation Plan](../../../../_meta/plans/implementation-plan.md)** 📦 Moved
+Comprehensive implementation plan moved to [`_meta/plans/`](../../../_meta/plans/implementation-plan.md)
 
 Original content covered:
 - 52-week roadmap across 3 phases
@@ -85,7 +85,7 @@ Validation report confirming implementation timeline alignment with PRD:
 ### Business Context
 - [Meta Documentation](../../../_meta/README.md) - Plans, reports, tracking
 - [Phase Backlog](../../../03-backlog/README.md) - User stories by phase
-- [Feature Dependencies](../../../03-backlog/feature-dependencies.md) - Dependency mapping
+- [Feature Dependencies](../../../03-backlog/README.md) - Dependency mapping
 - [Business Objectives](../../../02-domain/01-overview/business-objectives.md) - Goals and KPIs
 
 ### Architecture

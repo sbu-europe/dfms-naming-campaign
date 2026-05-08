@@ -43,7 +43,7 @@ This folder previously contained operational plans and reports. Those have been 
 
 - [Source Document Mapping](../../04-architecture/08-reference/source-document-mapping.md) - Mapping to source documents
 - [Glossary](../../02-domain/01-overview/glossary.md) - Terms and definitions
-- [BUSINESS_CONTEXT_PLAN.md](../../BUSINESS_CONTEXT_PLAN.md) - Original documentation plan
+- [BUSINESS_CONTEXT_PLAN.md](../../README.md) - Original documentation plan
 
 ---
 

@@ -33,7 +33,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 |---|-------|---------|------|----|--------|
 | 1 | [POI Setup & Management](01-master-data-management/MDM-04-poi-management.md) | MDM-04 | DFS-020 | 8 | Pending |
 | 2 | [Product Master Data Management (CRUD)](01-master-data-management/MDM-01-product-master-data.md) | MDM-01 | DFS-017 | 13 | Pending |
-| 3 | [Route, Supplier & Dealer Master Data](01-master-data-management/MDM-02-route-supplier-dealer.md) | MDM-02 | DFS-018 | 5 | Pending |
+| 3 | [Route, Supplier & Dealer Master Data](01-master-data-management/) | MDM-02 | DFS-018 | 5 | Pending |
 | 4 | [Vendor Master Data (Admin CRUD & Bulk Upload)](01-master-data-management/MDM-03-vendor-master-data.md) | MDM-03 | DFS-019 | 5 | Pending |
 | 5 | [Vehicle Registration & Master Data](01-master-data-management/MDM-05-vehicle-master-data.md) | MDM-05 | DFS-021 | 5 | Pending |
 | 6 | [Helper Master Data Management](01-master-data-management/MDM-07-helper-master-data.md) | MDM-07 | DFS-023 | 3 | Pending |

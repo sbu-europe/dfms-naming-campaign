@@ -846,4 +846,4 @@ Menu.MasterData.OperationPoints.View
 ---
 
 **Last Updated**: 2026-05-06  
-**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [qc-operations-sprint4.md](./qc-operations-sprint4.md), [05-transport](../05-transport/README.md)
+**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [qc-operations-sprint4.md](./README.md), [05-transport](../05-transport/README.md)

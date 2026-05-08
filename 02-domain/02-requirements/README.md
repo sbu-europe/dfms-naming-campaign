@@ -16,7 +16,7 @@ This folder contains comprehensive documentation of all DFMS requirements, inclu
 
 ## 📋 Contents
 
-### [User Personas](./user-personas/)
+### [User Personas](./02-user-personas/README.md)
 
 Comprehensive profiles of all user types who will interact with the DFMS platform.
 
@@ -30,7 +30,7 @@ See [User Personas README](./02-user-personas/README.md) for complete navigation
 
 ---
 
-### [Business Objectives](./business-objectives/)
+### [Business Objectives](./01-business-objectives/README.md)
 
 Strategic business goals and success criteria for the Distribution and Fleet Management System.
 
@@ -45,7 +45,7 @@ See [Business Objectives README](./01-business-objectives/README.md) for complet
 
 ---
 
-### [Constraints & Assumptions](./constraints-assumptions/)
+### [Constraints & Assumptions](./05-constraints-assumptions/README.md)
 
 Project constraints, assumptions, dependencies, and known limitations.
 
@@ -60,30 +60,30 @@ See [Constraints & Assumptions README](./05-constraints-assumptions/README.md) f
 
 ### Functional Requirements
 
-- **[Functional Requirements](./functional-requirements/)** - Detailed functional requirements by module
+- **[Functional Requirements](./03-functional-requirements/README.md)** - Detailed functional requirements by module
   - See [Functional Requirements README](./03-functional-requirements/README.md) for module breakdown
 
 ### Non-Functional Requirements
 
-- **[Non-Functional Requirements](./non-functional-requirements/)** - Performance, security, scalability requirements
+- **[Non-Functional Requirements](./04-non-functional-requirements/non-functional-requirements.md)** - Performance, security, scalability requirements
   - See [Non-Functional Requirements](./04-non-functional-requirements/non-functional-requirements.md)
 
 ## 🎯 Quick Navigation
 
 | Document Type | Folder | Files | Purpose |
 |--------------|--------|-------|---------|
-| **User Personas** | [user-personas/](./user-personas/) | 10 files | User profiles and roles |
-| **Business Objectives** | [business-objectives/](./business-objectives/) | 7 files | Strategic goals and KPIs |
-| **Constraints & Assumptions** | [constraints-assumptions/](./constraints-assumptions/) | 7 files | Project constraints and limitations |
-| **Functional Requirements** | [functional-requirements/](./functional-requirements/) | Module-based | Detailed feature requirements |
-| **Non-Functional Requirements** | [non-functional-requirements/](./non-functional-requirements/) | 1 file | Performance, security, scalability |
+| **User Personas** | [user-personas/](./02-user-personas/README.md) | 10 files | User profiles and roles |
+| **Business Objectives** | [business-objectives/](./01-business-objectives/README.md) | 7 files | Strategic goals and KPIs |
+| **Constraints & Assumptions** | [constraints-assumptions/](./05-constraints-assumptions/README.md) | 7 files | Project constraints and limitations |
+| **Functional Requirements** | [functional-requirements/](./03-functional-requirements/README.md) | Module-based | Detailed feature requirements |
+| **Non-Functional Requirements** | [non-functional-requirements/](./04-non-functional-requirements/non-functional-requirements.md) | 1 file | Performance, security, scalability |
 
 ## 🔗 Related Sections
 
-- **[Overview](../00-overview/)** - High-level project summary and product vision
-- **[Business Domain](../01-business-domain/)** - Industry context, business rules, and processes
-- **[PRD Reference](../05-modules/)** - Direct PRD content for detailed reference
-- **[Phase Backlog](../03-backlog/)** - Epics and user stories organized by phase
+- **[Overview](../01-overview/README.md)** - High-level project summary and product vision
+- **[Business Domain](../README.md)** - Industry context, business rules, and processes
+- **[PRD Reference](../../05-modules/README.md)** - Direct PRD content for detailed reference
+- **[Phase Backlog](../../03-backlog/README.md)** - Epics and user stories organized by phase
 
 ## 📝 Content Source
 

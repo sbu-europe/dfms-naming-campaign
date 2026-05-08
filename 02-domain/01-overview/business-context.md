@@ -478,7 +478,7 @@ DFMS supports the complete lifecycle of distribution operations:
 - [Project Summary](./project-summary.md) - Overall project overview
 - [Stakeholders](./stakeholders.md) - Complete stakeholder mapping
 - [Glossary](./glossary.md) - Terms and definitions
-- [Business Processes](../01-business-domain/business-processes/) - Detailed process documentation
+- [Business Processes](../04-business-processes/README.md) - Detailed process documentation
 - [Requirements](../02-requirements/) - Functional and non-functional requirements
 
 ---

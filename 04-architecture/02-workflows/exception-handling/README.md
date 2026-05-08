@@ -26,7 +26,7 @@ Comprehensive list of exception scenarios:
 - System exceptions
 - Operations exceptions
 
-### **[Recovery Procedures](./recovery-procedures.md)**
+### **[Recovery Procedures](../README.md)**
 Step-by-step recovery procedures for each exception type.
 
 ---

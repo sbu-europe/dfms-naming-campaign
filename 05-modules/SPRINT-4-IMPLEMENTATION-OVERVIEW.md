@@ -599,7 +599,7 @@ Menu.MasterData.OperationPoints.View
 ### Sprint 4 Backlog
 
 - [Sprint 4 README](../03-backlog/sprints/sprint-4/README.md) — Full backlog, stories, PRD traceability
-- [Sprint 4 Plan](../../../.cursor/plans/sprint_4_to-centric_plan_9a6b9dda.plan.md) — High-level implementation plan
+- [Sprint 4 Plan](../README.md) — High-level implementation plan
 
 ### Sprint 3 Dependencies (Foundation)
 

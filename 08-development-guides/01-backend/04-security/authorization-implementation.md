@@ -8,7 +8,7 @@
 
 - **[Security Architecture](../../../04-architecture/00-overview/architecture-summary.md#6-security-first)** - High-level security
 - **[Authorization Requirements](../../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
-- **[Authorization Overview](../architecture/authorization.md)** - Authorization implementation
+- **[Authorization Overview](../../../04-architecture/04-backend/authorization-implementation.md)** - Authorization implementation
 
 This document provides **detailed RBAC authorization implementation** (permissions, roles, object-level permissions).
 
@@ -223,7 +223,7 @@ class TenantPermissionMixin:
 
 ## Related Documentation
 
-- **[Authorization Overview](../architecture/authorization.md)** - Authorization implementation
+- **[Authorization Overview](../../../04-architecture/04-backend/authorization-implementation.md)** - Authorization implementation
 - **[Security Checklist](./security-checklist.md)** - Security checklist
 
 ---

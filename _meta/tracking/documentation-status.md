@@ -3,7 +3,7 @@
 > Current status of technical documentation for Nourish Backend
 
 **Last Updated**: 2026-02-13  
-**Plan**: [TECHNICAL_DOCUMENTATION_PLAN.md](./TECHNICAL_DOCUMENTATION_PLAN.md)
+**Plan**: [TECHNICAL_DOCUMENTATION_PLAN.md](../../_meta/plans/technical-documentation-plan.md)
 
 ---
 
@@ -22,19 +22,19 @@
 ### Phase 1: Critical (8/8) ✅
 
 1. ✅ **[README.md](../../README.md)** - Documentation guide and structure
-2. ✅ **[system-architecture.md](./architecture/system-architecture.md)** - Django-specific architecture
+2. ✅ **[system-architecture.md](../../04-architecture/04-backend/django-system-architecture.md)** - Django-specific architecture
 3. ✅ **[api-reference.md](../../08-development-guides/01-backend/02-api/api-reference.md)** - DRF API implementation
-4. ✅ **[authentication.md](./architecture/authentication.md)** - JWT authentication implementation
-5. ✅ **[authorization.md](./architecture/authorization.md)** - RBAC permissions implementation
+4. ✅ **[authentication.md](../../04-architecture/04-backend/authentication-implementation.md)** - JWT authentication implementation
+5. ✅ **[authorization.md](../../04-architecture/04-backend/authorization-implementation.md)** - RBAC permissions implementation
 6. ✅ **[models.md](../../08-development-guides/01-backend/03-database/models.md)** - Django ORM models
 7. ✅ **[contributing.md](../../08-development-guides/01-backend/08-guides/contributing.md)** - Contribution guidelines
 8. ✅ **[error-handling.md](../../04-architecture/04-backend/error-handling.md)** - Error handling implementation
 
 ### Updated Documents (6)
 
-1. ✅ **[system-architecture.md](./architecture/system-architecture.md)** - Refactored for Django focus
+1. ✅ **[system-architecture.md](../../04-architecture/04-backend/django-system-architecture.md)** - Refactored for Django focus
 2. ✅ **[api-reference.md](../../08-development-guides/01-backend/02-api/api-reference.md)** - Updated with submodule references
-3. ✅ **[database-design.md](./architecture/database-design.md)** - Added submodule reference
+3. ✅ **[database-design.md](../../04-architecture/04-backend/database-implementation.md)** - Added submodule reference
 4. ✅ **[architecture-overview.md](../../04-architecture/04-backend/diagrams/architecture-overview.md)** - Added submodule references
 5. ✅ **[development-setup.md](../../08-development-guides/01-backend/01-setup/development-setup.md)** - Already exists
 6. ✅ **[security-testing.md](../../08-development-guides/01-backend/08-guides/security-testing.md)** - Already exists

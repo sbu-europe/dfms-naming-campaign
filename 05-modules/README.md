@@ -115,7 +115,7 @@ frontmatter: (metadata, source references)
 
 - **Source PRD**: [../01-source/01-prd/PRD_DFMS_v1.0.md](../01-source/01-prd/PRD_DFMS_v1.0.md) — original product requirements
 - **Sprint 3 backlog (Requisition–first)**: [../03-backlog/sprints/sprint-3/README.md](../03-backlog/sprints/sprint-3/README.md) — menu, roles, story paths `01-requisition` … `08-feedback`
-- **User stories (legacy path)**: `../03-backlog/stories/` — use Sprint folders under `03-backlog/sprints/` for phase-1 delivery
+- **User stories (legacy path)**: `../03-backlog/stories/README.md` — use Sprint folders under `03-backlog/sprints/` for phase-1 delivery
 - **Domain Context**: `../02-domain/` — high-level business context
 - **Technical Architecture**: `../04-architecture/` — system architecture diagrams
 

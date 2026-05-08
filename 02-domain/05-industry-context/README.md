@@ -45,9 +45,9 @@ This folder contains comprehensive industry context organized into focused docum
 
 ## 🔗 Related Sections
 
-- **[Business Processes](../business-processes/)** - Operational workflows
-- **[Business Rules](../business-rules/)** - Business logic and constraints
-- **[Overview](../../00-overview/)** - Product vision and objectives
+- **[Business Processes](../04-business-processes/README.md)** - Operational workflows
+- **[Business Rules](../03-business-rules/README.md)** - Business logic and constraints
+- **[Overview](../01-overview/README.md)** - Product vision and objectives
 
 ---
 

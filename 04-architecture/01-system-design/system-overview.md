@@ -393,7 +393,7 @@ Report Generation → Escalation (if fail)
 ### Business Context
 - [Business Context Overview](../../02-domain/01-overview/business-context.md)
 - [Stakeholders](../../02-domain/01-overview/stakeholders.md)
-- [Business Processes](../../02-domain/01-business-domain/business-processes/)
+- [Business Processes](../../02-domain/04-business-processes/README.md)
 
 ---
 

@@ -107,8 +107,8 @@ Events are versioned for backward compatibility.
 ## 🔗 Related Documents
 
 - [Module Interactions](../../04-architecture/01-system-design/modules/module-interactions.md)
-- [Data Models](../data-models/)
-- [Integration Contracts](../integration/)
+- [Data Models](../02-data-models/README.md)
+- [Integration Contracts](../04-integration/README.md)
 
 ---
 
