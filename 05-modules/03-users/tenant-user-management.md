@@ -610,7 +610,7 @@ On invitation:
 - **[User & Tenant Management](../01-foundation/user-tenant-management.md)** — Invitation mechanics, activation, session, password reset (auth layer)
 - **[Driver User Profiles](driver-user-profiles.md)** — Driver-specific profile beyond User account
 - **[Helper Master Data](helper-master-data.md)** — Helper-specific profile beyond User account
-- **[Sprint 2 — TUM Stories](../../../03-backlog/sprints/sprint-2/02-tenant-user-management/)** — TUM-01 through TUM-05
+- **[Sprint 2 — TUM Stories](../../03-backlog/sprints/sprint-2/02-tenant-user-management/README.md)** — TUM-01 through TUM-05
 
 **Related Jira Keys**:
 - DFS-024 (US-005) — User Invitation & Activation

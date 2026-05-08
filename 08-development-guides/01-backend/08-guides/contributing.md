@@ -8,7 +8,7 @@
 
 - **[Architecture Summary](../../../04-architecture/00-overview/architecture-summary.md)** - System architecture
 - **[Design Principles](../../../04-architecture/00-overview/design-principles.md)** - Design principles
-- **[API Contracts](../../../../../06-contracts/01-apis/)** - API specifications
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - API specifications
 
 This document provides **contribution guidelines** for this backend repository.
 
@@ -286,7 +286,7 @@ class TestTransportOrder:
 
 All APIs must follow contracts defined in submodule:
 
-- **[API Contracts](../../../../../06-contracts/01-apis/)** - OpenAPI 3.0 specs
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - OpenAPI 3.0 specs
 
 ### API Implementation Checklist
 

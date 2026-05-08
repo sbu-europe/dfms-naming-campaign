@@ -78,7 +78,7 @@ All data structures derived from:
 
 - [Business Rules](../../02-domain/03-business-rules/business-rules.md) - Rules governing data
 - [User Stories](../03-backlog/) - Features using this data
-- [Technical Context](../../../04-architecture/) - API contracts and schemas
+- [Technical Context](../../04-architecture/README.md) - API contracts and schemas
 
 ---
 

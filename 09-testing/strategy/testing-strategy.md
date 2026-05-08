@@ -4,7 +4,7 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
+> **Source of Truth**: [`04-architecture/`](../../04-architecture/README.md)
 
 - **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
 - **[User Stories](../../DFMS-product-context/business-context/03-features/phase-1/user-stories/)** - Acceptance criteria

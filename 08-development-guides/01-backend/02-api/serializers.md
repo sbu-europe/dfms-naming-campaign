@@ -6,8 +6,8 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[API Contracts](../../../../../06-contracts/01-apis/)** - OpenAPI 3.0 specifications
-- **[Data Models](../../../../../06-contracts/02-data-models/)** - JSON Schema definitions
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - OpenAPI 3.0 specifications
+- **[Data Models](../../../06-contracts/02-data-models/README.md)** - JSON Schema definitions
 
 This document provides **Django REST Framework serializer implementation** (code, validation, patterns).
 
@@ -321,7 +321,7 @@ class TransportOrderViewSet(viewsets.ModelViewSet):
 
 ## Related Documentation
 
-- **[API Contracts](../../../../../06-contracts/01-apis/)** - OpenAPI specifications
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - OpenAPI specifications
 - **[Viewsets](./viewsets.md)** - ViewSet implementation
 - **[API Reference](./api-reference.md)** - API endpoints
 

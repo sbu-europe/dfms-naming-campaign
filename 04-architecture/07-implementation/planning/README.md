@@ -83,8 +83,8 @@ Validation report confirming implementation timeline alignment with PRD:
 - [Technology Considerations](../strategies/technology-considerations.md) - Technology choices
 
 ### Business Context
-- [Meta Documentation](../../../../_meta/) - Plans, reports, tracking
-- [Phase Backlog](../../../../03-backlog/) - User stories by phase
+- [Meta Documentation](../../../_meta/README.md) - Plans, reports, tracking
+- [Phase Backlog](../../../03-backlog/README.md) - User stories by phase
 - [Feature Dependencies](../../../03-backlog/feature-dependencies.md) - Dependency mapping
 - [Business Objectives](../../../02-domain/01-overview/business-objectives.md) - Goals and KPIs
 

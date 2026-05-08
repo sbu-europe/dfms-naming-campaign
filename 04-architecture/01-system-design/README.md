@@ -98,7 +98,7 @@ This folder contains the high-level system architecture for DFMS, following the 
 
 ### Specifications
 - **[Module Specifications](../../05-modules/)** - Detailed module specs
-- **[API Contracts](../../../06-contracts/)** - REST API & event contracts
+- **[API Contracts](../../06-contracts/README.md)** - REST API & event contracts
 
 ---
 

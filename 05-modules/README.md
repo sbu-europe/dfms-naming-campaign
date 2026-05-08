@@ -38,7 +38,7 @@ These are **module specifications** (not just business requirements or just tech
 
 **Total**: 35 files, ~20,000 lines of comprehensive technical documentation
 
-**Note**: Business context (objectives, vision, scope, personas) is in [02-domain/01-overview/](../../02-domain/01-overview/)
+**Note**: Business context (objectives, vision, scope, personas) is in [02-domain/01-overview/](../02-domain/01-overview/README.md)
 
 ## Documentation Format
 

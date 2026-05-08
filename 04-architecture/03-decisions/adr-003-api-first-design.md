@@ -137,7 +137,7 @@ We will adopt an **API-First Design** approach:
 - [ADR-005: Phase 1 Frontend Approach](./adr-005-phase-1-frontend-approach.md) - Phase 1 frontend
 - [ADR-002: Event-Driven Communication](./adr-002-event-driven-communication.md)
 - [Repository Purpose](../../02-REPOSITORY_PURPOSE.md)
-- [API Contracts](../../../../06-contracts/01-apis/)
+- [API Contracts](../../06-contracts/01-apis/README.md)
 
 ---
 

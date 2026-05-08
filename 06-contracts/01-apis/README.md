@@ -80,8 +80,8 @@ Contracts can be used for validation and code generation.
 - [Module Interactions](../../04-architecture/01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Stories](../../../03-backlog/02-stories/)
-- [Functional Requirements](../../../02-domain/02-requirements/03-functional-requirements/)
+- [User Stories](../../03-backlog/stories/)
+- [Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/README.md)
 
 ---
 

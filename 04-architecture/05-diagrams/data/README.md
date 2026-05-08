@@ -77,7 +77,7 @@ The ER diagram helps understand:
 
 ## 🔗 Related Documentation
 
-- **[Data Models](../../../../06-contracts/02-data-models/)** - Detailed entity definitions (JSON Schema)
+- **[Data Models](../../../06-contracts/02-data-models/README.md)** - Detailed entity definitions (JSON Schema)
 - **[Data Architecture](../../01-system-design/data-architecture/)** - High-level data architecture
 - **[Database Implementation](../../04-backend/database-implementation.md)** - Django ORM models
 - **[Database Guide](../../../08-development-guides/01-backend/03-database/)** - Implementation guides

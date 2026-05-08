@@ -273,8 +273,8 @@ LOGGING = {
 
 **Phase 2 Migration Considerations**:
 - Extract Django apps to microservices
-- Maintain API contracts (see [API Contracts](../../../../06-contracts/01-apis/))
-- Migrate to event-driven architecture (see [Event Contracts](../../../../06-contracts/03-events/))
+- Maintain API contracts (see [API Contracts](../../06-contracts/01-apis/README.md))
+- Migrate to event-driven architecture (see [Event Contracts](../../06-contracts/03-events/README.md))
 
 ### Django-Specific Scalability (Within Phase 1)
 1. **Vertical scaling**: Larger EC2/RDS instances

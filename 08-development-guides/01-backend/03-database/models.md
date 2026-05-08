@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Data Model Overview](../../../04-architecture/01-system-design/data-architecture/data-model-overview.md)** - High-level entity definitions
-- **[Data Models (JSON Schema)](../../../../../06-contracts/02-data-models/)** - Contract definitions
+- **[Data Models (JSON Schema)](../../../06-contracts/02-data-models/README.md)** - Contract definitions
 - **[Data Dictionary](../../../10-reference/data-reference/data-dictionary.md)** - Complete business data dictionary
 
 This document provides **Django ORM model implementation** (code, relationships, methods, managers).

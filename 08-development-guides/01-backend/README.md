@@ -14,9 +14,9 @@ The high-level architecture, contracts, workflows, and architectural decisions a
 - **[Architecture Decision Records (ADRs)](../04-architecture/03-decisions/)** - Why we chose specific approaches
   - [ADR-004: Phase 1 Modular Monolith](../../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
   - [ADR-005: Phase 1 Frontend Approach](../../04-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)
-- **[API Contracts (OpenAPI 3.0)](../../../06-contracts/01-apis/)** - Complete API specifications
-- **[Event Contracts (AsyncAPI 2.6.0)](../../../06-contracts/03-events/)** - Domain events
-- **[Data Models](../../../06-contracts/02-data-models/)** - Shared data entities
+- **[API Contracts (OpenAPI 3.0)](../../06-contracts/01-apis/README.md)** - Complete API specifications
+- **[Event Contracts (AsyncAPI 2.6.0)](../../06-contracts/03-events/README.md)** - Domain events
+- **[Data Models](../../06-contracts/02-data-models/README.md)** - Shared data entities
 - **[Technical Workflows](../04-architecture/02-workflows/)** - Operational and user workflows
 - **[Deployment Strategy](../04-architecture/03-implementation/deployment-strategy/)** - Phase 1 deployment approach
 
@@ -40,9 +40,9 @@ This directory contains Django/Python implementation-specific documentation:
 - **Phase 1 ADR**: [ADR-004: Phase 1 Modular Monolith](../../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ### APIs & Contracts
-- **API Contracts**: [OpenAPI Specifications](../../../06-contracts/01-apis/)
+- **API Contracts**: [OpenAPI Specifications](../../06-contracts/01-apis/README.md)
 - **Django API Implementation**: [API Reference](./02-api/api-reference.md)
-- **Event Contracts**: [AsyncAPI Specifications](../../../06-contracts/03-events/)
+- **Event Contracts**: [AsyncAPI Specifications](../../06-contracts/03-events/README.md)
 
 ### Development
 - **Development Setup**: [Development Guide](./01-setup/development-setup.md)

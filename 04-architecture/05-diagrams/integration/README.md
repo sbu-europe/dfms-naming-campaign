@@ -67,10 +67,10 @@ The integration diagram helps understand:
 
 ## 🔗 Related Documentation
 
-- **[Integration Contracts](../../../../06-contracts/04-integration/)** - Detailed integration specifications
+- **[Integration Contracts](../../../06-contracts/04-integration/README.md)** - Detailed integration specifications
 - **[External Systems](../../01-system-design/integration/external-systems.md)** - External system details
 - **[Integration Patterns](../../01-system-design/integration/integration-patterns.md)** - Integration strategies
-- **[API Contracts](../../../../06-contracts/01-apis/)** - API specifications
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - API specifications
 - **[All Diagrams Index](../diagrams-index.md)** - Complete diagram catalog
 
 ---

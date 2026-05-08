@@ -9,7 +9,7 @@
 The high-level data model and entities are defined in the DFMS Product Context submodule:
 
 - **[Data Model Overview](../01-system-design/data-architecture/data-model-overview.md)** - High-level entities and relationships
-- **[Data Models (JSON Schema)](../../../../06-contracts/02-data-models/)** - Contract definitions
+- **[Data Models (JSON Schema)](../../06-contracts/02-data-models/README.md)** - Contract definitions
   - [Common Entities](../../06-contracts/02-data-models/common-entities.yaml)
   - [Enums & Constants](../../06-contracts/02-data-models/enums-constants.yaml)
   - [Value Objects](../../06-contracts/02-data-models/value-objects.yaml)

@@ -8,7 +8,7 @@
 
 ## API reference
 
-- **Contracts (source of truth)**: [06-contracts/api/](../../../../../06-contracts/01-apis/) — OpenAPI 3.0 specs
+- **Contracts (source of truth)**: [06-contracts/api/](../../../06-contracts/01-apis/README.md) — OpenAPI 3.0 specs
 - **Django implementation**: [API Reference](../02-api/api-reference.md) — DRF endpoints, auth, examples
 
 ---

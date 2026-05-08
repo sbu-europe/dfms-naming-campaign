@@ -6,7 +6,7 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Integration Contracts](../../../../../06-contracts/04-integration/)** - External integration contracts
+- **[Integration Contracts](../../../06-contracts/04-integration/README.md)** - External integration contracts
 - **[External Systems](../../../04-architecture/01-system-design/integration/external-systems.md)** - High-level integration overview
 
 This document provides **Django-specific integration implementation** (GPS, ERP, SMS, Maps, Payment).
@@ -569,7 +569,7 @@ def sync_to_erp(data):
 
 ## Related Documentation
 
-- **[Integration Contracts](../../../../../06-contracts/04-integration/)** - Integration specifications
+- **[Integration Contracts](../../../06-contracts/04-integration/README.md)** - Integration specifications
 - **[Background Tasks](./background-tasks.md)** - Async integration tasks
 
 ---
