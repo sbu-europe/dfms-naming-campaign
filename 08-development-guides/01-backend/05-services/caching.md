@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Architecture Summary](../../../04-architecture/00-overview/architecture-summary.md#3-scalability)** - Caching strategy
-- **[Container View](../../../04-architecture/01-architecture/container-view.md#7-cache)** - Cache container
+- **[Container View](../../../04-architecture/01-system-design/container-view.md#7-cache)** - Cache container
 
 This document provides **Redis-specific caching implementation** (cache patterns, invalidation, configuration).
 

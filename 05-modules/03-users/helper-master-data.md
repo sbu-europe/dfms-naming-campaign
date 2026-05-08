@@ -210,7 +210,7 @@ async function deleteHelper(helper_id: UUID): Promise<void> {
 - **Incident Count**: Incremented if the helper is linked to a logged trip incident (e.g., damage, delay).
 
 ### 4.3 User & identity integration
-- When **`user`** (FK) is set, permission checks for actions “as user” use **[RBAC](rbac.md)** / **[User & tenant management](../01-foundation/user-tenant-management.md)**; operational helper rules (trip assignment) still use the Helper aggregate.
+- When **`user`** (FK) is set, permission checks for actions “as user” use **[RBAC](../01-foundation/rbac.md)** / **[User & tenant management](../01-foundation/user-tenant-management.md)**; operational helper rules (trip assignment) still use the Helper aggregate.
 
 ---
 

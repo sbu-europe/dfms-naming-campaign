@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Phase 1 Deployment Strategy](../../../04-architecture/06-deployment/phase-1-deployment.md)** - High-level deployment approach
-- **[Container View](../../../04-architecture/01-architecture/container-view.md)** - Infrastructure components
+- **[Container View](../../../04-architecture/01-system-design/container-view.md)** - Infrastructure components
 
 This document provides **AWS-specific deployment configuration** (EC2, RDS, ElastiCache, S3 setup).
 

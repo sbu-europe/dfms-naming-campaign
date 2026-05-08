@@ -10,7 +10,7 @@
 The high-level architecture, contracts, workflows, and architectural decisions are maintained in the DFMS Product Context submodule:
 
 - **[Architecture Summary](../04-architecture/00-overview/architecture-summary.md)** - Overall system architecture
-- **[Container View](../04-architecture/01-architecture/container-view.md)** - High-level technical building blocks
+- **[Container View](../../04-architecture/01-system-design/container-view.md)** - High-level technical building blocks
 - **[Architecture Decision Records (ADRs)](../04-architecture/03-decisions/)** - Why we chose specific approaches
   - [ADR-004: Phase 1 Modular Monolith](../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
   - [ADR-005: Phase 1 Frontend Approach](../04-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)

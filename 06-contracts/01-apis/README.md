@@ -77,7 +77,7 @@ Contracts can be used for validation and code generation.
 
 ### Architecture
 - [Module Boundaries](../../01-architecture/modules/module-boundaries.md)
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
+- [Module Interactions](../../04-architecture/01-system-design/modules/module-interactions.md)
 
 ### Business Context
 - [User Stories](../../../03-backlog/02-stories/)
