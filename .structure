@@ -133,7 +133,127 @@ DFMS-product-context/
 │       ├── success-factors.md
 │       └── future-outlook.md
 │
-├── 03-module-specifications/                    # ✅ Technical specifications
+├── 03-backlog/                                  # ✅ Product backlog (sprint-based)
+│   ├── README.md                                # Backlog overview
+│   ├── phase-1-sprint-plan.md
+│   ├── user-stories-by-epic.md
+│   │
+│   ├── sprints/                                 # Sprint-organized tasks
+│   │   ├── sprint-1/                            # Infra, platform admin, client portal
+│   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 1 completion report
+│   │   │   ├── 01-infra/                        # INFRA-01..05, DEVOPS-01-01/02
+│   │   │   ├── 02-platform-admin-portal/        # PAP-01..06
+│   │   │   ├── 03-client-portal/                # CP-01..05
+│   │   │   └── 04-feedback/                     # Feedback docs
+│   │   │
+│   │   ├── sprint-2/                            # Master data, user mgmt, geofencing
+│   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 2 completion report
+│   │   │   ├── 01-master-data-management/       # MDM-01..05, MDM-07
+│   │   │   ├── 02-tenant-user-management/       # TUM-01..05
+│   │   │   └── 03-vehicle-tracking-geofencing/  # VTG-01
+│   │   │
+│   │   ├── sprint-3/                            # Requisitions, transport, QA, DevOps
+│   │   │   ├── README.md
+│   │   │   ├── completion-report.md             # ✅ Sprint 3 completion report
+│   │   │   ├── 01-requisition/                  # PR-01
+│   │   │   ├── 02-port-shipments/               # PR-02
+│   │   │   ├── 03-distribution/                 # DR-01, DR-02
+│   │   │   ├── 04-procurement/                  # PC-01, PC-02
+│   │   │   ├── 05-transport/                    # TO queue, orders, TDO assignment
+│   │   │   ├── 06-qa-testing/                   # QA-01
+│   │   │   ├── 07-devops/                       # DEVOPS-01 AWS env + plan
+│   │   │   ├── 08-feedback/                     # Post-sprint bug reports & feedback log
+│   │   │   └── 09-dashboard/                    # DB-01
+│   │   │
+│   │   └── sprint-4/                            # Trip execution & closure
+│   │       ├── README.md
+│   │       ├── 01-trip-execution/               # TE-01..03
+│   │       └── 02-trip-closure-tracking/        # TC-01..03
+│   │
+│   └── stories/                                 # Flat story list (US-001 to US-098+)
+│       ├── CP-client-portal.md
+│       ├── INFRA-system-foundation-infrastructure.md
+│       ├── PAP-platform-admin-portal.md
+│       ├── US-001-user-login-account-lockout.md
+│       ├── US-002-multi-factor-auth.md
+│       ├── ... (US-003 to US-097)
+│       └── US-098-tenant-onboarding.md
+│
+├── 04-architecture/                             # ✅ System & implementation architecture
+│   ├── README.md
+│   ├── 00-overview/                             # Architecture foundation
+│   │   ├── README.md
+│   │   ├── architecture-summary.md
+│   │   ├── design-principles.md
+│   │   └── technology-stack-overview.md
+│   │
+│   ├── 01-system-design/                        # C4 Level 1-2 (technology-agnostic)
+│   │   ├── README.md
+│   │   ├── system-overview.md
+│   │   ├── diagrams/                            # container-diagram.mmd, system-context-diagram.mmd
+│   │   ├── modules/                             # module-boundaries.md, module-interactions.md
+│   │   ├── data-architecture/                   # data-flow.md, data-model-overview.md
+│   │   └── integration/                         # external-systems.md, integration-patterns.md
+│   │
+│   ├── 02-workflows/                            # Technical workflows
+│   │   ├── README.md
+│   │   ├── operational-flows/                   # 7 flows (PR, TO, trip, vendor, gate, QC, costing)
+│   │   ├── user-workflows/                      # 5 role-based workflows
+│   │   └── exception-handling/                  # exception-scenarios.md
+│   │
+│   ├── 03-decisions/                            # ADRs
+│   │   ├── README.md
+│   │   ├── adr-template.md
+│   │   ├── adr-001-microservices-architecture.md
+│   │   ├── adr-002-event-driven-communication.md
+│   │   ├── adr-003-api-first-design.md
+│   │   ├── adr-004-phase-1-modular-monolith.md
+│   │   ├── adr-005-phase-1-frontend-approach.md
+│   │   ├── adr-100-technology-stack.md
+│   │   └── adr-200-integration-patterns.md
+│   │
+│   ├── 04-backend/                              # Django/Python implementation architecture
+│   │   ├── README.md
+│   │   ├── django-system-architecture.md
+│   │   ├── authentication-implementation.md
+│   │   ├── authorization-implementation.md
+│   │   ├── code-organization.md
+│   │   ├── database-implementation.md
+│   │   ├── error-handling.md
+│   │   └── diagrams/                            # architecture-overview.md, django-components.md, data-flow.md
+│   │
+│   ├── 05-diagrams/                             # Technical diagrams (high-level)
+│   │   ├── README.md
+│   │   ├── diagrams-index.md
+│   │   ├── sequences/                           # PR approval, trip execution, vendor bidding
+│   │   ├── deployment/                          # deployment-diagram.mmd
+│   │   ├── integration/                         # integration-architecture-diagram.mmd
+│   │   ├── states/                              # product-requisition & trip state diagrams
+│   │   └── data/                                # entity-relationship-diagram.mmd
+│   │
+│   ├── 06-deployment/                           # AWS deployment strategy & configuration
+│   │   ├── README.md
+│   │   ├── phase-1-deployment.md                # Phase 1 dev + production deployment plan
+│   │   ├── aws-deployment-strategy.md           # Full AWS architecture strategy
+│   │   ├── aws-cost-estimation.md               # Cost breakdown & estimation
+│   │   ├── aws-billing-safeguards.md            # Budget alerts & cost controls
+│   │   └── aws-scalability-plan.md              # Scaling strategy
+│   │
+│   ├── 07-implementation/                       # Implementation planning
+│   │   ├── README.md
+│   │   ├── planning/                            # IMPLEMENTATION_TIMELINE.md, TIMELINE_VALIDATION.md
+│   │   ├── strategies/                          # migration, rollout, testing, playwright setup
+│   │   └── phase-1-breakdown/                   # EPICS.md, STORIES.md, TASKS.md, TIMELINE.md
+│   │
+│   └── 08-reference/                            # Architecture reference
+│       ├── README.md
+│       ├── cross-reference-index.md
+│       ├── source-document-mapping.md
+│       └── version-history.md
+│
+├── 05-modules/                                  # ✅ Technical module specifications
 │   ├── README.md                                # Module specifications overview
 │   ├── INDEX.md                                 # Full module index
 │   │
@@ -208,13 +328,11 @@ DFMS-product-context/
 │   │   ├── analytics.md
 │   │   └── reporting.md
 │   │
-│   ├── 12-cross-cutting/                        # NFRs, security, testing
+│   ├── 12-cross-cutting/                        # NFRs, security, integration
 │   │   ├── README.md
-│   │   ├── aws-dev-environment.md
 │   │   ├── integration-requirements.md
 │   │   ├── non-functional-requirements.md
-│   │   ├── security-compliance.md
-│   │   └── testing-strategy.md
+│   │   └── security-compliance.md
 │   │
 │   ├── 13-phases/                               # Phase planning
 │   │   ├── README.md
@@ -225,120 +343,6 @@ DFMS-product-context/
 │   └── 14-reference/                            # Reference
 │       ├── README.md
 │       └── glossary.md
-│
-├── 04-backlog/                                  # ✅ Product backlog (sprint-based)
-│   ├── README.md                                # Backlog overview
-│   ├── phase-1-sprint-plan.md
-│   ├── user-stories-by-epic.md
-│   │
-│   ├── sprints/                                 # Sprint-organized tasks
-│   │   ├── sprint-1/                            # Infra, platform admin, client portal
-│   │   │   ├── README.md
-│   │   │   ├── completion-report.md             # ✅ Sprint 1 completion report
-│   │   │   ├── 01-infra/                        # INFRA-01..05, DEVOPS-01-01/02
-│   │   │   ├── 02-platform-admin-portal/        # PAP-01..06
-│   │   │   ├── 03-client-portal/                # CP-01..05
-│   │   │   └── 04-feedback/                     # Feedback docs
-│   │   │
-│   │   ├── sprint-2/                            # Master data, user mgmt, geofencing
-│   │   │   ├── README.md
-│   │   │   ├── completion-report.md             # ✅ Sprint 2 completion report
-│   │   │   ├── 01-master-data-management/       # MDM-01..05, MDM-07
-│   │   │   ├── 02-tenant-user-management/       # TUM-01..05
-│   │   │   └── 03-vehicle-tracking-geofencing/  # VTG-01
-│   │   │
-│   │   ├── sprint-3/                            # Requisitions, transport, QA, DevOps
-│   │   │   ├── README.md
-│   │   │   ├── completion-report.md             # ✅ Sprint 3 completion report
-│   │   │   ├── 01-requisition/                  # PR-01
-│   │   │   ├── 02-port-shipments/               # PR-02
-│   │   │   ├── 03-distribution/                 # DR-01, DR-02
-│   │   │   ├── 04-procurement/                  # PC-01, PC-02
-│   │   │   ├── 05-transport/                    # TO queue, orders, TDO assignment
-│   │   │   ├── 06-qa-testing/                   # QA-01
-│   │   │   ├── 07-devops/                       # DEVOPS-01 AWS env + plan
-│   │   │   ├── 08-feedback/                     # Post-sprint bug reports & feedback log
-│   │   │   └── 09-dashboard/                    # DB-01
-│   │   │
-│   │   └── sprint-4/                            # Trip execution & closure
-│   │       ├── README.md
-│   │       ├── 01-trip-execution/               # TE-01..03
-│   │       └── 02-trip-closure-tracking/        # TC-01..03
-│   │
-│   └── stories/                                 # Flat story list (US-001 to US-098+)
-│       ├── CP-client-portal.md
-│       ├── INFRA-system-foundation-infrastructure.md
-│       ├── PAP-platform-admin-portal.md
-│       ├── US-001-user-login-account-lockout.md
-│       ├── US-002-multi-factor-auth.md
-│       ├── ... (US-003 to US-097)
-│       └── US-098-tenant-onboarding.md
-│
-├── 05-architecture/                             # ✅ System & implementation architecture
-│   ├── README.md
-│   ├── 00-overview/                             # Architecture foundation
-│   │   ├── README.md
-│   │   ├── architecture-summary.md
-│   │   ├── design-principles.md
-│   │   └── technology-stack-overview.md
-│   │
-│   ├── 01-system-design/                        # C4 Level 1-2 (technology-agnostic)
-│   │   ├── README.md
-│   │   ├── system-overview.md
-│   │   ├── container-view.md
-│   │   ├── diagrams/                            # container-diagram.mmd, system-context-diagram.mmd
-│   │   ├── modules/                             # module-boundaries.md, module-interactions.md
-│   │   ├── data-architecture/                   # data-flow.md, data-model-overview.md
-│   │   └── integration/                         # external-systems.md, integration-patterns.md
-│   │
-│   ├── 02-workflows/                            # Technical workflows
-│   │   ├── README.md
-│   │   ├── operational-flows/                   # 7 flows (PR, TO, trip, vendor, gate, QC, costing)
-│   │   ├── user-workflows/                      # 5 role-based workflows
-│   │   └── exception-handling/                  # exception-scenarios.md
-│   │
-│   ├── 03-decisions/                            # ADRs
-│   │   ├── README.md
-│   │   ├── adr-template.md
-│   │   ├── adr-001-microservices-architecture.md
-│   │   ├── adr-002-event-driven-communication.md
-│   │   ├── adr-003-api-first-design.md
-│   │   ├── adr-004-phase-1-modular-monolith.md
-│   │   ├── adr-005-phase-1-frontend-approach.md
-│   │   ├── adr-100-technology-stack.md
-│   │   └── adr-200-integration-patterns.md
-│   │
-│   ├── 04-implementation/                       # Implementation planning
-│   │   ├── README.md
-│   │   ├── planning/                            # IMPLEMENTATION_TIMELINE.md, TIMELINE_VALIDATION.md
-│   │   ├── deployment-strategy/                 # AWS deployment, cost, billing safeguards
-│   │   ├── strategies/                          # migration, rollout, testing, playwright setup
-│   │   └── phase-1-breakdown/                   # EPICS.md, STORIES.md, TASKS.md, TIMELINE.md
-│   │
-│   ├── 05-backend-architecture/                 # Django/Python implementation architecture
-│   │   ├── README.md
-│   │   ├── django-system-architecture.md
-│   │   ├── authentication-implementation.md
-│   │   ├── authorization-implementation.md
-│   │   ├── code-organization.md
-│   │   ├── database-implementation.md
-│   │   ├── error-handling.md
-│   │   └── diagrams/                            # architecture-overview.md, django-components.md, data-flow.md
-│   │
-│   ├── 06-diagrams/                             # Technical diagrams (high-level)
-│   │   ├── README.md
-│   │   ├── diagrams-index.md
-│   │   ├── sequences/                           # PR approval, trip execution, vendor bidding
-│   │   ├── deployment/                          # deployment-diagram.mmd
-│   │   ├── integration/                         # integration-architecture-diagram.mmd
-│   │   ├── states/                              # product-requisition & trip state diagrams
-│   │   └── data/                                # entity-relationship-diagram.mmd
-│   │
-│   └── 07-reference/                            # Architecture reference
-│       ├── README.md
-│       ├── cross-reference-index.md
-│       ├── source-document-mapping.md
-│       └── version-history.md
 │
 ├── 06-contracts/                                # ✅ Integration contracts
 │   ├── README.md
@@ -386,32 +390,26 @@ DFMS-product-context/
 │       └── meeting-notes/
 │           └── 2026-03-16-gpswox-integration.md
 │
-├── 07-reference/                                # ✅ Reference materials
+├── 07-design-system/                            # ✅ UI/UX design system (admin portal + mobile)
 │   ├── README.md
-│   │
-│   ├── archive/                                 # Archived documents
-│   │   ├── README.md
-│   │   ├── cross-reference-index.md
-│   │   ├── quick-reference-guide.md
-│   │   ├── source-document-mapping.md
-│   │   └── version-history.md
-│   │
-│   └── data-reference/                          # Data dictionaries
-│       ├── README.md
-│       ├── data-dictionary.md                   # 10 entities, 200+ fields
-│       ├── master-data/
-│       │   └── master-data-overview.md
-│       └── transactional-data/
-│           └── transactional-data-overview.md
+│   ├── preview.html
+│   ├── 01-foundation/                           # Design tokens & fundamentals
+│   │   ├── colors.md
+│   │   ├── design-tokens.md
+│   │   ├── spacing.md
+│   │   └── typography.md
+│   ├── 02-components/                           # UI component specs
+│   │   ├── buttons.md
+│   │   ├── data-display.md
+│   │   ├── forms.md
+│   │   └── navigation.md
+│   ├── 03-patterns/                             # UI patterns
+│   │   └── workflow-status.md
+│   └── 04-platforms/                            # Platform-specific guidelines
+│       ├── mobile.md
+│       └── web.md
 │
-├── 08-change-requests/                          # ✅ Change management
-│   ├── README.md                                # Change requests overview
-│   ├── CR-TEMPLATE.md                           # CR template
-│   ├── CR-INDEX.md                              # Change requests index
-│   ├── CR-001-UPDATE-CHECKLIST.md
-│   └── CR-001-phase-based-architecture.md
-│
-├── 09-development-guides/                       # ✅ Implementation guides
+├── 08-development-guides/                       # ✅ Implementation guides
 │   ├── README.md                                # Development guides overview
 │   │
 │   └── 01-backend/                              # Django/Python implementation
@@ -438,15 +436,16 @@ DFMS-product-context/
 │       │   ├── caching.md
 │       │   ├── notifications.md
 │       │   └── integrations.md
-│       ├── 06-testing/                          # Testing guides
-│       │   ├── testing-strategy.md
+│       ├── 06-testing/                          # Backend testing how-to
 │       │   ├── unit-tests.md
 │       │   ├── integration-tests.md
 │       │   ├── e2e-tests.md
 │       │   └── test-fixtures.md
-│       ├── 07-deployment/                       # Deployment configs
+│       ├── 07-deployment/                       # Deployment configs & runbooks
 │       │   ├── docker.md
 │       │   ├── aws-setup.md
+│       │   ├── aws-dev-environment.md           # ← moved from 05-modules/12-cross-cutting
+│       │   ├── pre-production-checklist.md      # ← moved from 04-architecture/06-deployment
 │       │   ├── environment-variables.md
 │       │   ├── monitoring.md
 │       │   └── backup-recovery.md
@@ -458,76 +457,90 @@ DFMS-product-context/
 │       └── 09-reference/                        # Quick reference
 │           └── README.md
 │
-├── 10-meta/                                     # 📦 Repository meta-documentation
-│   ├── README.md                                # Meta-documentation overview
-│   ├── archive/                                 # Archived summaries
-│   │   └── phase-1-summary-old-2026-02-11.md
-│   ├── plans/                                   # Task plans & strategies
-│   │   ├── implementation-plan.md
-│   │   ├── prd-alignment-plan.md
-│   │   ├── technical-documentation-plan.md
-│   │   └── transformation-guide.md
-│   ├── reports/                                 # Cross-sprint & project-level reports (not per-sprint)
-│   │   ├── all-epics-verification.md
-│   │   ├── broken-story-list-links.md
-│   │   ├── cleanup-report.md
-│   │   ├── correct-story-epic-mapping.md
-│   │   ├── duplicate-story-ids-investigation.md
-│   │   ├── epic-005-pim-verification.md
-│   │   ├── module-reorganization-report.md
-│   │   ├── phase-1-completion-report.md
-│   │   ├── prd-alignment-report.md
-│   │   ├── prd-alignment-summary.md
-│   │   ├── session-1-complete-summary.md
-│   │   ├── session-2-pim-fix-summary.md
-│   │   ├── specs-backlog-alignment-analysis.md
-│   │   ├── submodule-adjustments-report.md
-│   │   ├── transformation-progress-report.md
-│   │   └── verification-report.md
-│   │   # NOTE: per-sprint completion reports live in 04-backlog/sprints/<sprint-N>/completion-report.md
-│   └── tracking/                                # Status tracking
-│       ├── documentation-status.md
-│       ├── specs-backlog-fixes-progress.md
-│       └── sprint-1-progress.md
-│
-├── 11-design-system/                            # ✅ UI/UX design system
+├── 09-testing/                                  # ✅ Cross-platform test documentation
 │   ├── README.md
-│   ├── preview.html
-│   ├── 01-foundation/                           # Design tokens & fundamentals
-│   │   ├── colors.md
-│   │   ├── design-tokens.md
-│   │   ├── spacing.md
-│   │   └── typography.md
-│   ├── 02-components/                           # UI component specs
-│   │   ├── buttons.md
-│   │   ├── data-display.md
-│   │   ├── forms.md
-│   │   └── navigation.md
-│   ├── 03-patterns/                             # UI patterns
-│   │   └── workflow-status.md
-│   └── 04-platforms/                            # Platform-specific guidelines
-│       ├── mobile.md
-│       └── web.md
+│   ├── strategy/                                # Test strategy (all platforms)
+│   │   └── testing-strategy.md                 # ← moved from 08-development-guides/06-testing
+│   ├── backend/                                 # Backend e2e scenarios
+│   │   └── e2e-scenarios/                       # ← moved from 12-e2e-testing
+│   │       ├── README.md
+│   │       ├── 01-foundation/                   # Auth & RBAC e2e scenarios
+│   │       │   ├── user-login-account-lockout-us001-e2e-scenarios.md
+│   │       │   ├── multi-factor-auth-us002-e2e-scenarios.md
+│   │       │   ├── session-control-us003-e2e-scenarios.md
+│   │       │   └── role-hierarchy-e2e-scenario.md
+│   │       ├── 02-master-data/                  # Master data e2e scenarios
+│   │       │   ├── poi-management-e2e-scenarios.md
+│   │       │   ├── product-master-data-e2e-scenarios.md
+│   │       │   ├── supplier-dealer-management-e2e-scenarios.md
+│   │       │   └── vehicle-master-data-e2e-scenarios.md
+│   │       └── users/                           # User management e2e scenarios
+│   │           ├── account-deactivation-e2e-scenarios.md
+│   │           ├── driver-user-profiles-e2e-scenarios.md
+│   │           ├── helper-master-data-e2e-scenarios.md
+│   │           ├── password-account-reset-e2e-scenarios.md
+│   │           ├── user-activity-audit-logs-e2e-scenarios.md
+│   │           └── user-invitation-activation-e2e-scenarios.md
+│   └── mobile/                                  # Mobile test scenarios (upcoming)
+│       └── README.md                            # Placeholder — mobile development incoming
 │
-└── 12-e2e-testing/                              # ✅ End-to-end test scenarios
-    ├── README.md
-    ├── 01-foundation/                           # Auth & RBAC e2e scenarios
-    │   ├── user-login-account-lockout-us001-e2e-scenarios.md
-    │   ├── multi-factor-auth-us002-e2e-scenarios.md
-    │   ├── session-control-us003-e2e-scenarios.md
-    │   └── role-hierarchy-e2e-scenario.md
-    ├── 02-master-data/                          # Master data e2e scenarios
-    │   ├── poi-management-e2e-scenarios.md
-    │   ├── product-master-data-e2e-scenarios.md
-    │   ├── supplier-dealer-management-e2e-scenarios.md
-    │   └── vehicle-master-data-e2e-scenarios.md
-    └── users/                                   # User management e2e scenarios
-        ├── account-deactivation-e2e-scenarios.md
-        ├── driver-user-profiles-e2e-scenarios.md
-        ├── helper-master-data-e2e-scenarios.md
-        ├── password-account-reset-e2e-scenarios.md
-        ├── user-activity-audit-logs-e2e-scenarios.md
-        └── user-invitation-activation-e2e-scenarios.md
+├── 10-reference/                                # ✅ Reference materials
+│   ├── README.md
+│   │
+│   ├── archive/                                 # Archived documents
+│   │   ├── README.md
+│   │   ├── cross-reference-index.md
+│   │   ├── quick-reference-guide.md
+│   │   ├── source-document-mapping.md
+│   │   └── version-history.md
+│   │
+│   └── data-reference/                          # Data dictionaries
+│       ├── README.md
+│       ├── data-dictionary.md                   # 10 entities, 200+ fields
+│       ├── master-data/
+│       │   └── master-data-overview.md
+│       └── transactional-data/
+│           └── transactional-data-overview.md
+│
+├── 11-change-requests/                          # ✅ Change management
+│   ├── README.md                                # Change requests overview
+│   ├── CR-TEMPLATE.md                           # CR template
+│   ├── CR-INDEX.md                              # Change requests index
+│   ├── CR-001-UPDATE-CHECKLIST.md
+│   └── CR-001-phase-based-architecture.md
+│
+└── _meta/                                       # 📦 Repository meta-documentation (internal)
+    ├── README.md                                # Meta-documentation overview
+    ├── archive/                                 # Archived summaries
+    │   └── phase-1-summary-old-2026-02-11.md
+    ├── plans/                                   # Task plans & strategies
+    │   ├── implementation-plan.md
+    │   ├── prd-alignment-plan.md
+    │   ├── repo-reorganization-plan.md          # ← this reorganization
+    │   ├── technical-documentation-plan.md
+    │   └── transformation-guide.md
+    ├── reports/                                 # Cross-sprint & project-level reports
+    │   ├── all-epics-verification.md
+    │   ├── broken-story-list-links.md
+    │   ├── cleanup-report.md
+    │   ├── correct-story-epic-mapping.md
+    │   ├── duplicate-story-ids-investigation.md
+    │   ├── epic-005-pim-verification.md
+    │   ├── module-reorganization-report.md
+    │   ├── phase-1-completion-report.md
+    │   ├── prd-alignment-report.md
+    │   ├── prd-alignment-summary.md
+    │   ├── session-1-complete-summary.md
+    │   ├── session-2-pim-fix-summary.md
+    │   ├── specs-backlog-alignment-analysis.md
+    │   ├── submodule-adjustments-report.md
+    │   ├── transformation-progress-report.md
+    │   └── verification-report.md
+    │   # NOTE: per-sprint completion reports live in 03-backlog/sprints/<sprint-N>/completion-report.md
+    └── tracking/                                # Status tracking
+        ├── documentation-status.md
+        ├── specs-backlog-fixes-progress.md
+        └── sprint-1-progress.md
 
 ---
 
@@ -538,16 +551,16 @@ DFMS-product-context/
 ### By Section:
 - **01-source**: 20+ files (PRD, flow diagrams, SOW, WBS, proposals)
 - **02-domain**: 50+ files (~15,000 lines)
-- **03-module-specifications**: 50+ files, 14 modules (~20,000 lines)
-- **04-backlog**: 140+ files (98+ stories, 4 sprints, sprint tasks)
-- **05-architecture**: 90+ files (~12,000 lines) - includes Django architecture
+- **03-backlog**: 140+ files (98+ stories, 4 sprints, sprint tasks)
+- **04-architecture**: 90+ files (~12,000 lines) — system design, ADRs, deployment, Django arch
+- **05-modules**: 50+ files, 14 modules (~20,000 lines)
 - **06-contracts**: 25+ files (API/event contracts, meeting notes)
-- **07-reference**: 10+ files (data dictionaries, reference materials)
-- **08-change-requests**: 5 files
-- **09-development-guides**: 46 files (~8,000 lines) - backend implementation
-- **10-meta**: 22+ files (1 archive, 4 plans, 16 reports, 3 tracking)
-- **11-design-system**: 12 files (design tokens, components, patterns, platforms)
-- **12-e2e-testing**: 15 files (foundation, master data, users)
+- **07-design-system**: 12 files (design tokens, components, patterns, platforms)
+- **08-development-guides**: 46 files (~8,000 lines) — backend implementation runbooks
+- **09-testing**: 17 files (strategy, backend e2e scenarios, mobile placeholder)
+- **10-reference**: 10+ files (data dictionaries, reference materials)
+- **11-change-requests**: 5 files
+- **_meta**: 22+ files (1 archive, 5 plans, 16 reports, 3 tracking)
 
 ### Key Metrics:
 - **User Stories**: 98+ (US-001 to US-098+)
@@ -559,6 +572,6 @@ DFMS-product-context/
 
 ---
 
-**Last Updated**: May 5, 2026
+**Last Updated**: May 8, 2026
 **Structure**: Optimized for LLM efficiency and human navigation
-**Organization**: Numbered folders (01-12) with consistent double-digit prefixes
+**Organization**: Numbered folders (01-11) + _meta suffix, double-digit prefixes
