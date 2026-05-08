@@ -341,8 +341,8 @@ Bangladesh
 ## 📚 Related Documents
 
 - [Data Dictionary](../data-dictionary.md) - Complete field-level definitions
-- [Business Rules](../../01-business-domain/business-rules/business-rules.md) - Rules governing master data
-- [User Stories](../../03-backlog/) - Features using master data
+- [Business Rules](../../../02-domain/03-business-rules/business-rules.md) - Rules governing master data
+- [User Stories](../../../03-backlog/README.md) - Features using master data
 
 ---
 

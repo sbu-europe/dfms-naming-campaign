@@ -53,19 +53,19 @@ High-level technology choices and rationale:
 1. Read [Architecture Summary](./architecture-summary.md)
 2. Review [System Overview](../01-system-design/system-overview.md) (C4 Level 1)
 3. Study [Design Principles](./design-principles.md)
-4. Explore [Architectural Decisions](../03-decisions/adr/)
+4. Explore [Architectural Decisions](../03-decisions/)
 
 ### **For Developers**
 1. Read [Technology Stack Overview](./technology-stack-overview.md)
-2. Review [API Contracts](../06-contracts/api/)
+2. Review [API Contracts](../../06-contracts/01-apis/README.md)
 3. Study [Workflows](../02-workflows/)
-4. Check [Implementation Approach](../04-implementation/)
+4. Check [Implementation Approach](../07-implementation/)
 
 ### **For Technical Product Managers**
 1. Read [Architecture Summary](./architecture-summary.md)
 2. Review [System Overview](../01-system-design/system-overview.md)
 3. Understand [Module Boundaries](../01-system-design/modules/module-boundaries.md)
-4. Check [Deployment Strategy](../04-implementation/deployment-strategy/)
+4. Check [Deployment Strategy](../06-deployment/)
 
 ---
 
@@ -90,17 +90,13 @@ This technical context follows the **C4 Model** for architecture documentation:
 ## 🔗 Related Documentation
 
 ### **Business Context**
-- [Business Context Overview](../../02-domain/01-overview/)
-- [Business Processes](../../02-domain/business-processes/)
-- [User Stories](../../03-backlog/02-stories/)
+- [Business Context Overview](../../02-domain/01-overview/README.md)
+- [Business Processes](../../02-domain/04-business-processes/README.md)
+- [User Stories](../../03-backlog/stories/README.md)
 
 ### **Strategic Documents**
 - [Product Vision](../../01-PRODUCT_VISION.md)
 - [Repository Purpose](../../02-REPOSITORY_PURPOSE.md)
-
-### **Technical Plans**
-- [Technical Context Plan](../TECHNICAL_CONTEXT_PLAN.md)
-- [Technical Context Status](../TECHNICAL_CONTEXT_STATUS.md)
 
 ---
 
@@ -167,18 +163,18 @@ Modules communicate via events:
 ### **Diagrams**
 - **Format**: Mermaid (`.mmd` files)
 - **Style**: C4 Model conventions
-- **Location**: `../01-system-design/diagrams/`
+- **Location**: [../01-system-design/diagrams/](../01-system-design/diagrams/)
 
 ### **Contracts**
 - **APIs**: OpenAPI 3.0 (`.yaml` files)
 - **Events**: AsyncAPI 2.0 (`.yaml` files)
 - **Data Models**: JSON Schema (`.yaml` files)
-- **Location**: `../06-contracts/`
+- **Location**: [../../06-contracts/](../../06-contracts/README.md)
 
 ### **Decisions**
 - **Format**: Architecture Decision Records (ADRs)
 - **Template**: MADR (Markdown Any Decision Records)
-- **Location**: `../03-decisions/adr/`
+- **Location**: [../03-decisions/](../03-decisions/)
 
 ---
 
@@ -197,8 +193,8 @@ Modules communicate via events:
 → Check [External Systems](../01-system-design/integration/external-systems.md)
 
 ### **"I want to see API contracts"**
-→ Browse [API Contracts](../06-contracts/api/rest/)  
-→ Check [OpenAPI Specs](../06-contracts/api/openapi/)
+→ Browse [REST API Contracts](../../06-contracts/01-apis/README.md)  
+→ Check [OpenAPI Specs](../../06-contracts/01-apis/rest/)
 
 ### **"I want to understand workflows"**
 → Read [Operational Flows](../02-workflows/operational-flows/)  

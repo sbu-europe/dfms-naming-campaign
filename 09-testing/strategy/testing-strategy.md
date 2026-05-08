@@ -4,10 +4,10 @@
 
 ## 📖 High-Level Context
 
-> **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
+> **Source of Truth**: [`04-architecture/`](../../04-architecture/README.md)
 
-- **[Testing Approach](../../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
-- **[User Stories](../../DFMS-product-context/business-context/03-features/phase-1/user-stories/)** - Acceptance criteria
+- **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
+- **[User Stories](../../03-backlog/stories/README.md)** - Acceptance criteria
 
 This document provides **Django-specific testing implementation** (pytest-django, test patterns, fixtures).
 
@@ -529,9 +529,9 @@ pytest tests/e2e/ -m e2e
 
 ## Related Documentation
 
-- **[Testing Approach](../../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
-- **[Unit Tests](./unit-tests.md)** - Detailed unit testing (to be created)
-- **[Integration Tests](./integration-tests.md)** - Detailed integration testing (to be created)
+- **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
+- **[Unit Tests](../../08-development-guides/01-backend/06-testing/unit-tests.md)** - Detailed unit testing (to be created)
+- **[Integration Tests](../../08-development-guides/01-backend/06-testing/integration-tests.md)** - Detailed integration testing (to be created)
 
 ---
 

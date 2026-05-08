@@ -6,8 +6,8 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Data Model Overview](../../../04-architecture/01-architecture/data-architecture/data-model-overview.md)** - High-level data model
-- **[Database Design](../architecture/database-design.md)** - PostgreSQL schema design
+- **[Data Model Overview](../../../04-architecture/01-system-design/data-architecture/data-model-overview.md)** - High-level data model
+- **[Database Design](../../../04-architecture/04-backend/database-implementation.md)** - PostgreSQL schema design
 
 This document provides **Django migration implementation** (migration files, data migrations, multi-tenant migrations).
 
@@ -345,7 +345,7 @@ python manage.py migrate transport 0001 --sql
 
 ## Related Documentation
 
-- **[Database Design](../architecture/database-design.md)** - Schema design
+- **[Database Design](../../../04-architecture/04-backend/database-implementation.md)** - Schema design
 - **[Models](./models.md)** - Django ORM models
 
 ---

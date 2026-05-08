@@ -160,7 +160,7 @@ Choose technologies with strong security features and regular updates.
 - Vanilla JavaScript + Alpine.js (reactivity)
 - Django Compressor (asset optimization)
 
-**See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
+**See**: [ADR-005: Phase 1 Frontend Approach](../../03-decisions/adr-005-phase-1-frontend-approach.md)
 
 ---
 
@@ -509,9 +509,9 @@ Choose technologies with strong security features and regular updates.
 
 ## 🔗 Related Documents
 
-- [Technology Stack Overview](../00-overview/technology-stack-overview.md)
-- [Architecture Summary](../00-overview/architecture-summary.md)
-- [Design Principles](../00-overview/design-principles.md)
+- [Technology Stack Overview](../../00-overview/technology-stack-overview.md)
+- [Architecture Summary](../../00-overview/architecture-summary.md)
+- [Design Principles](../../00-overview/design-principles.md)
 
 ---
 

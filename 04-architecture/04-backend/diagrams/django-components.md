@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../)
 
 - **[High-Level Diagrams](./architecture-overview.md)** - System context and container diagrams
-- **[System Architecture](../architecture/system-architecture.md)** - Django system architecture
+- **[System Architecture](../django-system-architecture.md)** - Django system architecture
 
 This document provides **Django component-level diagrams** (apps, models, views, services).
 
@@ -199,7 +199,7 @@ HTTP Response
 ## Related Documentation
 
 - **[Architecture Overview](./architecture-overview.md)** - High-level diagrams
-- **[System Architecture](../architecture/system-architecture.md)** - Django architecture
+- **[System Architecture](../django-system-architecture.md)** - Django architecture
 
 ---
 

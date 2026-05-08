@@ -100,9 +100,9 @@ All models are well-documented.
 
 ## 🔗 Related Documents
 
-- [API Contracts](../api/)
-- [Event Contracts](../events/)
-- [Integration Contracts](../integration/)
+- [API Contracts](../01-apis/README.md)
+- [Event Contracts](../03-events/README.md)
+- [Integration Contracts](../04-integration/README.md)
 
 ---
 

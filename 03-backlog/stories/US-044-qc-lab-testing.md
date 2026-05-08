@@ -13,7 +13,7 @@ story_points: 5
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../05-modules/04-poi-operations/qc-workflow.md
   - ../../../../source-documents/discovery-phase/questionnaires/Questionnaires_DFMS_BN_2025-09-25.docx
   - ../../../../source-documents/discovery-phase/meeting-minutes/Meeting_Minutes_NOURISH_DFMS_Distribution_2025-09-30.docx

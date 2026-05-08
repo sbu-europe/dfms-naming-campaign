@@ -540,13 +540,13 @@ Release: [R1] [R2] [------------------R3------------------] [----R4----] [----R5
 
 ## 🔗 Related Documents
 
-- **[WBS Timeline Table](../../source-documents/04-wbs/timeline-table.md)** - Source timeline breakdown
-- **[WBS Release Table](../../source-documents/04-wbs/release-table.md)** - Release plan
+- **[WBS Timeline Table](../../../01-source/04-wbs/timeline-table.md)** - Source timeline breakdown
+- **[WBS Release Table](../../../01-source/04-wbs/release-table.md)** - Release plan
 - **[Epic Breakdown](./EPICS.md)** - Epic-level breakdown with dependencies
 - **[Story Breakdown](./STORIES.md)** - Story-level breakdown with dependencies
 - **[Non-Technical Tasks](./TASKS.md)** - Project management tasks
-- **[Risks Table](../../source-documents/04-wbs/risks-table.md)** - Risk register
-- **[SOW Phase 1](../../source-documents/03-sow/SOW%20Phase-1.md)** - Statement of Work
+- **[Risks Table](../../../01-source/04-wbs/risks-table.md)** - Risk register
+- **[SOW Phase 1](../../../01-source/README.md)** - Statement of Work
 
 ---
 

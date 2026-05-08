@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Security Architecture](../../../04-architecture/00-overview/architecture-summary.md#6-security-first)** - High-level security
-- **[Authorization Requirements](../../DFMS-product-context/business-context/02-requirements/non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
+- **[Authorization Requirements](../../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#42-authorization)** - Authorization requirements
 
 This document provides **DRF permission class implementation** (code, patterns, usage).
 
@@ -272,7 +272,7 @@ class TestPermissions:
 
 ## Related Documentation
 
-- **[Authorization Implementation](../architecture/authorization.md)** - Authorization implementation
+- **[Authorization Implementation](../../../04-architecture/04-backend/authorization-implementation.md)** - Authorization implementation
 - **[Viewsets](./viewsets.md)** - ViewSet implementation
 
 ---

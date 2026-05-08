@@ -111,7 +111,7 @@ This folder contains:
 - **[Business Context](../02-domain/)** - Business domain knowledge and requirements
 - **[Module Specifications](../05-modules/)** - Technical specifications (what to build)
 - **[Product Backlog](../03-backlog/)** - User stories and epics
-- **[API Contracts](../06-contracts/)** - REST API & event contracts
+- **[API Contracts](../06-contracts/README.md)** - REST API & event contracts
 - **[Development Guides](../08-development-guides/)** - Implementation guides
 - **[Repository Purpose](../02-REPOSITORY_PURPOSE.md)** - How this repo fits in architecture
 

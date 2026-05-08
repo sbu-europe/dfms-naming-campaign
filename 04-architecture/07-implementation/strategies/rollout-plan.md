@@ -461,7 +461,7 @@ gantt
 
 ## 🔗 Related Documents
 
-- [Phase 1 Deployment](./deployment-strategy/phase-1-deployment.md)
+- [Phase 1 Deployment](../../06-deployment/phase-1-deployment.md)
 - [Migration Strategy](./migration-strategy.md)
 - [Testing Approach](./testing-approach.md)
 

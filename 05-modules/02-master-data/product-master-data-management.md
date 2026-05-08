@@ -575,8 +575,8 @@ To provide a seamless UX during Product creation where the `sub_category_id` dro
 - **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export for Product and Product Category (and other master entities)
 - **[Master Data Configuration](master-data-configuration.md)** - Overall master data management
 - **[POI Management](poi-management.md)** - Location master data
-- **[Product Requisition Management](../03-operations/product-requisition-management.md)** - Product usage in requisitions
-- **[QC Workflow](../04-poi-operations/qc-workflow.md)** - QC checklist integration
+- **[Product Requisition Management](../04-requisitions/product-requisition-management.md)** - Product usage in requisitions
+- **[QC Workflow](../06-poi-operations/qc-workflow.md)** - QC checklist integration
 
 **Related User Stories:**
 - Integrated in requisition and QC workflows (no dedicated story)

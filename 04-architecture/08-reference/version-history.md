@@ -168,8 +168,8 @@ This document tracks the version history of the technical context documentation,
 
 ## 🔗 Related Documents
 
-- [Technical Context Status](../TECHNICAL_CONTEXT_STATUS.md)
-- [Technical Context Plan](../TECHNICAL_CONTEXT_PLAN.md)
+- [Technical Context Status](../README.md)
+- [Technical Context Plan](../README.md)
 - [Source Document Mapping](./source-document-mapping.md)
 
 ---

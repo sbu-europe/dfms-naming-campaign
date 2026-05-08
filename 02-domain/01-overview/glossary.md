@@ -280,8 +280,8 @@ Process of allocating a specific vehicle and driver to a Transport Order.
 
 - [Project Summary](./project-summary.md) - Overall project overview
 - [Business Context](./business-context.md) - Detailed domain context
-- [Terminology](../06-reference/terminology.md) - Extended terminology guide
-- [Acronyms](../06-reference/acronyms.md) - Complete acronym list
+- [Terminology](../README.md) - Extended terminology guide
+- [Acronyms](../README.md) - Complete acronym list
 
 ---
 

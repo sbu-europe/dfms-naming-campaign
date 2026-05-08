@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Testing Approach](../../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
-- **[Testing Strategy](./testing-strategy.md)** - Django testing strategy
+- **[Testing Strategy](../..../../../../09-testing/strategy/testing-strategy.md)** - Django testing strategy
 
 This document provides **E2E test implementation** (full workflow tests, API workflows, user journeys).
 
@@ -315,7 +315,7 @@ pytest tests/e2e/ -m e2e --cov=apps
 
 ## Related Documentation
 
-- **[Testing Strategy](./testing-strategy.md)** - Overall testing approach
+- **[Testing Strategy](../..../../../../09-testing/strategy/testing-strategy.md)** - Overall testing approach
 - **[Integration Tests](./integration-tests.md)** - Integration testing
 - **[Test Fixtures](./test-fixtures.md)** - Test fixtures
 

@@ -1005,8 +1005,8 @@ TransportOrderCreated (vendor fleet)
 ## 🔗 Related Documents
 
 - [Event Specifications](./event-specifications.yaml) - AsyncAPI specification
-- [Module Interactions](../../01-architecture/modules/module-interactions.md)
-- [Data Models](../data-models/)
+- [Module Interactions](../../04-architecture/01-system-design/modules/module-interactions.md)
+- [Data Models](../02-data-models/README.md)
 
 ---
 

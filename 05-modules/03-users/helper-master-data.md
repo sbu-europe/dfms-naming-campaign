@@ -210,7 +210,7 @@ async function deleteHelper(helper_id: UUID): Promise<void> {
 - **Incident Count**: Incremented if the helper is linked to a logged trip incident (e.g., damage, delay).
 
 ### 4.3 User & identity integration
-- When **`user`** (FK) is set, permission checks for actions “as user” use **[RBAC](rbac.md)** / **[User & tenant management](user-tenant-management.md)**; operational helper rules (trip assignment) still use the Helper aggregate.
+- When **`user`** (FK) is set, permission checks for actions “as user” use **[RBAC](../01-foundation/rbac.md)** / **[User & tenant management](../01-foundation/user-tenant-management.md)**; operational helper rules (trip assignment) still use the Helper aggregate.
 
 ---
 
@@ -301,8 +301,8 @@ To ensure robustness and data integrity, the Helper Master Data Management modul
 ## 8. Related Documentation
 
 - **[Master Data README](../02-master-data/README.md)** - Overall master data management architecture.
-- **[User & tenant management](user-tenant-management.md)** - Users, tenants, and identity lifecycle.
-- **[Trip Management](../03-operations/trip-management.md)** - How helpers are utilized during trip execution.
+- **[User & tenant management](../01-foundation/user-tenant-management.md)** - Users, tenants, and identity lifecycle.
+- **[Trip Management](../05-transport/trip-management.md)** - How helpers are utilized during trip execution.
 
 **Related User Stories:**
 - US-061: Helper Profile (MDM-07)

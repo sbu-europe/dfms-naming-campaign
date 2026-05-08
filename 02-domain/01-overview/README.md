@@ -198,7 +198,7 @@ This folder contains foundational documents that provide a comprehensive introdu
 
 **Next Steps**:
 - Review [Requirements](../02-requirements/) for detailed specifications
-- Study [Features](../03-backlog/) for implementation scope
+- Study [Features](../../03-backlog/README.md) for implementation scope
 - Check [Technical Context](../../04-architecture/) for architecture
 
 ---
@@ -219,7 +219,7 @@ All documents in order:
 - Feature prioritization drivers
 
 **Next Steps**:
-- Review [Features](../03-backlog/) for phase-wise scope
+- Review [Features](../../03-backlog/README.md) for phase-wise scope
 - Check [Requirements](../02-requirements/) for specifications
 
 ---
@@ -228,11 +228,11 @@ All documents in order:
 
 ### Within Business Context
 
-- **[Business Domain](../01-business-domain/)** - Detailed business processes and rules
+- **[Business Domain](../README.md)** - Detailed business processes and rules
 - **[Requirements](../02-requirements/)** - Functional and non-functional requirements
-- **[Features](../03-backlog/)** - Phase-wise feature breakdown with user stories
-- **[Data Reference](../05-data-reference/)** - Master data and data dictionary
-- **[Reference](../06-reference/)** - Additional reference materials
+- **[Features](../../03-backlog/README.md)** - Phase-wise feature breakdown with user stories
+- **[Data Reference](../../10-reference/data-reference/README.md)** - Master data and data dictionary
+- **[Reference](../README.md)** - Additional reference materials
 
 ### Outside Business Context
 
@@ -319,7 +319,7 @@ All documents in this section follow standard templates:
 If you have questions about these documents or suggestions for improvement:
 
 1. **For Content**: Contact the Business Context Team
-2. **For Structure**: Refer to [BUSINESS_CONTEXT_PLAN.md](../../BUSINESS_CONTEXT_PLAN.md)
+2. **For Structure**: Refer to [BUSINESS_CONTEXT_PLAN.md](../../README.md)
 3. **For Technical Details**: See [Technical Context](../../04-architecture/)
 
 ---

@@ -64,15 +64,15 @@ This document tracks all versions, updates, and changes to the business context 
 **Requirements**:
 - ✅ `02-requirements/business-objectives.md` (650+ lines) - 8 primary objectives with KPIs
 - ✅ `02-requirements/user-personas.md` (1,400+ lines) - 21 detailed personas
-- ✅ `02-requirements/constraints-assumptions.md` (660+ lines) - Project constraints
+- ✅ `02-requirements/05-constraints-assumptions/constraints-assumptions.md` (660+ lines) - Project constraints
 - ✅ `02-requirements/functional-requirements/README.md` (100+ lines)
 - ✅ `02-requirements/functional-requirements/functional-requirements-summary.md` (1,800+ lines) - 91 user stories
 - ✅ `02-requirements/non-functional-requirements/non-functional-requirements.md` (750+ lines)
 
 **Business Domain**:
 - ✅ `01-business-domain/industry-context/industry-context.md` (650+ lines)
-- ✅ `01-business-domain/business-processes/business-processes-overview.md` (550+ lines) - 7 core processes
-- ✅ `01-business-domain/business-rules/business-rules.md` (850+ lines) - 112 business rules
+- ✅ `01-business-domain/04-business-processes/business-processes-overview.md` (550+ lines) - 7 core processes
+- ✅ `03-business-rules/business-rules.md` (850+ lines) - 112 business rules
 
 **Key Achievements**:
 - Documented all functional and non-functional requirements
@@ -277,8 +277,8 @@ This document tracks all versions, updates, and changes to the business context 
 
 ## 📚 Related Documents
 
-- [BUSINESS_CONTEXT_PLAN.md](../../BUSINESS_CONTEXT_PLAN.md) - Original documentation plan
-- [BUSINESS_CONTEXT_STATUS.md](../BUSINESS_CONTEXT_STATUS.md) - Current status report
+- [BUSINESS_CONTEXT_PLAN.md](../../README.md) - Original documentation plan
+- [BUSINESS_CONTEXT_STATUS.md](../README.md) - Current status report
 - [Cross-Reference Index](./cross-reference-index.md) - Document relationships
 
 ---

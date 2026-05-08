@@ -5,52 +5,52 @@
 ## 📖 Documentation Structure
 
 ### High-Level Architecture & Contracts
-> **Source of Truth**: [`04-architecture/`](../04-architecture/)
+> **Source of Truth**: [`04-architecture/`](../../04-architecture/README.md)
 
 The high-level architecture, contracts, workflows, and architectural decisions are maintained in the DFMS Product Context submodule:
 
-- **[Architecture Summary](../04-architecture/00-overview/architecture-summary.md)** - Overall system architecture
-- **[Container View](../04-architecture/01-architecture/container-view.md)** - High-level technical building blocks
-- **[Architecture Decision Records (ADRs)](../04-architecture/03-decisions/)** - Why we chose specific approaches
-  - [ADR-004: Phase 1 Modular Monolith](../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
-  - [ADR-005: Phase 1 Frontend Approach](../04-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)
-- **[API Contracts (OpenAPI 3.0)](../06-contracts/api/)** - Complete API specifications
-- **[Event Contracts (AsyncAPI 2.6.0)](../06-contracts/events/)** - Domain events
-- **[Data Models](../06-contracts/data-models/)** - Shared data entities
-- **[Technical Workflows](../04-architecture/02-workflows/)** - Operational and user workflows
-- **[Deployment Strategy](../04-architecture/03-implementation/deployment-strategy/)** - Phase 1 deployment approach
+- **[Architecture Summary](../../04-architecture/00-overview/architecture-summary.md)** - Overall system architecture
+- **[Container View](../../04-architecture/01-system-design/container-view.md)** - High-level technical building blocks
+- **[Architecture Decision Records (ADRs)](../../04-architecture/03-decisions/)** - Why we chose specific approaches
+  - [ADR-004: Phase 1 Modular Monolith](../../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
+  - [ADR-005: Phase 1 Frontend Approach](../../04-architecture/03-decisions/adr-005-phase-1-frontend-approach.md)
+- **[API Contracts (OpenAPI 3.0)](../../06-contracts/01-apis/README.md)** - Complete API specifications
+- **[Event Contracts (AsyncAPI 2.6.0)](../../06-contracts/03-events/README.md)** - Domain events
+- **[Data Models](../../06-contracts/02-data-models/README.md)** - Shared data entities
+- **[Technical Workflows](../../04-architecture/02-workflows/)** - Operational and user workflows
+- **[Deployment Strategy](../../04-architecture/06-deployment/README.md)** - Phase 1 deployment approach
 
 ### Implementation-Specific Documentation
 > **Source**: This `docs/` directory
 
 This directory contains Django/Python implementation-specific documentation:
 
-- **[Django System Architecture](./architecture/system-architecture.md)** - Django-specific implementation details
-- **[Database Design](./architecture/database-design.md)** - PostgreSQL schemas, migrations, and Django ORM models
-- **[API Implementation](./api/api-reference.md)** - Django REST Framework implementation details
-- **[Architecture Diagrams](./diagrams/architecture-overview.md)** - Django component diagrams
-- **[Development Setup](./guides/development-setup.md)** - Local development guide
-- **[Security Testing](./guides/security-testing.md)** - Django security implementation
+- **[Django System Architecture](../../04-architecture/04-backend/django-system-architecture.md)** - Django-specific implementation details
+- **[Database Design](../../04-architecture/04-backend/database-implementation.md)** - PostgreSQL schemas, migrations, and Django ORM models
+- **[API Implementation](./02-api/api-reference.md)** - Django REST Framework implementation details
+- **[Architecture Diagrams](../../04-architecture/04-backend/diagrams/architecture-overview.md)** - Django component diagrams
+- **[Development Setup](./01-setup/development-setup.md)** - Local development guide
+- **[Security Testing](./08-guides/security-testing.md)** - Django security implementation
 
 ## 🎯 Quick Links
 
 ### Architecture
-- **High-Level**: [Architecture Summary](../04-architecture/00-overview/architecture-summary.md)
-- **Django Implementation**: [System Architecture](./architecture/system-architecture.md)
-- **Phase 1 ADR**: [ADR-004: Phase 1 Modular Monolith](../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
+- **High-Level**: [Architecture Summary](../../04-architecture/00-overview/architecture-summary.md)
+- **Django Implementation**: [System Architecture](../../04-architecture/04-backend/django-system-architecture.md)
+- **Phase 1 ADR**: [ADR-004: Phase 1 Modular Monolith](../../04-architecture/03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ### APIs & Contracts
-- **API Contracts**: [OpenAPI Specifications](../06-contracts/api/)
-- **Django API Implementation**: [API Reference](./api/api-reference.md)
-- **Event Contracts**: [AsyncAPI Specifications](../06-contracts/events/)
+- **API Contracts**: [OpenAPI Specifications](../../06-contracts/01-apis/README.md)
+- **Django API Implementation**: [API Reference](./02-api/api-reference.md)
+- **Event Contracts**: [AsyncAPI Specifications](../../06-contracts/03-events/README.md)
 
 ### Development
-- **Development Setup**: [Development Guide](./guides/development-setup.md)
-- **Database Schema**: [Database Design](./architecture/database-design.md)
-- **Testing**: [Testing Approach](../04-architecture/03-implementation/strategies/testing-approach.md)
+- **Development Setup**: [Development Guide](./01-setup/development-setup.md)
+- **Database Schema**: [Database Design](../../04-architecture/04-backend/database-implementation.md)
+- **Testing**: [Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)
 
 ### Deployment
-- **Deployment Strategy**: [Phase 1 Deployment](../04-architecture/03-implementation/deployment-strategy/phase-1-deployment.md)
+- **Deployment Strategy**: [Phase 1 Deployment](../../04-architecture/06-deployment/phase-1-deployment.md)
 
 ## 📋 Documentation Principles
 
@@ -81,7 +81,7 @@ This directory contains Django/Python implementation-specific documentation:
 ## 🔗 Related Documentation
 
 - **[Repository README](../README.md)** - Project overview and submodule information
-- **[DFMS Product Context](../DFMS-product-context/)** - Complete submodule documentation
+- **[DFMS Product Context](../../README.md)** - Complete submodule documentation
 
 ---
 

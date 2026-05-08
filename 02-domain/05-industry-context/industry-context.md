@@ -7,7 +7,7 @@ created: 2026-02-10
 updated: 2026-02-13
 source_documents:
   - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
-  - ../../../source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
+  - ../../01-source/README.mdBS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx
 tags: [industry-context, market, logistics, fleet-management, bangladesh, prd-aligned]
 ---
 
@@ -67,10 +67,10 @@ This section contains comprehensive industry context organized into focused docu
 
 ## Related Documents
 
-- [Product Vision](../../../01-PRODUCT_VISION.md) - Strategic vision and approach
-- [Business Objectives](../../00-overview/business-objectives.md) - Business goals
-- [Value Proposition](../../00-overview/value-proposition.md) - How DFMS addresses challenges
-- [Market Analysis](../../../source-documents/business-proposal/) - Detailed market research
+- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic vision and approach
+- [Business Objectives](../01-overview/business-objectives.md) - Business goals
+- [Value Proposition](../01-overview/value-proposition.md) - How DFMS addresses challenges
+- [Market Analysis](../../01-source/README.md) - Detailed market research
 
 ---
 

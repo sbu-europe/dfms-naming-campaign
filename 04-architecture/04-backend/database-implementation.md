@@ -9,11 +9,11 @@
 The high-level data model and entities are defined in the DFMS Product Context submodule:
 
 - **[Data Model Overview](../01-system-design/data-architecture/data-model-overview.md)** - High-level entities and relationships
-- **[Data Models (JSON Schema)](../../06-contracts/data-models/)** - Contract definitions
-  - [Common Entities](../../06-contracts/data-models/common-entities.yaml)
-  - [Enums & Constants](../../06-contracts/data-models/enums-constants.yaml)
-  - [Value Objects](../../06-contracts/data-models/value-objects.yaml)
-- **[Business Context Data Dictionary](../../DFMS-product-context/02-domain/05-data-reference/data-dictionary.md)** - Complete business data dictionary
+- **[Data Models (JSON Schema)](../../06-contracts/02-data-models/README.md)** - Contract definitions
+  - [Common Entities](../../06-contracts/02-data-models/common-entities.yaml)
+  - [Enums & Constants](../../06-contracts/02-data-models/enums-constants.yaml)
+  - [Value Objects](../../06-contracts/02-data-models/value-objects.yaml)
+- **[Business Context Data Dictionary](../../DF../../10-reference/data-reference/data-dictionary.md)** - Complete business data dictionary
 
 This document provides **PostgreSQL-specific schemas and Django ORM models** for these entities.
 

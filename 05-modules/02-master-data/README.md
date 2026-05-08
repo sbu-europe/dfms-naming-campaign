@@ -30,16 +30,16 @@ This module defines master data configuration and management for the DFMS platfo
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `12-users/driver-user-profiles.md`)
+**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `03-users/driver-user-profiles.md`)
 
-**Helper (US-061) — full specification**: [helper-master-data.md](../12-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
+**Helper (US-061) — full specification**: [helper-master-data.md](../03-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
 ---
 
 ## Key Features
 
 ### Master Data Configuration
-- **Entity registration**: Concrete Django models per entity (e.g. `POI`, `Product`, `Vehicle`); **`Driver`** / **`Helper`** master screens live primarily under **`apps/users/`** — ([driver-user-profiles.md](../12-users/driver-user-profiles.md)), [helper-master-data.md](../12-users/helper-master-data.md).
+- **Entity registration**: Concrete Django models per entity (e.g. `POI`, `Product`, `Vehicle`); **`Driver`** / **`Helper`** master screens live primarily under **`apps/users/`** — ([driver-user-profiles.md](../03-users/driver-user-profiles.md)), [helper-master-data.md](../03-users/helper-master-data.md).
 - **Bulk upload (CSV)**: Implemented for models registered in **`IMPORT_REGISTRY`**: **`master_data`** (supplier, dealer, product category, product, brand, vehicle) plus **`users.driver`** and **`users.helper`** (registered at app startup) — see **[bulk-import-export.md](bulk-import-export.md)** and **[master-data-configuration.md](master-data-configuration.md)**. **POI** bulk CSV is **not** wired in admin yet.
 - **Inline management**: Django admin plus REST CRUD where viewsets exist.
 - **Audit trail**: Vehicle admin integrates **`apps.audit`** for create/update/delete; extend the same pattern for other masters as needed.
@@ -93,12 +93,12 @@ This module defines master data configuration and management for the DFMS platfo
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
 - **US-053**: Vehicle Registration & Master Data
-- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`12-users/driver-user-profiles.md`](../12-users/driver-user-profiles.md) (not `master_data`)
+- **US-057**: **`Driver`** create/import + **`User`** row + compliance — [`03-users/driver-user-profiles.md`](../03-users/driver-user-profiles.md) (not `master_data`)
 - **US-061**: Helper Profile
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
 
-**Location**: `../../03-backlog/phase-1/user-stories/`
+**Location**: `../../03-backlog/stories/README.md`
 
 ---
 
@@ -200,12 +200,12 @@ See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`**
 - **[Bulk Import & Export](bulk-import-export.md)** - Canonical CSV bulk import/export implementation (Django admin, Celery, REST API)
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../03-backlog/phase-1/user-stories/)** - Implementation stories
+- **[Source PRD](../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[User Stories](../../03-backlog/stories/README.md)** - Implementation stories
 
 ---
 
 **Last Updated**: 2026-04-17  
 **Status**: Complete (aligned with `apps/master_data` implementation)  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
-**Next Module**: [03-operations/](../03-operations/README.md) - Core Operations
+**Next Module**: [03-operations/](../05-transport/README.md) - Core Operations

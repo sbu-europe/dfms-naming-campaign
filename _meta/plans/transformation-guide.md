@@ -87,8 +87,8 @@ related_stories: [US-XXX, US-YYY]
 
 ## X+1. Related Documentation
 
-- **[Related Spec](link)** - Description
-- **[Related Spec](link)** - Description
+- **[Related Spec](../../README.md)** - Description
+- **[Related Spec](../../README.md)** - Description
 
 **Related User Stories:**
 - US-XXX: [Title]
@@ -319,8 +319,8 @@ Before marking a file complete, verify:
 
 ## Related Files
 
-- **[authentication-security.md](01-foundation/authentication-security.md)** - Example of completed transformation
-- **[Module READMEs](*/README.md)** - Module overviews with story mappings
+- **[authentication-security.md](../../05-modules/01-foundation/authentication-security.md)** - Example of completed transformation
+- **[Module READMEs](../../README.md)** - Module overviews with story mappings
 
 **Last Updated**: 2026-02-26  
 **Status**: Active transformation guide

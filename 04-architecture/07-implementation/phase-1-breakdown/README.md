@@ -85,12 +85,12 @@ Sprint-by-sprint implementation timeline:
 - **[WBS Dependencies](../../../01-source/04-wbs/dependencies-table.md)**
 - **[WBS Timeline](../../../01-source/04-wbs/timeline-table.md)**
 - **[WBS Risks](../../../01-source/04-wbs/risks-table.md)**
-- **[SOW Phase 1](../../../01-source/03-sow/SOW%20Phase-1.md)**
+- **[SOW Phase 1](../../../01-source/README.md)**
 - **[PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)**
 
 ### Implementation Documents
 - **[Implementation Planning](../planning/)** - Strategic planning documents
-- **[Deployment Strategy](../deployment-strategy/)** - Deployment plans
+- **[Deployment Strategy](../../06-deployment/)** - Deployment plans
 - **[Strategies](../strategies/)** - Implementation strategies
 
 ---

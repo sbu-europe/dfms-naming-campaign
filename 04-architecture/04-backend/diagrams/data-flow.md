@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../)
 
 - **[High-Level Diagrams](./architecture-overview.md)** - System context and container diagrams
-- **[System Architecture](../architecture/system-architecture.md)** - Django system architecture
+- **[System Architecture](../django-system-architecture.md)** - Django system architecture
 
 This document provides **data flow diagrams** (API requests, background tasks, notifications).
 
@@ -260,7 +260,7 @@ This document contains data flow diagrams showing how data moves through the Dja
 ## Related Documentation
 
 - **[Architecture Overview](./architecture-overview.md)** - High-level diagrams
-- **[System Architecture](../architecture/system-architecture.md)** - Django architecture
+- **[System Architecture](../django-system-architecture.md)** - Django architecture
 
 ---
 

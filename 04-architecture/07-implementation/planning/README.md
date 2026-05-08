@@ -15,8 +15,8 @@ This folder contains the strategic implementation planning documents for DFMS, p
 
 ## 📁 Documents
 
-### **[Implementation Plan](../../_meta/plans/implementation-plan.md)** 📦 Moved
-Comprehensive implementation plan moved to [`_meta/plans/`](../../_meta/plans/)
+### **[Implementation Plan](../../../_meta/plans/implementation-plan.md)** 📦 Moved
+Comprehensive implementation plan moved to [`_meta/plans/`](../../../_meta/plans/implementation-plan.md)
 
 Original content covered:
 - 52-week roadmap across 3 phases
@@ -76,17 +76,17 @@ Validation report confirming implementation timeline alignment with PRD:
 ## 🔗 Related Documents
 
 ### Implementation Approach
-- [Deployment Strategy](../deployment-strategy/) - Phase-wise deployment plans
-- [Testing Approach](../testing-approach.md) - Testing strategy
-- [Migration Strategy](../migration-strategy.md) - Data migration approach
-- [Rollout Plan](../rollout-plan.md) - Gradual rollout strategy
-- [Technology Considerations](../technology-considerations.md) - Technology choices
+- [Deployment Strategy](../../06-deployment/) - Phase-wise deployment plans
+- [Testing Approach](../strategies/testing-approach.md) - Testing strategy
+- [Migration Strategy](../strategies/migration-strategy.md) - Data migration approach
+- [Rollout Plan](../strategies/rollout-plan.md) - Gradual rollout strategy
+- [Technology Considerations](../strategies/technology-considerations.md) - Technology choices
 
 ### Business Context
-- [Meta Documentation](../../../../_meta/) - Plans, reports, tracking
-- [Phase Backlog](../../../../03-backlog/) - User stories by phase
-- [Feature Dependencies](../../../03-backlog/feature-dependencies.md) - Dependency mapping
-- [Business Objectives](../../../02-domain/02-requirements/business-objectives.md) - Goals and KPIs
+- [Meta Documentation](../../../_meta/README.md) - Plans, reports, tracking
+- [Phase Backlog](../../../03-backlog/README.md) - User stories by phase
+- [Feature Dependencies](../../../03-backlog/README.md) - Dependency mapping
+- [Business Objectives](../../../02-domain/01-overview/business-objectives.md) - Goals and KPIs
 
 ### Architecture
 - [Architecture Summary](../../00-overview/architecture-summary.md) - System architecture

@@ -6,7 +6,7 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[API Contracts](../../../06-contracts/api/)** - OpenAPI specifications with pagination
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - OpenAPI specifications with pagination
 
 This document provides **DRF pagination implementation** (code, configuration, patterns).
 

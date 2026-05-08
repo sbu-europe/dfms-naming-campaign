@@ -105,7 +105,7 @@ This document maps all technical context documents to their source documents (PR
 
 ## 🔗 Related Documents
 
-- [Business Context Source Mapping](../../02-domain/06-reference/source-document-mapping.md)
+- [Business Context Source Mapping](source-document-mapping.md)
 - [Version History](./version-history.md)
 - [Cross-Reference Index](./cross-reference-index.md)
 

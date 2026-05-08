@@ -312,4 +312,4 @@ Currently out of scope but worth noting for planning:
 - [AWS Deployment Strategy](./aws-deployment-strategy.md)
 - [Resource & Cost Estimation](./aws-cost-estimation.md)
 - [Billing Safeguards](./aws-billing-safeguards.md)
-- [Pre-Production Checklist](./aws-pre-production-checklist.md)
+- [Pre-Production Checklist](./README.md)

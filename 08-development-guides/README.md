@@ -65,7 +65,7 @@ Mobile implementation guides (Flutter/React Native)
 - **[Monitoring](./01-backend/07-deployment/monitoring.md)** - Observability setup
 
 ### QA Engineers
-- **[Testing Strategy](./01-backend/06-testing/testing-strategy.md)** - Overall testing approach
+- **[Testing Strategy](../09-testing/strategy/testing-strategy.md)** - Overall testing approach
 - **[Test Implementation](./01-backend/06-testing/)** - Unit, integration, E2E tests
 
 ## 💡 Key Principles

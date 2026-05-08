@@ -4,7 +4,7 @@ specification: Driver User Profiles Management - Playwright E2E Implementation P
 version: 1.1
 phase: Phase 1
 related_stories: US-004, US-005, US-052, US-057
-source_spec: ../../05-modules/12-users/driver-user-profiles.md
+source_spec: ../../05-modules/03-users/driver-user-profiles.md
 implementation_reference: ../../../apps/users/admin.py
 test_implementation_reference: ../../../tests/e2e/modules/users/test_driver_user_profiles_e2e.py
 last_updated: 2026-04-24

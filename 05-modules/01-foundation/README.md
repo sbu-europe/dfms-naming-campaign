@@ -22,9 +22,9 @@ This module defines the foundational layer of the DFMS platform, including authe
 | [authentication-security.md](authentication-security.md) | Authentication architecture, account lockout, MFA/2FA, session management, security features | 6.1.1-6.1.3 | US-001, US-002, US-003 | 446 |
 | [rbac.md](rbac.md) | Role hierarchy, permission model, enforcement layers, dynamic role builder, multi-tenant isolation | 6.1.4-6.1.6 | US-004 | 592 |
 | [user-tenant-management.md](user-tenant-management.md) | Multi-tenancy architecture, org onboarding, user lifecycle, OTP system, account management, audit logging | 6.2.1-6.2.8 | US-005, US-006, US-007, US-008 | 861 |
-| ~~driver-user-profiles.md~~ | (Moved to `12-users/driver-user-profiles.md`) | - | - | - |
+| ~~driver-user-profiles.md~~ | (Moved to `03-users/driver-user-profiles.md`) | - | - | - |
 | [system-foundation.md](system-foundation.md) | Foundation layer overview, component integration, security standards, performance targets | 6.1, 6.2.7 | US-009 | 459 |
-| ~~helper-master-data.md~~ | (Moved to `12-users/helper-master-data.md`) | - | - | - |
+| ~~helper-master-data.md~~ | (Moved to `03-users/helper-master-data.md`) | - | - | - |
 
 **Total Documentation**: ~2,730 lines of comprehensive technical specifications
 
@@ -53,7 +53,7 @@ This module defines the foundational layer of the DFMS platform, including authe
 - **Audit Logging**: Comprehensive activity tracking
 
 ### Driver domain
-- **`Driver`** creation writes a **`User`** row (Driver role, Operations department, name, phone, employee id) in the same transaction (see [driver-user-profiles.md](../12-users/driver-user-profiles.md)); **invitation** is a separate implementation plan; not `master_data`
+- **`Driver`** creation writes a **`User`** row (Driver role, Operations department, name, phone, employee id) in the same transaction (see [driver-user-profiles.md](../03-users/driver-user-profiles.md)); **invitation** is a separate implementation plan; not `master_data`
 
 ---
 
@@ -94,7 +94,7 @@ None - This is the foundation layer
 | US-009 | User Activity & Audit Logs | Compliance |
 | US-061 | Helper Profile | Master data / identity bridge |
 
-**Location**: `../../03-backlog/phase-1/user-stories/US-001-*.md` through `US-009-*.md`, and US-061 under sprint backlog MDM-07
+**Location**: `../../03-backlog/stories/US-001-*.md` through `US-009-*.md`, and US-061 under sprint backlog MDM-07
 
 ---
 
@@ -167,7 +167,7 @@ POST /api/v1/admin/users/{user_id}/unlock
 ```
 
 ### Drivers (API surface)
-See [driver-user-profiles.md](../12-users/driver-user-profiles.md) §7 for `/api/v1/drivers` CRUD, import, documents, and compliance routes.
+See [driver-user-profiles.md](../03-users/driver-user-profiles.md) §7 for `/api/v1/drivers` CRUD, import, documents, and compliance routes.
 
 ### RBAC
 ```typescript
@@ -244,12 +244,12 @@ PUT /api/v1/roles/{role_id}/permissions
 
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../03-backlog/phase-1/user-stories/)** - Implementation stories
+- **[Source PRD](../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[User Stories](../../03-backlog/stories/README.md)** - Implementation stories
 
 ---
 
 **Last Updated**: 2026-04-09  
 **Status**: Complete  
-**Previous Module**: [00-overview/](../00-overview/README.md) - Product Overview  
+**Previous Module**: [00-overview/](../../README.md) - Product Overview  
 **Next Module**: [02-master-data/](../02-master-data/README.md) - Master Data Management

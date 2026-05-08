@@ -272,7 +272,7 @@ We will use the following technology stack, with phase-based variations:
 - [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md) - Phase 2+ vision
 - [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 architecture
 - [ADR-005: Phase 1 Frontend Approach](./adr-005-phase-1-frontend-approach.md) - Phase 1 frontend
-- [Technology Stack Overview](../../00-overview/technology-stack-overview.md)
+- [Technology Stack Overview](../00-overview/technology-stack-overview.md)
 
 ---
 

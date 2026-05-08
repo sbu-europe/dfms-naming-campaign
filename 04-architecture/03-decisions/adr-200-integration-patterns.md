@@ -156,9 +156,9 @@ We will use the following integration patterns:
 
 - [ADR-001: Microservices Architecture](./adr-001-microservices-architecture.md)
 - [ADR-002: Event-Driven Communication](./adr-002-event-driven-communication.md)
-- [Integration Patterns](../../01-system-design/integration/integration-patterns.md)
-- [External Systems](../../01-system-design/integration/external-systems.md)
-- [Integration Contracts](../../06-contracts/integration/)
+- [Integration Patterns](../01-system-design/integration/integration-patterns.md)
+- [External Systems](../01-system-design/integration/external-systems.md)
+- [Integration Contracts](../../06-contracts/04-integration/README.md)
 
 ---
 

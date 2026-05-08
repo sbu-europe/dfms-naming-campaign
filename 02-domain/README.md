@@ -46,7 +46,7 @@ Industry-specific knowledge and market context.
 ## Related Documentation
 
 - **Detailed Specifications**: See `../05-modules/` for technical implementation details
-- **User Stories**: See `../03-backlog/02-stories/` for implementation-ready requirements
+- **User Stories**: See `../03-backlog/stories/README.md` for implementation-ready requirements
 - **Source Documents**: See `../01-source/01-prd/` for original requirements
 
 ---

@@ -85,7 +85,7 @@ Internet
 - Easy to stop/start the EC2 instance when not in use to save cost
 - Clear migration path: swap Docker Postgres/Redis for RDS/ElastiCache when promoting to staging/production
 
-**See**: [ADR-004: Phase 1 Modular Monolith](../../03-decisions/adr-004-phase-1-modular-monolith.md)
+**See**: [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ---
 
@@ -265,11 +265,11 @@ See [Staging/Production Infrastructure](#infrastructure-requirements) below for 
 - Sufficient for 200-300 users
 - Clear migration path to Phase 2
 
-**See**: [ADR-004: Phase 1 Modular Monolith](../../03-decisions/adr-004-phase-1-modular-monolith.md)
+**See**: [ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)
 
 ### Phase 2 Evolution
 
-See [Phase 2 Deployment](../deployment-strategy/README.md) for Kubernetes/ECS approach.
+See [Phase 2 Deployment](../../README.md) for Kubernetes/ECS approach.
 
 ---
 
@@ -690,10 +690,10 @@ graph TD
 
 ## 🔗 Related Documents
 
-- [Technology Considerations](../technology-considerations.md)
-- [Testing Approach](../testing-approach.md)
-- [Rollout Plan](../rollout-plan.md)
-- [Migration Strategy](../migration-strategy.md)
+- [Technology Considerations](../07-implementation/strategies/technology-considerations.md)
+- [Testing Approach](../07-implementation/strategies/testing-approach.md)
+- [Rollout Plan](../07-implementation/strategies/rollout-plan.md)
+- [Migration Strategy](../07-implementation/strategies/migration-strategy.md)
 
 ---
 

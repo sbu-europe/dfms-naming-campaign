@@ -11,7 +11,7 @@ This Django backend implementation follows the high-level architecture defined i
 - **[Architecture Summary](../00-overview/architecture-summary.md)** - Overall system architecture
 - **[Container View](../01-system-design/container-view.md)** - High-level technical building blocks
 - **[ADR-004: Phase 1 Modular Monolith](../03-decisions/adr-004-phase-1-modular-monolith.md)** - Phase 1 architecture decision
-- **[Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)** - Deployment approach
+- **[Phase 1 Deployment Strategy](../06-deployment/phase-1-deployment.md)** - Deployment approach
 
 **Current Phase**: **Phase 1 - Modular Monolith** (as per ADR-004)
 
@@ -109,11 +109,11 @@ This Django implementation maintains clear module boundaries using Django apps, 
   - S3 for static files and backups
   - CloudWatch for monitoring
 
-> **Deployment Details**: See [Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)
+> **Deployment Details**: See [Phase 1 Deployment Strategy](../06-deployment/phase-1-deployment.md)
 
 ## Deployment Architecture
 
-> **High-Level Deployment Strategy**: See [Phase 1 Deployment Strategy](../04-implementation/deployment-strategy/phase-1-deployment.md)
+> **High-Level Deployment Strategy**: See [Phase 1 Deployment Strategy](../06-deployment/phase-1-deployment.md)
 
 ### Django-Specific Deployment
 
@@ -132,7 +132,7 @@ services:
 ```
 
 **Production Environment (AWS)**:
-- See [Phase 1 Deployment Diagram](../04-implementation/deployment-strategy/phase-1-deployment.md#architecture-diagram)
+- See [Phase 1 Deployment Diagram](../06-deployment/phase-1-deployment.md#architecture-diagram)
 - Single EC2 instance with Docker Compose
 - Nginx as reverse proxy (no separate API Gateway in Phase 1)
 
@@ -213,7 +213,7 @@ tenant_001.trips
 
 ## Testing Strategy
 
-> **High-Level Testing Approach**: See [Testing Approach](../04-implementation/strategies/testing-approach.md)
+> **High-Level Testing Approach**: See [Testing Approach](../07-implementation/strategies/testing-approach.md)
 
 ### Django-Specific Testing
 
@@ -273,8 +273,8 @@ LOGGING = {
 
 **Phase 2 Migration Considerations**:
 - Extract Django apps to microservices
-- Maintain API contracts (see [API Contracts](../../06-contracts/api/))
-- Migrate to event-driven architecture (see [Event Contracts](../../06-contracts/events/))
+- Maintain API contracts (see [API Contracts](../../06-contracts/01-apis/README.md))
+- Migrate to event-driven architecture (see [Event Contracts](../../06-contracts/03-events/README.md))
 
 ### Django-Specific Scalability (Within Phase 1)
 1. **Vertical scaling**: Larger EC2/RDS instances

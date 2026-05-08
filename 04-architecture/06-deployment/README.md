@@ -23,28 +23,28 @@ Core modules deployment:
 - Trip Costing
 - Mobile Applications
 
-### **[Phase 2 Deployment](./phase-2-deployment.md)**
+### **[Phase 2 Deployment](./phase-1-deployment.md)**
 Advanced features deployment:
 - Fleet Management
 - Fuel Management
 - Advanced Reporting
 - Search Engine
 
-### **[Phase 3 Deployment](./phase-3-deployment.md)**
+### **[Phase 3 Deployment](./phase-1-deployment.md)**
 Advanced capabilities deployment:
 - AI/ML Features
 - Multi-language Support
 - Advanced Analytics
 - Workshop Management
 
-### **[Infrastructure Setup](./infrastructure-setup.md)**
+### **[Infrastructure Setup](./README.md)**
 Infrastructure requirements and setup:
 - Cloud infrastructure
 - Database setup
 - Security configuration
 - Monitoring setup
 
-### **[Environment Configuration](./environment-configuration.md)**
+### **[Environment Configuration](./README.md)**
 Environment setup and configuration:
 - Development environment
 - Staging environment
@@ -101,9 +101,9 @@ Document all deployment steps and procedures.
 
 ## 🔗 Related Documents
 
-- [Technology Considerations](../technology-considerations.md)
-- [Rollout Plan](../rollout-plan.md)
-- [Migration Strategy](../migration-strategy.md)
+- [Technology Considerations](../07-implementation/strategies/technology-considerations.md)
+- [Rollout Plan](../07-implementation/strategies/rollout-plan.md)
+- [Migration Strategy](../07-implementation/strategies/migration-strategy.md)
 
 ---
 

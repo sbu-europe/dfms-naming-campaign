@@ -445,12 +445,12 @@ Testing & Deployment (Weeks 25-26)
 
 ## 📚 Related Documentation
 
-- **[Phase Backlog](../../../business-context/03-backlog/)** - Detailed user stories by phase
-- **[Module Specifications](../../../business-context/05-modules/)** - PRD reference content
-- **[Technical Architecture](../../01-architecture/)** - System architecture
-- **[Deployment Strategy](../deployment-strategy/)** - Detailed deployment plans
-- **[Testing Approach](../testing-approach.md)** - Testing strategy
-- **[Implementation Timeline](./IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
+- **[Phase Backlog](../../03-backlog/README.md)** - Detailed user stories by phase
+- **[Module Specifications](../../05-modules/README.md)** - PRD reference content
+- **[Technical Architecture](../../04-architecture/README.md)** - System architecture
+- **[Deployment Strategy](../../04-architecture/06-deployment/README.md)** - Detailed deployment plans
+- **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - Testing strategy
+- **[Implementation Timeline](../../04-architecture/07-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
 
 ---
 

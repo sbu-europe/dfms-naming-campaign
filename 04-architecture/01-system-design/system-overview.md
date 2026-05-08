@@ -354,7 +354,7 @@ Report Generation → Escalation (if fail)
 - **Phase 1**: Docker Compose, Single EC2 instance
 - **Phase 2+**: Kubernetes (for scaling and orchestration)
 
-**See**: [Phase 1 Deployment](../04-implementation/deployment-strategy/phase-1-deployment.md)
+**See**: [Phase 1 Deployment](../06-deployment/phase-1-deployment.md)
 
 ### Data
 - **Primary Database**: PostgreSQL (relational data)
@@ -391,9 +391,9 @@ Report Generation → Escalation (if fail)
 - [User Workflows](../02-workflows/user-workflows/) - User journeys
 
 ### Business Context
-- [Business Context Overview](../../02-domain/00-overview/business-context.md)
-- [Stakeholders](../../02-domain/00-overview/stakeholders.md)
-- [Business Processes](../../02-domain/01-business-domain/business-processes/)
+- [Business Context Overview](../../02-domain/01-overview/business-context.md)
+- [Stakeholders](../../02-domain/01-overview/stakeholders.md)
+- [Business Processes](../../02-domain/04-business-processes/README.md)
 
 ---
 

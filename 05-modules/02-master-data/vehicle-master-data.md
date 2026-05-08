@@ -400,8 +400,8 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 - **[Bulk Import & Export](bulk-import-export.md)** - Shared CSV bulk import/export for Vehicle (and other master entities)
 - **Brands** — Tenant-scoped master catalog; UI menu for Tenant Admin; vehicles reference `brand_id` (this document, §1.0, §8.0).
 - **[POI Management](poi-management.md)** - Location master data (Vehicle assignment)
-- **[Transport Order Execution](../03-operations/transport-order-execution.md)** - Vehicle assignment workflows
-- **[Trip Lifecycle Management](../03-operations/trip-lifecycle-management.md)** - Operational status updates
+- **[Transport Order Execution](../05-transport/README.md)** - Vehicle assignment workflows
+- **[Trip Lifecycle Management](../05-transport/trip-management.md)** - Operational status updates
 
 **Related User Stories:**
 - US-053: Vehicle Registration & Master Data Management

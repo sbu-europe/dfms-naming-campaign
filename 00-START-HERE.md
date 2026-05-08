@@ -171,7 +171,7 @@ Follow this sequence to understand the repository:
 - [User Stories](./03-backlog/stories/) - With acceptance criteria
 - [Business Rules](./02-domain/03-business-rules/) - Validation logic
 - [Non-Functional Requirements](./02-domain/02-requirements/04-non-functional-requirements/) - Performance, security
-- [Testing Strategy](./09-testing/strategy/testing-strategy.md) - Overall test approach
+- [Testing Strategy](09-testing/strategy/testing-strategy.md) - Overall test approach
 - [E2E Scenario Plans](./09-testing/backend/e2e-scenarios/) - Module-wise testcase/scenario planning
 
 ### **🏗️ Architects**

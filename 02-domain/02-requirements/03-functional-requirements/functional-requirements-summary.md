@@ -1364,11 +1364,11 @@ System-wide notification and alert framework for operational events.
 
 ## Related Documents
 
-- [Business Objectives](../business-objectives.md) - Strategic goals aligned with requirements
-- [User Personas](../user-personas.md) - User profiles and needs
-- [Non-Functional Requirements](../non-functional-requirements/) - System quality attributes
-- [Business Processes](../../01-business-domain/business-processes/) - Detailed workflows
-- [Source Document Mapping](../../06-reference/source-document-mapping.md) - Traceability
+- [Business Objectives](../../01-overview/business-objectives.md) - Strategic goals aligned with requirements
+- [User Personas](../02-user-personas/user-personas.md) - User profiles and needs
+- [Non-Functional Requirements](../04-non-functional-requirements/non-functional-requirements.md) - System quality attributes
+- [Business Processes](../../04-business-processes/README.md) - Detailed workflows
+- [Source Document Mapping](../../../04-architecture/08-reference/source-document-mapping.md) - Traceability
 
 ---
 

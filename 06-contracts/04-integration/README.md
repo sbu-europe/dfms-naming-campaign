@@ -75,8 +75,8 @@ All integrations are monitored and logged.
 
 ## 🔗 Related Documents
 
-- [Integration Patterns](../../01-architecture/integration/integration-patterns.md)
-- [External Systems](../../01-architecture/integration/external-systems.md)
+- [Integration Patterns](../../04-architecture/01-system-design/integration/integration-patterns.md)
+- [External Systems](../../04-architecture/01-system-design/integration/external-systems.md)
 
 ---
 

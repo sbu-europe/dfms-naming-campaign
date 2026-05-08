@@ -29,12 +29,12 @@ Detailed Phase 1 implementation breakdown:
 
 ### **[Implementation Planning](./planning/)**
 Strategic implementation planning:
-- **[Implementation Plan](./planning/IMPLEMENTATION_PLAN.md)** - Comprehensive 52-week roadmap
+- **[Implementation Plan](./planning/IMPLEMENTATION_TIMELINE.md)** - Comprehensive 52-week roadmap
 - **[Implementation Timeline](./planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
 - Phase breakdowns, resource planning, risk management
 - Milestone tracking and critical path analysis
 
-### **[Deployment Strategy](./deployment-strategy/)**
+### **[Deployment Strategy](../06-deployment/)**
 Phase-wise deployment approach:
 - Phase 1 deployment plan
 - Phase 2 deployment plan
@@ -91,7 +91,7 @@ Ensure data integrity throughout migration.
 - [Design Principles](../00-overview/design-principles.md)
 
 ### Business Context
-- [Business Objectives](../../02-domain/02-requirements/business-objectives.md)
+- [Business Objectives](../../02-domain/01-overview/business-objectives.md)
 - [Deployment Phases](../../02-domain/01-overview/project-summary.md)
 
 ---

@@ -6,8 +6,8 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Notification Contracts](../../../06-contracts/api/rest/notifications.yaml)** - Notification API contract
-- **[Event Contracts](../../../06-contracts/events/)** - Event specifications
+- **[Notification Contracts](../../../06-contracts/01-apis/rest/notifications.yaml)** - Notification API contract
+- **[Event Contracts](../../../06-contracts/03-events/README.md)** - Event specifications
 
 This document provides **Django-specific notification implementation** (email, SMS, push notifications).
 
@@ -312,7 +312,7 @@ class NotificationService:
 ## Related Documentation
 
 - **[Background Tasks](./background-tasks.md)** - Celery tasks
-- **[Event Contracts](../../../06-contracts/events/)** - Event specifications
+- **[Event Contracts](../../../06-contracts/03-events/README.md)** - Event specifications
 
 ---
 

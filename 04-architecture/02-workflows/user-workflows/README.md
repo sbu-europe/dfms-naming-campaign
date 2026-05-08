@@ -54,12 +54,12 @@ This section documents user workflows for different roles in DFMS. Each workflow
 
 ### Advanced User Roles (Phase 2-3)
 
-6. **[Fleet Manager Workflows](./06-fleet-manager-workflows.md)**
+6. **[Fleet Manager Workflows](README.md)**
    - Fleet health monitoring
    - Maintenance scheduling
    - Utilization analysis
 
-7. **[System Administrator Workflows](./07-system-administrator-workflows.md)**
+7. **[System Administrator Workflows](README.md)**
    - User management
    - System configuration
    - Monitoring and alerts
@@ -102,7 +102,7 @@ Mobile workflows are optimized for field users.
 ## 🔗 Related Documents
 
 ### Architecture
-- [User Personas](../../../02-domain/02-requirements/user-personas.md)
+- [User Personas](../../../02-domain/02-requirements/02-user-personas/user-personas.md)
 - [Module Boundaries](../../01-system-design/modules/module-boundaries.md)
 
 ### Operational Flows

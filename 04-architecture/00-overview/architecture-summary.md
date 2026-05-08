@@ -585,12 +585,12 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 ### Design & Implementation
 - [Design Principles](./design-principles.md)
 - [Technology Stack Overview](./technology-stack-overview.md)
-- [Implementation Approach](../04-implementation/)
+- [Implementation Approach](../07-implementation/)
 
 ### Business Context
-- [Business Processes](../../02-domain/01-business-domain/business-processes/)
-- [User Stories](../../02-domain/03-backlog/phase-1/user-stories/)
-- [Business Rules](../../02-domain/01-business-domain/business-rules/business-rules.md)
+- [Business Processes](../../02-domain/04-business-processes/README.md)
+- [User Stories](../../03-backlog/stories/README.md)
+- [Business Rules](../../02-domain/03-business-rules/business-rules.md)
 
 ---
 

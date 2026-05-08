@@ -8,7 +8,7 @@
 
 - **[Architecture Summary](../../../04-architecture/00-overview/architecture-summary.md)** - System architecture
 - **[Design Principles](../../../04-architecture/00-overview/design-principles.md)** - Design principles
-- **[API Contracts](../../../06-contracts/api/)** - API specifications
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - API specifications
 
 This document provides **contribution guidelines** for this backend repository.
 
@@ -26,7 +26,7 @@ This document provides **contribution guidelines** for this backend repository.
 
 ### Development Setup
 
-See [Development Setup Guide](./development-setup.md) for detailed setup instructions.
+See [Development Setup Guide](../01-setup/development-setup.md) for detailed setup instructions.
 
 ---
 
@@ -286,7 +286,7 @@ class TestTransportOrder:
 
 All APIs must follow contracts defined in submodule:
 
-- **[API Contracts](../../../06-contracts/api/)** - OpenAPI 3.0 specs
+- **[API Contracts](../../../06-contracts/01-apis/README.md)** - OpenAPI 3.0 specs
 
 ### API Implementation Checklist
 
@@ -482,9 +482,9 @@ def has_object_permission(self, request, view, obj):
 
 ## Related Documentation
 
-- **[Development Setup](./development-setup.md)** - Local development guide
+- **[Development Setup](../01-setup/development-setup.md)** - Local development guide
 - **[Code Style Guide](./code-style.md)** - Detailed code style guide
-- **[API Reference](../api/api-reference.md)** - API implementation details
+- **[API Reference](../02-api/api-reference.md)** - API implementation details
 
 ---
 

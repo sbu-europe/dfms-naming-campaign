@@ -28,8 +28,8 @@ tags: [business, objectives, overview]
 ## 🔗 Related Sections
 
 - **[Requirements Overview](../README.md)** - Main requirements folder index
-- **[Functional Requirements](../functional-requirements/)** - Detailed functional requirements by module
-- **[Non-Functional Requirements](../non-functional-requirements/)** - Performance, security, scalability requirements
+- **[Functional Requirements](../03-functional-requirements/README.md)** - Detailed functional requirements by module
+- **[Non-Functional Requirements](../04-non-functional-requirements/non-functional-requirements.md)** - Performance, security, scalability requirements
 
 ## 📝 Source
 

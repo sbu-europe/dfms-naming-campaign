@@ -634,11 +634,11 @@ graph TD
 
 ## 🔗 Related Documents
 
-- **[WBS Stories Table](../../source-documents/04-wbs/stories-table.md)** - Source story breakdown
+- **[WBS Stories Table](../../../01-source/04-wbs/stories-table.md)** - Source story breakdown
 - **[Epic Breakdown](./EPICS.md)** - Epic-level breakdown
 - **[Implementation Timeline](./TIMELINE.md)** - Sprint-by-sprint timeline
-- **[Feature Dependencies](../../02-domain/03-backlog/feature-dependencies.md)** - Detailed dependency analysis
-- **[SOW Phase 1](../../source-documents/03-sow/SOW%20Phase-1.md)** - Statement of Work
+- **[Feature Dependencies](../../../03-backlog/README.md)** - Detailed dependency analysis
+- **[SOW Phase 1](../../../01-source/README.md)** - Statement of Work
 
 ---
 

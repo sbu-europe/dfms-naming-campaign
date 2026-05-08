@@ -100,11 +100,11 @@ tags: [business-objectives, risk, mitigation, objectives]
 
 ## Related Documents
 
-- [Project Summary](../../00-overview/project-summary.md) - Overall project context
-- [Functional Requirements](./functional-requirements/) - Detailed feature specifications
-- [Non-Functional Requirements](./non-functional-requirements/) - System quality attributes
-- [User Personas](./user-personas/user-personas.md) - Detailed user profiles
-- [Features](../../03-backlog/) - Phase-wise feature breakdown
+- [Project Summary](../../01-overview/project-summary.md) - Overall project context
+- [Functional Requirements](../03-functional-requirements/README.md) - Detailed feature specifications
+- [Non-Functional Requirements](../04-non-functional-requirements/README.md) - System quality attributes
+- [User Personas](../02-user-personas/user-personas.md) - Detailed user profiles
+- [Features](../../../03-backlog/README.md) - Phase-wise feature breakdown
 
 ---
 

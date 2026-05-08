@@ -4,7 +4,7 @@
 
 **Status**: 📋 Planned  
 **Created**: May 8, 2026  
-**Author**: Discussed and finalized in [Repo Reorganization](../../../.cursor/projects/Users-bs01550-Products-nourish-backend/agent-transcripts)  
+**Author**: Discussed and finalized in [Repo Reorganization](../README.md)  
 **Priority**: Medium — execute before next sprint onboarding
 
 ---

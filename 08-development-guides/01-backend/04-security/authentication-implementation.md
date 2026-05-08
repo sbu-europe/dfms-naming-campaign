@@ -7,8 +7,8 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Security Architecture](../../../04-architecture/00-overview/architecture-summary.md#6-security-first)** - High-level security
-- **[Authentication Requirements](../../DFMS-product-context/business-context/02-requirements/non-functional-requirements/non-functional-requirements.md#41-authentication)** - Authentication requirements
-- **[Authentication Overview](../architecture/authentication.md)** - Authentication implementation
+- **[Authentication Requirements](../../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#41-authentication)** - Authentication requirements
+- **[Authentication Overview](../../../04-architecture/04-backend/authentication-implementation.md)** - Authentication implementation
 
 This document provides **detailed JWT authentication implementation** (token generation, validation, refresh, security).
 
@@ -297,7 +297,7 @@ def blacklist_token(token):
 
 ## Related Documentation
 
-- **[Authentication Overview](../architecture/authentication.md)** - Authentication implementation
+- **[Authentication Overview](../../../04-architecture/04-backend/authentication-implementation.md)** - Authentication implementation
 - **[Security Checklist](./security-checklist.md)** - Security checklist
 
 ---

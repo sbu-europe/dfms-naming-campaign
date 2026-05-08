@@ -12,7 +12,7 @@ last_updated: 2026-04-17
 
 ## Overview
 
-Fleet and compliance features use a **`Driver`** aggregate in **`apps.users`** (outside `apps.master_data`). **On every driver creation**, the system **persists a row in the tenant `users` table** with a fixed operational profile, then links **`Driver.user`** (OneToOne FK) to that user. Field-level detail for `User` lives in [User & Tenant Management](user-tenant-management.md) and [RBAC](rbac.md); this spec defines **what must be written at driver-create time** and **what stays on `Driver`**.
+Fleet and compliance features use a **`Driver`** aggregate in **`apps.users`** (outside `apps.master_data`). **On every driver creation**, the system **persists a row in the tenant `users` table** with a fixed operational profile, then links **`Driver.user`** (OneToOne FK) to that user. Field-level detail for `User` lives in [User & Tenant Management](../01-foundation/user-tenant-management.md) and [RBAC](../01-foundation/rbac.md); this spec defines **what must be written at driver-create time** and **what stays on `Driver`**.
 
 **Out of scope here**: **Invitation**, activation tokens, OTP, resend, and expiry—those follow a **separate invitation implementation plan** (US-005 / TUM) and are **not** part of the driver creation contract below.
 
@@ -221,10 +221,10 @@ See **[bulk-import-export.md](../02-master-data/bulk-import-export.md)** (shared
 
 ## 10. Related documentation
 
-- [User & Tenant Management](user-tenant-management.md)
-- [RBAC](rbac.md)
+- [User & Tenant Management](../01-foundation/user-tenant-management.md)
+- [RBAC](../01-foundation/rbac.md)
 - [Master Data Configuration](../02-master-data/master-data-configuration.md)
-- [US-057 — Driver story](../../../03-backlog/stories/US-057-driver-master-data.md)
+- [US-057 — Driver story](../../03-backlog/stories/US-057-driver-master-data.md)
 - Invitation implementation (separate): tenant user management / TUM backlog
 
 ---

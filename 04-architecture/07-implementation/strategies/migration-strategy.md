@@ -491,7 +491,7 @@ def validate_migration():
 
 ## 🔗 Related Documents
 
-- [Phase 1 Deployment](./deployment-strategy/phase-1-deployment.md)
+- [Phase 1 Deployment](../../06-deployment/phase-1-deployment.md)
 - [Rollout Plan](./rollout-plan.md)
 - [Testing Approach](./testing-approach.md)
 

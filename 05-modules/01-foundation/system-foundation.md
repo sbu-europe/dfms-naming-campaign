@@ -461,7 +461,7 @@ queryAuditLogs(filters) → audit_logs[]
 
 ### Downstream Modules
 - [02-master-data](../02-master-data/README.md) - Master data management
-- [03-core-operations](../03-operations/README.md) - Core business operations
+- [03-core-operations](../05-transport/README.md) - Core business operations
 - All other operational modules
 
 ---
