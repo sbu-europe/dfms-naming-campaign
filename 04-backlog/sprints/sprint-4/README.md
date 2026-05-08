@@ -92,7 +92,7 @@ Wave E — Closure
 
 | #   | Story                                                                                                         | Task ID | Jira    | SP  | Status  |
 | --- | ------------------------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [TO list, execution milestones & POD capture](03-driver-mobile/DM-01-driver-mobile-to-list-milestones-pod.md) | DM-01   | DFS-053 | 8   | Pending |
+| 1   | [TO list, execution milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) | DM-01   | DFS-053 | 8   | Pending |
 
 
 **Sub-total**: 8 SP
