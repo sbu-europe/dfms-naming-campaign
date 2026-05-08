@@ -557,8 +557,8 @@ VendorAssigned(
 - [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-024](../../../03-backlog/stories/README.mdREADME.mdREADME.mdUS-024-vendor-bidding-portal.md)
-- [User Story: US-063](../../../03-backlog/stories/README.mdREADME.mdREADME.mdREADME.md)
+- [User Story: US-024](../../../03-backlog/stories/US-024-vendor-bidding-portal.md)
+- [User Story: US-063](../../../03-backlog/stories/README.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Previous step

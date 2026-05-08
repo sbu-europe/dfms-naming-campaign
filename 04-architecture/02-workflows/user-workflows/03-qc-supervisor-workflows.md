@@ -273,7 +273,7 @@ graph TD
 - [QC Inspection Flow](../operational-flows/06-qc-inspection-flow.md)
 
 ### Business Context
-- [User Story: US-061](../../../03-backlog/stories/README.mdREADME.mdREADME.mdREADME.md)
+- [User Story: US-061](../../../03-backlog/stories/README.md)
 
 ---
 

@@ -4,7 +4,7 @@ specification: User Login & Account Lockout (US-001) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-001
-source_spec: ../../03-backlog/stories/README.mdREADME.mdUS-001-user-login-account-lockout.md
+source_spec: ../../03-backlog/stories/US-001-user-login-account-lockout.md
 test_implementation_reference: ../../../tests/e2e/modules/01-foundation/test_user_login_account_lockout_e2e.py
 last_updated: 2026-05-04
 ---

@@ -589,7 +589,7 @@ Key architectural decisions are documented as Architecture Decision Records (ADR
 
 ### Business Context
 - [Business Processes](../../02-domain/04-business-processes/README.md)
-- [User Stories](../../03-backlog/stories/README.mdREADME.md)
+- [User Stories](../../03-backlog/stories/README.md)
 - [Business Rules](../../02-domain/03-business-rules/business-rules.md)
 
 ---

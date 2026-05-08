@@ -635,7 +635,7 @@ async function resendOTP(userId: UUID): Promise<void> {
 
 ## 6. Account Deactivation
 
-> **Related Story**: [US-007: Account Deactivation](../../03-backlog/stories/README.mdREADME.mdUS-007-account-deactivation.md)
+> **Related Story**: [US-007: Account Deactivation](../../03-backlog/stories/US-007-account-deactivation.md)
 
 ### 6.1 Deactivation Types
 

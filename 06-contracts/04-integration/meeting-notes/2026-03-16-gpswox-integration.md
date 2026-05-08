@@ -4,7 +4,7 @@ meeting_date: 2026-03-16
 recorded_by: Nishat (BS23)
 status: confirmed
 related_contract: ../gps-vts-integration.yaml
-related_story: ../../../../03-backlog/stories/README.mdREADME.mdREADME.mdUS-026-realtime-map-dashboard.md
+related_story: ../../../../03-backlog/stories/US-026-realtime-map-dashboard.md
 ---
 
 # Meeting Notes — GPSWOX GPS/VTS Integration

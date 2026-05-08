@@ -246,7 +246,7 @@ Each module README includes:
 - **[Root README](../../README.md)** - Module specifications overview
 - **[Complete Index](../../05-modules/INDEX.md)** - Full content index with dependencies
 - **[Phase Backlog](../../03-backlog/../../README.md)** - User stories
-- **[WBS Differences](../../03-backlog/stories/README.mdREADME.md)** - Organizational decisions
+- **[WBS Differences](../../03-backlog/stories/README.md)** - Organizational decisions
 - **[PRD Alignment](README.md)** - PRD validation
 
 ---

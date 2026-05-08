@@ -224,7 +224,7 @@ See **[bulk-import-export.md](../02-master-data/bulk-import-export.md)** (shared
 - [User & Tenant Management](../01-foundation/user-tenant-management.md)
 - [RBAC](../01-foundation/rbac.md)
 - [Master Data Configuration](../02-master-data/master-data-configuration.md)
-- [US-057 — Driver story](../../03-backlog/stories/README.mdREADME.mdUS-057-driver-master-data.md)
+- [US-057 — Driver story](../../03-backlog/stories/US-057-driver-master-data.md)
 - Invitation implementation (separate): tenant user management / TUM backlog
 
 ---

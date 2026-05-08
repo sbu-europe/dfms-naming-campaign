@@ -391,7 +391,7 @@ graph TD
 
 ### Business Context
 - [User Persona](../../../02-domain/02-requirements/02-user-personas/user-personas.md)
-- [User Stories](../../../03-backlog/stories/README.mdREADME.mdREADME.md)
+- [User Stories](../../../03-backlog/stories/README.md)
 
 ---
 

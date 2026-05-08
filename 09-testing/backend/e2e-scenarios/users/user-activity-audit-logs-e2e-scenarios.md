@@ -4,7 +4,7 @@ specification: User Activity & Audit Logs (US-009) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-009
-source_spec: ../../03-backlog/stories/README.mdREADME.mdUS-009-user-activity-audit-logs.md
+source_spec: ../../03-backlog/stories/US-009-user-activity-audit-logs.md
 implementation_reference:
   - ../../../apps/audit/models.py
   - ../../../apps/audit/views.py

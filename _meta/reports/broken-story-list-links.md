@@ -74,7 +74,7 @@ for i in {1..70}; do
   if [ -n "$file" ]; then
     # Extract title from story file
     title=$(grep "^# US-" "$file" | head -1 | sed 's/^# US-[0-9]*: //')
-    echo "- [US-$num](../../03-backlog/stories/README.mdREADME.md) - $title"
+    echo "- [US-$num](../../03-backlog/stories/README.md) - $title"
   fi
 done
 ```
@@ -157,7 +157,7 @@ for i in {1..70}; do
     title=$(grep "^# US-" "$file" | head -1 | sed 's/^# US-[0-9]*: //')
     epic=$(grep "^epic_id:" "$file" | sed 's/epic_id: //')
     
-    echo "- [US-$num](../../03-backlog/stories/README.mdREADME.md) - $title"
+    echo "- [US-$num](../../03-backlog/stories/README.md) - $title"
   else
     echo "- US-$num - **MISSING**"
   fi
@@ -176,7 +176,7 @@ done
 # Validate all story links work
 cd 03-backlog/03-phases/phase-1
 grep -o "US-[0-9][0-9][0-9]-[a-z-]*.md" story-list.md | while read file; do
-  if [ ! -f "../../03-backlog/stories/README.mdREADME.md" ]; then
+  if [ ! -f "../../03-backlog/stories/README.md" ]; then
     echo "BROKEN: $file"
   fi
 done
