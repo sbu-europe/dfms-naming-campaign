@@ -1,10 +1,10 @@
 ---
 module: 04-requisitions
 specification: Procurement Management
-version: 1.0
+version: 1.1
 phase: Phase 1
 sprint: Sprint 3
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 related_stories: DFS-036 (PC-01), DFS-037 (PC-02)
 jira_epic: DFS-042
 ---
@@ -68,9 +68,9 @@ Procurement → Transport requests (module)
 
 ### Role gate
 
-- Procurement Officer sees **only** Port Shipment records (`PORT_CONSIGNMENT` / procurement-visible type) — FG PRs are not visible
+- Procurement Officer sees **only** Port Shipment records (`PORT_CONSIGNMENT`) — FG PRs are not visible
 - Procurement Officer cannot edit or cancel the shipment record (Commercial Officer ownership)
-- **RM Cargo Line Items** and **Arrival Notices & Documents** inline sections are strictly read-only for Procurement Officer — no add, edit, or delete actions are available on those rows
+- **RM Cargo Line Items** and **Arrival Notices & Documents** inline sections are strictly read-only for Procurement Officer — no add, edit, or delete actions are available on those rows. This is enforced by adding `"procurement_officer"` to `_is_readonly_role` on `PRLineItemInline` and `PRDocumentInline`, and overriding `get_inline_instances` in `_PRBaseAdmin` to force read-only rendering even when `has_change_permission = False` for the parent
 - Source POI is always a **Port-type POI** — enforced server-side; non-Port POIs are excluded from the source dropdown
 
 ---
@@ -583,13 +583,29 @@ Every significant action is written to the audit log.
 
 ## 14. Django Admin (SSR)
 
-The Procurement module does not introduce new ModelAdmin classes. Procurement TRs (`tr_type = PORT_CONSIGNMENT`) are visible in the existing `TransportRequisitionAdmin` with a `type` filter.
+### 14.1 Port Shipments admin (`PortShipmentAdmin`)
 
-Relevant admin filters to add:
+Port Shipments are exposed via a `PortShipmentProxy` proxy model registered separately, keeping them distinct from FG PR in the admin sidebar. The admin class `PortShipmentAdmin` inherits from `_PRBaseAdmin`.
 
-```python
-list_filter = ("status", "tr_type", "origin_poi__poi_type", "destination_poi")
-```
+Key behaviours:
+- `container_numbers` uses a custom `ContainerNumbersWidget` / `ContainerNumbersField` — a dynamic add/remove row list instead of a raw JSON textarea
+- `RMCargoLineItemInline` and `PortShipmentDocumentInline` are read-only for the Procurement Officer; editable for the Commercial Officer
+- `PortShipmentAdmin` is **not** shown in the Procurement sidebar — Procurement sees Port Shipments via the shared top-level menu (same URL, filtered by `pr_type=PORT_CONSIGNMENT`)
+- The `verbose_name` / `verbose_name_plural` for Port Shipment-type records is handled by the `PortShipmentProxy` model
+
+### 14.2 `TransportRequisitionAdmin` (Procurement Officer view)
+
+Procurement Officer sees their own Port Consignment TRs in the "Procurement → Transport requests" section. The same `TransportRequisitionAdmin` class handles both FG and Port Consignment TRs, differentiated by `tr_type` filter and role-gated fieldsets.
+
+No standalone "Procurement TR" admin class was created — role-based `get_fieldsets`, `get_queryset`, and `get_list_display` on `TransportRequisitionAdmin` handle the Procurement Officer's view.
+
+### 14.3 Naming Conventions
+
+`verbose_name` and `verbose_name_plural` on `TransportRequisition` omit the `(TR)` and `(TRs)` suffixes:
+- `verbose_name = "Transport Request"` (was `"Transport Request (TR)"`)
+- `verbose_name_plural = "Transport Requests"` (was `"Transport Requests (TRs)"`)
+
+Field `verbose_name` values set for acronyms: `"TR number"`, `"TR type"`, `"source POI"`, `"destination POI"`.
 
 ---
 

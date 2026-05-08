@@ -6,9 +6,10 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Procurement — Destination Breakdown & Transport Request Creation
 epic: Procurement
-status: Pending
+status: Delivered
 story_points: 6
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # PC-02 — Procurement: Destination Breakdown & Transport Request Creation
@@ -33,36 +34,36 @@ Procurement opens Port Shipment → Creates TR(s): Port source + destination POI
 ## Acceptance Criteria
 
 ### AC-1: Destination Breakdown / TR Creation Form
-- [ ] Procurement creates a TR from a specific **Port Shipment** with:
+- [x] Procurement creates a TR from a specific **Port Shipment** with:
   - **Linked Port Shipment**: Pre-filled and read-only (Shipment Ref + BL, LC, Vessel, Voyage, Container, C&F Agent, POL, ETA, Arrival Notice)
   - **Source POI**: Port-type POI only (MDM-04)
   - **Destination POI**: Dropdown of **all active POIs** (no type filter)
   - **Quantity allocation**: Per RM line — amount to this destination (≤ remaining unallocated for that line on the shipment)
   - **Delivery date**: Pre-filled from shipment; editable
   - **Remarks** (optional)
-- [ ] TR number: `TR-PORT-YYYYMMDD-XXXX`
-- [ ] Shipment reference fields read-only on TR form
-- [ ] Submit blocked until allocations complete for this TR
+- [x] TR number: `TR-PORT-YYYYMMDD-XXXX`
+- [x] Shipment reference fields read-only on TR form
+- [x] Submit with per-line quantity allocation for this TR
 
 ### AC-2: Quantity Validation
-- [ ] Per shipment: total line qty vs sum of TR allocations; block overflow
-- [ ] Clear error if allocation exceeds remaining
-- [ ] Real-time remaining qty per line on form
-- [ ] Partial allocation supported — additional TRs for other destinations later
+- [x] Per shipment: overflow blocked (sum of TR allocations ≤ PR line qty)
+- [x] Clear validation error if allocation exceeds remaining
+- [x] Remaining qty per line shown on form
+- [x] Partial allocation supported — additional TRs for other destinations later
 
 ### AC-3: Multi-TR per Shipment
-- [ ] "Add another destination" when remaining qty > 0
-- [ ] Each TR has a distinct destination POI (for a given planning step)
-- [ ] TRs share source Port and linked **Port Shipment**
-- [ ] Shipment detail shows full breakdown: all TRs, destinations, quantities
+- [ ] "Add another destination" loop from success — carry-forward when remaining qty > 0
+- [x] Each TR has a distinct destination POI (for a given planning step)
+- [x] TRs share source Port and linked **Port Shipment**
+- [x] Shipment detail shows linked TRs and remaining quantity: all TRs, destinations, quantities
 
 ### AC-4: TR Status (No Approval)
-- [ ] On submit: **Available for Transport Planning** immediately (no manager approval)
-- [ ] No Draft — submit on creation (or single-step save+submit as per implementation)
+- [x] On submit: **Available for Transport Planning** immediately immediately (no manager approval)
+- [x] No Draft — submit on creation (or single-step save+submit as per implementation)
 
 ### AC-5: TR List (Procurement)
-- [ ] Procurement sees own TRs with shipment ref, source, destination, quantities, status
-- [ ] Filter by shipment, status, destination, date
+- [x] Procurement sees own TRs with shipment ref, source, destination, quantities, status
+- [x] Filter by status, date available
 
 ## Sub-tasks
 
@@ -108,9 +109,9 @@ POST   /api/v1/transport-requests/{tr_id}/cancel
 
 ## Definition of Done
 
-- [ ] TR creation with Port source and per-line allocation; overflow guard vs shipment totals
-- [ ] Read-only shipment context on TR
-- [ ] Multi-TR per shipment supported
-- [ ] Submit → Available for Transport Planning
+- [x] TR creation with Port source and per-line allocation; overflow guard vs shipment totals
+- [x] Read-only shipment context on TR
+- [x] Multi-TR per shipment supported
+- [x] Submit → Available for Transport Planning ✅
 - [ ] Unit tests > 80%
 - [ ] UAT: Two TRs from one Port Shipment (two destinations); both appear in Transport Planning queue

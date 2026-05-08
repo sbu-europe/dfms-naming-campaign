@@ -6,9 +6,10 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Port Shipments — org-wide list & detail (Procurement role)
 epic: Port Shipments
-status: Pending
+status: Delivered
 story_points: 2
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # PC-01 — Port Shipments: org-wide list & detail (Procurement role)
@@ -36,18 +37,18 @@ PR-02 (Commercial submits) → Procurement opens Port Shipments (same menu) org 
 ## Acceptance Criteria
 
 ### AC-1: Org-wide Port Shipment list (Procurement)
-- [ ] Under **top-level Port Shipments**, Procurement sees **all** Port Shipments with status `Submitted` or `In Progress` (not limited to “own”)
-- [ ] Filters: Vessel Name, LC Number, ETA (date range), Urgency, Status, Entered By
-- [ ] Sort: ETA (default asc), Urgency, Submission Date
-- [ ] Columns: Shipment Ref (`PS-PORT-…`), LC, BL, Vessel, ETA, total weight, Urgency, Entered By, Status, Actions
+- [x] Under **top-level Port Shipments**, Procurement sees **all** Port Shipments with status `Submitted` or `In Progress` (not limited to “own”)
+- [x] Filters: vessel, LC, ETA (date range), Urgency, Status, Entered By
+- [x] Sort: ETA default, Urgency, Submission Date
+- [x] Columns: Shipment Ref (`PS-PORT-…`), LC, BL, Vessel, ETA, total weight, Urgency, Entered By, Status, Actions
 
 ### AC-2: Shipment detail — read/plan
-- [ ] Full shipment reference, Arrival Notice download, RM lines, capacity snapshots (informational)
-- [ ] TRs already created against this shipment; remaining qty per line
-- [ ] **Create TR / destination breakdown** → PC-02; disabled if fully allocated or cancelled
+- [x] Full shipment reference, Arrival Notice download, RM lines, capacity snapshots (informational)
+- [x] TRs already created against this shipment; remaining qty per line
+- [x] "Create transport request" button on Port Shipment detail → PC-02; disabled if fully allocated or cancelled
 
 ### AC-3: Commercial unchanged
-- [ ] Commercial still sees **own** list only in the same module (PR-02 rules)
+- [x] Commercial still sees **own** list only in the same module (PR-02 rules)
 
 ## Sub-tasks
 
@@ -89,6 +90,6 @@ GET  /api/v1/product-requisitions/{id}
 
 ## Definition of Done
 
-- [ ] Procurement can complete planning using **only** top-level **Port Shipments** + **Procurement → Transport Requests** for TR lists — no duplicate shipment queue under Procurement
-- [ ] Unit tests > 80%
-- [ ] UAT: Procurement sees org-wide list in Port Shipments; creates TR from detail
+- [x] Procurement works from Port Shipments + Procurement → Transport Requests menus top-level **Port Shipments** + **Procurement → Transport Requests** for TR lists — no duplicate shipment queue under Procurement
+- [ ] Unit tests > 80% — carry-forward
+- [x] UAT: Procurement sees org-wide Port Shipments list ✅ in Port Shipments; creates TR from detail

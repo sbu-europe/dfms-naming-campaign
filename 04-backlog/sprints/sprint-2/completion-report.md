@@ -106,6 +106,7 @@ branch: main (merged from sprint-2/*, feat/master-data-configuration, DFS-*)
 | Email field read-only on activation page | CP-04 | Resolved in `sprint-2/resolve-feedback` | `8623d1f` |
 | Session timeout 30 min → 24h sliding window | INFRA-04 | Redis session cache TTL updated | `6006b20` |
 | 2FA (OTP) for admin/tenant login improvements | CP-03 | `fix(DFS-136): Implement 2FA authentication` | `84490cf` |
+| OTP skip for trusted device / known browser | CP-03 | `apps/users/trusted_device.py` scaffolded — signed cookie infrastructure built (`dfms_trusted_login`, 90-day TTL, `TRUSTED_DEVICE_LOGIN_ENABLED` flag); cookie is set after login but the bypass check in `initiate_login` is explicitly commented out (`"OTP must be required on every login; do not allow trusted-device bypass"`). **Not activated — deferred.** | — |
 
 ---
 
@@ -167,6 +168,15 @@ A dedicated UX improvement effort ran across Sprint 2 covering responsiveness, d
 | Bulk import configs | 5 (Products, Vehicles, Helpers, Suppliers/Dealers, Users) |
 | Story points delivered | ~78 SP |
 | Sprint 1 carry-overs closed | 7 items |
+
+---
+
+## ⏳ Carry-Forward to Sprint 3+
+
+| Item | Story | Notes |
+|------|-------|-------|
+| OTP channel configurable per user (email/SMS) | CP-03 | `dispatch_sms` Celery task exists in `notifications/tasks.py` but not wired into the OTP flow — `send_otp_notification` always dispatches email. Audit log records `"sms"` if user has a phone number but delivery is email-only. Deferred. |
+| OTP skip for trusted device / known browser | CP-03 | `apps/users/trusted_device.py` infrastructure scaffolded (signed cookie, 90-day TTL, `TRUSTED_DEVICE_LOGIN_ENABLED` flag); cookie is issued post-login but the bypass is explicitly disabled in `initiate_login` — *"OTP must be required on every login; do not allow trusted-device bypass"*. Deferred. |
 
 ---
 

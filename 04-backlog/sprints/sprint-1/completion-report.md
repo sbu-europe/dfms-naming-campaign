@@ -119,8 +119,8 @@ branch: main (merged from sprint-1/*, feat/*)
 | Bulk CSV user invitation | CP-04 | Medium |
 | Email read-only on activation page | CP-04 | High |
 | Session timeout → 24h sliding window | INFRA-04 | Medium |
-| OTP skip for trusted device / known browser | CP-03, PAP-03 | High |
-| OTP channel configurable per user (email/SMS) | CP-03 | High |
+| OTP skip for trusted device / known browser — infrastructure scaffolded, bypass not activated | CP-03, PAP-03 | Medium |
+| OTP channel configurable per user (email/SMS) — SMS scaffolded, not wired | CP-03 | Low |
 
 ---
 

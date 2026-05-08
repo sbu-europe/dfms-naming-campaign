@@ -1,11 +1,11 @@
 ---
 module: 04-requisitions
 specification: Distribution Management
-version: 1.0
+version: 1.1
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 sprint: Sprint 3
-last_updated: 2026-05-06
+last_updated: 2026-05-07
 related_stories: DFS-034 (DR-01), DFS-035 (DR-02)
 jira_epic: DFS-041
 ---
@@ -438,11 +438,15 @@ Capacity data is sourced from POI Management (MDM-04). If unavailable, widget sh
 
 ### 6.5 "Create Transport Request" Button
 
-- Visible on PR detail page for Distribution Officers
-- **Disabled** if:
-  - PR status is `Fully Allocated` (remaining quantity = 0)
-  - PR status is `Cancelled` or `Fulfilled`
-- Navigates to TR creation form pre-filled with PR data (destination POI, product lines, delivery date)
+- Visible on PR **changelist** (as `create_tr_link` column) and PR **detail page** for:
+  - Distribution Officer (`distribution_officer`)
+  - Tenant Admin (always has access to all action buttons)
+- Button shown when PR status is `submitted` or `in_progress`
+- **Hidden** if PR status is `Fully Allocated`, `Cancelled`, or `Fulfilled`
+- Button label: **"Create transport request"** (no abbreviation)
+- Navigates to a 2-step TR creation flow: PR picker → TR form pre-filled with PR data
+
+> **Implementation note**: Tenant Admin visibility was added mid-sprint — the initial implementation only showed the button to Distribution Officer. Both `_is_distribution_officer(request)` and `_tenant_admin_allowed(request)` checks were unified in `create_tr_link` computed column and `change_view` extra context.
 
 ---
 
@@ -878,55 +882,45 @@ CREATE INDEX idx_tr_audit_ts ON tr_activity_logs(timestamp DESC);
 
 ## 13. Django Admin SSR Implementation
 
-### 13.1 TransportRequest Admin
+### 13.1 Admin Class Structure
+
+`TransportRequisitionAdmin` is a single class serving multiple roles (`distribution_officer`, `distribution_manager`, `procurement_officer`, `transport_planner`) with tailored fieldsets, permissions, and list columns per role.
+
+The admin lives in `apps/requisitions/admin.py`.
+
+### 13.2 Role-Specific List Columns (`get_list_display`)
+
+| Role | Columns shown |
+|------|--------------|
+| Distribution Officer | TR#, status, source POI, destination POI, urgency, delivery date, created date |
+| Distribution Manager | TR#, status, source POI, destination POI, urgency, delivery date, submitted by |
+| Transport Planner | TR#, status, type, source/dest POI, delivery date, vehicles required display, assigned TOs count, create TO button |
+| Tenant Admin | Same as Transport Planner (full context) |
+
+### 13.3 Approval Actions
+
+Distribution Manager has two custom `@admin.action` bulk actions on the TR changelist:
+- **"✔ Approve Selected"** (green) — calls `TRService.approve()` for each selected `Pending Approval` TR
+- **"✘ Reject Selected"** (red) — calls `TRService.reject()` (bulk rejection with shared reason)
+
+Both actions are hidden for all other roles.
+
+### 13.4 Planning Inputs Fieldset Visibility
+
+The **Planning Inputs** fieldset (vehicle type, vehicles required) is conditionally shown/hidden:
+- Hidden for: `distribution_officer`, `distribution_manager`, `procurement_officer`
+- Shown and editable for: `transport_planner`, `tenant_admin`
 
 ```python
-class TransportRequestAdmin(admin.ModelAdmin):
-    list_display = [
-        'tr_number', 'pr', 'tr_type', 'source_poi', 'destination_poi',
-        'delivery_date', 'status', 'created_by', 'created_at'
-    ]
-    list_filter = ['tr_type', 'status', 'delivery_date']
-    search_fields = ['tr_number', 'pr__pr_number', 'source_poi__name']
-    readonly_fields = [
-        'tr_number', 'destination_poi', 'approved_by', 'approved_at',
-        'approval_action', 'rejected_by', 'rejected_at'
-    ]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(
-            tenant_id=request.user.tenant_id
-        ).select_related('pr', 'source_poi', 'destination_poi', 'created_by')
+def get_fieldsets(self, request, obj=None):
+    if _is_distribution_or_procurement(request):
+        return fieldsets_without_planning_inputs
+    return full_fieldsets
 ```
 
-### 13.2 Inline Line Items
+### 13.5 FG PR Inline Row Visibility Fix
 
-```python
-class TRLineItemInline(admin.TabularInline):
-    model = TransportRequestLineItem
-    extra = 0
-    readonly_fields = [
-        'pr_line_item', 'product_name', 'product_category',
-        'unit_of_measure', 'pr_line_quantity', 'allocated_weight_kg'
-    ]
-    fields = [
-        'line_number', 'product_item_code', 'product_name',
-        'unit_of_measure', 'pr_line_quantity', 'allocated_quantity', 'allocated_weight_kg'
-    ]
-```
-
-### 13.3 Custom Admin Actions
-
-```python
-# Approval actions available in admin for Distribution Manager role
-def approve_transport_requests(modeladmin, request, queryset):
-    # Bulk approve selected pending TRs
-    ...
-
-def reject_transport_requests(modeladmin, request, queryset):
-    # Requires reason — redirect to intermediate form
-    ...
-```
+A scoped CSS fix ensures PR line item rows are visible to read-only roles. The original broad rule `[id^="line_items-"] td > p { display: none }` was narrowed to `td.original > p` — which hides the inline's "object name" paragraph (only shown in the first `td.original` column) without hiding the actual field value `<p>` tags in data columns.
 
 ---
 

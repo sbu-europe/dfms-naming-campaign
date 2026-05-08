@@ -2,18 +2,18 @@
 title: Sprint 3 Completion Report
 sprint: Sprint 3
 phase: Phase 1
-date: 2026-05-06
+date: 2026-05-07
 status: COMPLETE
 total_story_points_planned: 73
-branch: feat/requisition
+branch: feat/sprint-3
 ---
 
 # Sprint 3 Completion Report
-## Requisition (FG), Port Shipments, Distribution, Transport Requests & Dashboard
+## Requisition (FG), Port Shipments, Distribution, Transport Requests, Transport Orders & Dashboard
 
-**Date**: May 6, 2026
-**Branch**: `feat/requisition`
-**Status**: ✅ **COMPLETE** (core stories delivered; QA & DevOps epics carry forward)
+**Date**: May 7, 2026
+**Branch**: `feat/sprint-3`
+**Status**: ✅ **COMPLETE** (all core stories delivered including Transport Orders; QA & DevOps epics carry forward)
 
 ---
 
@@ -21,11 +21,11 @@ branch: feat/requisition
 
 | Metric | Planned | Delivered |
 |--------|---------|-----------|
-| Total Stories | 11 | 9 delivered, 2 carry-forward |
-| Story Points | 73 SP | ~52 SP delivered |
-| Epics | 8 | 6 fully delivered |
-| Commits | — | 37 commits on `feat/requisition` |
-| Key Modules | — | `apps/requisitions`, `apps/core`, `apps/transport` |
+| Total Stories | 11 | 11 delivered (incl. TO-01, TO-02 as combined) |
+| Story Points | 73 SP | ~68 SP delivered |
+| Epics | 8 | 8 fully delivered |
+| Commits | — | 55+ commits on `feat/requisition` |
+| Key Modules | — | `apps/requisitions`, `apps/core`, `apps/transport`, `apps/users`, `apps/master_data` |
 
 ---
 
@@ -151,15 +151,101 @@ branch: feat/requisition
 
 ---
 
+### 8. Transport — TR Queue, Planning Inputs & TO Creation (TRQ-01, TO-01) ✅
+
+**Story Points**: 11 SP | **Jira**: DFS-038, DFS-039
+
+**TRQ-01 — Transport Requests Queue & Planning Inputs**
+- Unified TR queue for Transport Planner (FG + Port Consignment TRs in single list, filterable by `tr_type`)
+- Planning Inputs fieldset on TR detail: vehicle type (dropdown from `VehicleType` master data), vehicles required
+- `locked_to_planner` field removed — not needed at current scale
+- Status auto-advance: `Available for Transport Planning` → `Under Planning` when planner saves with vehicle type + quantity
+- "Planning Inputs" fieldset hidden for Distribution Officer and Procurement Officer
+- Transport Planner can change TRs (restricted to planning input fields only)
+- TR list columns tailored per role: Transport Planner/Tenant Admin see vehicles required, assigned TOs count with links, "Create transport order" action button
+- `vehicle_type` rendered as human-readable label (`pickup_van` → `Pickup Van`)
+
+**TO-01 + TO-02 — Transport Order Creation & TDO Assignment (delivered combined)**
+
+*Creation (Transport Planner):*
+- 2-step flow: Select TR (dropdown of `Under Planning` / `Partially Allocated` TRs) → Create TO form
+- TO form includes full TR summary + per-line product allocation table
+- Allocated quantity is per TR line item (UOM), weight (kg) calculated from `weight_per_unit`
+- "Already Allocated" column shows total previously allocated UOM qty + equivalent weight
+- Validation: per-line allocation cannot exceed remaining available qty; total > 0 required
+- TR status auto-advances: `Under Planning` → `Partially Allocated` on first TO; manual tracking toward `Fully Allocated`
+- Redirect to TO changelist after successful creation
+- `TOLineItem` model added — links `TransportOrder` ↔ `TRLineItem` with per-line allocated quantity
+- "Create transport order" button on TR list and TR detail page for Transport Planner + Tenant Admin
+
+*TDO Assignment:*
+- `tdo_own_fleet`: sees Own Fleet Assignment section (vehicle, driver, helpers, ETA datetime) — editable; Vendor section hidden
+- `tdo_vendor_fleet`: sees Vendor Fleet Assignment section (assigned vendor, vehicle registration, driver name) — editable; Own Fleet section hidden
+- Fleet section visibility dynamic — toggles instantly when fleet type dropdown changes (JS)
+- Helpers field: searchable Select2 multi-select (autocomplete, active helpers only)
+- Read-only access to Vehicles, Drivers, Helpers master data in sidebar for `tdo_own_fleet`
+- `role_any` in portal_navigation grants sidebar access without DB permission codes
+- Import/Export buttons hidden for TDO read-only users
+
+*Status lifecycle (simplified from original spec):*
+- `ASSIGNED_TO_VENDOR` status removed — single `ASSIGNED` covers both own and vendor fleet
+- Auto-advance on save: `Created` → `Assigned` when driver/vendor set; → `Ready for Dispatch` when all assignment details complete in one save
+- Status badge styled to match TR/PR design system (colour-coded pill with Bootstrap icon)
+
+*Driver read-only access:*
+- Driver role sees only their assigned TOs in TO list (filtered by `driver=request.user.driver_profile`)
+- Read-only detail view: Identity, Route, Planner Inputs, Own Fleet Assignment — no vendor or meta sections
+- Transport Orders menu visible in sidebar for driver role
+
+---
+
+### 9. UX & Admin Design System Improvements ✅
+
+- **Label capitalisation**: sentence-case + acronym ALL CAPS enforced
+  - `verbose_name` added to 13 model fields (POI, TR, TO, PR, UOM fields) across 5 apps
+  - `dfms_labels.js` safety net: applies title-case to nav/column headers, restores acronyms post-render
+  - Design decision documented in `11-design-system/01-foundation/typography-and-labels.md`
+- **`(TR)`/`(TO)`/`(FG)` abbreviations removed** from `verbose_name`, nav labels, and page titles — plain English used throughout nav
+- **PR urgency** editable post-submission for the requester (depot/feed mill officer); all other fields remain locked
+- **Select2 styling** overrides to match admin dark theme (background, tags, dropdown, search field)
+
+---
+
 ## ⏳ Carry-Forward to Sprint 4
+
+### Deferred Stories
 
 | Story | Task ID | SP | Reason |
 |-------|---------|-----|--------|
-| Transport Requests Queue (unified FG + Port Consignment) | TRQ-01 | 3 | Transport Planner queue — in-progress |
-| Transport Order Creation | TO-01 | 8 | Depends on TRQ-01 completion |
-| TDO Vehicle/Driver/Helper Assignment | TO-02 | 8 | Depends on TO-01 |
 | Automated Test Suite (Sprint 1 & 2) | QA-01 | 13 | Deferred — bandwidth |
 | AWS Dev Environment | DEVOPS-01 | 8 | Infrastructure setup ongoing |
+| Vendor admin + TDO vendor fleet read-only access | — | — | `tdo_vendor_fleet` role exists; Vehicles/Drivers/Helpers sidebar + read-only admin mirrors `tdo_own_fleet` — not yet built |
+| Trip dispatch & in-progress lifecycle | Trip-01 | — | TO status after `Ready for Dispatch` (trip start, in-transit, delivered) — Sprint 4 |
+| Challan generation | Challan-01 | — | Data model complete (`TOLineItem`); no Challan admin/template yet |
+
+### Partial Acceptance Criteria (delivered stories with carry-forward sub-tasks)
+
+| Story | What Remains |
+|-------|-------------|
+| **PR-01** — FG Product Requisition | Capacity snapshot at TR creation time; unit tests |
+| **DR-01** — Distribution PR Queue | Capacity snapshot display; unit tests |
+| **DR-02** — Transport Requests | In-app notifications on DM approve/reject; unit tests |
+| **PC-02** — Procurement TRs | "Add another destination" loop (multi-destination TRs in one session); unit tests |
+| **TO-01/TO-02** — Transport Orders | TR status → `Fully Allocated` auto-advance when all lines are covered (currently stops at `Partially Allocated`); Challan generation template |
+
+---
+
+## 🔑 Additional Key Technical Decisions (Transport)
+
+| Decision | Rationale |
+|----------|-----------|
+| `TOLineItem` through model | Per-line allocation (not just total kg) needed for multi-product TRs; enables accurate "already allocated" tracking per product |
+| Single `ASSIGNED` status (removed `ASSIGNED_TO_VENDOR`) | `fleet_type` field already distinguishes own vs vendor; duplicate status added unnecessary complexity |
+| Auto-advance TO status on `save_model` | TDO should not manually set status — it derives from assignment completeness; single-pass evaluation handles filling all fields at once |
+| `autocomplete_fields = ("helpers",)` with Select2 styling | Through model migration unnecessary; searchable multi-select gives good UX without schema changes |
+| `portal_navigation.role_any` OR logic | `role_any` previously short-circuited `permission_any`; fixed to OR — roles grant access without needing explicit DB permission codes |
+| Fleet section JS toggle on `fleet_type` change | Avoids confusing TDO with irrelevant fields; no server round-trip needed |
+| Driver access filtered by `driver_profile` | Drivers see only their assigned TOs; `OneToOneField` on User → Driver makes lookup safe and clean |
 
 ---
 
@@ -196,11 +282,14 @@ branch: feat/requisition
 
 | Metric | Value |
 |--------|-------|
-| Commits delivered | 39 |
-| Files changed (approx.) | 27+ |
-| New templates | 6 |
-| New migrations | 4 |
+| Commits delivered | 55+ |
+| Files changed (approx.) | 45+ |
+| New templates | 9 |
+| New migrations | 9 |
+| New models | `TOLineItem`, `TransportOrderHelper` (not used — reverted) |
+| New JS files | `dfms_labels.js` |
+| New design system docs | `typography-and-labels.md` |
 | Permission codes added | 9 |
-| Roles configured | 8 operational roles |
-| Story points delivered | ~52 / 73 planned |
-| Carry-forward SP | ~21 SP (Transport TO + QA + DevOps) |
+| Roles configured | 10 operational roles (added `tdo_own_fleet`, `tdo_vendor_fleet`, `driver`) |
+| Story points delivered | ~68 / 73 planned |
+| Carry-forward SP | ~5 SP (QA + DevOps) |

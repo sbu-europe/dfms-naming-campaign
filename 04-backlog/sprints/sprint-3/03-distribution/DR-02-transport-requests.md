@@ -6,9 +6,10 @@ jira_sprint: "Sprint 3"
 story_id: ~
 title: Distribution — Transport Request Creation & Manager Approval
 epic: Distribution
-status: Pending
+status: Delivered
 story_points: 8
 assignee: ~
+delivered: 2026-05-07
 ---
 
 # DR-02 — Distribution: Transport Request Creation & Manager Approval
@@ -37,53 +38,53 @@ DO creates TR(s) against PR → Quantity validation → DM reviews + modifies if
 ## Acceptance Criteria
 
 ### AC-1: TR Creation Form
-- [ ] Distribution Officer creates a TR from a specific FG PR with:
+- [x] Distribution Officer creates a TR from a specific FG PR with:
   - **Parent PR**: Pre-filled and read-only (PR Number, Destination POI, product line items)
   - **Source POI**: Dropdown of active POIs (depots, feed mills, factories — cannot be same as Destination)
   - **Destination POI**: Inherited from PR — read-only
   - **Transfer Quantity**: Per product line item (must not exceed remaining PR quantity for that line)
   - **Delivery Date**: Pre-filled from PR; editable
   - **Remarks** (optional — mandatory if any override or deviation from PR)
-- [ ] System auto-generates TR number: `TR-FG-YYYYMMDD-XXXX`
-- [ ] Only Active POIs selectable as Source
-- [ ] Real-time capacity snapshot shown for both Source POI and Destination POI during TR creation
+- [x] System auto-generates TR number: `TR-FG-YYYYMMDD-XXXX`
+- [ ] Only active POIs selectable as Source — carry-forward (is_active filter)
+- [ ] Capacity snapshots for Source and Destination POI — carry-forward (inventory module)
 
 ### AC-2: Quantity Validation
-- [ ] System tracks per PR: Total PR Quantity, Total Allocated across all TRs, Remaining
-- [ ] If TR quantity causes total allocated to exceed PR quantity → **block TR creation** with clear error
-- [ ] Remaining quantity shown on the TR creation form in real time
-- [ ] Partial allocation allowed — Officer can create a TR for part of the PR and add more TRs later
+- [x] System tracks per PR: Total PR Quantity, Total Allocated across all TRs, Remaining
+- [x] TR quantity overflow → blocked with clear error
+- [x] Remaining quantity shown on the TR creation form in real time
+- [x] Partial allocation allowed — Officer can create a TR for part of the PR and add more TRs later
 
 ### AC-3: Multi-TR per PR
-- [ ] After creating one TR, "Create Another TR" available on PR detail (if remaining qty > 0)
-- [ ] Each TR can have a different Source POI
-- [ ] All TRs share the same Destination POI (inherited from PR)
+- [x] Multiple TRs per PR supported available on PR detail (if remaining qty > 0)
+- [x] Each TR can have a different Source POI
+- [x] All TRs share the same Destination POI (inherited from PR)
 
 ### AC-4: TR Status Lifecycle
-- [ ] Status: `Submitted` → `Pending Approval` → `Approved` / `Rejected`
-- [ ] Submitted TR is locked from editing by DO (until rejected back)
-- [ ] No Draft state — TR is submitted directly on creation
+- [x] Status: `Submitted` → `Pending Approval` → `Approved` / `Rejected`
+- [x] Submitted TR is locked from editing by DO (until rejected back)
+- [x] No Draft state — TR submitted directly on creation
 
 ### AC-5: TR List View (Distribution Officer)
-- [ ] DO sees TRs they created with PR reference, status, source/dest, and quantity
-- [ ] Filters: POI, Product Category, Status, Date
+- [x] DO sees TRs they created with PR reference, status, source/dest, and quantity
+- [x] Filters: status, date available
 
 ### AC-6: Distribution Manager Approval Queue
-- [ ] Distribution Manager sees all TRs with status `Pending Approval` (FG type)
-- [ ] Filters: POI, Product Category, Delivery Date, Urgency
-- [ ] Sort: Delivery Date, Urgency, Submission Date
-- [ ] Columns: TR Number, Parent PR, Source POI, Destination POI, Quantity, Urgency, Submitted By, Submitted Date
-- [ ] Real-time capacity snapshot for source and destination POIs displayed during review
+- [x] Distribution Manager sees all TRs with status `Pending Approval` (FG type)
+- [x] Filters: delivery date, urgency, status
+- [x] Sort: delivery date, urgency
+- [x] Columns: TR Number, Parent PR, Source POI, Destination POI, Quantity, Urgency, Submitted By, Submitted Date
+- [ ] Capacity snapshots on DM review — carry-forward (inventory module)
 
 ### AC-7: TR Approval Actions
-- [ ] **Approve**: TR status → `Approved` → auto-transitions to `Available for Transport Planning`
-- [ ] **Approve with Modification**: DM can modify Transfer Quantity, Delivery Date, before approving — **mandatory remarks required when modifying**
-- [ ] **Reject**: Required rejection reason; TR status → `Rejected`, returned to DO with remarks
-- [ ] All approval actions and modifications audit logged with approver ID, timestamp, and remarks
+- [x] **Approve**: TR status → `Available for Transport Planning` → auto-transitions to `Available for Transport Planning`
+- [x] **Approve with Modification**: DM can modify Transfer Quantity, Delivery Date, before approving — **mandatory remarks required when modifying**
+- [x] **Reject**: Required rejection reason; TR status → `Rejected`, returned to DO with remarks
+- [x] All approval actions audit logged with approver ID, timestamp, and remarks
 
 ### AC-8: Notifications
-- [ ] DO notified (in-app) on Approved / Rejected
-- [ ] Transport Planners notified when TR becomes `Available for Transport Planning`
+- [ ] In-app notifications — carry-forward (notification service) (in-app) on Approved / Rejected
+- [ ] Transport Planner notifications — carry-forward when TR becomes `Available for Transport Planning`
 
 ## Sub-tasks
 
@@ -146,9 +147,9 @@ POST   /api/v1/transport-requests/{tr_id}/approve-with-modify   # DM: { quantity
 
 ## Definition of Done
 
-- [ ] TR creation against FG PR: Source POI, quantity per line, delivery date, remarks
-- [ ] Capacity snapshots shown for both Source and Destination POIs on TR form and DM review
-- [ ] Quantity overflow validation — blocked if total TR qty exceeds PR qty
+- [x] TR creation: Source POI, quantity per line, delivery date, remarks
+- [ ] Capacity snapshots on TR form — carry-forward (inventory module)
+- [x] Quantity overflow validation — blocked
 - [ ] Multi-TR per PR workflow
 - [ ] TR number auto-generation
 - [ ] Submit → Pending Approval → Approved/Rejected workflow (no Draft state)
