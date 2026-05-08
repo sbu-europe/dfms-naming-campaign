@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
 - **[Testing Approach](../../../04-architecture/07-implementation/strategies/testing-approach.md)** - High-level testing strategy
-- **[Testing Strategy](./testing-strategy.md)** - Django testing strategy
+- **[Testing Strategy](../..../../../../09-testing/strategy/testing-strategy.md)** - Django testing strategy
 
 This document provides **pytest integration test implementation** (API endpoints, database, external services).
 
@@ -304,7 +304,7 @@ class TestAuthentication:
 
 ## Related Documentation
 
-- **[Testing Strategy](./testing-strategy.md)** - Overall testing approach
+- **[Testing Strategy](../..../../../../09-testing/strategy/testing-strategy.md)** - Overall testing approach
 - **[Unit Tests](./unit-tests.md)** - Unit testing
 - **[E2E Tests](./e2e-tests.md)** - End-to-end testing
 

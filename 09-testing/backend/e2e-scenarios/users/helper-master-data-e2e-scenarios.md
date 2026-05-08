@@ -4,7 +4,7 @@ specification: Helper Master Data Management - Playwright E2E Implementation Pla
 version: 1.2
 phase: Phase 1
 related_stories: US-061
-source_spec: ../../05-modules/12-users/helper-master-data.md
+source_spec: ../../05-modules/03-users/helper-master-data.md
 implementation_reference: ../../../apps/users/admin.py
 last_updated: 2026-04-28
 ---

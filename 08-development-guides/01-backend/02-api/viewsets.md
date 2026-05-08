@@ -6,7 +6,7 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[API Contracts](../../../06-contracts/api/)** - OpenAPI 3.0 specifications
+- **[API Contracts](../../../../../06-contracts/01-apis/)** - OpenAPI 3.0 specifications
 - **[API Reference](./api-reference.md)** - API endpoints
 
 This document provides **Django REST Framework ViewSet implementation** (code, actions, filtering).
@@ -378,7 +378,7 @@ class TransportOrderViewSet(viewsets.ModelViewSet):
 
 ## Related Documentation
 
-- **[API Contracts](../../../06-contracts/api/)** - OpenAPI specifications
+- **[API Contracts](../../../../../06-contracts/01-apis/)** - OpenAPI specifications
 - **[Serializers](./serializers.md)** - Serializer implementation
 - **[Permissions](./permissions.md)** - Permission classes
 

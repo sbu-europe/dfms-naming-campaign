@@ -6,7 +6,7 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Integration Contracts](../../../06-contracts/integration/)** - External integration contracts
+- **[Integration Contracts](../../../../../06-contracts/04-integration/)** - External integration contracts
 - **[External Systems](../../../04-architecture/01-architecture/integration/external-systems.md)** - High-level integration overview
 
 This document provides **Django-specific integration implementation** (GPS, ERP, SMS, Maps, Payment).
@@ -23,8 +23,8 @@ DFMS integrates with external systems for GPS tracking, ERP synchronization, SMS
 
 > **Provider**: GPSWOX (https://www.gpswox.com/), hardware: Concox GT06-ND
 > Confirmed in meeting: 16 March 2026.
-> See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
-> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../06-contracts/04-integration/gps-vts-integration.yaml)
+> See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../../06-contracts/04-integration/gps-vts-integration.yaml)
 
 ### Required Django Settings
 
@@ -569,7 +569,7 @@ def sync_to_erp(data):
 
 ## Related Documentation
 
-- **[Integration Contracts](../../../06-contracts/integration/)** - Integration specifications
+- **[Integration Contracts](../../../../../06-contracts/04-integration/)** - Integration specifications
 - **[Background Tasks](./background-tasks.md)** - Async integration tasks
 
 ---

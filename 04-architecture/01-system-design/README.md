@@ -93,12 +93,12 @@ This folder contains the high-level system architecture for DFMS, following the 
 
 ### Decisions & Implementation
 - **[Architecture Decisions](../03-decisions/)** - ADRs explaining key choices
-- **[Implementation Strategy](../04-implementation/)** - How to build it
-- **[Backend Architecture](../05-backend-architecture/)** - Django implementation details
+- **[Implementation Strategy](../07-implementation/)** - How to build it
+- **[Backend Architecture](../04-backend/)** - Django implementation details
 
 ### Specifications
 - **[Module Specifications](../../05-modules/)** - Detailed module specs
-- **[API Contracts](../../06-contracts/)** - REST API & event contracts
+- **[API Contracts](../../../06-contracts/)** - REST API & event contracts
 
 ---
 
@@ -124,7 +124,7 @@ This architecture follows DFMS core principles:
 ### For Developers
 - Review [container-view.md](./container-view.md) for technology stack
 - Check [modules/](./modules/) for module boundaries
-- See [Backend Architecture](../05-backend-architecture/) for implementation
+- See [Backend Architecture](../04-backend/) for implementation
 
 ### For Stakeholders
 - Read [system-overview.md](./system-overview.md) for system capabilities

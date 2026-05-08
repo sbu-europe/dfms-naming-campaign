@@ -4,20 +4,20 @@
 
 ## 📖 API Contracts
 
-> **Source of Truth**: [`06-contracts/api/`](../../../06-contracts/api/)
+> **Source of Truth**: [`06-contracts/api/`](../../../../../06-contracts/01-apis/)
 
 All API endpoints follow the OpenAPI 3.0 contracts defined in the DFMS Product Context submodule:
 
-- **[Transport Management API](../../../06-contracts/api/rest/transport-management.yaml)**
-- **[Product Requisition API](../../../06-contracts/api/rest/product-requisition.yaml)**
-- **[Vendor Management API](../../../06-contracts/api/rest/vendor-management.yaml)**
-- **[Operations Management API](../../../06-contracts/api/rest/operations-management.yaml)**
-- **[Quality Control API](../../../06-contracts/api/rest/quality-control.yaml)**
-- **[Master Data Management API](../../../06-contracts/api/rest/master-data-management.yaml)**
-- **[Trip Costing API](../../../06-contracts/api/rest/trip-costing.yaml)**
-- **[Reporting API](../../../06-contracts/api/rest/reporting.yaml)**
-- **[Notifications API](../../../06-contracts/api/rest/notifications.yaml)**
-- **[Mobile API](../../../06-contracts/api/rest/mobile.yaml)**
+- **[Transport Management API](../../../../../06-contracts/01-apis/rest/transport-management.yaml)**
+- **[Product Requisition API](../../../../../06-contracts/01-apis/rest/product-requisition.yaml)**
+- **[Vendor Management API](../../../../../06-contracts/01-apis/rest/vendor-management.yaml)**
+- **[Operations Management API](../../../../../06-contracts/01-apis/rest/operations-management.yaml)**
+- **[Quality Control API](../../../../../06-contracts/01-apis/rest/quality-control.yaml)**
+- **[Master Data Management API](../../../../../06-contracts/01-apis/rest/master-data-management.yaml)**
+- **[Trip Costing API](../../../../../06-contracts/01-apis/rest/trip-costing.yaml)**
+- **[Reporting API](../../../../../06-contracts/01-apis/rest/reporting.yaml)**
+- **[Notifications API](../../../../../06-contracts/01-apis/rest/notifications.yaml)**
+- **[Mobile API](../../../../../06-contracts/01-apis/rest/mobile.yaml)**
 
 This document provides **Django REST Framework implementation details** for these APIs.
 

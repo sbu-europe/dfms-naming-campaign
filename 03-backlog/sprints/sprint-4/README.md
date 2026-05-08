@@ -282,7 +282,7 @@ Transport Order status changes            ──→  Vendor Portal TO Updates (V
 
 ## Sprint 4 folder index (all docs in this sprint)
 
-Use this as the canonical entry point for everything under `04-backlog/sprints/sprint-4/`.
+Use this as the canonical entry point for everything under `03-backlog/sprints/sprint-4/`.
 
 ### Core sprint docs
 

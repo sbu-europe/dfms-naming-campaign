@@ -3,9 +3,9 @@ area: vendor-management
 sprint: Sprint 4
 status: Draft
 source_specs:
-  - ../../../03-module-specifications/07-vendor-management/vendor-onboarding.md
-  - ../../../03-module-specifications/07-vendor-management/vendor-portal.md
-  - ../../../03-module-specifications/07-vendor-management/vendor-bidding.md
+  - ../../../05-modules/07-vendor-management/vendor-onboarding.md
+  - ../../../05-modules/07-vendor-management/vendor-portal.md
+  - ../../../05-modules/07-vendor-management/vendor-bidding.md
 last_updated: 2026-05-05
 ---
 
@@ -16,7 +16,7 @@ last_updated: 2026-05-05
 ## Mobile app context (quick entrypoint)
 
 - Sprint 4 entrypoint (this folder): [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)
-- Source-of-truth specs: [`03-module-specifications/09-mobile-apps/vendor-mobile/`](../../../03-module-specifications/09-mobile-apps/vendor-mobile/)
+- Source-of-truth specs: [`05-modules/09-mobile-apps/vendor-mobile/`](../../../05-modules/09-mobile-apps/vendor-mobile/)
 
 ## Sprint Goal (Vendor Management)
 
@@ -153,15 +153,15 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 
 | Sprint item | Mobile app context file(s) | Backend touchpoints (high-level) |
 |------------|-----------------------------|----------------------------------|
-| VM-01 Vendor onboarding entry (self/invite) | `03-module-specifications/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Vendor registration, invite acceptance, auth bootstrap |
-| VM-02 Compliance docs + profile | `03-module-specifications/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, vendor profile updates |
-| VM-03 Platform verification | `03-module-specifications/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Platform verification queue + approve/reject + status events |
-| VM-09 Vendor ↔ tenant join | `03-module-specifications/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
-| VM-04 Vendor portal views | `03-module-specifications/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
-| VM-05 Bid submission | `03-module-specifications/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
+| VM-01 Vendor onboarding entry (self/invite) | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Vendor registration, invite acceptance, auth bootstrap |
+| VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, vendor profile updates |
+| VM-03 Platform verification | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Platform verification queue + approve/reject + status events |
+| VM-09 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
+| VM-04 Vendor portal views | `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
+| VM-05 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
 | VM-08 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
-| VM-06 Vehicle/driver submission after award | `03-module-specifications/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
-| VM-07 Real-time TO updates | `03-module-specifications/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
+| VM-06 Vehicle/driver submission after award | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
+| VM-07 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
 
 ---
 

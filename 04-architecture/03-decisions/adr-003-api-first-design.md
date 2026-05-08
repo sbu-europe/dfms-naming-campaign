@@ -36,7 +36,7 @@ We will adopt an **API-First Design** approach:
    - AsyncAPI 2.6.0 for events
    - JSON Schema for data models
 
-2. **Centralized Contracts**: All contracts in `../../06-contracts/`
+2. **Centralized Contracts**: All contracts in `../../../06-contracts/`
    - API contracts
    - Event contracts
    - Data models
@@ -137,7 +137,7 @@ We will adopt an **API-First Design** approach:
 - [ADR-005: Phase 1 Frontend Approach](./adr-005-phase-1-frontend-approach.md) - Phase 1 frontend
 - [ADR-002: Event-Driven Communication](./adr-002-event-driven-communication.md)
 - [Repository Purpose](../../../02-REPOSITORY_PURPOSE.md)
-- [API Contracts](../../06-contracts/api/)
+- [API Contracts](../../../../06-contracts/01-apis/)
 
 ---
 

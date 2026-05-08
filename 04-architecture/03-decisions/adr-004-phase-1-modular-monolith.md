@@ -120,7 +120,7 @@ We will implement Phase 1 as a **Modular Monolith** with the following character
 
 - [Modular Monolith Pattern](https://www.kamilgrzybek.com/blog/posts/modular-monolith-primer)
 - [Container View](../../01-system-design/container-view.md)
-- [Phase 1 Deployment](../../04-implementation/deployment-strategy/phase-1-deployment.md)
+- [Phase 1 Deployment](../../06-deployment/phase-1-deployment.md)
 
 ---
 

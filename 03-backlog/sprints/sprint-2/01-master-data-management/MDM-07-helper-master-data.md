@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 3
 assignee: ~
-spec_file: ../../../../05-modules/12-users/helper-master-data.md
+spec_file: ../../../../05-modules/03-users/helper-master-data.md
 ---
 
 # MDM-07 — Helper Master Data Management

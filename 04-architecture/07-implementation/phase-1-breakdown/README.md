@@ -90,7 +90,7 @@ Sprint-by-sprint implementation timeline:
 
 ### Implementation Documents
 - **[Implementation Planning](../planning/)** - Strategic planning documents
-- **[Deployment Strategy](../deployment-strategy/)** - Deployment plans
+- **[Deployment Strategy](../../06-deployment/)** - Deployment plans
 - **[Strategies](../strategies/)** - Implementation strategies
 
 ---

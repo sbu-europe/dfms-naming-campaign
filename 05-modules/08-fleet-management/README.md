@@ -50,7 +50,7 @@ Check individual specification files for detailed cross-module references.
 
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
+- **[Source PRD](../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
 - **[User Stories](../../03-backlog/phase-1/user-stories/)** - Implementation stories
 
 ---

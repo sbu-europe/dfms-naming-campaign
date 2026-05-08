@@ -40,7 +40,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 **Sub-total**: 39 SP
 
-> **US-057 (Driver)** — tracked in [`stories/US-057-driver-master-data.md`](../../stories/US-057-driver-master-data.md) and [`05-modules/12-users/driver-user-profiles.md`](../../../05-modules/12-users/driver-user-profiles.md); not under the master data MDM backlog folder.
+> **US-057 (Driver)** — tracked in [`stories/US-057-driver-master-data.md`](../../stories/US-057-driver-master-data.md) and [`05-modules/03-users/driver-user-profiles.md`](../../../05-modules/03-users/driver-user-profiles.md); not under the master data MDM backlog folder.
 
 ---
 

@@ -56,4 +56,4 @@ This file summarizes how **master data** is implemented in this repository so th
 
 - Domain behaviour and roadmap: **[README.md](README.md)** and the per-topic specs (`poi-management.md`, `product-master-data-management.md`, …).
 - Bulk flow detail: **[bulk-import-export.md](bulk-import-export.md)**.
-- Driver / helper domain: **[../12-users/driver-user-profiles.md](../12-users/driver-user-profiles.md)**, **[../12-users/helper-master-data.md](../12-users/helper-master-data.md)**.
+- Driver / helper domain: **[../03-users/driver-user-profiles.md](../03-users/driver-user-profiles.md)**, **[../03-users/helper-master-data.md](../03-users/helper-master-data.md)**.

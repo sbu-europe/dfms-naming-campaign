@@ -22,8 +22,8 @@ This document provides detailed specifications for each external system that DFM
 ## 1. GPS/VTS (Vehicle Tracking System) — GPSWOX + Concox GT06-ND
 
 > **Provider confirmed**: Meeting with Nourish on 16 March 2026.
-> See full meeting notes: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
-> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../06-contracts/04-integration/gps-vts-integration.yaml)
+> See full meeting notes: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+> API contract: [`06-contracts/04-integration/gps-vts-integration.yaml`](../../../../06-contracts/04-integration/gps-vts-integration.yaml)
 
 ### Confirmed Provider Stack
 

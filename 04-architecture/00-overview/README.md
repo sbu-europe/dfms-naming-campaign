@@ -57,15 +57,15 @@ High-level technology choices and rationale:
 
 ### **For Developers**
 1. Read [Technology Stack Overview](./technology-stack-overview.md)
-2. Review [API Contracts](../06-contracts/api/)
+2. Review [API Contracts](../../../06-contracts/01-apis/)
 3. Study [Workflows](../02-workflows/)
-4. Check [Implementation Approach](../04-implementation/)
+4. Check [Implementation Approach](../07-implementation/)
 
 ### **For Technical Product Managers**
 1. Read [Architecture Summary](./architecture-summary.md)
 2. Review [System Overview](../01-system-design/system-overview.md)
 3. Understand [Module Boundaries](../01-system-design/modules/module-boundaries.md)
-4. Check [Deployment Strategy](../04-implementation/deployment-strategy/)
+4. Check [Deployment Strategy](../06-deployment/)
 
 ---
 
@@ -173,7 +173,7 @@ Modules communicate via events:
 - **APIs**: OpenAPI 3.0 (`.yaml` files)
 - **Events**: AsyncAPI 2.0 (`.yaml` files)
 - **Data Models**: JSON Schema (`.yaml` files)
-- **Location**: `../06-contracts/`
+- **Location**: `../../06-contracts/`
 
 ### **Decisions**
 - **Format**: Architecture Decision Records (ADRs)
@@ -197,8 +197,8 @@ Modules communicate via events:
 → Check [External Systems](../01-system-design/integration/external-systems.md)
 
 ### **"I want to see API contracts"**
-→ Browse [API Contracts](../06-contracts/api/rest/)  
-→ Check [OpenAPI Specs](../06-contracts/api/openapi/)
+→ Browse [API Contracts](../../../06-contracts/01-apis/rest/)  
+→ Check [OpenAPI Specs](../../../06-contracts/01-apis/openapi/)
 
 ### **"I want to understand workflows"**
 → Read [Operational Flows](../02-workflows/operational-flows/)  

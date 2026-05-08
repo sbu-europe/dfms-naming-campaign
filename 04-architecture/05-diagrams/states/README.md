@@ -44,7 +44,7 @@ State diagrams help understand:
 
 - **[Business Rules](../../../02-domain/03-business-rules/)** - Detailed validation rules
 - **[Operational Flows](../../02-workflows/operational-flows/)** - Process workflows
-- **[Data Models](../../../06-contracts/02-data-models/)** - Entity definitions
+- **[Data Models](../../../../06-contracts/02-data-models/)** - Entity definitions
 - **[All Diagrams Index](../diagrams-index.md)** - Complete diagram catalog
 
 ---

@@ -483,7 +483,7 @@ docs/
 #### `docs/testing/testing-strategy.md`
 **Purpose**: Low-level Django testing implementation strategy
 
-**High-Level Context**: See [Submodule Testing Approach](../../DFMS-product-context/04-architecture/07-implementation/strategies/testing-approach.md) for high-level strategy
+**High-Level Context**: See [Submodule Testing Approach](..../07-implementation/strategies/testing-approach.md) for high-level strategy
 
 **Low-Level Content**:
 - Django testing pyramid implementation

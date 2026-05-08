@@ -31,10 +31,10 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [authentication-security.md](01-foundation/authentication-security.md) - Authentication, 2FA, Session Control
 - [rbac.md](01-foundation/rbac.md) - Role-based Access Control, Dynamic Role Builder
 - [user-tenant-management.md](01-foundation/user-tenant-management.md) - User & Tenant Management
-- (Moved to 12-users/driver-user-profiles.md)
+- (Moved to 03-users/driver-user-profiles.md)
 - [system-foundation.md](01-foundation/system-foundation.md) - System Foundation overview, audit logging
 - [permission-catalog-phase1.md](01-foundation/permission-catalog-phase1.md) - Complete permission catalog for Phase 1 (all roles & modules)
-- (Moved to 12-users/helper-master-data.md)
+- (Moved to 03-users/helper-master-data.md)
 
 #### Related User Stories
 - US-001: User Login & Account Lockout
@@ -54,7 +54,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Cross-References
 - **Required by**: All operational modules
 - **Provides**: User context, authentication, authorization, audit trail
-- **Helper identity**: [helper-master-data.md](12-users/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
+- **Helper identity**: [helper-master-data.md](03-users/helper-master-data.md) defines optional `user_id` → User for helpers who are also system users
 
 ---
 
@@ -72,14 +72,14 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
 - US-053: Vehicle Registration & Master Data
-- US-057: Driver user profiles — see [`12-users/driver-user-profiles.md`](12-users/driver-user-profiles.md)
+- US-057: Driver user profiles — see [`03-users/driver-user-profiles.md`](03-users/driver-user-profiles.md)
 - US-061: Helper Profile
 - US-047: Vendor Registration
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (RBAC, audit)
 - **Referenced by**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`, `06-fleet-management/`
-- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (+ User on create) in `12-users/driver-user-profiles.md`
+- **Provides**: POI, Product, Vehicle, Vendor master data; **`Driver`** (+ User on create) in `03-users/driver-user-profiles.md`
 
 ---
 
@@ -220,7 +220,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Related User Stories
 - US-053: Vehicle Registration & Master Data
-- US-057: Driver user profiles ([`12-users/driver-user-profiles.md`](12-users/driver-user-profiles.md))
+- US-057: Driver user profiles ([`03-users/driver-user-profiles.md`](03-users/driver-user-profiles.md))
 - US-058: Fuel Management
 - US-061-062: Helper Profile & Assignment
 

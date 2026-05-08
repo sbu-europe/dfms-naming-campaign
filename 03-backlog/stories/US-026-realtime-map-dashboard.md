@@ -57,7 +57,7 @@ GPS data is sourced from **GPSWOX** (https://www.gpswox.com/), Nourish's existin
 - DFMS polls GPSWOX every 30 seconds via a Celery task and caches results in Redis
 - The dashboard reads from Redis — it does not call GPSWOX directly
 - GPSWOX API credentials are being obtained by Antu (Nourish GPS Operator)
-- See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+- See: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
 
 ---
 
@@ -361,7 +361,7 @@ Sort the available vehicle list by real-time distance from the pickup POI at ass
 ### 2. Upcoming Vehicle Availability Forecasting
 Predict when vehicles currently in transit will become available for new assignments, using GPSWOX location + Maps API ETA + trip state data. Phase 2+ candidate — requires historical dwell time modelling.
 
-> See full feasibility notes in the meeting record: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
+> See full feasibility notes in the meeting record: [`06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md`](../../../06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md)
 
 ---
 

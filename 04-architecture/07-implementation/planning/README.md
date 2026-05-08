@@ -76,7 +76,7 @@ Validation report confirming implementation timeline alignment with PRD:
 ## 🔗 Related Documents
 
 ### Implementation Approach
-- [Deployment Strategy](../deployment-strategy/) - Phase-wise deployment plans
+- [Deployment Strategy](../../06-deployment/) - Phase-wise deployment plans
 - [Testing Approach](../testing-approach.md) - Testing strategy
 - [Migration Strategy](../migration-strategy.md) - Data migration approach
 - [Rollout Plan](../rollout-plan.md) - Gradual rollout strategy

@@ -63,9 +63,9 @@ The deployment diagram helps understand:
 
 ## 🔗 Related Documentation
 
-- **[Deployment Strategy](../../04-implementation/deployment-strategy/)** - Deployment approach and planning
+- **[Deployment Strategy](../../06-deployment/)** - Deployment approach and planning
 - **[Technology Stack](../../00-overview/technology-stack-overview.md)** - Technology decisions
-- **[Phase 1 Deployment](../../04-implementation/deployment-strategy/phase-1-deployment.md)** - Phase 1 specifics
+- **[Phase 1 Deployment](../../06-deployment/phase-1-deployment.md)** - Phase 1 specifics
 - **[Development Guides](../../../08-development-guides/01-backend/07-deployment/)** - Deployment implementation guides
 
 ---

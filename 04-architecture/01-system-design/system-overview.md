@@ -354,7 +354,7 @@ Report Generation → Escalation (if fail)
 - **Phase 1**: Docker Compose, Single EC2 instance
 - **Phase 2+**: Kubernetes (for scaling and orchestration)
 
-**See**: [Phase 1 Deployment](../04-implementation/deployment-strategy/phase-1-deployment.md)
+**See**: [Phase 1 Deployment](../06-deployment/phase-1-deployment.md)
 
 ### Data
 - **Primary Database**: PostgreSQL (relational data)

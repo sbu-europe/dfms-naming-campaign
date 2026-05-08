@@ -129,7 +129,7 @@ Each of the 12 module folders now has a comprehensive README.md containing:
 │   ├── README.md                      # Module overview with cross-refs
 │   └── glossary.md
 │
-└── 12-users/
+└── 03-users/
     ├── README.md                      # Module overview with cross-refs
     └── driver-user-profiles.md        # US-057 (moved from 01-foundation)
 ```

@@ -42,7 +42,7 @@ Establish a maintainable, env-driven automation core for tenant-aware Django Adm
 - Module specifications root: [`05-modules/README.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/README.md)
 - Module dependency map: [`05-modules/INDEX.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/INDEX.md)
 - Cross-cutting non-functional requirements: [`05-modules/09-cross-cutting/non-functional-requirements.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/09-cross-cutting/non-functional-requirements.md)
-- Existing implementation-level testing strategy: [`testing-approach.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/04-architecture/07-implementation/strategies/testing-approach.md)
+- Existing implementation-level testing strategy: [`testing-approach.md`](../07-implementation/strategies/testing-approach.md)
 
 ---
 
