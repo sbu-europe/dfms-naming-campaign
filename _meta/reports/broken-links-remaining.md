@@ -14,7 +14,8 @@
 | D | Old pre-reorganisation folder structure | 4 |
 | E | Genuinely unwritten / missing content | 72 |
 
-> All remaining broken links point to content that has not been written yet.
+> **Note**: Categories A, B, C are zero — all tooling/path issues have been resolved.
+> Remaining broken links are unwritten content (planned but not yet authored).
 
 ---
 
