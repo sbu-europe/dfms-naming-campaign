@@ -15,16 +15,16 @@
 
 - **`01-source/`** - Source documents (PRD, WBS, SOW, flow diagrams, proposals) - Do not modify
 - **`02-domain/`** - Business domain context (overview, requirements, rules, processes, industry)
-- **`03-module-specifications/`** - Technical module specifications (34 files, ~20,000 lines)
-- **`04-backlog/`** - Product backlog (epics, stories, phases)
-- **`05-architecture/`** - System & implementation architecture (high-level + Django)
+- **`05-modules/`** - Technical module specifications (34 files, ~20,000 lines)
+- **`03-backlog/`** - Product backlog (epics, stories, phases)
+- **`04-architecture/`** - System & implementation architecture (high-level + Django)
 - **`06-contracts/`** - API contracts & integration specifications
-- **`07-reference/`** - Reference materials, data dictionaries
-- **`08-change-requests/`** - Change request management
-- **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
-- **`10-meta/`** - Repository meta-documentation (plans, reports, tracking)
-- **`11-design-system/`** - UI design system (colors, typography, spacing, components, platform guides)
-- **`12-e2e-testing/`** - E2E testcase and scenario planning by module story points
+- **`10-reference/`** - Reference materials, data dictionaries
+- **`11-change-requests/`** - Change request management
+- **`08-development-guides/`** - Implementation guides (backend, frontend, mobile)
+- **`_meta/`** - Repository meta-documentation (plans, reports, tracking)
+- **`07-design-system/`** - UI design system (colors, typography, spacing, components, platform guides)
+- **`09-testing/backend/e2e-scenarios/`** - E2E testcase and scenario planning by module story points
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
@@ -54,9 +54,9 @@ This repository serves as the **domain context and interface contract layer** fo
 - **[00-START-HERE.md](00-START-HERE.md)** - Navigation guide for all roles
 - **[01-PRODUCT_VISION.md](01-PRODUCT_VISION.md)** - Product strategy
 - **[02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md)** - Repository architecture
-- **[Module Specifications](03-module-specifications/)** - Technical documentation (~20,500 lines)
-- **[Product Backlog](04-backlog/)** - 97 stories, 17 epics, organized by phase
-- **[E2E Scenario Plans](12-e2e-testing/)** - Module-wise E2E testcase planning mapped to stories
+- **[Module Specifications](05-modules/)** - Technical documentation (~20,500 lines)
+- **[Product Backlog](03-backlog/)** - 97 stories, 17 epics, organized by phase
+- **[E2E Scenario Plans](09-testing/backend/e2e-scenarios/)** - Module-wise E2E testcase planning mapped to stories
 
 ## 📊 Status
 
@@ -76,7 +76,7 @@ This repository serves as the **domain context and interface contract layer** fo
 
 ## 📝 Change Requests
 
-Change requests are managed in [`08-change-requests/`](08-change-requests/CR-INDEX.md).  
+Change requests are managed in [`11-change-requests/`](11-change-requests/CR-INDEX.md).  
 **Current**: 1 CR implemented (CR-001: Phase-Based Architecture Documentation)
 
 ## 📞 Contact

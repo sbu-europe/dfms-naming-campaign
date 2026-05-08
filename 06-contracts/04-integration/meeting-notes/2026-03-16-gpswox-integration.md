@@ -4,7 +4,7 @@ meeting_date: 2026-03-16
 recorded_by: Nishat (BS23)
 status: confirmed
 related_contract: ../gps-vts-integration.yaml
-related_story: ../../../../04-backlog/02-stories/US-026-realtime-map-dashboard.md
+related_story: ../../../../03-backlog/02-stories/US-026-realtime-map-dashboard.md
 ---
 
 # Meeting Notes — GPSWOX GPS/VTS Integration
@@ -142,9 +142,9 @@ These were proposed during the meeting. They are **not in current scope** and re
 | Document | Change Required |
 |----------|----------------|
 | `06-contracts/04-integration/gps-vts-integration.yaml` | Update server URL, add `overspeed` field, add provider metadata |
-| `05-architecture/01-system-design/integration/external-systems.md` | Replace generic GPS section with GPSWOX-specific details |
-| `09-development-guides/01-backend/05-services/integrations.md` | Update `GPSService` with GPSWOX settings keys and `overspeed` field |
-| `04-backlog/02-stories/US-026-realtime-map-dashboard.md` | Add GPSWOX as confirmed data source, overspeed field, terrain map config |
+| `04-architecture/01-system-design/integration/external-systems.md` | Replace generic GPS section with GPSWOX-specific details |
+| `08-development-guides/01-backend/05-services/integrations.md` | Update `GPSService` with GPSWOX settings keys and `overspeed` field |
+| `03-backlog/02-stories/US-026-realtime-map-dashboard.md` | Add GPSWOX as confirmed data source, overspeed field, terrain map config |
 
 ---
 

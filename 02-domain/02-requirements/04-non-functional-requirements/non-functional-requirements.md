@@ -615,7 +615,7 @@ This document defines the non-functional requirements (NFRs) for the DFMS platfo
 
 - [Functional Requirements](../functional-requirements/) - Feature specifications
 - [Business Objectives](../business-objectives.md) - Strategic goals
-- [Technical Context](../../../05-architecture/) - Technical architecture and design
+- [Technical Context](../../../04-architecture/) - Technical architecture and design
 
 ---
 
