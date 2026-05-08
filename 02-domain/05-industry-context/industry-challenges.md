@@ -147,7 +147,7 @@ Organizations operating large-scale logistics and distribution networks face mul
 
 - [Industry Overview](./industry-overview.md) - Industry landscape
 - [Industry Trends](./industry-trends.md) - Market trends addressing challenges
-- [Value Proposition](../../00-overview/value-proposition.md) - How DFMS addresses these challenges
+- [Value Proposition](../01-overview/value-proposition.md) - How DFMS addresses these challenges
 
 ---
 

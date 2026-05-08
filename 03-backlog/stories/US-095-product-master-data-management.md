@@ -13,7 +13,7 @@ story_points: 13
 created: 2026-02-27
 updated: 2026-02-27
 source_documents:
-  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../05-modules/02-master-data/product-master-data-management.md
   - ../../../../source-documents/04-wbs/epics-table.md
 related_stories:

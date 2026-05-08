@@ -467,7 +467,7 @@ New → Assigned → In Progress → Testing → Resolved → Closed
 
 ## 🔗 Related Documents
 
-- [Phase 1 Deployment](./deployment-strategy/phase-1-deployment.md)
+- [Phase 1 Deployment](../../06-deployment/phase-1-deployment.md)
 - [Technology Considerations](./technology-considerations.md)
 - [Rollout Plan](./rollout-plan.md)
 

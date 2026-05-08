@@ -303,8 +303,8 @@ for order in orders:
 
 ## Related Documentation
 
-- **[Development Setup](./development-setup.md)** - Development environment
-- **[Monitoring](../deployment/monitoring.md)** - Monitoring and logging
+- **[Development Setup](../01-setup/development-setup.md)** - Development environment
+- **[Monitoring](../07-deployment/monitoring.md)** - Monitoring and logging
 
 ---
 

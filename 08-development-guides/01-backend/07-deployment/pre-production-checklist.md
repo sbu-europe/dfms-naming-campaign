@@ -206,8 +206,8 @@
 
 ## Related Documents
 
-- [AWS Deployment Strategy](./aws-deployment-strategy.md)
-- [Resource & Cost Estimation](./aws-cost-estimation.md)
-- [Billing Safeguards](./aws-billing-safeguards.md)
-- [Post-Production Scalability Plan](./aws-scalability-plan.md)
+- [AWS Deployment Strategy](../../../04-architecture/06-deployment/aws-deployment-strategy.md)
+- [Resource & Cost Estimation](../../../04-architecture/06-deployment/aws-cost-estimation.md)
+- [Billing Safeguards](../../../04-architecture/06-deployment/aws-billing-safeguards.md)
+- [Post-Production Scalability Plan](../../../04-architecture/06-deployment/aws-scalability-plan.md)
 - [Backup & Recovery Guide](../../../08-development-guides/01-backend/07-deployment/backup-recovery.md)

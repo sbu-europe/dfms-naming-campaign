@@ -68,7 +68,7 @@ This document serves as an overview and index for detailed constraints, assumpti
 
 ## 🔗 Related Documents
 
-- **[Business Objectives](./business-objectives/business-objectives.md)** - Strategic goals and success criteria
+- **[Business Objectives](../../01-overview/business-objectives.md)** - Strategic goals and success criteria
 - **[Functional Requirements](./functional-requirements/)** - Detailed functional requirements
 - **[Non-Functional Requirements](./non-functional-requirements/)** - Performance, security, scalability requirements
 

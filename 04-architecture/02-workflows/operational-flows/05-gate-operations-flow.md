@@ -519,8 +519,8 @@ UnloadingCompleted(
 - [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [Business Process](../../../02-domain/01-business-domain/business-processes/business-processes-overview.md)
-- [User Story: US-035](../../../02-domain/03-backlog/phase-1/user-stories/US-035-gate-in-source.md)
+- [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
+- [User Story: US-035](../../../03-backlog/stories/US-035-gate-in-source.md)
 
 ### Other Workflows
 - [Trip Execution Flow](./03-trip-execution-flow.md) - Part of trip execution

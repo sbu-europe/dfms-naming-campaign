@@ -288,7 +288,7 @@ This document provides a comprehensive mapping between all business-context docu
 - Master data samples
 - Feature lists evolution
 
-> 📖 **See**: [Source Documents README](../../source-documents/README.md) for current structure
+> 📖 **See**: [Source Documents README](../../so../../01-source/README.md) for current structure
 
 ---
 
@@ -431,8 +431,8 @@ unzip -p "filename.pptx" ppt/slides/*.xml | sed 's/<[^>]*>//g'
 
 ## Related Documents
 
-- **[Source Documents README](../../source-documents/README.md)** - Overview of all source materials (updated structure)
-- **[WBS README](../../source-documents/04-wbs/README.md)** - Work Breakdown Structure documentation
+- **[Source Documents README](../../so../../01-source/README.md)** - Overview of all source materials (updated structure)
+- **[WBS README](../../so../../01-source/04-wbs/README.md)** - Work Breakdown Structure documentation
 - **[SOW Documents](../../source-documents/03-sow/)** - Statement of Work for all phases
 - **[Product Vision](../../01-PRODUCT_VISION.md)** - Strategic context
 

@@ -146,7 +146,7 @@ All functional requirements are traced to:
 - **Meeting Minutes** (Stakeholder validation)
 - **Discovery Phase Materials** (User needs)
 
-See [Source Document Mapping](../../06-reference/source-document-mapping.md) for complete traceability.
+See [Source Document Mapping](../../../04-architecture/08-reference/source-document-mapping.md) for complete traceability.
 
 ---
 
@@ -185,8 +185,8 @@ Each functional requirement follows this structure:
 
 ## Related Documents
 
-- [Business Objectives](../business-objectives.md) - Strategic goals
-- [User Personas](../user-personas.md) - User profiles and needs
+- [Business Objectives](../../01-overview/business-objectives.md) - Strategic goals
+- [User Personas](../02-user-personas/user-personas.md) - User profiles and needs
 - [Non-Functional Requirements](../non-functional-requirements/) - System quality attributes
 - [Business Processes](../../01-business-domain/business-processes/) - Process workflows
 

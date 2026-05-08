@@ -101,9 +101,9 @@ Document all deployment steps and procedures.
 
 ## 🔗 Related Documents
 
-- [Technology Considerations](../technology-considerations.md)
-- [Rollout Plan](../rollout-plan.md)
-- [Migration Strategy](../migration-strategy.md)
+- [Technology Considerations](../07-implementation/strategies/technology-considerations.md)
+- [Rollout Plan](../07-implementation/strategies/rollout-plan.md)
+- [Migration Strategy](../07-implementation/strategies/migration-strategy.md)
 
 ---
 

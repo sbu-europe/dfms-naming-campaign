@@ -634,7 +634,7 @@ graph TD
 
 ## 🔗 Related Documents
 
-- **[WBS Stories Table](../../source-documents/04-wbs/stories-table.md)** - Source story breakdown
+- **[WBS Stories Table](../../../01-source/04-wbs/stories-table.md)** - Source story breakdown
 - **[Epic Breakdown](./EPICS.md)** - Epic-level breakdown
 - **[Implementation Timeline](./TIMELINE.md)** - Sprint-by-sprint timeline
 - **[Feature Dependencies](../../02-domain/03-backlog/feature-dependencies.md)** - Detailed dependency analysis

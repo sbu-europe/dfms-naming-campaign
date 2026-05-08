@@ -251,5 +251,5 @@ PUT /api/v1/roles/{role_id}/permissions
 
 **Last Updated**: 2026-04-09  
 **Status**: Complete  
-**Previous Module**: [00-overview/](../00-overview/README.md) - Product Overview  
+**Previous Module**: [00-overview/](../../README.md) - Product Overview  
 **Next Module**: [02-master-data/](../02-master-data/README.md) - Master Data Management

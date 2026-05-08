@@ -122,7 +122,7 @@ We will implement Phase 1 frontend using **Django Templates + Bootstrap 5** with
 
 - [ADR-004: Phase 1 Modular Monolith](./adr-004-phase-1-modular-monolith.md) - Phase 1 architecture
 - [ADR-100: Technology Stack](./adr-100-technology-stack.md) - Technology choices
-- [Technology Stack Overview](../../00-overview/technology-stack-overview.md)
+- [Technology Stack Overview](../00-overview/technology-stack-overview.md)
 
 ---
 

@@ -7,7 +7,7 @@
 > **Source of Truth**: [`04-architecture/`](../)
 
 - **[Security Architecture](../00-overview/architecture-summary.md#6-security-first)** - High-level security approach
-- **[Non-Functional Requirements](../../DFMS-product-context/02-domain/02-requirements/non-functional-requirements/non-functional-requirements.md#41-authentication)** - Authentication requirements
+- **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#41-authentication)** - Authentication requirements
 - **[User Story US-007](../../DFMS-product-context/02-domain/03-features/phase-1/user-stories/US-007-user-role-management.md)** - User authentication requirements
 
 This document provides **Django-specific authentication implementation** (code, configuration, middleware).
@@ -515,8 +515,8 @@ class TestAuthentication:
 ## Related Documentation
 
 - **[Authorization Implementation](./authorization.md)** - Permission and RBAC implementation
-- **[API Reference](../api/api-reference.md)** - API authentication endpoints
-- **[Security Testing](../guides/security-testing.md)** - Security testing guide
+- **[API Reference](../../08-development-guides/01-backend/02-api/api-reference.md)** - API authentication endpoints
+- **[Security Testing](../../08-development-guides/01-backend/08-guides/security-testing.md)** - Security testing guide
 
 ---
 

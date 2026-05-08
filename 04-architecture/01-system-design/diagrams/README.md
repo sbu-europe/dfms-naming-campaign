@@ -37,7 +37,7 @@ These diagrams provide the **big picture** of DFMS architecture:
 
 - **[System Overview](../system-overview.md)** - Detailed C4 Level 1 documentation
 - **[Container View](../container-view.md)** - Detailed C4 Level 2 documentation
-- **[All Diagrams Index](../../06-diagrams/diagrams-index.md)** - Complete diagram catalog
+- **[All Diagrams Index](../../05-diagrams/diagrams-index.md)** - Complete diagram catalog
 
 ---
 

@@ -428,7 +428,7 @@ class TestErrorHandling:
 ## Related Documentation
 
 - **[Exception Scenarios](../02-workflows/exception-handling/exception-scenarios.md)** - High-level exception scenarios
-- **[API Reference](../api/api-reference.md)** - API error responses
+- **[API Reference](../../08-development-guides/01-backend/02-api/api-reference.md)** - API error responses
 
 ---
 

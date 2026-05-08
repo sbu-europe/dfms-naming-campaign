@@ -26,7 +26,7 @@ This document provides **contribution guidelines** for this backend repository.
 
 ### Development Setup
 
-See [Development Setup Guide](./development-setup.md) for detailed setup instructions.
+See [Development Setup Guide](../01-setup/development-setup.md) for detailed setup instructions.
 
 ---
 
@@ -482,9 +482,9 @@ def has_object_permission(self, request, view, obj):
 
 ## Related Documentation
 
-- **[Development Setup](./development-setup.md)** - Local development guide
+- **[Development Setup](../01-setup/development-setup.md)** - Local development guide
 - **[Code Style Guide](./code-style.md)** - Detailed code style guide
-- **[API Reference](../api/api-reference.md)** - API implementation details
+- **[API Reference](../02-api/api-reference.md)** - API implementation details
 
 ---
 

@@ -39,7 +39,7 @@ The target is a **cost-optimised dev setup** — not production-grade HA, but ar
 
 > **Dev cost strategy**: PostgreSQL and Redis run as Docker containers on the same EC2 — no RDS, no ElastiCache. Acceptable for internal testing with ≤20 testers. Data persists on the EBS root volume. EC2 is auto-stopped outside business hours (08:00–20:00 BDT, Mon–Sat).
 >
-> Phase 1 dev uses Route 53 → EC2 Elastic IP directly (no ALB, no NAT Gateway). See [aws-deployment-strategy.md](../../../../../04-architecture/06-deployment/aws-deployment-strategy.md).
+> Phase 1 dev uses Route 53 → EC2 Elastic IP directly (no ALB, no NAT Gateway). See [aws-deployment-strategy.md](../../../../04-architecture/06-deployment/aws-deployment-strategy.md).
 
 ```
 Internet

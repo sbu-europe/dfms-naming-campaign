@@ -69,7 +69,7 @@ Business rules are organized into 8 categories:
 
 - [Functional Requirements](../../02-requirements/functional-requirements/) - Feature specifications
 - [Business Processes](../business-processes/) - Process workflows
-- [Constraints & Assumptions](../../02-requirements/constraints-assumptions.md) - Project constraints
+- [Constraints & Assumptions](../02-requirements/05-constraints-assumptions/constraints-assumptions.md) - Project constraints
 
 ---
 

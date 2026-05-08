@@ -21,12 +21,12 @@ This folder contains comprehensive documentation of all DFMS requirements, inclu
 Comprehensive profiles of all user types who will interact with the DFMS platform.
 
 **Key Documents:**
-- [User Personas Overview](./user-personas/user-personas.md) - Complete index
+- [User Personas Overview](./02-user-personas/user-personas.md) - Complete index
 - Transport, Distribution, Procurement, Operations, QC, Finance, Executive, External, Administrative personas
 
 **Total Files**: 10 (1 overview + 9 persona category files)
 
-See [User Personas README](./user-personas/README.md) for complete navigation.
+See [User Personas README](./02-user-personas/README.md) for complete navigation.
 
 ---
 
@@ -35,13 +35,13 @@ See [User Personas README](./user-personas/README.md) for complete navigation.
 Strategic business goals and success criteria for the Distribution and Fleet Management System.
 
 **Key Documents:**
-- [Business Objectives Overview](./business-objectives/business-objectives.md) - Complete index
+- [Business Objectives Overview](../01-overview/business-objectives.md) - Complete index
 - Primary Objectives, Phase Objectives, Stakeholder Objectives
 - KPIs, Success Criteria, Risk Mitigation Objectives
 
 **Total Files**: 7 (1 overview + 6 objective files)
 
-See [Business Objectives README](./business-objectives/README.md) for complete navigation.
+See [Business Objectives README](./01-business-objectives/README.md) for complete navigation.
 
 ---
 
@@ -50,23 +50,23 @@ See [Business Objectives README](./business-objectives/README.md) for complete n
 Project constraints, assumptions, dependencies, and known limitations.
 
 **Key Documents:**
-- [Constraints & Assumptions Overview](./constraints-assumptions/constraints-assumptions.md) - Complete index
+- [Constraints & Assumptions Overview](./05-constraints-assumptions/constraints-assumptions.md) - Complete index
 - Business, Technical, Operational Constraints
 - Assumptions, Dependencies, Known Limitations
 
 **Total Files**: 7 (1 overview + 6 constraint files)
 
-See [Constraints & Assumptions README](./constraints-assumptions/README.md) for complete navigation.
+See [Constraints & Assumptions README](./05-constraints-assumptions/README.md) for complete navigation.
 
 ### Functional Requirements
 
 - **[Functional Requirements](./functional-requirements/)** - Detailed functional requirements by module
-  - See [Functional Requirements README](./functional-requirements/README.md) for module breakdown
+  - See [Functional Requirements README](./03-functional-requirements/README.md) for module breakdown
 
 ### Non-Functional Requirements
 
 - **[Non-Functional Requirements](./non-functional-requirements/)** - Performance, security, scalability requirements
-  - See [Non-Functional Requirements](./non-functional-requirements/non-functional-requirements.md)
+  - See [Non-Functional Requirements](./04-non-functional-requirements/non-functional-requirements.md)
 
 ## 🎯 Quick Navigation
 

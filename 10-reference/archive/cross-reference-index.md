@@ -357,7 +357,7 @@ business-context/
 **From business-context documents TO source-documents**:
 - All documents include `source_documents` in frontmatter
 - Total unique source documents referenced: 40+
-- See [Source Document Mapping](../00-overview/source-document-mapping.md)
+- See [Source Document Mapping](../../04-architecture/08-reference/source-document-mapping.md)
 
 ### To Technical Context
 

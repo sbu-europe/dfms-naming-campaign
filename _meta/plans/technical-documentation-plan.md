@@ -31,7 +31,7 @@
 
 ### Single Source of Truth
 
-**Submodule (`DFMS-product-context/04-architecture/`)** = **High-Level Technical Context**
+**Submodule (`DF../../04-architecture/`)** = **High-Level Technical Context**
 - ✅ System architecture (C4 Level 1-2)
 - ✅ Architecture Decision Records (ADRs)
 - ✅ API contracts (OpenAPI 3.0 specs)
@@ -160,7 +160,7 @@ docs/
 #### `docs/architecture/authentication.md`
 **Purpose**: Low-level Django authentication implementation
 
-**High-Level Context**: See [Submodule Security Architecture](../../DFMS-product-context/04-architecture/00-overview/architecture-summary.md#6-security-first)
+**High-Level Context**: See [Submodule Security Architecture](../../DF../../04-architecture/00-overview/architecture-summary.md#6-security-first)
 
 **Low-Level Content**:
 - JWT authentication implementation code (PyJWT)
@@ -181,7 +181,7 @@ docs/
 #### `docs/architecture/authorization.md`
 **Purpose**: Low-level Django authorization and permissions implementation
 
-**High-Level Context**: See [Submodule Security Architecture](../../DFMS-product-context/04-architecture/00-overview/architecture-summary.md#6-security-first)
+**High-Level Context**: See [Submodule Security Architecture](../../DF../../04-architecture/00-overview/architecture-summary.md#6-security-first)
 
 **Low-Level Content**:
 - RBAC implementation code
@@ -233,7 +233,7 @@ docs/
 #### `docs/api/serializers.md`
 **Purpose**: Low-level Django REST Framework serializer implementation
 
-**High-Level Context**: See [Submodule API Contracts](../../DFMS-product-context/06-contracts/api/) for data models and schemas
+**High-Level Context**: See [Submodule API Contracts](../../DF../../06-contracts/api/) for data models and schemas
 
 **Low-Level Content**:
 - Serializer implementation code
@@ -309,7 +309,7 @@ docs/
 #### `docs/database/models.md`
 **Purpose**: Low-level Django ORM models implementation
 
-**High-Level Context**: See [Submodule Data Models](../../DFMS-product-context/06-contracts/data-models/) for entity definitions
+**High-Level Context**: See [Submodule Data Models](../../DF../../06-contracts/data-models/) for entity definitions
 
 **Low-Level Content**:
 - Django model code per app
@@ -359,7 +359,7 @@ docs/
 #### `docs/services/background-tasks.md`
 **Purpose**: Low-level Celery background tasks implementation
 
-**High-Level Context**: See [Submodule Workflows](../../DFMS-product-context/04-architecture/02-workflows/) for task requirements
+**High-Level Context**: See [Submodule Workflows](../../DF../../04-architecture/02-workflows/) for task requirements
 
 **Low-Level Content**:
 - Celery configuration code
@@ -483,7 +483,7 @@ docs/
 #### `docs/testing/testing-strategy.md`
 **Purpose**: Low-level Django testing implementation strategy
 
-**High-Level Context**: See [Submodule Testing Approach](..../07-implementation/strategies/testing-approach.md) for high-level strategy
+**High-Level Context**: See [Submodule Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md) for high-level strategy
 
 **Low-Level Content**:
 - Django testing pyramid implementation
@@ -569,7 +569,7 @@ docs/
 #### `docs/deployment/aws-setup.md`
 **Purpose**: Low-level AWS deployment configuration and setup
 
-**High-Level Context**: See [Submodule Phase 1 Deployment Strategy](../../DFMS-product-context/04-architecture/06-deployment/phase-1-deployment.md) for high-level approach
+**High-Level Context**: See [Submodule Phase 1 Deployment Strategy](../../DF../../04-architecture/06-deployment/phase-1-deployment.md) for high-level approach
 
 **Low-Level Content**:
 - EC2 setup scripts and configuration
@@ -698,8 +698,8 @@ docs/
 **Purpose**: Reference index — no duplicated content
 
 **Content**:
-- Links to **API contracts** (submodule `05-contracts/api/`) and **API implementation** ([api-reference.md](../api/api-reference.md))
-- Links to **module boundaries** (submodule) and **Django app structure** ([code-organization.md](../architecture/code-organization.md))
+- Links to **API contracts** (submodule `05-contracts/api/`) and **API implementation** ([api-reference.md](../../08-development-guides/01-backend/02-api/api-reference.md))
+- Links to **module boundaries** (submodule) and **Django app structure** ([code-organization.md](../../04-architecture/04-backend/code-organization.md))
 - Link to submodule `06-reference/` (version history, cross-reference)
 
 **Rationale**: Removed redundant `api-endpoints.md` (overlaps submodule OpenAPI + api-reference.md) and `django-apps.md` (overlaps code-organization.md). Single source of truth: submodule for contracts, docs for implementation.

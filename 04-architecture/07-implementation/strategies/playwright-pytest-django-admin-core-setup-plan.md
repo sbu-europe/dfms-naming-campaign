@@ -39,10 +39,10 @@ Establish a maintainable, env-driven automation core for tenant-aware Django Adm
 - Django Admin business UI entrypoint example: [`apps/users/admin.py`](/home/bs-01426/Europe/real_project/nourish-backend/apps/users/admin.py)
 
 ### Product Context References
-- Module specifications root: [`05-modules/README.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/README.md)
-- Module dependency map: [`05-modules/INDEX.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/INDEX.md)
-- Cross-cutting non-functional requirements: [`05-modules/09-cross-cutting/non-functional-requirements.md`](/home/bs-01426/Europe/real_project/nourish-backend/DFMS-product-context/05-modules/09-cross-cutting/non-functional-requirements.md)
-- Existing implementation-level testing strategy: [`testing-approach.md`](../07-implementation/strategies/testing-approach.md)
+- Module specifications root: [`05-modules/README.md`](../../../README.md)
+- Module dependency map: [`05-modules/INDEX.md`](../../../05-modules/INDEX.md)
+- Cross-cutting non-functional requirements: [`05-modules/09-cross-cutting/non-functional-requirements.md`](../../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md)
+- Existing implementation-level testing strategy: [`testing-approach.md`](testing-approach.md)
 
 ---
 

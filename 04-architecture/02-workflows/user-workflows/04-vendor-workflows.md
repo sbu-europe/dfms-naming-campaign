@@ -222,7 +222,7 @@ graph TD
 - [Vendor Bidding Flow](../operational-flows/04-vendor-bidding-flow.md)
 
 ### Business Context
-- [User Story: US-063](../../../02-domain/03-backlog/phase-1/user-stories/US-063-vendor-mobile-app.md)
+- [User Story: US-063](../../../03-backlog/stories/US-063-vendor-mobile-app.md)
 
 ---
 

@@ -18,7 +18,7 @@ pending:
 created: 2026-02-13
 updated: 2026-04-09
 source_documents:
-  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
 related_stories:

@@ -102,7 +102,7 @@ Mobile workflows are optimized for field users.
 ## 🔗 Related Documents
 
 ### Architecture
-- [User Personas](../../../02-domain/02-requirements/user-personas.md)
+- [User Personas](../../../02-domain/02-requirements/02-user-personas/user-personas.md)
 - [Module Boundaries](../../01-system-design/modules/module-boundaries.md)
 
 ### Operational Flows

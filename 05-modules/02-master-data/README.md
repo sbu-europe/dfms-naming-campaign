@@ -208,4 +208,4 @@ See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`**
 **Last Updated**: 2026-04-17  
 **Status**: Complete (aligned with `apps/master_data` implementation)  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
-**Next Module**: [03-operations/](../03-operations/README.md) - Core Operations
+**Next Module**: [03-operations/](../05-transport/README.md) - Core Operations

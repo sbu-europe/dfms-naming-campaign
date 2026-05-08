@@ -479,7 +479,7 @@ QC (Quality Checks) [Multiple per trip]
 
 - [Data Dictionary](../data-dictionary.md) - Complete field-level definitions
 - [Master Data Overview](../master-data/master-data-overview.md) - Master data entities
-- [Business Processes](../../01-business-domain/business-processes/business-processes-overview.md) - Processes creating transactional data
+- [Business Processes](../../../02-domain/04-business-processes/business-processes-overview.md) - Processes creating transactional data
 - [User Stories](../../03-backlog/) - Features using transactional data
 
 ---

@@ -6,7 +6,7 @@
 
 > **Source of Truth**: [`04-architecture/`](../../../04-architecture/)
 
-- **[Notification Contracts](../../../../../06-contracts/01-apis/rest/notifications.yaml)** - Notification API contract
+- **[Notification Contracts](../../../06-contracts/01-apis/rest/notifications.yaml)** - Notification API contract
 - **[Event Contracts](../../../../../06-contracts/03-events/)** - Event specifications
 
 This document provides **Django-specific notification implementation** (email, SMS, push notifications).

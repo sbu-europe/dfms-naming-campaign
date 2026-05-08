@@ -390,7 +390,7 @@ graph TD
 - [Vendor Bidding Flow](../operational-flows/04-vendor-bidding-flow.md)
 
 ### Business Context
-- [User Persona](../../../02-domain/02-requirements/user-personas.md)
+- [User Persona](../../../02-domain/02-requirements/02-user-personas/user-personas.md)
 - [User Stories](../../../02-domain/03-backlog/phase-1/user-stories/)
 
 ---

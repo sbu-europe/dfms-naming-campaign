@@ -449,8 +449,8 @@ Testing & Deployment (Weeks 25-26)
 - **[Module Specifications](../../../business-context/05-modules/)** - PRD reference content
 - **[Technical Architecture](../../01-architecture/)** - System architecture
 - **[Deployment Strategy](../deployment-strategy/)** - Detailed deployment plans
-- **[Testing Approach](../testing-approach.md)** - Testing strategy
-- **[Implementation Timeline](./IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
+- **[Testing Approach](../../04-architecture/07-implementation/strategies/testing-approach.md)** - Testing strategy
+- **[Implementation Timeline](../../04-architecture/07-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
 
 ---
 

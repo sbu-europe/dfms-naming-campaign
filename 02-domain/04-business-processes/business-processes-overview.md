@@ -103,7 +103,7 @@ DFMS orchestrates 7 core business processes that span from product requisition t
 
 - [Functional Requirements](../../02-requirements/functional-requirements/) - Detailed feature specifications
 - [Business Rules](../business-rules/) - Business logic and constraints
-- [User Personas](../../00-overview/stakeholders.md) - User roles and responsibilities
+- [User Personas](../01-overview/stakeholders.md) - User roles and responsibilities
 - [Flow Diagrams](../../../source-documents/discovery-phase/flow-diagrams/) - Visual process flows
 
 ---

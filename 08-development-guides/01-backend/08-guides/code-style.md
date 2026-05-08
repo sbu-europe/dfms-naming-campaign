@@ -253,7 +253,7 @@ class TestTransportOrder:
 ## Related Documentation
 
 - **[Contributing Guidelines](./contributing.md)** - Contribution guidelines
-- **[Code Organization](../architecture/code-organization.md)** - Code structure
+- **[Code Organization](../../../04-architecture/04-backend/code-organization.md)** - Code structure
 
 ---
 

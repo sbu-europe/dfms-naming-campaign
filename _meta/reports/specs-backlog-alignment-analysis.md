@@ -68,7 +68,7 @@ Option 2: Rename folders to match INDEX (Consistent - 2 hours)
 **Problem**: Folder `04-poi-operations/` exists with README but is completely absent from INDEX.md
 
 **Evidence**:
-- Folder exists: `05-modules/04-poi-operations/README.md`
+- Folder exists: `05-modules/../../05-modules/06-poi-operations/README.md`
 - Not mentioned in INDEX.md module list
 - Contains specifications for POI operations (gate, scaling, loading/unloading)
 
@@ -284,7 +284,7 @@ When vehicles arrive at gate without pre-existing TR/TO (unexpected deliveries)
 
 **Recommendation**:
 1. Verify if US-053b exists in `03-backlog/02-stories/`
-2. If exists: Map to `04-poi-operations/qc-workflow.md` specification
+2. If exists: Map to `../../05-modules/06-poi-operations/qc-workflow.md` specification
 3. If missing: Clarify if certificate management is part of US-044 (QC Lab Testing) or separate
 
 **Effort**: 1-2 hours
@@ -412,12 +412,12 @@ Implement ONLY features with explicit acceptance criteria in stories unless:
 
 **Recommendation**: Update INDEX.md to include explicit file paths:
 ```markdown
-### [04-poi-operations/](04-poi-operations/README.md)
+### [04-poi-operations/](../../05-modules/06-poi-operations/README.md)
 #### Specifications
-- [gate-management.md](04-poi-operations/gate-management.md)
-- [scaling-management.md](04-poi-operations/scaling-management.md)
-- [qc-workflow.md](04-poi-operations/qc-workflow.md)
-- [command-center.md](04-poi-operations/command-center.md)
+- [gate-management.md](../../05-modules/06-poi-operations/gate-management.md)
+- [scaling-management.md](../../05-modules/06-poi-operations/scaling-management.md)
+- [qc-workflow.md](../../05-modules/06-poi-operations/qc-workflow.md)
+- [command-center.md](../../05-modules/06-poi-operations/command-center.md)
 ```
 
 **Effort**: 2 hours

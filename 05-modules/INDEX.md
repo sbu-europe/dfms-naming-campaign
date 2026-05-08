@@ -284,7 +284,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [security-compliance.md](12-cross-cutting/security-compliance.md) — Layered security, AES-256, RBAC least-privilege, ISO 27001, incident response
 - [integration-requirements.md](12-cross-cutting/integration-requirements.md) — GPS/VTS (30s tracking, geofencing), map APIs, ERP connectors, payment gateways
 - [testing-strategy.md](12-cross-cutting/testing-strategy.md) — Automated test suite: pytest unit + API integration (Sprint 1 & 2), Playwright E2E (POM), coverage ≥ 80%, SonarQube Quality Gate, CI pipeline *(DFS-041, QA-01)*
-- [aws-dev-environment.md](12-cross-cutting/aws-dev-environment.md) — AWS dev environment: EC2 t3.micro (ap-south-1), Docker Compose (Django + Celery + PG + Redis), Terraform IaC, HTTPS, S3, SES, CloudWatch, CI/CD deploy pipeline, ~$0.50/mo *(DFS-042, DEVOPS-01)*
+- [aws-dev-environment.md](../08-development-guides/01-backend/07-deployment/aws-dev-environment.md) — AWS dev environment: EC2 t3.micro (ap-south-1), Docker Compose (Django + Celery + PG + Redis), Terraform IaC, HTTPS, S3, SES, CloudWatch, CI/CD deploy pipeline, ~$0.50/mo *(DFS-042, DEVOPS-01)*
 
 #### Related User Stories
 - Cross-cutting NFRs integrated into all modules

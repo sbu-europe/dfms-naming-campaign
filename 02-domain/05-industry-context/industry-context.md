@@ -67,9 +67,9 @@ This section contains comprehensive industry context organized into focused docu
 
 ## Related Documents
 
-- [Product Vision](../../../01-PRODUCT_VISION.md) - Strategic vision and approach
-- [Business Objectives](../../00-overview/business-objectives.md) - Business goals
-- [Value Proposition](../../00-overview/value-proposition.md) - How DFMS addresses challenges
+- [Product Vision](../../01-PRODUCT_VISION.md) - Strategic vision and approach
+- [Business Objectives](../01-overview/business-objectives.md) - Business goals
+- [Value Proposition](../01-overview/value-proposition.md) - How DFMS addresses challenges
 - [Market Analysis](../../../source-documents/business-proposal/) - Detailed market research
 
 ---

@@ -170,7 +170,7 @@ Rationale:
 **Action**: Add mapping to INDEX.md
 
 ```markdown
-### [04-poi-operations/](04-poi-operations/README.md) - Operations Support
+### [04-poi-operations/](../../05-modules/06-poi-operations/README.md) - Operations Support
 
 #### Related User Stories
 - US-026, US-035-046: Gate, Scaling, Loading operations

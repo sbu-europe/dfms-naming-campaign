@@ -56,18 +56,18 @@
 ## 📋 Recommendations (Ongoing)
 
 1. **Keep in sync**: When WBS or PRD changes, update phase-backlog and module-specifications accordingly.
-2. **Story counts**: Use [source-documents/04-wbs/README.md](../../source-documents/04-wbs/README.md) as the single source for story/epic counts (94 stories, 17 epics).
+2. **Story counts**: Use [so../../01-source/04-wbs/README.md](../../so../../01-source/04-wbs/README.md) as the single source for story/epic counts (94 stories, 17 epics).
 3. **Phase 2/3**: When scope is defined, add phase-2 and phase-3 story files and update phase summaries.
 
 ---
 
 ## 🔗 Related Documents
 
-- [WBS Epics Table](../../source-documents/04-wbs/epics-table.md)
-- [WBS Stories Table](../../source-documents/04-wbs/stories-table.md)
-- [Phase Backlog README](./03-backlog/README.md)
-- [Module Specifications README](./05-modules/README.md)
-- [PRD Document](../../source-documents/01-prd/PRD_DFMS_v1.0.md)
+- [WBS Epics Table](../../so../../01-source/04-wbs/epics-table.md)
+- [WBS Stories Table](../../so../../01-source/04-wbs/stories-table.md)
+- [Phase Backlog README](../../03-backlog/README.md)
+- [Module Specifications README](../../05-modules/README.md)
+- [PRD Document](../../so../../01-source/01-prd/PRD_DFMS_v1.0.md)
 
 ---
 

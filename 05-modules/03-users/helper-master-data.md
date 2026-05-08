@@ -302,7 +302,7 @@ To ensure robustness and data integrity, the Helper Master Data Management modul
 
 - **[Master Data README](../02-master-data/README.md)** - Overall master data management architecture.
 - **[User & tenant management](../01-foundation/user-tenant-management.md)** - Users, tenants, and identity lifecycle.
-- **[Trip Management](../03-operations/trip-management.md)** - How helpers are utilized during trip execution.
+- **[Trip Management](../05-transport/trip-management.md)** - How helpers are utilized during trip execution.
 
 **Related User Stories:**
 - US-061: Helper Profile (MDM-07)

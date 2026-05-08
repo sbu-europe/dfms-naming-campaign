@@ -9,7 +9,7 @@
 
 ## Overview
 
-This document provides a high-level overview of all DFMS data entities, their ownership, relationships, and access patterns. Detailed PostgreSQL DDL, constraints, and indexes are in [Database Implementation](../../../04-backend/database-implementation.md). Django ORM models are in the [development guides](../../../../08-development-guides/01-backend/03-database/models.md).
+This document provides a high-level overview of all DFMS data entities, their ownership, relationships, and access patterns. Detailed PostgreSQL DDL, constraints, and indexes are in [Database Implementation](../../04-backend/database-implementation.md). Django ORM models are in the [development guides](../../../..../../08-development-guides/01-backend/03-database/models.md).
 
 ---
 
@@ -285,11 +285,11 @@ trips = Trip.objects.using('read_replica').filter(status='completed')
 
 ## Related Documents
 
-- [Database Implementation](../../../04-backend/database-implementation.md) — Full PostgreSQL DDL
+- [Database Implementation](../../04-backend/database-implementation.md) — Full PostgreSQL DDL
 - [Data Flow](./data-flow.md) — How data moves through the system
-- [ERD Diagram](../../../06-diagrams/data/entity-relationship-diagram.mmd) — Visual entity relationships
+- [ERD Diagram](../../05-diagrams/data/entity-relationship-diagram.mmd) — Visual entity relationships
 - [Module Boundaries](../modules/module-boundaries.md) — Module data ownership
-- [Django ORM Models](../../../../08-development-guides/01-backend/03-database/models.md) — ORM implementation
+- [Django ORM Models](../../../..../../08-development-guides/01-backend/03-database/models.md) — ORM implementation
 
 ---
 

@@ -159,7 +159,7 @@ DELETE /api/v1/zones/{id}
 - VND-001 to VND-010 (Vendor master data rules)
 - SUP-001 to SUP-005 (Supplier rules)
 - DLR-001 to DLR-005 (Dealer rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -207,7 +207,7 @@ POST   /api/v1/product-requisitions/{id}/reject
 
 ### Business Rules
 - PR-001 to PR-010 (Requisition rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -280,7 +280,7 @@ POST   /api/v1/trips/{id}/cancel
 - TR-001 to TR-015 (Transport Request rules)
 - TO-001 to TO-020 (Transport Order rules)
 - TRIP-001 to TRIP-015 (Trip rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -347,7 +347,7 @@ POST   /api/v1/vendor-invoices/{id}/approve
 
 ### Business Rules
 - VEN-001 to VEN-020 (Vendor rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -434,7 +434,7 @@ GET    /api/v1/operations/command-centre/active-trips
 - GATE-001 to GATE-010 (Gate rules)
 - SCALE-001 to SCALE-008 (Scaling rules)
 - LOAD-001 to LOAD-010 (Loading/Unloading rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -498,7 +498,7 @@ GET    /api/v1/qc/reports/{id}
 
 ### Business Rules
 - QC-001 to QC-015 (Quality Control rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -556,7 +556,7 @@ POST   /api/v1/fleet/downtime
 
 ### Business Rules
 - FLEET-001 to FLEET-010 (Fleet Management rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -608,7 +608,7 @@ GET    /api/v1/fuel/performance/{vehicle_id}
 
 ### Business Rules
 - FUEL-001 to FUEL-008 (Fuel Management rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -670,7 +670,7 @@ GET    /api/v1/costing/erp/sync-status
 
 ### Business Rules
 - COST-001 to COST-015 (Costing rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -723,7 +723,7 @@ GET    /api/v1/reports/kpis/{kpi_id}
 
 ### Business Rules
 - REP-001 to REP-010 (Reporting rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -781,7 +781,7 @@ GET    /api/v1/mobile/vendor/trips
 
 ### Business Rules
 - MOBILE-001 to MOBILE-010 (Mobile app rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -838,7 +838,7 @@ POST   /api/v1/alerts/{id}/acknowledge
 
 ### Business Rules
 - NOTIF-001 to NOTIF-010 (Notification rules)
-- See [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- See [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 
 ---
 
@@ -958,7 +958,7 @@ POST   /api/v1/auth/change-password
 
 - [Module Interactions](./module-interactions.md) - Communication patterns
 - [Container View](../container-view.md) - Technical containers
-- [Business Rules](../../../02-domain/01-business-domain/business-rules/business-rules.md)
+- [Business Rules](../../../02-domain/03-business-rules/business-rules.md)
 - [User Stories](../../../02-domain/03-backlog/phase-1/user-stories/)
 
 ---

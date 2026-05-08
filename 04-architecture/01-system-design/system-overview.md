@@ -391,8 +391,8 @@ Report Generation → Escalation (if fail)
 - [User Workflows](../02-workflows/user-workflows/) - User journeys
 
 ### Business Context
-- [Business Context Overview](../../02-domain/00-overview/business-context.md)
-- [Stakeholders](../../02-domain/00-overview/stakeholders.md)
+- [Business Context Overview](../../02-domain/01-overview/business-context.md)
+- [Stakeholders](../../02-domain/01-overview/stakeholders.md)
 - [Business Processes](../../02-domain/01-business-domain/business-processes/)
 
 ---

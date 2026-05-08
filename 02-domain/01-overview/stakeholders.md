@@ -634,7 +634,7 @@ Based on meeting minutes, the following departments participated in discovery:
 ## Related Documents
 
 - [Project Summary](./project-summary.md) - Overall project context
-- [User Personas](../02-requirements/user-personas.md) - Detailed persona descriptions
+- [User Personas](../02-requirements/02-user-personas/user-personas.md) - Detailed persona descriptions
 - [Meeting Minutes](../../source-documents/meeting-minutes/) - Discovery session records
 
 ---

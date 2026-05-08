@@ -63,7 +63,7 @@ This folder contains detailed documentation for all 7 core business processes:
 
 - **[Business Rules](../business-rules/)** - Business logic and constraints
 - **[Functional Requirements](../../02-requirements/functional-requirements/)** - Feature specifications
-- **[User Personas](../../00-overview/stakeholders.md)** - User roles and responsibilities
+- **[User Personas](../01-overview/stakeholders.md)** - User roles and responsibilities
 - **[Flow Diagrams](../../../01-source/discovery-phase/flow-diagrams/)** - Visual process flows
 
 ---

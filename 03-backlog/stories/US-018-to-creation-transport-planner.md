@@ -13,7 +13,7 @@ story_points: 8
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../05-modules/03-operations/transport-order-management.md
   - ../../../05-modules/03-operations/transport-requisition-management.md
   - ../../../source-documents/04-wbs/stories-table.md

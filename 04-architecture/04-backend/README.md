@@ -43,7 +43,7 @@ This documentation focuses on **how** the high-level architecture is implemented
 - **[High-Level Architecture](../01-system-design/)** - System overview and container view
 - **[Development Guides](../../08-development-guides/01-backend/)** - Setup, deployment, testing guides
 - **[Architecture Decisions](../03-decisions/)** - ADRs explaining architectural choices
-- **[High-Level Diagrams](../06-diagrams/)** - Technology-agnostic system diagrams
+- **[High-Level Diagrams](../05-diagrams/)** - Technology-agnostic system diagrams
 
 ---
 
