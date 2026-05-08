@@ -52,29 +52,29 @@ This repository serves as the **central domain knowledge and interface contract 
 # Backend repo structure
 DFMS-backend/
 ├── domain/  (git submodule → DFMS-product-context)
-│   ├── business-context/
-│   └── 05-architecture/
-│       └── 05-contracts/
+│   ├── 02-domain/
+│   ├── 04-architecture/
+│   ├── 05-modules/
+│   └── 06-contracts/
 ├── src/
 ├── tests/
-└── package.json
+└── requirements.txt
 
 # Frontend repo structure
 DFMS-frontend/
 ├── domain/  (git submodule → DFMS-product-context)
-│   ├── business-context/
-│   └── 05-architecture/
-│       └── 05-contracts/
+│   ├── 06-contracts/
+│   ├── 07-design-system/
+│   └── 05-modules/
 ├── src/
-├── public/
 └── package.json
 
 # Mobile repo structure
 DFMS-mobile/
 ├── domain/  (git submodule → DFMS-product-context)
-│   ├── business-context/
-│   └── 05-architecture/
-│       └── 05-contracts/
+│   ├── 06-contracts/
+│   ├── 07-design-system/
+│   └── 05-modules/
 ├── src/
 └── app.json
 ```
@@ -101,84 +101,32 @@ import { TripStatusEnum } from '../domain/contracts/enums/trip-status';
 
 ```
 DFMS-product-context/
-│
 ├── README.md
-├── REPOSITORY_PURPOSE.md          # This file
-├── PRODUCT_VISION.md
-├── BUSINESS_CONTEXT_PLAN.md       # Plan for business domain knowledge
-├── TECHNICAL_CONTEXT_PLAN.md      # Plan for architecture & contracts
+├── 00-START-HERE.md               # Navigation guide (start here!)
+├── 01-PRODUCT_VISION.md           # Product vision and strategy
+├── 02-REPOSITORY_PURPOSE.md       # This file
 │
-├── source-documents/              # Original BA documents
-│   └── [All source materials]
-│
-├── business-context/              # Business Domain Knowledge
-│   ├── 00-overview/
-│   ├── 01-business-domain/
-│   ├── 02-requirements/
-│   ├── 04-backlog/
-│   ├── 04-architecture/          # HIGH-LEVEL architecture only
-│   │   ├── system-overview.md
-│   │   ├── module-boundaries.md
-│   │   ├── integration-patterns.md
-│   │   └── architectural-decisions/
-│   ├── 05-workflows/
-│   ├── 06-data-reference/
-│   ├── 08-implementation/        # High-level deployment strategy
-│   └── 10-reference/
-│
-└── contracts/                     # THE INTERFACE LAYER (NEW)
-    ├── README.md
-    │
-    ├── api/                       # API Contracts
-    │   ├── README.md
-    │   ├── openapi/
-    │   │   ├── openapi-spec.yaml
-    │   │   └── schemas/
-    │   ├── rest/
-    │   │   ├── transport-management.yaml
-    │   │   ├── fleet-management.yaml
-    │   │   ├── quality-control.yaml
-    │   │   └── vendor-management.yaml
-    │   └── graphql/
-    │       └── schema.graphql
-    │
-    ├── events/                    # Event Contracts
-    │   ├── README.md
-    │   ├── trip-events.yaml
-    │   ├── vehicle-events.yaml
-    │   ├── qc-events.yaml
-    │   └── notification-events.yaml
-    │
-    ├── data-models/              # Shared Data Contracts
-    │   ├── README.md
-    │   ├── entities/
-    │   │   ├── transport-order.yaml
-    │   │   ├── trip.yaml
-    │   │   ├── vehicle.yaml
-    │   │   └── driver.yaml
-    │   ├── enums/
-    │   │   ├── trip-status.yaml
-    │   │   ├── vehicle-type.yaml
-    │   │   └── order-status.yaml
-    │   └── value-objects/
-    │       ├── address.yaml
-    │       ├── location.yaml
-    │       └── contact-info.yaml
-    │
-    ├── messages/                 # Message Queue Contracts
-    │   ├── README.md
-    │   ├── commands/
-    │   │   ├── create-trip.yaml
-    │   │   └── assign-vehicle.yaml
-    │   └── queries/
-    │       ├── get-trip-details.yaml
-    │       └── list-vehicles.yaml
-    │
-    └── integration/              # Integration Contracts
-        ├── README.md
-        ├── erp-integration.yaml
-        ├── gps-device-integration.yaml
-        └── sms-gateway-integration.yaml
+├── 01-source/                     # Original source documents (do not modify)
+├── 02-domain/                     # Business domain context
+├── 03-backlog/                    # Product backlog (sprints + stories)
+├── 04-architecture/               # System architecture, ADRs, deployment
+│   ├── 01-system-design/          # C4 Level 1-2 diagrams
+│   ├── 03-decisions/              # Architecture Decision Records
+│   ├── 04-backend/                # Django/Python architecture
+│   ├── 06-deployment/             # AWS strategy & environments
+│   └── 07-implementation/         # Implementation planning
+├── 05-modules/                    # Technical module specifications
+├── 06-contracts/                  # THE INTERFACE LAYER
+│   ├── 01-apis/rest/              # OpenAPI 3.0 specs (14 specs)
+│   ├── 02-data-models/            # Shared data schemas
+│   ├── 03-events/                 # Event contracts
+│   └── 04-integration/            # External integration contracts
+├── 07-design-system/              # UI/UX design system
+├── 08-development-guides/         # Backend implementation runbooks
+├── 09-testing/                    # Testing strategy & E2E scenarios
+├── 10-reference/                  # Data dictionaries & reference
+├── 11-change-requests/            # Change management
+└── _meta/                         # Internal plans, reports, tracking
 ```
 
 ---
@@ -424,12 +372,13 @@ git submodule update --remote domain
 
 ## 📚 Related Documents
 
-- [PRODUCT_VISION.md](PRODUCT_VISION.md) - Product strategy and vision
-- [BUSINESS_CONTEXT_PLAN.md](BUSINESS_CONTEXT_PLAN.md) - Plan for building business domain knowledge
-- [TECHNICAL_CONTEXT_PLAN.md](TECHNICAL_CONTEXT_PLAN.md) - Plan for building technical architecture & contracts
-- [05-architecture/01-system-design/](05-architecture/01-system-design/) - High-level architecture (C4 Level 1-2)
-- [06-contracts/](06-contracts/) - API & Event contracts (OpenAPI/AsyncAPI)
-- [05-architecture/03-decisions/](05-architecture/03-decisions/) - Architecture Decision Records (ADRs)
+- [01-PRODUCT_VISION.md](01-PRODUCT_VISION.md) - Product strategy and vision
+- [00-START-HERE.md](00-START-HERE.md) - Navigation guide for all roles
+- [04-architecture/01-system-design/](04-architecture/01-system-design/) - High-level architecture (C4 Level 1-2)
+- [04-architecture/03-decisions/](04-architecture/03-decisions/) - Architecture Decision Records (ADRs)
+- [04-architecture/06-deployment/](04-architecture/06-deployment/) - AWS deployment strategy & environments
+- [06-contracts/](06-contracts/) - API & Event contracts (OpenAPI 3.0)
+- [08-development-guides/01-backend/](08-development-guides/01-backend/) - Backend implementation runbooks
 
 ---
 
@@ -454,5 +403,6 @@ git submodule update --remote domain
 **Usage**: Git submodule in all implementation repos  
 **Audience**: Product managers, Business analysts, Architects, All developers  
 **Purpose**: Single source of truth for domain knowledge and system integration  
+**Last Updated**: May 2026  
 **Architecture & Technical Lead**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 

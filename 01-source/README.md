@@ -20,7 +20,7 @@ Product Requirements Documents (PRD) and core specifications.
 - `PRD_DFMS_v1.0.docx` - Primary product requirements document (Word format)
 - `PRD_DFMS_v1.0.md` - Product requirements document (Markdown format)
 
-> 📖 See [Module Specifications](../03-module-specifications/) for structured technical documentation
+> 📖 See [Module Specifications](../05-modules/) for structured technical documentation
 
 ### `02-flow-diagram/`
 Visual workflow diagrams and process flows for DFMS operations.

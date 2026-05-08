@@ -31,7 +31,7 @@ DFMS-product-context/
 │   └── 05-proposals/                  # Project proposals
 │
 ├── 02-domain/                         # Business domain context
-│   ├── 01-overview/                   # Product overview
+│   ├── 01-overview/                   # Product overview & glossary
 │   ├── 02-requirements/               # Requirements
 │   │   ├── 01-business-objectives/
 │   │   ├── 02-user-personas/
@@ -42,67 +42,77 @@ DFMS-product-context/
 │   ├── 04-business-processes/         # Business processes
 │   └── 05-industry-context/           # Industry context
 │
-├── 03-module-specifications/          # Technical specifications (~20,000 lines)
-│   ├── 01-foundation/                 # Auth, RBAC, user management
-│   ├── 02-master-data/                # POI, products, master data
-│   ├── 03-operations/                 # PRM, TRM, TO, trip management
-│   ├── 04-poi-operations/             # Gate, scaling, QC, command center
-│   ├── 05-vendor-management/          # Vendor onboarding, bidding, portal
-│   ├── 06-fleet-management/           # Vehicles, drivers, fuel
-│   ├── 07-mobile-apps/                # Driver, QC, vendor mobile apps
-│   ├── 08-reporting/                  # Reports & analytics
-│   └── 09-cross-cutting/              # NFRs, security, integrations
+├── 03-backlog/                        # Product backlog (sprint-based)
+│   ├── sprints/                       # Sprint 1–4 tasks & completion reports
+│   └── stories/                       # Flat user story list (US-001 to US-098+)
 │
-├── 04-backlog/                        # Product backlog (97 stories, 17 epics)
-│   ├── 01-epics/                      # 17 epics (strategic themes)
-│   ├── 02-stories/                    # 97 user stories (flat list)
-│   └── 03-phases/                     # Phase planning & tracking
-│       ├── phase-1/                   # 70 stories (26 weeks)
-│       ├── phase-2/                   # 16 stories (planning)
-│       └── phase-3/                   # 8 stories (planning)
-│
-├── 05-architecture/                   # System architecture
-│   ├── 00-overview/                   # Architecture summary
-│   ├── 01-system-design/               # C4 architecture
+├── 04-architecture/                   # System & implementation architecture
+│   ├── 00-overview/                   # Architecture summary & principles
+│   ├── 01-system-design/              # C4 architecture (technology-agnostic)
 │   ├── 02-workflows/                  # Technical workflows
 │   ├── 03-decisions/                  # ADRs
-│   ├── 03-implementation/             # Implementation planning
-│   ├── 04-diagrams/                   # Technical diagrams
-│   ├── 05-contracts/                  # Legacy contracts
-│   └── 06-reference/                  # Architecture reference
+│   ├── 04-backend/                    # Django/Python implementation architecture
+│   ├── 05-diagrams/                   # Technical diagrams (sequences, ERD, states)
+│   ├── 06-deployment/                 # AWS deployment strategy & environments
+│   ├── 07-implementation/             # Implementation planning & phase breakdown
+│   └── 08-reference/                  # Cross-reference index & version history
+│
+├── 05-modules/                        # Technical module specifications (~20,000 lines)
+│   ├── 01-foundation/                 # Auth, RBAC, user management
+│   ├── 02-master-data/                # POI, products, master data
+│   ├── 03-users/                      # User profiles & management
+│   ├── 04-requisitions/               # Product requisitions
+│   ├── 05-transport/                  # Transport management
+│   ├── 06-poi-operations/             # Gate, scaling, QC, command center
+│   ├── 07-vendor-management/          # Vendor onboarding, bidding, portal
+│   ├── 08-fleet-management/           # Vehicles, drivers, fuel
+│   ├── 09-mobile-apps/                # Driver, QC, vendor mobile apps
+│   ├── 10-audit/                      # Audit & logging
+│   ├── 11-reporting/                  # Reports & analytics
+│   ├── 12-cross-cutting/              # NFRs, security, integrations
+│   ├── 13-phases/                     # Phase planning
+│   └── 14-reference/                  # Glossary & reference
 │
 ├── 06-contracts/                      # Integration contracts
-│   ├── 01-apis/                       # REST API specs (OpenAPI)
+│   ├── 01-apis/                       # REST API specs (OpenAPI 3.0)
 │   ├── 02-data-models/                # Data models
 │   ├── 03-events/                     # Event schemas
 │   └── 04-integration/                # External integrations
 │
-├── 07-reference/                      # Reference materials
-│   ├── archive/                       # Archived documents
-│   ├── data-reference/                # Data dictionaries
-│   └── reports/                       # Project reports
-│
-├── 08-change-requests/                # Change management
-│   └── CR-INDEX.md                    # Change requests index
-│
-├── 09-development-guides/             # Implementation guides
-│   ├── 01-backend/                    # Backend implementation standards
-│   └── README.md                      # Guide index and navigation
-│
-├── 10-meta/                           # Repository plans and reports
-│   ├── plans/                         # Execution and migration plans
-│   ├── reports/                       # Verification and audit reports
-│   ├── tracking/                      # Progress and status tracking
-│   └── archive/                       # Archived meta artifacts
-│
-├── 11-design-system/                  # UI design system
+├── 07-design-system/                  # UI/UX design system (admin portal + mobile)
 │   ├── 01-foundation/                 # Tokens, colors, typography
 │   ├── 02-components/                 # Component standards
 │   ├── 03-patterns/                   # UX interaction patterns
 │   └── 04-platforms/                  # Web/mobile design guidance
 │
-└── 12-e2e-testing/                    # E2E testcase/scenario planning
-    └── 02-master-data/                # Master data scenario plans by story point
+├── 08-development-guides/             # Implementation guides & runbooks
+│   └── 01-backend/                    # Django/Python implementation
+│       ├── 01-setup/                  # Dev environment setup
+│       ├── 02-api/                    # DRF guide
+│       ├── 03-database/               # ORM & migrations
+│       ├── 04-security/               # Auth & encryption
+│       ├── 05-services/               # Background tasks & caching
+│       ├── 06-testing/                # Backend testing how-to
+│       ├── 07-deployment/             # Docker, AWS, env vars, monitoring
+│       └── 08-guides/                 # Code style, contributing, troubleshooting
+│
+├── 09-testing/                        # Cross-platform test documentation
+│   ├── strategy/                      # Overall testing strategy
+│   ├── backend/e2e-scenarios/         # Backend E2E test scenarios
+│   └── mobile/                        # Mobile test scenarios (upcoming)
+│
+├── 10-reference/                      # Reference materials
+│   ├── archive/                       # Archived documents
+│   └── data-reference/                # Data dictionaries (10 entities, 200+ fields)
+│
+├── 11-change-requests/                # Change management
+│   └── CR-INDEX.md                    # Change requests index
+│
+└── _meta/                             # Repository meta-documentation (internal)
+    ├── plans/                         # Execution and migration plans
+    ├── reports/                       # Verification and audit reports
+    ├── tracking/                      # Progress and status tracking
+    └── archive/                       # Archived meta artifacts
 ```
 
 ---
@@ -129,10 +139,10 @@ Follow this sequence to understand the repository:
    - Start with [01-overview/](./02-domain/01-overview/)
    - Then explore by your role (see Quick Links below)
 
-5. **[03-module-specifications/](./03-module-specifications/)** *(Technical deep dive)*
+5. **[05-modules/](./05-modules/)** *(Technical deep dive)*
    - Domain knowledge + technical design
    - Data models, APIs, workflows
-   - 34 files, ~20,000 lines
+   - 50+ files, ~20,000 lines
 
 ---
 
@@ -140,37 +150,39 @@ Follow this sequence to understand the repository:
 
 ### **👔 Product Managers**
 - [Business Objectives](./02-domain/02-requirements/01-business-objectives/) - Goals and KPIs
-- [Phase 1 Story List](./04-backlog/03-phases/phase-1/story-list.md) - 70 user stories by epic
-- [Phase 1 Summary](./04-backlog/03-phases/phase-1/phase-1-summary.md) - Complete phase overview
+- [Sprint Plans](./03-backlog/sprints/) - Sprint-by-sprint task breakdown
+- [User Stories](./03-backlog/stories/) - Full user story list
 
 ### **💻 Engineers**
-- [User Stories](./04-backlog/02-stories/) - 97 production-ready stories (flat list)
-- [Module Specifications](./03-module-specifications/) - Technical docs with data models & APIs
+- [User Stories](./03-backlog/stories/) - Production-ready stories (flat list)
+- [Module Specifications](./05-modules/) - Technical docs with data models & APIs
 - [Business Rules](./02-domain/03-business-rules/) - Validation rules
 - [API Contracts](./06-contracts/01-apis/) - OpenAPI 3.0 specs
 - [Data Models](./06-contracts/02-data-models/) - Entity definitions
-- [Architecture](./05-architecture/) - System architecture & ADRs
+- [Architecture](./04-architecture/) - System architecture & ADRs
+- [Dev Guides](./08-development-guides/01-backend/) - Backend implementation runbooks
 
 ### **📊 Business Analysts**
 - [Functional Requirements](./02-domain/02-requirements/03-functional-requirements/) - High-level requirements
-- [User Stories](./04-backlog/02-stories/) - Detailed implementation stories
+- [User Stories](./03-backlog/stories/) - Detailed implementation stories
 - [Business Processes](./02-domain/04-business-processes/) - End-to-end workflows
 
 ### **🧪 QA/Testers**
-- [User Stories](./04-backlog/02-stories/) - With acceptance criteria
+- [User Stories](./03-backlog/stories/) - With acceptance criteria
 - [Business Rules](./02-domain/03-business-rules/) - Validation logic
 - [Non-Functional Requirements](./02-domain/02-requirements/04-non-functional-requirements/) - Performance, security
-- [E2E Scenario Plans](./12-e2e-testing/) - Module-wise testcase/scenario planning
+- [Testing Strategy](./09-testing/strategy/testing-strategy.md) - Overall test approach
+- [E2E Scenario Plans](./09-testing/backend/e2e-scenarios/) - Module-wise testcase/scenario planning
 
 ### **🏗️ Architects**
-- [Module Specifications](./03-module-specifications/) - Module boundaries & integration points
-- [Architecture](./05-architecture/) - C4 models, ADRs, technical decisions
+- [Module Specifications](./05-modules/) - Module boundaries & integration points
+- [Architecture](./04-architecture/) - C4 models, ADRs, technical decisions
+- [Deployment Strategy](./04-architecture/06-deployment/) - AWS architecture & environments
 - [Integration Contracts](./06-contracts/04-integration/) - External system integrations
 - [Repository Purpose](./02-REPOSITORY_PURPOSE.md) - Submodule architecture
 
 ### **📅 Project Managers**
-- [Phase Backlog](./04-backlog/03-phases/) - Stories organized by phase
-- [Feature Dependencies](./04-backlog/03-phases/planning-docs/feature-dependencies.md) - Critical path
+- [Sprints](./03-backlog/sprints/) - Sprint tasks & completion reports
 - [WBS](./01-source/04-wbs/) - Work breakdown structure
 
 ### **🆕 New Team Members**
@@ -184,23 +196,19 @@ Follow this sequence to understand the repository:
 
 ### **"I want to understand a specific feature"**
 
-1. Find the epic in [01-epics/](./04-backlog/01-epics/)
-2. Find related stories in [02-stories/](./04-backlog/02-stories/)
-3. Read module specification in [03-module-specifications/](./03-module-specifications/)
-4. Check business rules in [02-domain/03-business-rules/](./02-domain/03-business-rules/)
+1. Find related stories in [stories/](./03-backlog/stories/)
+2. Read module specification in [05-modules/](./05-modules/)
+3. Check business rules in [02-domain/03-business-rules/](./02-domain/03-business-rules/)
 
 **Example**: Understanding "Transport Order Management"
 ```bash
-# 1. Find epic
-./04-backlog/01-epics/EPIC-009-transport-order-to-management.md
+# 1. Find stories (US-017, US-018, etc.)
+./03-backlog/stories/US-017-to-creation-multiple.md
 
-# 2. Find stories (US-017, US-018, etc.)
-./04-backlog/02-stories/US-017-to-creation-multiple.md
+# 2. Read module spec
+./05-modules/05-transport/transport-order-management.md
 
-# 3. Read module spec
-./03-module-specifications/03-operations/transport-order-management.md
-
-# 4. Check business rules
+# 3. Check business rules
 ./02-domain/03-business-rules/transport-rules.md
 ```
 
@@ -209,33 +217,33 @@ Follow this sequence to understand the repository:
 ### **"I want to implement a module"**
 
 1. **Read user stories** for that module
-   - Browse [04-backlog/02-stories/](./04-backlog/02-stories/)
+   - Browse [03-backlog/stories/](./03-backlog/stories/)
    - Each story has: User Story, Acceptance Criteria, Requirements, Business Rules
 
 2. **Read module specification**
-   - [03-module-specifications/](./03-module-specifications/) - Domain knowledge + technical design
-   - Includes: Data models (TypeScript), workflows, integration points
+   - [05-modules/](./05-modules/) - Domain knowledge + technical design
+   - Includes: Data models, workflows, integration points
 
 3. **Check API contracts**
    - [06-contracts/01-apis/](./06-contracts/01-apis/) - OpenAPI specs
 
-4. **Review dependencies**
-   - [04-backlog/03-phases/planning-docs/feature-dependencies.md](./04-backlog/03-phases/planning-docs/feature-dependencies.md)
+4. **Read backend dev guide**
+   - [08-development-guides/01-backend/](./08-development-guides/01-backend/) - Implementation runbooks
 
 **Example**: Implementing "Product Requisition"
 ```bash
 # 1. Read stories
-./04-backlog/02-stories/US-012-procurement-approval.md
-./04-backlog/02-stories/US-014-capacity-checking.md
+./03-backlog/stories/US-012-procurement-approval.md
+./03-backlog/stories/US-014-capacity-checking.md
 
 # 2. Read module spec (data models, workflows, rules)
-./03-module-specifications/03-operations/product-requisition-management.md
+./05-modules/04-requisitions/product-requisition-management.md
 
 # 3. Check API contract
 ./06-contracts/01-apis/rest/product-requisition.yaml
 
-# 4. Review dependencies
-./04-backlog/03-phases/planning-docs/feature-dependencies.md
+# 4. Read dev guide
+./08-development-guides/01-backend/02-api/api-reference.md
 ```
 
 ---
@@ -269,7 +277,7 @@ Follow this sequence to understand the repository:
 **Example**: Tracing "Gate Management"
 ```bash
 # 1. Read story
-./04-backlog/02-stories/US-035-gate-in-source.md
+./03-backlog/stories/US-035-gate-in-source.md
 # Check "Related PRD Sections" in frontmatter
 
 # 2. Read original PRD
@@ -299,13 +307,13 @@ import { DataModel } from './context/06-contracts/02-data-models/...'
 
 ```bash
 # Search all markdown files
-grep -r "transport order" 02-domain/ 03-module-specifications/ 04-backlog/
+grep -r "transport order" 02-domain/ 05-modules/ 03-backlog/
 
 # Search user stories only
-grep -r "vendor" 04-backlog/02-stories/
+grep -r "vendor" 03-backlog/stories/
 
 # Find files by name
-find 04-backlog/02-stories/ -name "*vendor*"
+find 03-backlog/stories/ -name "*vendor*"
 ```
 
 **Or use your IDE's search** (Cmd+Shift+F / Ctrl+Shift+F)
@@ -316,13 +324,17 @@ find 04-backlog/02-stories/ -name "*vendor*"
 
 | Section | Status | Files |
 |---------|--------|-------|
-| **Module Specifications** | ✅ Complete | 34 files (~20,000 lines) |
-| **Domain Context** | ✅ Complete | 60+ files |
-| **Product Backlog** | ✅ Complete | 114 files (97 stories, 17 epics) |
-| **Architecture** | ⏳ In Progress | 30+ files |
-| **Source Documents** | ✅ Current | 40+ files |
+| **03-backlog** | ✅ Complete | 140+ files (98+ stories, 4 sprints) |
+| **04-architecture** | ✅ Complete | 90+ files (~12,000 lines) |
+| **05-modules** | ✅ Complete | 50+ files (~20,000 lines) |
+| **02-domain** | ✅ Complete | 50+ files (~15,000 lines) |
+| **06-contracts** | ✅ Complete | 25+ files (14 OpenAPI specs) |
+| **07-design-system** | ✅ Complete | 12 files |
+| **08-development-guides** | ✅ Complete | 46 files (~8,000 lines) |
+| **09-testing** | ✅ Active | 17 files (strategy + e2e scenarios) |
+| **01-source** | ✅ Current | 20+ files |
 
-**Story counts**: **97 stories**, **17 epics**, Phase 1 = 70 stories (26 weeks).  
+**Story counts**: **98+ stories**, 4 sprints completed.  
 **For full metrics**, see [README.md](./README.md).
 
 ---
@@ -334,8 +346,11 @@ find 04-backlog/02-stories/ -name "*vendor*"
 - [Repository Purpose](./02-REPOSITORY_PURPOSE.md) - How this repo works
 
 ### **Key Folders**
-- [Module Specifications](./03-module-specifications/) - Technical documentation
-- [Product Backlog](./04-backlog/) - Epics, stories, phases
+- [Module Specifications](./05-modules/) - Technical module documentation
+- [Product Backlog](./03-backlog/) - Sprint tasks & user stories
+- [Architecture](./04-architecture/) - System design, ADRs, deployment
+- [Development Guides](./08-development-guides/) - Backend implementation runbooks
+- [Testing](./09-testing/) - Strategy & E2E scenarios
 - [Domain Context](./02-domain/) - Business knowledge
 - [Source Documents](./01-source/) - Original requirements
 
@@ -381,7 +396,7 @@ find 04-backlog/02-stories/ -name "*vendor*"
 
 ---
 
-**Last Updated**: February 27, 2026  
+**Last Updated**: May 8, 2026  
 **Maintained By**: Brain Station 23 - DFMS Product Team
 
 For comprehensive information, see **[README.md](./README.md)**

@@ -169,7 +169,7 @@ validate_response(response, spec)
 ## 🔗 Related Documents
 
 - [Common Schemas](../schemas/)
-- [Architecture Overview](../../../05-architecture/00-overview/technology-stack-overview.md)
+- [Architecture Overview](../../../04-architecture/00-overview/technology-stack-overview.md)
 
 ---
 

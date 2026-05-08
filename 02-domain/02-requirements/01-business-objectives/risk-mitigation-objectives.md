@@ -104,7 +104,7 @@ tags: [business-objectives, risk, mitigation, objectives]
 - [Functional Requirements](./functional-requirements/) - Detailed feature specifications
 - [Non-Functional Requirements](./non-functional-requirements/) - System quality attributes
 - [User Personas](./user-personas/user-personas.md) - Detailed user profiles
-- [Features](../../04-backlog/) - Phase-wise feature breakdown
+- [Features](../../03-backlog/) - Phase-wise feature breakdown
 
 ---
 

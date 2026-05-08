@@ -13,18 +13,18 @@
 
 ## 📁 Repository Structure
 
-- **`01-source/`** - Source documents (PRD, WBS, SOW, flow diagrams, proposals) - Do not modify
-- **`02-domain/`** - Business domain context (overview, requirements, rules, processes, industry)
-- **`03-module-specifications/`** - Technical module specifications (34 files, ~20,000 lines)
-- **`04-backlog/`** - Product backlog (epics, stories, phases)
-- **`05-architecture/`** - System & implementation architecture (high-level + Django)
-- **`06-contracts/`** - API contracts & integration specifications
-- **`07-reference/`** - Reference materials, data dictionaries
-- **`08-change-requests/`** - Change request management
-- **`09-development-guides/`** - Implementation guides (backend, frontend, mobile)
-- **`10-meta/`** - Repository meta-documentation (plans, reports, tracking)
-- **`11-design-system/`** - UI design system (colors, typography, spacing, components, platform guides)
-- **`12-e2e-testing/`** - E2E testcase and scenario planning by module story points
+- **`01-source/`** — Source documents (PRD, WBS, SOW, flow diagrams, proposals) — do not modify
+- **`02-domain/`** — Business domain context (overview, requirements, rules, processes, industry)
+- **`03-backlog/`** — Product backlog (sprint tasks + flat user story list)
+- **`04-architecture/`** — System architecture, ADRs, Django architecture, AWS deployment
+- **`05-modules/`** — Technical module specifications (50+ files, ~20,000 lines)
+- **`06-contracts/`** — API contracts & integration specifications (14 OpenAPI specs)
+- **`07-design-system/`** — UI/UX design system (tokens, components, patterns, platform guides)
+- **`08-development-guides/`** — Backend implementation runbooks (setup, API, DB, security, deployment)
+- **`09-testing/`** — Testing strategy & E2E scenario plans (backend + mobile)
+- **`10-reference/`** — Reference materials, data dictionaries
+- **`11-change-requests/`** — Change request management
+- **`_meta/`** — Repository meta-documentation (plans, reports, tracking) — internal
 
 > 📖 See [00-START-HERE.md](00-START-HERE.md) for detailed structure and navigation
 
@@ -54,29 +54,37 @@ This repository serves as the **domain context and interface contract layer** fo
 - **[00-START-HERE.md](00-START-HERE.md)** - Navigation guide for all roles
 - **[01-PRODUCT_VISION.md](01-PRODUCT_VISION.md)** - Product strategy
 - **[02-REPOSITORY_PURPOSE.md](02-REPOSITORY_PURPOSE.md)** - Repository architecture
-- **[Module Specifications](03-module-specifications/)** - Technical documentation (~20,500 lines)
-- **[Product Backlog](04-backlog/)** - 97 stories, 17 epics, organized by phase
-- **[E2E Scenario Plans](12-e2e-testing/)** - Module-wise E2E testcase planning mapped to stories
+- **[Module Specifications](05-modules/)** — Technical documentation (~20,000 lines)
+- **[Product Backlog](03-backlog/)** — Sprint tasks & user stories (98+)
+- **[Architecture](04-architecture/)** — System design, ADRs, AWS deployment
+- **[Development Guides](08-development-guides/01-backend/)** — Backend implementation runbooks
+- **[Testing](09-testing/)** — Strategy & E2E scenario plans
+- **[E2E Scenario Plans](09-testing/backend/e2e-scenarios/)** — Module-wise E2E testcase planning
 
 ## 📊 Status
 
 | Section | Status | Files | Lines |
 |---------|--------|-------|-------|
-| **Module Specifications** | ✅ Complete | 34 | ~20,000 |
-| **Domain Context** | ✅ Complete | 60+ | ~15,000 |
-| **Product Backlog** | ✅ Complete | 114 | ~25,000 |
-| **Architecture** | ✅ Complete | 91 | ~12,000 |
-| **Development Guides** | ✅ Complete | 46 | ~8,000 |
-| **Source Documents** | ✅ Current | 40+ | - |
+| **03-backlog** | ✅ Complete | 140+ | ~25,000 |
+| **04-architecture** | ✅ Complete | 90+ | ~12,000 |
+| **05-modules** | ✅ Complete | 50+ | ~20,000 |
+| **02-domain** | ✅ Complete | 50+ | ~15,000 |
+| **06-contracts** | ✅ Complete | 25+ | — |
+| **07-design-system** | ✅ Complete | 12 | — |
+| **08-development-guides** | ✅ Complete | 46 | ~8,000 |
+| **09-testing** | ✅ Active | 17 | — |
+| **01-source** | ✅ Current | 20+ | — |
 
-### Repository metrics (source of truth: [01-source/04-wbs/README.md](01-source/04-wbs/README.md))
-- **Stories**: 97 (US-001 to US-094+)
-- **Epics**: 17 (EPIC-001 to EPIC-017)
-- **Phase 1**: 70 stories, 26 weeks
+### Repository metrics
+- **Stories**: 98+ (US-001 to US-098+)
+- **Sprints**: 4 completed (Phase 1)
+- **Module Specifications**: 14 modules
+- **API Contracts**: 14 OpenAPI specs + integration contracts
+- **ADRs**: 7 architecture decision records
 
 ## 📝 Change Requests
 
-Change requests are managed in [`08-change-requests/`](08-change-requests/CR-INDEX.md).  
+Change requests are managed in [`11-change-requests/`](11-change-requests/CR-INDEX.md).  
 **Current**: 1 CR implemented (CR-001: Phase-Based Architecture Documentation)
 
 ## 📞 Contact
@@ -85,7 +93,7 @@ Change requests are managed in [`08-change-requests/`](08-change-requests/CR-IND
 
 ---
 
-**Last Updated**: February 27, 2026  
+**Last Updated**: May 8, 2026  
 **Product**: DFMS - Distribution and Fleet Management System  
 **Developed by**: Brain Station 23  
 **Launch Client**: Nourish  
