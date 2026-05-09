@@ -98,7 +98,21 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
 1. EC2 → **Launch Instance**, name: `dfms-dev`
 2. OS: **Ubuntu 24.04 LTS** (free tier eligible)
 3. Instance type: **t2.micro** (free tier, first 12 months) or **t3.micro** (~$8.50/mo after free tier)
-4. **Key pair**: Create new → download `.pem` file → save securely
+4. **Key pair**: Create new key pair:
+   1. Click **"Create new key pair"**
+   2. **Key pair name**: `dfms-dev-key`
+   3. **Key pair type**: `RSA`
+   4. **Private key file format**:
+      - `.pem` — if you will SSH from **Mac/Linux** (recommended)
+      - `.ppk` — if you will SSH from **Windows using PuTTY**
+   5. Click **Create key pair** — the `.pem` file downloads automatically
+   6. **Save it securely** — you cannot download it again:
+      ```bash
+      # Move to your SSH folder and lock permissions
+      mv ~/Downloads/dfms-dev-key.pem ~/.ssh/
+      chmod 400 ~/.ssh/dfms-dev-key.pem
+      ```
+   > ⚠️ If you lose this file, you will lose SSH access to the instance. Keep a backup in a secure location (e.g. 1Password, LastPass).
 5. **Security Group** — inbound rules:
 
    | Port | Protocol | Source | Purpose |
