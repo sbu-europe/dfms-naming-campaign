@@ -211,17 +211,42 @@ Create the security group first so you can select it during instance launch.
 
 ## Step 5 — Set Up Auto-Stop Schedule (saves ~70% cost)
 
-Use EventBridge Scheduler to stop the instance outside working hours.
-
-1. Go to **EventBridge → Scheduler → Create schedule**
-2. Create two schedules:
-
-   | Name | Cron (UTC) | Action | BDT time |
-   |------|-----------|--------|---------|
-   | `dfms-dev-stop` | `cron(0 15 ? * MON-SAT *)` | Stop EC2 | 9 PM |
-   | `dfms-dev-start` | `cron(0 2 ? * MON-SAT *)` | Start EC2 | 8 AM |
+Automatically stop the instance outside working hours using EventBridge Scheduler. You need to create two schedules — one to stop, one to start.
 
 > EventBridge Scheduler is always free (up to 14 million invocations/month).
+
+### 5a — Create the Stop Schedule
+
+1. Go to **Amazon EventBridge → Scheduler → Schedules → Create schedule**
+2. **Schedule name**: `dfms-dev-stop`
+3. **Schedule group**: default
+4. **Schedule type**: Recurring schedule → **Cron-based**
+5. **Cron expression**: `0 15 ? * MON-SAT *`
+   > Runs at 15:00 UTC = 9:00 PM BDT, Monday–Saturday
+6. **Flexible time window**: Off
+7. Click **Next**
+8. **Target**: AWS service → **Amazon EC2** → `StopInstances`
+9. **Instance IDs**: Enter your instance ID (e.g. `i-082874e95d9ff833b`)
+10. **Execution role**: Create new role (auto-created with EC2 stop permission)
+11. Click **Next** → review → **Create schedule**
+
+### 5b — Create the Start Schedule
+
+Repeat the same steps with:
+- **Schedule name**: `dfms-dev-start`
+- **Cron expression**: `0 2 ? * MON-SAT *`
+  > Runs at 02:00 UTC = 8:00 AM BDT, Monday–Saturday
+- **Target**: Amazon EC2 → `StartInstances`
+- Same instance ID
+
+### Schedule summary
+
+| Schedule | Cron (UTC) | BDT time | Action |
+|----------|-----------|---------|--------|
+| `dfms-dev-stop` | `0 15 ? * MON-SAT *` | 9:00 PM | Stop EC2 |
+| `dfms-dev-start` | `0 2 ? * MON-SAT *` | 8:00 AM | Start EC2 |
+
+> ⚠️ The instance is **off on Sundays** all day. Start it manually from EC2 console if you need to work on Sunday.
 
 ---
 
