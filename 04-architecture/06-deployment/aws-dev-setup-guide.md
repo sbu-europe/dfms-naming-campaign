@@ -215,7 +215,57 @@ Automatically stop the instance outside working hours using EventBridge Schedule
 
 > EventBridge Scheduler is always free (up to 14 million invocations/month).
 
-### 5a — Create the Stop Schedule
+### 5a — Create IAM Role for EventBridge Scheduler (do this first)
+
+EventBridge Scheduler needs an IAM role to call EC2 stop/start on your behalf. "Create new role" is disabled due to org policy — create it manually first.
+
+1. Open a new tab → **IAM → Roles → Create role**
+2. **Trusted entity type**: **Custom trust policy**
+3. Replace the JSON with:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "Service": "scheduler.amazonaws.com"
+         },
+         "Action": "sts:AssumeRole"
+       }
+     ]
+   }
+   ```
+4. Click **Next** — skip adding permissions for now (click **Next** again)
+5. **Role name**: `dfms-eventbridge-ec2-scheduler`
+6. **Description**: `Allows EventBridge Scheduler to stop and start the DFMS dev EC2 instance on a schedule.`
+7. **Tags**:
+
+   | Key | Value |
+   |-----|-------|
+   | `Project` | `DFMS` |
+   | `Environment` | `dev` |
+
+8. Click **Create role**
+9. Find the role → click it → **Permissions** tab → **Add permissions → Create inline policy** → JSON tab → paste:
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [{
+       "Effect": "Allow",
+       "Action": [
+         "ec2:StopInstances",
+         "ec2:StartInstances"
+       ],
+       "Resource": "arn:aws:ec2:us-east-2:725726881071:instance/i-082874e95d9ff833b"
+     }]
+   }
+   ```
+10. **Policy name**: `dfms-ec2-stop-start` → **Create policy**
+
+---
+
+### 5b — Create the Stop Schedule
 
 1. Go to **Amazon EventBridge → Scheduler → Schedules → Create schedule**
 2. **Schedule name**: `dfms-dev-stop`
@@ -233,19 +283,20 @@ Automatically stop the instance outside working hours using EventBridge Schedule
    | Year | `*` |
 
    > Runs at 16:00 UTC = 10:00 PM BDT, Monday–Friday.  
-   > ⚠️ **Day of month must be `?`** (not `*`) when specifying Day of week — AWS EventBridge requires exactly one of them to be `?`. In AWS EventBridge: `1=SUN, 2=MON, 3=TUE, 4=WED, 5=THU, 6=FRI, 7=SAT`.
+   > ⚠️ **Day of month must be `?`** when specifying Day of week. In AWS EventBridge: `1=SUN, 2=MON, 3=TUE, 4=WED, 5=THU, 6=FRI, 7=SAT`.
+
 6. **Flexible time window**: Off
 7. Click **Next**
 8. **Target**: AWS service → **Amazon EC2** → `StopInstances`
-9. **Instance IDs**: Enter your instance ID (e.g. `i-082874e95d9ff833b`)
-10. **Execution role**: Create new role (auto-created with EC2 stop permission)
+9. **Instance IDs**: `i-082874e95d9ff833b`
+10. **Execution role**: **Use existing role** → select `dfms-eventbridge-ec2-scheduler`
 11. Click **Next** → review → **Create schedule**
 
-### 5b — Create the Start Schedule
+### 5c — Create the Start Schedule
 
 Repeat the same steps with:
 - **Schedule name**: `dfms-dev-start`
-- **Cron expression** — enter each field separately:
+- **Cron expression**:
 
   | Field | Value |
   |-------|-------|
@@ -257,8 +308,9 @@ Repeat the same steps with:
   | Year | `*` |
 
   > Runs at 05:00 UTC = 11:00 AM BDT, Monday–Friday.
+
 - **Target**: Amazon EC2 → `StartInstances`
-- Same instance ID
+- **Execution role**: `dfms-eventbridge-ec2-scheduler` (same role)
 
 ### Schedule summary
 
