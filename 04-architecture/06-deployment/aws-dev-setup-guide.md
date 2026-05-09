@@ -375,7 +375,7 @@ aws configure sso
 
 When prompted:
 - **SSO session name**: `dfms-dev`
-- **SSO start URL**: `https://identitycenter.amazonaws.com/ssoins-8210b162871899c9`
+- **SSO start URL**: `https://d-9667a7b5d0.awsapps.com/start`
 - **SSO region**: `us-east-2`
 - **SSO registration scopes**: leave default
 - Follow the browser login flow
