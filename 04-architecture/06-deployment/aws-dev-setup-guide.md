@@ -504,12 +504,19 @@ This creates:
 ### Add EC2 IP as allowed domain (to access via IP instead of domain name)
 
 ```bash
-docker compose exec web python manage.py shell -c "
-from apps.tenants.models import Domain, Tenant
-t = Tenant.objects.get(schema_name='platform')
-Domain.objects.get_or_create(domain='52.14.186.237', defaults={'tenant': t, 'is_primary': False})
-print('Done')
-"
+docker compose exec web python manage.py shell
+```
+
+```python
+from django_tenants.utils import get_tenant_model, get_tenant_domain_model
+
+Tenant = get_tenant_model()
+Domain = get_tenant_domain_model()
+
+platform = Tenant.objects.get(schema_name='platform')
+Domain.objects.get_or_create(domain='52.14.186.237', tenant=platform, is_primary=False)
+
+exit()
 ```
 
 > This is needed because the app is multi-tenant and routes by `Host` header. Without this, accessing via IP gives `No tenant for hostname` error.
@@ -578,12 +585,11 @@ from django_tenants.utils import get_tenant_model, get_tenant_domain_model
 Tenant = get_tenant_model()
 Domain = get_tenant_domain_model()
 
-public = Tenant.objects.get(schema_name='public')
-Domain.objects.get_or_create(domain='admin.dfms.com', tenant=public, is_primary=False)
+platform = Tenant.objects.get(schema_name='platform')
+Domain.objects.get_or_create(domain='admin.dfms.securityguardian.xyz', tenant=platform, is_primary=True)
 
-# Add more tenant domains as needed, e.g.:
-# nourish_tenant = Tenant.objects.get(schema_name='nourish')
-# Domain.objects.get_or_create(domain='nourish.dfms.com', tenant=nourish_tenant, is_primary=False)
+nourish = Tenant.objects.get(schema_name='nourish')
+Domain.objects.get_or_create(domain='nourish.dfms.securityguardian.xyz', tenant=nourish, is_primary=True)
 
 exit()
 ```
@@ -710,8 +716,11 @@ from django_tenants.utils import get_tenant_model, get_tenant_domain_model
 Tenant = get_tenant_model()
 Domain = get_tenant_domain_model()
 
-public = Tenant.objects.get(schema_name='public')
-Domain.objects.get_or_create(domain='admin.dev.dfms.com', tenant=public, is_primary=True)
+platform = Tenant.objects.get(schema_name='platform')
+Domain.objects.get_or_create(domain='admin.dev.dfms.com', tenant=platform, is_primary=True)
+
+nourish = Tenant.objects.get(schema_name='nourish')
+Domain.objects.get_or_create(domain='nourish.dev.dfms.com', tenant=nourish, is_primary=True)
 
 exit()
 ```
