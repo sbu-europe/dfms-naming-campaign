@@ -63,8 +63,48 @@ AWS Console → Root account → Account → IAM user and role access to Billing
 ## Step 1 — Create an IAM User (never use root for operations)
 
 1. AWS Console → IAM → User Groups → Create group `dfms-developers`
-2. Assign policy: EC2 read, S3 specific bucket, CloudWatch read
-3. Create your personal IAM user → add to group
+2. Attach the following policies to the group:
+
+   | Policy | Type | How to attach |
+   |--------|------|---------------|
+   | `AmazonEC2ReadOnlyAccess` | AWS managed | Attach policies → search by name |
+   | `CloudWatchReadOnlyAccess` | AWS managed | Attach policies → search by name |
+   | `dfms-dev-s3-access` | Custom inline | Create inline policy → JSON tab (see below) |
+
+   **Custom S3 policy JSON** (`dfms-dev-s3-access`):
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": [
+           "s3:GetObject",
+           "s3:PutObject",
+           "s3:DeleteObject",
+           "s3:ListBucket"
+         ],
+         "Resource": [
+           "arn:aws:s3:::dfms-dev-files",
+           "arn:aws:s3:::dfms-dev-files/*"
+         ]
+       }
+     ]
+   }
+   ```
+
+   > **Policy name**: `dfms-dev-s3-access`  
+   > **Description**: `S3 access for DFMS dev environment bucket dfms-dev-files. Allows read-write-delete on the dev media bucket only.`  
+   > ⚠️ Description must not contain `/` or `()` — AWS will reject it with an "invalid characters" error.
+
+   **Tags to add on the policy**:
+
+   | Key | Value |
+   |-----|-------|
+   | `Project` | `DFMS` |
+   | `Environment` | `dev` |
+
+3. Create your personal IAM user → add to `dfms-developers` group
 4. Sign in as the IAM user from this point onwards
 
 ---
