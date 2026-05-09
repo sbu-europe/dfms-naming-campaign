@@ -60,76 +60,36 @@ AWS Console → Root account → Account → IAM user and role access to Billing
 
 ---
 
-## Step 1 — Create an IAM User (never use root for operations)
+## Step 1 — Identity & Access (SSO — no IAM user needed)
 
-1. AWS Console → IAM → User Groups → Create group `dfms-developers`
-2. Attach the following policies to the group:
+This AWS account uses **IAM Identity Center (SSO)** for access management. Creating IAM users and access keys is explicitly denied by the org policy.
 
-   | Policy | Type | How to attach |
-   |--------|------|---------------|
-   | `AmazonEC2ReadOnlyAccess` | AWS managed | Attach policies → search by name |
-   | `CloudWatchReadOnlyAccess` | AWS managed | Attach policies → search by name |
-   | `dfms-dev-s3-access` | Custom inline | Create inline policy → JSON tab (see below) |
+**You are already signed in correctly** via SSO (`Mahfuzur.rahman@brainstation-23.com`). No further identity setup is needed.
 
-   **Custom S3 policy JSON** (`dfms-dev-s3-access`):
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": [
-           "s3:GetObject",
-           "s3:PutObject",
-           "s3:DeleteObject",
-           "s3:ListBucket"
-         ],
-         "Resource": [
-           "arn:aws:s3:::dfms-dev-files",
-           "arn:aws:s3:::dfms-dev-files/*"
-         ]
-       }
-     ]
-   }
-   ```
+### Your SSO permission set (`AWS-Security-Guardian-DFMS`) grants:
 
-   > **Policy name**: `dfms-dev-s3-access`  
-   > **Description**: `S3 access for DFMS dev environment bucket dfms-dev-files. Allows read-write-delete on the dev media bucket only.`  
-   > ⚠️ Description must not contain `/` or `()` — AWS will reject it with an "invalid characters" error.
+| Service | Access | Scope |
+|---------|--------|-------|
+| EC2 | ✅ Full (`ec2:*`) | us-east-2 only |
+| S3 | ✅ Full (`s3:*`) | us-east-2 only |
+| SSM Parameter Store | ✅ Full (`ssm:*`) | us-east-2 only |
+| ACM (SSL certs) | ✅ Full (`acm:*`) | us-east-2 only |
+| CloudWatch / Logs | ✅ Full | us-east-2 only |
+| SES (email) | ✅ Full (`ses:*`) | us-east-2 only |
+| EventBridge Scheduler | ✅ Full (`scheduler:*`) | us-east-2 only |
+| Route 53 | ✅ Full | Global |
+| IAM (roles, policies, groups) | ✅ Full | Global |
+| ECR Public | ✅ Full | Global |
 
-   **Tags to add on the policy**:
+### What is blocked by org policy:
 
-   | Key | Value |
-   |-----|-------|
-   | `Project` | `DFMS` |
-   | `Environment` | `dev` |
+| Action | Reason |
+|--------|--------|
+| `iam:CreateUser` | Explicitly denied — use SSO instead |
+| `iam:CreateAccessKey` | Explicitly denied — no long-lived credentials |
+| Any service **outside us-east-2** (except global) | Region-locked by org policy |
 
-3. **Create your personal IAM user**:
-   1. IAM → **Users** → **Create user**
-   2. Username: e.g. `mahfuz` (your name, lowercase)
-   3. Check **"Provide user access to the AWS Management Console"**
-   4. Select **"I want to create an IAM user"**
-   5. Set a password (or auto-generate and force reset on first login)
-   6. Click **Next** → under "Add user to group" select `dfms-developers` → **Next**
-   7. Add tags:
-
-      | Key | Value |
-      |-----|-------|
-      | `Project` | `DFMS` |
-      | `Environment` | `dev` |
-      | `Owner` | `bs-team` |
-
-   8. Click **Create user**
-   9. **Download or copy the console sign-in URL** shown on the confirmation screen — it looks like:
-      ```
-      https://<account-id>.signin.aws.amazon.com/console
-      ```
-
-4. **Sign in as the IAM user from this point onwards**:
-   1. Sign out of the root account
-   2. Open the sign-in URL from above
-   3. Enter your IAM username and password
-   4. ✅ All future AWS work should be done from this IAM user — never the root account
+> ✅ Everything needed for this dev environment setup is available. Proceed to Step 2.
 
 ---
 
