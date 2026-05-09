@@ -329,10 +329,21 @@ Repeat the same steps with:
 
 ## Step 6 — SSH In and Install Docker
 
-```bash
-chmod 400 your-key.pem
-ssh -i your-key.pem ubuntu@<ELASTIC_IP>
+### 6a — On your local Mac (Terminal)
 
+```bash
+# Fix key permissions (run once, required before SSH will work)
+chmod 400 ~/.ssh/dfms-dev-key.pem
+
+# SSH into the EC2 instance
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@<ELASTIC_IP>
+```
+
+Replace `<ELASTIC_IP>` with your Elastic IP (e.g. `52.14.186.237`).
+
+### 6b — On the EC2 instance (after SSH connects)
+
+```bash
 # Install Docker
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker ubuntu
