@@ -517,6 +517,7 @@ nano /home/ubuntu/nourish-backend/.env
 Update these lines:
 
 ```bash
+DEBUG=False
 ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
 BASE_DOMAIN=dfms.securityguardian.xyz
 TENANT_DOMAIN_PORT=
@@ -527,10 +528,17 @@ Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
 | Variable | Local value | EC2 value | Why |
 |---|---|---|---|
+| `DEBUG` | `True` | `False` | Prevents stack traces leaking to users, enables Django security checks, avoids memory leak from query logging |
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1,.dfms.com` | `localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz` | Must include Elastic IP and EC2 domain |
 | `BASE_DOMAIN` | `dfms.com` | `dfms.securityguardian.xyz` | Controls tenant subdomain generation and seed script domains |
 | `TENANT_DOMAIN_PORT` | `:8000` | _(empty)_ | Remove port suffix from invitation/activation email links — EC2 serves on port 80 via nginx |
 | `TENANT_DOMAIN_SCHEME` | `http` | `http` | No change needed (update to `https` when SSL is configured) |
+
+> **After setting `DEBUG=False`**, run `collectstatic` so nginx can serve admin CSS/JS:
+> ```bash
+> docker compose run --rm web python manage.py collectstatic --noinput
+> ```
+> Without this the Django admin UI will appear unstyled.
 
 ---
 
