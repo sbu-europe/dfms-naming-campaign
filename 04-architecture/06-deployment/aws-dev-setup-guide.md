@@ -189,9 +189,20 @@ Create the security group first so you can select it during instance launch.
 
 ## Step 4 — Assign Elastic IP (prevents IP change on restart)
 
-1. EC2 → **Elastic IPs → Allocate Elastic IP**
-2. Click **Associate** → select your `dfms-dev` instance
-3. Note the IP — this is your permanent server address
+1. Go to **EC2 → Elastic IPs** (left sidebar under "Network & Security")
+2. Click **Allocate Elastic IP address** → leave all defaults → click **Allocate**
+3. Select the newly allocated IP → click **Actions → Associate Elastic IP address**
+4. Fill in the association form:
+
+   | Field | Value |
+   |-------|-------|
+   | **Resource type** | Instance |
+   | **Instance** | Select `dfms-dev` from the dropdown |
+   | **Private IP address** | Leave empty (auto-selects primary private IP) |
+   | **Allow reassociation** | Leave unchecked |
+
+5. Click **Associate**
+6. Note down the Elastic IP — this is your permanent server address (e.g. `52.14.186.237`)
 
 > ⚠️ Elastic IP is **free while attached to a running instance**.  
 > Release immediately if you terminate the instance to avoid $0.005/hr idle charge.
