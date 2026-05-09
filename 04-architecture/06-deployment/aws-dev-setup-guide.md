@@ -518,8 +518,8 @@ Update these lines:
 
 ```bash
 DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
-BASE_DOMAIN=dfms.securityguardian.xyz
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.securityguardian.xyz
+BASE_DOMAIN=dev.dfms.securityguardian.xyz
 TENANT_DOMAIN_PORT=
 TENANT_DOMAIN_SCHEME=http
 ```
@@ -529,8 +529,8 @@ Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
 | Variable | Local value | EC2 value | Why |
 |---|---|---|---|
 | `DEBUG` | `True` | `False` | Prevents stack traces leaking to users, enables Django security checks, avoids memory leak from query logging |
-| `ALLOWED_HOSTS` | `localhost,127.0.0.1,.dfms.com` | `localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz` | Must include Elastic IP and EC2 domain |
-| `BASE_DOMAIN` | `dfms.com` | `dfms.securityguardian.xyz` | Controls tenant subdomain generation and seed script domains |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1,.dfms.com` | `localhost,127.0.0.1,52.14.186.237,.dev.dfms.securityguardian.xyz` | Wildcard covers all tenant subdomains under `dev.dfms.*` |
+| `BASE_DOMAIN` | `dfms.com` | `dev.dfms.securityguardian.xyz` | Controls tenant subdomain generation — aligns with env naming convention |
 | `TENANT_DOMAIN_PORT` | `:8000` | _(empty)_ | Remove port suffix from invitation/activation email links — EC2 serves on port 80 via nginx |
 | `TENANT_DOMAIN_SCHEME` | `http` | `http` | No change needed (update to `https` when SSL is configured) |
 
@@ -584,11 +584,11 @@ docker compose run --rm web python manage.py migrate_schemas
 docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data.py').read()); run_seed()"
 ```
 
-> **`seed_data.py` reads `BASE_DOMAIN` from `.env`** — no separate seed files per environment. With `BASE_DOMAIN=dfms.securityguardian.xyz` set in Step 8, it will automatically register `admin.dfms.securityguardian.xyz` and `nourish.dfms.securityguardian.xyz`. It is also idempotent — safe to re-run if tenants already exist.
+> **`seed_data.py` reads `BASE_DOMAIN` from `.env`** — no separate seed files per environment. With `BASE_DOMAIN=dev.dfms.securityguardian.xyz` set in Step 8, it will automatically register `admin.dev.dfms.securityguardian.xyz` and `nourish.dev.dfms.securityguardian.xyz`. It is also idempotent — safe to re-run if tenants already exist.
 
 This creates:
-- `platform` tenant → `admin.dfms.securityguardian.xyz` — Super Admin lives here
-- `nourish` tenant → `nourish.dfms.securityguardian.xyz` — Nourish client tenant
+- `platform` tenant → `admin.dev.dfms.securityguardian.xyz` — Super Admin lives here
+- `nourish` tenant → `nourish.dev.dfms.securityguardian.xyz` — Nourish client tenant
 - System roles and default users
 
 ### Add EC2 IP as allowed domain (to access via IP instead of domain name)
@@ -629,9 +629,9 @@ docker compose logs -f celery_worker
 | URL | Works after | Description |
 |-----|-------------|-------------|
 | `http://52.14.186.237/admin/` | Step 10 ✅ | Platform admin via raw IP |
-| `http://admin.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Platform Super Admin via domain |
-| `http://nourish.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Nourish Tenant Admin via domain |
-| `http://nourish.dfms.securityguardian.xyz/api/docs/` | Step 12a ⬇ | Swagger UI |
+| `http://admin.dev.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Platform Super Admin via domain |
+| `http://nourish.dev.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Nourish Tenant Admin via domain |
+| `http://nourish.dev.dfms.securityguardian.xyz/api/docs/` | Step 12a ⬇ | Swagger UI |
 
 **Default credentials** (created by seed script):
 
@@ -650,17 +650,17 @@ docker compose logs -f celery_worker
 
 ### 12a — Using `securityguardian.xyz` subdomain ✅ (current dev setup)
 
-> We reuse the existing `securityguardian.xyz` hosted zone in Route 53 and serve DFMS as a subdomain (`*.dfms.securityguardian.xyz`). No new domain purchase needed.
+> We reuse the existing `securityguardian.xyz` hosted zone in Route 53 and serve DFMS as a subdomain (`*.dev.dfms.securityguardian.xyz`). No new domain purchase needed.
 
 **DNS record in Route 53 (`securityguardian.xyz` hosted zone):**
 
 | Record name | Type | Value |
 |---|---|---|
-| `*.dfms` | A | `52.14.186.237` |
+| `*.dev.dfms` | A | `52.14.186.237` |
 
-This single wildcard covers all tenant subdomains automatically — `admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, any future tenant, etc.
+This single wildcard covers all tenant subdomains automatically — `admin.dev.dfms.securityguardian.xyz`, `nourish.dev.dfms.securityguardian.xyz`, any future tenant, etc.
 
-> **`ALLOWED_HOSTS` check:** If you set `ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz` in Step 8, you're good. If you used `ALLOWED_HOSTS=*`, Django accepts all hosts and no change is needed for dev. Verify with:
+> **`ALLOWED_HOSTS` check:** If you set `ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.securityguardian.xyz` in Step 8, you're good. If you used `ALLOWED_HOSTS=*`, Django accepts all hosts and no change is needed for dev. Verify with:
 > ```bash
 > docker compose exec web python manage.py shell -c "from django.conf import settings; print(settings.ALLOWED_HOSTS)"
 > ```
@@ -679,10 +679,10 @@ Tenant = get_tenant_model()
 Domain = get_tenant_domain_model()
 
 platform = Tenant.objects.get(schema_name='platform')
-Domain.objects.get_or_create(domain='admin.dfms.securityguardian.xyz', tenant=platform, is_primary=True)
+Domain.objects.get_or_create(domain='admin.dev.dfms.securityguardian.xyz', tenant=platform, is_primary=True)
 
 nourish = Tenant.objects.get(schema_name='nourish')
-Domain.objects.get_or_create(domain='nourish.dfms.securityguardian.xyz', tenant=nourish, is_primary=True)
+Domain.objects.get_or_create(domain='nourish.dev.dfms.securityguardian.xyz', tenant=nourish, is_primary=True)
 
 exit()
 ```
@@ -691,9 +691,9 @@ exit()
 
 | URL | Tenant | Purpose |
 |---|---|---|
-| `http://admin.dfms.securityguardian.xyz/admin/` | platform | Platform Super Admin |
-| `http://nourish.dfms.securityguardian.xyz/admin/` | nourish | Nourish Tenant Admin |
-| `http://nourish.dfms.securityguardian.xyz/api/docs/` | nourish | Swagger UI |
+| `http://admin.dev.dfms.securityguardian.xyz/admin/` | platform | Platform Super Admin |
+| `http://nourish.dev.dfms.securityguardian.xyz/admin/` | nourish | Nourish Tenant Admin |
+| `http://nourish.dev.dfms.securityguardian.xyz/api/docs/` | nourish | Swagger UI |
 
 **Default credentials:**
 
@@ -702,7 +702,7 @@ exit()
 | Super Admin | `superadmin@dfms.com` | `SuperAdmin@1234!` |
 | Nourish Admin | `admin@nourish.com` | `NourishAdmin@1234!` |
 
-> **For new tenants:** Add a new `Domain` entry pointing `<schema>.dfms.securityguardian.xyz` to the tenant — no new DNS records needed (wildcard covers it).
+> **For new tenants:** Add a new `Domain` entry pointing `<schema>.dev.dfms.securityguardian.xyz` to the tenant — no new DNS records needed (wildcard covers it).
 
 > **Limitation vs. production:** `securityguardian.xyz` is a shared domain not owned by DFMS. Use a dedicated domain (`dfms.com` or similar) for staging/production.
 
@@ -721,7 +721,7 @@ sudo nano /etc/hosts
 Add at the bottom:
 
 ```
-52.14.186.237   admin.dfms.securityguardian.xyz nourish.dfms.securityguardian.xyz
+52.14.186.237   admin.dev.dfms.securityguardian.xyz nourish.dev.dfms.securityguardian.xyz
 ```
 
 Save (`Ctrl+O`, `Enter`, `Ctrl+X`). No DNS propagation wait — works immediately.
@@ -890,7 +890,7 @@ Go to **GitHub → repository → Settings → Secrets and variables → Actions
 Go to **GitHub → repository → Settings → Environments → New environment**:
 
 - **Name**: `dev`
-- **Deployment URL**: `http://admin.dfms.securityguardian.xyz/admin/`
+- **Deployment URL**: `http://admin.dev.dfms.securityguardian.xyz/admin/`
 - No required reviewers needed for dev (add for staging/prod)
 
 ### 13c — Pipeline Flow
