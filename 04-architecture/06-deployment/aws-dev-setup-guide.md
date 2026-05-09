@@ -93,7 +93,40 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
 
 ---
 
-## Step 2 — Launch EC2 Instance
+## Step 2 — Create Security Group (before launching instance)
+
+Create the security group first so you can select it during instance launch.
+
+1. Go to **EC2 → Security Groups** (left sidebar under "Network & Security") → **Create security group**
+2. Fill in:
+   - **Security group name**: `dfms-dev-sg`
+   - **Description**: `DFMS dev server - SSH, HTTP, HTTPS`
+   - **VPC**: Default VPC
+3. **Inbound rules** — add the following:
+
+   | Type | Protocol | Port | Source | Why |
+   |------|----------|------|--------|-----|
+   | SSH | TCP | 22 | **My IP** (select from dropdown) | SSH — restricted to your IP only |
+   | HTTP | TCP | 80 | 0.0.0.0/0 | Web traffic |
+   | HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (for later) |
+
+   > ⚠️ For SSH always select **"My IP"** from the dropdown — never `0.0.0.0/0`. This prevents brute-force attacks on port 22.
+
+   > ⚠️ **If your IP changes** later (different office/home network): come back here → Edit inbound rules → update the SSH source to your new IP.
+
+4. **Tags**:
+
+   | Key | Value |
+   |-----|-------|
+   | `Project` | `DFMS` |
+   | `Environment` | `dev` |
+   | `Owner` | `bs-team` |
+
+5. Click **Create security group**
+
+---
+
+## Step 3 — Launch EC2 Instance
 
 1. EC2 → **Launch Instance**, name: `dfms-dev`
 2. OS: **Ubuntu 24.04 LTS** (free tier eligible)
@@ -116,15 +149,15 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
       mv ~/Downloads/dfms-dev-key.pem ~/.ssh/
       chmod 400 ~/.ssh/dfms-dev-key.pem
       ```
-   > ⚠️ If you lose this file, you will lose SSH access to the instance. Keep a backup in a secure location (e.g. 1Password, LastPass).
-5. **Network settings**:
-   - **VPC**: Default VPC (already exists, no setup needed)
-   - **Subnet**: Any default public subnet (e.g. `us-east-2a`)
-   - **Auto-assign public IP**: **Enable** (needed until Elastic IP is attached)
-   - **Firewall**: Select **"Create security group"** → name it `dfms-dev-sg`
-   - During instance creation, just add the basic SSH rule — full customization is done after launch (see Step 2b below)
+   > ⚠️ If you lose this file you will lose SSH access. Keep a backup in a secure location (e.g. 1Password).
 
-   > ⚠️ **macOS note**: Moving the `.pem` file via terminal may fail due to macOS privacy protection on the Downloads folder. Use Finder instead: `Cmd+Shift+G` → type `~/.ssh` → drag the file in. Then run `chmod 400 ~/.ssh/dfms-dev-key.pem` in terminal.
+   > ⚠️ **macOS note**: `mv` from Downloads may fail due to macOS privacy protection. Use Finder instead: `Cmd+Shift+G` → type `~/.ssh` → drag the file in. Then run `chmod 400 ~/.ssh/dfms-dev-key.pem`.
+
+5. **Network settings**:
+   - **VPC**: Default VPC
+   - **Subnet**: Any default public subnet (e.g. `us-east-2a`)
+   - **Auto-assign public IP**: **Enable**
+   - **Firewall**: Select **"Select existing security group"** → choose `dfms-dev-sg`
 
 6. Storage: **20 GB gp3**
 7. **Tags** — add at creation for cost tracking:
@@ -140,37 +173,7 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
 
 ---
 
-## Step 2b — Configure Security Group (after instance is launched)
-
-Full security group customization is done from the dedicated Security Groups page, not during instance creation.
-
-1. Go to **EC2 → Security Groups** (left sidebar under "Network & Security")
-2. Find and click `dfms-dev-sg`
-3. Click **Inbound rules** tab → **Edit inbound rules**
-4. Set up the following rules:
-
-   | Type | Protocol | Port | Source | Why |
-   |------|----------|------|--------|-----|
-   | SSH | TCP | 22 | **My IP** (select from dropdown) | SSH — restricted to your IP only |
-   | HTTP | TCP | 80 | 0.0.0.0/0 | Web traffic |
-   | HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (for later) |
-
-   > ⚠️ For SSH always select **"My IP"** from the dropdown — never `0.0.0.0/0`. This prevents brute-force attacks on port 22.
-
-   > ⚠️ **If your IP changes** later (different office/home network): come back here and update the SSH source to your new IP.
-
-5. Click **Save rules**
-6. Add **Tags** to the security group — click the **Tags** tab → **Manage tags**:
-
-   | Key | Value |
-   |-----|-------|
-   | `Project` | `DFMS` |
-   | `Environment` | `dev` |
-   | `Owner` | `bs-team` |
-
----
-
-## Step 3 — Assign Elastic IP (prevents IP change on restart)
+## Step 4 — Assign Elastic IP (prevents IP change on restart)
 
 1. EC2 → **Elastic IPs → Allocate Elastic IP**
 2. Click **Associate** → select your `dfms-dev` instance
@@ -181,7 +184,7 @@ Full security group customization is done from the dedicated Security Groups pag
 
 ---
 
-## Step 4 — Set Up Auto-Stop Schedule (saves ~70% cost)
+## Step 5 — Set Up Auto-Stop Schedule (saves ~70% cost)
 
 Use EventBridge Scheduler to stop the instance outside working hours.
 
@@ -197,7 +200,7 @@ Use EventBridge Scheduler to stop the instance outside working hours.
 
 ---
 
-## Step 5 — SSH In and Install Docker
+## Step 6 — SSH In and Install Docker
 
 ```bash
 chmod 400 your-key.pem
@@ -218,7 +221,7 @@ docker compose version
 
 ---
 
-## Step 6 — Set Up Secrets via AWS SSM (not .env files)
+## Step 7 — Set Up Secrets via AWS SSM (not .env files)
 
 **Never store secrets in a `.env` file on the EC2 instance.** Use SSM Parameter Store (free tier).
 
@@ -233,7 +236,7 @@ The EC2 instance reads these at runtime via its IAM Instance Role — no long-li
 
 ---
 
-## Step 7 — Clone Repo and Configure Environment
+## Step 8 — Clone Repo and Configure Environment
 
 ```bash
 git clone <repo-url> /home/ubuntu/nourish-backend
@@ -259,7 +262,7 @@ CSRF_COOKIE_DOMAIN=.dev.dfms.com
 
 ---
 
-## Step 8 — Start All Services
+## Step 9 — Start All Services
 
 ```bash
 # Build and start all containers
@@ -273,7 +276,7 @@ Expected containers: `db`, `redis`, `web`, `celery_worker`, `celery_beat`, `ngin
 
 ---
 
-## Step 9 — Verify Deployment
+## Step 10 — Verify Deployment
 
 ```bash
 # Health check
@@ -290,7 +293,7 @@ Access from browser:
 
 ---
 
-## Step 10 — (Optional) Set Up Domain & SSL
+## Step 11 — (Optional) Set Up Domain & SSL
 
 From the [domain strategy](./aws-deployment-strategy.md#4-domain--subdomain-strategy):
 
