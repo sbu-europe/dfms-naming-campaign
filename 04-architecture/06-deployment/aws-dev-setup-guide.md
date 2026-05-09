@@ -435,7 +435,7 @@ DEBUG=False
 DJANGO_SETTINGS_MODULE=config.settings.production
 ```
 
-> **`ALLOWED_HOSTS` must include your domain** before the app will accept requests on it. The `.dfms.securityguardian.xyz` wildcard covers all tenant subdomains (`admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, etc.). If your `.env` currently has `ALLOWED_HOSTS=*`, Django accepts all hosts and this is not strictly required for dev — but should be locked down before sharing the environment.
+> **`ALLOWED_HOSTS` must include your domain** before the app will accept requests on it. The **`.dfms.securityguardian.xyz`** wildcard covers all tenant subdomains (`admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, etc.), and **`52.14.186.237`** allows direct IP access. If your `.env` currently has `ALLOWED_HOSTS=*`, Django accepts all hosts and this is not strictly required for dev — but should be locked down before sharing the environment.
 
 ### 8b — Copy .env to EC2
 
