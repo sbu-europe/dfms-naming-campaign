@@ -128,7 +128,17 @@ Create the security group first so you can select it during instance launch.
 
 ## Step 3 — Launch EC2 Instance
 
-1. EC2 → **Launch Instance**, name: `dfms-dev`
+1. EC2 → **Launch Instance**
+   - **Name**: `dfms-dev`
+   - **Additional tags** (click "Add additional tags" next to the name field):
+
+     | Key | Value | Resource types |
+     |-----|-------|----------------|
+     | `Project` | `DFMS` | Instances, Volumes |
+     | `Environment` | `dev` | Instances, Volumes |
+     | `Owner` | `bs-team` | Instances, Volumes |
+     | `ManagedBy` | `manual` | Instances, Volumes |
+
 2. OS: **Ubuntu 24.04 LTS** (free tier eligible)
 3. Instance type: **t2.micro** (free tier, first 12 months) or **t3.micro** (~$8.50/mo after free tier)
 4. **Key pair**: Create new key pair:
@@ -172,15 +182,7 @@ Create the security group first so you can select it during instance launch.
    > | **Total** | **~10–14 GB** |
    >
    > Cost difference: 8 GB (~$0.64/mo) vs 20 GB (~$1.60/mo) — only **~$1/month more**. Keep 20 GB to avoid the instance crashing silently when disk fills up.
-7. **Tags** — add at creation for cost tracking:
-
-   | Key | Value |
-   |-----|-------|
-   | `Project` | `DFMS` |
-   | `Environment` | `dev` |
-   | `Owner` | `bs-team` |
-   | `ManagedBy` | `manual` |
-
+7. **File system**: Leave empty (EFS not needed — EBS root volume is sufficient for a single instance)
 8. Click **Launch**
 
 ---
