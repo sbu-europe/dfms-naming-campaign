@@ -805,6 +805,56 @@ See [aws-cost-estimation.md](./aws-cost-estimation.md) for full breakdown.
 
 ---
 
+## Step 13 — Wire Up CI/CD Auto-Deploy
+
+The GitHub Actions pipeline (`.github/workflows/ci.yml`) automatically deploys to the dev EC2 on every push to `main`, after lint → unit tests → docker build → integration tests all pass.
+
+### 13a — Add GitHub Secrets
+
+Go to **GitHub → repository → Settings → Secrets and variables → Actions → New repository secret** and add:
+
+| Secret name | Value |
+|---|---|
+| `DEV_SSH_KEY` | Full contents of `~/.ssh/dfms-dev-key.pem` (copy with `cat ~/.ssh/dfms-dev-key.pem`) |
+| `DEV_EC2_HOST` | `52.14.186.237` (your Elastic IP) |
+| `DEV_EC2_USER` | `ubuntu` |
+
+### 13b — Create the `dev` GitHub Environment
+
+Go to **GitHub → repository → Settings → Environments → New environment**:
+
+- **Name**: `dev`
+- **Deployment URL**: `http://admin.dfms.securityguardian.xyz/admin/`
+- No required reviewers needed for dev (add for staging/prod)
+
+### 13c — Pipeline Flow
+
+```
+push to main
+    └── lint
+         └── unit-tests
+              └── docker build
+                   └── integration-tests
+                        └── deploy-dev
+                             ├── SSH into EC2
+                             ├── git pull
+                             ├── docker compose up -d --build web celery_worker celery_beat
+                             ├── migrate_schemas
+                             └── smoke test → GET /api/health/ → must return 200
+```
+
+**On PRs** (not merged yet): only lint + unit tests run — fast feedback without deploying.
+
+### 13d — Trigger manually if needed
+
+```bash
+# From GitHub UI: Actions → CI/CD → Run workflow → select branch
+# Or via CLI:
+gh workflow run ci.yml --ref main
+```
+
+---
+
 ## Day-to-Day Operations
 
 ### Stop/Start Instance Manually
