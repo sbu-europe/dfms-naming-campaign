@@ -507,24 +507,30 @@ ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "head -5 /home/ubuntu/nouris
 
 ### 8c — Update EC2-specific values on the instance
 
-After copying, SSH in and override the two values that differ from local:
+After copying, SSH in and override the values that differ from local:
 
 ```bash
 ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237
 nano /home/ubuntu/nourish-backend/.env
 ```
 
-Update these two lines:
+Update these lines:
 
 ```bash
 ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
 BASE_DOMAIN=dfms.securityguardian.xyz
+TENANT_DOMAIN_PORT=
+TENANT_DOMAIN_SCHEME=http
 ```
 
 Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
 
-> **`ALLOWED_HOSTS`** — The **`.dfms.securityguardian.xyz`** wildcard covers all tenant subdomains, and **`52.14.186.237`** allows direct IP access.  
-> **`BASE_DOMAIN`** — The seed script reads this to register the correct domains for tenants. Set it to match your Route 53 subdomain.
+| Variable | Local value | EC2 value | Why |
+|---|---|---|---|
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1,.dfms.com` | `localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz` | Must include Elastic IP and EC2 domain |
+| `BASE_DOMAIN` | `dfms.com` | `dfms.securityguardian.xyz` | Controls tenant subdomain generation and seed script domains |
+| `TENANT_DOMAIN_PORT` | `:8000` | _(empty)_ | Remove port suffix from invitation/activation email links — EC2 serves on port 80 via nginx |
+| `TENANT_DOMAIN_SCHEME` | `http` | `http` | No change needed (update to `https` when SSL is configured) |
 
 ---
 
