@@ -359,85 +359,51 @@ docker compose version
 
 ---
 
-## Step 7 — Set Up Secrets via AWS SSM (not .env files)
+## Step 7 — Prepare Environment Variables
 
-**Never store secrets in a `.env` file on the EC2 instance.** Use AWS SSM Parameter Store instead — it's free, secure, and the EC2 instance reads them automatically via its IAM role.
+> **Dev approach**: Copy `.env` directly to the server using `scp`.  
+> The app uses `python-decouple` which reads the `.env` file directly — no extra setup needed.
 
-### 7a — Install and Configure AWS CLI (on your local Mac)
+### 7a — Fill in .env with real values (on your local Mac)
 
-```bash
-# Install AWS CLI
-brew install awscli
-
-# Configure with your SSO credentials
-aws configure sso
-```
-
-When prompted:
-- **SSO session name**: `dfms-dev`
-- **SSO start URL**: `https://d-9667a7b5d0.awsapps.com/start`
-- **SSO region**: `us-east-2`
-- **SSO registration scopes**: leave default
-- Follow the browser login flow
-- **Default region**: `us-east-2`
-- **Default output format**: `json`
-
-Verify it works:
-```bash
-aws sts get-caller-identity
-```
-
-### 7b — Configure AWS CLI Credentials (temporary session)
-
-Since `aws configure sso` may not work due to org restrictions, use temporary credentials from the AWS access portal instead:
-
-1. Go to **https://d-9667a7b5d0.awsapps.com/start**
-2. Click your account → **"Command line or programmatic access"**
-3. Choose **Option 2: Add a profile to your AWS credentials file**
-4. Copy the credentials block and paste into `~/.aws/credentials`:
-   ```bash
-   nano ~/.aws/credentials
-   ```
-   Paste and rename the profile to `dfms-dev`:
-   ```
-   [dfms-dev]
-   aws_access_key_id=ASIA...
-   aws_secret_access_key=...
-   aws_session_token=...
-   ```
-5. Verify it works:
-   ```bash
-   aws sts get-caller-identity --profile dfms-dev
-   ```
-
-> ⚠️ These credentials **expire in ~1 hour**. Repeat steps 1–4 each session to refresh them.
-
-### 7c — Push All .env Variables to SSM
-
-Fill in your `.env` file with real values first, then run the bulk push script:
+Make sure your `.env` has all real values filled in — especially:
 
 ```bash
-bash scripts/push-env-to-ssm.sh dev dfms-dev
+SECRET_KEY=<generate with: python3 -c "import secrets; print(secrets.token_urlsafe(50))">
+DB_PASSWORD=<choose a strong password>
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
+DEBUG=False
+DJANGO_SETTINGS_MODULE=config.settings.production
 ```
 
-This pushes every non-empty variable from `.env` to `/dfms/dev/<KEY>` in SSM as a `SecureString`.
-
-> **To generate a strong SECRET_KEY**:
-> ```bash
-> python3 -c "import secrets; print(secrets.token_urlsafe(50))"
-> ```
-
-### 7d — Verify Parameters Were Stored
+### 7b — Copy .env to EC2
 
 ```bash
-aws ssm get-parameters-by-path \
-  --path "/dfms/dev/" \
-  --with-decryption \
-  --region us-east-2 \
-  --profile dfms-dev
+# Run from repo root on your local Mac
+scp -i ~/.ssh/dfms-dev-key.pem .env ubuntu@52.14.186.237:/home/ubuntu/nourish-backend/.env
 ```
 
-> ✅ The EC2 instance reads these at runtime via its IAM Instance Role — no `.env` file with secrets on the server, no long-lived access keys needed.
+Verify it was copied:
+```bash
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "cat /home/ubuntu/nourish-backend/.env | head -5"
+```
+
+> ⚠️ **Security warning**: The `.env` file will sit on the EC2 disk. Anyone with SSH access to the server can read it. This is acceptable for a dev environment used by a small internal team — **do not use this approach for staging or production.**
+
+> ⚠️ Never commit `.env` to git — it is already in `.gitignore`.
+
+---
+
+> ### 🔒 For Staging / Production — Use AWS SSM instead
+>
+> For staging/production, secrets should never be stored as a file on disk. The recommended approach:
+>
+> 1. Push all secrets to **AWS SSM Parameter Store** (already documented in `scripts/push-env-to-ssm.sh`)
+> 2. Add a startup script (`scripts/fetch-secrets.sh`) that fetches SSM values and exports them as environment variables before Django starts
+> 3. Attach an **IAM Instance Profile** to the EC2 with SSM read permission — no credentials file needed
+>
+> This ensures secrets are encrypted at rest (AWS KMS), access-controlled by IAM, and never touch the server disk.  
+> See [AWS Deployment Strategy](./aws-deployment-strategy.md#7-secrets-management) for the full production secrets setup.
 
 ---
 
