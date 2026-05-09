@@ -269,7 +269,8 @@ EventBridge Scheduler needs an IAM role to call EC2 stop/start on your behalf. "
 
 1. Go to **Amazon EventBridge → Scheduler → Schedules → Create schedule**
 2. **Schedule name**: `dfms-dev-stop`
-3. **Schedule group**: default
+3. **Description**: `Stop the DFMS dev EC2 instance at end of office hours - 10PM BDT Mon-Fri`
+4. **Schedule group**: default
 4. **Schedule type**: Recurring schedule → **Cron-based**
 5. **Cron expression** — enter each field separately:
 
@@ -296,6 +297,7 @@ EventBridge Scheduler needs an IAM role to call EC2 stop/start on your behalf. "
 
 Repeat the same steps with:
 - **Schedule name**: `dfms-dev-start`
+- **Description**: `Start the DFMS dev EC2 instance at start of office hours - 11AM BDT Mon-Fri`
 - **Cron expression**:
 
   | Field | Value |
