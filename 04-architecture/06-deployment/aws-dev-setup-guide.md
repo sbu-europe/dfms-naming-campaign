@@ -536,16 +536,19 @@ docker compose logs -f celery_worker
 
 Access from browser:
 
-| URL | Description |
-|-----|-------------|
-| `http://52.14.186.237/admin/` | Django Admin (via IP) |
-| `http://admin.dfms.com/admin/` | Django Admin (via domain — needs DNS or /etc/hosts) |
-| `http://52.14.186.237/api/docs/` | Swagger UI |
+| URL | Tenant | Description |
+|-----|--------|-------------|
+| `http://52.14.186.237/admin/` | platform | Django Admin (via raw IP) |
+| `http://admin.dfms.securityguardian.xyz/admin/` | platform | Platform Super Admin (via domain) |
+| `http://nourish.dfms.securityguardian.xyz/admin/` | nourish | Nourish Tenant Admin (via domain) |
+| `http://nourish.dfms.securityguardian.xyz/api/docs/` | nourish | Swagger UI |
 
 **Default credentials** (created by seed script):
-- Super Admin: `superadmin@dfms.com` / `SuperAdmin@1234!`
-- Nourish Admin: `admin@nourish.com` / `NourishAdmin@1234!`
-- Nourish Tenant Admin: `admin@nourish.com`
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | `superadmin@dfms.com` | `SuperAdmin@1234!` |
+| Nourish Admin | `admin@nourish.com` | `NourishAdmin@1234!` |
 
 ---
 
@@ -555,28 +558,22 @@ Access from browser:
 
 ---
 
-### 12a — Local `/etc/hosts` workaround (no real domain needed)
+### 12a — Using `securityguardian.xyz` subdomain ✅ (current dev setup)
 
-If you just want to test domain-based routing on your own machine without Route 53:
+> We reuse the existing `securityguardian.xyz` hosted zone in Route 53 and serve DFMS as a subdomain (`*.dfms.securityguardian.xyz`). No new domain purchase needed.
 
-**On your local Mac:**
+**DNS record in Route 53 (`securityguardian.xyz` hosted zone):**
 
-```bash
-sudo nano /etc/hosts
-```
+| Record name | Type | Value |
+|---|---|---|
+| `*.dfms` | A | `52.14.186.237` |
 
-Add at the bottom:
+This single wildcard covers all tenant subdomains automatically — `admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, any future tenant, etc.
 
-```
-52.14.186.237   admin.dfms.com api.dfms.com nourish.dfms.com
-```
-
-Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
-
-Then register the domains in Django on the EC2 instance:
+**Register domains in Django on the EC2 instance:**
 
 ```bash
-docker compose run --rm web python manage.py shell
+docker compose exec web python manage.py shell
 ```
 
 ```python
@@ -594,21 +591,46 @@ Domain.objects.get_or_create(domain='nourish.dfms.securityguardian.xyz', tenant=
 exit()
 ```
 
-Also update `ALLOWED_HOSTS` in your `.env` to include the new domains:
+**Access URLs (live):**
 
-```
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.com
-```
+| URL | Tenant | Purpose |
+|---|---|---|
+| `http://admin.dfms.securityguardian.xyz/admin/` | platform | Platform Super Admin |
+| `http://nourish.dfms.securityguardian.xyz/admin/` | nourish | Nourish Tenant Admin |
+| `http://nourish.dfms.securityguardian.xyz/api/docs/` | nourish | Swagger UI |
 
-Then restart the web container:
+**Default credentials:**
+
+| Role | Email | Password |
+|---|---|---|
+| Super Admin | `superadmin@dfms.com` | `SuperAdmin@1234!` |
+| Nourish Admin | `admin@nourish.com` | `NourishAdmin@1234!` |
+
+> **For new tenants:** Add a new `Domain` entry pointing `<schema>.dfms.securityguardian.xyz` to the tenant — no new DNS records needed (wildcard covers it).
+
+> **Limitation vs. production:** `securityguardian.xyz` is a shared domain not owned by DFMS. Use a dedicated domain (`dfms.com` or similar) for staging/production.
+
+---
+
+### 12b — Local `/etc/hosts` workaround (no Route 53 needed)
+
+If Route 53 is unavailable and you only need access on your own machine:
+
+**On your local Mac:**
 
 ```bash
-docker compose restart web
+sudo nano /etc/hosts
 ```
 
-Visit `http://admin.dfms.com/admin/` — it should load.
+Add at the bottom:
 
-> **Limitation:** Only works on machines with the `/etc/hosts` entry. Share the entry with teammates who need access.
+```
+52.14.186.237   admin.dfms.securityguardian.xyz nourish.dfms.securityguardian.xyz
+```
+
+Save (`Ctrl+O`, `Enter`, `Ctrl+X`). No DNS propagation wait — works immediately.
+
+> **Limitation:** Only works on machines with the `/etc/hosts` entry. Each teammate needs to add it manually.
 
 ---
 
