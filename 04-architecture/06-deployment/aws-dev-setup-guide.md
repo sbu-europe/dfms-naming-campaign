@@ -493,7 +493,7 @@ docker compose run --rm web python manage.py migrate_schemas --shared
 docker compose run --rm web python manage.py migrate_schemas
 
 # Seed roles, platform tenant and nourish tenant
-docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data.py').read()); run_seed()"
+docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data_aws_dev.py').read()); run_seed()"
 ```
 
 This creates:
@@ -536,7 +536,8 @@ Access from browser:
 | `http://52.14.186.237/api/docs/` | Swagger UI |
 
 **Default credentials** (created by seed script):
-- Super Admin: `superadmin@dfms.com` / (check seed_data.py for password)
+- Super Admin: `superadmin@dfms.com` / `SuperAdmin@1234!`
+- Nourish Admin: `admin@nourish.com` / `NourishAdmin@1234!`
 - Nourish Tenant Admin: `admin@nourish.com`
 
 ---
