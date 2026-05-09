@@ -431,11 +431,14 @@ Make sure your `.env` has all real values filled in — especially:
 SECRET_KEY=    # generate: python3 -c "import secrets; print(secrets.token_urlsafe(50))"
 DB_PASSWORD=   # choose a strong password
 ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
+BASE_DOMAIN=dfms.securityguardian.xyz
 DEBUG=False
 DJANGO_SETTINGS_MODULE=config.settings.production
 ```
 
 > **`ALLOWED_HOSTS` must include your domain** before the app will accept requests on it. The **`.dfms.securityguardian.xyz`** wildcard covers all tenant subdomains (`admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, etc.), and **`52.14.186.237`** allows direct IP access. If your `.env` currently has `ALLOWED_HOSTS=*`, Django accepts all hosts and this is not strictly required for dev — but should be locked down before sharing the environment.
+>
+> **`BASE_DOMAIN`** controls which domains the seed script registers for tenants. Set it to match your environment — the seed script reads this value automatically so you never need a separate seed file per environment.
 
 ### 8b — Copy .env to EC2
 
@@ -495,12 +498,10 @@ docker compose run --rm web python manage.py migrate_schemas --shared
 docker compose run --rm web python manage.py migrate_schemas
 
 # Seed roles, platform tenant and nourish tenant
-docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data_aws_dev.py').read()); run_seed()"
+docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data.py').read()); run_seed()"
 ```
 
-> **Why `seed_data_aws_dev.py` and not `seed_data.py`?**  
-> `seed_data.py` (used for local development) hardcodes domains as `admin.dfms.com` and `nourish.dfms.com`.  
-> `seed_data_aws_dev.py` registers domains as `admin.dfms.securityguardian.xyz` and `nourish.dfms.securityguardian.xyz` — matching the Route 53 wildcard record for this environment. It also safely handles the case where tenants already exist (won't duplicate) and prints access URLs + credentials on completion.
+> **`seed_data.py` reads `BASE_DOMAIN` from `.env`** — no separate seed files per environment. With `BASE_DOMAIN=dfms.securityguardian.xyz` set in Step 8, it will automatically register `admin.dfms.securityguardian.xyz` and `nourish.dfms.securityguardian.xyz`. It is also idempotent — safe to re-run if tenants already exist.
 
 This creates:
 - `platform` tenant → `admin.dfms.securityguardian.xyz` — Super Admin lives here
