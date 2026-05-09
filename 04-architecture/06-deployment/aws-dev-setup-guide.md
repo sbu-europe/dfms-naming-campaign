@@ -226,14 +226,14 @@ Automatically stop the instance outside working hours using EventBridge Schedule
    | Field | Value |
    |-------|-------|
    | Minutes | `0` |
-   | Hours | `15` |
+   | Hours | `16` |
    | Day of month | `*` |
    | Month | `*` |
    | Day of the week | `2-7` |
    | Year | `*` |
 
    > `2-7` = Monday through Saturday (`1` = Sunday in AWS EventBridge).  
-   > Runs at 15:00 UTC = 9:00 PM BDT, Monday–Saturday.  
+   > Runs at 16:00 UTC = 10:00 PM BDT, Monday–Saturday.  
    > ⚠️ Do NOT use `MON-SAT` or `?` — AWS EventBridge cron requires numeric day-of-week values and does not accept `?` when Day of month is `*`.
 6. **Flexible time window**: Off
 7. Click **Next**
@@ -251,13 +251,13 @@ Repeat the same steps with:
   | Field | Value |
   |-------|-------|
   | Minutes | `0` |
-  | Hours | `2` |
+  | Hours | `5` |
   | Day of month | `*` |
   | Month | `*` |
   | Day of the week | `2-7` |
   | Year | `*` |
 
-  > Runs at 02:00 UTC = 8:00 AM BDT, Monday–Saturday.
+  > Runs at 05:00 UTC = 11:00 AM BDT, Monday–Saturday.
 - **Target**: Amazon EC2 → `StartInstances`
 - Same instance ID
 
@@ -265,8 +265,8 @@ Repeat the same steps with:
 
 | Schedule | Cron (UTC) | BDT time | Action |
 |----------|-----------|---------|--------|
-| `dfms-dev-stop` | `0 15 * * 2-7 *` | 9:00 PM | Stop EC2 |
-| `dfms-dev-start` | `0 2 * * 2-7 *` | 8:00 AM | Start EC2 |
+| `dfms-dev-stop` | `0 16 * * 2-7 *` | 10:00 PM | Stop EC2 |
+| `dfms-dev-start` | `0 5 * * 2-7 *` | 11:00 AM | Start EC2 |
 
 > ⚠️ The instance is **off on Sundays** all day. Start it manually from EC2 console if you need to work on Sunday.
 
