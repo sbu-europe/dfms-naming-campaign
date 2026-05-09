@@ -271,55 +271,57 @@ EventBridge Scheduler needs an IAM role to call EC2 stop/start on your behalf. "
 2. **Schedule name**: `dfms-dev-stop`
 3. **Description**: `Stop the DFMS dev EC2 instance at end of office hours - 10PM BDT Mon-Fri`
 4. **Schedule group**: default
-4. **Schedule type**: Recurring schedule → **Cron-based**
-5. **Cron expression** — enter each field separately:
+5. **Schedule type**: Recurring schedule → **Cron-based**
+6. **Timezone**: `Asia/Dhaka`
+7. **Cron expression** — enter each field separately:
 
    | Field | Value |
    |-------|-------|
    | Minutes | `0` |
-   | Hours | `16` |
+   | Hours | `22` |
    | Day of month | `?` |
    | Month | `*` |
    | Day of the week | `2-6` |
    | Year | `*` |
 
-   > Runs at 16:00 UTC = 10:00 PM BDT, Monday–Friday.  
+   > Runs at 22:00 BDT (10:00 PM), Monday–Friday.  
    > ⚠️ **Day of month must be `?`** when specifying Day of week. In AWS EventBridge: `1=SUN, 2=MON, 3=TUE, 4=WED, 5=THU, 6=FRI, 7=SAT`.
 
-6. **Flexible time window**: Off
-7. Click **Next**
-8. **Target**: AWS service → **Amazon EC2** → `StopInstances`
-9. **Instance IDs**: `i-082874e95d9ff833b`
-10. **Execution role**: **Use existing role** → select `dfms-eventbridge-ec2-scheduler`
-11. Click **Next** → review → **Create schedule**
+8. **Flexible time window**: Off
+9. Click **Next**
+10. **Target**: AWS service → **Amazon EC2** → `StopInstances`
+11. **Instance IDs**: `i-082874e95d9ff833b`
+12. **Execution role**: **Use existing role** → select `dfms-eventbridge-ec2-scheduler`
+13. Click **Next** → review → **Create schedule**
 
 ### 5c — Create the Start Schedule
 
 Repeat the same steps with:
 - **Schedule name**: `dfms-dev-start`
 - **Description**: `Start the DFMS dev EC2 instance at start of office hours - 11AM BDT Mon-Fri`
+- **Timezone**: `Asia/Dhaka`
 - **Cron expression**:
 
   | Field | Value |
   |-------|-------|
   | Minutes | `0` |
-  | Hours | `5` |
+  | Hours | `11` |
   | Day of month | `?` |
   | Month | `*` |
   | Day of the week | `2-6` |
   | Year | `*` |
 
-  > Runs at 05:00 UTC = 11:00 AM BDT, Monday–Friday.
+  > Runs at 11:00 BDT (11:00 AM), Monday–Friday.
 
 - **Target**: Amazon EC2 → `StartInstances`
 - **Execution role**: `dfms-eventbridge-ec2-scheduler` (same role)
 
 ### Schedule summary
 
-| Schedule | Cron (UTC) | BDT time | Action |
-|----------|-----------|---------|--------|
-| `dfms-dev-stop` | `0 16 ? * 2-6 *` | 10:00 PM | Stop EC2 |
-| `dfms-dev-start` | `0 5 ? * 2-6 *` | 11:00 AM | Start EC2 |
+| Schedule | Timezone | Cron | BDT time | Action |
+|----------|----------|------|---------|--------|
+| `dfms-dev-stop` | `Asia/Dhaka` | `0 22 ? * 2-6 *` | 10:00 PM | Stop EC2 |
+| `dfms-dev-start` | `Asia/Dhaka` | `0 11 ? * 2-6 *` | 11:00 AM | Start EC2 |
 
 > ⚠️ The instance is **off on weekends**. Start it manually from EC2 console if needed on Saturday/Sunday.
 
