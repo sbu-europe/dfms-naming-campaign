@@ -425,20 +425,16 @@ exit
 
 ### 8a — Fill in .env with real values (on your local Mac)
 
-Make sure your `.env` has all real values filled in — especially:
+Make sure your local `.env` has all real values filled in — especially:
 
 ```bash
 SECRET_KEY=    # generate: python3 -c "import secrets; print(secrets.token_urlsafe(50))"
 DB_PASSWORD=   # choose a strong password
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
-BASE_DOMAIN=dfms.securityguardian.xyz
 DEBUG=False
 DJANGO_SETTINGS_MODULE=config.settings.production
 ```
 
-> **`ALLOWED_HOSTS` must include your domain** before the app will accept requests on it. The **`.dfms.securityguardian.xyz`** wildcard covers all tenant subdomains (`admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, etc.), and **`52.14.186.237`** allows direct IP access. If your `.env` currently has `ALLOWED_HOSTS=*`, Django accepts all hosts and this is not strictly required for dev — but should be locked down before sharing the environment.
->
-> **`BASE_DOMAIN`** controls which domains the seed script registers for tenants. Set it to match your environment — the seed script reads this value automatically so you never need a separate seed file per environment.
+> The local `.env` keeps `ALLOWED_HOSTS` and `BASE_DOMAIN` set for local development (`dfms.com`). You will override these on the EC2 instance in the next step.
 
 ### 8b — Copy .env to EC2
 
@@ -456,6 +452,27 @@ ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "head -5 /home/ubuntu/nouris
 > ⚠️ **Security warning**: The `.env` file will sit on the EC2 disk. Anyone with SSH access to the server can read it. Acceptable for a small internal dev team — **do not use this approach for staging or production.**
 
 > ⚠️ Never commit `.env` to git — it is already in `.gitignore`.
+
+### 8c — Update EC2-specific values on the instance
+
+After copying, SSH in and override the two values that differ from local:
+
+```bash
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237
+nano /home/ubuntu/nourish-backend/.env
+```
+
+Update these two lines:
+
+```bash
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
+BASE_DOMAIN=dfms.securityguardian.xyz
+```
+
+Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+> **`ALLOWED_HOSTS`** — The **`.dfms.securityguardian.xyz`** wildcard covers all tenant subdomains, and **`52.14.186.237`** allows direct IP access.  
+> **`BASE_DOMAIN`** — The seed script reads this to register the correct domains for tenants. Set it to match your Route 53 subdomain.
 
 ---
 
