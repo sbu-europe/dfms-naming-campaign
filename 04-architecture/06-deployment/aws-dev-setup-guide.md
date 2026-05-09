@@ -160,6 +160,18 @@ Create the security group first so you can select it during instance launch.
    - **Firewall**: Select **"Select existing security group"** → choose `dfms-dev-sg`
 
 6. Storage: **20 GB gp3**
+
+   > **Why 20 GB?** The default 8 GB fills up quickly once Docker images are pulled (PostgreSQL + Redis + Django alone use ~4–5 GB uncompressed). Estimated usage breakdown:
+   >
+   > | Item | Approx size |
+   > |------|-------------|
+   > | Ubuntu OS | ~3 GB |
+   > | Docker engine + images | ~5–8 GB |
+   > | PostgreSQL data (dev) | ~1–2 GB |
+   > | Redis + app code + logs | ~1 GB |
+   > | **Total** | **~10–14 GB** |
+   >
+   > Cost difference: 8 GB (~$0.64/mo) vs 20 GB (~$1.60/mo) — only **~$1/month more**. Keep 20 GB to avoid the instance crashing silently when disk fills up.
 7. **Tags** — add at creation for cost tracking:
 
    | Key | Value |
