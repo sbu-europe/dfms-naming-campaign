@@ -526,7 +526,7 @@ exit()
 ## Step 11 — Verify Deployment
 
 ```bash
-# Health check
+# Health check (run on EC2)
 curl http://localhost/api/health/
 
 # Watch logs
@@ -534,14 +534,14 @@ docker compose logs -f web
 docker compose logs -f celery_worker
 ```
 
-Access from browser:
+**At this point, only the raw IP URL is accessible.** Domain-based URLs require completing Step 12 (Route 53 setup) first.
 
-| URL | Tenant | Description |
-|-----|--------|-------------|
-| `http://52.14.186.237/admin/` | platform | Django Admin (via raw IP) |
-| `http://admin.dfms.securityguardian.xyz/admin/` | platform | Platform Super Admin (via domain) |
-| `http://nourish.dfms.securityguardian.xyz/admin/` | nourish | Nourish Tenant Admin (via domain) |
-| `http://nourish.dfms.securityguardian.xyz/api/docs/` | nourish | Swagger UI |
+| URL | Works after | Description |
+|-----|-------------|-------------|
+| `http://52.14.186.237/admin/` | Step 10 ✅ | Platform admin via raw IP |
+| `http://admin.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Platform Super Admin via domain |
+| `http://nourish.dfms.securityguardian.xyz/admin/` | Step 12a ⬇ | Nourish Tenant Admin via domain |
+| `http://nourish.dfms.securityguardian.xyz/api/docs/` | Step 12a ⬇ | Swagger UI |
 
 **Default credentials** (created by seed script):
 
