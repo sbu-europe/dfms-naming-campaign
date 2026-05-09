@@ -570,6 +570,27 @@ docker compose logs -f celery_worker
 
 This single wildcard covers all tenant subdomains automatically — `admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, any future tenant, etc.
 
+**Update `ALLOWED_HOSTS` on the EC2 instance:**
+
+```bash
+nano /home/ubuntu/nourish-backend/.env
+```
+
+Find `ALLOWED_HOSTS` and update it:
+
+```
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
+```
+
+Save, then restart the web container:
+
+```bash
+cd /home/ubuntu/nourish-backend
+docker compose restart web
+```
+
+> **Skip if `ALLOWED_HOSTS=*`** — check with: `docker compose exec web python manage.py shell -c "from django.conf import settings; print(settings.ALLOWED_HOSTS)"`. If it prints `['*']`, Django accepts all hosts and this step is not required for dev.
+
 **Register domains in Django on the EC2 instance:**
 
 ```bash
