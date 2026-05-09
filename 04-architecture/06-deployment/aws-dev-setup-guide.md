@@ -387,50 +387,57 @@ Verify it works:
 aws sts get-caller-identity
 ```
 
-### 7b — Store Secrets in SSM Parameter Store
+### 7b — Configure AWS CLI Credentials (temporary session)
 
-Run these from your **local Mac terminal**:
+Since `aws configure sso` may not work due to org restrictions, use temporary credentials from the AWS access portal instead:
+
+1. Go to **https://d-9667a7b5d0.awsapps.com/start**
+2. Click your account → **"Command line or programmatic access"**
+3. Choose **Option 2: Add a profile to your AWS credentials file**
+4. Copy the credentials block and paste into `~/.aws/credentials`:
+   ```bash
+   nano ~/.aws/credentials
+   ```
+   Paste and rename the profile to `dfms-dev`:
+   ```
+   [dfms-dev]
+   aws_access_key_id=ASIA...
+   aws_secret_access_key=...
+   aws_session_token=...
+   ```
+5. Verify it works:
+   ```bash
+   aws sts get-caller-identity --profile dfms-dev
+   ```
+
+> ⚠️ These credentials **expire in ~1 hour**. Repeat steps 1–4 each session to refresh them.
+
+### 7c — Push All .env Variables to SSM
+
+Fill in your `.env` file with real values first, then run the bulk push script:
 
 ```bash
-# Django secret key (generate a strong random string)
-aws ssm put-parameter \
-  --name "/dfms/dev/SECRET_KEY" \
-  --value "your-strong-secret-key-here" \
-  --type SecureString \
-  --region us-east-2
-
-# Database password
-aws ssm put-parameter \
-  --name "/dfms/dev/DB_PASSWORD" \
-  --value "your-db-password" \
-  --type SecureString \
-  --region us-east-2
-
-# Redis URL (Docker container, internal)
-aws ssm put-parameter \
-  --name "/dfms/dev/REDIS_URL" \
-  --value "redis://redis:6379/0" \
-  --type SecureString \
-  --region us-east-2
+bash scripts/push-env-to-ssm.sh dev dfms-dev
 ```
+
+This pushes every non-empty variable from `.env` to `/dfms/dev/<KEY>` in SSM as a `SecureString`.
 
 > **To generate a strong SECRET_KEY**:
 > ```bash
 > python3 -c "import secrets; print(secrets.token_urlsafe(50))"
 > ```
 
-### 7c — Verify Parameters Were Stored
+### 7d — Verify Parameters Were Stored
 
 ```bash
 aws ssm get-parameters-by-path \
   --path "/dfms/dev/" \
   --with-decryption \
-  --region us-east-2
+  --region us-east-2 \
+  --profile dfms-dev
 ```
 
-You should see all three parameters listed.
-
-> ✅ The EC2 instance reads these at runtime via its IAM Instance Role — no `.env` file with secrets, no long-lived access keys needed.
+> ✅ The EC2 instance reads these at runtime via its IAM Instance Role — no `.env` file with secrets on the server, no long-lived access keys needed.
 
 ---
 
