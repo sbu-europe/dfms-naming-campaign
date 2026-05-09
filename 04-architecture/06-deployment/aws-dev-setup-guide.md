@@ -121,22 +121,8 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
    - **VPC**: Default VPC (already exists, no setup needed)
    - **Subnet**: Any default public subnet (e.g. `us-east-2a`)
    - **Auto-assign public IP**: **Enable** (needed until Elastic IP is attached)
-
-   **Firewall (Security Group)** — create a new security group:
-   - **Security group name**: `dfms-dev-sg`
-   - **Description**: `DFMS dev server - SSH, HTTP, HTTPS`
-
-   Inbound rules:
-
-   | Type | Protocol | Port | Source | Why |
-   |------|----------|------|--------|-----|
-   | SSH | TCP | 22 | **My IP** (select from dropdown) | SSH — restricted to your IP only |
-   | HTTP | TCP | 80 | 0.0.0.0/0 | Web traffic |
-   | HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (for later) |
-
-   > ⚠️ For SSH, always select **"My IP"** from the dropdown — never `0.0.0.0/0`. This prevents brute-force attacks on port 22.
-
-   > ⚠️ **If your IP changes** (e.g. different office/home network): EC2 → Security Groups → `dfms-dev-sg` → Edit inbound rules → update the SSH source to your new IP.
+   - **Firewall**: Select **"Create security group"** → name it `dfms-dev-sg`
+   - During instance creation, just add the basic SSH rule — full customization is done after launch (see Step 2b below)
 
    > ⚠️ **macOS note**: Moving the `.pem` file via terminal may fail due to macOS privacy protection on the Downloads folder. Use Finder instead: `Cmd+Shift+G` → type `~/.ssh` → drag the file in. Then run `chmod 400 ~/.ssh/dfms-dev-key.pem` in terminal.
 
@@ -151,6 +137,36 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
    | `ManagedBy` | `manual` |
 
 8. Click **Launch**
+
+---
+
+## Step 2b — Configure Security Group (after instance is launched)
+
+Full security group customization is done from the dedicated Security Groups page, not during instance creation.
+
+1. Go to **EC2 → Security Groups** (left sidebar under "Network & Security")
+2. Find and click `dfms-dev-sg`
+3. Click **Inbound rules** tab → **Edit inbound rules**
+4. Set up the following rules:
+
+   | Type | Protocol | Port | Source | Why |
+   |------|----------|------|--------|-----|
+   | SSH | TCP | 22 | **My IP** (select from dropdown) | SSH — restricted to your IP only |
+   | HTTP | TCP | 80 | 0.0.0.0/0 | Web traffic |
+   | HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (for later) |
+
+   > ⚠️ For SSH always select **"My IP"** from the dropdown — never `0.0.0.0/0`. This prevents brute-force attacks on port 22.
+
+   > ⚠️ **If your IP changes** later (different office/home network): come back here and update the SSH source to your new IP.
+
+5. Click **Save rules**
+6. Add **Tags** to the security group — click the **Tags** tab → **Manage tags**:
+
+   | Key | Value |
+   |-----|-------|
+   | `Project` | `DFMS` |
+   | `Environment` | `dev` |
+   | `Owner` | `bs-team` |
 
 ---
 
