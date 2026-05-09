@@ -443,27 +443,53 @@ aws ssm get-parameters-by-path \
 
 ## Step 8 — Clone Repo and Configure Environment
 
+> All secrets (SECRET_KEY, DB_PASSWORD, etc.) are already in SSM from Step 7.  
+> The `.env` on the server only needs non-secret runtime config.
+
+### 8a — Clone the repo (on EC2)
+
 ```bash
 git clone <repo-url> /home/ubuntu/nourish-backend
 cd /home/ubuntu/nourish-backend
+```
 
-# Copy and configure non-secret environment variables
+### 8b — Create .env with non-secret config only
+
+```bash
 cp .env.example .env
 nano .env
 ```
 
-Key `.env` values to set:
+Set these values (everything else comes from SSM at runtime):
 
 ```bash
+# Django
+DJANGO_SETTINGS_MODULE=config.settings.production
 DEBUG=False
-DJANGO_ALLOWED_HOSTS=.dev.dfms.com          # or your Elastic IP for quick start
+
+# Domain
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
 TENANT_DOMAIN_BASE=dev.dfms.com
+TENANT_DOMAIN_SCHEME=https
+TENANT_DOMAIN_PORT=
 SESSION_COOKIE_DOMAIN=.dev.dfms.com
 CSRF_COOKIE_DOMAIN=.dev.dfms.com
+
+# Database (Docker container — no RDS for dev)
+DB_NAME=dfms
+DB_USER=dfms_user
+DB_HOST=db
+DB_PORT=5432
+
+# Redis (Docker container — no ElastiCache for dev)
+REDIS_URL=redis://redis:6379/1
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/2
 ```
 
-> **Note**: PostgreSQL and Redis run in Docker on the same EC2 (no RDS, no ElastiCache for dev).  
-> This mirrors the existing `docker-compose.yml` setup — no new config needed.
+> ⚠️ Do **not** put `SECRET_KEY`, `DB_PASSWORD`, `JWT_SECRET_KEY`, or any credentials in this file. Those are fetched from SSM at runtime.
+
+> **Note**: PostgreSQL and Redis run in Docker on the same EC2 — mirrors the existing `docker-compose.yml` setup.
 
 ---
 
