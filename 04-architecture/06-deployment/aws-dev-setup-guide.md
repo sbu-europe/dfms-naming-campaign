@@ -108,6 +108,10 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
    5. Click **Create key pair** — the `.pem` file downloads automatically
    6. **Save it securely** — you cannot download it again:
       ```bash
+      # Create ~/.ssh folder if it doesn't exist
+      mkdir -p ~/.ssh
+      chmod 700 ~/.ssh
+
       # Move to your SSH folder and lock permissions
       mv ~/Downloads/dfms-dev-key.pem ~/.ssh/
       chmod 400 ~/.ssh/dfms-dev-key.pem
