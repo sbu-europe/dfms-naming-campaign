@@ -360,6 +360,28 @@ docker --version
 docker compose version
 ```
 
+### 6c — Add Swap Space (required for t2.micro / t3.micro)
+
+> ⚠️ **Critical for small instances.** t2.micro has only 1GB RAM. Running Docker containers + migrations simultaneously will trigger an **Out of Memory (OOM) kill**, crashing processes silently. Swap prevents this.
+
+```bash
+# Create 2GB swap file
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# Make permanent across reboots
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Verify
+free -h
+```
+
+You should see `Swap: 2.0G` in the output.
+
+> If memory issues persist after swap (e.g. very slow migrations), consider upgrading to **t3.small (2GB RAM, ~$15/mo)**.
+
 ---
 
 ## Step 7 — Clone Repo on EC2
