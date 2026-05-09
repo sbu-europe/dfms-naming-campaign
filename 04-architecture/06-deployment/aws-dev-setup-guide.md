@@ -543,16 +543,189 @@ Access from browser:
 
 ## Step 12 — (Optional) Set Up Domain & SSL
 
-From the [domain strategy](./aws-deployment-strategy.md#4-domain--subdomain-strategy):
+> This step is optional for dev but required if you want team members to access the environment via a real URL (e.g. `admin.dev.dfms.com`) instead of `/etc/hosts` hacks.
 
-1. **Route 53**: Add a hosted zone for your domain → Create wildcard A record:
-  ```
-   *.dev.dfms.com  →  <Elastic IP>
-  ```
-2. **ACM**: Request a wildcard TLS certificate `*.dev.dfms.com` (free, auto-renews)
-3. Update Nginx config to serve HTTPS and reference the ACM cert
+---
 
-> Route 53 hosted zone costs **$0.50/month** — this is the only non-free cost in year 1.
+### 12a — Local `/etc/hosts` workaround (no real domain needed)
+
+If you just want to test domain-based routing on your own machine without Route 53:
+
+**On your local Mac:**
+
+```bash
+sudo nano /etc/hosts
+```
+
+Add at the bottom:
+
+```
+52.14.186.237   admin.dfms.com api.dfms.com nourish.dfms.com
+```
+
+Save (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+Then register the domains in Django on the EC2 instance:
+
+```bash
+docker compose run --rm web python manage.py shell
+```
+
+```python
+from django_tenants.utils import get_tenant_model, get_tenant_domain_model
+
+Tenant = get_tenant_model()
+Domain = get_tenant_domain_model()
+
+public = Tenant.objects.get(schema_name='public')
+Domain.objects.get_or_create(domain='admin.dfms.com', tenant=public, is_primary=False)
+
+# Add more tenant domains as needed, e.g.:
+# nourish_tenant = Tenant.objects.get(schema_name='nourish')
+# Domain.objects.get_or_create(domain='nourish.dfms.com', tenant=nourish_tenant, is_primary=False)
+
+exit()
+```
+
+Also update `ALLOWED_HOSTS` in your `.env` to include the new domains:
+
+```
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.com
+```
+
+Then restart the web container:
+
+```bash
+docker compose restart web
+```
+
+Visit `http://admin.dfms.com/admin/` — it should load.
+
+> **Limitation:** Only works on machines with the `/etc/hosts` entry. Share the entry with teammates who need access.
+
+---
+
+### 12b — Real domain via Route 53 (shared team access)
+
+This makes the environment accessible to the whole team at a real URL with no `/etc/hosts` required.
+
+**Prerequisites:** You must own or control the `dfms.com` domain, or use a subdomain delegated to Route 53.
+
+#### 12b-i — Create a Route 53 Hosted Zone
+
+1. Open **Route 53 → Hosted zones → Create hosted zone**
+2. **Domain name**: `dev.dfms.com`
+3. **Type**: Public hosted zone
+4. Click **Create hosted zone**
+5. Note the 4 **NS records** (nameservers) — you'll need these if delegating a subdomain
+
+#### 12b-ii — Add a Wildcard A Record
+
+Inside the hosted zone:
+
+1. Click **Create record**
+2. **Record name**: `*` (wildcard — covers `admin.dev.dfms.com`, `api.dev.dfms.com`, etc.)
+3. **Record type**: A
+4. **Value**: `<ELASTIC_IP>` (e.g. `52.14.186.237`)
+5. **TTL**: `300`
+6. Click **Create records**
+
+> This single wildcard record routes all `*.dev.dfms.com` subdomains to your EC2 instance. Nginx and Django handle routing from there.
+
+#### 12b-iii — Request a Wildcard SSL Certificate (ACM)
+
+1. Open **AWS Certificate Manager (ACM)** → **Request a certificate**
+2. **Certificate type**: Public certificate
+3. **Domain name**: `*.dev.dfms.com`
+4. **Validation method**: DNS validation (recommended — ACM will provide a CNAME record)
+5. Click **Request**
+6. On the certificate detail page, click **Create records in Route 53** — AWS auto-adds the validation CNAME
+7. Wait ~2 minutes for status to become **Issued**
+
+> ACM certificates are **free** and auto-renew.
+
+#### 12b-iv — Update Nginx to Use HTTPS
+
+On the EC2 instance, edit your Nginx config to add SSL termination. Example:
+
+```nginx
+server {
+    listen 80;
+    server_name *.dev.dfms.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name *.dev.dfms.com;
+
+    ssl_certificate     /etc/ssl/certs/dfms-dev.crt;
+    ssl_certificate_key /etc/ssl/private/dfms-dev.key;
+
+    location / {
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+> **Note:** ACM certificates cannot be downloaded — they only work with AWS load balancers (ALB). For direct EC2 + Nginx, use **Let's Encrypt / Certbot** instead (free, same result):
+>
+> ```bash
+> sudo apt install certbot python3-certbot-nginx -y
+> sudo certbot --nginx -d "*.dev.dfms.com" --agree-tos -m your@email.com
+> ```
+> Certbot will auto-configure Nginx and set up auto-renewal.
+
+#### 12b-v — Update Security Group
+
+Make sure the EC2 security group has port **443 (HTTPS)** open:
+
+- **Inbound rule**: Type `HTTPS`, Port `443`, Source `0.0.0.0/0`
+
+(Already added in Step 2 if you followed it — verify it's there.)
+
+#### 12b-vi — Update Django Settings
+
+Update `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` in your `.env`:
+
+```
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
+CSRF_TRUSTED_ORIGINS=https://*.dev.dfms.com
+```
+
+Then register tenant domains in Django (same as 12a but with the real subdomain):
+
+```bash
+docker compose run --rm web python manage.py shell
+```
+
+```python
+from django_tenants.utils import get_tenant_model, get_tenant_domain_model
+
+Tenant = get_tenant_model()
+Domain = get_tenant_domain_model()
+
+public = Tenant.objects.get(schema_name='public')
+Domain.objects.get_or_create(domain='admin.dev.dfms.com', tenant=public, is_primary=True)
+
+exit()
+```
+
+Restart and verify:
+
+```bash
+docker compose restart web
+```
+
+Visit `https://admin.dev.dfms.com/admin/` — you should get the Django admin login over HTTPS.
+
+---
+
+> **Cost note:** Route 53 hosted zone costs **$0.50/month** — this is the only non-free cost in year 1.
 
 ---
 
