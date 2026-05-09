@@ -453,41 +453,18 @@ git clone <repo-url> /home/ubuntu/nourish-backend
 cd /home/ubuntu/nourish-backend
 ```
 
-### 8b — Create .env with non-secret config only
+### 8b — Copy .env to the server (from your local Mac)
+
+The app uses `python-decouple` which reads directly from the `.env` file — no SSM fetch needed for dev.
 
 ```bash
-cp .env.example .env
-nano .env
+# Run from your local Mac (repo root)
+scp -i ~/.ssh/dfms-dev-key.pem .env ubuntu@52.14.186.237:/home/ubuntu/nourish-backend/.env
 ```
 
-Set these values (everything else comes from SSM at runtime):
+> ✅ This is the simplest approach for dev — the `.env` already has all values and `python-decouple` reads it automatically.
 
-```bash
-# Django
-DJANGO_SETTINGS_MODULE=config.settings.production
-DEBUG=False
-
-# Domain
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
-TENANT_DOMAIN_BASE=dev.dfms.com
-TENANT_DOMAIN_SCHEME=https
-TENANT_DOMAIN_PORT=
-SESSION_COOKIE_DOMAIN=.dev.dfms.com
-CSRF_COOKIE_DOMAIN=.dev.dfms.com
-
-# Database (Docker container — no RDS for dev)
-DB_NAME=dfms
-DB_USER=dfms_user
-DB_HOST=db
-DB_PORT=5432
-
-# Redis (Docker container — no ElastiCache for dev)
-REDIS_URL=redis://redis:6379/1
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/2
-```
-
-> ⚠️ Do **not** put `SECRET_KEY`, `DB_PASSWORD`, `JWT_SECRET_KEY`, or any credentials in this file. Those are fetched from SSM at runtime.
+> ⚠️ The `.env` file contains secrets — never commit it to git. It is already in `.gitignore`.
 
 > **Note**: PostgreSQL and Redis run in Docker on the same EC2 — mirrors the existing `docker-compose.yml` setup.
 
