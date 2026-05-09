@@ -363,6 +363,8 @@ docker compose version
 
 > **Dev approach**: Copy `.env` directly to the server using `scp`.  
 > The app uses `python-decouple` which reads the `.env` file directly — no extra setup needed.
+>
+> ⚠️ **The repo must be cloned on EC2 first (Step 8a) before running `scp`** — the destination directory must exist.
 
 ### 7a — Fill in .env with real values (on your local Mac)
 
@@ -407,19 +409,22 @@ ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "cat /home/ubuntu/nourish-ba
 
 ---
 
-## Step 8 — Clone Repo and Configure Environment
-
-> All secrets (SECRET_KEY, DB_PASSWORD, etc.) are already in SSM from Step 7.  
-> The `.env` on the server only needs non-secret runtime config.
+## Step 8 — Clone Repo and Copy Environment
 
 ### 8a — Clone the repo (on EC2)
 
+SSH into the server and clone the repo first:
+
 ```bash
+# On your local Mac
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237
+
+# On EC2
 git clone <repo-url> /home/ubuntu/nourish-backend
-cd /home/ubuntu/nourish-backend
+exit
 ```
 
-### 8b — Copy .env to the server (from your local Mac)
+### 8b — Copy .env to the server (from your local Mac, after 8a)
 
 The app uses `python-decouple` which reads directly from the `.env` file — no SSM fetch needed for dev.
 
