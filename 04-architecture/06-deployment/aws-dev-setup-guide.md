@@ -430,10 +430,12 @@ Make sure your `.env` has all real values filled in — especially:
 ```bash
 SECRET_KEY=    # generate: python3 -c "import secrets; print(secrets.token_urlsafe(50))"
 DB_PASSWORD=   # choose a strong password
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
+ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
 DEBUG=False
 DJANGO_SETTINGS_MODULE=config.settings.production
 ```
+
+> **`ALLOWED_HOSTS` must include your domain** before the app will accept requests on it. The `.dfms.securityguardian.xyz` wildcard covers all tenant subdomains (`admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, etc.). If your `.env` currently has `ALLOWED_HOSTS=*`, Django accepts all hosts and this is not strictly required for dev — but should be locked down before sharing the environment.
 
 ### 8b — Copy .env to EC2
 
@@ -570,26 +572,11 @@ docker compose logs -f celery_worker
 
 This single wildcard covers all tenant subdomains automatically — `admin.dfms.securityguardian.xyz`, `nourish.dfms.securityguardian.xyz`, any future tenant, etc.
 
-**Update `ALLOWED_HOSTS` on the EC2 instance:**
-
-```bash
-nano /home/ubuntu/nourish-backend/.env
-```
-
-Find `ALLOWED_HOSTS` and update it:
-
-```
-ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz
-```
-
-Save, then restart the web container:
-
-```bash
-cd /home/ubuntu/nourish-backend
-docker compose restart web
-```
-
-> **Skip if `ALLOWED_HOSTS=*`** — check with: `docker compose exec web python manage.py shell -c "from django.conf import settings; print(settings.ALLOWED_HOSTS)"`. If it prints `['*']`, Django accepts all hosts and this step is not required for dev.
+> **`ALLOWED_HOSTS` check:** If you set `ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dfms.securityguardian.xyz` in Step 8, you're good. If you used `ALLOWED_HOSTS=*`, Django accepts all hosts and no change is needed for dev. Verify with:
+> ```bash
+> docker compose exec web python manage.py shell -c "from django.conf import settings; print(settings.ALLOWED_HOSTS)"
+> ```
+> If the domain is missing, edit `.env` on EC2 (`nano /home/ubuntu/nourish-backend/.env`) and run `docker compose restart web`.
 
 **Register domains in Django on the EC2 instance:**
 
