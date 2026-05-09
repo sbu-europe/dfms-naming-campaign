@@ -359,26 +359,57 @@ docker compose version
 
 ---
 
-## Step 7 — Prepare Environment Variables
+## Step 7 — Clone Repo on EC2
+
+The repo is private — you need to authenticate to clone it. Use a GitHub Personal Access Token (PAT).
+
+### 7a — Generate a GitHub PAT (on your local Mac)
+
+1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)**
+2. Click **Generate new token (classic)**
+3. **Name**: `dfms-dev-ec2`
+4. **Expiration**: 90 days
+5. **Scopes**: check `repo` only
+6. Click **Generate token** → copy the token immediately (shown only once)
+
+### 7b — Clone the repo (on EC2)
+
+```bash
+# SSH into EC2
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237
+
+# Clone using PAT
+git clone https://<YOUR_GITHUB_USERNAME>:<YOUR_PAT>@github.com/sbu-europe/nourish-backend.git /home/ubuntu/nourish-backend
+
+cd /home/ubuntu/nourish-backend
+exit
+```
+
+> ⚠️ The PAT is embedded in the clone URL above — it will be saved in `.git/config`. Clear it after cloning if needed:
+> ```bash
+> git remote set-url origin https://github.com/sbu-europe/nourish-backend.git
+> ```
+
+---
+
+## Step 8 — Copy Environment Variables to EC2
 
 > **Dev approach**: Copy `.env` directly to the server using `scp`.  
 > The app uses `python-decouple` which reads the `.env` file directly — no extra setup needed.
->
-> ⚠️ **The repo must be cloned on EC2 first (Step 8a) before running `scp`** — the destination directory must exist.
 
-### 7a — Fill in .env with real values (on your local Mac)
+### 8a — Fill in .env with real values (on your local Mac)
 
 Make sure your `.env` has all real values filled in — especially:
 
 ```bash
-SECRET_KEY=<generate with: python3 -c "import secrets; print(secrets.token_urlsafe(50))">
-DB_PASSWORD=<choose a strong password>
+SECRET_KEY=    # generate: python3 -c "import secrets; print(secrets.token_urlsafe(50))"
+DB_PASSWORD=   # choose a strong password
 ALLOWED_HOSTS=localhost,127.0.0.1,52.14.186.237,.dev.dfms.com
 DEBUG=False
 DJANGO_SETTINGS_MODULE=config.settings.production
 ```
 
-### 7b — Copy .env to EC2
+### 8b — Copy .env to EC2
 
 ```bash
 # Run from repo root on your local Mac
@@ -387,10 +418,10 @@ scp -i ~/.ssh/dfms-dev-key.pem .env ubuntu@52.14.186.237:/home/ubuntu/nourish-ba
 
 Verify it was copied:
 ```bash
-ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "cat /home/ubuntu/nourish-backend/.env | head -5"
+ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "head -5 /home/ubuntu/nourish-backend/.env"
 ```
 
-> ⚠️ **Security warning**: The `.env` file will sit on the EC2 disk. Anyone with SSH access to the server can read it. This is acceptable for a dev environment used by a small internal team — **do not use this approach for staging or production.**
+> ⚠️ **Security warning**: The `.env` file will sit on the EC2 disk. Anyone with SSH access to the server can read it. Acceptable for a small internal dev team — **do not use this approach for staging or production.**
 
 > ⚠️ Never commit `.env` to git — it is already in `.gitignore`.
 
@@ -400,44 +431,12 @@ ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237 "cat /home/ubuntu/nourish-ba
 >
 > For staging/production, secrets should never be stored as a file on disk. The recommended approach:
 >
-> 1. Push all secrets to **AWS SSM Parameter Store** (already documented in `scripts/push-env-to-ssm.sh`)
+> 1. Push all secrets to **AWS SSM Parameter Store** (use `scripts/push-env-to-ssm.sh`)
 > 2. Add a startup script (`scripts/fetch-secrets.sh`) that fetches SSM values and exports them as environment variables before Django starts
 > 3. Attach an **IAM Instance Profile** to the EC2 with SSM read permission — no credentials file needed
 >
 > This ensures secrets are encrypted at rest (AWS KMS), access-controlled by IAM, and never touch the server disk.  
 > See [AWS Deployment Strategy](./aws-deployment-strategy.md#7-secrets-management) for the full production secrets setup.
-
----
-
-## Step 8 — Clone Repo and Copy Environment
-
-### 8a — Clone the repo (on EC2)
-
-SSH into the server and clone the repo first:
-
-```bash
-# On your local Mac
-ssh -i ~/.ssh/dfms-dev-key.pem ubuntu@52.14.186.237
-
-# On EC2
-git clone <repo-url> /home/ubuntu/nourish-backend
-exit
-```
-
-### 8b — Copy .env to the server (from your local Mac, after 8a)
-
-The app uses `python-decouple` which reads directly from the `.env` file — no SSM fetch needed for dev.
-
-```bash
-# Run from your local Mac (repo root)
-scp -i ~/.ssh/dfms-dev-key.pem .env ubuntu@52.14.186.237:/home/ubuntu/nourish-backend/.env
-```
-
-> ✅ This is the simplest approach for dev — the `.env` already has all values and `python-decouple` reads it automatically.
-
-> ⚠️ The `.env` file contains secrets — never commit it to git. It is already in `.gitignore`.
-
-> **Note**: PostgreSQL and Redis run in Docker on the same EC2 — mirrors the existing `docker-compose.yml` setup.
 
 ---
 
