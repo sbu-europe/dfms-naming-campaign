@@ -364,6 +364,29 @@ docker compose version
 
 > ⚠️ **Critical for small instances.** t2.micro has only 1GB RAM. Running Docker containers + migrations simultaneously will trigger an **Out of Memory (OOM) kill**, crashing processes silently. Swap prevents this.
 
+#### What is swap?
+
+Swap is disk space that acts as overflow RAM when physical memory runs out:
+
+```
+Without swap — RAM fills up:
+  OOM Killer activates → kills random processes → 502 errors, crashes
+
+With swap — RAM fills up:
+  Overflow spills to disk (slow but prevents crashes)
+  Idle data moves to swap, active processes stay in RAM
+```
+
+| | RAM | Swap |
+|---|---|---|
+| Speed | ~10 ns (fast) | ~100,000 ns (slow — disk) |
+| Prevents crashes | ✅ | ✅ |
+| Best for | Active processes | Overflow buffer only |
+
+Swap is **not a replacement for RAM** — it prevents crashes but operations will be slow when actively using it. For a comfortable dev experience, **t3.small (2GB RAM) is strongly recommended**.
+
+#### Set up 2GB swap
+
 ```bash
 # Create 2GB swap file
 sudo fallocate -l 2G /swapfile
@@ -374,13 +397,42 @@ sudo swapon /swapfile
 # Make permanent across reboots
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
-# Verify
+# Verify — should show Swap: 2.0G
 free -h
 ```
 
-You should see `Swap: 2.0G` in the output.
+#### Still hitting OOM after swap?
 
-> If memory issues persist after swap (e.g. very slow migrations), consider upgrading to **t3.small (2GB RAM, ~$15/mo)**.
+`docker compose up --build` for multiple services simultaneously spikes memory during the build phase. **Build one service at a time** to spread the memory load:
+
+```bash
+docker compose up -d --build web
+sleep 15
+docker compose up -d --build celery_worker
+sleep 10
+docker compose up -d --build celery_beat
+```
+
+#### Increase swap to 4GB if needed
+
+```bash
+sudo swapoff /swapfile
+sudo fallocate -l 4G /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+free -h
+```
+
+#### Recommended upgrade
+
+| Instance | RAM | Swap | Effective | Monthly (with auto-stop) | Verdict |
+|---|---|---|---|---|---|
+| t2.micro | 1GB | 2GB | 3GB | ~$0 (free tier yr 1) | Usable with care |
+| t2.micro | 1GB | 4GB | 5GB | ~$0 (free tier yr 1) | More headroom |
+| **t3.small** | **2GB** | **2GB** | **4GB** | **~$8** | **Recommended** |
+| t3.medium | 4GB | — | 4GB | ~$15 | Comfortable |
+
+> Upgrade path: AWS Console → EC2 → Stop instance → Change instance type → Start instance. No data loss, same Elastic IP.
 
 ---
 
