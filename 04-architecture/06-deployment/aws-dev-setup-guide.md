@@ -361,16 +361,76 @@ docker compose version
 
 ## Step 7 — Set Up Secrets via AWS SSM (not .env files)
 
-**Never store secrets in a `.env` file on the EC2 instance.** Use SSM Parameter Store (free tier).
+**Never store secrets in a `.env` file on the EC2 instance.** Use AWS SSM Parameter Store instead — it's free, secure, and the EC2 instance reads them automatically via its IAM role.
+
+### 7a — Install and Configure AWS CLI (on your local Mac)
 
 ```bash
-# Run these from your local machine (with AWS CLI configured)
-aws ssm put-parameter --name "/dfms/dev/SECRET_KEY"   --value "your-secret-key"  --type SecureString
-aws ssm put-parameter --name "/dfms/dev/DB_PASSWORD"  --value "your-db-password" --type SecureString
-aws ssm put-parameter --name "/dfms/dev/REDIS_URL"    --value "redis://redis:6379/0" --type SecureString
+# Install AWS CLI
+brew install awscli
+
+# Configure with your SSO credentials
+aws configure sso
 ```
 
-The EC2 instance reads these at runtime via its IAM Instance Role — no long-lived access keys needed.
+When prompted:
+- **SSO session name**: `dfms-dev`
+- **SSO start URL**: *(your org's SSO URL — check with your AWS admin)*
+- **SSO region**: `us-east-2`
+- **SSO registration scopes**: leave default
+- Follow the browser login flow
+- **Default region**: `us-east-2`
+- **Default output format**: `json`
+
+Verify it works:
+```bash
+aws sts get-caller-identity
+```
+
+### 7b — Store Secrets in SSM Parameter Store
+
+Run these from your **local Mac terminal**:
+
+```bash
+# Django secret key (generate a strong random string)
+aws ssm put-parameter \
+  --name "/dfms/dev/SECRET_KEY" \
+  --value "your-strong-secret-key-here" \
+  --type SecureString \
+  --region us-east-2
+
+# Database password
+aws ssm put-parameter \
+  --name "/dfms/dev/DB_PASSWORD" \
+  --value "your-db-password" \
+  --type SecureString \
+  --region us-east-2
+
+# Redis URL (Docker container, internal)
+aws ssm put-parameter \
+  --name "/dfms/dev/REDIS_URL" \
+  --value "redis://redis:6379/0" \
+  --type SecureString \
+  --region us-east-2
+```
+
+> **To generate a strong SECRET_KEY**:
+> ```bash
+> python3 -c "import secrets; print(secrets.token_urlsafe(50))"
+> ```
+
+### 7c — Verify Parameters Were Stored
+
+```bash
+aws ssm get-parameters-by-path \
+  --path "/dfms/dev/" \
+  --with-decryption \
+  --region us-east-2
+```
+
+You should see all three parameters listed.
+
+> ✅ The EC2 instance reads these at runtime via its IAM Instance Role — no `.env` file with secrets, no long-lived access keys needed.
 
 ---
 
