@@ -498,9 +498,13 @@ docker compose run --rm web python manage.py migrate_schemas
 docker compose run --rm web python manage.py shell -c "exec(open('scripts/seed_data_aws_dev.py').read()); run_seed()"
 ```
 
+> **Why `seed_data_aws_dev.py` and not `seed_data.py`?**  
+> `seed_data.py` (used for local development) hardcodes domains as `admin.dfms.com` and `nourish.dfms.com`.  
+> `seed_data_aws_dev.py` registers domains as `admin.dfms.securityguardian.xyz` and `nourish.dfms.securityguardian.xyz` — matching the Route 53 wildcard record for this environment. It also safely handles the case where tenants already exist (won't duplicate) and prints access URLs + credentials on completion.
+
 This creates:
-- `platform` tenant → `admin.dfms.com` — Super Admin lives here
-- `nourish` tenant → `nourish.dfms.com` — Nourish client tenant
+- `platform` tenant → `admin.dfms.securityguardian.xyz` — Super Admin lives here
+- `nourish` tenant → `nourish.dfms.securityguardian.xyz` — Nourish client tenant
 - System roles and default users
 
 ### Add EC2 IP as allowed domain (to access via IP instead of domain name)
