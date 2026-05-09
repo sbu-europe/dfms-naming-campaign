@@ -117,13 +117,28 @@ This AWS account uses **IAM Identity Center (SSO)** for access management. Creat
       chmod 400 ~/.ssh/dfms-dev-key.pem
       ```
    > ⚠️ If you lose this file, you will lose SSH access to the instance. Keep a backup in a secure location (e.g. 1Password, LastPass).
-5. **Security Group** — inbound rules:
+5. **Network settings**:
+   - **VPC**: Default VPC (already exists, no setup needed)
+   - **Subnet**: Any default public subnet (e.g. `us-east-2a`)
+   - **Auto-assign public IP**: **Enable** (needed until Elastic IP is attached)
 
-   | Port | Protocol | Source | Purpose |
-   |------|----------|--------|---------|
-   | 22 | TCP | My IP only | SSH |
-   | 80 | TCP | 0.0.0.0/0 | HTTP |
-   | 443 | TCP | 0.0.0.0/0 | HTTPS |
+   **Firewall (Security Group)** — create a new security group:
+   - **Security group name**: `dfms-dev-sg`
+   - **Description**: `DFMS dev server - SSH, HTTP, HTTPS`
+
+   Inbound rules:
+
+   | Type | Protocol | Port | Source | Why |
+   |------|----------|------|--------|-----|
+   | SSH | TCP | 22 | **My IP** (select from dropdown) | SSH — restricted to your IP only |
+   | HTTP | TCP | 80 | 0.0.0.0/0 | Web traffic |
+   | HTTPS | TCP | 443 | 0.0.0.0/0 | HTTPS (for later) |
+
+   > ⚠️ For SSH, always select **"My IP"** from the dropdown — never `0.0.0.0/0`. This prevents brute-force attacks on port 22.
+
+   > ⚠️ **If your IP changes** (e.g. different office/home network): EC2 → Security Groups → `dfms-dev-sg` → Edit inbound rules → update the SSH source to your new IP.
+
+   > ⚠️ **macOS note**: Moving the `.pem` file via terminal may fail due to macOS privacy protection on the Downloads folder. Use Finder instead: `Cmd+Shift+G` → type `~/.ssh` → drag the file in. Then run `chmod 400 ~/.ssh/dfms-dev-key.pem` in terminal.
 
 6. Storage: **20 GB gp3**
 7. **Tags** — add at creation for cost tracking:
