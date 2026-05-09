@@ -104,8 +104,32 @@ AWS Console → Root account → Account → IAM user and role access to Billing
    | `Project` | `DFMS` |
    | `Environment` | `dev` |
 
-3. Create your personal IAM user → add to `dfms-developers` group
-4. Sign in as the IAM user from this point onwards
+3. **Create your personal IAM user**:
+   1. IAM → **Users** → **Create user**
+   2. Username: e.g. `mahfuz` (your name, lowercase)
+   3. Check **"Provide user access to the AWS Management Console"**
+   4. Select **"I want to create an IAM user"**
+   5. Set a password (or auto-generate and force reset on first login)
+   6. Click **Next** → under "Add user to group" select `dfms-developers` → **Next**
+   7. Add tags:
+
+      | Key | Value |
+      |-----|-------|
+      | `Project` | `DFMS` |
+      | `Environment` | `dev` |
+      | `Owner` | `bs-team` |
+
+   8. Click **Create user**
+   9. **Download or copy the console sign-in URL** shown on the confirmation screen — it looks like:
+      ```
+      https://<account-id>.signin.aws.amazon.com/console
+      ```
+
+4. **Sign in as the IAM user from this point onwards**:
+   1. Sign out of the root account
+   2. Open the sign-in URL from above
+   3. Enter your IAM username and password
+   4. ✅ All future AWS work should be done from this IAM user — never the root account
 
 ---
 
