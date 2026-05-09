@@ -5,7 +5,7 @@
 
 **Last Updated**: May 8, 2026  
 **Environment**: Cloud DEV (`dev.dfms.com`)  
-**Region**: ap-south-1 (Mumbai)  
+**Region**: us-east-2 (Ohio)  
 **Estimated Cost**: ~$0.50/month (year 1 free tier) · ~$5.40/month (year 2+)
 
 ---
