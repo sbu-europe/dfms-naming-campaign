@@ -24,7 +24,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 ## In Scope (Sprint 4)
 
-- Vendor onboarding & registration: vendor self-registration (web/mobile) **and** platform-admin invite flow, vendor type (Contractual vs Non-Contractual), testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), pending verification gate, audit logging, resubmission support, multiple vehicles per vendor profile.
+- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow, vendor type (Contractual vs Non-Contractual), testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), pending verification gate, audit logging, resubmission support, multiple vehicles per vendor profile.
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
 - Vendor verification workflow (platform): platform admin verification queue, approve/reject with mandatory remarks, real-time status updates.
 - Vendor ↔ tenant membership: verified vendor can see all active tenants, request to join, and tenants can approve/reject vendor join.
@@ -50,7 +50,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor Self-Registration (web/mobile) + platform invite onboarding](VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
+| 1 | [Vendor Self-Registration (mobile) + platform invite onboarding](VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
 | 2 | [Compliance Docs + Testimonial/Reference + multi-vehicle profile](VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
 | 3 | [Platform Verification Queue + Approve/Reject (mandatory remarks) + resubmission](VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
 
@@ -105,7 +105,7 @@ Use this checklist under each VM story file (or inline here if you keep one file
 Vendor discovers DFMS
   ↓
 Onboarding entry:
-  - Self-registration (company + vendor type + contact + testimonial/reference + docs)
+  - Self-registration via Vendor Mobile (company + vendor type + contact + testimonial/reference + docs)
   - Platform-admin invite → vendor completes profile (missing fields + docs)
   ↓
 Status: PENDING_VERIFICATION

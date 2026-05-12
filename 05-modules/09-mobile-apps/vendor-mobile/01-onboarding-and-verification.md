@@ -6,7 +6,7 @@ last_updated: 2026-05-06
 
 ## Entry paths
 
-- **Self-registration**: Vendor signs up and submits required profile + documents for verification.
+- **Self-registration** *(initial scope: Vendor Mobile only; web self-registration deferred)*: Vendor signs up and submits required profile + documents for verification.
 - **Invite-based onboarding**: Platform admin creates vendor and sends an invite; vendor completes missing details + documents and submits for verification.
 
 ## Verification (access requirement)

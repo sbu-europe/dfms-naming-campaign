@@ -17,7 +17,7 @@ The onboarding process differentiates between **Contractual vendors** (pre-negot
 
 ### Purpose
 
-- Enable vendor self-registration via web/mobile interface
+- Enable vendor self-registration via the **Vendor Mobile** app (initial delivery; web self-registration deferred)
 - Capture vendor company details, contact information, and compliance documents
 - Differentiate vendor types (Contractual vs Non-Contractual)
 - Enforce document upload requirements (Trade License, BIN, TIN)
@@ -702,7 +702,7 @@ if (vendor.resubmission_count >= MAX_RESUBMISSIONS) {
 
 Vendor Onboarding & Registration is the **vendor lifecycle entry point** that provides:
 
-- **Self-Registration:** Web/mobile interface for vendor sign-up
+- **Self-Registration:** Vendor Mobile app for vendor sign-up (web deferred)
 - **Vendor Type Differentiation:** Contractual (direct assignment) vs Non-Contractual (bidding)
 - **Document Verification:** Mandatory compliance documents (Trade License, BIN, TIN)
 - **Admin Approval Workflow:** Review, approve, reject, request clarification

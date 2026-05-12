@@ -3,14 +3,14 @@ jira_key: ~
 jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
-title: Vendor Self-Registration (web/mobile) + Tenant Isolation
+title: Vendor Self-Registration (mobile) + Tenant Isolation
 epic: Vendor Onboarding & Verification
 status: Pending
 story_points: ~
 assignee: ~
 ---
 
-# VM-01 — Vendor Self-Registration (web/mobile) + Tenant Isolation
+# VM-01 — Vendor Self-Registration (mobile) + Tenant Isolation
 
 ## User Story
 
@@ -20,7 +20,7 @@ assignee: ~
 
 ## Business Context
 
-Vendor onboarding is the entry gate to the vendor ecosystem. Registration must be possible from **web/mobile** and must not activate vendors until verification completes.
+Vendor onboarding is the entry gate to the vendor ecosystem. **Self-registration is delivered first on the Vendor Mobile app** (web self-registration is out of initial scope). Registration must not activate vendors until verification completes.
 
 Vendors can be created in two ways:
 
@@ -31,8 +31,8 @@ Vendor verification is a **platform-level** step. Separately, vendors must **joi
 
 ## Acceptance Criteria
 
-### AC-1: Self-Registration Form (company + type + contacts)
-- [ ] System provides a vendor registration form that captures:
+### AC-1: Self-Registration Form (Vendor Mobile — company + type + contacts)
+- [ ] Vendor Mobile app provides a vendor registration form that captures:
   - Company details
   - Vendor type: **Contractual (Fixed Rate)** or **Non-Contractual**
   - Contact information
@@ -63,13 +63,13 @@ Vendor verification is a **platform-level** step. Separately, vendors must **joi
 
 ## Functional Requirements (from PRD)
 
-- [ ] **[Critical]** System SHALL provide a vendor self-registration interface (web/mobile).
+- [ ] **[Critical]** System SHALL provide a vendor self-registration flow in the **Vendor Mobile** app (web deferred).
 
 ## Sub-tasks (implementation checklist)
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-01-1 | Vendor registration endpoint + validation | ~ | Pending |
+| VM-01-1 | Vendor registration API + mobile client validation | ~ | Pending |
 | VM-01-2 | Vendor type gating rules (contractual/non-contractual) | ~ | Pending |
 | VM-01-3 | Platform admin vendor-create + invite flow | ~ | Pending |
 | VM-01-4 | Registration/invite audit log events | ~ | Pending |
@@ -96,7 +96,7 @@ POST /api/v1/platform/vendors/{vendor_id}/invite
 
 ## Definition of Done
 
-- [ ] Vendor can submit registration (web/mobile) and receives a confirmation response
+- [ ] Vendor can submit registration from **Vendor Mobile** and receives a confirmation response
 - [ ] Record is tenant-isolated and stored as `PENDING_VERIFICATION`
 - [ ] Vendor cannot access bidding/TO details prior to approval
 - [ ] Audit entry created for registration submission
