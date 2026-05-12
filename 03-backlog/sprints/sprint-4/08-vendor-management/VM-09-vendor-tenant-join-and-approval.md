@@ -3,14 +3,14 @@ jira_key: ~
 jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
-title: Vendor ↔ Tenant Join Requests + Tenant Approval + Visibility Scoping
+title: Vendor ↔ Tenant Join + Approval + Tenant-Assigned Vendor Type + Visibility Scoping
 epic: Vendor Portal & Operations
 status: Pending
 story_points: ~
 assignee: ~
 ---
 
-# VM-09 — Vendor ↔ Tenant Join Requests + Tenant Approval + Visibility Scoping
+# VM-09 — Vendor ↔ Tenant Join, Approval & Tenant-Assigned Vendor Type + Visibility Scoping
 
 ## User Story
 
@@ -22,7 +22,9 @@ assignee: ~
 
 Vendors are verified at the platform level, but operational participation is tenant-specific. Vendors request to join tenants; tenants approve vendors before the vendor can see tenant bids, TOs, and trips.
 
-Tenant Admin cannot invite vendors or see the global vendor directory; tenant-side interaction is limited to **approving vendor join requests** for their own tenant.
+**Vendor type (Contractual vs Non-Contractual)** is **not** chosen by the vendor. When a **Tenant Admin** approves a join request, they **must set** the vendor type **for that vendor within that tenant**. That type drives whether the vendor participates via **direct assignment** (Contractual) or **bidding** (Non-Contractual) for that tenant only.
+
+Tenant Admin cannot invite vendors or see the global vendor directory; tenant-side interaction is limited to **reviewing join requests** and, on approval, **assigning tenant-scoped vendor type**.
 
 ## Acceptance Criteria
 
@@ -33,17 +35,22 @@ Tenant Admin cannot invite vendors or see the global vendor directory; tenant-si
 - [ ] Vendor can submit a join request for a selected tenant
 - [ ] Join request status is visible to the vendor: `PENDING`, `APPROVED`, `REJECTED`
 
-### AC-3: Tenant Can Approve/Reject Join Requests
+### AC-3: Tenant Can Approve/Reject Join Requests + Set Vendor Type on Approve
 - [ ] Tenant can view join requests for their tenant in a queue
-- [ ] Tenant can approve or reject a join request
-- [ ] Rejections require a reason/remarks (recommended)
+- [ ] Tenant can **reject** a join request (rejections require a reason/remarks — recommended)
+- [ ] Tenant can **approve** a join request only after selecting **vendor type** for that vendor **within this tenant**:
+  - **Contractual (Fixed Rate)**: vendor may receive direct TO assignment by TDO for this tenant (no bidding requirement for this relationship)
+  - **Non-Contractual**: vendor may receive bid notifications and submit bids for this tenant (subject to publish rules)
+- [ ] Vendor cannot self-edit tenant-scoped vendor type in Phase 1 (changes, if any, are Tenant Admin–only)
 
 ### AC-4: Visibility Scoping After Approval
 - [ ] Vendor can only see bids/trips/TOs for tenants where join status is `APPROVED`
 - [ ] If join request is `PENDING` or `REJECTED`, vendor cannot see tenant bids/trips/TOs
+- [ ] Within an approved tenant, **bid vs direct-assignment surfaces** respect the **tenant-assigned** vendor type (align with VM-04/VM-05)
 
 ### AC-5: Audit Trail + Notifications
 - [ ] Join request submit/approve/reject events are logged for audit
+- [ ] **Approve** audit entry includes selected `vendor_type`
 - [ ] Vendor receives notification on approval/rejection
 
 ## Sub-tasks (implementation checklist)
@@ -52,9 +59,10 @@ Tenant Admin cannot invite vendors or see the global vendor directory; tenant-si
 |---|----------|------|--------|
 | VM-09-1 | Tenant directory (active tenants) API for vendors | ~ | Pending |
 | VM-09-2 | Vendor join request API + status model | ~ | Pending |
-| VM-09-3 | Tenant-side join request queue + approve/reject actions | ~ | Pending |
-| VM-09-4 | Enforce scoping on bids/trips/TO queries by joined tenants | ~ | Pending |
-| VM-09-5 | Notifications + audit events | ~ | Pending |
+| VM-09-3 | Tenant-side join queue + approve (with mandatory `vendor_type`) / reject actions | ~ | Pending |
+| VM-09-4 | Enforce scoping on bids/trips/TO queries by joined tenants + per-tenant `vendor_type` | ~ | Pending |
+| VM-09-5 | Notifications + audit events (include `vendor_type` on approve) | ~ | Pending |
+| VM-09-6 | Data model: membership/join record stores `vendor_type` per `(vendor, tenant)` | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -63,17 +71,21 @@ GET  /api/v1/vendor/tenants?status=ACTIVE
 POST /api/v1/vendor/tenants/{tenant_id}/join-requests
 
 GET  /api/v1/tenant/vendors/join-requests?status=PENDING
-POST /api/v1/tenant/vendors/join-requests/{request_id}/approve
-POST /api/v1/tenant/vendors/join-requests/{request_id}/reject   Body: { remarks }
+POST /api/v1/tenant/vendors/join-requests/{request_id}/approve   Body: { "vendor_type": "CONTRACTUAL" | "NON_CONTRACTUAL" }
+POST /api/v1/tenant/vendors/join-requests/{request_id}/reject   Body: { "remarks": "string" }
 ```
 
 ## Dependencies
 
 - **Requires**: VM-03 vendor verification; tenant identity model; notifications/audit.
-- **Enables**: VM-04/05 vendor portal and bid submission scoping; VM-07 TO update scoping.
+- **Enables**: VM-04/05 vendor portal and bid submission scoping (uses **per-tenant** `vendor_type`); VM-07 TO update scoping.
+
+## Data (minimum)
+
+- Join / membership record: `vendor_id`, `tenant_id`, `status` (`PENDING` | `APPROVED` | `REJECTED`), `vendor_type` (`CONTRACTUAL` | `NON_CONTRACTUAL`) — `vendor_type` required when `status` becomes `APPROVED`
 
 ## Definition of Done
 
-- [ ] Verified vendor can request to join tenant; tenant can approve/reject
-- [ ] Vendor visibility for bids/trips/TOs is scoped to approved tenant memberships
+- [ ] Verified vendor can submit join request; tenant can reject (with remarks) or approve with mandatory **vendor type**
+- [ ] Vendor visibility for bids/trips/TOs is scoped to approved memberships; bid vs direct-assignment UX respects **per-tenant** `vendor_type`
 

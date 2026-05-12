@@ -31,13 +31,11 @@ Tenant Admin is not allowed to:
 
 ### AC-1: Admin Verification Queue
 - [ ] Platform Admin can view vendor profiles in a **verification queue**
-- [ ] Queue shows at least: vendor name, vendor type, submission timestamp, current status
+- [ ] Queue shows at least: vendor name, submission timestamp, current status (and other profile identifiers as needed)
 
 ### AC-2: Approve Vendor
 - [ ] Platform Admin can approve a vendor registration
-- [ ] Approved vendors become **Active** and eligible for operations:
-  - Non-Contractual: eligible for bidding
-  - Contractual: eligible for direct assignment
+- [ ] Approved vendors become **Active** at platform level and may request tenant joins; **Contractual vs Non-Contractual** behavior is **not** decided here — it is set **per tenant** when a Tenant Admin approves a join request (**VM-09**)
 
 ### AC-3: Reject Vendor (mandatory remarks)
 - [ ] Platform Admin can reject a vendor registration

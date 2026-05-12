@@ -24,7 +24,7 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 
 - Platform verification status (verified vendors only)
 - Which tenants the vendor has **joined and been approved** for
-- Vendor type (contractual vs non-contractual)
+- **Per-tenant** vendor type (Contractual vs Non-Contractual) from **tenant join approval** (VM-09)
 
 ## Acceptance Criteria
 
@@ -45,9 +45,9 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 ### AC-4: Tenant Join Gating
 - [ ] Vendor can only see bids/trips for tenants where the vendor is **approved as joined**
 
-### AC-5: Vendor Type Gating
-- [ ] **Non-Contractual** vendors see available bids (when published) for joined tenants
-- [ ] **Contractual** vendors are not required to bid; they primarily see assigned work/trips for joined tenants
+### AC-5: Vendor Type Gating (per tenant membership)
+- [ ] For each **joined tenant**, the UI respects the **tenant-assigned** vendor type (VM-09): **Non-Contractual** sees available bids (when published) for that tenant; **Contractual** is not required to bid and primarily sees assigned work/trips for that tenant
+- [ ] If a vendor is **Non-Contractual** for tenant A and **Contractual** for tenant B, gating applies **independently** per tenant
 
 ### AC-6: Data Isolation by Tenant Membership
 - [ ] Vendor only sees bids/TOs/trips for tenants they have joined and been approved for
@@ -85,6 +85,6 @@ GET /api/v1/vendor/trips?status=COMPLETED
 ## Definition of Done
 
 - [ ] Approved vendors can access core portal views
-- [ ] Contractual vs Non-Contractual gating enforced
+- [ ] **Per-tenant** Contractual vs Non-Contractual gating enforced (type from VM-09 membership)
 - [ ] Tenant isolation enforced across lists
 

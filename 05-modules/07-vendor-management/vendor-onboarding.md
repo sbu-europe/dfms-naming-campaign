@@ -13,13 +13,15 @@ related_modules: [transport-order-management, trip-management]
 
 Vendor Onboarding & Registration is the **vendor lifecycle entry point** that enables transport vendors (third-party trucking companies) to register, verify credentials, and gain access to the DFMS platform for bidding and trip execution. It establishes the **vendor master data foundation** and controls vendor access based on compliance, document verification, and admin approval.
 
-The onboarding process differentiates between **Contractual vendors** (pre-negotiated rates, direct assignment) and **Non-Contractual vendors** (competitive bidding), ensuring appropriate workflow routing and rate management for each vendor type.
+**Per-tenant classification:** **Contractual** vs **Non-Contractual** is assigned when a **Tenant Admin** approves a vendor’s **join request** for that tenant (Sprint 4: VM-09); it is **not** selected by the vendor during initial registration (VM-01).
+
+The onboarding process differentiates between **Contractual vendors** (pre-negotiated rates, direct assignment) and **Non-Contractual vendors** (competitive bidding), ensuring appropriate workflow routing and rate management for each vendor type **within each tenant relationship**.
 
 ### Purpose
 
 - Enable vendor self-registration via the **Vendor Mobile** app (initial delivery; web self-registration deferred)
 - Capture vendor company details, contact information, and compliance documents
-- Differentiate vendor types (Contractual vs Non-Contractual)
+- Support **per-tenant** vendor type (Contractual vs Non-Contractual) assigned by Tenant Admin on join approval (not at platform registration — VM-09)
 - Enforce document upload requirements (Trade License, BIN, TIN)
 - Implement admin verification and approval workflow
 - Support vendor profile management (vehicles, drivers, documents)
@@ -104,6 +106,8 @@ Trip created
 ---
 
 ## Vendor Self-Registration
+
+> **Sprint 4 direction:** Registration **does not** capture vendor type. Tenant Admin sets **Contractual / Non-Contractual** when approving a tenant join (VM-09). Detailed form steps below may still describe optional contract/bid fields for later phases or tenant-specific profiles — align implementation with VM-01/VM-09.
 
 ### Purpose
 
@@ -703,7 +707,7 @@ if (vendor.resubmission_count >= MAX_RESUBMISSIONS) {
 Vendor Onboarding & Registration is the **vendor lifecycle entry point** that provides:
 
 - **Self-Registration:** Vendor Mobile app for vendor sign-up (web deferred)
-- **Vendor Type Differentiation:** Contractual (direct assignment) vs Non-Contractual (bidding)
+- **Vendor Type Differentiation (per tenant):** Contractual (direct assignment) vs Non-Contractual (bidding), set on tenant join approval (VM-09)
 - **Document Verification:** Mandatory compliance documents (Trade License, BIN, TIN)
 - **Admin Approval Workflow:** Review, approve, reject, request clarification
 - **Profile Management:** Vehicle/driver management, document renewal

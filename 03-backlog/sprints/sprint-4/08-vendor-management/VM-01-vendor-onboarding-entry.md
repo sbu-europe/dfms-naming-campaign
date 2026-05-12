@@ -29,33 +29,30 @@ Vendors can be created in two ways:
 
 Vendor verification is a **platform-level** step. Separately, vendors must **join tenant(s)** to see and act on tenant-specific bids/trips.
 
+**Vendor type (Contractual vs Non-Contractual)** is **not** collected at self-registration or invite completion. Only a **Tenant Admin** may set vendor type **when approving a vendor’s join request** for that tenant (see VM-09).
+
 ## Acceptance Criteria
 
-### AC-1: Self-Registration Form (Vendor Mobile — company + type + contacts)
+### AC-1: Self-Registration Form (Vendor Mobile — company + contacts)
 - [ ] Vendor Mobile app provides a vendor registration form that captures:
   - Company details
-  - Vendor type: **Contractual (Fixed Rate)** or **Non-Contractual**
   - Contact information
   - Testimonial / reference from Truck Association
 
 ### AC-2: Platform Admin Can Create & Invite Vendor
 - [ ] Platform Admin can create a vendor profile and invite the vendor (email/SMS link or equivalent)
-- [ ] Invited vendor can complete missing registration fields and submit for verification
-
-### AC-2: Vendor Type Capture + Meaning
-- [ ] Vendor must select one of:
-  - **Contractual**: eligible for direct TO assignment by TDO (no bidding requirement)
-  - **Non-Contractual**: eligible to receive bid notifications and submit bids (after approval)
+- [ ] Invited vendor can complete missing registration fields and submit for verification (without selecting vendor type)
 
 ### AC-3: Pending Verification Gate (platform-level)
 - [ ] On submission, vendor profile is saved in **Pending Verification** state
 - [ ] Submitted vendor profile remains **inactive until admin approval**
 - [ ] Vendors cannot access tenant bids or tenant TO details before verification is complete
 
-### AC-4: Vendor Is Not Tenant-Active Until Join Approved
+### AC-4: Vendor Is Not Tenant-Active Until Join Approved (type set by tenant — VM-09)
 - [ ] After verification, vendor can see a list of **active tenants**
 - [ ] Vendor can submit a **join request** to one or more tenants
 - [ ] Vendor cannot see bids/trips for a tenant until the tenant approves the join request
+- [ ] **Tenant-scoped** vendor type (Contractual vs Non-Contractual) is assigned **only** when the tenant approves the join — not by the vendor at registration (VM-09)
 
 ### AC-5: Audit Logging (registration/invite)
 - [ ] All vendor registration attempts are logged for audit (who/when/what status)
@@ -70,7 +67,7 @@ Vendor verification is a **platform-level** step. Separately, vendors must **joi
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | VM-01-1 | Vendor registration API + mobile client validation | ~ | Pending |
-| VM-01-2 | Vendor type gating rules (contractual/non-contractual) | ~ | Pending |
+| VM-01-2 | Registration + invite-completion APIs exclude vendor type (tenant assigns on join — VM-09) | ~ | Pending |
 | VM-01-3 | Platform admin vendor-create + invite flow | ~ | Pending |
 | VM-01-4 | Registration/invite audit log events | ~ | Pending |
 
@@ -87,7 +84,7 @@ POST /api/v1/platform/vendors/{vendor_id}/invite
 ## Data (minimum)
 
 - Vendor profile status: `PENDING_VERIFICATION`, `APPROVED`, `REJECTED`
-- Vendor type: `CONTRACTUAL`, `NON_CONTRACTUAL`
+- Per-tenant membership (VM-09): `vendor_type` ∈ {`CONTRACTUAL`, `NON_CONTRACTUAL`} — set only by Tenant Admin on join approval
 
 ## Dependencies
 

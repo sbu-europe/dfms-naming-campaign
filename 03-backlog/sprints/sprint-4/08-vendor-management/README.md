@@ -24,7 +24,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 ## In Scope (Sprint 4)
 
-- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow, vendor type (Contractual vs Non-Contractual), testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), pending verification gate, audit logging, resubmission support, multiple vehicles per vendor profile.
+- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-09)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), pending verification gate, audit logging, resubmission support, multiple vehicles per vendor profile.
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
 - Vendor verification workflow (platform): platform admin verification queue, approve/reject with mandatory remarks, real-time status updates.
 - Vendor ↔ tenant membership: verified vendor can see all active tenants, request to join, and tenants can approve/reject vendor join.
@@ -63,7 +63,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
 | 1 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
-| 2 | [Vendor ↔ Tenant Join Requests + Tenant Approval + Visibility Scoping](VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
+| 2 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
 | 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
 | 4 | [Vehicle & Driver Submission after award + editable with reasoning + audit trail](VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
 | 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
@@ -105,7 +105,7 @@ Use this checklist under each VM story file (or inline here if you keep one file
 Vendor discovers DFMS
   ↓
 Onboarding entry:
-  - Self-registration via Vendor Mobile (company + vendor type + contact + testimonial/reference + docs)
+  - Self-registration via Vendor Mobile (company + contact + testimonial/reference + docs)
   - Platform-admin invite → vendor completes profile (missing fields + docs)
   ↓
 Status: PENDING_VERIFICATION
@@ -117,7 +117,7 @@ Platform admin review
 Vendor selects tenant(s):
   - View all active tenants
   - Request to join one or more tenants
-  - Tenant approves vendor join request(s)
+  - Tenant approves join request **and sets vendor type (Contractual vs Non-Contractual) for that vendor within the tenant**
   ↓
 TDO publishes TO to bidding portal (per tenant) with deadline + eligibility criteria
   ↓
@@ -170,7 +170,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 - Vendors **cannot access bidding or TO details before approval**.
 - Platform Admin controls vendor directory, invite, and verification.
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
-- Contractual vs Non-Contractual must be captured at onboarding and used for portal feature gating:
+- **Per-tenant vendor type (VM-09):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; used for portal feature gating:
   - **Contractual**: direct TO assignment (no bidding).
   - **Non-Contractual**: bid submission.
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
