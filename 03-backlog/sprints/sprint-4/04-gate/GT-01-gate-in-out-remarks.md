@@ -36,12 +36,13 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 - [ ] Fields per PRD: document category, challan/TO/PO/DO number (as applicable), product details (gate-in item), quantity (nullable for empty vehicles), date/time, driver name & contact, party name, project/from info, remarks
 - [ ] For **TO-linked** flow: lookup TO by number; validate vehicle matches assigned vehicle on TO *(or warn + supervisor override policy — document)*
 
-### AC-2: Routing hint
-- [ ] At gate-in, store routing type per PRD: **Supplier/Port Inbound**, **Dealer Outbound**, or **Internal Transfer (TO/Challan)**
-- [ ] In Sprint 4, routing type must map to TO execution lane used by TLS-01/POD-01:
-  - `Dealer Outbound` → FG outbound lane
-  - `Supplier/Port Inbound` → inbound lane (FG inbound or RM inbound by product type)
-  - `Internal Transfer` → load/unload lane per source/destination movement
+### AC-2: Routing to operational flow
+- [ ] At gate-in, the **document category** captured in AC-1 (per PRD §6.10.1) determines the operational flow the record is routed to — `[High]`:
+  - `Supplier (PO)` / Port → **Inbound QC Workflow**
+  - `Dealer (DO)` → **Outbound FG Workflow**
+  - `Distributor (PO/DO)` → **Outbound FG Workflow** *(same lane as Dealer per PRD §6.10.1 intent)*
+  - `Internal Transfer (TO/Challan)` → **TO-Linked Workflow**
+- [ ] Sprint 4 E2E prioritises the **Internal Transfer → TO-Linked Workflow** path (aligns with TLS-01/POD-01); Supplier and Dealer/Distributor flows are toggled by feature flag per Business Context
 
 ### AC-3: Gate-out
 - [ ] Gate-out allowed only when business rules satisfied: **after scale-out** for flows that use scaling
