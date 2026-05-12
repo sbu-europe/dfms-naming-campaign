@@ -18,60 +18,117 @@ prd_refs:
 ## User Story
 
 **As a** Driver Supervisor  
-**I want to** assign and review vehicle handover and inspection checklists, and set vehicle to Under Maintenance when needed  
-**So that** only compliant vehicles enter **TO execution** and audit evidence exists for inspections
+**I want to** complete a vehicle inspection checklist after vehicle and driver are assigned to a TO, and mark vehicles Under Maintenance when needed  
+**So that** only inspected vehicles proceed to dispatch and audit evidence exists for every inspection
 
 ## Business Context
 
-PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registration (MDM-05, Sprint 2). Checklists may gate **driver execution start** on a **TO** when the product policy requires supervisor approval or driver pre-trip completion.
+PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registration (MDM-05, Sprint 2). After the TDO assigns a vehicle and driver to a TO (TO-02, Sprint 3 — status `Assigned`), the Driver Supervisor inspects the vehicle using a predefined daily checklist. Successful completion advances the TO to `Ready for Dispatch`. If critical issues are found, the supervisor can mark the vehicle **Under Maintenance**, which unlinks it from the TO and forces reassignment.
 
 ## Acceptance Criteria
 
-### AC-1: Checklist templates
-- [ ] System supports admin-configurable templates for: long-distance trip inspection, short-distance trip inspection, monthly extensive checkup (categories per PRD)
-- [ ] Each template supports **8–10** inspection points (configurable upper bound)
+### AC-1: Predefined daily inspection checklist
+- [ ] System provides a **single generalised daily inspection checklist** (no short-distance / long-distance distinction)
+- [ ] The checklist is predefined with the following sections and items; each item has a **Remarks** field:
 
-### AC-2: Driver completion & supervisor review
-- [ ] Driver can complete assigned checklist for a **vehicle + TO** context: fuel level reading, vehicle condition (text), driver acknowledgement of TO assignment
-- [ ] Supervisor can **approve** or **reject** submitted checklist with remarks
-- [ ] Each submission stores: vehicle ID, checklist type, inspection category, date/time, responsible user, remarks; full history retained
+| Section | # | Item |
+|---------|---|------|
+| **Engine** | 1 | Engine Oil |
+| | 2 | Air Filter |
+| | 3 | Fuel Pump |
+| | 4 | Fuel System |
+| | 5 | Brake System |
+| | 6 | R.P.M |
+| | 7 | Brake Oil |
+| | 8 | Radiator Water |
+| | 9 | Air System |
+| **Clutch** | 1 | Ease in Engagement |
+| | 2 | Lubrications |
+| | 3 | Paddle Free Play |
+| | 4 | Clutch Master Cylinder |
+| | 5 | Clutch Release Cylinder |
+| | 6 | Clutch Paddle |
+| **Gear Box** | 1 | Different Types |
+| | 2 | Temperature |
+| | 3 | Noise |
+| | 4 | Oil Leakage |
+| | 5 | Gear Shifting |
+| **Container** | 1 | Inside of Container |
+| | 2 | Container Door |
+| | 3 | Container Floor |
+| | 4 | Rear Bumper |
+| | 5 | Mudguard R/S |
+| | 6 | Air Cutter |
+| **Electric** | 1 | Head Light R/S |
+| | 2 | Battery Water |
+| | 3 | Parking Light Front RS & LS |
+| | 4 | Parking Light Rear RS & LS |
+| | 5 | Indicator Light Front RS & LS |
+| | 6 | Indicator Light Rear RS & LS |
+| | 7 | Back Light RS & LS |
+| | 8 | Brake Light RS & LS |
+| | 9 | Fuse Board |
+| | 10 | Alternator |
+| | 11 | Self |
+| | 12 | Cabin Light |
+| | 13 | Container Inside Light |
+| **Chassis** | 1 | Chassis |
+| | 2 | Chassis Nut & Bolt |
+| | 3 | All U Bolt |
+| | 4 | Leaf Spring |
+| | 5 | Leaf Spring Hanger |
+| **Cabin** | 1 | Door RS & LS |
+| | 2 | Door Lock RS & LS |
+| | 3 | Foot Rest RS & LS |
+| | 4 | Looking Glass RS & LS |
+| | 5 | Door Glass RS & LS |
+| | 6 | Cabin Ventilator Glass |
+| | 7 | Windshield |
+| | 8 | Front Bumper |
+| | 9 | Front Plastic Bonnet |
+| | 10 | Driver and Helper Sit |
 
-### AC-3: Handover between drivers
-- [ ] System enforces: **driver handover checklist completed** before vehicle is treated as handed over to a new primary driver (policy flag per tenant acceptable)
+- [ ] Checklist sections and items are **predefined and immutable** — no user can modify them
 
-### AC-4: Vehicle status — Under Maintenance
-- [ ] Supervisor can set vehicle status to **Under Maintenance** from checklist workflow
+### AC-2: Driver Supervisor completes checklist & updates TO status
+- [ ] After TDO assigns vehicle + driver to a TO (TO-02, status `Assigned`), the TO appears in the **Driver Supervisor's inspection queue**
+- [ ] Driver Supervisor completes the daily inspection checklist for the **vehicle + TO** context — fills remarks per item
+- [ ] On successful completion: TO status → `Ready for Dispatch`
+- [ ] Each submission stores: vehicle ID, TO ID, section, item, remarks, date/time, submitting supervisor; full history retained
+- [ ] If critical issues found, supervisor can **reject** the vehicle — TO remains in `Assigned` and the vehicle is flagged for follow-up
+
+### AC-3: Vehicle status — Under Maintenance
+- [ ] After completing the checklist, supervisor can mark the vehicle as **Under Maintenance** if inspection reveals issues requiring repair
 - [ ] Vehicle in Under Maintenance is **excluded** from new TDO assignment (aligns with TO-02 rules) and surfaced in supervisor list
-
-### AC-5: Read-only status lens
-- [ ] Supervisor view shows PRD Phase 1 status set: Available; Active – On the Way (Laden/Empty); Active – Waiting to Load; Active – Waiting to Unload; Idle; Scheduled/Parked; Under Maintenance *(read from **TO**/yard integration when TLS-01 lands — stub acceptable until integrated)*
+- [ ] When a vehicle is marked Under Maintenance while linked to an `Assigned` TO, the TO status → `Created` (vehicle unlinked, TDO must reassign)
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| DS-01-1 | Checklist template model + admin API | DFS-050-1 | Pending |
-| DS-01-2 | Driver checklist submit API + attachment to TO/vehicle | DFS-050-2 | Pending |
-| DS-01-3 | Supervisor approve/reject API + audit | DFS-050-3 | Pending |
-| DS-01-4 | Vehicle → Under Maintenance action + assignment guard integration | DFS-050-4 | Pending |
-| DS-01-5 | Supervisor UI — queue of pending reviews + vehicle status board | DFS-050-5 | Pending |
+| DS-01-1 | Checklist section/item models + seed predefined items | DFS-050-1 | Pending |
+| DS-01-2 | Supervisor inspection queue API (TOs in `Assigned` status with vehicle+driver) | DFS-050-2 | Pending |
+| DS-01-3 | Supervisor checklist completion API + TO status → `Ready for Dispatch` transition | DFS-050-3 | Pending |
+| DS-01-4 | Vehicle → Under Maintenance action + TO reassignment guard | DFS-050-4 | Pending |
+| DS-01-5 | Supervisor UI — inspection queue + checklist form + vehicle status board | DFS-050-5 | Pending |
 
 ## Access & Permissions
 
 | Action | Role |
 |--------|------|
-| Configure templates | Tenant Admin (or delegated) |
-| Submit driver checklist | Driver |
-| Approve / reject; set Under Maintenance | Driver Supervisor |
+| Complete daily inspection checklist for TO | Driver Supervisor |
+| Mark vehicle Under Maintenance | Driver Supervisor |
+| View vehicle status board | Driver Supervisor |
 
 ## Dependencies
 
-- **Requires**: MDM-05 (vehicles), TO-02 (assigned TO + vehicle link)
-- **Enables**: DM-01 (optional policy: checklist approved before **first driver execution action** on TO)
+- **Requires**: MDM-05 (vehicles), TO-02 (assigned TO + vehicle + driver link — provides `Assigned` status trigger)
+- **Enables**: DM-01 (checklist completion gates **first driver execution action** — TO must be `Ready for Dispatch` before driver can act)
 
 ## Definition of Done
 
-- [ ] PRD §6.6.1.2 acceptance criteria met for template, capture, approval, history, Under Maintenance
-- [ ] Audit log on all supervisor decisions
-- [ ] Unit tests for status transition guards
-- [ ] UAT: supervisor rejects checklist → driver resubmits → supervisor approves
+- [ ] PRD §6.6.1.2 acceptance criteria met for predefined checklist, supervisor completion, TO status transition, Under Maintenance
+- [ ] Audit log on all supervisor checklist submissions and Under Maintenance decisions
+- [ ] Unit tests for status transition guards (`Assigned` → `Ready for Dispatch`, Under Maintenance → TO reassignment)
+- [ ] UAT: TDO assigns vehicle+driver → supervisor completes checklist → TO status becomes `Ready for Dispatch`
+- [ ] UAT: supervisor marks vehicle Under Maintenance → vehicle excluded from future assignment, linked TO reset to `Created`
