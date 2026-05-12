@@ -4,6 +4,8 @@ jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Bid/TO requirement visibility + vehicle–driver confirmation (+ updates, audit)
+prd_context:
+  - ../../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md
 epic: Vendor Portal & Operations
 status: Pending
 story_points: ~

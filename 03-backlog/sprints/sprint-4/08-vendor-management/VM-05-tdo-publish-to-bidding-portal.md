@@ -32,10 +32,12 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 ### AC-2: Bidding Parameters Required at Publish Time
 - [ ] TDO must provide:
   - Bidding deadline (date + time)
+  - **Required number of vehicles** (integer ≥ 1)
   - Required vehicle type
   - Required capacity / tonnage requirement
 - [ ] TDO may optionally provide:
-  - Estimated cost (reference only)
+  - **Reference / guide rate** for bidding (optional; not a binding ceiling/floor unless policy states otherwise)
+  - Estimated cost (reference only; may align with guide rate)
   - Minimum vendor rating threshold (if rating system is available)
 
 ### AC-3: Deadline Rules + Auto-close
@@ -74,8 +76,10 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 POST /api/v1/tdo/transport-orders/{to_id}/bidding/publish
 Body: {
   bidding_deadline,
+  required_vehicle_count,
   required_vehicle_type,
   required_capacity,
+  reference_rate?,
   estimated_cost?,
   min_vendor_rating?
 }
@@ -89,6 +93,7 @@ Body: { reason }
 
 ## Dependencies
 
+- **Feature context:** [TEVF-02 — Non-contractual bidding](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) (publish requirements alignment).
 - **Requires**: tenant join approval gating (VM-03); vendor registration + compliance completeness where relevant (VM-01/VM-02); notification/eventing.
 - **Enables**: vendor browse/bid flows (VM-04/06), evaluation/award (VM-07).
 

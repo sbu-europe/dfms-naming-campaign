@@ -3,14 +3,14 @@ jira_key: ~
 jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
-title: Bid Evaluation (TDO) — Side-by-side Compare + Select Winner + Winning Log
+title: Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
 epic: TDO Bid Evaluation
 status: Pending
 story_points: ~
 assignee: ~
 ---
 
-# VM-07 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner + Winning Log
+# VM-07 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
 
 ## User Story
 
@@ -20,33 +20,33 @@ assignee: ~
 
 ## Business Context
 
-Bid evaluation is the selection layer between bid submission and trip execution. It must support comparison and enforce a single winner per TO, with an immutable winning log. It must also support rejecting all bids when none are suitable, and notifying all participants.
+Bid evaluation is the selection layer between bid submission and trip execution. It must support comparison, **single- or multi-vendor awards** with capacity-aware allocations, and an immutable winning log. It must also support rejecting all bids when none are suitable, and notifying all participants.
 
 ## Acceptance Criteria
 
 ### AC-1: Side-by-side Bid Comparison
 - [ ] TDO can compare bids side-by-side including:
   - Proposed cost / rate
-  - Vehicle details (type, registration, capacity)
-  - Driver/helper info (as submitted)
+  - **Offered number of vehicles** (from VM-06 bid payload)
   - Bid submission time
   - Remarks (optional)
   - Bid validity (deadline/window)
-- [ ] TDO can sort bids by: cost (low→high), vendor rating (if available), submission time
+- [ ] TDO can sort bids by: cost (low→high), offered vehicle count, vendor rating (if available), submission time
 - [ ] System highlights the lowest bid (recommended)
 - [ ] System provides basic bid statistics (min/avg/max)
 
-### AC-2: Single Winner per TO
-- [ ] System supports selecting a **winner against a single TO**
-- [ ] Once a winner is selected, the award decision is persisted and visible in audit/winning log
-- [ ] Selecting a winner transitions:
-  - winning bid → `ACCEPTED`
-  - all other bids → `REJECTED`
+### AC-2: Winner Selection (single or multiple vendors)
+- [ ] System supports awarding **one or more winning vendors** for a TO when the transport model requires split capacity (e.g. sum of awarded vehicles covers `required_vehicle_count` from VM-05)
+- [ ] TDO can assign **per-vendor awarded vehicle count** (≤ vendor’s offered count; totals must satisfy business rules)
+- [ ] Once an award decision is **approved/finalized**, it is persisted and visible in audit/winning log; **no further vendor changes** without controlled amendment flow (future hook if needed)
+- [ ] Approving an award transitions:
+  - winning bid(s) → `ACCEPTED`
+  - non-selected bids → `REJECTED` (or `CLOSED` if product prefers softer terminal state)
 
 ### AC-3: Winning Log
 - [ ] System tracks bid winning log with:
-  - Selected vendor
-  - Selected bid
+  - Selected vendor(s)
+  - Selected bid(s) + **awarded vehicle counts**
   - TDO user
   - Timestamp
 
@@ -58,7 +58,7 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 
 ## Functional Requirements (from PRD)
 
-- [ ] **[Critical]** System SHALL provide support winner against a single TO.
+- [ ] **[Critical]** System SHALL support **winner selection** for a TO, including **multiple winning vendors** when required.
 - [ ] **[High]** System SHALL track bid winning log with user and timestamp.
 
 ## Sub-tasks (implementation checklist)
@@ -66,7 +66,7 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | VM-07-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
-| VM-07-2 | Award action endpoint enforcing single-winner constraint | ~ | Pending |
+| VM-07-2 | Award action endpoint enforcing **capacity-aware** winner selection (single or multi-vendor) | ~ | Pending |
 | VM-07-3 | Winning log persistence + audit visibility | ~ | Pending |
 | VM-07-4 | Post-award trigger: require vendor vehicle/driver submission (VM-08) | ~ | Pending |
 | VM-07-5 | Reject-all endpoint + notifications | ~ | Pending |
@@ -76,7 +76,11 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 ```
 GET  /api/v1/tdo/transport-orders/{to_id}/bids
 POST /api/v1/tdo/transport-orders/{to_id}/award
-Body: { bid_id }
+Body: {
+  awards: [
+    { bid_id, awarded_vehicle_count }
+  ]
+}
 
 POST /api/v1/tdo/transport-orders/{to_id}/reject-all
 Body: { reason }
@@ -89,7 +93,7 @@ Body: { reason }
 
 ## Definition of Done
 
-- [ ] TDO can compare bids and award exactly one winner for a TO
+- [ ] TDO can compare bids and award **one or more** winners for a TO with auditable vehicle allocations
 - [ ] Winning log stored with user + timestamp
 - [ ] Award triggers vendor next-step requirement (vehicle/driver submission)
 - [ ] TDO can reject all bids with reason; session closes; bidders notified

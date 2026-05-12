@@ -6,12 +6,13 @@ source_specs:
   - ../../../05-modules/07-vendor-management/vendor-onboarding.md
   - ../../../05-modules/07-vendor-management/vendor-portal.md
   - ../../../05-modules/07-vendor-management/vendor-bidding.md
-last_updated: 2026-05-05
+last_updated: 2026-05-12
 ---
 
 # Sprint 4 — Vendor Management (Context Template)
 
-> Use this as the Sprint 4 vendor-management context sheet. It mirrors the sprint README style: summary → epic table → E2E flow → dependencies → notes.
+> Use this as the Sprint 4 vendor-management context sheet. It mirrors the sprint README style: summary → epic table → E2E flow → dependencies → notes.  
+> **TDO – Vendor Fleet, vendor execution, and own-fleet availability** are traced in **[`../09-to-execution-vendor-fleet/README.md`](../09-to-execution-vendor-fleet/README.md)** (TEVF-01…04).
 
 ## Mobile app context (quick entrypoint)
 
@@ -27,9 +28,9 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 - Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-03)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02); **no** Platform Admin verification queue after sign-up; audit logging, profile/doc update support.
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
 - Vendor ↔ tenant membership: vendor with **completed registration** can see all active tenants, request to join, and tenants can approve/reject vendor join.
-- Vendor bidding portal: vendor can view active bids + submit competitive bids **only for tenants the vendor has joined and been approved for**. Bid lifecycle includes: bid windows + late-bid prevention, **one-bid-per-vendor-per-TO** (edit/withdraw allowed until deadline), and manual close/cancel.
-- Bid evaluation (TDO): side-by-side bid comparison; sortable views; select a single winner; reject-all with reason; **winning log with user + timestamp**; basic statistics (min/avg/max) and optional recommendation logic.
-- Vehicle & driver information submission: vendors provide vehicle/driver/helper details for execution. **Default: submit at bid time** (select vehicle, driver, helper) and allow **post-award update with reason + audit trail**; substitutions must be visible to Transport.
+- Vendor bidding portal: vendor can view active bids + submit competitive bids **only for tenants the vendor has joined and been approved for**. Bid lifecycle includes: bid windows + late-bid prevention, **one-bid-per-vendor-per-TO**, **mandatory offered rate + offered vehicle count** (VM-06), **no bid edit after submit** (withdraw before deadline only if enabled), and manual close/cancel (VM-05/06).
+- Bid evaluation (TDO): side-by-side bid comparison; sortable views; **select one or more winners** when the TO model requires split award (VM-07); reject-all with reason; **winning log with user + timestamp**; basic statistics (min/avg/max) and optional recommendation logic.
+- **Contractual vendors:** direct TO assignment without bidding; **contractual rates** backend-controlled and **hidden from vendor portal** (see [TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).
 - Vehicle & driver information submission: **Phase 1 simplified** — vendors provide vehicle/driver/helper details **only after award/assignment** (before trip start), via a one-off submission per TO; updates require **reason + audit trail**; substitutions must be visible to Transport.
 - Real-time TO updates (vendor portal): vendor portal reflects TO status changes (Assigned/Completed/Closed); vendor cannot modify TO status.
 - Notifications: vendors + TDO receive in-app/email notifications for publish, new bids, deadline reminders, award/rejection, cancel/close events.
@@ -75,7 +76,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
 | 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-05-tdo-publish-to-bidding-portal.md) | VM-05 | ~ | ~ | Pending |
-| 2 | [Bid Comparison (side-by-side) + select single winner + reject-all + winning log](VM-07-bid-evaluation.md) | VM-07 | ~ | ~ | Pending |
+| 2 | [Bid Comparison + select winner(s) + reject-all + winning log](VM-07-bid-evaluation.md) | VM-07 | ~ | ~ | Pending |
 
 ---
 
@@ -113,13 +114,14 @@ Vendor selects tenant(s):
   - Request to join one or more tenants
   - Tenant approves join request **and sets vendor type (Contractual vs Non-Contractual) for that vendor within the tenant**
   ↓
-TDO publishes TO to bidding portal (per tenant) with deadline + eligibility criteria
+**Contractual:** TDO assigns TO directly (no bid); contractual rates applied server-side; vendor does not see rate ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md))
+  **Non-contractual:** TDO publishes TO to bidding portal (per tenant) with deadline + eligibility + required vehicle count ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md))
   ↓
 Vendor portal (per joined tenant):
-  - View TOs open for bidding (Non-Contractual) within submission window → Submit/Update/Withdraw bid
+  - Non-contractual: view TOs open for bidding within submission window → Submit bid (rate + vehicle count); **no edit after submit**; optional withdraw before close per policy
   - View TO/trip lists (active/completed) for joined tenants
   ↓
-TDO evaluates bids → selects winner (single winner per TO) OR reject-all → winning log + notifications
+TDO evaluates bids → selects **winner(s)** OR reject-all → winning log + notifications
   ↓
 Vendor confirms/updates vehicle + driver + helper details (required after win, before trip start; updates require reason)
   ↓
@@ -136,7 +138,7 @@ Master Data (vendor core) ──→  Vendor profile + portal identity
 Notifications service  ──→  tenant join + bidding + action-required alerts
 Tenant membership  ──→  vendor visibility for bids/trips per tenant
 Transport Orders / Trips  ──→  real-time TO status updates + active/completed trip lists
-Vendor Bidding  ──→  publish → bid windows + bid submission (edit/withdraw) + TDO evaluation + award/reject-all
+Vendor Bidding  ──→  publish → bid windows + bid submission (immutable after submit; withdraw optional) + TDO evaluation + award/reject-all
 ```
 
 ---
@@ -165,7 +167,8 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 - Platform Admin controls vendor directory and invite; **does not** run a registration verification queue after sign-up.
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
 - **Per-tenant vendor type (VM-03):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; used for portal feature gating:
-  - **Contractual**: direct TO assignment (no bidding).
-  - **Non-Contractual**: bid submission.
+  - **Contractual**: direct TO assignment (no bidding); rates hidden from vendor ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).
+  - **Non-Contractual**: bid submission ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)).
+- **Own-fleet availability (TEVF-04):** not vendor-bidding scope — see [TEVF-04](../09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md).
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
 
