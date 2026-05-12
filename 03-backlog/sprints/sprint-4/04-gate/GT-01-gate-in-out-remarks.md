@@ -61,10 +61,44 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| GT-01-1 | GateIn / GateOut models + APIs | DFS-054-1 | Pending |
-| GT-01-2 | TO lookup + validation service | DFS-054-2 | Pending |
-| GT-01-3 | Gateman UI (fast entry, barcode later = out of scope) | DFS-054-3 | Pending |
-| GT-01-4 | TLS-01 timeline event emission | DFS-054-4 | Pending |
+| GT-01-1 | GateVisitSession + GateIn + GateOut models + migration (FK to TO, Vehicle; document category enum, remarks, driver fields, timestamp fields) | DFS-054-1 | Pending |
+| GT-01-2 | GateInAdmin — change form with TO number autocomplete lookup, vehicle registration validation in `save_model`, document category routing logic (Internal Transfer / Dealer / Supplier feature-flag gating) | DFS-054-2 | Pending |
+| GT-01-3 | GateInAdmin — inline for gate-in items (product, quantity); `save_model` sets `gate_in_at` timestamp and creates GateVisitSession | DFS-054-3 | Pending |
+| GT-01-4 | GateOutAdmin — change form with gate-out guard matrix in `save_model` (checks scale-out completed, loading/unloading completed per flow type); `get_readonly_fields` locks completed records | DFS-054-4 | Pending |
+| GT-01-5 | Gate-in REST API (POST) — create gate-in with TO lookup + vehicle validation | DFS-054-5 | Pending |
+| GT-01-6 | Gate-in list/detail REST API (GET with filters: date, vehicle, document category, TO number) | DFS-054-6 | Pending |
+| GT-01-7 | Gate-out REST API (POST) — create gate-out with guard matrix enforcement | DFS-054-7 | Pending |
+| GT-01-8 | Gate-out list/detail REST API (GET) | DFS-054-8 | Pending |
+| GT-01-9 | TLS-01 timeline event emission service — emit `GATE_IN` / `GATE_OUT` events on save | DFS-054-9 | Pending |
+| GT-01-10 | Gateman UI — fast-entry gate-in form (vehicle reg, TO lookup, document category, remarks); barcode = out of scope | DFS-054-10 | Pending |
+| GT-01-11 | Gateman UI — gate-out form with guard status indicators | DFS-054-11 | Pending |
+| GT-01-12 | GateActivityLog model + audit logging on gate-in, gate-out, and remarks (user, POI, timestamp, action) | DFS-054-12 | Pending |
+
+## API Endpoints
+
+```
+POST   /api/v1/gate/gate-in                                    # Create gate-in (TO lookup + vehicle validation)
+GET    /api/v1/gate/gate-in?date=&vehicle=&doc_category=&to_number=&search=
+GET    /api/v1/gate/gate-in/{gate_in_id}
+POST   /api/v1/gate/gate-out                                   # Create gate-out (guard matrix enforced)
+GET    /api/v1/gate/gate-out?date=&vehicle=&search=
+GET    /api/v1/gate/gate-out/{gate_out_id}
+GET    /api/v1/gate/visit-sessions/{session_id}                # Full visit session (gate-in + gate-out)
+```
+
+## Access & Permissions
+
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
+| Action | Role |
+|--------|------|
+| Create gate-in | Gateman |
+| Create gate-out | Gateman |
+| View gate-in/out list (own POI) | Gateman, Supervisor, Transport Planner |
+| Add remarks / discrepancy notes | Gateman |
+
+- Gateman operates within their assigned POI context
+- Supervisor override policy for vehicle mismatch warnings (document in tech design)
 
 ## Dependencies
 
@@ -73,6 +107,14 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 
 ## Definition of Done
 
-- [ ] UAT: vehicle arrives → gate-in → scale-in → … → gate-out happy path
-- [ ] Audit trail complete
-- [ ] Unit tests for gate-out guard rules
+- [ ] GateVisitSession, GateIn, and GateOut models created with all PRD fields; migration applied cleanly
+- [ ] GateInAdmin save_model validates TO exists and vehicle registration matches assigned vehicle on TO
+- [ ] Document category captured at gate-in and determines downstream routing (Internal Transfer active; Dealer/Supplier behind feature flag)
+- [ ] GateOutAdmin save_model enforces guard matrix: FG outbound requires scale-out + loading complete; inbound requires scale-out + unloading complete; RM inbound additionally requires QC not failed
+- [ ] Gate-in and gate-out REST APIs return correct HTTP status codes and validation error messages
+- [ ] Free-text remarks can be attached to both gate-in and gate-out events
+- [ ] Gate events emit `GATE_IN` / `GATE_OUT` timeline events to TLS-01 with timestamps
+- [ ] GateActivityLog records created on every gate-in, gate-out, and remark action with user, POI, and timestamp
+- [ ] UAT: vehicle arrives → gate-in → scale-in → … → gate-out happy path completes end-to-end
+- [ ] Unit tests cover gate-out guard rules for all three flow types (FG outbound, FG inbound, RM inbound)
+- [ ] Gateman can only operate within their assigned POI; unauthorised POI access returns 403

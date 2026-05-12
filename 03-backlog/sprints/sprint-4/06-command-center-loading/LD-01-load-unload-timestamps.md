@@ -56,9 +56,35 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LD-01-1 | Load/unload event APIs | DFS-057-1 | Pending |
-| LD-01-2 | Operator UI (web; mobile later) | DFS-057-2 | Pending |
-| LD-01-3 | TLS-01 sub-state transitions + QC-01 handoff context | DFS-057-3 | Pending |
+| LD-01-1 | LoadEvent + UnloadEvent models + migration (FK to TO, BayAssignment, L/U point; start/end datetime, bags, weight, seal) | DFS-057-1 | Pending |
+| LD-01-2 | LoadEventAdmin — change form with vehicle selection (from CC-01 assignment), start/end datetime fields, bags/weight/seal, save_model validates end ≥ start + emits TLS-01 event | DFS-057-2 | Pending |
+| LD-01-3 | UnloadEventAdmin — change form with unload start/end, bags/weight, save_model persists QC handoff context for RM TOs + emits TLS-01 event | DFS-057-3 | Pending |
+| LD-01-4 | Load start/end API (POST — create load event linked to TO and bay assignment) | DFS-057-4 | Pending |
+| LD-01-5 | Unload start/end API (POST — create unload event linked to TO and bay assignment) | DFS-057-5 | Pending |
+| LD-01-6 | QC handoff reference API (GET — retrieve unload event context for QC-01 consumption) | DFS-057-6 | Pending |
+| LD-01-7 | Operator UI — web form for load/unload event capture (mobile deferred) | DFS-057-7 | Pending |
+| LD-01-8 | TLS-01 sub-state emission service — emit Loading Started/Completed, Unloading Started/Completed transitions | DFS-057-8 | Pending |
+
+## API Endpoints
+
+```
+POST   /api/v1/load-events                                   # Record load start/end (linked to TO + bay assignment)
+GET    /api/v1/load-events?transport_order=&bay_assignment=   # List load events (filterable)
+GET    /api/v1/load-events/{id}                               # Load event detail
+POST   /api/v1/unload-events                                  # Record unload start/end (linked to TO + bay assignment)
+GET    /api/v1/unload-events?transport_order=&bay_assignment=  # List unload events (filterable)
+GET    /api/v1/unload-events/{id}                              # Unload event detail
+GET    /api/v1/unload-events/{id}/qc-handoff                   # QC handoff context for RM TOs (consumed by QC-01)
+```
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| Record load start/end | Loading Personnel |
+| Record unload start/end | Unloading Personnel |
+| View load/unload events | Command Center Officer, Transport Supervisor, Tenant Admin |
+| View QC handoff context | QC Supervisor |
 
 ## Dependencies
 
@@ -67,5 +93,12 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 
 ## Definition of Done
 
-- [ ] UAT: load start/end captured at source POI; unload at destination for full E2E
-- [ ] Data visible on **TO** timeline (TLS-01)
+- [ ] LoadEvent and UnloadEvent models created with migrations passing `makemigrations --check`
+- [ ] Load event captures start datetime, end datetime, bags loaded, weight, and seal number linked to TO (AC-1)
+- [ ] Unload event captures start datetime, end datetime, bags unloaded, and weight linked to TO (AC-2)
+- [ ] End datetime ≥ start datetime validation enforced on both load and unload events
+- [ ] QC handoff reference (TO + unload event ID) persisted and retrievable for RM TOs (AC-3)
+- [ ] TLS-01 sub-state transitions emitted: Loading Started, Loading Completed, Unloading Started, Unloading Completed (AC-4)
+- [ ] Load/unload events visible on TO timeline via TLS-01
+- [ ] Audit log entry created on every load and unload event
+- [ ] UAT: load start/end captured at source POI; unload start/end at destination POI for full E2E flow

@@ -62,8 +62,37 @@ All closure rules apply to the **TO** only (no separate Trip id).
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| POD-01-1 | Closure rule engine + API | DFS-060-1 | Pending |
-| POD-01-2 | Planner closure UI + exceptions list | DFS-060-2 | Pending |
+| POD-01-1 | ClosureChecklist model + migration (per-TO prerequisite flags: pod_uploaded, scale_out_done, gate_out_done, loading_complete, unloading_complete, qc_passed) | DFS-060-1 | Pending |
+| POD-01-2 | ClosureRuleEngine service — lane-aware rule evaluation (FG outbound vs FG inbound vs RM inbound) | DFS-060-2 | Pending |
+| POD-01-3 | TOClosureAdmin — Django Admin list view showing closure checklist status per TO, filterable by lane and closure readiness | DFS-060-3 | Pending |
+| POD-01-4 | TOClosureAdmin manual close action — save_model guard validation enforcing all lane-specific prerequisites before allowing close | DFS-060-4 | Pending |
+| POD-01-5 | Exceptions list view — Django Admin changelist filtered to TOs blocked from closing, with blocking-reason column | DFS-060-5 | Pending |
+| POD-01-6 | Auto-close trigger — signal/hook that evaluates closure rules when any prerequisite is fulfilled (POD upload, gate-out, QC pass, etc.) | DFS-060-6 | Pending |
+| POD-01-7 | Closure attempt API (POST) — validate lane-specific rules and transition TO to Closed or return blocking reasons | DFS-060-7 | Pending |
+| POD-01-8 | Closure status API (GET) — return checklist state and blocking reasons for a TO | DFS-060-8 | Pending |
+| POD-01-9 | Planner closure UI — closure dashboard with checklist progress, manual close button, exceptions list | DFS-060-9 | Pending |
+| POD-01-10 | Audit logging on closure attempts — log success and blocked attempts with actor, timestamp, blocking reasons | DFS-060-10 | Pending |
+
+## API Endpoints
+
+```
+POST   /api/v1/transport-orders/{to_id}/close              # Attempt TO closure (validates lane-specific rules)
+GET    /api/v1/transport-orders/{to_id}/closure-status      # Closure checklist state + blocking reasons
+GET    /api/v1/transport-orders/closure-exceptions           # List TOs blocked from closing (filterable by lane, POI)
+```
+
+## Access & Permissions
+
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
+| Action | Role |
+|--------|------|
+| View closure checklist status | Transport Planner, TDO, Operations Manager |
+| Attempt manual TO closure | Transport Planner |
+| View closure exceptions list | Transport Planner, Operations Manager |
+
+- Auto-close triggers run as system actions when prerequisite events are received
+- Manual close requires Transport Planner role and all lane-specific prerequisites satisfied
 
 ## Dependencies
 
@@ -71,6 +100,13 @@ All closure rules apply to the **TO** only (no separate Trip id).
 
 ## Definition of Done
 
+- [ ] ClosureChecklist model persists per-TO prerequisite flags (pod_uploaded, scale_out_done, gate_out_done, loading_complete, unloading_complete, qc_passed)
+- [ ] ClosureRuleEngine evaluates lane-specific rules: FG outbound (load + scale-out + gate-out + POD), FG inbound (unload + scale-out + gate-out + POD), RM inbound (unload + sampling + QC pass + scale-out + gate-out + POD)
+- [ ] POST closure API returns 200 on success or 422 with explicit blocking reasons when prerequisites are unmet
+- [ ] Auto-close trigger fires when the final prerequisite is fulfilled and transitions TO to Closed without manual intervention
+- [ ] Missing POD blocks closure for all lanes; missing QC pass blocks closure for RM inbound lane
+- [ ] Django Admin shows closure checklist per TO and exceptions list for TOs blocked from closing
+- [ ] Every closure attempt (success or blocked) is audit-logged with actor, timestamp, lane, and blocking reasons
+- [ ] No §6.8.8 trip costing scope implemented in this story
 - [ ] UAT: FG inbound TO closes only after unload + scale-out + gate-out + POD
-- [ ] UAT: missing POD → cannot close; with POD + gate-out + QC pass (RM lane) → **TO** closes
-- [ ] No §6.8.8 costing scope in Sprint 4
+- [ ] UAT: RM inbound TO closes only after unload + sampling + QC pass + scale-out + gate-out + POD

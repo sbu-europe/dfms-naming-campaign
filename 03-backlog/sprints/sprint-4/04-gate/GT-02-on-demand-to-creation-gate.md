@@ -63,11 +63,39 @@ FG inbound (e.g., Port Consignment transfer from planner-created TO per PRD §6.
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| GT-02-1 | POST gate-to dealer (DO) — TO create API + classification | DFS-062-1 | Pending |
-| GT-02-2 | POST gate-to supplier (PO) — TO create API + classification | DFS-062-2 | Pending |
-| GT-02-3 | Gateman UI — wizard (Dealer vs Supplier) + validation messages | DFS-062-3 | Pending |
-| GT-02-4 | Link gate session ↔ TO; emit TLS / notification (in-app) | DFS-062-4 | Pending |
-| GT-02-5 | Inventory/QC hooks (feature-flagged if downstream modules incomplete) | DFS-062-5 | Pending |
+| GT-02-1 | GateCreatedTO model extensions — `source=GATE` field, `transfer_type` enum (FG_DEALER_OUTBOUND, RM_SUPPLIER_INBOUND) + migration | DFS-062-1 | Pending |
+| GT-02-2 | OnDemandTOAdmin — Dealer DO form: `save_model` creates FG TO with `transfer_type=FG_DEALER_OUTBOUND`, generates TO number, links to gate-in stub/session | DFS-062-2 | Pending |
+| GT-02-3 | OnDemandTOAdmin — Supplier PO form: `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND`, sets QC linkage flag, links to gate session | DFS-062-3 | Pending |
+| GT-02-4 | Dealer TO creation REST API (POST) — validates DO number, dealer, product, quantity; returns created TO with session linkage | DFS-062-4 | Pending |
+| GT-02-5 | Supplier TO creation REST API (POST) — validates PO number, supplier, product, expected quantity; returns created TO | DFS-062-5 | Pending |
+| GT-02-6 | On-demand TO list/detail REST API (GET with filters: source=GATE, transfer_type, date, search) | DFS-062-6 | Pending |
+| GT-02-7 | Gate session ↔ TO linkage service — associates GateVisitSession with newly created TO; updates gate-in context | DFS-062-7 | Pending |
+| GT-02-8 | TLS-01 event emission — emit `TO_CREATED` lifecycle event on gate-originated TO creation | DFS-062-8 | Pending |
+| GT-02-9 | Inventory/QC hooks — feature-flagged stock check stub for Dealer path; QC linkage flag for Supplier path (stubs if downstream modules incomplete) | DFS-062-9 | Pending |
+| GT-02-10 | Gateman wizard UI — Dealer vs Supplier path selection, form fields per path, validation messages, success confirmation with TO number | DFS-062-10 | Pending |
+| GT-02-11 | GateOnDemandActivityLog — audit logging on TO creation, linkage, and validation overrides (user, POI, timestamp, action) | DFS-062-11 | Pending |
+
+## API Endpoints
+
+```
+POST   /api/v1/gate/on-demand-to/dealer                        # Create FG TO from Dealer DO
+POST   /api/v1/gate/on-demand-to/supplier                      # Create RM TO from Supplier PO
+GET    /api/v1/gate/on-demand-to?source=GATE&transfer_type=&date=&search=
+GET    /api/v1/gate/on-demand-to/{to_id}
+```
+
+## Access & Permissions
+
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
+| Action | Role |
+|--------|------|
+| Create on-demand TO (Dealer DO) | Gateman |
+| Create on-demand TO (Supplier PO) | Gateman |
+| View on-demand TO list/detail (read-only) | Transport Planner, Supervisor |
+
+- Only Gate role (or role with explicit `gate.create_ondemand_to` permission) can create on-demand TOs
+- Transport Planner has read-only visibility on gate-created TOs for fleet assignment follow-up
 
 ## Dependencies
 
@@ -77,6 +105,15 @@ FG inbound (e.g., Port Consignment transfer from planner-created TO per PRD §6.
 
 ## Definition of Done
 
-- [ ] UAT: dealer vehicle with DO → gate TO created → proceeds through scale/load path per tenant config
-- [ ] UAT: supplier vehicle with PO → gate TO created → inbound flags set for QC chain
-- [ ] RBAC tests: gate role can create; unrelated role cannot
+- [ ] GateCreatedTO model has `source=GATE` and `transfer_type` enum fields; migration applied cleanly
+- [ ] Dealer DO path: Gateman submits DO number, dealer, product, quantity → system creates FG TO with unique TO number and `transfer_type=FG_DEALER_OUTBOUND`
+- [ ] Supplier PO path: Gateman submits PO number, supplier, product, expected quantity → system creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND` and QC linkage flag set
+- [ ] Created TO is linked to GateVisitSession and gate-in context is updated
+- [ ] Gate-created TO appears in Transport Orders list with `source=GATE` filter
+- [ ] TLS-01 receives `TO_CREATED` lifecycle event from gate-originated TO creation
+- [ ] FG dealer path runs stock check stub (manual confirm + audit) when inventory module is not ready; feature-flagged for real validation later
+- [ ] Only Gate role can create on-demand TOs; Transport Planner gets read-only access; unrelated role receives 403
+- [ ] Audit log records every on-demand TO creation with user, POI, timestamp, and document path chosen
+- [ ] UAT: dealer vehicle with DO → gate TO created → proceeds through scale/load/gate-out path
+- [ ] UAT: supplier vehicle with PO → gate TO created → inbound flags set → proceeds through QC chain
+- [ ] RBAC unit tests: gate role can create; unrelated role cannot

@@ -85,10 +85,40 @@ The PRD defines the full TO lifecycle as: **Draft → Planned → Assigned → D
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TLS-01-1 | State machine service (code-first rules table) | DFS-059-1 | Pending |
-| TLS-01-2 | Migration from existing TO statuses (TO-01/02) | DFS-059-2 | Pending |
-| TLS-01-3 | Event ingest from GT-01, SC-01, CC-01, LD-01, QC-01, DM-01 | DFS-059-3 | Pending |
-| TLS-01-4 | Admin/debug timeline UI (internal or support role) | DFS-059-4 | Pending |
+| TLS-01-1 | TOStatus + TOSubState + TOStatusTransitionLog models + migration (status enum, sub_state enum, transition log with from/to/actor/timestamp/payload) | DFS-059-1 | Pending |
+| TLS-01-2 | State machine service — code-first rules table defining valid transitions per flow lane (FG outbound, FG inbound, RM inbound) | DFS-059-2 | Pending |
+| TLS-01-3 | TOStatusAdmin — Django Admin read-only timeline view showing all transitions for a TO, filterable by TO, status, date range (support/debug) | DFS-059-3 | Pending |
+| TLS-01-4 | TOTimelineInline — TabularInline under TransportOrderAdmin showing status transition history | DFS-059-4 | Pending |
+| TLS-01-5 | Migration from existing Sprint 3 TO statuses (TO-01/02) to new expanded status + sub-state set | DFS-059-5 | Pending |
+| TLS-01-6 | Event ingest service — receives events from GT-01, SC-01, CC-01, LD-01, QC-01, DM-01 and triggers appropriate state transitions | DFS-059-6 | Pending |
+| TLS-01-7 | TO timeline REST API (GET) — returns ordered transition history for a TO | DFS-059-7 | Pending |
+| TLS-01-8 | TO status/sub-state REST API (GET) — returns current status + sub-state, role-filtered per actor | DFS-059-8 | Pending |
+| TLS-01-9 | §6.8.1.7 Fleet Availability Validation service — invoked on first driver execution action to validate fleet readiness | DFS-059-9 | Pending |
+| TLS-01-10 | Audit logging service — logs every transition with from/to/user/timestamp/payload; QC events include sampling_done + qc_passed payload | DFS-059-10 | Pending |
+
+## API Endpoints
+
+```
+GET    /api/v1/transport-orders/{to_id}/timeline                  # TO transition history (ordered)
+GET    /api/v1/transport-orders/{to_id}/status                    # Current status + sub-state (role-filtered)
+POST   /api/v1/transport-orders/{to_id}/transitions               # Trigger a state transition (used by event ingest)
+GET    /api/v1/transport-orders/{to_id}/transitions/validate      # Dry-run: check if a transition is valid
+```
+
+## Access & Permissions
+
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
+| Action | Role |
+|--------|------|
+| View TO timeline (full history) | Transport Planner, TDO, Operations Manager, Support |
+| View current TO status + sub-state | Transport Planner, TDO, Driver, Gate Operator, Scale Operator, CC Operator |
+| Trigger state transition | System (event ingest), role-gated per transition type |
+| View admin debug timeline | Support, Operations Manager |
+
+- TP, TDO, and Driver can view current status and sub-states per §6.8.5
+- State transitions are role-gated: only the actor permitted for that transition type can trigger it
+- Admin timeline view is read-only for support/debug purposes
 
 ## Dependencies
 
@@ -97,7 +127,16 @@ The PRD defines the full TO lifecycle as: **Draft → Planned → Assigned → D
 
 ## Definition of Done
 
+- [ ] TOStatus, TOSubState, and TOStatusTransitionLog models store the full lifecycle with from/to/actor/timestamp/payload per transition
+- [ ] State machine service enforces forward-only transitions per flow lane (FG outbound, FG inbound, RM inbound)
+- [ ] Invalid transition attempt returns a stable error code with descriptive message
+- [ ] Halted sub-state value is reserved in the enum but no trigger is implemented (§6.8.6 Phase 2 placeholder)
+- [ ] Migration maps existing Sprint 3 TO statuses (TO-01/02) to the new expanded status set without data loss
+- [ ] Event ingest service receives events from GT-01, SC-01, CC-01, LD-01, QC-01, DM-01 and triggers the correct transitions
+- [ ] §6.8.1.7 Fleet Availability Validation fires on first driver execution action
+- [ ] TO timeline API returns ordered transition history; status API returns current status + sub-state filtered by actor role
+- [ ] Django Admin TOStatusAdmin shows read-only transition timeline per TO, filterable by TO, status, and date
+- [ ] Every transition is audit-logged with from/to/user/timestamp/payload; QC events include sampling_done and qc_passed
 - [ ] Golden-path transitions covered by automated tests
-- [ ] Invalid transition returns stable error code
 - [ ] UAT: operations signs off on state names vs training deck
 - [ ] UAT: TP, TDO, and Driver can view current TO status and sub-states (§6.8.5 FR)

@@ -106,19 +106,44 @@ PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registra
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| DS-01-1 | Checklist section/item models + seed predefined items | DFS-050-1 | Pending |
-| DS-01-2 | Supervisor inspection queue API (TOs in `Assigned` status with vehicle+driver) | DFS-050-2 | Pending |
-| DS-01-3 | Supervisor checklist completion API + TO status → `Ready for Dispatch` transition | DFS-050-3 | Pending |
-| DS-01-4 | Vehicle → Under Maintenance action + TO reassignment guard | DFS-050-4 | Pending |
-| DS-01-5 | Supervisor UI — inspection queue + checklist form + vehicle status board | DFS-050-5 | Pending |
+| DS-01-1 | `ChecklistSection` + `ChecklistItem` models + data migration to seed all 7 sections and predefined items | DFS-050-1 | Pending |
+| DS-01-2 | `VehicleInspection` + `ChecklistResponse` models — FK to TO, vehicle, supervisor; response stores item + status + remarks | DFS-050-2 | Pending |
+| DS-01-3 | `VehicleInspectionAdmin` — `list_display` (TO ref, vehicle, supervisor, status, date), `list_filter` (status, vehicle), search by TO number; queryset filtered to TOs in `Assigned` status | DFS-050-3 | Pending |
+| DS-01-4 | `VehicleInspectionAdmin` — change form with `ChecklistResponseInline` (all items per section), readonly fields for completed inspections | DFS-050-4 | Pending |
+| DS-01-5 | `VehicleInspectionAdmin.save_model` — validate all responses filled, set `inspection_completed_at`, transition TO status `Assigned` → `Ready for Dispatch` | DFS-050-5 | Pending |
+| DS-01-6 | `VehicleInspectionAdmin` reject action — TO stays `Assigned`, vehicle flagged for follow-up, rejection reason required via `_RejectReasonForm` | DFS-050-6 | Pending |
+| DS-01-7 | `VehicleAdmin.mark_under_maintenance` custom action + TO reassignment guard service — `Assigned` TO → `Created`, vehicle unlinked | DFS-050-7 | Pending |
+| DS-01-8 | Inspection queue API — `GET /api/v1/inspections/queue` (TOs pending inspection) | DFS-050-8 | Pending |
+| DS-01-9 | Checklist submission API — `POST /api/v1/inspections` (submit responses, trigger TO status transition) | DFS-050-9 | Pending |
+| DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}` (all responses + metadata) | DFS-050-10 | Pending |
+| DS-01-11 | Inspection reject API — `POST /api/v1/inspections/{inspection_id}/reject` (reason required) | DFS-050-11 | Pending |
+| DS-01-12 | Under Maintenance API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` + TO reset | DFS-050-12 | Pending |
+| DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` (read-only sections + items for mobile/frontend) | DFS-050-13 | Pending |
+| DS-01-14 | Audit logging on all inspection submissions, rejections, and Under Maintenance decisions | DFS-050-14 | Pending |
+
+## API Endpoints
+
+```
+GET    /api/v1/inspections/queue                     # TOs in Assigned status — supervisor inspection queue
+POST   /api/v1/inspections                           # Submit completed checklist; triggers TO → Ready for Dispatch
+GET    /api/v1/inspections/{inspection_id}           # Inspection detail with all responses
+POST   /api/v1/inspections/{inspection_id}/reject    # Reject vehicle; TO stays Assigned; reason required
+POST   /api/v1/vehicles/{vehicle_id}/under-maintenance   # Mark vehicle Under Maintenance; resets linked TO to Created
+GET    /api/v1/checklist-template                    # Read-only — sections + items (for mobile/frontend rendering)
+```
 
 ## Access & Permissions
 
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
 | Action | Role |
 |--------|------|
+| View inspection queue (own POI) | Driver Supervisor |
 | Complete daily inspection checklist for TO | Driver Supervisor |
+| Reject vehicle on inspection | Driver Supervisor |
 | Mark vehicle Under Maintenance | Driver Supervisor |
-| View vehicle status board | Driver Supervisor |
+| View inspection history (read-only) | Driver Supervisor, TDO, Dispatch Manager |
+| View vehicle status board | Driver Supervisor, TDO (read-only) |
 
 ## Dependencies
 
@@ -127,8 +152,14 @@ PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registra
 
 ## Definition of Done
 
-- [ ] PRD §6.6.1.2 acceptance criteria met for predefined checklist, supervisor completion, TO status transition, Under Maintenance
-- [ ] Audit log on all supervisor checklist submissions and Under Maintenance decisions
-- [ ] Unit tests for status transition guards (`Assigned` → `Ready for Dispatch`, Under Maintenance → TO reassignment)
-- [ ] UAT: TDO assigns vehicle+driver → supervisor completes checklist → TO status becomes `Ready for Dispatch`
-- [ ] UAT: supervisor marks vehicle Under Maintenance → vehicle excluded from future assignment, linked TO reset to `Created`
+- [ ] **Checklist seeded**: all 7 sections and their items exist in the database via data migration — confirmed by running `manage.py migrate` on a clean DB
+- [ ] **Admin list view**: `VehicleInspectionAdmin` inspection queue shows only TOs with `Assigned` status; filterable by vehicle, supervisor; search by TO number
+- [ ] **Change form works**: `ChecklistResponseInline` renders all checklist items grouped by section; remarks field per item; readonly after completion
+- [ ] **Checklist submission correct**: `VehicleInspectionAdmin.save_model` validates all responses → TO status becomes `Ready for Dispatch`; `inspection_completed_at` is set
+- [ ] **Rejection path works**: reject action → TO stays `Assigned`; vehicle flagged; rejection reason persisted via `_RejectReasonForm`; supervisor cannot reject without reason
+- [ ] **Under Maintenance enforced**: `VehicleAdmin.mark_under_maintenance` action → vehicle no longer appears in TDO assignment vehicle dropdown; linked `Assigned` TO resets to `Created`
+- [ ] **Audit trail complete**: every inspection submission, rejection, and Under Maintenance decision records user, timestamp, and before/after state
+- [ ] **Unit tests**: status transition guards (`Assigned` → `Ready for Dispatch`, reject path, Under Maintenance → TO reset to `Created`) covered by automated tests
+- [ ] **UAT — happy path**: TDO assigns vehicle + driver → supervisor opens checklist → fills all items → saves → TO becomes `Ready for Dispatch`
+- [ ] **UAT — rejection path**: supervisor inspects vehicle → rejects with reason → TO stays `Assigned`; vehicle flagged for follow-up
+- [ ] **UAT — maintenance path**: supervisor marks vehicle Under Maintenance → vehicle excluded from future assignments; linked TO reset to `Created`; TDO reassigns

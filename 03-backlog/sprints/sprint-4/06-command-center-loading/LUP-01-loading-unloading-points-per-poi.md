@@ -46,16 +46,37 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 - [ ] Audit: who/when/what changed on each point
 
 ### AC-4: API contract for downstream stories
-- [ ] List endpoints (by POI id) used by Command Center assignment UI and loading personnel “my bay” views
+- [ ] List endpoints (by POI id) used by Command Center assignment UI and loading personnel "my bay" views
 - [ ] Validations return clear errors for duplicate code or invalid POI
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LUP-01-1 | Model + migrations — `poi_id`, type, code, status | DFS-063-1 | Pending |
-| LUP-01-2 | CRUD APIs + list-by-POI | DFS-063-2 | Pending |
-| LUP-01-3 | Admin UI — configure under POI | DFS-063-3 | Pending |
+| LUP-01-1 | LoadingUnloadingPoint model + migration (FK to POI, name, short_code, operation_type enum, is_active, display_order, notes) | DFS-063-1 | Pending |
+| LUP-01-2 | LoadingUnloadingPointAdmin — list view with POI filter + operation type filter, standalone with POI FK dropdown, save_model validates unique code per POI + active POI check | DFS-063-2 | Pending |
+| LUP-01-3 | LoadingUnloadingPointInline — TabularInline under POIAdmin for quick point management from POI detail | DFS-063-3 | Pending |
+| LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Pending |
+| LUP-01-5 | List-by-POI API (GET — list active points for a given POI, consumed by CC-01 and LD-01) | DFS-063-5 | Pending |
+| LUP-01-6 | Update API (PATCH — update point details, activate/deactivate) | DFS-063-6 | Pending |
+| LUP-01-7 | Audit logging on create / update / deactivate (who, when, what changed) | DFS-063-7 | Pending |
+| LUP-01-8 | Seed data — at least two POIs with multiple L/U points for UAT | DFS-063-8 | Pending |
+
+## API Endpoints
+
+```
+POST   /api/v1/pois/{poi_id}/loading-unloading-points                    # Create L/U point under POI
+GET    /api/v1/pois/{poi_id}/loading-unloading-points?type=&is_active=   # List points by POI (filterable)
+GET    /api/v1/loading-unloading-points/{id}                             # Point detail
+PATCH  /api/v1/loading-unloading-points/{id}                             # Update point (name, status, etc.)
+```
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| Create / update / deactivate L/U point | Tenant Admin, Master Data Manager |
+| View L/U points (list by POI) | Command Center Officer, Loading / Unloading Personnel, Transport Supervisor |
 
 ## Dependencies
 
@@ -64,6 +85,13 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 
 ## Definition of Done
 
+- [ ] LoadingUnloadingPoint model created with migration passing `makemigrations --check`
+- [ ] Each point is owned by exactly one POI; only active POIs allow new active points (AC-1)
+- [ ] Point definition includes name, short code (unique per POI), operation type (LOAD/UNLOAD/BOTH), active/inactive flag (AC-2)
+- [ ] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
+- [ ] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles (AC-3)
+- [ ] Audit log records who/when/what on every create, update, and deactivate action (AC-3)
+- [ ] List-by-POI API returns points filterable by operation type and active status (AC-4)
+- [ ] Validation errors returned for duplicate short code within a POI and for inactive/invalid POI (AC-4)
 - [ ] At least two POIs in UAT each have multiple L/U points; Command Center can retrieve the list
-- [ ] Inactive point cannot be selected for new assignments
-- [ ] Documentation: field dictionary shared with frontend for CC-01/LD-01
+- [ ] Field dictionary documented and shared with frontend for CC-01/LD-01 integration

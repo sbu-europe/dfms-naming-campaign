@@ -50,11 +50,54 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| DS-02-1 | Driver state machine service + audit | DFS-051-1 | Pending |
-| DS-02-2 | Manual attendance CRUD API | DFS-051-2 | Pending |
-| DS-02-3 | On Leave API + TO-02 conflict guard extension | DFS-051-3 | Pending |
-| DS-02-4 | Supervisor UI — attendance grid + leave calendar | DFS-051-4 | Pending |
-| DS-02-5 | Read APIs for dispatch board (filtered) | DFS-051-5 | Pending |
+| DS-02-1 | `DriverState` enum/field on `Driver` model + migration — states: Available, Assigned, On Leave, On Execution | DFS-051-1 | Pending |
+| DS-02-2 | `DriverAttendance` model + migration — driver FK, POI FK, entry_datetime, exit_datetime, date; unique-together (driver, date) | DFS-051-2 | Pending |
+| DS-02-3 | `DriverLeave` model + migration — driver FK, start_date, end_date, reason, created_by | DFS-051-3 | Pending |
+| DS-02-4 | `DriverStateLog` audit model + migration — driver FK, from_state, to_state, changed_by, timestamp, trigger (manual / auto) | DFS-051-4 | Pending |
+| DS-02-5 | Working hours config — `TenantSetting` or `WorkingHoursConfig` model for max daily hours (default 12h) | DFS-051-5 | Pending |
+| DS-02-6 | `DriverStateAdmin` — `list_display` with `state_badge` method, `list_filter` (state, POI), search by driver name; read-only for non-supervisor roles via `get_readonly_fields` | DFS-051-6 | Pending |
+| DS-02-7 | `DriverAttendanceAdmin` — list + change form; `save_model` validates date/driver uniqueness, calculates working hours, warns when exceeding configured max | DFS-051-7 | Pending |
+| DS-02-8 | `DriverLeaveAdmin` — leave form with date range picker; `save_model` validates no overlap, transitions driver state to On Leave | DFS-051-8 | Pending |
+| DS-02-9 | Driver state machine service — transition rules, validation, `DriverStateLog` audit entries on every transition | DFS-051-9 | Pending |
+| DS-02-10 | TLS-01 hooks — auto-update driver state on TO assignment (`Available` → `Assigned`), execution start (`Assigned` → `On Execution`), TO completion (`On Execution` → `Available`) | DFS-051-10 | Pending |
+| DS-02-11 | Attendance CRUD API — `POST /GET /PATCH /DELETE /api/v1/driver-attendance` | DFS-051-11 | Pending |
+| DS-02-12 | Leave CRUD API — `POST /GET /PATCH /api/v1/driver-leave` + cancel endpoint | DFS-051-12 | Pending |
+| DS-02-13 | Driver state board API — `GET /api/v1/drivers/state-board` (filterable by state, POI) | DFS-051-13 | Pending |
+| DS-02-14 | TO-02 conflict guard extension — On Leave drivers blocked from new TDO assignment at API level | DFS-051-14 | Pending |
+| DS-02-15 | Working hours guardrail — warning response when daily attendance hours exceed configured max | DFS-051-15 | Pending |
+| DS-02-16 | Supervisor UI — attendance grid, leave calendar, driver state board | DFS-051-16 | Pending |
+| DS-02-17 | Audit logging on all state transitions, attendance entries, and leave records | DFS-051-17 | Pending |
+
+## API Endpoints
+
+```
+GET    /api/v1/drivers/state-board                              # Driver state board — filterable by state, POI
+GET    /api/v1/drivers/{driver_id}/state                        # Single driver current state + transition history
+
+POST   /api/v1/driver-attendance                                # Create attendance record
+GET    /api/v1/driver-attendance?driver=&date_from=&date_to=&poi=
+PATCH  /api/v1/driver-attendance/{id}                           # Edit attendance entry
+DELETE /api/v1/driver-attendance/{id}                           # Delete attendance entry
+
+POST   /api/v1/driver-leave                                     # Create leave record (start/end dates, reason)
+GET    /api/v1/driver-leave?driver=&status=&date_from=&date_to=
+PATCH  /api/v1/driver-leave/{id}                                # Edit leave dates (before start only)
+POST   /api/v1/driver-leave/{id}/cancel                         # Cancel leave early; driver → Available
+```
+
+## Access & Permissions
+
+> Full menu structure and role-access matrix: [`README.md`](../README.md)
+
+| Action | Role |
+|--------|------|
+| View driver state board | Driver Supervisor, TDO (read-only), Dispatch Manager (read-only) |
+| Record manual attendance | Driver Supervisor |
+| Edit / delete attendance | Driver Supervisor |
+| Set driver On Leave | Driver Supervisor |
+| Cancel leave early | Driver Supervisor |
+| View attendance grid | Driver Supervisor |
+| View leave calendar | Driver Supervisor, TDO (read-only) |
 
 ## Dependencies
 
@@ -63,6 +106,16 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 
 ## Definition of Done
 
-- [ ] §6.6.3.3–§6.6.3.4 supervisor-facing AC satisfied
-- [ ] On Leave enforced on **new** assignment APIs
-- [ ] UAT: driver on leave → assignment blocked; return from leave → assignable
+- [ ] **Driver state model**: `Driver.state` enum field with Available, Assigned, On Leave, On Execution — default Available; migration applied cleanly
+- [ ] **Attendance model**: `DriverAttendance` stores driver, POI, entry/exit datetime, date — unique-together (driver, date) enforced at DB level
+- [ ] **Leave model**: `DriverLeave` stores driver, start/end dates, reason — `DriverLeaveAdmin.save_model` transitions driver state to On Leave
+- [ ] **State board admin**: `DriverStateAdmin` list view shows state badges, filterable by state and POI; read-only for non-supervisor roles via `get_readonly_fields`
+- [ ] **Attendance admin**: `DriverAttendanceAdmin` enforces date/driver uniqueness in `save_model`; working hours warning displayed when threshold exceeded
+- [ ] **State machine service**: handles all transition rules; rejects invalid transitions (e.g. On Leave → Assigned) with descriptive errors; logs every transition to `DriverStateLog`
+- [ ] **TLS-01 hooks wired**: driver state auto-updates on TO assignment, execution start, and TO completion — verified by integration test
+- [ ] **On Leave blocks assignment**: TO-02 API returns validation error when TDO attempts to assign an On Leave driver
+- [ ] **Working hours guardrail**: API returns warning when daily attendance total exceeds configured max (default 12h); soft block in MVP
+- [ ] **Audit trail complete**: every state transition, attendance record, and leave record logged with user, timestamp, before/after state
+- [ ] **Unit tests**: state transition rules, On Leave → assignment block, working hours calculation, date overlap rejection
+- [ ] **UAT — attendance**: supervisor records attendance → visible in attendance grid with calculated working hours
+- [ ] **UAT — leave**: supervisor sets driver On Leave → TDO cannot assign that driver; leave ends or cancelled → driver becomes Available again

@@ -60,11 +60,37 @@ prd_refs:
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| CC-01-1 | Integrate assignable targets from **LUP-01** (list by POI; no parallel ad-hoc master) | DFS-056-1 | Pending |
-| CC-01-2 | Queue list API + assign bay API | DFS-056-2 | Pending |
-| CC-01-3 | Waiting serial issuance API | DFS-056-3 | Pending |
-| CC-01-4 | Command Center UI | DFS-056-4 | Pending |
-| CC-01-5 | Loading personnel “my bay” read view | DFS-056-5 | Pending |
+| CC-01-1 | QueueEntry + BayAssignment + WaitingSerial models + migration (FK to TO, ScaleEntry, L/U point) | DFS-056-1 | Pending |
+| CC-01-2 | QueueEntryAdmin — list view with filters (product type, urgency, status), auto-populated from SC-01 scale-in events | DFS-056-2 | Pending |
+| CC-01-3 | BayAssignmentAdmin — change form with L/U point dropdown (from LUP-01), save_model validates product/vehicle type match + updates TO sub-state via TLS-01 | DFS-056-3 | Pending |
+| CC-01-4 | WaitingSerialAdmin — read-only after issue, issuer + timestamp audit fields | DFS-056-4 | Pending |
+| CC-01-5 | Queue list API (GET with filters: product type, urgency, status) | DFS-056-5 | Pending |
+| CC-01-6 | Bay assignment API (POST — assign vehicle to L/U point) | DFS-056-6 | Pending |
+| CC-01-7 | Waiting serial issuance API (POST — generate immutable serial per loading point) | DFS-056-7 | Pending |
+| CC-01-8 | "My bay" read API for loading personnel (GET — current assignments for a given L/U point) | DFS-056-8 | Pending |
+| CC-01-9 | Command Center UI — queue view, assignment form, serial issuance | DFS-056-9 | Pending |
+| CC-01-10 | RM QC trigger service — update TO sub-state for QC visibility on raw-material TOs (AC-6 handoff) | DFS-056-10 | Pending |
+| CC-01-11 | TLS-01 event emission — emit sub-state transitions on assignment + serial issuance | DFS-056-11 | Pending |
+
+## API Endpoints
+
+```
+GET    /api/v1/command-center/queue?product_type=&urgency=&status=        # Eligible vehicles (scale-in complete, not assigned)
+POST   /api/v1/command-center/assignments                                 # Assign vehicle to L/U point
+GET    /api/v1/command-center/assignments?loading_point=&status=           # List assignments (filterable)
+POST   /api/v1/command-center/waiting-serials                             # Issue waiting serial for a loading point
+GET    /api/v1/command-center/waiting-serials?loading_point=               # List serials by loading point
+GET    /api/v1/command-center/my-bay?loading_point_id=                    # Loading personnel — current bay assignments
+```
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| View queue / assign vehicle | Command Center Officer |
+| Issue waiting serial | Command Center Officer |
+| View "my bay" assignments | Loading / Unloading Personnel |
+| View queue (read-only) | Transport Supervisor, Tenant Admin |
 
 ## Dependencies
 
@@ -72,5 +98,14 @@ prd_refs:
 
 ## Definition of Done
 
+- [ ] QueueEntry, BayAssignment, and WaitingSerial models created with migrations passing `makemigrations --check`
+- [ ] Queue list shows only vehicles with completed scale-in and no active assignment (AC-1)
+- [ ] Queue card displays vehicle number, P.C. code, item, scale-in datetime, product type, weight, TO ref, urgency (AC-2)
+- [ ] Bay assignment validates product type / vehicle type against L/U point and shows warning on mismatch (AC-3)
+- [ ] Assignment is immediately visible on the "my bay" view for loading/unloading personnel
+- [ ] Waiting serial is unique per loading point, immutable after issue, with issuer + timestamp audit (AC-4)
+- [ ] Assignment emits TLS-01 sub-state transition (e.g. `Assigned to Loading Point`) on the TO (AC-5)
+- [ ] RM TOs: Command Center updates TO sub-state for QC visibility; does NOT assign unloading point (AC-6)
+- [ ] FG inbound TOs: unload path states recorded without mandatory QC checkpoint
+- [ ] Audit log entry created on every assignment and serial issuance
 - [ ] UAT: assign vehicle → loading screen shows assignment without email/push
-- [ ] Audit on serial issuance
