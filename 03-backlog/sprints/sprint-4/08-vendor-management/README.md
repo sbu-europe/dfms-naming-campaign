@@ -24,7 +24,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 ## In Scope (Sprint 4)
 
-- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-09)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), pending verification gate, audit logging, resubmission support, multiple vehicles per vendor profile.
+- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-09)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02), pending verification gate, audit logging, resubmission support.
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
 - Vendor verification workflow (platform): platform admin verification queue, approve/reject with mandatory remarks, real-time status updates.
 - Vendor ↔ tenant membership: verified vendor can see all active tenants, request to join, and tenants can approve/reject vendor join.
@@ -51,7 +51,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
 | 1 | [Vendor Self-Registration (mobile) + platform invite onboarding](VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
-| 2 | [Compliance Docs + Testimonial/Reference + multi-vehicle profile](VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
+| 2 | [Compliance Docs + Testimonial/Reference + company profile (no vehicle/driver master)](VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
 | 3 | [Platform Verification Queue + Approve/Reject (mandatory remarks) + resubmission](VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
 
 ---
@@ -154,7 +154,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 | Sprint item | Mobile app context file(s) | Backend touchpoints (high-level) |
 |------------|-----------------------------|----------------------------------|
 | VM-01 Vendor onboarding entry (self/invite) | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Vendor registration, invite acceptance, auth bootstrap |
-| VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, vendor profile updates |
+| VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, company profile + testimonial (no vehicle/driver master at onboarding) |
 | VM-03 Platform verification | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Platform verification queue + approve/reject + status events |
 | VM-09 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
 | VM-04 Vendor portal views | `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |

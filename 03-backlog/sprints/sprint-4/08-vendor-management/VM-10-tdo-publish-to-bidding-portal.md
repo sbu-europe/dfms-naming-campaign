@@ -89,7 +89,7 @@ Body: { reason }
 
 ## Dependencies
 
-- **Requires**: vendor verification gating (VM-03), tenant join approval gating (VM-09), vendor vehicle profile availability (VM-02), notification/eventing.
+- **Requires**: vendor verification gating (VM-03), tenant join approval gating (VM-09), vendor compliance/registration completeness where relevant (VM-02), notification/eventing.
 - **Enables**: vendor browse/bid flows (VM-04/05), evaluation/award (VM-08).
 
 ## Definition of Done
