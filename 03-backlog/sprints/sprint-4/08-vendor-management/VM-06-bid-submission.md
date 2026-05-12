@@ -15,12 +15,12 @@ assignee: ~
 ## User Story
 
 **As a** vendor  
-**I want to** view available transport bids and submit competitive rates  
-**So that** I can win trips
+**I want to** view available transport bids and submit **offered rate and vehicle count**  
+**So that** I can win transport capacity on TOs
 
 ## Business Context
 
-TDO publishes TOs to the bidding portal (VM-05) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions and support the bid lifecycle (submit, edit, withdraw) with auditability.
+TDO publishes TOs to the bidding portal (VM-05) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions, record an **immutable bid** after submit (**no PATCH / edit** per [TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)), optionally support **withdraw before close** if product policy enables it, and maintain full auditability.
 
 ## Acceptance Criteria
 
@@ -35,14 +35,15 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
   - Required vehicle type
   - Bid submission window
   - Required quantity of vehicles
-  - Optional expected bid price (if provided)
+  - Optional **reference / guide rate** (if provided at publish — VM-05)
 
 ### AC-2: Structured Bid Submission
 - [ ] Vendor can submit a bid with:
   - Proposed cost / rate (mandatory, numeric, > 0)
+  - **Offered number of vehicles** (mandatory integer ≥ 1; must not exceed any server-side max tied to TO demand)
   - Remarks (optional)
-- [ ] **Phase 1 simplification**: bid submission does **not** collect vehicle/driver/helper information.
-- [ ] System enforces one active bid per vendor per TO (edit/withdraw allowed before deadline)
+- [ ] **Phase 1 simplification**: bid submission does **not** collect vehicle registration / driver / helper identity (those are captured post-award in VM-08).
+- [ ] System enforces **one submitted bid per vendor per TO**; **after submit, bid fields are immutable** (no edit endpoint)
 - [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
 ### AC-3: Bid Window Enforcement
@@ -56,18 +57,19 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
 ### AC-5: Manual Close/Cancel
 - [ ] Bids may be manually closed or cancelled without awarding
 
-### AC-6: Edit / Withdraw Before Deadline
-- [ ] Vendor can edit their bid before the deadline
-- [ ] Vendor can withdraw their bid before the deadline
+### AC-6: Withdraw Before Deadline (optional policy)
+- [ ] If enabled by tenant policy: vendor can **withdraw** their bid before the deadline (no field edits after submit)
 - [ ] Withdrawn bids are not deleted; they remain for audit
-- [ ] All edits/withdrawals are logged (who/when/what changed)
+- [ ] Withdrawals are logged (who/when)
 
 ### AC-7: Notifications
-- [ ] Vendor receives confirmation after bid submit/edit/withdraw (in-app; optional email)
+- [ ] Vendor receives confirmation after bid submit (and withdraw, if enabled) (in-app; optional email)
 - [ ] TDO is notified on new bid submission events (in-app; optional email)
 
 ## Functional Requirements (from PRD)
 
+- [ ] **[Critical]** System SHALL support bidding for non-contractual vendors (rate + vehicle count).
+- [ ] **[Critical]** Vendor SHALL submit **price** and **offered vehicle count**; bids SHALL be **immutable after submit** (no PATCH).
 - [ ] **[Critical]** System SHALL provide support configurable bid submission windows.
 - [ ] **[High]** System SHALL prevent bid submission after window closure.
 - [ ] **[High]** Bids MAY be manually closed or cancelled without awarding.
@@ -76,10 +78,10 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-06-1 | Bid submission API + validation (rate, optional remarks) | ~ | Pending |
+| VM-06-1 | Bid submission API + validation (rate, **offered_vehicle_count**, optional remarks) | ~ | Pending |
 | VM-06-2 | Bid window enforcement (server-side) | ~ | Pending |
 | VM-06-3 | Store bid timestamp + validity window metadata | ~ | Pending |
-| VM-06-4 | Edit/withdraw endpoints + audit events | ~ | Pending |
+| VM-06-4 | Withdraw endpoint (if policy) + audit events — **no bid PATCH after submit** | ~ | Pending |
 | VM-06-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
 
 ## API Endpoints (suggested)
@@ -88,13 +90,12 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
 POST   /api/v1/vendor/bidding-sessions/{session_id}/bids
 Body: {
   proposed_cost,
+  offered_vehicle_count,
   remarks?
 }
 
-PATCH  /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
-Body: { proposed_cost?, remarks? }
-
 DELETE /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
+  (withdraw before deadline — if policy allows)
 
 GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 ```
@@ -108,6 +109,6 @@ GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 
 - [ ] Vendor can submit bid within window; submissions blocked after closure
 - [ ] Bid is stored with timestamp and rate validity metadata
-- [ ] Vendor can edit/withdraw before deadline; actions audited
+- [ ] Vendor cannot edit bid after submit; withdraw-before-deadline only if policy enabled; actions audited
 - [ ] Admin/TDO can close/cancel bid without awarding
 
