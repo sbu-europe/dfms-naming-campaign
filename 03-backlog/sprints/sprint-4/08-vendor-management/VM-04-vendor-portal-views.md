@@ -22,15 +22,15 @@ assignee: ~
 
 The vendor portal is the operational surface for vendors. Visibility must respect:
 
-- Platform verification status (verified vendors only)
+- **Completed platform registration** (VM-01 / VM-02 — authenticated vendor with mandatory docs + profile as required)
 - Which tenants the vendor has **joined and been approved** for
-- **Per-tenant** vendor type (Contractual vs Non-Contractual) from **tenant join approval** (VM-09)
+- **Per-tenant** vendor type (Contractual vs Non-Contractual) from **tenant join approval** (VM-03)
 
 ## Acceptance Criteria
 
-### AC-1: Verified Vendor Access Only
-- [ ] Only **verified** vendors can access vendor portal views for tenant bids/TO details
-- [ ] Unverified vendors cannot access tenant bids or tenant TO details
+### AC-1: Onboarded Vendor Access Only
+- [ ] Only vendors who **completed platform registration** (including VM-02 mandatory documents) can access vendor portal views for tenant bids/TO details
+- [ ] Vendors without completed registration cannot access tenant bids or tenant TO details
 
 ### AC-2: Vendor Sees Active Tenants + Joined Tenants
 - [ ] Vendor can view all **active tenants**
@@ -46,7 +46,7 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 - [ ] Vendor can only see bids/trips for tenants where the vendor is **approved as joined**
 
 ### AC-5: Vendor Type Gating (per tenant membership)
-- [ ] For each **joined tenant**, the UI respects the **tenant-assigned** vendor type (VM-09): **Non-Contractual** sees available bids (when published) for that tenant; **Contractual** is not required to bid and primarily sees assigned work/trips for that tenant
+- [ ] For each **joined tenant**, the UI respects the **tenant-assigned** vendor type (VM-03): **Non-Contractual** sees available bids (when published) for that tenant; **Contractual** is not required to bid and primarily sees assigned work/trips for that tenant
 - [ ] If a vendor is **Non-Contractual** for tenant A and **Contractual** for tenant B, gating applies **independently** per tenant
 
 ### AC-6: Data Isolation by Tenant Membership
@@ -79,12 +79,12 @@ GET /api/v1/vendor/trips?status=COMPLETED
 
 ## Dependencies
 
-- **Requires**: VM-03 platform verification; VM-09 tenant join approval; bid publication source (TDO/TP); trip/TO domain for trip lists.
-- **Enables**: VM-05 bid submission entry from active bids list; VM-07 real-time TO updates.
+- **Requires**: VM-01/VM-02 completed registration path; VM-03 tenant join approval; bid publication source (TDO/TP); trip/TO domain for trip lists.
+- **Enables**: VM-06 bid submission entry from active bids list; VM-09 real-time TO updates.
 
 ## Definition of Done
 
-- [ ] Approved vendors can access core portal views
-- [ ] **Per-tenant** Contractual vs Non-Contractual gating enforced (type from VM-09 membership)
+- [ ] Vendors who completed onboarding can access core portal views (subject to VM-03 per-tenant join)
+- [ ] **Per-tenant** Contractual vs Non-Contractual gating enforced (type from VM-03 membership)
 - [ ] Tenant isolation enforced across lists
 

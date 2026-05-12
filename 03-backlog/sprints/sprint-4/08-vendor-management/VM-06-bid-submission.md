@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-05 — Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
+# VM-06 — Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
 
 ## User Story
 
@@ -20,7 +20,7 @@ assignee: ~
 
 ## Business Context
 
-TDO publishes TOs to the bidding portal (VM-10) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions and support the bid lifecycle (submit, edit, withdraw) with auditability.
+TDO publishes TOs to the bidding portal (VM-05) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions and support the bid lifecycle (submit, edit, withdraw) with auditability.
 
 ## Acceptance Criteria
 
@@ -76,11 +76,11 @@ TDO publishes TOs to the bidding portal (VM-10) with defined windows and require
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | Bid submission API + validation (rate, optional remarks) | ~ | Pending |
-| VM-05-2 | Bid window enforcement (server-side) | ~ | Pending |
-| VM-05-3 | Store bid timestamp + validity window metadata | ~ | Pending |
-| VM-05-4 | Edit/withdraw endpoints + audit events | ~ | Pending |
-| VM-05-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
+| VM-06-1 | Bid submission API + validation (rate, optional remarks) | ~ | Pending |
+| VM-06-2 | Bid window enforcement (server-side) | ~ | Pending |
+| VM-06-3 | Store bid timestamp + validity window metadata | ~ | Pending |
+| VM-06-4 | Edit/withdraw endpoints + audit events | ~ | Pending |
+| VM-06-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -101,8 +101,8 @@ GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 
 ## Dependencies
 
-- **Requires**: VM-04 bid list visibility; VM-09 tenant join approval; bid publication workflow from TDO; vendor verification gating.
-- **Enables**: VM-08 bid evaluation; VM-06 vehicle/driver submission after award.
+- **Requires**: VM-04 bid list visibility; VM-03 tenant join approval; VM-05 bid publication workflow from TDO; completed vendor registration (VM-01/VM-02).
+- **Enables**: VM-07 bid evaluation; VM-08 vehicle/driver submission after award.
 
 ## Definition of Done
 

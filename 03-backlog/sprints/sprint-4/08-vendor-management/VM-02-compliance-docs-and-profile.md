@@ -16,11 +16,11 @@ assignee: ~
 
 **As a** transport vendor  
 **I want to** complete my company registration with required compliance documents on DFMS  
-**So that** I can be verified and later participate in transport operations for tenants I join
+**So that** I can complete onboarding and later participate in transport operations for tenants I join
 
 ## Business Context
 
-Registration is only valid if the vendor provides required **compliance documents** and **company profile** data needed for verification. Vendors **do not** configure **vehicle master data** or **driver master data** during onboarding; fleet and driver capture belong to **post-award / execution** flows (for example VM-06), not VM-02.
+Registration is only valid if the vendor provides required **compliance documents** and **company profile** data. There is **no** separate Platform Admin verification gate; completeness here is what allows the vendor to be treated as **platform-active** and proceed to tenant join (**VM-03**). Vendors **do not** configure **vehicle master data** or **driver master data** during onboarding; fleet and driver capture belong to **post-award / execution** flows (for example VM-08), not VM-02.
 
 ## Acceptance Criteria
 
@@ -35,7 +35,7 @@ Registration is only valid if the vendor provides required **compliance document
 - [ ] Vendor can provide a testimonial/reference from Truck Association as part of the registration profile
 
 ### AC-3: Resubmission-Friendly Data Model
-- [ ] If a vendor is rejected, vendor can resubmit corrected information without losing the prior audit trail
+- [ ] Vendor can update registration documents / profile fields after initial submission without losing the prior audit trail (e.g. corrections or renewed documents)
 
 ### AC-4: Audit Trail for Data Changes
 - [ ] All changes to registration data (documents, company profile fields, testimonial) are logged for audit
@@ -44,7 +44,7 @@ Registration is only valid if the vendor provides required **compliance document
 
 - [ ] **[Critical]** System SHALL require document uploads (trade license, BIN, TIN) before submission.
 - [ ] **[High]** Vendor registration SHALL capture company profile and compliance data **only** (no vehicle or driver master registration in this story).
-- [ ] **[High]** System SHALL allow rejected vendors to resubmit corrected information.
+- [ ] **[High]** System SHALL allow vendors to update registration documents/profile with full audit trail (no platform-admin reject loop in current scope).
 - [ ] **[High]** All vendor registration attempts SHALL be logged for audit.
 
 ## Sub-tasks (implementation checklist)
@@ -65,10 +65,10 @@ PATCH  /api/v1/vendors/registrations/{id}
 ## Dependencies
 
 - **Requires**: file storage mechanism; tenant scoping; audit log framework.
-- **Enables**: VM-03 admin verification decisions rely on completeness/validity of these docs and profile data.
+- **Enables**: Platform-active vendor record + audit trail; tenant join (**VM-03**) and portal visibility assume mandatory docs + profile are present per product rules.
 
 ## Definition of Done
 
 - [ ] Registration submission blocked without required docs
-- [ ] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-06 for execution-time capture)
+- [ ] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-08 for execution-time capture)
 - [ ] All mutations produce audit log entries

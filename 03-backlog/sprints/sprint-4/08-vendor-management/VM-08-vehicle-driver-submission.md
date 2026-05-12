@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-06 — Vehicle & Driver Submission After Bid Winning + Update with Reason + Audit Trail
+# VM-08 — Vehicle & Driver Submission After Bid Winning + Update with Reason + Audit Trail
 
 ## User Story
 
@@ -56,10 +56,10 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-06-1 | Award/assignment → “vehicle/driver required” gate | ~ | Pending |
-| VM-06-2 | Submission API + validation for required fields | ~ | Pending |
-| VM-06-3 | Update API requiring reason + audit log entry | ~ | Pending |
-| VM-06-4 | Transport visibility event on substitutions | ~ | Pending |
+| VM-08-1 | Award/assignment → “vehicle/driver required” gate | ~ | Pending |
+| VM-08-2 | Submission API + validation for required fields | ~ | Pending |
+| VM-08-3 | Update API requiring reason + audit log entry | ~ | Pending |
+| VM-08-4 | Transport visibility event on substitutions | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -70,7 +70,7 @@ PATCH /api/v1/vendor/transport-orders/{to_id}/vehicle-driver   Body: { ..., reas
 
 ## Dependencies
 
-- **Requires**: VM-08 award decision (or contractual assignment trigger), transport order/trip entity.
+- **Requires**: VM-07 award decision (or contractual assignment trigger), transport order/trip entity.
 - **Enables**: Trip execution readiness; transport ops can proceed with dispatch/trip lifecycle.
 
 ## Definition of Done

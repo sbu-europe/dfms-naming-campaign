@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-08 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner + Winning Log
+# VM-07 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner + Winning Log
 
 ## User Story
 
@@ -65,11 +65,11 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-08-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
-| VM-08-2 | Award action endpoint enforcing single-winner constraint | ~ | Pending |
-| VM-08-3 | Winning log persistence + audit visibility | ~ | Pending |
-| VM-08-4 | Post-award trigger: require vendor vehicle/driver submission (VM-06) | ~ | Pending |
-| VM-08-5 | Reject-all endpoint + notifications | ~ | Pending |
+| VM-07-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
+| VM-07-2 | Award action endpoint enforcing single-winner constraint | ~ | Pending |
+| VM-07-3 | Winning log persistence + audit visibility | ~ | Pending |
+| VM-07-4 | Post-award trigger: require vendor vehicle/driver submission (VM-08) | ~ | Pending |
+| VM-07-5 | Reject-all endpoint + notifications | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -84,8 +84,8 @@ Body: { reason }
 
 ## Dependencies
 
-- **Requires**: VM-05 bid submissions; TO/bid linkage; role TDO.
-- **Enables**: VM-06 post-award vehicle/driver submission; vendor notifications; operational execution.
+- **Requires**: VM-06 bid submissions; TO/bid linkage; role TDO.
+- **Enables**: VM-08 post-award vehicle/driver submission; vendor notifications; operational execution.
 
 ## Definition of Done
 

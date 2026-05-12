@@ -20,14 +20,13 @@ last_updated: 2026-05-05
 
 ## Sprint Goal (Vendor Management)
 
-Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be verified, view/pursue bids, submit vehicle/driver details post-award, and receive real-time TO updates through the vendor portal.
+Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, complete registration, view/pursue bids, submit vehicle/driver details post-award, and receive real-time TO updates through the vendor portal.
 
 ## In Scope (Sprint 4)
 
-- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-09)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02), pending verification gate, audit logging, resubmission support.
+- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-03)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02); **no** Platform Admin verification queue after sign-up; audit logging, profile/doc update support.
 - Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
-- Vendor verification workflow (platform): platform admin verification queue, approve/reject with mandatory remarks, real-time status updates.
-- Vendor ↔ tenant membership: verified vendor can see all active tenants, request to join, and tenants can approve/reject vendor join.
+- Vendor ↔ tenant membership: vendor with **completed registration** can see all active tenants, request to join, and tenants can approve/reject vendor join.
 - Vendor bidding portal: vendor can view active bids + submit competitive bids **only for tenants the vendor has joined and been approved for**. Bid lifecycle includes: bid windows + late-bid prevention, **one-bid-per-vendor-per-TO** (edit/withdraw allowed until deadline), and manual close/cancel.
 - Bid evaluation (TDO): side-by-side bid comparison; sortable views; select a single winner; reject-all with reason; **winning log with user + timestamp**; basic statistics (min/avg/max) and optional recommendation logic.
 - Vehicle & driver information submission: vendors provide vehicle/driver/helper details for execution. **Default: submit at bid time** (select vehicle, driver, helper) and allow **post-award update with reason + audit trail**; substitutions must be visible to Transport.
@@ -46,13 +45,12 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 ## Epic: Vendor Onboarding & Verification
 
-> Establish the vendor lifecycle entry point and gate portal access by compliance + admin approval.
+> Establish the vendor lifecycle entry point; **tenant join (VM-03)** gates tenant bids/TOs. There is **no** Platform Admin verification queue after vendor sign-up. Backlog files are numbered **VM-01 … VM-09** in delivery order.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
 | 1 | [Vendor Self-Registration (mobile) + platform invite onboarding](VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
 | 2 | [Compliance Docs + Testimonial/Reference + company profile (no vehicle/driver master)](VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
-| 3 | [Platform Verification Queue + Approve/Reject (mandatory remarks) + resubmission](VM-03-admin-verification-workflow.md) | VM-03 | ~ | ~ | Pending |
 
 ---
 
@@ -62,11 +60,11 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
-| 2 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-09-vendor-tenant-join-and-approval.md) | VM-09 | ~ | ~ | Pending |
-| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
-| 4 | [Vehicle & Driver Submission after award + editable with reasoning + audit trail](VM-06-vehicle-driver-submission.md) | VM-06 | ~ | ~ | Pending |
-| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-07-realtime-to-updates.md) | VM-07 | ~ | ~ | Pending |
+| 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-03-vendor-tenant-join-and-approval.md) | VM-03 | ~ | ~ | Pending |
+| 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
+| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-06-bid-submission.md) | VM-06 | ~ | ~ | Pending |
+| 4 | [Vehicle & Driver Submission after award + editable with reasoning + audit trail](VM-08-vehicle-driver-submission.md) | VM-08 | ~ | ~ | Pending |
+| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-09-realtime-to-updates.md) | VM-09 | ~ | ~ | Pending |
 
 ---
 
@@ -76,8 +74,8 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, be
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-10-tdo-publish-to-bidding-portal.md) | VM-10 | ~ | ~ | Pending |
-| 2 | [Bid Comparison (side-by-side) + select single winner + reject-all + winning log](VM-08-bid-evaluation.md) | VM-08 | ~ | ~ | Pending |
+| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-05-tdo-publish-to-bidding-portal.md) | VM-05 | ~ | ~ | Pending |
+| 2 | [Bid Comparison (side-by-side) + select single winner + reject-all + winning log](VM-07-bid-evaluation.md) | VM-07 | ~ | ~ | Pending |
 
 ---
 
@@ -108,11 +106,7 @@ Onboarding entry:
   - Self-registration via Vendor Mobile (company + contact + testimonial/reference + docs)
   - Platform-admin invite → vendor completes profile (missing fields + docs)
   ↓
-Status: PENDING_VERIFICATION
-  ↓
-Platform admin review
-  ├─ Approve → Status: APPROVED → Vendor can access portal + tenants list
-  └─ Reject (reason) → Status: REJECTED → Vendor can resubmit
+Registration complete (VM-01 + VM-02) → vendor **platform-active** (no Platform Admin approval step)
   ↓
 Vendor selects tenant(s):
   - View all active tenants
@@ -137,9 +131,9 @@ Vendor sees real-time TO status updates (Assigned/Completed/Closed)
 ## Dependency Map (Vendor Management)
 
 ```
-Auth/RBAC  ──→  Vendor onboarding forms + platform admin review actions
+Auth/RBAC  ──→  Vendor onboarding forms (VM-01/VM-02) + platform admin invite only
 Master Data (vendor core) ──→  Vendor profile + portal identity
-Notifications service  ──→  approve/reject + action-required alerts
+Notifications service  ──→  tenant join + bidding + action-required alerts
 Tenant membership  ──→  vendor visibility for bids/trips per tenant
 Transport Orders / Trips  ──→  real-time TO status updates + active/completed trip lists
 Vendor Bidding  ──→  publish → bid windows + bid submission (edit/withdraw) + TDO evaluation + award/reject-all
@@ -155,22 +149,22 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 |------------|-----------------------------|----------------------------------|
 | VM-01 Vendor onboarding entry (self/invite) | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Vendor registration, invite acceptance, auth bootstrap |
 | VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, company profile + testimonial (no vehicle/driver master at onboarding) |
-| VM-03 Platform verification | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Platform verification queue + approve/reject + status events |
-| VM-09 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
+| VM-03 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
 | VM-04 Vendor portal views | `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
-| VM-05 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
-| VM-08 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
-| VM-06 Vehicle/driver submission after award | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
-| VM-07 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
+| VM-05 TDO publish TO to bidding portal | *(TDO/admin; see `VM-05-tdo-publish-to-bidding-portal.md`)* | Publish session + eligibility + notifications |
+| VM-06 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
+| VM-07 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
+| VM-08 Vehicle/driver submission after award | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
+| VM-09 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
 
 ---
 
 ## Notes / Decisions Log
 
-- Vendors **cannot access bidding or TO details before approval**.
-- Platform Admin controls vendor directory, invite, and verification.
+- Vendors **cannot access tenant bidding or TO details** until **tenant join** is approved (**VM-03**).
+- Platform Admin controls vendor directory and invite; **does not** run a registration verification queue after sign-up.
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
-- **Per-tenant vendor type (VM-09):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; used for portal feature gating:
+- **Per-tenant vendor type (VM-03):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; used for portal feature gating:
   - **Contractual**: direct TO assignment (no bidding).
   - **Non-Contractual**: bid submission.
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
