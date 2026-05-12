@@ -175,7 +175,7 @@ Wave E — Closure
 | 5   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md) | VM-05   | ~    | ~   | Pending |
 | 6   | [Bid Submission (windows + edit/withdraw + late-bid prevention)](08-vendor-management/VM-06-bid-submission.md)                    | VM-06   | ~    | ~   | Pending |
 | 7   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-07-bid-evaluation.md)                     | VM-07   | ~    | ~   | Pending |
-| 8   | [Vehicle & Driver Submission After Award + Audit Trail](08-vendor-management/VM-08-vehicle-driver-submission.md)                  | VM-08   | ~    | ~   | Pending |
+| 8   | [Bid/TO requirements + vehicle–driver confirmation (post-award)](08-vendor-management/VM-08-vehicle-driver-submission.md)                  | VM-08   | ~    | ~   | Pending |
 | 9   | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-09-realtime-to-updates.md)                                        | VM-09   | ~    | ~   | Pending |
 
 
@@ -327,6 +327,6 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
   - [VM-05 — TDO publish TO to bidding portal](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md)
   - [VM-06 — Bid submission](08-vendor-management/VM-06-bid-submission.md)
   - [VM-07 — Bid evaluation](08-vendor-management/VM-07-bid-evaluation.md)
-  - [VM-08 — Vehicle/driver submission after award](08-vendor-management/VM-08-vehicle-driver-submission.md)
+  - [VM-08 — Bid/TO requirements + vehicle–driver confirmation](08-vendor-management/VM-08-vehicle-driver-submission.md)
   - [VM-09 — Realtime TO updates](08-vendor-management/VM-09-realtime-to-updates.md)
 

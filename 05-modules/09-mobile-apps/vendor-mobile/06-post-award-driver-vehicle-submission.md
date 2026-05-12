@@ -6,25 +6,26 @@ last_updated: 2026-05-06
 
 ## Purpose
 
-After winning a bid (non-contractual) or receiving a contractual TO, the vendor must submit driver/vehicle/helper details for that TO before dispatch/trip start.
+After winning a bid (non-contractual) or receiving a contractual TO, the vendor must **see requirement context** for that TO, then **confirm** driver/vehicle/helper execution details before dispatch/trip start.
 
-**Phase 1 rule:** Vendors do **not** manage driver/vehicle master lists. This is a **per-TO** submission.
+**Phase 1 rule:** Vendors do **not** manage driver/vehicle master lists. This is a **per-TO** confirmation (not a reusable fleet profile).
 
 ## Submission workflow
 
 ```
 1. Vendor opens an assigned TO
-2. Vendor taps "Submit Driver & Vehicle Details"
-3. App displays submission form:
+2. Vendor reviews surfaced **TO / bid requirement** context (e.g. vehicle type, capacity expectations)
+3. Vendor taps **Confirm driver & vehicle** (or equivalent)
+4. App displays confirmation form:
    - Driver info (name, phone, NID/license)
    - Vehicle info (number, type, capacity)
    - Helpers (optional: name + NID)
-4. App validates:
+5. App validates:
    - Vehicle capacity >= TO requirement
    - Vehicle type matches TO requirement
-5. Vendor submits details
-6. System marks TO as READY_FOR_DISPATCH (or equivalent)
-7. Trip can be dispatched/started
+6. Vendor confirms details
+7. System marks TO as READY_FOR_DISPATCH (or equivalent)
+8. Trip can be dispatched/started
 ```
 
 ## Data model (example)

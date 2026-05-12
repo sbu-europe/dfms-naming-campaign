@@ -41,7 +41,7 @@ Backlog files are numbered **VM-01 … VM-09** in delivery order (see [`README.m
 | VM-05 TDO publish TO to bidding portal | [`VM-05-tdo-publish-to-bidding-portal.md`](VM-05-tdo-publish-to-bidding-portal.md) | *(admin/TDO surface; mobile consumes publish via bid opportunities)* |
 | VM-06 Bid submission | [`VM-06-bid-submission.md`](VM-06-bid-submission.md) | [`04-bid-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md) |
 | VM-07 Bid evaluation (TDO/admin surface) | [`VM-07-bid-evaluation.md`](VM-07-bid-evaluation.md) | *(mobile sees outcomes via status changes in lists/details)* |
-| VM-08 Vehicle/driver submission after award | [`VM-08-vehicle-driver-submission.md`](VM-08-vehicle-driver-submission.md) | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
+| VM-08 Bid/TO requirements + vehicle–driver confirmation | [`VM-08-vehicle-driver-submission.md`](VM-08-vehicle-driver-submission.md) | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
 | VM-09 Real-time TO updates | [`VM-09-realtime-to-updates.md`](VM-09-realtime-to-updates.md) | [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`10-security-and-access-control.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md) |
 
 ## Sprint 4 note (tracking vs driver mobile)

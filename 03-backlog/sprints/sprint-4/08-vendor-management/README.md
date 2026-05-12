@@ -63,7 +63,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 | 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-03-vendor-tenant-join-and-approval.md) | VM-03 | ~ | ~ | Pending |
 | 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
 | 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-06-bid-submission.md) | VM-06 | ~ | ~ | Pending |
-| 4 | [Vehicle & Driver Submission after award + editable with reasoning + audit trail](VM-08-vehicle-driver-submission.md) | VM-08 | ~ | ~ | Pending |
+| 4 | [Bid/TO requirements + vehicle–driver confirmation (post-award, + audit)](VM-08-vehicle-driver-submission.md) | VM-08 | ~ | ~ | Pending |
 | 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-09-realtime-to-updates.md) | VM-09 | ~ | ~ | Pending |
 
 ---
@@ -154,7 +154,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 | VM-05 TDO publish TO to bidding portal | *(TDO/admin; see `VM-05-tdo-publish-to-bidding-portal.md`)* | Publish session + eligibility + notifications |
 | VM-06 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
 | VM-07 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
-| VM-08 Vehicle/driver submission after award | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award submission endpoint; update-with-reason + audit |
+| VM-08 Bid/TO requirements + vehicle–driver confirmation | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit |
 | VM-09 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
 
 ---

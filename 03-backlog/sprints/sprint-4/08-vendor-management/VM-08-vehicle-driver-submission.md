@@ -3,36 +3,37 @@ jira_key: ~
 jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
-title: Vehicle & Driver Submission After Bid Winning + Update with Reason + Audit Trail
+title: Bid/TO requirement visibility + vehicle–driver confirmation (+ updates, audit)
 epic: Vendor Portal & Operations
 status: Pending
 story_points: ~
 assignee: ~
 ---
 
-# VM-08 — Vehicle & Driver Submission After Bid Winning + Update with Reason + Audit Trail
+# VM-08 — Bid/TO requirement visibility + vehicle–driver confirmation (+ updates, audit)
 
 ## User Story
 
 **As a** vendor  
-**I want to** submit vehicle and driver details  
-**So that** trips can be executed
+**I want to** receive bid requirement details and confirm vehicle and driver assignment  
+**So that** I can execute the trip
 
 ## Business Context
 
-After a vendor wins a bid (non-contractual) or receives assignment (contractual), vehicle/driver details must be provided before trip start. Changes must be controlled via audit trail and reasoning.
+After a vendor **wins a bid** (non-contractual) or **receives assignment** (contractual), they must **see the relevant requirement context** for that Transport Order (TO)—at minimum what was published or agreed (e.g. route, vehicle type/capacity expectations from **VM-05** / TO data)—then **confirm** concrete vehicle, driver, and helper execution details before trip start. That confirmation is the operational handoff for dispatch readiness. Later changes stay controlled via **audit trail** and **reason**.
 
 ## Phase 1 Simplification (no vendor fleet/driver master data)
 
-In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead, after award/assignment the vendor provides the required vehicle/driver/helper information as a **one-off submission** against the specific Transport Order (TO). This submitted data is what Transport/TDO uses for dispatch readiness.
+In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead, after award/assignment the vendor **confirms** execution resources as a **one-off capture** against the specific TO, aligned to visible TO/bid requirements. This confirmed data is what Transport/TDO uses for dispatch readiness.
 
 ## Acceptance Criteria
 
-### AC-1: Required Submission After Winning (before trip start)
-- [ ] System requires vehicle & driver submission after bid winning and before starting trip
+### AC-1: Requirements visible + confirmation required (before trip start)
+- [ ] Vendor can view **TO/bid-aligned requirement details** for the awarded/assigned TO (at minimum: data needed to know what they are confirming against—vehicle type/capacity expectations, route/slot context as available from publish/TO)
+- [ ] System requires a **confirmed** vehicle/driver/helper capture after award/assignment and **before** trip start (no trip start without it)
 
-### AC-2: Fields Captured
-- [ ] Vendor submits:
+### AC-2: Fields captured on confirmation
+- [ ] On confirmation, vendor provides:
   - Vehicle number
   - Capacity
   - Driver name and contact information
@@ -49,15 +50,15 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 
 ## Functional Requirements (from PRD)
 
-- [ ] **[Critical]** System SHALL require vehicle & driver submission after bid winning and before starting trip.
+- [ ] **[Critical]** System SHALL surface TO/bid-aligned requirement context to the vendor for the awarded/assigned TO and SHALL require **confirmed** vehicle/driver/helper capture after award/assignment and before trip start.
 - [ ] **[Critical]** System SHALL allow update with reasoning of driver and vehicle information with audit trails.
 
 ## Sub-tasks (implementation checklist)
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-08-1 | Award/assignment → “vehicle/driver required” gate | ~ | Pending |
-| VM-08-2 | Submission API + validation for required fields | ~ | Pending |
+| VM-08-1 | Award/assignment → show requirement context + “confirm vehicle/driver” gate | ~ | Pending |
+| VM-08-2 | Confirmation API + validation for required fields | ~ | Pending |
 | VM-08-3 | Update API requiring reason + audit log entry | ~ | Pending |
 | VM-08-4 | Transport visibility event on substitutions | ~ | Pending |
 
@@ -70,12 +71,12 @@ PATCH /api/v1/vendor/transport-orders/{to_id}/vehicle-driver   Body: { ..., reas
 
 ## Dependencies
 
-- **Requires**: VM-07 award decision (or contractual assignment trigger), transport order/trip entity.
+- **Requires**: VM-07 award decision (or contractual assignment trigger), TO/bid publication data (**VM-05** / TO domain), transport order/trip entity.
 - **Enables**: Trip execution readiness; transport ops can proceed with dispatch/trip lifecycle.
 
 ## Definition of Done
 
-- [ ] Winning vendor cannot start trip until vehicle/driver/helper details are submitted
+- [ ] Winning vendor cannot start trip until requirement context is available and vehicle/driver/helper **confirmation** is recorded
 - [ ] Updates require reason and produce audit logs
 - [ ] Transport is notified/has visibility when substitutions occur
 
