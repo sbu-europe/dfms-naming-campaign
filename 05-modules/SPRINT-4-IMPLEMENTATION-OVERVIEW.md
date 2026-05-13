@@ -1,8 +1,8 @@
 ---
 title: Sprint 4 Implementation Overview — Own-Fleet TO Execution
-version: 3.0
+version: 3.1
 sprint: Sprint 4
-last_updated: 2026-05-12
+last_updated: 2026-05-13
 status: Implementation Ready
 ---
 
@@ -24,6 +24,77 @@ This document provides a comprehensive overview of Sprint 4 implementation conte
 **Total Story Points**: 83 SP  
 **Total Stories**: 12 stories across 6 epics  
 **Total Specifications Created**: 7 comprehensive documents (6 operations + 1 master data)
+
+---
+
+## Django Admin design language (consistency contract)
+
+Sprint 4 is **Django Admin first**. New `ModelAdmin` classes, custom admin views, and templates must align with the existing DFMS admin stack below so behaviour, permissions, and visuals stay consistent.
+
+### Platform vs tenant visibility (RBAC shell)
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **Single `AdminSite`** | All URLs use default `admin.site` (no second `AdminSite` class) | [`config/urls.py`](../../config/urls.py) |
+| **Tenant-only models** | Mixin: `TenantOnlyAdminMixin` — hidden on platform schema; tenant admins get full CRUD; other users fall through to Django permissions | [`apps/core/admin.py`](../../apps/core/admin.py) (`TenantOnlyAdminMixin`) |
+| **Platform-only models** | Mixin: `PlatformOnlyAdminMixin` — visible only when `request.tenant.schema_name == "platform"` (use request tenant, not raw DB connection, for checks) | [`apps/core/admin.py`](../../apps/core/admin.py) (`PlatformOnlyAdminMixin`, `_is_platform_tenant_request`) |
+| **Shared catalog in `public` schema** | Mixin: `PublicSchemaModelAdminMixin` — CRUD runs in `public`; `LogEntry` still logged in the active tenant schema | [`apps/core/admin.py`](../../apps/core/admin.py) (`PublicSchemaModelAdminMixin`) |
+| **Composition pattern** | Typical tenant app: `class XAdmin(TenantOnlyAdminMixin, admin.ModelAdmin)`. Platform + public catalog: combine `PublicSchemaModelAdminMixin` + `PlatformOnlyAdminMixin` where applicable (see `PermissionAdmin`, `RoleAdmin`). | [`apps/core/admin.py`](../../apps/core/admin.py), examples across [`apps/master_data/admin.py`](../../apps/master_data/admin.py), [`apps/transport/admin.py`](../../apps/transport/admin.py), [`apps/requisitions/admin.py`](../../apps/requisitions/admin.py) |
+| **Third-party registrations** | Celery beat / JWT blacklist / celery results admins are auto-wrapped with the same mixins on first request; `auth.Group` is unregistered (RBAC is `core.Role` / `core.Permission`). | [`apps/core/apps.py`](../../apps/core/apps.py) (`_patch_third_party_admin`) |
+
+**Implementers must not** register Sprint 4 models without the correct mixin: operational data belongs in tenant schemas and must use `TenantOnlyAdminMixin` unless explicitly a platform-shared model.
+
+### Index, KPIs, and role widgets
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **Dashboard context** | `patch_admin_index()` injects `dashboard`, `schema_type`, and on tenant hosts `role_widgets` + `tenant_name` into the admin index context. | [`config/admin.py`](../../config/admin.py) (`patch_admin_index`, `get_platform_stats`, `get_tenant_stats`), wired from [`apps/core/apps.py`](../../apps/core/apps.py) |
+| **Tenant admin index UI** | Template renders stats charts and cards. | [`templates/admin/index.html`](../../templates/admin/index.html) |
+| **Operational user widgets** | Non–tenant-admin users get role-based KPI cards with links into filtered changelists (`id`, `label`, `icon`, `count`, `url`, `color`, `urgency`). Extend `get_role_widgets()` when Sprint 4 roles need home-dashboard shortcuts. | [`apps/core/dashboard_service.py`](../../apps/core/dashboard_service.py) |
+
+### Navigation sidebar and labels
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **Structured nav** | Sections/items with Bootstrap Icons (`bi-` prefix in templates), `permission_any` gating using `Menu.*` / role semantics. Platform vs tenant sections are separate structures. | [`apps/core/portal_navigation.py`](../../apps/core/portal_navigation.py) (`PLATFORM_NAV_SECTIONS`, `PORTAL_NAV_SECTIONS`) |
+| **Sidebar chrome** | Custom sidebar replaces Django default; must stay compatible with portal nav data shape when adding entries for Sprint 4 flows. | [`templates/admin/nav_sidebar.html`](../../templates/admin/nav_sidebar.html) |
+| **Master Data app order** | Models under `master_data` are sorted on the **index app list** (not only the custom sidebar) via `patched_get_app_list`. New master models should be inserted in the ordered list when product expects a fixed menu position. | [`config/admin.py`](../../config/admin.py) (`master_data_menu_order`) |
+
+### Chrome, theming, and design tokens
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **Global admin shell** | Extends Django admin base: fonts (Inter, JetBrains Mono), Bootstrap Icons, Chart.js, theme/sidebar state before first paint (`data-theme`, `data-sidebar-collapsed`). | [`templates/admin/base_site.html`](../../templates/admin/base_site.html) |
+| **Design tokens & component styling** | CSS variables (`--dfms-*`), light/dark themes, buttons (e.g. `dfms-btn-save`, `dfms-btn-secondary`, draft/submit variants), tables, cards. | [`static/admin/css/custom.css`](../../static/admin/css/custom.css) (header references product docs: `DFMS-product-context/11-design-system/`) |
+| **Client behaviours** | Theme toggle, sidebar, changelist row actions/toolbar, full time list, label title-casing / acronyms (POI, TO, etc.). | [`static/admin/js/dfms_theme.js`](../../static/admin/js/dfms_theme.js), [`dfms_sidebar.js`](../../static/admin/js/dfms_sidebar.js), [`dfms_actions.js`](../../static/admin/js/dfms_actions.js), [`dfms_timepicker.js`](../../static/admin/js/dfms_timepicker.js), [`dfms_labels.js`](../../static/admin/js/dfms_labels.js) |
+| **Browser title / header** | `site_header`, `site_title`, `index_title` set per request from resolved tenant (platform → “DFMS Platform Admin”; client → “{Tenant} Admin”). | [`apps/core/middleware.py`](../../apps/core/middleware.py) (`AdminTitleMiddleware`) |
+
+### Lists, forms, and actions
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **Pagination** | `DynamicPaginationMixin` / alias `AdminPaginationMixin`: session-backed `per_page` query param, allowed values `{15, 25, 50, 100, 200}`, default 25. | [`apps/core/admin.py`](../../apps/core/admin.py), template [`templates/admin/dynamic_pagination_changelist.html`](../../templates/admin/dynamic_pagination_changelist.html) |
+| **Required fields on forms** | `RequiredFieldMarkAdminMixin`: asterisk labels, `vRequiredField` class, `required` / `aria-required` on widgets. Use when custom forms would otherwise hide required markers. | [`apps/core/admin.py`](../../apps/core/admin.py) (`RequiredFieldMarkAdminMixin`) |
+| **Global change form / list overrides** | Shared breadcrumbs, title blocks, and submit row patterns apply to all models unless a model template overrides specific blocks. | [`templates/admin/change_form.html`](../../templates/admin/change_form.html), [`templates/admin/change_list.html`](../../templates/admin/change_list.html), [`templates/admin/submit_line.html`](../../templates/admin/submit_line.html) |
+| **Draft → Submit flows** | Requisitions-style lifecycle: `ModelForm.clean` with `_is_submitting`, `save_model` branching, dedicated `change_form.html` with `dfms-btn-draft` / `dfms-btn-submit-*` and breadcrumb rules **documented in project rule** — follow exactly if Sprint 4 introduces the same pattern. | [`.cursor/rules/django-admin-draft-submit.mdc`](../../.cursor/rules/django-admin-draft-submit.mdc), reference CSS classes in [`static/admin/css/custom.css`](../../static/admin/css/custom.css) |
+
+### Security and login hardening (do not bypass)
+
+| Concern | Canonical implementation | File(s) |
+|--------|---------------------------|---------|
+| **OTP gate (when enabled)** | Login flow patched on `AdminSite` class. | [`apps/core/admin_otp.py`](../../apps/core/admin_otp.py), feature flag in [`apps/core/apps.py`](../../apps/core/apps.py) |
+| **Password change → re-login** | Patched `password_change` on admin site class. | [`apps/core/admin_password_change.py`](../../apps/core/admin_password_change.py) |
+
+### Sprint 4 implementation checklist (admin)
+
+When adding or changing admin for Sprint 4, confirm:
+
+1. **Mixin** — `TenantOnlyAdminMixin` (or correct platform/public combination) on every new `ModelAdmin`.
+2. **Nav** — New operational areas appear in [`apps/core/portal_navigation.py`](../../apps/core/portal_navigation.py) with correct `permission_any` codes (aligned with [`apps/core/constants_rbac.py`](../../apps/core/constants_rbac.py) / seed matrix).
+3. **Dashboard** — If a role needs a KPI shortcut, extend [`apps/core/dashboard_service.py`](../../apps/core/dashboard_service.py) (shape matches existing widgets).
+4. **Templates** — Prefer extending [`templates/admin/change_form.html`](../../templates/admin/change_form.html) / [`change_list.html`](../../templates/admin/change_list.html); use **`dfms-*` button classes** and Bootstrap Icons consistent with [`base_site.html`](../../templates/admin/base_site.html).
+5. **Master data ordering** — If a new model sits under `master_data`, update [`config/admin.py`](../../config/admin.py) `master_data_menu_order` when product expects a fixed index order.
+6. **Design tokens** — Prefer existing CSS variables and patterns in [`static/admin/css/custom.css`](../../static/admin/css/custom.css) over new ad hoc styles.
 
 ---
 
