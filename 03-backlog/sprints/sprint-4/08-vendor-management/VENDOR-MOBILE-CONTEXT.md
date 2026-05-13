@@ -153,7 +153,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  ON[VM-01 Onboarding<br/>self-register or invite + docs] --> JN[VM-02 Tenant join request]
+  ON[VM-01 Onboarding<br/>self-register on Vendor Mobile + docs<br/>no platform-admin invite] --> JN[VM-02 Tenant join request]
   JN --> AP{Tenant Admin approves<br/>+ sets vendor_type per tenant}
   AP -- CONTRACTUAL --> CV[VM-03 Portal views<br/>no Bid tab content for this tenant]
   AP -- NON_CONTRACTUAL --> NCV[VM-03 Portal views<br/>Bid tab populated for this tenant]

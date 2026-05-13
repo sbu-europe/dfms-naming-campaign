@@ -110,7 +110,7 @@ Tenant cards should display one of:
 ### Pre-access stack
 
 - **Login**
-- **Onboarding / Registration** (self or invite completion)
+- **Onboarding / Registration** (vendor self-registration on Vendor Mobile — sole entry path; no invite flow in Phase 1)
 - **Verification Pending** (blocked state, shows what is missing)
 - **Tenant Directory**
 - **Join Request Status** (pending / approved / rejected)

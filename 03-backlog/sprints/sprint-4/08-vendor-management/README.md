@@ -25,8 +25,8 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 ## In Scope (Sprint 4)
 
-- Vendor onboarding & registration: vendor self-registration via **Vendor Mobile** (initial scope; web deferred) **and** platform-admin invite flow; **tenant-assigned vendor type on join approval (VM-03)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02); **no** Platform Admin verification queue after sign-up; audit logging, profile/doc update support.
-- Vendor directory (platform): **Platform menu → Vendors** contains all vendors (self-registered + invited).
+- Vendor onboarding & registration: **vendor self-registration via Vendor Mobile is the sole onboarding path in Phase 1** (web deferred; **no** platform-admin "create vendor" / invite flow); **tenant-assigned vendor type on join approval (VM-02)**; testimonial/reference capture, mandatory document uploads (Trade License, BIN, TIN), company profile only (**no** vehicle/driver master data at registration — VM-02); **no** Platform Admin verification queue after sign-up; audit logging, profile/doc update support.
+- Vendor directory (platform, read-only oversight): **Platform menu → Vendors** lists all self-registered vendors. Platform Admin does **not** create or invite vendors.
 - Vendor ↔ tenant membership: vendor with **completed registration** can see all active tenants, request to join, and tenants can approve/reject vendor join.
 - Vendor bidding portal: vendor can view active bids + submit competitive bids **only for tenants the vendor has joined and been approved for**. Bid lifecycle includes: bid windows + late-bid prevention, **one-bid-per-vendor-per-TO**, **mandatory offered rate + offered vehicle count** (VM-06), **no bid edit after submit** (withdraw before deadline only if enabled), and manual close/cancel (VM-05/06). **TDO-side post-publish edits are restricted to the bidding window timeline only** (`bid_open_date` / `bid_close_date`); all other published parameters are immutable post-publish — any other change requires **cancel + republish** (VM-04).
 - Bid evaluation (TDO): side-by-side bid comparison; sortable views; **select one or more winners** when the TO model requires split award (VM-07); reject-all with reason; **winning log with user + timestamp**; basic statistics (min/avg/max) and optional recommendation logic.
@@ -50,7 +50,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor Mobile Onboarding (Self-registration/invite + compliance docs + company profile)](VM-01-vendor-mobile-onbiorading.md) | VM-01/02 | ~ | ~ | Pending |
+| 1 | [Vendor Mobile Onboarding (Self-registration + compliance docs + company profile)](VM-01-vendor-mobile-onbiorading.md) | VM-01 | ~ | ~ | Pending |
 
 ---
 
@@ -103,7 +103,7 @@ The flow **forks at tenant-join approval (VM-02)** based on the **per-tenant ven
 
 ```mermaid
 flowchart TD
-  D[Vendor discovers DFMS] --> O[VM-01 Onboarding<br/>self-register on Vendor Mobile OR platform-admin invite]
+  D[Vendor discovers DFMS] --> O[VM-01 Onboarding<br/>self-register on Vendor Mobile<br/>no platform-admin invite path]
   O --> DOC[Mandatory docs + profile complete<br/>Trade License + BIN + TIN + testimonial]
   DOC --> PA[Vendor is PLATFORM-ACTIVE<br/>no platform-admin approval step]
   PA --> TJ[VM-02 Request to join tenant(s)]
@@ -146,7 +146,7 @@ flowchart TD
 ## Dependency Map (Vendor Management)
 
 ```
-Auth/RBAC  ──→  Vendor onboarding forms (VM-01/VM-02) + platform admin invite only
+Auth/RBAC  ──→  Vendor onboarding forms (VM-01) — self-registration on Vendor Mobile only
 Master Data (vendor core) ──→  Vendor profile + portal identity
 Notifications service  ──→  tenant join + bidding + action-required alerts
 Tenant membership  ──→  vendor visibility for bids/trips per tenant
@@ -162,7 +162,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 
 | Sprint item | Applies to | Mobile app context file(s) | Backend touchpoints (high-level) |
 |------------|------------|-----------------------------|----------------------------------|
-| **VM-01** Vendor onboarding (self/invite + docs/profile) | Both | `01-onboarding-and-verification.md`, `09-profile-management.md` | Vendor registration, invite acceptance, auth bootstrap, document upload (Trade License/BIN/TIN), testimonial; no vehicle/driver master |
+| **VM-01** Vendor onboarding (self-registration only + docs/profile) | Both | `01-onboarding-and-verification.md`, `09-profile-management.md` | Vendor self-registration, auth bootstrap, document upload (Trade License/BIN/TIN), testimonial; no vehicle/driver master; **no platform-admin create/invite endpoints** |
 | **VM-02** Vendor ↔ tenant join + tenant sets per-tenant `vendor_type` | Both (decides fork) | `02-tenant-membership.md` | Active tenants list, join request create, tenant approve (with `vendor_type`) / reject; membership record `(vendor_id, tenant_id, status, vendor_type)` |
 | **VM-03** Vendor portal views — gated by per-tenant `vendor_type` | Both (gated) | `03-bid-opportunities-list.md` (NC only), `05-assigned-tos-list.md`, `07-active-trip-tracking.md`, `08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips with `(vendor_id, tenant_id)` scope + `vendor_type` filter on bid surfaces |
 | **VM-04** TDO publish TO to bidding portal | Non-Contractual only | *(admin/TDO surface; mobile consumes publish via bid opportunities list)* | Publish session + eligibility + notifications (TEVF-02) |
@@ -176,7 +176,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 ## Notes / Decisions Log
 
 - Vendors **cannot access tenant bidding or TO details** until **tenant join** is approved (**VM-02**).
-- Platform Admin controls vendor directory and invite; **does not** run a registration verification queue after sign-up.
+- **Vendor self-registration on Vendor Mobile is the sole onboarding path (VM-01).** Platform Admin **does not** create vendors and **does not** send onboarding invites in Phase 1. Platform Admin retains a **read-only vendor directory** view (oversight only) and **does not** run a registration verification queue after sign-up.
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
 - **Per-tenant vendor type (VM-02):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; this is the **fork** that drives portal feature gating and the TO-assignment path:
   - **Contractual**: direct TO assignment (no bidding); contractual rate applied server-side; **rate hidden** from vendor mobile + portal ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).

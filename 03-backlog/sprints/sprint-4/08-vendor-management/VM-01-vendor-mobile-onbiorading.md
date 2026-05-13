@@ -12,7 +12,7 @@ assignee: ~
 
 # Vendor Mobile Onboarding — Self-Registration, Tenant Isolation, Compliance Docs & Company Profile
 
-Vendor mobile onboarding covers self-registration/invite onboarding plus required compliance documents and company profile completion.
+Vendor mobile onboarding covers **self-registration** on the Vendor Mobile app plus required compliance documents and company profile completion.
 
 ## User Story
 
@@ -25,28 +25,24 @@ Vendor mobile onboarding covers self-registration/invite onboarding plus require
 Vendor onboarding is the entry gate to the vendor ecosystem.
 
 - **Primary channel (Sprint 4 scope)**: **Self-registration is delivered first on the Vendor Mobile app** (web self-registration is out of initial scope).
+- **No Platform Admin onboarding path:** Platform Admin **does not** create vendors and **does not** send onboarding invites. The sole onboarding path in Phase 1 is **vendor self-registration on the Vendor Mobile app**.
 - **No Platform Admin verification step** after sign-up. There is **no** platform-level reject/approve gate in current scope.
-- **Platform-active rule**: once **registration** and **mandatory compliance inputs** are complete (documents + profile), the vendor is treated as **platform-active** and can proceed to **tenant join** (VM-03).
-
-Vendors can be created in two ways:
-
-- **Self-registration** by the vendor (Vendor Mobile)
-- **Invitation-based onboarding** where a **Platform Admin** creates a vendor and sends an invite
+- **Platform-active rule**: once **registration** and **mandatory compliance inputs** are complete (documents + profile), the vendor is treated as **platform-active** and can proceed to **tenant join** (VM-02).
 
 Tenant access is separate from platform registration:
 
 - Vendors must **join tenant(s)** to see and act on tenant-specific bids/trips.
-- Vendor is **not tenant-active** until the tenant approves the join request (VM-03).
+- Vendor is **not tenant-active** until the tenant approves the join request (VM-02).
 
 Vendor classification:
 
-- **Vendor type (Contractual vs Non-Contractual)** is **not** collected at self-registration or invite completion.
-- Only a **Tenant Admin** may set vendor type **when approving a vendor’s join request** for that tenant (VM-03).
+- **Vendor type (Contractual vs Non-Contractual)** is **not** collected at self-registration.
+- Only a **Tenant Admin** may set vendor type **when approving a vendor's join request** for that tenant (VM-02).
 
 Onboarding scope boundaries:
 
 - Vendors **do not** configure **vehicle master data** or **driver master data** during onboarding.
-- Fleet and driver capture belong to **post-award / execution** flows (e.g. VM-08), not onboarding.
+- Fleet and driver capture belong to **post-award / execution** flows (VM-07), not onboarding.
 
 ## Acceptance Criteria
 
@@ -57,12 +53,7 @@ Onboarding scope boundaries:
   - Contact information
   - Testimonial / reference from Truck Association
 
-### AC-2: Platform Admin Can Create & Invite Vendor
-
-- [ ] Platform Admin can create a vendor profile and invite the vendor (email/SMS link or equivalent)
-- [ ] Invited vendor can complete missing registration fields and submit (without selecting vendor type)
-
-### AC-3: Mandatory Compliance Document Upload
+### AC-2: Mandatory Compliance Document Upload
 
 - [ ] Vendor must upload all mandatory documents before submission:
   - Trade License
@@ -70,48 +61,45 @@ Onboarding scope boundaries:
   - TIN
 - [ ] Submission is blocked until all mandatory documents are provided
 
-### AC-4: Reference/Testimonial Capture
+### AC-3: Reference/Testimonial Capture
 
 - [ ] Vendor can provide a testimonial/reference from Truck Association as part of the registration profile
 
-### AC-5: Vendor Is Not Tenant-Active Until Join Approved (type set by tenant — VM-03)
+### AC-4: Vendor Is Not Tenant-Active Until Join Approved (type set by tenant — VM-02)
 
 - [ ] After **successful platform registration** (including mandatory documents), vendor can see a list of **active tenants**
 - [ ] Vendor can submit a **join request** to one or more tenants
 - [ ] Vendor cannot see bids/trips for a tenant until the tenant approves the join request
-- [ ] **Tenant-scoped** vendor type (Contractual vs Non-Contractual) is assigned **only** when the tenant approves the join — not by the vendor at registration (VM-03)
+- [ ] **Tenant-scoped** vendor type (Contractual vs Non-Contractual) is assigned **only** when the tenant approves the join — not by the vendor at registration (VM-02)
 
-### AC-6: Resubmission-Friendly Data Model
+### AC-5: Resubmission-Friendly Data Model
 
 - [ ] Vendor can update registration documents / profile fields after initial submission without losing the prior audit trail (e.g. corrections or renewed documents)
 
-### AC-7: Audit Trail for Data Changes
+### AC-6: Audit Trail for Data Changes
 
 - [ ] All changes to registration data (documents, company profile fields, testimonial) are logged for audit
 
-### AC-8: Audit Logging (registration/invite)
+### AC-7: Audit Logging (registration)
 
 - [ ] All vendor registration attempts are logged for audit (who/when/what status)
-- [ ] Platform-admin invite actions are logged for audit
 
 ## Functional Requirements (from PRD)
 
 - [ ] **[Critical]** System SHALL provide a vendor self-registration flow in the **Vendor Mobile** app (web deferred).
 - [ ] **[Critical]** System SHALL require document uploads (trade license, BIN, TIN) before submission.
+- [ ] **[Critical]** System SHALL NOT provide a platform-admin "create vendor" or "invite vendor" path in Phase 1. Vendor onboarding is **self-service via the Vendor Mobile app only**.
 - [ ] **[High]** Vendor registration SHALL capture company profile and compliance data **only** (no vehicle or driver master registration in this story).
 - [ ] **[High]** System SHALL allow vendors to update registration documents/profile with full audit trail (no platform-admin reject loop in current scope).
 - [ ] **[High]** All vendor registration attempts SHALL be logged for audit.
 
 ## API Endpoints (suggested)
 
-Registration + invitation:
+Registration:
 
 ```
 POST /api/v1/vendors/registrations
 GET  /api/v1/vendors/registrations/{id}
-
-POST /api/v1/platform/vendors
-POST /api/v1/platform/vendors/{vendor_id}/invite
 ```
 
 Documents + profile update:
@@ -121,36 +109,38 @@ POST   /api/v1/vendors/registrations/{id}/documents
 PATCH  /api/v1/vendors/registrations/{id}
 ```
 
+> **No** `/platform/vendors` create or `/invite` endpoints in Phase 1.
+
 ## Data (minimum)
 
 - Vendor platform status after successful registration + onboarding completeness: **`ACTIVE`** (no `PENDING_VERIFICATION` / no platform-admin approval step)
-- Per-tenant membership (VM-03): `vendor_type` ∈ {`CONTRACTUAL`, `NON_CONTRACTUAL`} — set only by Tenant Admin on join approval
-- Registration/profile schema must **exclude** vendor-managed vehicle/driver master payloads (aligned with VM-08 for execution-time capture)
+- Per-tenant membership (VM-02): `vendor_type` ∈ {`CONTRACTUAL`, `NON_CONTRACTUAL`} — set only by Tenant Admin on join approval
+- Registration/profile schema must **exclude** vendor-managed vehicle/driver master payloads (aligned with VM-07 for execution-time capture)
 
 ## Sub-tasks (implementation checklist)
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | ONB-1 | Vendor registration API + mobile client validation | ~ | Pending |
-| ONB-2 | Registration + invite-completion APIs exclude vendor type (tenant assigns on join — VM-03) | ~ | Pending |
-| ONB-3 | Platform admin vendor-create + invite flow | ~ | Pending |
-| ONB-4 | Registration/invite audit log events | ~ | Pending |
-| ONB-5 | Document upload storage + validation (required docs) | ~ | Pending |
-| ONB-6 | Registration profile schema (company, contacts, testimonial, documents) — **exclude** vehicle/driver master payloads | ~ | Pending |
-| ONB-7 | Audit logging for document/profile changes + resubmissions | ~ | Pending |
+| ONB-2 | Registration API excludes vendor type (tenant assigns on join — VM-02) | ~ | Pending |
+| ONB-3 | Registration audit log events | ~ | Pending |
+| ONB-4 | Document upload storage + validation (required docs) | ~ | Pending |
+| ONB-5 | Registration profile schema (company, contacts, testimonial, documents) — **exclude** vehicle/driver master payloads | ~ | Pending |
+| ONB-6 | Audit logging for document/profile changes + resubmissions | ~ | Pending |
 
 ## Dependencies
 
 - **Requires**: Auth model capable of representing a vendor identity (or a pre-user registration record).
 - **Requires**: file storage mechanism; tenant scoping; audit log framework.
-- **Enables**: VM-03 (tenant join), VM-04+ (portal/bidding visibility per joined tenant), VM-08 (execution-time vehicle/driver submission).
+- **Enables**: VM-02 (tenant join), VM-03+ (portal/bidding visibility per joined tenant), VM-07 (execution-time vehicle/driver submission).
 
 ## Definition of Done
 
 - [ ] Vendor can submit registration from **Vendor Mobile** and receives a confirmation response
 - [ ] Registration submission blocked without required docs
 - [ ] Record is tenant-isolated; vendor platform state becomes **`ACTIVE`** when registration + mandatory docs path is satisfied (no platform-admin approval step)
-- [ ] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-08 for execution-time capture)
-- [ ] Vendor cannot access **tenant** bids/TO details until tenant join is approved (VM-03)
-- [ ] All mutations produce audit log entries (registration, invite, documents/profile updates/resubmissions)
+- [ ] **No** platform-admin onboarding/invite endpoints are exposed; self-registration via Vendor Mobile is the sole onboarding path
+- [ ] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-07 for execution-time capture)
+- [ ] Vendor cannot access **tenant** bids/TO details until tenant join is approved (VM-02)
+- [ ] All mutations produce audit log entries (registration, documents/profile updates/resubmissions)
 
