@@ -74,9 +74,11 @@ interface VendorBidSubmission {
 - **Tenant membership required:** Submit allowed only for tenants where the vendor is `APPROVED` and `NON_CONTRACTUAL` (per-tenant gate).
 - **Blind bidding:** Vendors cannot see competitors' bid amounts or counts.
 - **One bid per TO:** Vendor may have at most one bid in a non-terminal state per TO.
-- **Immutable after submit:** No PATCH/edit endpoint. Default behavior; corrections via withdraw-and-resubmit only if policy enables it.
+- **Immutable after submit (vendor side):** No PATCH/edit endpoint. Default behavior; corrections via withdraw-and-resubmit only if policy enables it.
 - **Withdraw policy (optional):** If enabled by tenant policy, vendor can withdraw before `bid_close_date`. Withdrawn bids are retained for audit (`WITHDRAWN`).
-- **Late-bid prevention:** Server hard-blocks submissions after `bid_close_date` (including bids submitted in-flight at deadline).
+- **Late-bid prevention:** Server hard-blocks submissions after the **current effective** `bid_close_date` at request time (including bids submitted in-flight at deadline).
+- **TDO may update `bid_open_date` / `bid_close_date` mid-session** (VM-04 AC-6). The vendor mobile uses the **server's authoritative** `bid_close_date` at submit time; a vendor's local cached value is **not authoritative**. If a vendor attempts to submit against a stale (later) cached deadline, the server returns `409` / `400 — bid window closed`. The vendor sees the corrected window on the next list refresh.
+- **No other published parameter changes mid-session.** Bid form fields (vehicle type / capacity expectations / `required_vehicle_count`) reflect the parameters fixed at publish time; if TDO needs to change any of those, they must cancel + republish (a new bidding session appears).
 - **No vehicle/driver identity at bid time:** Vendor only commits to rate + count. Specific vehicle/driver/helper are captured **post-award** in VM-07 (see `06-post-award-driver-vehicle-submission.md`).
 
 ### Backlog refs

@@ -47,8 +47,9 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 - [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
 ### AC-3: Bid Window Enforcement
-- [ ] System supports configurable bid submission windows
-- [ ] System prevents bid submission after window closure (hard block)
+- [ ] System supports configurable bid submission windows (`bid_open_date`, `bid_close_date`)
+- [ ] System prevents bid submission after window closure (hard block); the **effective** `bid_close_date` at the moment the submit reaches the server is authoritative — TDO may have shifted it (see VM-04 AC-6)
+- [ ] If TDO updates the bidding window timeline mid-session (per VM-04 AC-6), the **next** vendor-side bid-list refresh reflects the new `bid_open_date` / `bid_close_date`; **already-submitted bids remain valid** regardless of timeline shifts
 
 ### AC-4: Bid Timestamp + Rate Validity Recording
 - [ ] System records bid timestamp

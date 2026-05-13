@@ -52,4 +52,5 @@ Own-fleet **TEVF-04** validation runs in parallel conceptually with vendor paths
 
 - **Contractual vs non-contractual** is determined per **tenant membership** (VM-03); see [08-vendor-management/README.md](../08-vendor-management/README.md) notes on vendor type gating.
 - **Bidding:** publish parameters, bid window, immutable bid after submit, **price + vehicle count**, multi-winner selection, and audit timestamps are specified in TEVF-02 and reflected in VM-05 / VM-06 / VM-07.
+- **Post-publish bid session mutability:** TDO can only update the **bidding window timeline** (`bid_open_date` and/or `bid_close_date`); all other published parameters are immutable. Any other change requires **cancel + republish** (see VM-04 AC-6 / TEVF-02).
 - **Post-award / assignment execution** (vehicle, driver, POD, GRN, invoice gating) is owned by **VM-08**, elaborated in **TEVF-03**.

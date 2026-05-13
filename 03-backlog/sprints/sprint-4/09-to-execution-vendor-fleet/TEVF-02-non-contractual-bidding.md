@@ -36,6 +36,7 @@ Non-contractual vendors (**VM-02** membership type) participate via a **publishe
 - [ ] **TDO can view** submitted **price** and **vehicle count** per vendor bid.
 - [ ] **System records bid timestamp** on each submission (immutable record).
 - [ ] **Bidding window is configurable** (within policy min/max — see VM-04).
+- [ ] **TDO can only update the bidding window timeline** (open and/or close **date + time**) during an active bidding session. **All other published parameters are immutable post-publish** — `required_vehicle_count`, `required_vehicle_type`, `required_capacity`, `reference_rate`, eligibility filters. Any other change requires **cancel-and-republish** (see VM-04).
 - [ ] **Bids cannot be edited after submission** (corrections = withdraw-if-policy + resubmit before close, or new bid version disallowed — **default Phase 1: no PATCH after submit**; see VM-05).
 - [ ] **Vendor selection is final once approved** (award approval locks selection; audit log).
 
@@ -45,6 +46,7 @@ Non-contractual vendors (**VM-02** membership type) participate via a **publishe
 |----------|-------------|
 | **Critical** | System **SHALL** support bidding for non-contractual vendors. |
 | **Critical** | Vendor **SHALL** submit **price** and **vehicle count** (capacity offered) for the bid. |
+| **Critical** | System **SHALL** restrict TDO post-publish edits to the **bidding window timeline (open and/or close date+time)** only. All other publish parameters **SHALL** be immutable post-publish; any other change requires **cancel + republish**. |
 | **High** | System **SHALL** allow TDO to select **winning vendor(s)** per operational preference (including multi-vendor outcomes where supported). |
 
 ## Traceability to VM stories

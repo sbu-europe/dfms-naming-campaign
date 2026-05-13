@@ -144,6 +144,18 @@ flowchart TD
             └─ (window closes, no submit) ──> no-bid (terminal, no record on vendor side)
 ```
 
+### Bidding session lifecycle (TDO-side, surfaced to vendor mobile read-only)
+
+```
+SCHEDULED ──(reaches bid_open_date)──> OPEN ──(reaches bid_close_date)──> CLOSED ──(VM-06)──> AWARDED | REJECTED_ALL
+   │                                     │
+   │                                     ├──(TDO update bid_close_date — extend/shrink — VM-04 AC-6)──> OPEN (new close)
+   │                                     └──(TDO cancel + reason)──> CANCELLED (any other change goes here → republish as new session)
+   └──(TDO update bid_open_date / bid_close_date — VM-04 AC-6)──> SCHEDULED (new times)
+```
+
+> **Only the bid window timeline** (`bid_open_date` / `bid_close_date`) is mutable post-publish. Any other parameter change (vehicle type, count, capacity, reference rate, eligibility) requires **cancel → republish**, which appears to the vendor as a **new bid card** in the Bid Opportunities list.
+
 ### TO lifecycle (both vendor types — VM-08 + VM-07)
 
 ```
@@ -163,6 +175,8 @@ Invoice upload is **only** valid once `to_status >= COMPLETED`.
 - TO list/detail endpoints MUST NOT return rate fields when `assignment_type=CONTRACTUAL`, regardless of caller's other memberships.
 - Invoice upload endpoint MUST reject before `to_status=COMPLETED` (both types).
 - VM-07 confirmation endpoint MUST be reachable for both `assignment_type` values; the form contract is identical.
+- **Bidding-session edit endpoint (VM-04 AC-6) MUST accept changes to `bid_open_date` / `bid_close_date` only**; any payload attempting to change other published parameters MUST be rejected (`400`). Use cancel + republish for non-timeline changes.
+- Bid-submit endpoint MUST treat the **server-side** `bid_close_date` at request time as authoritative; do not honor a client-supplied or client-cached deadline.
 
 ## 9. Open questions / future hooks
 

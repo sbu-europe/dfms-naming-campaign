@@ -94,6 +94,16 @@ interface BidOpportunity {
 
 Phase 1 vendor mobile has **no notifications**. Vendors see new bids by opening the Bids tab (pull-to-refresh or tab focus triggers a list reload). Bid card metadata such as `time_remaining` and `vendor_bid_status` updates on each refresh.
 
+### Bid window updates from TDO (read-only on mobile)
+
+TDO is allowed to update the **bidding window timeline only** for an active session — `bid_open_date` and/or `bid_close_date` (see VM-04 AC-6). When that happens:
+
+- `bid_open_date` and `bid_close_date` on the bid card pick up the new values on the **next list refresh**.
+- `time_remaining` recomputes from the new `bid_close_date`.
+- If the deadline was **shrunk**, the vendor sees the new (earlier) `bid_close_date`; **already-submitted bids stay valid**.
+- If the deadline was **extended**, the vendor sees the new (later) `bid_close_date` and may still submit if they have not already.
+- **No other published parameter** (`required_vehicle_type`, `required_capacity_tons`, `required_vehicle_count`, `reference_rate`) changes mid-session — those would only differ on a fresh bid session (after TDO cancel + republish).
+
 ### Out of scope on this screen
 
 - Contractual TOs (no bid round) — those appear directly in **Assigned TOs** (see `05-assigned-tos-list.md`).

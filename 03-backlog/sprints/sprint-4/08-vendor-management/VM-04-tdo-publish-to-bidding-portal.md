@@ -31,7 +31,7 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 
 ### AC-2: Bidding Parameters Required at Publish Time
 - [ ] TDO must provide:
-  - Bidding deadline (date + time)
+  - **Bid window timeline**: `bid_close_date` (date + time) mandatory; `bid_open_date` (date + time) defaults to `now()` if omitted
   - **Required number of vehicles** (integer ≥ 1)
   - Required vehicle type
   - Required capacity / tonnage requirement
@@ -39,11 +39,13 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
   - **Reference / guide rate** for bidding (optional; not a binding ceiling/floor unless policy states otherwise)
   - Estimated cost (reference only; may align with guide rate)
   - Minimum vendor rating threshold (if rating system is available)
+- [ ] Post-publish, **only the bid window timeline** (`bid_open_date`, `bid_close_date`) is editable; see AC-6. All other parameters listed above are **immutable post-publish** and require cancel + republish to change.
 
 ### AC-3: Deadline Rules + Auto-close
 - [ ] Deadline must be at least 2 hours from publish time (server-side enforcement)
 - [ ] Deadline must not exceed 7 days from publish time (server-side enforcement)
 - [ ] System auto-closes bidding at the deadline and blocks late submissions
+- [ ] The same min/max policy bounds re-apply to any **timeline update** made by TDO (see AC-6); updated `bid_open_date` / `bid_close_date` must still satisfy the policy
 
 ### AC-4: Eligibility & Visibility Scoping
 - [ ] Only vendors who **completed platform onboarding** and are **approved to join** the TO’s tenant (VM-02) can be eligible
@@ -59,11 +61,18 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 - [ ] TO transitions to `OPEN_FOR_BIDDING` (or equivalent)
 - [ ] Publishing action is logged with: TDO user, timestamp, TO id, parameters
 
-### AC-6: Manage Active Bidding
-- [ ] TDO can view active bidding TOs and bid counts
-- [ ] TDO can extend the bidding deadline before closing (bounded by business rules; recommended: limited number of extensions)
-- [ ] TDO can cancel bidding with a required reason
-- [ ] All management actions are audited (who/when/what/why)
+### AC-6: Manage Active Bidding — Window Timeline Update Only
+- [ ] TDO can view active bidding TOs and bid counts.
+- [ ] **TDO can update the bidding window timeline only** — i.e. **open date+time and/or close date+time** of the active bidding session:
+  - **Extend** the close date+time (push it later) before the session closes.
+  - **Shrink** the close date+time (pull it earlier) before the session closes — must remain ≥ now + minimum policy floor (default 2 hours) so already-eligible vendors have a fair submission window.
+  - **Shift** the open date+time only while the session is still `SCHEDULED` (not yet open); once open, `bid_open_date` is immutable.
+  - Updated `bid_open_date` and `bid_close_date` MUST satisfy the publish-time policy bounds (AC-3).
+  - Recommended: limit number of consecutive close-date extensions (configurable; default: 2).
+- [ ] **All other published parameters are immutable post-publish** (`required_vehicle_count`, `required_vehicle_type`, `required_capacity`, `reference_rate`, `min_vendor_rating`, eligibility filters). Any other change requires **cancel + republish**.
+- [ ] TDO can cancel bidding with a required reason.
+- [ ] **Cancel + republish** is the supported path for any non-timeline change (cancel current session with reason → publish a new session with corrected parameters); existing bids on the cancelled session terminate as part of cancellation flow.
+- [ ] All management actions are audited (who/when/what/why), including each window-timeline update with **before/after** `bid_open_date` and `bid_close_date` values.
 
 ### AC-7: Notifications
 - [ ] On publish, system notifies eligible vendors (in-app + email/SMS where applicable)
@@ -75,7 +84,8 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 ```
 POST /api/v1/tdo/transport-orders/{to_id}/bidding/publish
 Body: {
-  bidding_deadline,
+  bid_open_date,                  // ISO8601 date+time; default = now() if omitted
+  bid_close_date,                 // ISO8601 date+time; mandatory
   required_vehicle_count,
   required_vehicle_type,
   required_capacity,
@@ -84,12 +94,26 @@ Body: {
   min_vendor_rating?
 }
 
-POST /api/v1/tdo/transport-orders/{to_id}/bidding/extend-deadline
-Body: { bidding_deadline }
+// Update bidding window timeline ONLY (open and/or close date+time).
+// All other published parameters are immutable — for those, use cancel + republish.
+PATCH /api/v1/tdo/transport-orders/{to_id}/bidding/window
+Body: {
+  bid_open_date?,                 // editable only while session is SCHEDULED (not yet open)
+  bid_close_date?                 // editable while session is OPEN; must remain >= now() + policy_min_window
+}
 
 POST /api/v1/tdo/transport-orders/{to_id}/bidding/cancel
 Body: { reason }
 ```
+
+**Validation contract for `PATCH .../bidding/window`:**
+
+- Reject (`409`) if session is not in a mutable state (e.g. already `CLOSED`, `AWARDED`, `CANCELLED`).
+- Reject (`400`) if `bid_open_date` is sent for an already-open session.
+- Reject (`400`) if `bid_close_date <= now()` or `bid_close_date - now() < policy_min_window`.
+- Reject (`400`) if updated `bid_close_date - bid_open_date` exceeds the policy max (default 7 days).
+- Reject (`409`) if `bid_close_date` is moved earlier and would invalidate already-submitted bids? **No** — already-submitted bids remain valid; vendors who have not yet submitted are subject to the new (earlier) deadline. Audit log MUST flag this.
+- Emit `BIDDING_WINDOW_UPDATED` event with before/after timestamps; vendor mobile reflects new `bid_close_date` / `bid_open_date` on next list refresh.
 
 ## Dependencies
 
@@ -99,9 +123,10 @@ Body: { reason }
 
 ## Definition of Done
 
-- [ ] TDO can publish a TO into an open bidding state with validated parameters
-- [ ] Eligibility filters enforced; only eligible vendors can see/bid
-- [ ] Auto-close at deadline; late bid submissions blocked
-- [ ] Extend/cancel flows audited and working
-- [ ] Notifications triggered for publish + reminders
+- [ ] TDO can publish a TO into an open bidding state with validated parameters.
+- [ ] Eligibility filters enforced; only eligible vendors can see/bid.
+- [ ] Auto-close at deadline; late bid submissions blocked.
+- [ ] **TDO can update the bidding window timeline (open and/or close date+time) only**; the API enforces immutability for all other published parameters; audit log captures before/after timestamps for each window update.
+- [ ] **Cancel + republish** is the only path for non-timeline parameter changes.
+- [ ] Cancel flow audited and working.
 

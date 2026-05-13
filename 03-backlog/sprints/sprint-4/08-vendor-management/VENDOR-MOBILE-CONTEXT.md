@@ -96,7 +96,8 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  P[TDO publishes TO to bidding portal VM-04<br/>deadline + required_vehicle_count<br/>+ vehicle type + optional reference rate] --> BL[Eligible vendor opens Bids tab<br/>TO appears in Bid Opportunities list on refresh]
+  P[TDO publishes TO to bidding portal VM-04<br/>bid_open_date + bid_close_date<br/>+ required_vehicle_count + vehicle type<br/>+ optional reference rate] --> BL[Eligible vendor opens Bids tab<br/>TO appears in Bid Opportunities list on refresh]
+  BL -. TDO may update window<br/>bid_open_date / bid_close_date only<br/>VM-04 AC-6 .-> BL
   BL --> BD[Vendor opens Bid Details / TO requirements]
   BD --> BS[Vendor submits bid VM-05<br/>proposed_cost + offered_vehicle_count + remarks?]
   BS --> WAIT{Bid status on next refresh}
@@ -111,6 +112,8 @@ flowchart TD
 ```
 
 > Phase 1 vendor mobile has **no notifications**. Vendors discover bid publish, bid outcome, and TO state transitions by refreshing the Bids and Assigned TOs tabs (pull-to-refresh / tab focus / polling).
+>
+> **TDO-side bid session mutability:** post-publish, the **only** TDO edit is to the bidding window timeline (`bid_open_date` and/or `bid_close_date`) — see VM-04 AC-6. All other parameters are immutable; any other change requires **cancel + republish**. Vendor mobile picks up updated `bid_close_date` on the next list refresh; already-submitted bids stay valid.
 
 ### Mobile screens used (Non-Contractual)
 
@@ -138,6 +141,7 @@ flowchart TD
 | Required vendor inputs to start trip | Vehicle, driver, helpers (VM-07) | Bid first (rate + offered count), then vehicle/driver/helpers on win (VM-07) |
 | Capacity split / multi-vendor | Allowed at assignment | Allowed via multi-winner award (VM-06) |
 | Cancel / reject mechanism | TDO can reassign / cancel (audit) | TDO reject-all with reason; vendor withdraw (policy) |
+| TDO post-publish edits | n/a | **Bidding window timeline only** (`bid_open_date` / `bid_close_date`); all other params immutable → cancel + republish |
 | Vendor app discovery | Refresh Assigned TOs tab — no notifications in Phase 1 | Refresh Bids tab + Assigned TOs tab — no notifications in Phase 1 |
 | Trip + POD / GRN / Invoice | Same VM-07 / VM-08 path | Same VM-07 / VM-08 path |
 
