@@ -187,6 +187,6 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 - **Mobile screen visibility rules** (source of truth: [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)):
   - Bid Opportunities + Bid Submission screens are **only** populated for tenants where the vendor is `NON_CONTRACTUAL`.
   - Rate fields (TO Details, Assigned TOs, Completed Trip History) are **hidden** when `assignment_type=CONTRACTUAL`.
-- **Own-fleet availability (TEVF-04):** not vendor-bidding scope — see [TEVF-04](../09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md). Do not conflate vendor `offered_vehicle_count` with own-fleet MDM status.
+- **Own-fleet availability (§6.8.1.7):** not vendor-bidding scope — see [Sprint 4 README → Own-fleet availability (§6.8.1.7)](../README.md#own-fleet-availability--vehicle-eligibility-6817). Do not conflate vendor `offered_vehicle_count` with own-fleet MDM status.
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
 

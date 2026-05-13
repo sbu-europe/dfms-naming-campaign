@@ -12,7 +12,7 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 # Sprint 4 — Own-Fleet Yard & Field Execution (TO-Centric)
 
 > Full sprint backlog with stories, sub-tasks, and PRD traceability.  
-> **Primary delivery thread** for Sprint 4 remains **own-fleet** FG / Port yard execution (driver, gate, scale, command center, TLS, POD). **Vendor fleet TO execution** (contractual assignment, non-contractual bidding, vendor execution handoff) and **own-fleet availability** ([TEVF-04](09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md); see also §6.8.1.7 in this README) are documented as **planning + traceability context** in [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md), aligned to [`08-vendor-management/`](08-vendor-management/README.md).  
+> **Primary delivery thread** for Sprint 4 remains **own-fleet** FG / Port yard execution (driver, gate, scale, command center, TLS, POD). **Vendor fleet TO execution** (contractual assignment, non-contractual bidding, vendor execution handoff) is documented as **planning + traceability context** in [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md), aligned to [`08-vendor-management/`](08-vendor-management/README.md). **Own-fleet availability validation** (PRD §6.8.1.7) is specified inline in this README — see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817).  
 > Source story specs: [`03-backlog/stories/`](../../stories/)
 
 ## Sprint boundary (contract with Sprint 3)
@@ -35,13 +35,13 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 | Theme                                                     | PRD refs                                                                                                                                                                                                                                                                                                                  |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Driver Supervisor / crew                                  | §6.6.1.2; §6.6.3.3–§6.6.3.4 *(supervisor-led operational data — not master-data duplication of §6.6.3.1 / §6.6.3.6 or TDO assignment §6.6.3.2 / §6.6.3.7)*                                                                                                                                                                |
-| TO lifecycle & execution                                  | §6.8.1.7; own-fleet availability validation — [TEVF-04](09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md); §6.8.5 (**execution + yard + closure substates** — Sprint 4 scope); §6.8.7; §7.1.9 *(tracking against TO; no separate trip entity in implementation)*                                                                                                                                                           |
+| TO lifecycle & execution                                  | §6.8.1.7 own-fleet availability validation (see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817)); §6.8.5 (**execution + yard + closure substates** — Sprint 4 scope); §6.8.7; §7.1.9 *(tracking against TO; no separate trip entity in implementation)*                                                                                                                                                           |
 | Driver mobile                                             | §6.16.1.1 + **Mobile Interface Requirements** → Driver Mobile (**map, navigation, background GPS deferred** out of Sprint 4; offline-safe read + POD capture in scope per DM-01)                                                                                                                                          |
 | Gate                                                      | §6.10.1; §6.10.3; §6.10.4; **§6.10.2.1–§6.10.2.2** (on-demand TO at gate)                                                                                                                                                                                                                                                 |
 | Scaling                                                   | §6.11.1–§6.11.3                                                                                                                                                                                                                                                                                                           |
 | Command Center + load / unload ops                        | §6.5.1 (POI as site for CC/LU context); §6.12.1; §6.12.2; §6.12.4; §6.13.1; §6.14.1; §6.14.2                                                                                                                                                                                                                              |
 | Raw-material sampling & QC decision (Sprint 4 simplified) | §6.15.1.2 (sample creation); §6.15.4.1 (QC Pass/Fail/Auto-Pass tracking) — implemented as **yes/no QC outcome only** in Sprint 4 (no physical/lab branch workflow)                                                                                                                                                        |
-| Vendor fleet TO execution (context)                       | **TO Execution – Vendor Fleet** (TDO – Vendor Fleet): contractual assignment (TEVF-01); non-contractual bidding (TEVF-02); vendor execution & confirmation (TEVF-03); own-fleet availability (TEVF-04) — see [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md) + VM-01…VM-09 |
+| Vendor fleet TO execution (context)                       | **TO Execution – Vendor Fleet** (TDO – Vendor Fleet): contractual assignment (TEVF-01); non-contractual bidding (TEVF-02); vendor execution & confirmation (TEVF-03) — see [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md) + VM-01…VM-09 |
 | Explicitly **not** core yard thread in Sprint 4           | §6.8.2 live map dashboard; §6.8.8 costing; §6.6.1.3 (fleet health dashboard — P2); §6.6.2.x fuel (P2); §6.6.3.5 driver performance (P3); §6.8.3 calendar dispatch (P2); §6.8.4 TR conjoinment (P2); §6.8.6 incident / re-delivery (P2); §6.12.3 / §6.13.2 **push** notifications (P3 — use **in-app** visibility instead) |
 
 
@@ -160,7 +160,7 @@ Wave E — Closure
 
 ## Epic: Vendor Management (Planning Context)
 
-> Adds Sprint 4 backlog context for vendor onboarding, tenant join, portal, bidding, and post-award submission. This does **not** change the own-fleet yard execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing. **Vendor-fleet TO execution and own-fleet availability** are summarized and traced in [`09-to-execution-vendor-fleet/README.md`](09-to-execution-vendor-fleet/README.md) (TEVF-01…04).
+> Adds Sprint 4 backlog context for vendor onboarding, tenant join, portal, bidding, and post-award submission. This does **not** change the own-fleet yard execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing. **Vendor-fleet TO execution** is summarized and traced in [`09-to-execution-vendor-fleet/README.md`](09-to-execution-vendor-fleet/README.md) (TEVF-01…03). **Own-fleet availability validation (§6.8.1.7)** is specified inline above — see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817).
 
 **Vendor mobile app context (from Sprint 4)**:
 
@@ -181,18 +181,66 @@ Wave E — Closure
 
 ---
 
-## Epic: TO Execution — Vendor Fleet & Own-Fleet Availability
+## Epic: TO Execution — Vendor Fleet (context)
 
-> **Feature context** (not a separate implementation epic from VM-01…VM-09): maps **TDO – Vendor Fleet** (contractual + non-contractual paths), **vendor execution**, and **own-fleet availability** to backlog files. Use this when tracing contractual vs non-contractual paths and fleet-status eligibility.
+> **Feature context** (not a separate implementation epic from VM-01…VM-09): maps **TDO – Vendor Fleet** (contractual + non-contractual paths) and **vendor execution** handoff to backlog files. Use this when tracing contractual vs non-contractual paths.
 
 | # | Context doc | Theme | Notes |
 |---|-------------|-------|--------|
 | 1 | [TEVF-01 — Contractual vendor assignment](09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md) | Contractual assignment | Direct assignment; hide rates from vendor; VM-03 type gate |
 | 2 | [TEVF-02 — Non-contractual bidding](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) | Non-contractual bidding | VM-05 → VM-06 → VM-07; rate + vehicle count; multi-winner |
 | 3 | [TEVF-03 — Vendor execution & confirmation](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) | Vendor execution | VM-08 / VM-09; notifications Phase 3 depth |
-| 4 | [TEVF-04 — Fleet availability (own fleet)](09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md) | Own-fleet availability | Aligns own-fleet availability hook in this README (§6.8.1.7); DS / DM / TLS |
 
 **Index:** [`09-to-execution-vendor-fleet/README.md`](09-to-execution-vendor-fleet/README.md)
+
+> **Own-fleet availability validation** is specified inline in the next section — it is **not** vendor-fleet scope.
+
+---
+
+## Own-fleet availability — vehicle eligibility (§6.8.1.7)
+
+> **Scope:** real-time vehicle status check for **own (tenant-managed) fleet** at TO assignment / first execution action. **Not** applicable to vendor fleet (vendors capture vehicle at confirmation — VM-07 / TEVF-03; do not conflate vendor `offered_vehicle_count` in bidding with own-fleet MDM status).
+
+### User story
+
+**As a** Transport Planner  
+**I want** the system to **validate fleet availability**  
+**So that** only **eligible** vehicles are assigned to TOs.
+
+### Vehicle status eligibility (system checks)
+
+The system SHALL evaluate vehicle operational status including at least:
+
+| Status | Assignable for new TO? (target) |
+|--------|----------------------------------|
+| **Available** | Yes |
+| **Active – On the Way (Laden / Empty)** | No |
+| **Active – Waiting to Load** | No |
+| **Active – Waiting to Unload** | No |
+| **Idle** | No (unless product defines Idle as assignable — **default: no**) |
+| **Scheduled / Parked** | No |
+| **Under Maintenance** | No |
+
+- **Only vehicles in an assignable state (default: Available)** appear in **assignment** pickers for own fleet.
+- Status transitions feed from **supervisor / yard / driver / TLS** work packages — see aligned stories below.
+
+### Functional requirements
+
+| Priority | Requirement |
+|----------|-------------|
+| **Critical** | System **SHALL** enforce availability rules so **ineligible** vehicles are **not** assignable to TOs (own fleet). |
+
+### Aligned stories
+
+- [DS-01 — Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md)
+- [DS-02 — Driver state, attendance & leave (supervisor)](01-driver-supervisor/DS-02-driver-state-attendance-leave.md)
+- [DM-01 — Driver mobile interface, TO list, milestones, POD](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md)
+- [TLS-01 — TO lifecycle (execution + yard + closure substates)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md)
+
+### Notes
+
+- Exact **status enum** mapping to database fields is an implementation task; this section captures **business-visible states** from the product definition for own-fleet availability.
+- The hook fires on **assignment** or, by default, on **first driver execution action** (e.g. marking execution started) — see [Sprint boundary](#sprint-boundary-contract-with-sprint-3) — unless an earlier hook is agreed in technical design.
 
 ---
 
@@ -260,7 +308,7 @@ Tenant Join (VM-03)                      ──→  Contractual (TEVF-01): direc
                                         ──→  Non-contractual (TEVF-02): Vendor Portal + publish + bids (VM-04/05/06)
 Bid Award / multi-winner (VM-07)         ──→  Vehicle/Driver Submission (VM-08)
 Transport Order status changes            ──→  Vendor Portal TO Updates (VM-09)
-Own-fleet assignment / execution        ──→  TEVF-04 + §6.8.1.7 availability → DS / DM / TLS
+Own-fleet assignment / execution        ──→  §6.8.1.7 availability (see "Own-fleet availability" section) → DS / DM / TLS
 ```
 
 **Prerequisites from earlier sprints**: MDM POI / vehicle / driver / helper / route (Sprint 2); TR → TO → assignment (Sprint 3). **LUP-01** extends each POI with operational load/unload **points** used by Sprint 4 yard apps.
@@ -346,10 +394,12 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
   - [VM-07 — Bid/TO requirements + vehicle–driver confirmation](08-vendor-management/VM-07-vehicle-driver-submission.md)
   - [VM-08 — Realtime TO updates](08-vendor-management/VM-08-realtime-to-updates.md)
 
-- **TO execution — vendor fleet & own-fleet availability (TEVF-01…04)**
+- **TO execution — vendor fleet (TEVF-01…03)**
   - [09 — Folder index](09-to-execution-vendor-fleet/README.md)
   - [TEVF-01 — Contractual vendor assignment](09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)
   - [TEVF-02 — Non-contractual bidding](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
   - [TEVF-03 — Vendor execution & confirmation](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md)
-  - [TEVF-04 — Fleet availability (own fleet)](09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md)
+
+- **Own-fleet availability (inline in this README)**
+  - [Own-fleet availability — vehicle eligibility (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817)
 

@@ -197,7 +197,6 @@ Backlog files are numbered **VM-01 … VM-08** in delivery order (see [`README.m
 | [`TEVF-01-contractual-vendor-assignment.md`](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md) | TDO direct assignment, contractual rate handling, hide-rate rule | Path A above |
 | [`TEVF-02-non-contractual-bidding.md`](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) | Publish → bid → award lifecycle | Path B above |
 | [`TEVF-03-vendor-execution-confirmation.md`](../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) | Post-assignment execution handoff, POD/GRN/invoice rules | Common leg (both paths) |
-| [`TEVF-04-fleet-availability-own-fleet.md`](../09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md) | Own-fleet eligibility — **NOT** vendor mobile | — |
 
 ---
 
