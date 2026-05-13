@@ -99,33 +99,47 @@ Use this checklist under each VM story file (or inline here if you keep one file
 
 ## End-to-End Flow This Context Enables
 
+The flow **forks at tenant-join approval (VM-02)** based on the **per-tenant vendor type** the Tenant Admin assigns. Everything from VM-07 onward is **identical for both paths**.
+
+```mermaid
+flowchart TD
+  D[Vendor discovers DFMS] --> O[VM-01 Onboarding<br/>self-register on Vendor Mobile OR platform-admin invite]
+  O --> DOC[Mandatory docs + profile complete<br/>Trade License + BIN + TIN + testimonial]
+  DOC --> PA[Vendor is PLATFORM-ACTIVE<br/>no platform-admin approval step]
+  PA --> TJ[VM-02 Request to join tenant(s)]
+  TJ --> AP{Tenant Admin approves?}
+  AP -- Reject + remarks --> NO[Vendor cannot see tenant bids/TOs]
+  AP -- Approve + sets vendor_type<br/>per (vendor, tenant) --> FORK{vendor_type<br/>for this tenant}
+
+  FORK -- CONTRACTUAL --> CA[TDO directly assigns TO<br/>TEVF-01<br/>contractual rate applied server-side<br/>rate HIDDEN from vendor]
+  FORK -- NON_CONTRACTUAL --> PUB[TDO publishes TO to bidding portal<br/>VM-04 / TEVF-02<br/>deadline + required_vehicle_count + vehicle type + reference rate?]
+
+  PUB --> SUB[Vendor submits bid VM-05<br/>proposed_cost + offered_vehicle_count + remarks?<br/>immutable after submit; withdraw before close if policy]
+  SUB --> EV[TDO evaluates bids VM-06<br/>side-by-side compare; sort; min/avg/max stats]
+  EV -- Reject-all + reason --> END1[Bidding session closed<br/>all bidders notified]
+  EV -- Award 1 or more winners<br/>per-vendor awarded_vehicle_count --> WIN[Winning bid(s) ACCEPTED<br/>non-winning REJECTED/CLOSED<br/>winning log audited]
+
+  CA --> CONF[VM-07 vehicle/driver/helper confirmation<br/>before trip start<br/>updates require reason + audit]
+  WIN --> CONF
+  CONF --> RDY[TO -> READY_FOR_DISPATCH]
+  RDY --> RT[VM-08 real-time TO status<br/>Assigned -> Completed -> Closed<br/>vendor cannot modify status]
+  RT --> POD[POD + GRN copy uploads when required]
+  POD --> INV[After Completed: vendor uploads invoice]
 ```
-Vendor discovers DFMS
-  ↓
-Onboarding entry:
-  - Self-registration via Vendor Mobile (company + contact + testimonial/reference + docs)
-  - Platform-admin invite → vendor completes profile (missing fields + docs)
-  ↓
-Registration complete (VM-01 + VM-02) → vendor **platform-active** (no Platform Admin approval step)
-  ↓
-Vendor selects tenant(s):
-  - View all active tenants
-  - Request to join one or more tenants
-  - Tenant approves join request **and sets vendor type (Contractual vs Non-Contractual) for that vendor within the tenant**
-  ↓
-**Contractual:** TDO assigns TO directly (no bid); contractual rates applied server-side; vendor does not see rate ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md))
-  **Non-contractual:** TDO publishes TO to bidding portal (per tenant) with deadline + eligibility + required vehicle count ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md))
-  ↓
-Vendor portal (per joined tenant):
-  - Non-contractual: view TOs open for bidding within submission window → Submit bid (rate + vehicle count); **no edit after submit**; optional withdraw before close per policy
-  - View TO/trip lists (active/completed) for joined tenants
-  ↓
-TDO evaluates bids → selects **winner(s)** OR reject-all → winning log + notifications
-  ↓
-Vendor confirms/updates vehicle + driver + helper details (required after win, before trip start; updates require reason)
-  ↓
-Vendor sees real-time TO status updates (Assigned/Completed/Closed)
-```
+
+### Path comparison (side-by-side)
+
+| Aspect | Contractual (TEVF-01) | Non-Contractual (TEVF-02) |
+|---|---|---|
+| TO assignment trigger | TDO direct assignment | TDO publishes bidding session (VM-04) |
+| Vendor must submit a bid? | No | Yes (VM-05) |
+| Rate source | Backend contractual rate tables | Vendor-submitted `proposed_cost` |
+| Rate shown in vendor mobile | **Hidden** | Visible (vendor's own bid amount) |
+| Mobile screens **shown** | Assigned TOs, Trips, Profile, Tenants | Bids, Assigned TOs, Trips, Profile, Tenants |
+| Mobile screens **hidden** for this tenant | Bid Opportunities + Bid Submission | — |
+| Selection / split capacity | Multi-vendor direct assignment | Multi-winner award per `awarded_vehicle_count` (VM-06) |
+| Cancellation | TDO reassign / cancel (audited) | TDO reject-all + reason; vendor withdraw (policy) |
+| Common from this point on | **VM-07** (vehicle/driver/helper confirmation) → **VM-08** (status) → POD / GRN / invoice gating | same |
 
 ---
 
@@ -144,30 +158,34 @@ Vendor Bidding  ──→  publish → bid windows + bid submission (immutable a
 
 ## Traceability — Sprint 4 ↔ Vendor Mobile App
 
-This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App split specs and the main backend touchpoints.
+This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App split specs and the main backend touchpoints. **Vendor-type applicability** is called out so engineers know which screens/endpoints are conditional on `(vendor, tenant).vendor_type`.
 
-| Sprint item | Mobile app context file(s) | Backend touchpoints (high-level) |
-|------------|-----------------------------|----------------------------------|
-| VM-01 Vendor onboarding entry (self/invite) | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md` | Vendor registration, invite acceptance, auth bootstrap |
-| VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, company profile + testimonial (no vehicle/driver master at onboarding) |
-| VM-03 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
-| VM-04 Vendor portal views | `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
-| VM-04 TDO publish TO to bidding portal | *(TDO/admin; see `VM-04-tdo-publish-to-bidding-portal.md`)* | Publish session + eligibility + notifications |
-| VM-06 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
-| VM-07 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
-| VM-07 Bid/TO requirements + vehicle–driver confirmation | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit |
-| VM-08 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
+| Sprint item | Applies to | Mobile app context file(s) | Backend touchpoints (high-level) |
+|------------|------------|-----------------------------|----------------------------------|
+| **VM-01** Vendor onboarding (self/invite + docs/profile) | Both | `01-onboarding-and-verification.md`, `09-profile-management.md` | Vendor registration, invite acceptance, auth bootstrap, document upload (Trade License/BIN/TIN), testimonial; no vehicle/driver master |
+| **VM-02** Vendor ↔ tenant join + tenant sets per-tenant `vendor_type` | Both (decides fork) | `02-tenant-membership.md` | Active tenants list, join request create, tenant approve (with `vendor_type`) / reject; membership record `(vendor_id, tenant_id, status, vendor_type)` |
+| **VM-03** Vendor portal views — gated by per-tenant `vendor_type` | Both (gated) | `03-bid-opportunities-list.md` (NC only), `05-assigned-tos-list.md`, `07-active-trip-tracking.md`, `08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips with `(vendor_id, tenant_id)` scope + `vendor_type` filter on bid surfaces |
+| **VM-04** TDO publish TO to bidding portal | Non-Contractual only | *(admin/TDO surface; mobile consumes publish via bid opportunities list)* | Publish session + eligibility + notifications (TEVF-02) |
+| **VM-05** Bid submission | Non-Contractual only | `04-bid-submission.md` | Bid submit endpoint + bid window validation; immutable after submit; withdraw (policy) |
+| **VM-06** Bid evaluation (TDO surface) | Non-Contractual only | *(mobile sees outcomes via status changes in lists/details)* | Award endpoint (per-vendor `awarded_vehicle_count`) + winning log + reject-all (with reason) |
+| **VM-07** Bid/TO requirements + vehicle–driver confirmation | Both | `06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit; POD/GRN upload; invoice gated to Completed |
+| **VM-08** Real-time TO updates | Both | `07-active-trip-tracking.md`, `10-security-and-access-control.md` | TO/trip status event feed (polling/websocket); vendor read-only on TO status |
 
 ---
 
 ## Notes / Decisions Log
 
-- Vendors **cannot access tenant bidding or TO details** until **tenant join** is approved (**VM-03**).
+- Vendors **cannot access tenant bidding or TO details** until **tenant join** is approved (**VM-02**).
 - Platform Admin controls vendor directory and invite; **does not** run a registration verification queue after sign-up.
 - Tenant Admin cannot invite vendors and cannot see the global vendor list; tenant-side approval is only for vendor join requests to that tenant.
-- **Per-tenant vendor type (VM-03):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; used for portal feature gating:
-  - **Contractual**: direct TO assignment (no bidding); rates hidden from vendor ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).
-  - **Non-Contractual**: bid submission ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)).
-- **Own-fleet availability (TEVF-04):** not vendor-bidding scope — see [TEVF-04](../09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md).
+- **Per-tenant vendor type (VM-02):** Tenant Admin sets **Contractual** vs **Non-Contractual** when approving a vendor join request; this is the **fork** that drives portal feature gating and the TO-assignment path:
+  - **Contractual**: direct TO assignment (no bidding); contractual rate applied server-side; **rate hidden** from vendor mobile + portal ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).
+  - **Non-Contractual**: bid submission required (rate + offered vehicle count); vendor sees their own bid amount ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)).
+- **Vendor type is scoped per (vendor, tenant)** — a single vendor can be Contractual for Tenant A and Non-Contractual for Tenant B; gating evaluates independently per tenant.
+- **Common execution leg:** Once the TO reaches `ASSIGNED` (either path), the downstream flow is identical — **VM-07** (vehicle/driver/helper confirmation) → **VM-08** (real-time status) → POD / GRN / invoice (invoice gated to `Completed`). See [TEVF-03](../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
+- **Mobile screen visibility rules** (source of truth: [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)):
+  - Bid Opportunities + Bid Submission screens are **only** populated for tenants where the vendor is `NON_CONTRACTUAL`.
+  - Rate fields (TO Details, Assigned TOs, Completed Trip History) are **hidden** when `assignment_type=CONTRACTUAL`.
+- **Own-fleet availability (TEVF-04):** not vendor-bidding scope — see [TEVF-04](../09-to-execution-vendor-fleet/TEVF-04-fleet-availability-own-fleet.md). Do not conflate vendor `offered_vehicle_count` with own-fleet MDM status.
 - Phase 2/3 capabilities are listed under **Out of Scope** to avoid scope creep.
 
