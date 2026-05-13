@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Command Center & Loading/Unloading Operations (Sprint 4)
-version: 1.0
+version: 3.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-06
-related_stories: DFS-063 (LUP-01), DFS-056 (CC-01), DFS-057 (LD-01)
+last_updated: 2026-05-12
+related_stories: DFS-056 (CC-01), DFS-057 (LD-01)
 jira_epic: DFS-074
 ---
 
@@ -13,19 +13,22 @@ jira_epic: DFS-074
 
 ## Overview
 
-The **Command Center & Loading/Unloading** specification covers three interconnected functions:
+The **Command Center & Loading/Unloading** specification covers two operational functions:
 
-1. **Loading/Unloading Points (LUP-01)**: Master data for physical bays/lines/docks within a POI
-2. **Command Center (CC-01)**: Queue management, bay assignment, waiting serial issuance, QC checkpoint trigger
-3. **Loading/Unloading Operations (LD-01)**: Timestamp capture for load/unload start/end, bags count, seal number, weight
+1. **Command Center (CC-01)**: Queue management, bay assignment, waiting serial issuance, RM QC trigger handoff
+2. **Loading/Unloading Operations (LD-01)**: Separate LoadEvent/UnloadEvent capture with start/end datetime, bags, weight, seal, QC handoff context
 
-The Command Center is the **orchestration hub** for post-scale yard operations — it receives vehicles from the scale-in queue (via queue tokens from SC-01), assigns them to specific loading/unloading points, and triggers QC checkpoints for RM inbound flows. Loading/unloading personnel record actual execution timestamps at the assigned bay.
+> **Loading/Unloading Points (LUP-01)** — the master data definition of bays/lines/docks within a POI — has been extracted to a standalone master data module: **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)**. CC-01 and LD-01 consume those points via FK.
+
+The Command Center is the **orchestration hub** for post-scale yard operations — it receives vehicles from the scale-in queue (auto-populated from SC-01), assigns them to specific loading/unloading points, and updates TO sub-state for QC visibility on RM flows. Loading/unloading personnel record actual execution timestamps at the assigned bay.
+
+**Critical flow distinction (AC-6 RM path)**: For **raw-material** TOs, Command Center updates TO sub-state for QC visibility but does **NOT** assign an unloading point — QC Supervisor assigns the unloading point directly after QC pass in **QC-01**. For FG inbound, system records unload path states without mandatory QC checkpoint.
 
 **Module path**: 
-- `apps/operations/loading/` (POIOperationPoint master + LoadingOperation events)
-- `apps/operations/command_center/` (new sub-package for queue + bay assignment)
+- `apps/operations/command_center/` (QueueEntry, BayAssignment, WaitingSerial)
+- `apps/operations/loading/` (LoadEvent, UnloadEvent)
 
-**Dependencies**: `apps/operations/gate/` (GateVisitSession), `apps/operations/scaling/` (QueueToken), `05-transport` (TransportOrder), `02-master-data` (POI)  
+**Dependencies**: `apps/master_data/` (POI, LoadingUnloadingPoint), `apps/operations/gate/` (GateVisitSession), `apps/operations/scaling/` (ScaleEntry), `05-transport` (TransportOrder)  
 **Enables**: Scale-out clearance (SC-01), QC checkpoint (QC-01), Gate-out clearance (GT-01)
 
 ---
@@ -54,294 +57,308 @@ Sidebar (Loading / Unloading Personnel)
             └── Completion History               — past load/unload events
                   └── [Export CSV]
 
-Sidebar (Tenant Admin / POI Manager)
-└── Master Data
-      └── POI Operation Points                   — manage loading/unloading bays per POI
-            ├── POI List
-            │     └── [row click] ──► POI Detail → [Manage Points]
-            │
-            └── Point Configuration
-                  ├── [+ Add Point] ──► Point Form (code, name, type: load/unload/both, capacity, is_active)
-                  └── [Edit Point] / [Deactivate Point]
 ```
+
+> **Loading/Unloading Points management** (Master Data → Loading/Unloading Points) is defined in the master data module: **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)**.
 
 ### Role → menu mapping
 
-| Role | Queue Dashboard | Assign Bay | My Assignments | POI Operation Points |
-|------|:---------------:|:----------:|:--------------:|:--------------------:|
-| Command Center Officer | ✓ | ✓ | — | Read-only |
-| Loading Personnel | — | — | ✓ (load bays) | — |
-| Unloading Personnel | — | — | ✓ (unload bays) | — |
-| Tenant Admin | ✓ (read-only) | — | — | ✓ (CRUD) |
-| POI Manager | — | — | — | ✓ (own POI) |
+| Role | Queue Dashboard | Assign Bay | My Assignments |
+|------|:---------------:|:----------:|:--------------:|
+| Command Center Officer | ✓ | ✓ | — |
+| Loading Personnel | — | — | ✓ (load bays) |
+| Unloading Personnel | — | — | ✓ (unload bays) |
+| Tenant Admin | ✓ (read-only) | — | — |
 
 ---
 
 ## 1. Data Model
 
-### 1.1 POIOperationPoint (LUP-01 master)
+> **LoadingUnloadingPoint** (LUP-01 master data) is now defined in **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)** under `apps/master_data/`. Models below FK to it via `loading_unloading_point`.
+
+### 1.1 QueueEntry (CC-01)
 
 ```python
-POIOperationPoint {
-    point_id: UUID
-    poi: FK → POI                               # Parent POI
+class QueueEntry(TenantAwareModel):
+    id: UUID
     
-    # Identification
-    code: string                                # Unique within POI (e.g., "BAY-01", "LINE-A")
-    name: string                                # Display name (e.g., "North Loading Bay")
+    # Core links
+    transport_order: FK → TransportOrder
+    scale_entry: FK → ScaleEntry                 # Scale-in record from SC-01
     
-    # Type
-    operation_type: enum                        # ['load', 'unload', 'both']
-    
-    # Capacity (Phase 2)
-    capacity_vehicles: integer (nullable)       # Max vehicles at once (default 1)
+    # Auto-populated from scale-in event
+    vehicle_number: string                       # Denormalized for display
+    pc_code: string                              # P.C. code
+    item: string                                 # Product/item description
+    scale_in_datetime: DateTime                  # When scale-in completed
+    product_type: string                         # FG / RM
+    gross_weight: Decimal (nullable)
+    net_weight: Decimal (nullable)
+    to_challan_ref: string (nullable)            # TO or challan reference
+    urgency: string (nullable)                   # Urgency indicator
     
     # Status
-    is_active: boolean                          # Inactive points not assignable
+    status: enum                                 # pending | assigned | completed
     
-    # Metadata
-    tenant_id: UUID
-    created_by: FK → User
+    # Metadata (from TenantAwareModel)
     created_at: DateTime
     updated_at: DateTime
-}
 ```
 
 **Constraints**:
-- Unique: `(poi, code)` — code must be unique within POI
+- Auto-populated from SC-01 scale-in events
+- Only entries with `status = 'pending'` appear in Command Center queue
 
 ### 1.2 BayAssignment (CC-01)
 
 ```python
-BayAssignment {
-    assignment_id: UUID
+class BayAssignment(TenantAwareModel):
+    id: UUID
     
     # Core links
     transport_order: FK → TransportOrder
-    gate_visit_session: FK → GateVisitSession
-    operation_point: FK → POIOperationPoint    # Assigned bay/line/dock
-    queue_token: FK → QueueToken               # Queue token from SC-01
+    loading_unloading_point: FK → LoadingUnloadingPoint    # Assigned bay/line/dock
     
     # Assignment
     assigned_at: DateTime
     assigned_by: FK → User (Command Center Officer)
-    waiting_serial: integer                     # Queue number per operation point (e.g., 1, 2, 3...)
     
     # Status
-    assignment_status: enum                     # ['assigned', 'started', 'completed', 'cancelled']
+    assignment_status: enum                      # assigned | started | completed | cancelled
     
     # Completion
-    completed_at: DateTime (nullable)           # When loading/unloading operation ends
+    completed_at: DateTime (nullable)
     
-    # QC Trigger (RM inbound only)
-    qc_triggered: boolean                       # True if Command Center triggered QC checkpoint
-    qc_triggered_at: DateTime (nullable)
-    
-    # Metadata
-    tenant_id: UUID
+    # Metadata (from TenantAwareModel)
     created_at: DateTime
     updated_at: DateTime
-}
 ```
 
 **Constraints**:
-- Unique: `(gate_visit_session)` — one bay assignment per visit
-- `waiting_serial` unique per `(operation_point, assignment_status != 'cancelled')` on same day
+- One active assignment per TO at a time
+- `loading_unloading_point.is_active` must be True at assignment time
 
-### 1.3 LoadingOperation (LD-01)
+**Bay assignment lane rules**:
+- FG outbound → assign to **loading** point
+- FG inbound → assign to **unloading** point (no mandatory QC)
+- RM inbound → CC does **NOT** assign unloading point; CC only updates TO sub-state for QC visibility; QC Supervisor assigns unloading point in QC-01
+
+### 1.3 WaitingSerial (CC-01)
 
 ```python
-LoadingOperation {
-    operation_id: UUID
+class WaitingSerial(TenantAwareModel):
+    id: UUID
+    
+    # Core links
+    loading_unloading_point: FK → LoadingUnloadingPoint
+    transport_order: FK → TransportOrder
+    bay_assignment: FK → BayAssignment (nullable)
+    
+    # Serial
+    serial_number: integer                       # Sequential per loading point
+    
+    # Audit
+    issued_by: FK → User
+    issued_at: DateTime
+    
+    # Metadata (from TenantAwareModel)
+    created_at: DateTime
+    updated_at: DateTime
+```
+
+**Constraints**:
+- Unique: `(loading_unloading_point, serial_number)` per day (or continuous — product decision)
+- **Immutable** after issue — no edits allowed
+- Sequential: 1, 2, 3, ... (next available number for the loading point)
+
+### 1.4 LoadEvent (LD-01)
+
+```python
+class LoadEvent(TenantAwareModel):
+    id: UUID
     
     # Core links
     transport_order: FK → TransportOrder
-    gate_visit_session: FK → GateVisitSession
-    operation_point: FK → POIOperationPoint    # Bay where operation occurred
-    bay_assignment: FK → BayAssignment          # Link to assignment
-    
-    # Operation type (inferred from TO flow_type)
-    operation_type: enum                        # ['loading', 'unloading']
+    bay_assignment: FK → BayAssignment
+    loading_unloading_point: FK → LoadingUnloadingPoint    # Bay where loading occurred
     
     # Timestamps
-    start_at: DateTime                          # Operation start time
-    end_at: DateTime (nullable)                 # Operation end time
+    start_datetime: DateTime                     # Load start time
+    end_datetime: DateTime (nullable)            # Load end time
     
-    # Loading-specific (FG outbound)
-    bags_count: integer (nullable)              # Number of bags loaded
-    seal_number: string (nullable)              # Seal number applied to vehicle
-    weight_kg: Decimal (nullable)               # Weight loaded (optional if scale captures)
-    
-    # Unloading-specific (FG/RM inbound)
-    unloaded_bags_count: integer (nullable)
-    unloaded_weight_kg: Decimal (nullable)
+    # Loading data
+    bags_loaded: integer (nullable)              # Number of bags loaded
+    weight_kg: Decimal (nullable)                # Weight loaded
+    seal_number: string (nullable)               # Seal number applied to vehicle
     
     # Personnel
-    recorded_by: FK → User (Loading/Unloading Personnel)
+    recorded_by: FK → User (Loading Personnel)
     
     # Remarks
     remarks: text (nullable)
     
-    # Metadata
-    tenant_id: UUID
+    # Metadata (from TenantAwareModel)
     created_at: DateTime
     updated_at: DateTime
-}
 ```
 
 **Constraints**:
-- Unique: `(gate_visit_session, operation_type)` — one loading or unloading per visit
-- `end_at >= start_at` (validation)
+- `end_datetime >= start_datetime` (validation)
+- One LoadEvent per BayAssignment
+
+### 1.5 UnloadEvent (LD-01)
+
+```python
+class UnloadEvent(TenantAwareModel):
+    id: UUID
+    
+    # Core links
+    transport_order: FK → TransportOrder
+    bay_assignment: FK → BayAssignment
+    loading_unloading_point: FK → LoadingUnloadingPoint    # Bay where unloading occurred
+    
+    # Timestamps
+    start_datetime: DateTime                     # Unload start time
+    end_datetime: DateTime (nullable)            # Unload end time
+    
+    # Unloading data
+    bags_unloaded: integer (nullable)            # Number of bags unloaded
+    weight_kg: Decimal (nullable)                # Weight unloaded
+    
+    # QC handoff (RM path — AC-3)
+    qc_handoff_persisted: boolean (default False)   # True after unload event persists handoff reference
+    
+    # Personnel
+    recorded_by: FK → User (Unloading Personnel)
+    
+    # Remarks
+    remarks: text (nullable)
+    
+    # Metadata (from TenantAwareModel)
+    created_at: DateTime
+    updated_at: DateTime
+```
+
+**Constraints**:
+- `end_datetime >= start_datetime` (validation)
+- One UnloadEvent per BayAssignment
+- For RM TOs: after unload event, handoff reference (TO + unload event id) is persisted for QC-01
 
 ---
 
-## 2. LUP-01: POI Operation Points Master
+## 2. CC-01: Command Center Queue & Bay Assignment
 
-### 2.1 Point Configuration Flow
-
-```
-Tenant Admin / POI Manager opens Master Data → POI Operation Points
-  └─► Select POI from list
-        └─► [Manage Points] button
-              └─► Operation Points List for selected POI
-                    ├─► [+ Add Point] ──► Point Form
-                    │     ├─► Code: "BAY-01" (unique within POI)
-                    │     ├─► Name: "North Loading Bay"
-                    │     ├─► Operation Type: Load / Unload / Both (radio buttons)
-                    │     ├─► Capacity Vehicles: 1 (default, Phase 2 multi-vehicle)
-                    │     ├─► Is Active: Yes (checkbox)
-                    │     └─► [Save]
-                    │           └─► POIOperationPoint created
-                    │                 └─► Available for Command Center bay assignment
-                    │
-                    └─► [Edit Point] ──► Point Form (pre-filled)
-                          └─► Can change: Name, Capacity, Is Active
-                                └─► Cannot change: Code, Operation Type (immutable after creation — audit trail)
-                                      └─► [Save] ──► Point updated
-```
-
-### 2.2 Point Deactivation
-
-```
-Admin clicks [Deactivate] on a point row
-  └─► Confirmation modal: "This point will not be assignable. Active assignments will complete."
-        └─► [Confirm]
-              └─► Update POIOperationPoint.is_active = False
-                    └─► Point hidden from Command Center bay assignment dropdowns
-                          └─► Existing active assignments unaffected (complete normally)
-```
-
-### 2.3 Django Admin Configuration (POIOperationPoint)
-
-**List View**:
-- Columns: POI, Code, Name, Operation Type, Capacity, Active, Created At
-- Filters: `poi`, `operation_type`, `is_active`
-- Search: Code, Name
-- Actions: Bulk activate/deactivate
-
-**Detail View**:
-- Fields: POI (FK dropdown), Code, Name, Operation Type, Capacity, Is Active
-- Validation: Code unique within POI
-- Edit restrictions: Code + Operation Type immutable after creation (read-only in edit form)
-
----
-
-## 3. CC-01: Command Center Queue & Bay Assignment
-
-### 3.1 Queue Dashboard View
+### 2.1 Queue Dashboard View
 
 ```
 Command Center Officer opens Queue Dashboard (default view)
   └─► Backend query:
-        GateVisitSession.objects.filter(
-          poi=officer_poi,
-          scale_record__scale_in_at__isnull=False,  # Scaled in (have queue token)
-          bayassignment__isnull=True  # Not yet assigned to bay
-        ).order_by('scale_record__scale_in_at')
+        QueueEntry.objects.filter(
+          status='pending',
+          poi=officer_poi
+        ).order_by('scale_in_datetime')
         
-  └─► Table displays:
-        - Token (P.C. Code)
-        - TO Number
-        - Vehicle (registration)
-        - Product (item code + name)
-        - Quantity (MT)
-        - Flow Type (FG Outbound / FG Inbound / RM Inbound) — badge color-coded
+  └─► Queue card displays (AC-2):
+        - Vehicle Number
+        - P.C. Code
+        - Item (product/item description)
+        - Scale-In Datetime
+        - Product Type (FG / RM) — badge color-coded
+        - Gross/Net Weight (if available)
+        - TO / Challan Ref
+        - Urgency
         - Operation Needed (Load / Unload) — derived from flow_type
-        - Scale-In Time (how long waiting)
         - [Assign Bay] button
 ```
 
-### 3.2 Bay Assignment Flow
+### 2.2 Bay Assignment Flow
 
 ```
 Officer clicks [Assign Bay] on a queue row
   └─► Assignment Form opens (modal)
         ├─► Read-only section:
         │     ├─► TO Summary: TO#, Product, Quantity, Vehicle, Driver
-        │     ├─► Token: P.C. Code
+        │     ├─► P.C. Code
+        │     ├─► Product Type, Gross/Net Weight
         │     └─► Operation Needed: Load / Unload
         │
         ├─► Input section:
-        │     ├─► Operation Point: dropdown (filtered by operation_type matching operation_needed)
-        │     │     └─► Example: If "Load" needed, show only points where operation_type IN ('load', 'both')
-        │     ├─► Waiting Serial: auto-generated (next sequential number for selected point)
-        │     └─► (Optional) Assign Personnel: dropdown (loading/unloading user) — Phase 2
+        │     ├─► Loading/Unloading Point: dropdown (filtered by operation_type matching operation_needed)
+        │     │     └─► Only active LoadingUnloadingPoint entries shown
+        │     │     └─► Warnings on product type / vehicle type mismatch (manual override allowed)
+        │     └─► (Optional) Assign Personnel: dropdown — Phase 2
         │
-        ├─► QC Trigger (RM Inbound only):
+        ├─► RM Inbound special handling (AC-6):
         │     └─► If flow_type = 'rm_inbound':
-        │           └─► Checkbox: [✓] Trigger QC Checkpoint after unloading (auto-checked, read-only)
-        │                 └─► Info: "QC checkpoint will be created when bay assignment is saved."
+        │           └─► CC does NOT assign unloading point
+        │           └─► Info: "RM inbound — TO sub-state updated for QC visibility. 
+        │                      QC Supervisor will assign unloading point after QC pass."
+        │           └─► Backend triggers RM QC handoff service (CC-01-10)
         │
         └─► [Assign Bay]
               └─► Backend:
-                    ├─► Validate: operation_point.is_active = True, operation_point.operation_type matches operation_needed
-                    │
-                    ├─► Generate waiting_serial:
-                    │     └─► waiting_serial = max(BayAssignment.waiting_serial for same operation_point, same day) + 1
+                    ├─► Validate: loading_unloading_point.is_active = True
+                    │     └─► Validate: point operation_type matches operation_needed
+                    │     └─► Warn (not block) on product/vehicle mismatch
                     │
                     ├─► Create BayAssignment:
                     │     ├─► assignment_status = 'assigned'
                     │     ├─► assigned_at = now()
-                    │     ├─► assigned_by = current_user
-                    │     └─► waiting_serial = computed
+                    │     └─► assigned_by = current_user
                     │
-                    ├─► If flow_type = 'rm_inbound':
-                    │     └─► Create TOQCCheckpoint (QC-01):
-                    │           ├─► transport_order = visit.transport_order
-                    │           ├─► triggered_by = current_user (Command Center Officer)
-                    │           ├─► sampling_done = False
-                    │           └─► qc_passed = None (pending decision)
-                    │                 └─► Update BayAssignment.qc_triggered = True
+                    ├─► Update QueueEntry.status = 'assigned'
                     │
-                    ├─► Update TO.execution_state (if needed):
-                    │     └─► If TO.execution_state = 'scale_in_source': → 'loading_assigned' or 'unloading_assigned'
+                    ├─► Update TO sub-state (TLS-01):
+                    │     └─► e.g. 'Assigned to Loading Point' per §6.8.5
+                    │
+                    ├─► If flow_type = 'rm_inbound' (AC-6):
+                    │     └─► Update TO sub-state for QC visibility (e.g. 'QC Started')
+                    │     └─► Do NOT assign unloading point — QC-01 handles this
                     │
                     ├─► Write TOExecutionEvent (TLS-01):
-                    │     └─► event_type = 'bay_assigned', payload = {operation_point_code, waiting_serial}
+                    │     └─► event_type = 'bay_assigned', payload = {point_code, point_name}
                     │
                     └─► Response:
-                          ├─► Success message: "Bay BAY-01 assigned. Serial: 3. QC checkpoint created (RM)."
+                          ├─► Success message: "Bay BAY-01 assigned."
                           └─► Remove from Queue Dashboard → appears in Active Assignments
 ```
 
-### 3.3 Active Assignments View
+### 2.3 Waiting Serial Issuance
+
+```
+Officer issues waiting serial for a loading point assignment
+  └─► Backend:
+        ├─► Compute: serial_number = max(WaitingSerial for same loading_unloading_point, same day) + 1
+        │
+        ├─► Create WaitingSerial:
+        │     ├─► loading_unloading_point = selected point
+        │     ├─► transport_order = assignment TO
+        │     ├─► bay_assignment = related assignment (nullable)
+        │     ├─► serial_number = computed
+        │     ├─► issued_by = current_user
+        │     └─► issued_at = now()
+        │
+        └─► Serial is immutable after issue — no edits allowed
+              └─► Audit: issuer + timestamp recorded
+```
+
+### 2.4 Active Assignments View
 
 ```
 Command Center Officer opens Active Assignments
   └─► Backend query:
         BayAssignment.objects.filter(
-          operation_point__poi=officer_poi,
+          loading_unloading_point__poi=officer_poi,
           assignment_status__in=['assigned', 'started']
         ).order_by('assigned_at')
         
   └─► Table displays:
-        - Waiting Serial
+        - Waiting Serial (from related WaitingSerial)
         - TO Number
         - Vehicle
-        - Bay (operation_point.code)
+        - Bay (loading_unloading_point.short_code)
         - Status (Assigned / Started)
         - Assigned At
-        - QC Required (✓ if qc_triggered)
         - [View Detail] button
 ```
 
@@ -349,45 +366,75 @@ Command Center Officer opens Active Assignments
 - TO summary
 - Bay assignment info (point, serial, assigned at/by)
 - Loading/unloading timestamps (if started/completed)
-- QC checkpoint status (if RM)
 
-### 3.4 Django Admin Configuration (BayAssignment)
+### 2.5 "My Bay" View (Loading/Unloading Personnel)
 
-**List View**:
-- Columns: TO Number, Vehicle, Bay (operation_point.code), Waiting Serial, Status, Assigned At, QC Triggered, Completed At
-- Filters: `assignment_status`, `operation_point__poi`, `assigned_at` (date range), `qc_triggered`
-- Search: TO number, Vehicle registration
-- Actions: Bulk export CSV
+```
+Loading Personnel opens "My Bay" view
+  └─► Backend query:
+        BayAssignment.objects.filter(
+          loading_unloading_point_id=loading_point_id,
+          assignment_status__in=['assigned', 'started']
+        ).order_by('assigned_at')
+        
+  └─► Shows current assignments for a given loading/unloading point
+```
 
-**Status Badge**:
-- Blue: Assigned (not started)
-- Yellow: Started (loading/unloading in progress)
-- Green: Completed
-- Gray: Cancelled
+### 2.6 Django Admin Configuration
 
-**Detail View**:
-- Read-only: TO (link), Visit (link), Operation Point (link), Queue Token (link), Waiting Serial, Assigned At/By
-- Editable: Assignment Status (admin override only)
+**QueueEntryAdmin** (CC-01-2):
+- `TenantOnlyAdminMixin`
+- List View:
+  - Columns: Vehicle Number, P.C. Code, Item, Scale-In Datetime, Product Type, Gross/Net Weight, TO/Challan Ref, Urgency, Status
+  - Filters: `product_type`, `urgency`, `status`
+  - Search: Vehicle Number, P.C. Code, TO ref
+- Auto-populated from SC-01 scale-in events
+- Read-only (queue entries are system-generated)
+
+**BayAssignmentAdmin** (CC-01-3):
+- `TenantOnlyAdminMixin`
+- List View:
+  - Columns: TO Number, Vehicle, Bay (loading_unloading_point.short_code), Assignment Status, Assigned At, Completed At
+  - Filters: `assignment_status`, `loading_unloading_point__poi`, `assigned_at` (date range)
+  - Search: TO number, Vehicle registration
+  - Actions: Bulk export CSV
+- Status Badge:
+  - Blue: Assigned
+  - Yellow: Started
+  - Green: Completed
+  - Gray: Cancelled
+- Detail View:
+  - L/U point dropdown (from LUP-01)
+  - `save_model`: validates product/vehicle type match + updates TO sub-state via TLS-01
+  - Read-only after completion
+- Inline: LoadEvent or UnloadEvent (if exists) — read-only
 - Custom admin action: **"View TO Timeline"** (redirect to TLS-01)
-- Inline: LoadingOperation (if exists) — read-only
+
+**WaitingSerialAdmin** (CC-01-4):
+- `TenantOnlyAdminMixin`
+- List View:
+  - Columns: Serial Number, Loading/Unloading Point, TO Number, Issued By, Issued At
+  - Filters: `loading_unloading_point`, `issued_at` (date range)
+  - Search: Serial Number, TO number
+- Read-only after issue (immutable)
+- Audit fields: `issued_by`, `issued_at`
 
 ---
 
-## 4. LD-01: Loading/Unloading Timestamp Capture
+## 3. LD-01: Loading/Unloading Event Capture
 
-### 4.1 My Assignments View (Loading/Unloading Personnel)
+### 3.1 My Assignments View (Loading/Unloading Personnel)
 
 ```
 Loading Personnel logs in → opens My Assignments
   └─► Backend query:
         BayAssignment.objects.filter(
-          operation_point__poi=personnel_poi,
-          operation_point__operation_type__in=['load', 'both'],  # Loading personnel see load bays
-          assignment_status='assigned'  # Not yet started
-        ).order_by('waiting_serial')
+          loading_unloading_point__poi=personnel_poi,
+          loading_unloading_point__operation_type='LOAD',
+          assignment_status='assigned'
+        ).order_by('assigned_at')
         
   └─► Table displays:
-        - Serial #
         - TO Number
         - Vehicle
         - Bay
@@ -396,63 +443,64 @@ Loading Personnel logs in → opens My Assignments
         - [Start Loading] button
 ```
 
-### 4.2 Loading Start
+### 3.2 Loading Start
 
 ```
 Personnel clicks [Start Loading] on an assignment row
   └─► Loading Start Form (modal or page)
-        ├─► Read-only: TO Summary, Bay, Serial, Vehicle
+        ├─► Read-only: TO Summary, Bay, Vehicle
         ├─► Start Time: auto-filled with now() (editable if needed)
         ├─► Remarks: text area (optional)
         └─► [Start]
               └─► Backend:
-                    ├─► Create LoadingOperation:
-                    │     ├─► operation_type = 'loading'
-                    │     ├─► start_at = form.start_time
+                    ├─► Create LoadEvent:
+                    │     ├─► transport_order = assignment.transport_order
+                    │     ├─► bay_assignment = assignment
+                    │     ├─► loading_unloading_point = assignment.loading_unloading_point
+                    │     ├─► start_datetime = form.start_time
                     │     ├─► recorded_by = current_user
                     │     └─► remarks = form.remarks
                     │
                     ├─► Update BayAssignment.assignment_status = 'started'
                     │
-                    ├─► Update TO.execution_state → 'loading'
+                    ├─► Update TO sub-state → 'Loading Started'
                     │
                     ├─► Write TOExecutionEvent (TLS-01):
                     │     └─► event_type = 'loading_started'
                     │
                     └─► Response:
                           ├─► Success: "Loading started at Bay BAY-01."
-                          └─► Assignment remains in My Assignments (status: Started)
-                                └─► [End Loading] button now enabled
+                          └─► [End Loading] button now enabled
 ```
 
-### 4.3 Loading End
+### 3.3 Loading End
 
 ```
 Personnel clicks [End Loading] on a started assignment row
   └─► Loading End Form
         ├─► Read-only: TO Summary, Bay, Start Time
         ├─► End Time: auto-filled with now() (editable)
-        ├─► Bags Count: integer input (required for FG)
+        ├─► Bags Loaded: integer input
         ├─► Seal Number: text input (optional)
-        ├─► Weight (kg): decimal input (optional — scale captures gross/net)
+        ├─► Weight (kg): decimal input (optional)
         ├─► Remarks: text area (optional)
         └─► [Complete Loading]
               └─► Backend:
-                    ├─► Validate: end_at >= start_at
+                    ├─► Validate: end_datetime >= start_datetime
                     │
-                    ├─► Update LoadingOperation:
-                    │     ├─► end_at = form.end_time
-                    │     ├─► bags_count = form.bags_count
+                    ├─► Update LoadEvent:
+                    │     ├─► end_datetime = form.end_time
+                    │     ├─► bags_loaded = form.bags_loaded
                     │     ├─► seal_number = form.seal_number
                     │     ├─► weight_kg = form.weight_kg
                     │     └─► remarks += form.remarks
                     │
                     ├─► Update BayAssignment.assignment_status = 'completed', completed_at = now()
                     │
-                    ├─► Update TO.execution_state → 'loading_done'
+                    ├─► Update TO sub-state → 'Loading Completed'
                     │
                     ├─► Write TOExecutionEvent (TLS-01):
-                    │     └─► event_type = 'loading_completed', payload = {bags_count, seal_number}
+                    │     └─► event_type = 'loading_completed', payload = {bags_loaded, seal_number}
                     │
                     └─► Response:
                           ├─► Success: "Loading completed. Vehicle released to scale-out."
@@ -460,347 +508,444 @@ Personnel clicks [End Loading] on a started assignment row
                                 └─► Vehicle now eligible for scale-out (SC-01)
 ```
 
-### 4.4 Unloading Start & End (parallel flow for Unloading Personnel)
+### 3.4 Unloading Start & End (parallel flow for Unloading Personnel)
 
 **Unloading Start**:
-- Same as Loading Start, but `operation_type = 'unloading'`
-- `TO.execution_state → 'unloading'`
+- Same structure as Loading Start, but creates **UnloadEvent**
+- `TO sub-state → 'Unloading Started'`
+- TLS event: `unloading_started`
 
 **Unloading End**:
-- Same as Loading End, but captures `unloaded_bags_count`, `unloaded_weight_kg`
+- Captures `bags_unloaded`, `weight_kg`
 - No seal number (not applicable to unloading)
 - After unloading end:
-  - If `qc_triggered = True` (RM inbound): QC checkpoint must complete before scale-out
-  - If `qc_triggered = False` (FG inbound): vehicle released to scale-out
+  - **RM inbound (AC-3)**: persist QC handoff reference (TO + unload event id) for QC-01 consumption; QC checkpoint must complete before scale-out
+  - **FG inbound**: vehicle released to scale-out (no mandatory QC in Sprint 4)
+- TLS event: `unloading_completed`
 
-### 4.5 Django Admin Configuration (LoadingOperation)
+### 3.5 QC Handoff Context (RM path — AC-3)
 
-**List View**:
-- Columns: TO Number, Vehicle, Bay (operation_point.code), Operation Type, Start Time, End Time, Duration (computed), Bags Count, Seal Number, Personnel
-- Filters: `operation_type`, `operation_point__poi`, `start_at` (date range), Status (Completed / In Progress)
-- Search: TO number, Vehicle registration, Seal number
-- Actions: Bulk export CSV
+```
+After UnloadEvent end for RM TOs:
+  └─► Backend:
+        ├─► Persist handoff reference:
+        │     ├─► transport_order = unload_event.transport_order
+        │     ├─► unload_event_id = unload_event.id
+        │     └─► qc_handoff_persisted = True
+        │
+        └─► QC-01 can now retrieve:
+              └─► GET /api/v1/unload-events/{id}/qc-handoff
+                    └─► Returns: TO context + unload event details for sampling/QC decision
+```
 
-**Detail View**:
-- Read-only: TO (link), Visit (link), Bay Assignment (link), Operation Point (link), Operation Type
-- Timestamps: Start At, End At, Duration (computed: end - start)
-- Loading data: Bags Count, Seal Number, Weight (kg)
-- Unloading data: Unloaded Bags Count, Unloaded Weight (kg)
-- Personnel: Recorded By
-- Remarks: text area (read-only)
+### 3.6 Django Admin Configuration
+
+**LoadEventAdmin** (LD-01-2):
+- `TenantOnlyAdminMixin`
+- List View:
+  - Columns: TO Number, Vehicle, Bay (loading_unloading_point.short_code), Start DateTime, End DateTime, Duration (computed), Bags Loaded, Seal Number, Weight, Personnel
+  - Filters: `loading_unloading_point__poi`, `start_datetime` (date range), Status (Completed / In Progress)
+  - Search: TO number, Vehicle registration, Seal number
+  - Actions: Bulk export CSV
+- Detail View:
+  - Vehicle selection from CC-01 assignment
+  - Start/end datetime fields
+  - Bags loaded, weight, seal number
+  - `save_model`: validates `end_datetime >= start_datetime` + emits TLS-01 event
+  - Read-only: TO (link), Bay Assignment (link), Loading/Unloading Point (link)
+  - Personnel: Recorded By
+  - Remarks: text area
+- Custom admin action: **"View TO Timeline"** (redirect to TLS-01)
+
+**UnloadEventAdmin** (LD-01-3):
+- `TenantOnlyAdminMixin`
+- List View:
+  - Columns: TO Number, Vehicle, Bay (loading_unloading_point.short_code), Start DateTime, End DateTime, Duration (computed), Bags Unloaded, Weight, Personnel, QC Handoff
+  - Filters: `loading_unloading_point__poi`, `start_datetime` (date range), Status (Completed / In Progress)
+  - Search: TO number, Vehicle registration
+  - Actions: Bulk export CSV
+- Detail View:
+  - Unload start/end datetime fields
+  - Bags unloaded, weight
+  - `save_model`: validates `end_datetime >= start_datetime`, persists QC handoff context for RM TOs + emits TLS-01 event
+  - QC handoff fields (RM only): `qc_handoff_persisted` (read-only)
+  - Read-only: TO (link), Bay Assignment (link), Loading/Unloading Point (link)
+  - Personnel: Recorded By
+  - Remarks: text area
 - Custom admin action: **"View TO Timeline"** (redirect to TLS-01)
 
 ---
 
-## 5. API Endpoints
+## 4. API Endpoints
 
-### 5.1 POI Operation Points (LUP-01)
+> **Loading/Unloading Points API** (CRUD under `/api/v1/pois/{poi_id}/loading-unloading-points`) is defined in **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)** §4.
+
+### 4.1 Command Center (CC-01)
 
 ```http
-GET    /api/v1/master-data/poi/{poi_id}/operation-points/
-       → List operation points for a POI
-       → Filters: ?operation_type=load, ?is_active=true
+GET    /api/v1/command-center/queue?product_type=&urgency=&status=
+       → Eligible vehicles (scale-in complete, not assigned)
        → Response: [
            {
-             point_id,
-             code: "BAY-01",
-             name: "North Loading Bay",
-             operation_type: "load",
-             capacity_vehicles: 1,
-             is_active: true
+             id,
+             vehicle_number,
+             pc_code,
+             item,
+             scale_in_datetime,
+             product_type: "FG" | "RM",
+             gross_weight,
+             net_weight,
+             to_challan_ref,
+             urgency,
+             operation_needed: "loading" | "unloading"
            }
          ]
 
-POST   /api/v1/master-data/poi/{poi_id}/operation-points/
-       → Create operation point
-       → Body: {code, name, operation_type, capacity_vehicles, is_active}
-       → Response: {point_id, message: "Operation point created."}
-
-PUT    /api/v1/master-data/operation-points/{point_id}/
-       → Update operation point (name, capacity, is_active only)
-       → Body: {name, is_active}
-```
-
-### 5.2 Command Center Queue (CC-01)
-
-```http
-GET    /api/v1/command-center/queue/
-       → List vehicles in post-scale queue (awaiting bay assignment)
-       → Filters: ?poi_id=...
-       → Response: [
-           {
-             visit_id,
-             token: {pc_code},
-             transport_order: {to_number, product, quantity_mt, flow_type},
-             vehicle: {registration},
-             scale_in_at,
-             operation_needed: "loading" | "unloading",
-             waiting_time_minutes: 25
-           }
-         ]
-
-POST   /api/v1/command-center/assign-bay/
-       → Assign vehicle to bay
+POST   /api/v1/command-center/assignments
+       → Assign vehicle to L/U point
        → Body: {
-           gate_visit_session_id: UUID,
-           operation_point_id: UUID
+           queue_entry_id: UUID,
+           loading_unloading_point_id: UUID
          }
        → Validations:
-           - Visit must have queue token
-           - Operation point must be active
-           - Operation point type must match operation_needed
+           - Point must be active
+           - Point operation_type must match operation_needed
+           - Warn on product/vehicle mismatch (not blocking)
        → Side effects:
            - Create BayAssignment
-           - Generate waiting_serial
-           - If RM inbound: create TOQCCheckpoint
-           - Update TO execution_state
-           - Write TOExecutionEvent
+           - Update QueueEntry status
+           - Update TO sub-state (TLS-01)
+           - If RM inbound: update TO sub-state for QC visibility (AC-6) — do NOT assign unloading point
        → Response: {
            assignment_id,
-           waiting_serial: 3,
-           message: "Bay BAY-01 assigned. Serial: 3."
+           message: "Bay BAY-01 assigned."
          }
 
-GET    /api/v1/command-center/active-assignments/
-       → List active bay assignments (assigned or started, not completed)
-       → Filters: ?poi_id=..., ?status=assigned
+GET    /api/v1/command-center/assignments?loading_point=&status=
+       → List assignments (filterable by L/U point and status)
        → Response: [
            {
              assignment_id,
              transport_order: {to_number},
-             vehicle: {registration},
-             operation_point: {code, name},
-             waiting_serial,
+             vehicle_number,
+             loading_unloading_point: {short_code, name},
              assignment_status,
-             assigned_at,
-             qc_triggered
+             assigned_at
            }
          ]
-```
 
-### 5.3 Loading/Unloading Operations (LD-01)
+POST   /api/v1/command-center/waiting-serials
+       → Issue waiting serial for a loading point
+       → Body: {
+           loading_unloading_point_id: UUID,
+           transport_order_id: UUID,
+           bay_assignment_id: UUID (optional)
+         }
+       → Serial is immutable after issue
+       → Response: {
+           id,
+           serial_number: 3,
+           issued_by,
+           issued_at,
+           message: "Waiting serial 3 issued."
+         }
 
-```http
-GET    /api/v1/loading/my-assignments/
-       → List bay assignments for loading/unloading personnel
-       → Filters: ?operation_type=loading (auto-filtered by user role)
+GET    /api/v1/command-center/my-bay?loading_point_id=
+       → Loading personnel — current bay assignments for a given L/U point
        → Response: [
            {
              assignment_id,
              transport_order: {to_number, product, quantity_mt},
-             vehicle: {registration},
-             operation_point: {code, name},
-             waiting_serial,
+             vehicle_number,
+             loading_unloading_point: {short_code, name},
              assignment_status,
-             loading_operation: {start_at, end_at} | null
+             waiting_serial: {serial_number}
            }
          ]
+```
 
-POST   /api/v1/loading/start/
-       → Start loading/unloading operation
+### 4.2 Loading/Unloading Events (LD-01)
+
+```http
+POST   /api/v1/load-events
+       → Record load event (linked to TO + bay assignment)
        → Body: {
+           transport_order_id: UUID,
            bay_assignment_id: UUID,
-           start_at: "2026-05-06T14:00:00Z" (optional, defaults to now),
-           remarks: "Starting load of 50 MT broiler feed"
+           loading_unloading_point_id: UUID,
+           start_datetime: "2026-05-12T14:00:00Z",
+           end_datetime: "2026-05-12T15:30:00Z" (nullable — set on completion),
+           bags_loaded: 1000 (nullable),
+           seal_number: "SEAL-12345" (nullable),
+           weight_kg: 50000 (nullable),
+           remarks: "Loading complete"
          }
+       → Validations: end_datetime >= start_datetime (if both provided)
        → Side effects:
-           - Create LoadingOperation
-           - Update BayAssignment.assignment_status = 'started'
-           - Update TO execution_state
-           - Write TOExecutionEvent
-       → Response: {
-           operation_id,
-           message: "Loading started at Bay BAY-01."
-         }
+           - Update BayAssignment status
+           - Update TO sub-state (TLS-01): Loading Started / Loading Completed
+       → Response: {id, message: "Load event recorded."}
 
-POST   /api/v1/loading/complete/
-       → Complete loading/unloading operation
+GET    /api/v1/load-events?transport_order=&bay_assignment=
+       → List load events (filterable)
+       → Response: [{id, transport_order, bay_assignment, start_datetime, end_datetime, bags_loaded, weight_kg, seal_number}]
+
+POST   /api/v1/unload-events
+       → Record unload event (linked to TO + bay assignment)
        → Body: {
-           operation_id: UUID,
-           end_at: "2026-05-06T15:30:00Z" (optional, defaults to now),
-           bags_count: 1000 (loading only),
-           seal_number: "SEAL-12345" (loading only),
-           weight_kg: 50000 (optional),
-           unloaded_bags_count: 1000 (unloading only),
-           unloaded_weight_kg: 50000 (unloading only),
-           remarks: "Loading complete, seal applied"
+           transport_order_id: UUID,
+           bay_assignment_id: UUID,
+           loading_unloading_point_id: UUID,
+           start_datetime: "2026-05-12T14:00:00Z",
+           end_datetime: "2026-05-12T15:30:00Z" (nullable),
+           bags_unloaded: 1000 (nullable),
+           weight_kg: 50000 (nullable),
+           remarks: "Unloading complete"
          }
-       → Validations:
-           - end_at >= start_at
-           - bags_count > 0 (if loading)
+       → Validations: end_datetime >= start_datetime (if both provided)
        → Side effects:
-           - Update LoadingOperation
-           - Update BayAssignment.assignment_status = 'completed', completed_at = now
-           - Update TO execution_state
-           - Write TOExecutionEvent
+           - Update BayAssignment status
+           - Update TO sub-state (TLS-01): Unloading Started / Unloading Completed
+           - If RM inbound: persist QC handoff reference (TO + unload event id)
+       → Response: {id, message: "Unload event recorded."}
+
+GET    /api/v1/unload-events?transport_order=&bay_assignment=
+       → List unload events (filterable)
+       → Response: [{id, transport_order, bay_assignment, start_datetime, end_datetime, bags_unloaded, weight_kg, qc_handoff_persisted}]
+
+GET    /api/v1/unload-events/{id}/qc-handoff
+       → QC handoff context for RM TOs (consumed by QC-01)
        → Response: {
-           operation_id,
-           message: "Loading completed. Vehicle released to scale-out."
+           unload_event_id,
+           transport_order: {to_number, product, flow_type},
+           unload_start: ...,
+           unload_end: ...,
+           bags_unloaded,
+           weight_kg,
+           message: "QC handoff context for RM TO."
          }
 ```
 
 ---
 
-## 6. Business Rules
+## 5. Business Rules
 
-### 6.1 Bay Assignment Rules
+### 5.1 Bay Assignment Rules
 
 **Operation Type Matching**:
-- FG Outbound: needs **loading** → assign to point where `operation_type IN ('load', 'both')`
-- FG Inbound: needs **unloading** → assign to point where `operation_type IN ('unload', 'both')`
-- RM Inbound: needs **unloading** → assign to point where `operation_type IN ('unload', 'both')`
+- FG Outbound: needs **loading** → assign to point where `operation_type == 'LOAD'`
+- FG Inbound: needs **unloading** → assign to point where `operation_type == 'UNLOAD'`
+- RM Inbound: CC updates TO sub-state for QC visibility — does **NOT** assign unloading point (QC-01 handles assignment after QC pass)
+
+**Mismatch handling**: Manual selection with warnings on product type / vehicle type mismatch — automation deferred to later phase.
 
 **Waiting Serial**:
-- Auto-generated per operation point per day
-- Resets daily (or continuous — product decision)
+- Unique per loading point, immutable after issue
+- Issuer + timestamp audit
 - Sequential: 1, 2, 3, ... (next available number)
 
-**QC Trigger** (RM Inbound only):
-- Command Center **automatically** creates `TOQCCheckpoint` when assigning unloading bay for RM inbound TOs
-- Checkbox in bay assignment form is read-only (auto-checked for RM)
-- QC checkpoint blocks gate-out until `qc_passed = true` (see QC-01 spec)
+**RM QC Trigger (AC-6)**:
+- Command Center updates TO sub-state (e.g. `QC Started`) for QC Supervisor visibility
+- CC does **NOT** assign unloading point for RM TOs
+- QC Supervisor assigns unloading point directly after QC pass in QC-01
+- QC capture and unloading assignment for raw materials handled entirely in QC-01
+- For FG inbound: unload path states recorded without mandatory QC checkpoint
 
-### 6.2 Loading/Unloading Operation Rules
+### 5.2 Loading/Unloading Event Rules
 
-**Start**:
+**LoadEvent Start**:
 - Can only start if bay assignment exists (`assignment_status = 'assigned'`)
-- Cannot start if already started (unique constraint)
+- Cannot start if already started (one LoadEvent per BayAssignment)
 
-**Complete**:
-- Can only complete if operation started (`start_at not null`)
-- `end_at >= start_at` (validation)
-- Bags count required for FG operations (optional for RM — weight is primary)
-- Seal number required for **loading** operations (not applicable to unloading)
+**LoadEvent Complete**:
+- Can only complete if started (`start_datetime not null`)
+- `end_datetime >= start_datetime` (validation)
+
+**UnloadEvent Start/Complete**:
+- Same rules as LoadEvent
+- `end_datetime >= start_datetime` (validation)
+
+**QC Handoff (RM path)**:
+- After unload event for RM TOs, persist handoff reference (TO + unload event id) for QC-01
+- Handoff reference is auditable and retrievable via API
 
 **Scale-Out Eligibility**:
-- FG Outbound: loading_operation.end_at not null
-- FG Inbound: unloading_operation.end_at not null
-- RM Inbound: unloading_operation.end_at not null **AND** TOQCCheckpoint.qc_passed = true
-
-### 6.3 Operation Point Capacity (Phase 2)
-
-- `capacity_vehicles` field tracks max simultaneous vehicles per point
-- Command Center validates: cannot assign if `count(active_assignments for point) >= capacity_vehicles`
-- Sprint 4: default capacity = 1 (one vehicle per bay)
+- FG Outbound: LoadEvent.end_datetime not null
+- FG Inbound: UnloadEvent.end_datetime not null (no mandatory QC in Sprint 4)
+- RM Inbound: UnloadEvent.end_datetime not null **AND** QC pass completed in QC-01
 
 ---
 
-## 7. Integration Points
+## 6. Integration Points
 
-### 7.1 With Scaling (SC-01)
+### 6.1 With Scaling (SC-01)
 
-**Queue token handoff**:
-- After scale-in, vehicle appears in Command Center queue (via queue token)
-- Command Center bay assignment references `queue_token` FK
+**Queue auto-population**:
+- After scale-in, QueueEntry is auto-populated from SC-01 scale-in events
+- Command Center queue shows only pending entries
 
 **Scale-out prerequisite**:
-- Loading/unloading operation must complete before scale-out queue visibility
+- Loading/unloading event must complete before scale-out queue visibility
 
-### 7.2 With QC (QC-01)
+### 6.2 With QC (QC-01)
 
-**QC checkpoint trigger**:
-- Command Center creates `TOQCCheckpoint` for RM inbound TOs at bay assignment time
-- QC sampling + decision blocks gate-out (see QC-01 spec)
+**RM QC trigger (CC-01 AC-6)**:
+- Command Center updates TO sub-state for QC Supervisor visibility on RM TOs
+- CC does **NOT** assign unloading point for RM TOs
+- QC Supervisor assigns unloading point directly after QC pass in QC-01
 
-### 7.3 With Gate Operations (GT-01)
+**QC handoff context (LD-01 AC-3)**:
+- After UnloadEvent for RM TOs, handoff reference (TO + unload event id) persisted
+- QC-01 retrieves via `GET /api/v1/unload-events/{id}/qc-handoff`
+
+### 6.3 With Gate Operations (GT-01)
 
 **Gate-out clearance**:
-- Gate-out validates: loading/unloading operation complete (per flow type)
-- If RM inbound: also validates QC passed
+- Gate-out validates: load/unload event complete (per flow type)
+- If RM inbound: also validates QC passed (via QC-01)
 
-### 7.4 With Transport Lifecycle (TLS-01)
+### 6.4 With Transport Lifecycle (TLS-01)
 
-**Timeline events**:
-- Bay assigned: `TOExecutionEvent(event_type='bay_assigned', payload={operation_point_code, waiting_serial})`
-- Loading started: `TOExecutionEvent(event_type='loading_started')`
-- Loading completed: `TOExecutionEvent(event_type='loading_completed', payload={bags_count, seal_number})`
-- Unloading started: `TOExecutionEvent(event_type='unloading_started')`
-- Unloading completed: `TOExecutionEvent(event_type='unloading_completed', payload={unloaded_bags_count})`
+**Sub-state emissions** (LD-01-8):
+- Bay assigned: `TOExecutionEvent(event_type='bay_assigned', payload={point_code, point_name})`
+- Loading Started: `TOExecutionEvent(event_type='loading_started')`
+- Loading Completed: `TOExecutionEvent(event_type='loading_completed', payload={bags_loaded, seal_number})`
+- Unloading Started: `TOExecutionEvent(event_type='unloading_started')`
+- Unloading Completed: `TOExecutionEvent(event_type='unloading_completed', payload={bags_unloaded})`
 
 ---
 
-## 8. Permissions & RBAC
+## 7. Permissions & RBAC
 
-### 8.1 Permission Codes (add to `apps/core/constants_rbac.py`)
+### 7.1 Permission Codes (add to `apps/core/constants_rbac.py`)
+
+> **Loading/Unloading Points permissions** (`MasterData.LoadingUnloadingPoint.*`) are defined in **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)** §5.
 
 ```python
-# Operation Points (LUP-01)
-Operations.OperationPoint.Write
-Operations.OperationPoint.Read
-
 # Command Center (CC-01)
 Operations.CommandCenter.Queue.Read
 Operations.CommandCenter.AssignBay
 Operations.CommandCenter.Serial.Issue
 Operations.CommandCenter.QCTrigger
 
-# Loading/Unloading (LD-01)
-Operations.LoadUnload.Start
-Operations.LoadUnload.End
-Operations.LoadUnload.Read
+# Loading/Unloading Events (LD-01)
+Operations.LoadEvent.Start
+Operations.LoadEvent.End
+Operations.LoadEvent.Read
+Operations.UnloadEvent.Start
+Operations.UnloadEvent.End
+Operations.UnloadEvent.Read
+Operations.UnloadEvent.QCHandoff.Read
 ```
 
-### 8.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
+### 7.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
 
 ```python
 Menu.CommandCenter.View
 Menu.CommandCenter.Queue.View
 Menu.LoadUnload.View
-Menu.MasterData.OperationPoints.View
 ```
 
-### 8.3 Role → Permission Mapping
+### 7.3 Role → Permission Mapping
 
 **Command Center Officer**:
 - `Operations.CommandCenter.Queue.Read`
 - `Operations.CommandCenter.AssignBay`
 - `Operations.CommandCenter.Serial.Issue`
 - `Operations.CommandCenter.QCTrigger`
-- `Operations.OperationPoint.Read`
+- `MasterData.LoadingUnloadingPoint.Read` (from master data module)
 - `Transport.TO.Read`, `Transport.TO.ExecutionTimeline.Read`
 
 **Loading Personnel**:
-- `Operations.LoadUnload.Start` (load operations only)
-- `Operations.LoadUnload.End` (load operations only)
-- `Operations.LoadUnload.Read`
+- `Operations.LoadEvent.Start`
+- `Operations.LoadEvent.End`
+- `Operations.LoadEvent.Read`
 - `Transport.TO.Read` (assigned TOs only)
 
 **Unloading Personnel**:
-- `Operations.LoadUnload.Start` (unload operations only)
-- `Operations.LoadUnload.End` (unload operations only)
-- `Operations.LoadUnload.Read`
+- `Operations.UnloadEvent.Start`
+- `Operations.UnloadEvent.End`
+- `Operations.UnloadEvent.Read`
 - `Transport.TO.Read` (assigned TOs only)
+
+**QC Supervisor**:
+- `Operations.UnloadEvent.QCHandoff.Read`
 
 **Tenant Admin**:
 - All above permissions
-- `Operations.OperationPoint.Write`
+- `MasterData.LoadingUnloadingPoint.Write` (from master data module)
 
 ---
 
-## 9. Validation Rules
+## 8. Validation Rules
 
-### 9.1 POI Operation Point (LUP-01)
+> **LoadingUnloadingPoint validation rules** are defined in **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)** §6.
 
-- Code required (max 20 chars, alphanumeric + dash/underscore)
-- Code unique within POI
-- Name required (max 100 chars)
-- Operation type required (load/unload/both)
-- Cannot delete point with active assignments (soft delete: set is_active=false)
+### 8.1 QueueEntry (CC-01)
 
-### 9.2 Bay Assignment (CC-01)
+- Auto-populated from SC-01 — no manual creation
+- Status transitions: pending → assigned → completed
 
-- Visit must have queue token (scale-in complete)
-- Operation point must be active
-- Operation point type must match operation needed
-- Cannot assign if visit already assigned (unique constraint)
+### 8.2 BayAssignment (CC-01)
 
-### 9.3 Loading/Unloading Operation (LD-01)
+- Loading/unloading point must be active
+- Point operation_type must match operation needed
+- Warn on product/vehicle mismatch (manual override allowed)
+- RM inbound: CC does NOT assign unloading point — QC-01 handles
 
-- Start time required
-- End time >= start time
-- Bags count > 0 (if FG loading/unloading)
-- Seal number required (if loading — max 50 chars)
-- Cannot complete if not started
+### 8.3 WaitingSerial (CC-01)
+
+- Unique per loading point
+- Immutable after issue
+- Issuer + timestamp audit required
+
+### 8.4 LoadEvent (LD-01)
+
+- Start datetime required
+- End datetime >= start datetime
+- One LoadEvent per BayAssignment
+
+### 8.5 UnloadEvent (LD-01)
+
+- Start datetime required
+- End datetime >= start datetime
+- One UnloadEvent per BayAssignment
+- For RM TOs: QC handoff reference (TO + unload event id) persisted after unload completion
+
+---
+
+## 9. Sub-task Reference
+
+> **LUP-01 sub-tasks** (DFS-063-1 through DFS-063-8) are tracked in **[loading-unloading-points.md](../02-master-data/loading-unloading-points.md)** §9.
+
+### CC-01 Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| CC-01-1 | QueueEntry + BayAssignment + WaitingSerial models + migration | DFS-056-1 | Pending |
+| CC-01-2 | QueueEntryAdmin — list view with filters (product type, urgency, status), auto-populated from SC-01 | DFS-056-2 | Pending |
+| CC-01-3 | BayAssignmentAdmin — change form with L/U point dropdown, save_model validates match + updates TO sub-state | DFS-056-3 | Pending |
+| CC-01-4 | WaitingSerialAdmin — read-only after issue, issuer + timestamp audit fields | DFS-056-4 | Pending |
+| CC-01-5 | Queue list API (GET with filters: product type, urgency, status) | DFS-056-5 | Pending |
+| CC-01-6 | Bay assignment API (POST — assign vehicle to L/U point) | DFS-056-6 | Pending |
+| CC-01-7 | Waiting serial issuance API (POST — generate immutable serial per loading point) | DFS-056-7 | Pending |
+| CC-01-8 | "My bay" read API for loading personnel (GET) | DFS-056-8 | Pending |
+| CC-01-9 | Command Center UI — queue view, assignment form, serial issuance | DFS-056-9 | Pending |
+| CC-01-10 | RM QC trigger service — update TO sub-state for QC visibility on RM TOs (AC-6 handoff) | DFS-056-10 | Pending |
+| CC-01-11 | TLS-01 event emission — emit sub-state transitions on assignment + serial issuance | DFS-056-11 | Pending |
+
+### LD-01 Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| LD-01-1 | LoadEvent + UnloadEvent models + migration (FK to TO, BayAssignment, L/U point; start/end datetime, bags, weight, seal) | DFS-057-1 | Pending |
+| LD-01-2 | LoadEventAdmin — change form with vehicle selection, start/end datetime, bags/weight/seal, save_model validates + emits TLS-01 | DFS-057-2 | Pending |
+| LD-01-3 | UnloadEventAdmin — change form with unload start/end, bags/weight, save_model persists QC handoff for RM + emits TLS-01 | DFS-057-3 | Pending |
+| LD-01-4 | Load start/end API (POST — create load event linked to TO and bay assignment) | DFS-057-4 | Pending |
+| LD-01-5 | Unload start/end API (POST — create unload event linked to TO and bay assignment) | DFS-057-5 | Pending |
+| LD-01-6 | QC handoff reference API (GET — retrieve unload event context for QC-01) | DFS-057-6 | Pending |
+| LD-01-7 | Operator UI — web form for load/unload event capture | DFS-057-7 | Pending |
+| LD-01-8 | TLS-01 sub-state emission service — Loading Started/Completed, Unloading Started/Completed | DFS-057-8 | Pending |
 
 ---
 
@@ -823,8 +968,9 @@ Menu.MasterData.OperationPoints.View
 ## 11. Dependencies
 
 ### Upstream
+- `apps/master_data/`: POI, LoadingUnloadingPoint (LUP-01 — master data module)
 - `apps/operations/gate/`: GateVisitSession
-- `apps/operations/scaling/`: QueueToken, ScaleRecord
+- `apps/operations/scaling/`: ScaleEntry
 - `05-transport`: TransportOrder
 
 ### Downstream
@@ -839,11 +985,11 @@ Menu.MasterData.OperationPoints.View
 
 | Story | Scope | Implementation Focus |
 |-------|-------|----------------------|
-| **LUP-01** | Loading & unloading points — create & maintain per POI | POIOperationPoint model + master data admin UI + API endpoints |
-| **CC-01** | Queue monitoring, bay assignment & waiting serial | BayAssignment model + queue dashboard UI + assignment service + QC trigger (RM) + API endpoints + TLS-01 integration |
-| **LD-01** | Load / unload start–end capture (E2E) | LoadingOperation model + start/end forms UI + timestamp capture + bags/seal tracking + API endpoints + TLS-01 integration + scale-out clearance |
+| **LUP-01** | Loading & unloading points — create & maintain per POI | **Extracted to master data module** → [loading-unloading-points.md](../02-master-data/loading-unloading-points.md) |
+| **CC-01** | Queue monitoring, bay assignment & waiting serial | QueueEntry + BayAssignment + WaitingSerial models + queue dashboard UI + assignment service + RM QC trigger (AC-6 — sub-state only, no unloading point assignment) + API endpoints + TLS-01 integration |
+| **LD-01** | Load / unload event capture (E2E) | LoadEvent + UnloadEvent models + start/end forms UI + timestamp capture + bags/seal tracking + QC handoff context (RM path) + API endpoints + TLS-01 sub-state emission |
 
 ---
 
-**Last Updated**: 2026-05-06  
-**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [qc-operations-sprint4.md](./README.md), [05-transport](../05-transport/README.md)
+**Last Updated**: 2026-05-12  
+**Related Modules**: [loading-unloading-points.md](../02-master-data/loading-unloading-points.md) (LUP-01 master data), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [qc-operations-sprint4.md](./README.md), [05-transport](../05-transport/README.md)

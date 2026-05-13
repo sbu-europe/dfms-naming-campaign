@@ -1,10 +1,10 @@
 ---
 module: 06-poi-operations
 specification: Gate Operations (Sprint 4 — TO-Centric)
-version: 1.0
+version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-06
+last_updated: 2026-05-12
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -56,38 +56,45 @@ Sidebar (Gateman)
 ```
 Operations → Gate → Vehicle Entry (Gate-In)
   └─► Entry Form
-        ├── TO Lookup: TO Number input (search/autocomplete)
-        │     ├── If found: display TO summary (product, quantity, source→dest, vehicle assigned)
-        │     └── If not found: [Create On-Demand TO] button (GT-02 wizard)
+        ├── Vehicle Registration: required text input (max 15 chars)
+        ├── Document Category: radio buttons
+        │     ├── Supplier (PO) / Port → Inbound QC Workflow
+        │     ├── Dealer (DO) → Outbound FG Workflow
+        │     ├── Distributor (PO/DO) → Outbound FG Workflow
+        │     └── Internal Transfer (TO/Challan) → TO-Linked Workflow
         │
-        ├── Vehicle Details: Registration (autofill from TO if found), Driver Name, Driver Contact
-        ├── Document Validation:
-        │     ├── Document Category: TO/Challan/DO/PO (radio buttons)
-        │     ├── Document Number: text input
-        │     └── Routing Type: Supplier Inbound / Dealer Outbound / Internal Transfer (dropdown)
+        ├── Document Number: challan/TO/PO/DO number (text input)
+        ├── Product Details: gate-in item (item code lookup)
+        ├── Quantity: decimal (nullable — empty vehicles)
+        ├── Date/Time: auto-set to now (editable within 1 hour)
+        ├── Driver: Name + Contact (text inputs)
+        ├── Party Name: text input (supplier/dealer/distributor)
+        ├── Project / From Info: text input
+        ├── Remarks: text area (optional — discrepancies, visual inspection)
         │
-        ├── Remarks: text area (optional — discrepancies, visual inspection notes)
         └── [Submit Gate-In]
-              └─► Create GateVisitSession (status: gate_in)
-                    └─► Update TO.execution_state → 'gate_in_source' or 'gate_in_destination' (depending on POI)
-                          └─► Redirect: Active Visits list (new row appears)
+              └─► Create GateVisitSession + GateIn record
+                    └─► Update TO.execution_state (if TO-linked)
+                          └─► Emit GATE_IN event to TLS-01 timeline
+                                └─► Redirect: Active Visits
 
 Operations → Gate → Vehicle Exit (Gate-Out)
   └─► Exit Form
         ├── TO Lookup: TO Number input
-        │     └─► Fetch GateVisitSession (must exist, gate_out_at must be null)
+        │     └─► Fetch GateVisitSession (must exist, no GateOut record yet)
         │
-        ├── Clearance Checks (auto-validated by backend):
-        │     ├── ✓ Scale-Out Done (ScaleRecord.scale_out_at not null)
-        │     ├── ✓ QC Passed (if QC required — TOQCCheckpoint.qc_passed = true)
-        │     ├── ✗ Blocked: "Scale-out not completed" (error if scale-out missing)
+        ├── Guard Matrix (auto-validated by backend per flow type):
+        │     ├── FG outbound: scale-out completed + loading completed
+        │     ├── FG inbound: scale-out completed + unloading completed
+        │     ├── RM inbound: scale-out completed + unloading completed + QC not failed
+        │     └── ✗ Blocked: error message with missing step
         │
         ├── Exit Remarks: text area (optional)
         └── [Submit Gate-Out]
-              └─► Update GateVisitSession.gate_out_at = now()
-                    └─► Update TO.execution_state → 'gate_out_source' or 'gate_out_destination'
-                          └─► Remove from Active Visits
-                                └─► Redirect: Visit History
+              └─► Create GateOut record on GateVisitSession
+                    └─► Update TO.execution_state
+                          └─► Emit GATE_OUT event to TLS-01 timeline
+                                └─► Remove from Active Visits → Visit History
 
 Operations → Gate → On-Demand TO Wizard (GT-02)
   └─► Triggered from Entry Form when TO not found
@@ -98,18 +105,29 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
         ├── Step 2: Document & Party Details
         │     ├── Document Number (DO# or PO#)
         │     ├── Party: Dealer (dropdown) or Supplier (dropdown)
-        │     ├── Product: item code lookup
+        │     ├── Product: item code lookup (MDM-01)
         │     ├── Expected Quantity (MT)
-        │     └── Driver Name, Driver Contact
+        │     ├── Driver Name, Driver Contact (manual entry)
+        │     └── Remarks
         │
         ├── Step 3: Routing
-        │     ├── Source POI: auto-set to current gate POI (dealer outbound) or Supplier site (inbound)
-        │     ├── Destination POI: dropdown (dealer outbound → dealer site; inbound → factory/depot)
+        │     ├── Source POI: 
+        │     │     ├── Dealer DO: auto-set to current gate POI (depot/factory)
+        │     │     └── Supplier PO: Supplier site (FK from party)
+        │     ├── Destination POI:
+        │     │     ├── Dealer DO: Dealer site (FK from party)
+        │     │     └── Supplier PO: current gate POI (factory/depot)
+        │     └── Vehicle Type: default = 'Covered Truck' (editable)
         │
         └── [Create TO & Gate-In]
-              └─► Create TransportOrder (source_channel='gate_on_demand', fleet_type='own' default, status='created')
-                    └─► Create GateVisitSession (linked to new TO)
-                          └─► Redirect: Active Visits (gate-in recorded)
+              └─► Backend:
+                    ├─► Create TransportOrder:
+                    │     ├─► source = 'GATE'
+                    │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' (Dealer) or 'RM_SUPPLIER_INBOUND' (Supplier)
+                    │     └─► Emit TO_CREATED event to TLS-01
+                    │
+                    └─► Create GateVisitSession + GateIn (gate_in_at = now)
+                          └─► Success: redirect to Active Visits
 ```
 
 ---
@@ -126,456 +144,697 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
 
 ## 2. Data Model
 
-### 2.1 GateVisitSession (new model)
+### 2.1 GateVisitSession (new model — extends `TenantAwareModel`)
+
+The session container that tracks a vehicle's full visit lifecycle at a POI.
 
 ```python
-GateVisitSession {
-    visit_id: UUID
-    
+GateVisitSession(TenantAwareModel) {
+    id: UUID (PK)
+
     # Core links
-    transport_order: FK → TransportOrder    # TO-anchored (planner or gate-created)
-    poi: FK → POI                           # Gate location
-    vehicle: FK → Vehicle                   # Vehicle (from TO or entered manually for on-demand)
-    driver: FK → User (nullable)            # Driver (if known)
-    
-    # Document context
-    document_category: enum                 # ['transport_order', 'challan', 'dealer_do', 'supplier_po']
-    document_number: string                 # TO number, DO#, PO#, Challan#
-    routing_type: enum                      # ['supplier_inbound', 'dealer_outbound', 'internal_transfer', 'port_inbound']
-    
-    # Visit timestamps
-    gate_in_at: DateTime                    # Entry time
-    gate_out_at: DateTime (nullable)        # Exit time (null until gate-out)
-    
-    # Remarks
-    gate_in_remarks: text (nullable)        # Gateman notes at entry (discrepancies, damage)
-    gate_out_remarks: text (nullable)       # Gateman notes at exit
-    
-    # Clearance flags (computed on gate-out validation)
-    scale_out_done: boolean                 # True if ScaleRecord.scale_out_at exists
-    qc_required: boolean                    # True if flow_type = 'rm_inbound'
-    qc_passed: boolean (nullable)           # True if TOQCCheckpoint.qc_passed = true (null if not required)
-    
+    transport_order: FK → TransportOrder (nullable)  # null until TO linked (on-demand may link after creation)
+    poi: FK → POI                                    # Gate location
+    vehicle: FK → Vehicle                            # Vehicle for this visit
+
+    # Status
+    status: enum ['active', 'closed']                # closed when GateOut record created
+
     # Metadata
-    tenant_id: UUID
     created_by: FK → User (Gateman)
-    gate_in_by: FK → User (Gateman)
-    gate_out_by: FK → User (Gateman, nullable)
     created_at: DateTime
     updated_at: DateTime
 }
 ```
 
 **Constraints**:
-- Unique: `(transport_order, poi, gate_in_at)` — one visit per TO per POI (may have multiple if TO returns for multiple trips)
-- `gate_out_at >= gate_in_at` (validation)
-- Cannot create gate-out if `gate_out_at` already set
+- Cannot create a new active session for same vehicle at same POI if one already exists
+- Status transitions: `active` → `closed` (on gate-out creation)
 
-### 2.2 GateOnDemandTORequest (new model — audit log for GT-02)
+### 2.2 GateIn (new model — extends `TenantAwareModel`)
+
+Separate model capturing all gate-in details per PRD §6.10.1.
 
 ```python
-GateOnDemandTORequest {
-    request_id: UUID
-    
-    # Created TO
-    created_transport_order: FK → TransportOrder
-    
-    # Context
-    poi: FK → POI                           # Gate POI where request originated
-    path_type: enum                         # ['dealer_do', 'supplier_po']
-    
-    # Document
-    reference_number: string                # DO# or PO#
-    party_type: enum                        # ['dealer', 'supplier']
-    party: FK → Dealer or Supplier (polymorphic or separate FKs)
-    
-    # Product & Quantity
-    product: FK → Product
-    expected_quantity_mt: Decimal
-    
-    # Driver
-    driver_name: string                     # Manual entry (may not be in system)
-    driver_contact: string                  # Phone number
-    
-    # Remarks
-    remarks: text (nullable)
-    
+GateIn(TenantAwareModel) {
+    id: UUID (PK)
+
+    # Links
+    gate_visit_session: FK → GateVisitSession (OneToOne)
+    transport_order: FK → TransportOrder (nullable)  # linked TO (planner or gate-created)
+    vehicle: FK → Vehicle
+
+    # Document context (per PRD §6.10.1)
+    document_category: enum [
+        'supplier_po',          # Supplier (PO) → Inbound QC Workflow
+        'port',                 # Port → Inbound QC Workflow
+        'dealer_do',            # Dealer (DO) → Outbound FG Workflow
+        'distributor',          # Distributor (PO/DO) → Outbound FG Workflow
+        'internal_transfer'     # Internal Transfer (TO/Challan) → TO-Linked Workflow
+    ]
+    document_number: string (max 50)    # challan/TO/PO/DO number
+
+    # Gate-in fields (per PRD)
+    product_details: text (nullable)    # gate-in item description
+    quantity: Decimal (nullable)        # nullable for empty vehicles
+    gate_in_at: DateTime                # entry timestamp
+    driver_name: string (max 100)
+    driver_contact: string (max 20)
+    party_name: string (max 200, nullable)
+    project_from_info: string (max 200, nullable)
+    remarks: text (nullable)            # discrepancy notes
+
     # Metadata
     created_by: FK → User (Gateman)
-    tenant_id: UUID
+    created_at: DateTime
+    updated_at: DateTime
+}
+```
+
+### 2.3 GateOut (new model — extends `TenantAwareModel`)
+
+Separate model capturing gate-out details with guard matrix enforcement.
+
+```python
+GateOut(TenantAwareModel) {
+    id: UUID (PK)
+
+    # Links
+    gate_visit_session: FK → GateVisitSession (OneToOne)
+    transport_order: FK → TransportOrder
+    vehicle: FK → Vehicle
+
+    # Gate-out timestamps
+    gate_out_at: DateTime               # exit timestamp
+
+    # Clearance flags (computed on save_model validation)
+    scale_out_completed: boolean
+    loading_completed: boolean (nullable)     # FG outbound
+    unloading_completed: boolean (nullable)   # FG inbound, RM inbound
+    qc_not_failed: boolean (nullable)         # RM inbound only
+
+    # Remarks
+    remarks: text (nullable)            # gateman notes at exit
+
+    # Metadata
+    created_by: FK → User (Gateman)
+    created_at: DateTime
+    updated_at: DateTime
+}
+```
+
+**Guard matrix enforcement in `save_model`**:
+- FG outbound: `scale_out_completed` AND `loading_completed` required
+- FG inbound: `scale_out_completed` AND `unloading_completed` required
+- RM inbound: `scale_out_completed` AND `unloading_completed` AND `qc_not_failed` required
+- On save: sets `GateVisitSession.status = 'closed'`
+
+### 2.4 GateActivityLog (new model — extends `TenantAwareModel`)
+
+Audit log for all gate operations (GT-01-12).
+
+```python
+GateActivityLog(TenantAwareModel) {
+    id: UUID (PK)
+
+    # Context
+    gate_visit_session: FK → GateVisitSession (nullable)
+    poi: FK → POI
+    action: enum [
+        'gate_in',
+        'gate_out',
+        'remark_added',
+        'on_demand_to_created'
+    ]
+
+    # Audit fields
+    actor: FK → User
+    timestamp: DateTime
+    details: JSONField (nullable)       # action-specific payload (document category, TO number, etc.)
+
+    # Metadata
     created_at: DateTime
 }
 ```
 
-### 2.3 Extensions to TransportOrder (existing model)
+### 2.5 Extensions to TransportOrder (existing model — GT-02)
 
-New field for Sprint 4:
+New fields for Sprint 4 gate-originated TOs:
 
 ```python
 TransportOrder {
     # ... existing fields ...
-    
-    source_channel: enum                    # ['planner', 'gate_on_demand']
-                                            # Sprint 3 TOs = 'planner'; GT-02 TOs = 'gate_on_demand'
-    
-    # Gate-created TOs skip some validations (no TR link, no TDO approval)
+
+    source: enum ['PLANNER', 'GATE']
+    # Sprint 3 TOs = 'PLANNER'; GT-02 TOs = 'GATE'
+
+    transfer_type: enum [
+        'FG_DEALER_OUTBOUND',       # Dealer DO → finished goods outbound
+        'RM_SUPPLIER_INBOUND',      # Supplier PO → raw material inbound
+    ] (nullable)
+    # Only set for gate-originated TOs; planner TOs use existing flow_type
 }
 ```
 
 ---
 
-## 3. Gate-In Flow (GT-01)
+## 3. Document Category Routing (GT-01 AC-2)
 
-### 3.1 TO-First Entry (Planner TO exists)
+At gate-in, the **document category** determines which operational flow the visit is routed to:
+
+| Document Category | Operational Flow | QC Required | Sprint 4 Status |
+|-------------------|-----------------|:-----------:|-----------------|
+| `Supplier (PO)` | Inbound QC Workflow | Yes | **Feature flag** |
+| `Port` | Inbound QC Workflow | Yes | **Feature flag** |
+| `Dealer (DO)` | Outbound FG Workflow | No | **Feature flag** |
+| `Distributor (PO/DO)` | Outbound FG Workflow | No | **Feature flag** |
+| `Internal Transfer (TO/Challan)` | TO-Linked Workflow | No (unless RM) | **E2E priority** |
+
+**Sprint 4 E2E prioritises Internal Transfer (TO/Challan)** — this path aligns with TLS-01 and POD-01 end-to-end flows. Supplier and Dealer/Distributor flows are toggled by **feature flag** per GT-01 Business Context.
+
+### Routing logic (service layer)
+
+```python
+def resolve_operational_flow(document_category: str) -> str:
+    routing = {
+        'supplier_po': 'inbound_qc',
+        'port': 'inbound_qc',
+        'dealer_do': 'outbound_fg',
+        'distributor': 'outbound_fg',
+        'internal_transfer': 'to_linked',
+    }
+    return routing[document_category]
+```
+
+Feature flag check wraps the gate-in service: if the resolved flow is not `to_linked` and the flag is off, the gate-in is rejected with a user-facing message.
+
+---
+
+## 4. Gate-In Flow (GT-01)
+
+### 4.1 TO-First Entry (Planner TO exists — Internal Transfer path)
 
 ```
 Gateman opens Gate-In form
-  └─► Enters TO Number (search/autocomplete)
-        └─► Backend lookup: TransportOrder.objects.get(to_number=...)
-              ├─► If found:
-              │     ├─► Display TO summary: Product, Quantity, Source→Dest, Vehicle, Driver
-              │     ├─► Pre-fill: Vehicle registration, Driver name
-              │     ├─► Gateman confirms/edits document category, routing type
-              │     ├─► Gateman enters remarks (optional)
-              │     └─► [Submit Gate-In]
-              │           └─► Create GateVisitSession(transport_order=TO, gate_in_at=now, ...)
-              │                 └─► Update TO.execution_state:
-              │                       ├─► If POI = TO.origin_poi: 'gate_in_source'
-              │                       └─► If POI = TO.destination_poi: 'gate_in_destination'
-              │                             └─► Write TOExecutionEvent (TLS-01 timeline)
-              │                                   └─► Success redirect: Active Visits
-              │
-              └─► If not found:
-                    └─► Error: "TO not found. [Create On-Demand TO]" button enabled
+  └─► Enters vehicle registration (required)
+        └─► Selects document category: Internal Transfer (TO/Challan)
+              └─► Enters TO/Challan number
+                    └─► Backend lookup: TransportOrder.objects.get(to_number=...)
+                          ├─► If found:
+                          │     ├─► Validate vehicle matches assigned vehicle on TO (warn + supervisor override if mismatch)
+                          │     ├─► Pre-fill: product details, quantity from TO
+                          │     ├─► Gateman enters: driver name, driver contact, party name, project/from info, remarks
+                          │     └─► [Submit Gate-In]
+                          │           └─► Create GateVisitSession + GateIn record
+                          │                 └─► Update TO.execution_state:
+                          │                       ├─► If POI = TO.origin_poi: 'gate_in_source'
+                          │                       └─► If POI = TO.destination_poi: 'gate_in_destination'
+                          │                             └─► Emit GATE_IN event (TLS-01 timeline)
+                          │                                   └─► Log GateActivityLog(action='gate_in')
+                          │                                         └─► Success redirect: Active Visits
+                          │
+                          └─► If not found:
+                                └─► Error: "TO not found. [Create On-Demand TO]" button enabled (GT-02)
 ```
 
-### 3.2 On-Demand TO Creation (GT-02)
+### 4.2 Dealer/Supplier Entry (feature-flagged — GT-02 on-demand path)
+
+```
+Gateman opens Gate-In form
+  └─► Enters vehicle registration (required)
+        └─► Selects document category: Dealer (DO) or Supplier (PO)
+              └─► Feature flag check:
+                    ├─► If flag OFF: "This document category is not yet enabled. Contact admin."
+                    └─► If flag ON:
+                          └─► Enters DO/PO number
+                                └─► System checks for existing TO
+                                      ├─► If TO exists: proceed with standard gate-in
+                                      └─► If no TO: [Create On-Demand TO] → GT-02 wizard
+```
+
+### 4.3 On-Demand TO Creation (GT-02)
 
 ```
 Gateman clicks [Create On-Demand TO] from Gate-In form
   └─► GT-02 Wizard opens
-        ├─► Step 1: Path Type selection (Dealer DO / Supplier PO)
+        ├─► Step 1: Path Type selection
+        │     ├─► Dealer DO Outbound (FG delivery to dealer)
+        │     └─► Supplier PO Inbound (RM receipt from supplier)
         │
         ├─► Step 2: Document & Party Details
-        │     ├─► Document Number (required)
-        │     ├─► Party: Dealer or Supplier (dropdown from MDM)
-        │     ├─► Product: item code lookup (MDM-01)
-        │     ├─► Expected Quantity (MT)
-        │     ├─► Driver Name, Driver Contact (manual entry)
-        │     └─► Remarks
+        │     ├─► Dealer DO path:
+        │     │     ├─► DO Number (required)
+        │     │     ├─► Dealer Name (dropdown from MDM)
+        │     │     ├─► FG Product (item code lookup)
+        │     │     ├─► Planned Quantity (MT)
+        │     │     ├─► Driver Name, Driver Contact
+        │     │     └─► Remarks (optional)
+        │     │
+        │     └─► Supplier PO path:
+        │           ├─► PO Number (required)
+        │           ├─► Supplier Name (dropdown from MDM)
+        │           ├─► RM Product (item code lookup)
+        │           ├─► Expected Quantity (MT)
+        │           ├─► Driver Name, Driver Contact
+        │           └─► Remarks (optional)
         │
-        ├─► Step 3: Routing
-        │     ├─► Source POI: 
-        │     │     ├─► Dealer DO: auto-set to current gate POI (depot/factory)
-        │     │     └─► Supplier PO: Supplier site (FK from party)
-        │     ├─► Destination POI:
-        │     │     ├─► Dealer DO: Dealer site (FK from party)
-        │     │     └─► Supplier PO: current gate POI (factory/depot)
-        │     └─► Vehicle Type: default = 'Covered Truck' (editable)
+        ├─► Step 3: Routing (auto-derived from path type)
+        │     ├─► Dealer DO:
+        │     │     ├─► Source POI: current gate POI (depot/factory)
+        │     │     └─► Destination POI: Dealer site (FK from party)
+        │     └─► Supplier PO:
+        │           ├─► Source POI: Supplier site (FK from party)
+        │           └─► Destination POI: current gate POI (factory/depot)
         │
         └─► [Create TO & Gate-In]
               └─► Backend:
                     ├─► Create TransportOrder:
                     │     ├─► to_number = auto-generate ('TO-YYYYMMDD-XXXX')
-                    │     ├─► source_channel = 'gate_on_demand'
+                    │     ├─► source = 'GATE'
+                    │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' or 'RM_SUPPLIER_INBOUND'
                     │     ├─► fleet_type = 'own' (default)
-                    │     ├─► flow_type = 'fg_outbound' (Dealer DO) or 'rm_inbound' (Supplier PO)
                     │     ├─► status = 'created'
-                    │     ├─► execution_state = 'gate_in_source' or 'gate_in_destination'
                     │     ├─► origin_poi, destination_poi from wizard
                     │     ├─► allocated_quantity_mt = expected_quantity_mt
-                    │     └─► no TR link, no TDO assignment required
+                    │     ├─► QC linkage flag set (Supplier PO path)
+                    │     └─► No TR link, no TDO assignment required
                     │
-                    ├─► Create GateOnDemandTORequest (audit log)
+                    ├─► Emit TO_CREATED lifecycle event (TLS-01)
                     │
-                    └─► Create GateVisitSession (gate_in_at = now)
-                          └─► Success: redirect to Active Visits (TO created + gate-in recorded)
+                    ├─► Feature-flagged stock check stub (Dealer path — AC-3):
+                    │     └─► If inventory module ready: validate FG stock availability
+                    │     └─► Otherwise: manual confirm + audit log
+                    │
+                    ├─► Create GateVisitSession + GateIn (gate_in_at = now)
+                    │
+                    └─► Log GateActivityLog(action='on_demand_to_created')
+                          └─► Success: redirect to Active Visits
 ```
 
 ---
 
-## 4. Gate-Out Flow (GT-01)
+## 5. Gate-Out Flow (GT-01)
 
-### 4.1 Exit Validation & Clearance Checks
+### 5.1 Guard Matrix (GT-01 AC-3)
+
+| Flow Lane | Scale-Out Completed | Loading Completed | Unloading Completed | QC Not Failed |
+|-----------|:-------------------:|:-----------------:|:-------------------:|:-------------:|
+| **FG outbound** | ✓ Required | ✓ Required | — | — |
+| **FG inbound** | ✓ Required | — | ✓ Required | — |
+| **RM inbound** | ✓ Required | — | ✓ Required | ✓ Required |
+
+### 5.2 Exit Validation & Clearance Checks
 
 ```
 Gateman opens Gate-Out form
   └─► Enters TO Number
-        └─► Backend lookup: GateVisitSession.objects.get(transport_order__to_number=..., gate_out_at__isnull=True)
+        └─► Backend lookup: GateVisitSession with active status + matching TO + no GateOut record
               ├─► If not found: Error "No active visit for this TO"
               │
               └─► If found:
                     ├─► Display visit summary: Vehicle, Driver, Gate-In Time, Dwell Time
                     │
-                    ├─► Clearance Checks (backend validation):
-                    │     ├─► Scale-Out Done:
-                    │     │     └─► ScaleRecord.objects.filter(gate_visit_session=visit, scale_out_at__isnull=False).exists()
-                    │     │           ├─► If False: raise ValidationError("Scale-out not completed. Vehicle cannot exit.")
-                    │     │           └─► If True: ✓ Pass
+                    ├─► Guard Matrix Checks (backend validation in save_model):
                     │     │
-                    │     └─► QC Passed (if required):
-                    │           └─► If visit.qc_required:
-                    │                 └─► TOQCCheckpoint.objects.get(transport_order=visit.transport_order).qc_passed
-                    │                       ├─► If False or None: raise ValidationError("QC not passed. Vehicle cannot exit.")
-                    │                       └─► If True: ✓ Pass
+                    │     ├─► FG Outbound:
+                    │     │     ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
+                    │     │     └─► Loading completed? → LoadingOperation.completed_at not null
+                    │     │
+                    │     ├─► FG Inbound:
+                    │     │     ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
+                    │     │     └─► Unloading completed? → UnloadingOperation.completed_at not null
+                    │     │
+                    │     └─► RM Inbound:
+                    │           ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
+                    │           ├─► Unloading completed? → UnloadingOperation.completed_at not null
+                    │           └─► QC not failed? → TOQCCheckpoint.qc_passed != False
+                    │
+                    │     └─► If any required check fails: raise ValidationError with missing step
                     │
                     ├─► Gateman enters exit remarks (optional)
                     │
                     └─► [Submit Gate-Out]
-                          └─► Update GateVisitSession:
+                          └─► Create GateOut record:
                                 ├─► gate_out_at = now()
-                                ├─► gate_out_by = current_user
-                                └─► gate_out_remarks = form.remarks
-                                      └─► Update TO.execution_state:
-                                            ├─► If POI = TO.origin_poi: 'gate_out_source'
-                                            └─► If POI = TO.destination_poi: 'gate_out_destination'
-                                                  └─► Write TOExecutionEvent (TLS-01)
-                                                        └─► Success: Remove from Active Visits, add to Visit History
+                                ├─► clearance flags = computed from checks
+                                └─► remarks = form.remarks
+                                      └─► Update GateVisitSession.status = 'closed'
+                                            └─► Update TO.execution_state:
+                                                  ├─► If POI = TO.origin_poi: 'gate_out_source'
+                                                  └─► If POI = TO.destination_poi: 'gate_out_destination'
+                                                        └─► Emit GATE_OUT event (TLS-01)
+                                                              └─► Log GateActivityLog(action='gate_out')
+                                                                    └─► Remove from Active Visits → Visit History
 ```
 
 ---
 
-## 5. Django Admin Configuration
+## 6. Django Admin Configuration
 
-### 5.1 GateVisitSession Admin
+### 6.1 GateInAdmin (GT-01-2, GT-01-3)
+
+Uses `TenantOnlyAdminMixin`.
+
+**Change Form**:
+- TO number autocomplete lookup field
+- Vehicle registration validation in `save_model` (matches assigned vehicle on TO; warn + supervisor override on mismatch)
+- Document category routing logic:
+  - `Internal Transfer` → active (Sprint 4 E2E)
+  - `Dealer (DO)` / `Supplier (PO)` / `Distributor` → feature-flag gated
+- Inline for gate-in items (product, quantity)
+- `save_model` sets `gate_in_at` timestamp and creates `GateVisitSession`
 
 **List View**:
-- Columns: TO Number, Vehicle, POI, Gate-In Time, Gate-Out Time, Status (Active/Closed), Dwell Time (computed), Created By
-- Filters: `poi`, `gate_in_at` (date range), Status (custom filter: gate_out_at null=Active, not null=Closed)
-- Search: TO number, Vehicle registration
-- Actions: Bulk export CSV
-
-**Status Badge**:
-- Green: Closed (gate_out_at not null)
-- Yellow: Active (gate_out_at null)
+- Columns: TO Number, Vehicle Registration, Document Category, Gate-In Time, Driver Name, Party Name, Created By
+- Filters: `document_category`, `gate_in_at` (date range), `poi`
+- Search: TO number, Vehicle registration, Document number
 
 **Detail View**:
-- Read-only: TO (link), Vehicle (link), Driver (link), POI
-- Timestamps: Gate-In At, Gate-Out At
-- Clearance flags: Scale-Out Done (✓/✗), QC Required (✓/✗), QC Passed (✓/✗/N/A)
-- Remarks: Gate-In Remarks (read-only), Gate-Out Remarks (read-only)
-- Custom admin action: **"View TO Timeline"** (redirect to TLS-01 timeline view)
-- Inline: Related records (ScaleRecord, BayAssignment, LoadingOperation) — read-only
-
-**Edit Restrictions**:
-- Gate-In Time: editable within 1 hour of creation (for clock adjustments)
-- Gate-Out Time: only via Gate-Out form (not direct admin edit)
+- Read-only: TO (link), Vehicle (link), POI
+- Editable (within 1 hour): Gate-In Time
+- Read-only after 1 hour: all timestamps
 - Remarks: editable by Gateman who created the record
 
-### 5.2 GateOnDemandTORequest Admin
+### 6.2 GateOutAdmin (GT-01-4)
+
+Uses `TenantOnlyAdminMixin`.
+
+**Change Form**:
+- Gate-out guard matrix enforcement in `save_model`:
+  - Checks scale-out completed, loading/unloading completed per flow type
+  - RM inbound additionally checks QC not failed
+- `get_readonly_fields` locks completed records (once GateOut saved, all fields read-only)
 
 **List View**:
-- Columns: Created TO (link), Path Type, Reference Number, Party, Product, Quantity, Created By, Created At
-- Filters: `path_type`, `poi`, `created_at` (date range)
-- Search: Reference number, TO number, Party name
-- Actions: Bulk export CSV
+- Columns: TO Number, Vehicle, Gate-Out Time, Scale-Out Done, Loading/Unloading Done, QC Status, Created By
+- Filters: `gate_out_at` (date range), `poi`
+- Search: TO number, Vehicle registration
 
 **Detail View**:
-- Read-only: Created TO (link to TO detail), POI, Path Type, Reference Number, Party, Product, Expected Quantity, Driver Name/Contact, Remarks
-- Audit trail: Created By, Created At
-- Custom admin action: **"View Created TO"** (redirect to TO admin detail)
+- Clearance flags displayed: Scale-Out (✓/✗), Loading (✓/✗/N/A), Unloading (✓/✗/N/A), QC (✓/✗/N/A)
+- Read-only: all fields after gate-out is recorded
+- Custom admin action: **"View TO Timeline"** (redirect to TLS-01 timeline view)
+
+### 6.3 GateVisitSession Admin
+
+**List View**:
+- Columns: TO Number, Vehicle, POI, Status (Active/Closed), Gate-In Time (from GateIn), Gate-Out Time (from GateOut), Dwell Time (computed), Created By
+- Filters: `poi`, `status`, creation date range
+- Search: TO number, Vehicle registration
+
+**Status Badge**:
+- Green: Closed (GateOut record exists)
+- Yellow: Active (no GateOut record)
+
+**Detail View**:
+- Read-only: TO (link), Vehicle (link), POI, Status
+- Inline: GateIn (read-only), GateOut (read-only), related ScaleRecord, BayAssignment, LoadingOperation
+
+### 6.4 OnDemandTOAdmin (GT-02-2, GT-02-3)
+
+Uses `TenantOnlyAdminMixin`.
+
+**Dealer DO form** (GT-02-2):
+- `save_model` creates FG TO with `transfer_type=FG_DEALER_OUTBOUND`
+- Generates unique TO number
+- Links to gate-in stub/session
+
+**Supplier PO form** (GT-02-3):
+- `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND`
+- Sets QC linkage flag
+- Links to gate session
+
+### 6.5 GateActivityLog Admin (GT-01-12)
+
+**List View**:
+- Columns: Action, POI, Actor, Timestamp, Session (link), Details (truncated)
+- Filters: `action`, `poi`, `timestamp` (date range)
+- Search: Actor name, Session ID
+
+**Detail View**:
+- Read-only: all fields
+- JSON details rendered as formatted key-value pairs
 
 ---
 
-## 6. API Endpoints
+## 7. API Endpoints
 
-### 6.1 Gate-In
-
-```http
-POST   /api/v1/gate/entry/
-       → Create gate-in visit
-       → Body: {
-           to_number: "TO-20260506-0042" (optional if on-demand),
-           vehicle_registration: "DHK-1234" (required if TO not found),
-           driver_name: "John Doe" (optional),
-           document_category: "transport_order",
-           document_number: "TO-20260506-0042",
-           routing_type: "dealer_outbound",
-           remarks: "Vehicle front bumper dent noted"
-         }
-       → Response: {
-           visit_id,
-           transport_order: {to_number, status},
-           gate_in_at,
-           message: "Gate-in recorded. Vehicle in Active Visits."
-         }
-```
-
-### 6.2 Gate-Out
+### 7.1 Gate-In (GT-01-5, GT-01-6)
 
 ```http
-POST   /api/v1/gate/exit/
-       → Record gate-out
+POST   /api/v1/gate/gate-in
+       → Create gate-in record
        → Body: {
-           to_number: "TO-20260506-0042",
-           exit_remarks: "All clear"
-         }
-       → Validations:
-           - GateVisitSession must exist (gate_out_at = null)
-           - Scale-out done
-           - QC passed (if required)
-       → Response: {
-           visit_id,
-           gate_out_at,
-           dwell_time_minutes: 120,
-           message: "Gate-out recorded. Vehicle exited."
-         }
-```
-
-### 6.3 On-Demand TO Creation (GT-02)
-
-```http
-POST   /api/v1/gate/on-demand-to/
-       → Create on-demand TO + gate-in
-       → Body: {
-           path_type: "dealer_do" | "supplier_po",
-           reference_number: "DO-2026-1234",
-           party_id: UUID (Dealer or Supplier FK),
-           product_id: UUID,
-           expected_quantity_mt: 50.0,
+           vehicle_registration: "DHK-1234" (required),
+           document_category: "internal_transfer" | "supplier_po" | "dealer_do" | "distributor" | "port",
+           document_number: "TO-20260512-0042",
+           product_details: "FG Item A" (nullable),
+           quantity: 50.0 (nullable),
            driver_name: "John Doe",
            driver_contact: "+8801712345678",
-           destination_poi_id: UUID (dealer_do path),
-           remarks: "Urgent delivery"
+           party_name: "ABC Corp" (nullable),
+           project_from_info: "Factory A" (nullable),
+           remarks: "Vehicle front bumper dent noted" (nullable)
          }
        → Side effects:
-           - Create TransportOrder (source_channel='gate_on_demand')
-           - Create GateOnDemandTORequest (audit log)
-           - Create GateVisitSession (gate_in_at=now)
+           - Create GateVisitSession + GateIn
+           - Update TO.execution_state (if TO-linked)
+           - Emit GATE_IN event to TLS-01
+           - Create GateActivityLog entry
        → Response: {
-           transport_order: {to_id, to_number, flow_type},
-           visit: {visit_id, gate_in_at},
-           message: "On-demand TO created and gate-in recorded."
+           gate_in_id,
+           gate_visit_session_id,
+           transport_order: {to_number, status} (nullable),
+           gate_in_at,
+           document_category,
+           message: "Gate-in recorded."
+         }
+
+GET    /api/v1/gate/gate-in?date=&vehicle=&doc_category=&to_number=&search=
+       → List gate-in records
+       → Filters: date (date range), vehicle (registration), doc_category, to_number, search (text)
+       → Response: paginated list of gate-in records
+
+GET    /api/v1/gate/gate-in/{gate_in_id}
+       → Gate-in detail
+```
+
+### 7.2 Gate-Out (GT-01-7, GT-01-8)
+
+```http
+POST   /api/v1/gate/gate-out
+       → Record gate-out with guard matrix enforcement
+       → Body: {
+           gate_visit_session_id: UUID,
+           remarks: "All clear" (nullable)
+         }
+       → Validations (guard matrix per flow type):
+           - FG outbound: scale-out completed + loading completed
+           - FG inbound: scale-out completed + unloading completed
+           - RM inbound: scale-out completed + unloading completed + QC not failed
+       → Side effects:
+           - Create GateOut record
+           - Update GateVisitSession.status = 'closed'
+           - Update TO.execution_state
+           - Emit GATE_OUT event to TLS-01
+           - Create GateActivityLog entry
+       → Response: {
+           gate_out_id,
+           gate_visit_session_id,
+           gate_out_at,
+           dwell_time_minutes: 120,
+           clearance: {scale_out: true, loading: true, qc: null},
+           message: "Gate-out recorded."
+         }
+
+GET    /api/v1/gate/gate-out?date=&vehicle=&search=
+       → List gate-out records
+
+GET    /api/v1/gate/gate-out/{gate_out_id}
+       → Gate-out detail
+```
+
+### 7.3 Visit Session (GT-01)
+
+```http
+GET    /api/v1/gate/visit-sessions/{session_id}
+       → Full visit session detail (GateIn + GateOut + timeline)
+       → Response: {
+           session_id,
+           status: "active" | "closed",
+           transport_order: {to_number, status, execution_state},
+           vehicle: {registration},
+           gate_in: {gate_in_at, document_category, document_number, driver_name, ...},
+           gate_out: {gate_out_at, clearance, remarks} (nullable),
+           dwell_time_minutes,
+           activity_log: [...]
          }
 ```
 
-### 6.4 Active Visits List
+### 7.4 On-Demand TO Creation (GT-02-4, GT-02-5, GT-02-6)
 
 ```http
-GET    /api/v1/gate/active-visits/
-       → List all vehicles currently inside POI (gate_out_at null)
-       → Filters: ?poi_id=...
-       → Response: [
-           {
-             visit_id,
-             transport_order: {to_number, product, quantity},
-             vehicle: {registration, type},
-             gate_in_at,
-             dwell_time_minutes: 45,
-             next_step: "scale_in" | "loading" | "qc" | "scale_out",
-             clearance_status: {scale_out_done: false, qc_passed: null}
-           }
-         ]
-```
+POST   /api/v1/gate/on-demand-to/dealer
+       → Create FG TO from Dealer DO
+       → Body: {
+           do_number: "DO-2026-1234",
+           dealer_name: "ABC Dealer",
+           product_id: UUID,
+           planned_quantity_mt: 50.0,
+           driver_name: "John Doe",
+           driver_contact: "+8801712345678",
+           remarks: "Urgent delivery" (nullable)
+         }
+       → Side effects:
+           - Create TransportOrder (source='GATE', transfer_type='FG_DEALER_OUTBOUND')
+           - Feature-flagged stock check (AC-3): stub with manual confirm if inventory module not ready
+           - Create GateVisitSession + GateIn
+           - Emit TO_CREATED event to TLS-01
+           - Create GateActivityLog(action='on_demand_to_created')
+       → Response: {
+           transport_order: {to_id, to_number, transfer_type: "FG_DEALER_OUTBOUND"},
+           gate_visit_session_id,
+           gate_in_at,
+           message: "Dealer TO created and gate-in recorded."
+         }
 
-### 6.5 Visit History
+POST   /api/v1/gate/on-demand-to/supplier
+       → Create RM TO from Supplier PO
+       → Body: {
+           po_number: "PO-2026-5678",
+           supplier_name: "XYZ Supplier",
+           product_id: UUID,
+           expected_quantity_mt: 25.0,
+           driver_name: "Jane Doe",
+           driver_contact: "+8801798765432",
+           remarks: "Scheduled delivery" (nullable)
+         }
+       → Side effects:
+           - Create TransportOrder (source='GATE', transfer_type='RM_SUPPLIER_INBOUND')
+           - Set QC linkage flag for inbound workflow
+           - Create GateVisitSession + GateIn
+           - Emit TO_CREATED event to TLS-01
+           - Create GateActivityLog(action='on_demand_to_created')
+       → Response: {
+           transport_order: {to_id, to_number, transfer_type: "RM_SUPPLIER_INBOUND"},
+           gate_visit_session_id,
+           gate_in_at,
+           message: "Supplier TO created and gate-in recorded."
+         }
 
-```http
-GET    /api/v1/gate/visit-history/
-       → List all gate visits (completed + active)
-       → Filters: ?poi_id=..., ?from_date=..., ?to_date=..., ?to_number=..., ?vehicle_registration=...
-       → Response: [
-           {
-             visit_id,
-             transport_order: {to_number},
-             vehicle: {registration},
-             gate_in_at,
-             gate_out_at,
-             dwell_time_minutes: 180,
-             status: "closed" | "active"
-           }
-         ]
+GET    /api/v1/gate/on-demand-to?source=GATE&transfer_type=&date=&search=
+       → List on-demand TOs
+       → Filters: source (default GATE), transfer_type (FG_DEALER_OUTBOUND / RM_SUPPLIER_INBOUND), date, search
+
+GET    /api/v1/gate/on-demand-to/{to_id}
+       → On-demand TO detail
 ```
 
 ---
 
-## 7. Business Rules
+## 8. Business Rules
 
-### 7.1 TO Lookup Priority
+### 8.1 Gate-In Fields (per PRD §6.10.1)
 
-When gateman enters TO number:
-1. Check `TransportOrder` table for exact match
-2. If not found, suggest [Create On-Demand TO]
-3. If multiple TOs found (edge case), display selection list
+| Field | Required | Notes |
+|-------|:--------:|-------|
+| Vehicle Registration | ✓ | Max 15 chars, alphanumeric + dash |
+| Document Category | ✓ | Enum: supplier_po, port, dealer_do, distributor, internal_transfer |
+| Document Number | ✓ | Challan/TO/PO/DO number (max 50 chars) |
+| Product Details | — | Gate-in item description |
+| Quantity | — | Nullable for empty vehicles |
+| Date/Time | ✓ | Auto-set to now |
+| Driver Name | ✓ | Max 100 chars |
+| Driver Contact | ✓ | Valid phone format |
+| Party Name | — | Supplier/dealer/distributor name |
+| Project / From Info | — | Source context |
+| Remarks | — | Discrepancies, visual inspection notes |
 
-### 7.2 Routing Type Mapping to Flow Type
+### 8.2 Gate-Out Guard Matrix (GT-01 AC-3)
 
-| Routing Type | TO Flow Type | QC Required | Typical Document |
-|--------------|--------------|:-----------:|------------------|
-| Dealer Outbound | `fg_outbound` | No | Dealer DO |
-| Supplier Inbound | `rm_inbound` | Yes | Supplier PO |
-| Internal Transfer | `internal_transfer` | No (unless RM) | Challan |
-| Port Inbound | `fg_inbound` or `rm_inbound` | RM: Yes, FG: No | Port Consignment |
-
-### 7.3 Gate-Out Clearance Matrix
-
-| Flow Type | Scale-Out | QC Passed | Loading/Unloading Done |
-|-----------|:---------:|:---------:|:----------------------:|
-| FG Outbound | ✓ Required | Not required | Loading required |
-| FG Inbound | ✓ Required | Not required | Unloading required |
-| RM Inbound | ✓ Required | ✓ Required | Unloading required |
+| Flow Lane | Scale-Out Completed | Loading Completed | Unloading Completed | QC Not Failed |
+|-----------|:-------------------:|:-----------------:|:-------------------:|:-------------:|
+| FG outbound | ✓ | ✓ | — | — |
+| FG inbound | ✓ | — | ✓ | — |
+| RM inbound | ✓ | — | ✓ | ✓ |
 
 Clearance check on gate-out:
-- If any required condition not met → Error, gate-out blocked
-- Gateman sees error message with missing step
+- If any required condition not met → ValidationError, gate-out blocked
+- Gateman sees error message identifying the missing step
 
-### 7.4 On-Demand TO Defaults
+### 8.3 On-Demand TO Defaults (GT-02)
 
-**Dealer DO** path:
-- `flow_type = 'fg_outbound'`
+**Dealer DO path** (AC-1 — `transfer_type=FG_DEALER_OUTBOUND`):
+- `source = 'GATE'`
+- `transfer_type = 'FG_DEALER_OUTBOUND'`
 - `origin_poi = current_gate_poi` (depot/factory)
 - `destination_poi = dealer_site` (from party FK)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_source'`
 - No TR link, no TDO assignment required
+- Feature-flagged stock check: validate FG inventory availability when stock service exists; otherwise stub with manual confirm + audit
 
-**Supplier PO** path:
-- `flow_type = 'rm_inbound'`
+**Supplier PO path** (AC-2 — `transfer_type=RM_SUPPLIER_INBOUND`):
+- `source = 'GATE'`
+- `transfer_type = 'RM_SUPPLIER_INBOUND'`
 - `origin_poi = supplier_site` (from party FK)
 - `destination_poi = current_gate_poi` (factory/depot)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_destination'`
+- QC linkage flag set for inbound workflow
 - No TR link, no TDO assignment required
 
-### 7.5 Duplicate Visit Prevention
+### 8.4 Duplicate Visit Prevention
 
-- System checks: "Does an active visit already exist for this TO at this POI?"
-- If yes: Error "Vehicle already gate-in for this TO. Complete gate-out first."
+- System checks: "Does an active GateVisitSession already exist for this vehicle at this POI?"
+- If yes: Error "Vehicle already gate-in at this POI. Complete gate-out first."
 - If no: Proceed with gate-in
+
+### 8.5 Feature Flag Gating
+
+Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document category paths are behind a feature flag:
+
+| Document Category | Feature Flag | Default |
+|-------------------|-------------|---------|
+| Internal Transfer (TO/Challan) | None (always active) | Active |
+| Dealer (DO) | `gate.dealer_do_enabled` | Off |
+| Supplier (PO) | `gate.supplier_po_enabled` | Off |
+| Distributor (PO/DO) | `gate.distributor_enabled` | Off |
+| Port | `gate.port_enabled` | Off |
 
 ---
 
-## 8. Integration Points
+## 9. Integration Points
 
-### 8.1 With Transport Lifecycle (TLS-01)
+### 9.1 With Transport Lifecycle (TLS-01)
 
 **Gate events write to timeline**:
-- Gate-in: Create `TOExecutionEvent(event_type='gate_in_source' or 'gate_in_destination', to_state=..., actor_user=gateman)`
-- Gate-out: Create `TOExecutionEvent(event_type='gate_out_source' or 'gate_out_destination', ...)`
+- Gate-in: Emit `GATE_IN` lifecycle event with timestamp and actor (GT-01-9)
+- Gate-out: Emit `GATE_OUT` lifecycle event with timestamp and actor (GT-01-9)
+- On-demand TO creation: Emit `TO_CREATED` lifecycle event (GT-02-8)
 
-### 8.2 With Scaling (SC-01)
+### 9.2 With Scaling (SC-01)
 
 **Gate-in triggers scale queue**:
 - After gate-in, visit appears in Scaling Operator's queue (SC-01)
 - Scale-in creates `ScaleRecord(gate_visit_session=visit)`
 
 **Gate-out requires scale-out**:
-- `GateVisitSession.scale_out_done` flag checked on exit
-- Derived from `ScaleRecord.scale_out_at not null`
+- Guard matrix checks `ScaleRecord.scale_out_at not null`
 
-### 8.3 With Command Center (CC-01)
+### 9.3 With Command Center (CC-01)
 
 **Post-scale queue visibility**:
 - After scale-in, visit appears in Command Center queue (CC-01)
 - CC assigns bay (BayAssignment → gate_visit_session FK)
 
-### 8.4 With QC (QC-01)
+### 9.4 With QC (QC-01)
 
-**QC requirement enforcement**:
-- If `flow_type = 'rm_inbound'`, gate-out checks `TOQCCheckpoint.qc_passed = true`
-- If QC failed or pending, gate-out blocked with error: "QC decision pending or failed. Cannot exit."
+**QC requirement enforcement (RM inbound only)**:
+- Gate-out guard matrix checks `TOQCCheckpoint.qc_passed != False`
+- If QC failed or pending, gate-out blocked: "QC decision pending or failed. Cannot exit."
 
-### 8.5 With Driver Mobile (DM-01)
+### 9.5 With Driver Mobile (DM-01)
 
 **Milestone complementarity**:
 - Driver may record "Gate In" milestone via mobile (DM-01)
@@ -584,9 +843,9 @@ Clearance check on gate-out:
 
 ---
 
-## 9. Permissions & RBAC
+## 10. Permissions & RBAC
 
-### 9.1 Permission Codes (add to `apps/core/constants_rbac.py`)
+### 10.1 Permission Codes (add to `apps/core/constants_rbac.py`)
 
 ```python
 Operations.Gate.Entry.Create
@@ -597,14 +856,14 @@ Operations.Gate.OnDemandTO.CreateDealer
 Operations.Gate.OnDemandTO.CreateSupplier
 ```
 
-### 9.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
+### 10.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
 
 ```python
 Menu.Gate.View
 Menu.Gate.OnDemandTO.View
 ```
 
-### 9.3 Role → Permission Mapping
+### 10.3 Role → Permission Mapping
 
 **Gateman**:
 - `Operations.Gate.Entry.Create`
@@ -623,53 +882,53 @@ Menu.Gate.OnDemandTO.View
 
 ---
 
-## 10. Validation Rules
+## 11. Validation Rules
 
-### 10.1 Gate-In
+### 11.1 Gate-In
 
-- TO number must exist (if provided) OR on-demand wizard must complete
 - Vehicle registration required (max 15 chars, alphanumeric + dash)
-- Document category required
+- Document category required (must be valid enum value)
 - Document number required (max 50 chars)
-- Routing type required
-- Cannot gate-in if active visit already exists for same TO at same POI
+- For TO-linked flow: TO must exist; vehicle should match assigned vehicle on TO (warn + supervisor override)
+- Cannot gate-in if active GateVisitSession already exists for same vehicle at same POI
+- Feature-flagged categories rejected if flag is off
 
-### 10.2 Gate-Out
+### 11.2 Gate-Out
 
-- Visit must exist (gate_out_at null)
+- GateVisitSession must exist with status 'active' (no GateOut record)
+- Guard matrix must pass per flow type (see §8.2)
 - Scale-out must be done (`ScaleRecord.scale_out_at not null`)
-- QC must pass (if required: `TOQCCheckpoint.qc_passed = true`)
 - Loading/unloading must be done (per flow type)
+- QC must not have failed (RM inbound only)
 
-### 10.3 On-Demand TO
+### 11.3 On-Demand TO (GT-02)
 
-- Reference number required (unique per tenant per path type)
+- Reference number required (DO# or PO#, unique per tenant per path type)
 - Party (Dealer/Supplier) must exist in MDM
 - Product must exist (MDM-01)
 - Expected quantity > 0
 - Driver name required (max 100 chars)
 - Driver contact required (valid phone format)
-- Destination POI required (dealer DO path)
 
 ---
 
-## 11. Reports & Dashboards (Phase 2)
+## 12. Reports & Dashboards (Phase 2)
 
-### 11.1 Gate Performance Metrics
+### 12.1 Gate Performance Metrics
 
 - Average dwell time (gate-in to gate-out) per POI
 - Peak entry hours (histogram)
 - On-demand TO percentage (gate vs planner)
 - Gate-out clearance block reasons (top 5)
 
-### 11.2 Discrepancy Log
+### 12.2 Discrepancy Log
 
 - Remarks containing keywords: "damage", "shortage", "discrepancy"
 - Exportable for audit
 
 ---
 
-## 12. Dependencies
+## 13. Dependencies
 
 ### Upstream
 - `05-transport`: TransportOrder model
@@ -683,14 +942,42 @@ Menu.Gate.OnDemandTO.View
 
 ---
 
-## 13. Sprint 4 Story Mapping
+## 14. Sprint 4 Story Mapping
 
-| Story | Scope | Implementation Focus |
-|-------|-------|----------------------|
-| **GT-01** | Gate-in, gate-out & discrepancy remarks | GateVisitSession model + clearance validation + admin UI + API endpoints + TLS-01 integration |
-| **GT-02** | On-demand TO creation — Dealer DO & Supplier PO | GateOnDemandTORequest model + wizard UI + TO creation service + gate-in trigger |
+### GT-01 — Gate-In, Gate-Out & Remarks
+
+| Sub-task | Scope | Implementation Focus |
+|----------|-------|----------------------|
+| GT-01-1 | Models + migration | GateVisitSession + GateIn + GateOut models (FK to TO, Vehicle; document category enum, remarks, driver fields) |
+| GT-01-2 | GateInAdmin | Change form with TO autocomplete, vehicle validation in `save_model`, document category routing |
+| GT-01-3 | GateInAdmin inline | Gate-in items (product, quantity); `save_model` sets timestamp + creates GateVisitSession |
+| GT-01-4 | GateOutAdmin | Guard matrix in `save_model`; `get_readonly_fields` locks completed records |
+| GT-01-5 | Gate-in REST API (POST) | Create gate-in with TO lookup + vehicle validation |
+| GT-01-6 | Gate-in list/detail API (GET) | Filters: date, vehicle, doc_category, to_number, search |
+| GT-01-7 | Gate-out REST API (POST) | Create gate-out with guard matrix enforcement |
+| GT-01-8 | Gate-out list/detail API (GET) | Filters: date, vehicle, search |
+| GT-01-9 | TLS-01 event emission | Emit GATE_IN / GATE_OUT events on save |
+| GT-01-10 | Gateman UI | Fast-entry gate-in form |
+| GT-01-11 | Gateman UI | Gate-out form with guard status indicators |
+| GT-01-12 | GateActivityLog | Audit logging on gate-in, gate-out, and remarks |
+
+### GT-02 — On-Demand TO Creation
+
+| Sub-task | Scope | Implementation Focus |
+|----------|-------|----------------------|
+| GT-02-1 | Model extensions | `source=GATE` field, `transfer_type` enum on TO + migration |
+| GT-02-2 | OnDemandTOAdmin (Dealer) | `save_model` creates FG TO with `transfer_type=FG_DEALER_OUTBOUND` |
+| GT-02-3 | OnDemandTOAdmin (Supplier) | `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND` + QC flag |
+| GT-02-4 | Dealer TO REST API (POST) | Validates DO number, dealer, product, quantity |
+| GT-02-5 | Supplier TO REST API (POST) | Validates PO number, supplier, product, expected quantity |
+| GT-02-6 | On-demand TO list/detail API (GET) | Filters: source=GATE, transfer_type, date, search |
+| GT-02-7 | Session ↔ TO linkage service | Associates GateVisitSession with newly created TO |
+| GT-02-8 | TLS-01 event emission | Emit `TO_CREATED` lifecycle event on gate-originated TO |
+| GT-02-9 | Inventory/QC hooks | Feature-flagged stock check stub (Dealer); QC linkage flag (Supplier) |
+| GT-02-10 | Gateman wizard UI | Dealer vs Supplier path selection, form fields, validation |
+| GT-02-11 | GateOnDemandActivityLog | Audit logging on TO creation, linkage, validation overrides |
 
 ---
 
-**Last Updated**: 2026-05-06  
+**Last Updated**: 2026-05-12  
 **Related Modules**: [05-transport](../05-transport/README.md), [06-poi-operations](./README.md), [03-users/driver-interface](../03-users/driver-interface-sprint4.md)

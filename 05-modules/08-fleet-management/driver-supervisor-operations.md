@@ -1,10 +1,10 @@
 ---
 module: 08-fleet-management
 specification: Driver Supervisor Operations
-version: 1.0
+version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-06
+last_updated: 2026-05-12
 related_stories: DFS-050 (DS-01), DFS-051 (DS-02)
 jira_epic: DFS-070
 ---
@@ -13,9 +13,9 @@ jira_epic: DFS-070
 
 ## Overview
 
-The **Driver Supervisor Operations** specification covers pre-movement compliance checks, operational readiness validation, and workforce attendance management for own-fleet execution. This layer sits **between TDO assignment (Sprint 3)** and **driver field execution (Sprint 4 DM-01)**, enforcing that vehicles and drivers meet operational readiness criteria before a Transport Order can progress to active execution.
+The **Driver Supervisor Operations** specification covers pre-movement vehicle inspections, driver state management, workforce attendance, and leave management for own-fleet execution. This layer sits **between TDO assignment (Sprint 3)** and **driver field execution (Sprint 4 DM-01)**, enforcing that vehicles and drivers meet operational readiness criteria before a Transport Order can progress to active execution.
 
-Unlike master data management (MDM-05 Vehicle, MDM-06 Driver from Sprint 2), this module captures **operational truths** — daily attendance, leave windows, vehicle handover checklists, and health inspections — that change frequently and gate field execution.
+Unlike master data management (MDM-05 Vehicle, MDM-06 Driver from Sprint 2), this module captures **operational truths** — daily inspections, driver state transitions, attendance, leave windows, and maintenance decisions — that change frequently and gate field execution.
 
 **Module path**: `apps/users/supervisor/` (new sub-package under `apps/users/`)  
 **Dependencies**: MDM-05 (Vehicle), MDM-06 (Driver), `05-transport` (TO execution state), `01-foundation` (RBAC)  
@@ -29,57 +29,65 @@ Unlike master data management (MDM-05 Vehicle, MDM-06 Driver from Sprint 2), thi
 Sidebar (Driver Supervisor)
 └── Fleet
       └── Driver Supervisor
-            ├── Vehicle Checklists              — template config + submission queue + review
-            │     ├── Checklist Templates       — create/edit inspection templates
-            │     ├── Pending Review            — submissions awaiting supervisor review
-            │     └── Submission History        — all submissions (filterable by vehicle/driver/date)
+            ├── Vehicle Inspections                — predefined daily checklist queue + history
+            │     ├── Inspection Queue            — TOs in Assigned status awaiting inspection
+            │     ├── Inspection History          — all completed inspections (filterable)
+            │     └── Checklist Reference         — read-only predefined sections + items
             │
-            ├── Driver Attendance               — daily punch in/out + working hours report
-            │     ├── Mark Attendance           — manual entry form (driver, POI, entry/exit time)
-            │     └── Attendance Log            — searchable history
+            ├── Driver State Board                — real-time driver state overview
+            │     └── State History               — full audit log of state transitions
             │
-            └── Driver Leave Management         — On Leave windows
-                  ├── Register Leave            — driver, start/end date, reason
-                  └── Leave Calendar            — active/upcoming leave (filterable by driver)
+            ├── Driver Attendance                 — daily entry/exit + working hours
+            │     ├── Mark Attendance             — manual entry form (driver, POI, entry/exit time)
+            │     └── Attendance Log              — searchable history
+            │
+            └── Driver Leave Management           — On Leave windows
+                  ├── Register Leave              — driver, start/end date, reason
+                  └── Leave Calendar              — active/upcoming leave (filterable by driver)
 ```
 
 ### Role → menu mapping
 
 | Role | Fleet > Driver Supervisor | Master Data (Driver/Vehicle) |
 |------|:-------------------------:|:----------------------------:|
-| Driver Supervisor | ✓ (full CRUD) | Read-only |
-| Tenant Admin | ✓ (config templates) | ✓ (master CRUD) |
-| TDO | — | Read-only (for assignment) |
-| Driver | ✓ (submit checklists only) | Read-only (own profile) |
+| Driver Supervisor | ✓ (full operational CRUD) | Read-only |
+| Tenant Admin | ✓ (read-only config view) | ✓ (master CRUD) |
+| TDO | ✓ (state board, leave — read-only) | Read-only (for assignment) |
+| Driver | — | Read-only (own profile) |
 
 ### Screen hierarchy
 
 ```
-Fleet → Driver Supervisor → Vehicle Checklists
-  ├── Checklist Templates (Admin list)
-  │     └── [+ Create Template] ──► Template Config Form
-  │                                    └── [Add Inspection Point] (8–10 items)
-  │                                    └── [Save] ──► Template Detail (read-only)
+Fleet → Driver Supervisor → Vehicle Inspections
+  ├── Inspection Queue (TOs in Assigned status)
+  │     └── [row click] ──► Inspection Form
+  │                           ├── Vehicle + TO context (read-only header)
+  │                           ├── Checklist sections (7 predefined sections)
+  │                           │     └── Items per section — Remarks field per item
+  │                           ├── [Submit Inspection]
+  │                           │     └── TO status → Ready for Dispatch
+  │                           │     └── inspection_completed_at set
+  │                           └── [Reject Vehicle]
+  │                                 └── Rejection reason required (_RejectReasonForm)
+  │                                 └── TO stays Assigned; vehicle flagged
   │
-  ├── Pending Review (Supervisor queue)
-  │     └── [row click] ──► Submission Detail
-  │                           ├── Read-only: Driver remarks, inspection points (Pass/Fail per item)
-  │                           ├── Supervisor Review Form
-  │                           │     ├── Decision: Approve / Reject
-  │                           │     ├── Remarks (required if reject)
-  │                           │     └── [Submit Review]
-  │                           │          └── If Approve: Vehicle status → Available
-  │                           │          └── If Reject: Vehicle status → Under Maintenance; driver notified
-  │                           └── [History] ──► All reviews for this vehicle
+  ├── Inspection History
+  │     └── Searchable by vehicle, TO, supervisor, date range, outcome
   │
-  └── Submission History
-        └── Searchable by vehicle, driver, date range, decision outcome
+  └── Checklist Reference (read-only)
+        └── All 7 sections + items (predefined, immutable)
+
+Fleet → Driver Supervisor → Driver State Board
+  └── Table: Driver, Current State (badge), POI, Last Transition, Changed By
+        └── Filters: state, POI
+        └── [row click] ──► State History (audit log)
 
 Fleet → Driver Supervisor → Driver Attendance
   ├── Mark Attendance
   │     └── Form: Driver (dropdown), POI (dropdown), Entry Time, Exit Time (nullable), Notes
   │           └── [Save] ──► Attendance Log (row added)
   │                          └── Auto-calculate: working_hours = exit - entry
+  │                          └── Warning if hours > configured max (default 12h)
   │
   └── Attendance Log
         └── Table: Driver, POI, Date, Entry, Exit, Hours, Notes
@@ -88,114 +96,122 @@ Fleet → Driver Supervisor → Driver Attendance
 Fleet → Driver Supervisor → Driver Leave Management
   ├── Register Leave
   │     └── Form: Driver (dropdown), Start Date, End Date, Reason (text)
-  │           └── [Save] ──► Driver.current_state = On Leave (if start_date ≤ today ≤ end_date)
+  │           └── [Save] ──► Driver state → On Leave (via state machine service)
   │                          └── TDO assignment guard: conflict check enforced
   │
   └── Leave Calendar
         └── List: Driver, Start Date, End Date, Reason, Status (Active / Upcoming / Expired)
-              └── [Cancel] (if not yet started)
+              └── [Cancel] (if not yet started or active — driver → Available)
 ```
 
 ---
 
 ## 1. Roles & Access
 
-| Role | Template Config | Submit Checklist | Review Checklist | Attendance CRUD | Leave CRUD | Set Vehicle Under Maintenance |
-|------|:---------------:|:----------------:|:----------------:|:---------------:|:----------:|:-----------------------------:|
-| Driver Supervisor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ (via checklist reject) |
-| Tenant Admin | ✓ | — | — | Read-only | Read-only | — |
-| Driver | — | ✓ (own only) | — | — | — | — |
-| TDO | — | — | — | Read-only | Read-only | — |
+| Role | View Checklist Reference | Complete Inspection | Reject Vehicle | Mark Under Maintenance | Attendance CRUD | Leave CRUD | View State Board |
+|------|:------------------------:|:-------------------:|:--------------:|:----------------------:|:---------------:|:----------:|:----------------:|
+| Driver Supervisor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Tenant Admin | ✓ | — | — | — | Read-only | Read-only | Read-only |
+| TDO | ✓ | — | — | — | Read-only | Read-only | ✓ (read-only) |
+| Driver | — | — | — | — | — | — | — |
 
 ---
 
 ## 2. Data Model
 
-### 2.1 ChecklistTemplate
+### 2.1 ChecklistSection (predefined, immutable)
 
 ```python
-ChecklistTemplate {
-    template_id: UUID
-    name: string                        # e.g., "Long-Trip Handover", "Monthly Inspection"
-    description: text
-    template_type: enum                 # ['handover', 'long_trip', 'short_trip', 'monthly']
-    
-    # Scope
-    is_active: boolean                  # Inactive templates not selectable for new submissions
-    
-    # Version tracking
-    version: integer                    # Incremented on edit; submissions pin version
-    
-    # Metadata
+ChecklistSection {
+    id: UUID (pk)
+    name: string                        # e.g., "Engine", "Clutch", "Gear Box"
+    display_order: integer              # Section ordering (1–7)
+
+    # Metadata (TenantAwareModel)
     tenant_id: UUID
-    created_by: UUID → User
     created_at: DateTime
     updated_at: DateTime
 }
 ```
 
-### 2.2 ChecklistItemTemplate
+**Predefined sections** (seeded via data migration — DS-01-1):
+
+| # | Section | Items Count |
+|---|---------|:-----------:|
+| 1 | Engine | 9 |
+| 2 | Clutch | 6 |
+| 3 | Gear Box | 5 |
+| 4 | Container | 6 |
+| 5 | Electric | 13 |
+| 6 | Chassis | 5 |
+| 7 | Cabin | 10 |
+
+### 2.2 ChecklistItem (predefined, immutable)
 
 ```python
-ChecklistItemTemplate {
-    item_id: UUID
-    template_id: UUID → ChecklistTemplate
-    
-    # Inspection point definition
-    item_number: integer                # Display order
-    inspection_point: string            # e.g., "Brake system functional"
-    is_mandatory: boolean               # If true, submission blocks on missing answer
-    
-    # Expected answer type
-    answer_type: enum                   # ['pass_fail', 'text', 'numeric', 'photo']
-    
-    # Guidance
-    help_text: text (nullable)          # Inspector guidance
+ChecklistItem {
+    id: UUID (pk)
+    section_id: UUID → ChecklistSection
+    name: string                        # e.g., "Engine Oil", "Air Filter"
+    item_number: integer                # Display order within section
+    remarks: text (nullable)            # Optional predefined guidance/remarks
+
+    # Metadata (TenantAwareModel)
+    tenant_id: UUID
+    created_at: DateTime
+    updated_at: DateTime
 }
 ```
 
-### 2.3 VehicleChecklistSubmission
+**All items predefined and immutable** — seeded via data migration (DS-01-1). Full item list:
+
+- **Engine** (9): Engine Oil, Air Filter, Fuel Pump, Fuel System, Brake System, R.P.M, Brake Oil, Radiator Water, Air System
+- **Clutch** (6): Ease in Engagement, Lubrications, Paddle Free Play, Clutch Master Cylinder, Clutch Release Cylinder, Clutch Paddle
+- **Gear Box** (5): Different Types, Temperature, Noise, Oil Leakage, Gear Shifting
+- **Container** (6): Inside of Container, Container Door, Container Floor, Rear Bumper, Mudguard R/S, Air Cutter
+- **Electric** (13): Head Light R/S, Battery Water, Parking Light Front RS & LS, Parking Light Rear RS & LS, Indicator Light Front RS & LS, Indicator Light Rear RS & LS, Back Light RS & LS, Brake Light RS & LS, Fuse Board, Alternator, Self, Cabin Light, Container Inside Light
+- **Chassis** (5): Chassis, Chassis Nut & Bolt, All U Bolt, Leaf Spring, Leaf Spring Hanger
+- **Cabin** (10): Door RS & LS, Door Lock RS & LS, Foot Rest RS & LS, Looking Glass RS & LS, Door Glass RS & LS, Cabin Ventilator Glass, Windshield, Front Bumper, Front Plastic Bonnet, Driver and Helper Sit
+
+### 2.3 VehicleInspection
 
 ```python
-VehicleChecklistSubmission {
-    submission_id: UUID
-    
+VehicleInspection {
+    id: UUID (pk)
+
     # Links
-    vehicle_id: UUID → Vehicle
-    driver_id: UUID → User (Driver)     # Who performed the inspection
-    transport_order_id: UUID → TransportOrder (nullable)  # Linked TO if pre-movement check
-    template_id: UUID → ChecklistTemplate
-    template_version: integer           # Snapshot of template version at submission time
-    
-    # Inspection data
-    answers: JSONField                  # {item_id: {answer: "Pass"/"Fail"/text, photo_url: string}}
-    driver_remarks: text (nullable)
-    
-    # Submission metadata
-    submitted_at: DateTime
-    submission_status: enum             # ['pending_review', 'approved', 'rejected']
+    transport_order_id: UUID → TransportOrder  # The TO being inspected (must be in Assigned status)
+    vehicle_id: UUID → Vehicle                 # Vehicle assigned to the TO
+    supervisor_id: UUID → User                 # Driver Supervisor performing inspection
+
+    # Inspection outcome
+    status: enum                       # ['pending', 'completed', 'rejected']
+    inspection_completed_at: DateTime (nullable)  # Set on successful completion
+    rejection_reason: text (nullable)  # Required when status = rejected
+
+    # Metadata (TenantAwareModel)
+    tenant_id: UUID
+    created_at: DateTime
+    updated_at: DateTime
 }
 ```
 
-### 2.4 VehicleChecklistReview
+### 2.4 ChecklistResponse
 
 ```python
-VehicleChecklistReview {
-    review_id: UUID
-    submission_id: UUID → VehicleChecklistSubmission
-    
-    # Reviewer
-    reviewed_by: UUID → User (Driver Supervisor)
-    
-    # Decision
-    decision: enum                      # ['approve', 'reject']
-    supervisor_remarks: text
-    
-    # Side effects
-    vehicle_state_changed: boolean      # True if vehicle → Under Maintenance
-    
-    # Metadata
-    reviewed_at: DateTime
+ChecklistResponse {
+    id: UUID (pk)
+    inspection_id: UUID → VehicleInspection
+    checklist_item_id: UUID → ChecklistItem
+
+    # Response data
+    status: enum                       # ['ok', 'issue', 'na']
+    remarks: text (nullable)           # Supervisor remarks for this item
+
+    # Metadata (TenantAwareModel)
+    tenant_id: UUID
+    created_at: DateTime
+    updated_at: DateTime
 }
 ```
 
@@ -203,25 +219,29 @@ VehicleChecklistReview {
 
 ```python
 DriverAttendance {
-    attendance_id: UUID
-    
+    attendance_id: UUID (pk)
+
     # Who/Where
     driver_id: UUID → User (Driver)
     poi_id: UUID → POI                  # Where attendance is recorded
-    
+    date: Date                          # Attendance date
+
     # Time tracking
     entry_datetime: DateTime
     exit_datetime: DateTime (nullable)  # Null if still checked in
     working_hours: Decimal (nullable)   # Auto-calculated: (exit - entry) in hours
-    
+
     # Notes
     notes: text (nullable)
-    
-    # Metadata
+
+    # Metadata (TenantAwareModel)
     recorded_by: UUID → User (Driver Supervisor)
     tenant_id: UUID
     created_at: DateTime
     updated_at: DateTime
+
+    # Constraints
+    unique_together: (driver_id, date)
 }
 ```
 
@@ -229,24 +249,25 @@ DriverAttendance {
 
 ```python
 DriverLeave {
-    leave_id: UUID
-    
+    leave_id: UUID (pk)
+
     # Who
     driver_id: UUID → User (Driver)
-    
+
     # When
     start_date: Date
     end_date: Date
-    
+
     # Why
     reason: text
-    
+
     # Status (computed)
     # Active: today between start_date and end_date
     # Upcoming: start_date > today
     # Expired: end_date < today
-    
-    # Metadata
+    # Cancelled: cancelled_at is not null
+
+    # Metadata (TenantAwareModel)
     registered_by: UUID → User (Driver Supervisor)
     cancelled_at: DateTime (nullable)
     cancelled_by: UUID (nullable)
@@ -255,290 +276,498 @@ DriverLeave {
 }
 ```
 
-### 2.7 Extensions to existing models
+### 2.7 DriverStateLog (audit model)
+
+```python
+DriverStateLog {
+    id: UUID (pk)
+
+    # Who
+    driver_id: UUID → User (Driver)
+
+    # Transition
+    from_state: enum                   # DriverState enum value
+    to_state: enum                     # DriverState enum value
+
+    # Audit
+    changed_by: UUID → User (nullable) # Null for system/auto transitions
+    timestamp: DateTime
+    trigger: enum                      # ['manual', 'auto']
+    notes: text (nullable)             # Optional context (e.g., "TO #123 assigned")
+
+    # Metadata (TenantAwareModel)
+    tenant_id: UUID
+}
+```
+
+### 2.8 WorkingHoursConfig
+
+```python
+WorkingHoursConfig {
+    id: UUID (pk)
+    max_daily_hours: Decimal            # Default 12.0; configurable per tenant
+    warning_enabled: boolean            # Default True — soft warning, not hard block
+
+    # Metadata (TenantAwareModel)
+    tenant_id: UUID (unique)            # One config per tenant
+    created_at: DateTime
+    updated_at: DateTime
+}
+```
+
+### 2.9 Extensions to existing models
 
 **Vehicle** (existing model in `apps/master_data/`):
-- `current_state` enum gains value: `'under_maintenance'` (set by checklist review rejection)
-- No migration needed if enum already flexible; otherwise add value
+- `current_state` enum gains value: `'under_maintenance'` (set by supervisor via Under Maintenance action)
+- When set to Under Maintenance: vehicle excluded from TDO assignment dropdown
 
 **Driver** (existing User model with driver role):
-- `current_state` enum gains value: `'on_leave'` (computed on-the-fly from active `DriverLeave` records)
-- Implementation: property method checks `DriverLeave.objects.filter(driver=self, start_date__lte=today, end_date__gte=today).exists()`
+- New field: `state` — `DriverState` enum (TextChoices):
+  - `AVAILABLE` = "available" (default)
+  - `ASSIGNED` = "assigned"
+  - `ON_LEAVE` = "on_leave"
+  - `ON_EXECUTION` = "on_execution"
+- State is an explicit persisted field, not computed
+- All transitions go through the Driver State Machine Service (§5.3)
 
 ---
 
-## 3. Checklist Lifecycle
+## 3. Vehicle Inspection Lifecycle
 
-### 3.1 Template configuration flow
+### 3.1 Predefined checklist (no configuration)
 
-```
-Tenant Admin / Driver Supervisor
-  └─► Create ChecklistTemplate (name, type, description)
-        └─► Add ChecklistItemTemplate (8–10 inspection points)
-              └─► [Save Template]
-                    └─► Template.is_active = True
-                          └─► Available for driver submissions
-```
-
-### 3.2 Submission → Review flow
+The daily inspection checklist is **predefined and immutable**. All 7 sections and 54 items are seeded via a data migration (DS-01-1). No user can add, edit, or delete sections or items.
 
 ```
-Driver (or Supervisor on behalf of driver)
-  └─► Select Vehicle + Template
-        └─► Fill inspection points (Pass/Fail per item)
-              └─► Add driver remarks (optional)
-                    └─► [Submit Checklist]
-                          └─► Status: pending_review
-                                └─► Appears in Supervisor "Pending Review" queue
+Data Migration (one-time)
+  └─► Seed ChecklistSection (7 sections)
+        └─► Seed ChecklistItem (54 items across sections)
+              └─► Available system-wide (read-only reference)
+```
+
+### 3.2 Inspection flow (TO-driven)
+
+```
+TDO assigns vehicle + driver to TO (Sprint 3 TO-02)
+  └─► TO status = Assigned
+        └─► TO appears in Supervisor Inspection Queue
 
 Driver Supervisor
-  └─► Open submission from queue
-        └─► Review answers + driver remarks
-              ├─► [Approve]
-              │     └─► Submission.status = approved
-              │           └─► Vehicle remains Available (or becomes Available if was under maintenance)
-              │
-              └─► [Reject]
-                    └─► Submission.status = rejected
-                          └─► Vehicle.current_state = under_maintenance
-                                └─► Driver notified (in-app or future notification)
-                                      └─► TDO assignment guard: vehicle not selectable until state changed
+  └─► Opens TO from inspection queue
+        └─► Creates VehicleInspection (auto-linked to TO + vehicle)
+              └─► Fills ChecklistResponse for each item (status + remarks)
+                    ├─► [Submit — All OK]
+                    │     └─► VehicleInspection.status = completed
+                    │           └─► inspection_completed_at = now()
+                    │                 └─► TO status: Assigned → Ready for Dispatch
+                    │
+                    └─► [Reject]
+                          └─► VehicleInspection.status = rejected
+                                └─► rejection_reason required (_RejectReasonForm)
+                                      └─► TO stays in Assigned status
+                                            └─► Vehicle flagged for follow-up
+```
+
+### 3.3 Under Maintenance flow (independent action)
+
+```
+Driver Supervisor
+  └─► Marks vehicle as Under Maintenance (via VehicleAdmin action or API)
+        └─► Vehicle.current_state = under_maintenance
+              └─► Vehicle excluded from new TDO assignments
+                    └─► Any linked TO in Assigned status → reset to Created (vehicle unlinked)
+                          └─► TDO must reassign vehicle
 ```
 
 ---
 
-## 4. Django Admin Configuration
+## 4. Driver State Lifecycle
 
-### 4.1 ChecklistTemplate Admin
+### 4.1 State machine
+
+```
+                    ┌──────────────────────────────────────┐
+                    │         DRIVER STATE MACHINE         │
+                    └──────────────────────────────────────┘
+
+    ┌─────────────┐    TDO assigns TO    ┌─────────────┐
+    │  Available  │ ───────────────────► │  Assigned   │
+    │  (default)  │ ◄─────────────────── │             │
+    └─────────────┘    TO completed       └─────────────┘
+          │              or unlinked             │
+          │                                     │ Execution starts (TLS-01)
+          │                                     ▼
+          │                              ┌──────────────┐
+          │                              │ On Execution │
+          │    TO completed (TLS-01)     │              │
+          │ ◄─────────────────────────── └──────────────┘
+          │
+          │    Supervisor sets leave
+          ▼
+    ┌─────────────┐
+    │  On Leave   │
+    │             │ ──► Available (leave ends/cancelled)
+    └─────────────┘
+```
+
+### 4.2 Transition rules
+
+| From | To | Trigger | Type |
+|------|----|---------|------|
+| Available | Assigned | TDO assigns TO (TO-02) | Auto |
+| Assigned | On Execution | TO execution starts (TLS-01) | Auto |
+| On Execution | Available | TO completed (TLS-01) | Auto |
+| Assigned | Available | TO unlinked / cancelled | Auto |
+| Available | On Leave | Supervisor registers leave | Manual |
+| On Leave | Available | Leave ends or cancelled | Manual/Auto |
+
+**Invalid transitions** (rejected by state machine service with `InvalidStatusTransitionError`):
+- On Leave → Assigned (must cancel leave first)
+- On Execution → On Leave (cannot set leave while driving)
+- On Leave → On Execution (impossible)
+
+### 4.3 Audit trail
+
+Every state transition creates a `DriverStateLog` entry with:
+- `from_state`, `to_state`
+- `changed_by` (user or null for auto)
+- `trigger` (manual/auto)
+- `timestamp`
+
+---
+
+## 5. Django Admin Configuration
+
+### 5.1 ChecklistSection Admin (read-only)
 
 **List View**:
-- Columns: Name, Type, Version, Active, Created By, Created At
-- Filters: `template_type`, `is_active`
-- Search: `name`
-- Actions: Bulk activate/deactivate
+- Columns: Name, Display Order, Items Count
+- Read-only (no add/edit/delete — data is immutable, seeded by migration)
 
-**Detail View**:
-- Inline: `ChecklistItemTemplate` (tabular inline, sortable by `item_number`)
-- Fields: name, description, template_type, is_active, version (read-only)
-- Save triggers: increment `version` if items changed
-
-**Form Validations**:
-- At least 3 items required per template
-- `item_number` must be unique per template
-
-### 4.2 VehicleChecklistSubmission Admin
+### 5.2 ChecklistItem Admin (read-only)
 
 **List View**:
-- Columns: Vehicle, Driver, Template, Submitted At, Status, Reviewed By, Decision
-- Filters: `submission_status`, `template__template_type`, `submitted_at` (date range)
-- Search: Vehicle registration, Driver name
-- Actions: Bulk export to CSV
+- Columns: Section, Item Number, Name
+- Filters: `section`
+- Read-only (no add/edit/delete — data is immutable, seeded by migration)
 
-**Detail View**:
-- Read-only: Vehicle, Driver, TO (if linked), Template, Submitted At
-- Expandable JSON widget for `answers` field
-- Inline: `VehicleChecklistReview` (if status != pending_review)
-- Custom admin action: **"Review Submission"** button (opens review form)
+### 5.3 VehicleInspection Admin (DS-01-3, DS-01-4, DS-01-5, DS-01-6)
 
-**Review Form** (custom admin view):
-- Decision: Approve / Reject (radio buttons)
-- Remarks: text area (required if reject)
-- Submit button triggers:
-  - Create `VehicleChecklistReview` record
-  - Update `submission_status`
-  - If reject: call service `vehicle_service.set_under_maintenance(vehicle_id, reason="Checklist rejected")`
+**List View** (DS-01-3):
+- Columns: TO Reference, Vehicle (registration), Supervisor, Status, Inspection Date
+- Filters: `status`, `vehicle`
+- Search: TO number
+- Queryset: filtered to TOs in `Assigned` status (for inspection queue view)
 
-### 4.3 DriverAttendance Admin
+**Change Form** (DS-01-4):
+- Header fields (read-only): TO reference, vehicle, supervisor
+- Inline: `ChecklistResponseInline` — all items grouped by section; remarks field per item
+- Read-only fields for completed inspections (no editing after submission)
+
+**save_model** (DS-01-5):
+- Validates all `ChecklistResponse` entries are filled
+- Sets `inspection_completed_at = now()`
+- Transitions TO status: `Assigned` → `Ready for Dispatch`
+
+**Reject action** (DS-01-6):
+- Custom admin action with `_RejectReasonForm` (reason required)
+- TO stays in `Assigned` status
+- Vehicle flagged for follow-up
+- Rejection reason persisted on `VehicleInspection.rejection_reason`
+
+### 5.4 VehicleAdmin — Under Maintenance action (DS-01-7)
+
+**Custom action**: `mark_under_maintenance`
+- Sets `Vehicle.current_state = under_maintenance`
+- Calls service: reset any linked `Assigned` TO → `Created` (vehicle unlinked)
+- TDO must reassign vehicle
+
+### 5.5 DriverStateAdmin (DS-02-6)
 
 **List View**:
-- Columns: Driver, POI, Entry Time, Exit Time, Working Hours, Recorded By, Date
-- Filters: `poi_id`, `entry_datetime` (date range), `driver_id`
+- Columns: Driver Name, Current State (badge), POI, Last Transition Timestamp
+- `state_badge` method: colour-coded state labels
+- Filters: `state`, `poi`
+- Search: driver name
+- `get_readonly_fields`: non-supervisor roles see everything as read-only
+
+### 5.6 DriverAttendanceAdmin (DS-02-7)
+
+**List View**:
+- Columns: Driver, POI, Date, Entry Time, Exit Time, Working Hours, Recorded By
+- Filters: `poi_id`, `date`, `driver_id`
 - Search: Driver name, POI name
-- Date hierarchy: `entry_datetime`
+- Date hierarchy: `date`
 
-**Detail/Edit View**:
-- Fields: driver (FK dropdown), poi (FK dropdown), entry_datetime, exit_datetime, notes
-- Save hook: auto-calculate `working_hours` if both entry/exit present
+**Change Form**:
+- Fields: driver (FK dropdown), poi (FK dropdown), date, entry_datetime, exit_datetime, notes
+- `save_model`:
+  - Validates unique-together (driver, date)
+  - Auto-calculates `working_hours` if both entry/exit present
+  - Displays warning if working hours exceed `WorkingHoursConfig.max_daily_hours`
 - Validation: `exit_datetime >= entry_datetime`
-- Permission: edit/delete only if created today (guard in admin `has_change_permission`)
+- Permission: edit/delete only if created today (guard in `has_change_permission`)
 
-**Bulk Actions**:
-- Export attendance report (CSV)
+**Bulk Actions**: Export attendance report (CSV)
 
-### 4.4 DriverLeave Admin
+### 5.7 DriverLeaveAdmin (DS-02-8)
 
 **List View**:
-- Columns: Driver, Start Date, End Date, Status (computed), Reason, Registered By
+- Columns: Driver, Start Date, End Date, Status (computed badge), Reason, Registered By
 - Filters: Status (Active/Upcoming/Expired — custom filter), `start_date` (date range)
 - Search: Driver name
-- Custom column: **Status badge** (green=Active, blue=Upcoming, gray=Expired)
+- Custom column: **Status badge** (green=Active, blue=Upcoming, gray=Expired, red=Cancelled)
 
-**Detail/Edit View**:
+**Change Form**:
 - Fields: driver, start_date, end_date, reason
-- Save hook: 
-  - If `start_date <= today <= end_date`: trigger driver state refresh
-  - Send notification to TDO if driver has active TO assignments
-- Cancel action: set `cancelled_at = now()`, `cancelled_by = request.user`
+- `save_model`:
+  - Validates no overlapping leave for same driver
+  - Transitions driver state → `On Leave` via state machine service
+  - Logs transition to `DriverStateLog`
+- Cancel action: sets `cancelled_at = now()`, `cancelled_by = request.user`; transitions driver → `Available`
 
 **Validations**:
 - `end_date >= start_date`
 - No overlapping leave windows for same driver (service-level check)
 
+### 5.8 DriverStateLog Admin (read-only audit)
+
+**List View**:
+- Columns: Driver, From State, To State, Changed By, Trigger, Timestamp
+- Filters: `trigger` (manual/auto), `to_state`
+- Search: Driver name
+- Read-only (no add/edit/delete — audit log)
+
 ---
 
-## 5. Business Rules & Guards
+## 6. Business Rules & Guards
 
-### 5.1 TDO Assignment Conflict Checks (extends Sprint 3 TO-02)
+### 6.1 TDO Assignment Conflict Checks (extends Sprint 3 TO-02)
 
 When TDO assigns vehicle/driver to TO:
 
-**Vehicle availability**:
+**Vehicle availability** (DS-01-7):
 ```python
 if vehicle.current_state == 'under_maintenance':
-    raise ValidationError("Vehicle is Under Maintenance. Review pending checklist or clear maintenance status.")
+    raise BusinessRuleError("Vehicle is Under Maintenance. Cannot assign to TO.")
 ```
 
-**Driver availability**:
+**Driver availability** (DS-02-14):
 ```python
-if DriverLeave.objects.filter(
-    driver=driver,
-    start_date__lte=planned_dispatch_date,
-    end_date__gte=planned_dispatch_date,
-    cancelled_at__isnull=True
-).exists():
-    raise ValidationError(f"Driver is On Leave from {leave.start_date} to {leave.end_date}.")
+if driver.state == DriverState.ON_LEAVE:
+    raise BusinessRuleError("Driver is On Leave. Cannot assign to TO.")
 ```
 
-### 5.2 First Driver Execution Action Guard (TLS-01 hook)
-
-Per Sprint 4 contract, **§6.8.1.7 fleet availability validation** is enforced on **first driver execution action** (e.g., marking TO as execution started, gate-in, or mobile milestone). Service checks:
+### 6.2 Under Maintenance → TO Reset Guard (DS-01-7)
 
 ```python
-def validate_execution_readiness(transport_order):
-    vehicle = transport_order.assigned_vehicle
-    driver = transport_order.assigned_driver
-    
-    # Vehicle must not be under maintenance
-    if vehicle.current_state == 'under_maintenance':
-        raise ExecutionBlockedError("Vehicle under maintenance.")
-    
-    # Driver must not be on leave
-    if driver.is_on_leave:  # computed property
-        raise ExecutionBlockedError("Driver is on leave.")
-    
-    # Optional: checklist policy enforcement
-    if policy_requires_checklist(transport_order):
-        if not has_approved_checklist(vehicle, driver, transport_order):
-            raise ExecutionBlockedError("Pre-movement checklist not approved.")
+@transaction.atomic
+def mark_vehicle_under_maintenance(vehicle_id, reason, performed_by):
+    vehicle = Vehicle.objects.select_for_update().get(id=vehicle_id)
+    vehicle.current_state = 'under_maintenance'
+    vehicle.save()
+
+    # Reset any linked Assigned TOs to Created
+    assigned_tos = TransportOrder.objects.filter(
+        assigned_vehicle=vehicle,
+        status='assigned'
+    )
+    for to in assigned_tos:
+        to.status = 'created'
+        to.assigned_vehicle = None
+        to.assigned_driver = None
+        to.save()
+
+    # Audit log
+    AuditLog.create(action='vehicle_under_maintenance', ...)
 ```
 
-### 5.3 Checklist Policy Enforcement (optional per tenant config)
+### 6.3 Inspection Completion → TO Status Transition (DS-01-5)
 
-Tenant-level setting (future Phase 2):
-- `require_checklist_for_long_trips` (boolean)
-- `require_checklist_for_all_trips` (boolean)
+```python
+@transaction.atomic
+def complete_inspection(inspection_id, performed_by):
+    inspection = VehicleInspection.objects.get(id=inspection_id)
 
-If enabled, execution guard checks for approved submission linked to TO.
+    # Validate all responses filled
+    expected_count = ChecklistItem.objects.count()
+    actual_count = inspection.responses.count()
+    if actual_count < expected_count:
+        raise BusinessRuleError("All checklist items must have responses.")
+
+    inspection.status = 'completed'
+    inspection.inspection_completed_at = timezone.now()
+    inspection.save()
+
+    # Transition TO
+    to = inspection.transport_order
+    to.status = 'ready_for_dispatch'
+    to.save()
+```
+
+### 6.4 Driver State Machine Service (DS-02-9)
+
+```python
+class DriverStateMachine:
+    VALID_TRANSITIONS = {
+        DriverState.AVAILABLE: [DriverState.ASSIGNED, DriverState.ON_LEAVE],
+        DriverState.ASSIGNED: [DriverState.ON_EXECUTION, DriverState.AVAILABLE],
+        DriverState.ON_EXECUTION: [DriverState.AVAILABLE],
+        DriverState.ON_LEAVE: [DriverState.AVAILABLE],
+    }
+
+    @transaction.atomic
+    def transition(self, driver, to_state, changed_by=None, trigger='manual', notes=None):
+        from_state = driver.state
+        if to_state not in self.VALID_TRANSITIONS.get(from_state, []):
+            raise InvalidStatusTransitionError(
+                f"Cannot transition from {from_state} to {to_state}"
+            )
+        driver.state = to_state
+        driver.save()
+
+        DriverStateLog.objects.create(
+            driver=driver,
+            from_state=from_state,
+            to_state=to_state,
+            changed_by=changed_by,
+            trigger=trigger,
+            timestamp=timezone.now(),
+            notes=notes,
+        )
+```
+
+### 6.5 TLS-01 Hooks — Automatic Driver State Updates (DS-02-10)
+
+| Event | Hook Action |
+|-------|-------------|
+| TO assigned (TO-02) | `driver_state_machine.transition(driver, ASSIGNED, trigger='auto')` |
+| TO execution starts (TLS-01) | `driver_state_machine.transition(driver, ON_EXECUTION, trigger='auto')` |
+| TO completed (TLS-01) | `driver_state_machine.transition(driver, AVAILABLE, trigger='auto')` |
+
+### 6.6 Working Hours Guardrail (DS-02-15)
+
+```python
+def check_working_hours_warning(driver, date):
+    config = WorkingHoursConfig.objects.get(tenant=driver.tenant)
+    attendance = DriverAttendance.objects.get(driver=driver, date=date)
+    if attendance.working_hours and attendance.working_hours > config.max_daily_hours:
+        return Warning(f"Driver exceeded {config.max_daily_hours}h limit ({attendance.working_hours}h recorded)")
+    return None
+```
+
+Soft warning only — not a hard block in MVP.
 
 ---
 
-## 6. API Endpoints
+## 7. API Endpoints
 
-### 6.1 Checklist Templates
+### 7.1 Vehicle Inspections (DS-01-8 through DS-01-13)
 
 ```http
-GET    /api/v1/checklists/templates/
-       → List all active templates
-       → Filters: ?template_type=handover
-       → Response: [{ template_id, name, type, items: [...] }]
+GET    /api/v1/inspections/queue
+       → TOs in Assigned status — supervisor inspection queue
+       → Response: [{ to_id, to_reference, vehicle, driver, assigned_at }]
 
-POST   /api/v1/checklists/templates/
-       → Create new template (admin/supervisor only)
-       → Body: { name, description, template_type, items: [{inspection_point, answer_type, ...}] }
+POST   /api/v1/inspections
+       → Submit completed checklist; triggers TO → Ready for Dispatch
+       → Body: { transport_order_id, responses: [{ checklist_item_id, status, remarks }] }
+       → Response: { inspection_id, status: "completed", to_status: "ready_for_dispatch" }
 
-GET    /api/v1/checklists/templates/{template_id}/
-       → Template detail with items
+GET    /api/v1/inspections/{inspection_id}
+       → Inspection detail with all responses
+       → Response: { inspection_id, to, vehicle, supervisor, status, responses: [...] }
 
-PUT    /api/v1/checklists/templates/{template_id}/
-       → Update template (increments version)
+POST   /api/v1/inspections/{inspection_id}/reject
+       → Reject vehicle; TO stays Assigned; reason required
+       → Body: { reason }
+       → Response: { inspection_id, status: "rejected" }
 
-DELETE /api/v1/checklists/templates/{template_id}/
-       → Soft delete (set is_active=false)
+POST   /api/v1/vehicles/{vehicle_id}/under-maintenance
+       → Mark vehicle Under Maintenance; resets linked Assigned TOs to Created
+       → Body: { reason (optional) }
+       → Response: { vehicle_id, state: "under_maintenance", reset_to_ids: [...] }
+
+GET    /api/v1/checklist-template
+       → Read-only — all predefined sections + items (for mobile/frontend rendering)
+       → Response: { sections: [{ id, name, display_order, items: [{ id, name, item_number }] }] }
 ```
 
-### 6.2 Checklist Submissions
+### 7.2 Driver State (DS-02-13)
 
 ```http
-GET    /api/v1/checklists/submissions/
-       → List submissions
-       → Filters: ?status=pending_review, ?vehicle_id=..., ?driver_id=...
-       → Response: [{ submission_id, vehicle, driver, template, submitted_at, status }]
+GET    /api/v1/drivers/state-board
+       → Driver state board — filterable by state, POI
+       → Filters: ?state=available&poi_id=...
+       → Response: [{ driver_id, name, state, poi, last_transition_at }]
 
-POST   /api/v1/checklists/submissions/
-       → Driver submits checklist
-       → Body: { vehicle_id, template_id, transport_order_id (nullable), answers: {...}, driver_remarks }
-       → Response: { submission_id, status: "pending_review" }
-
-GET    /api/v1/checklists/submissions/{submission_id}/
-       → Submission detail (includes answers JSON)
-
-POST   /api/v1/checklists/submissions/{submission_id}/review/
-       → Supervisor reviews submission
-       → Body: { decision: "approve"/"reject", remarks }
-       → Side effects: Update vehicle state if reject
-       → Response: { review_id, submission_status }
+GET    /api/v1/drivers/{driver_id}/state
+       → Single driver current state + transition history
+       → Response: { driver_id, current_state, history: [{ from, to, trigger, timestamp, changed_by }] }
 ```
 
-### 6.3 Attendance
+### 7.3 Driver Attendance (DS-02-11)
 
 ```http
-GET    /api/v1/attendance/
-       → List attendance records
-       → Filters: ?driver_id=..., ?poi_id=..., ?date_from=..., ?date_to=...
-       → Response: [{ attendance_id, driver, poi, entry_datetime, exit_datetime, working_hours }]
-
-POST   /api/v1/attendance/
-       → Mark attendance
+POST   /api/v1/driver-attendance
+       → Create attendance record
        → Body: { driver_id, poi_id, entry_datetime, exit_datetime (nullable), notes }
-       → Response: { attendance_id, working_hours }
+       → Response: { attendance_id, working_hours, warning (nullable) }
 
-PUT    /api/v1/attendance/{attendance_id}/
-       → Update (same-day only)
+GET    /api/v1/driver-attendance
+       → List attendance records
+       → Filters: ?driver=...&date_from=...&date_to=...&poi=...
+       → Response: [{ attendance_id, driver, poi, date, entry, exit, hours }]
+
+PATCH  /api/v1/driver-attendance/{id}
+       → Edit attendance entry (same-day only)
        → Body: { exit_datetime, notes }
 
-DELETE /api/v1/attendance/{attendance_id}/
-       → Delete (same-day only, supervisor permission)
+DELETE /api/v1/driver-attendance/{id}
+       → Delete attendance entry (same-day only, supervisor permission)
 ```
 
-### 6.4 Leave Management
+### 7.4 Driver Leave (DS-02-12)
 
 ```http
-GET    /api/v1/leave/
+POST   /api/v1/driver-leave
+       → Create leave record; triggers driver state → On Leave
+       → Body: { driver_id, start_date, end_date, reason }
+       → Response: { leave_id, status: "active"/"upcoming" }
+
+GET    /api/v1/driver-leave
        → List leave records
-       → Filters: ?status=active, ?driver_id=...
+       → Filters: ?driver=...&status=active&date_from=...&date_to=...
        → Response: [{ leave_id, driver, start_date, end_date, reason, status }]
 
-POST   /api/v1/leave/
-       → Register leave
-       → Body: { driver_id, start_date, end_date, reason }
-       → Response: { leave_id, status: "registered" }
+PATCH  /api/v1/driver-leave/{id}
+       → Edit leave dates (before start only)
+       → Body: { start_date, end_date, reason }
 
-DELETE /api/v1/leave/{leave_id}/
-       → Cancel leave (sets cancelled_at)
-       → Only if not yet started
+POST   /api/v1/driver-leave/{id}/cancel
+       → Cancel leave; driver state → Available
+       → Response: { leave_id, cancelled_at, driver_state: "available" }
 ```
 
 ---
 
-## 7. Permissions & RBAC
+## 8. Permissions & RBAC
 
-### 7.1 Permission Codes (add to `apps/core/constants_rbac.py`)
+### 8.1 Permission Codes (add to `apps/core/constants_rbac.py`)
 
 ```python
-# Checklist
-Fleet.DriverSupervisor.Checklist.Configure
-Fleet.DriverSupervisor.Checklist.Submit
-Fleet.DriverSupervisor.Checklist.Review
+# Vehicle Inspection
+Fleet.DriverSupervisor.Inspection.Submit
+Fleet.DriverSupervisor.Inspection.Reject
+Fleet.DriverSupervisor.Inspection.ViewQueue
+Fleet.DriverSupervisor.Inspection.ViewHistory
+
+# Vehicle Maintenance
+Fleet.Vehicle.SetUnderMaintenance
+
+# Driver State
+Fleet.DriverSupervisor.DriverState.View
+Fleet.DriverSupervisor.DriverState.ViewHistory
 
 # Attendance
 Fleet.DriverSupervisor.Attendance.Write
@@ -547,117 +776,136 @@ Fleet.DriverSupervisor.Attendance.Read
 # Leave
 Fleet.DriverSupervisor.Leave.Write
 Fleet.DriverSupervisor.Leave.Read
-
-# Vehicle state control
-Fleet.Vehicle.SetUnderMaintenance
+Fleet.DriverSupervisor.Leave.Cancel
 ```
 
-### 7.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
+### 8.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
 
 ```python
 Menu.Fleet.Supervisor.View
 ```
 
-### 7.3 Role → Permission Mapping
+### 8.3 Role → Permission Mapping
 
 **Driver Supervisor**:
 - All `Fleet.DriverSupervisor.*` permissions
 - `Fleet.Vehicle.SetUnderMaintenance`
 - `MasterData.Driver.Read`, `MasterData.Vehicle.Read` (for dropdowns)
 
-**Driver**:
-- `Fleet.DriverSupervisor.Checklist.Submit` (own submissions only)
-
 **TDO**:
+- `Fleet.DriverSupervisor.DriverState.View`
 - `Fleet.DriverSupervisor.Attendance.Read`
 - `Fleet.DriverSupervisor.Leave.Read`
-- (for assignment conflict checks)
+- (for assignment conflict checks and visibility)
 
 **Tenant Admin**:
-- All above permissions
-- `Fleet.DriverSupervisor.Checklist.Configure` (template CRUD)
+- All above permissions (read-only view)
 
 ---
 
-## 8. Integration Points
+## 9. Integration Points
 
-### 8.1 With Transport (Sprint 3 TO-02, Sprint 4 TLS-01)
+### 9.1 With Transport (Sprint 3 TO-02, Sprint 4 TLS-01)
 
 **TDO Assignment** (`apps/transport/services/tdo_assignment_service.py`):
 - Call: `validate_vehicle_availability(vehicle_id)` → checks `vehicle.current_state != 'under_maintenance'`
-- Call: `validate_driver_availability(driver_id, planned_date)` → checks leave overlap
+- Call: `validate_driver_availability(driver_id)` → checks `driver.state != ON_LEAVE`
 
-**First Execution Action** (`apps/transport/lifecycle/execution_guards.py`):
-- Call: `validate_execution_readiness(transport_order)` → blocks if vehicle under maintenance or driver on leave
+**Inspection Completion** (DS-01-5):
+- On `VehicleInspection.status = completed` → TO transitions `Assigned` → `Ready for Dispatch`
 
-### 8.2 With Driver Mobile (Sprint 4 DM-01)
+**Under Maintenance** (DS-01-7):
+- On vehicle Under Maintenance → linked `Assigned` TOs reset to `Created`
 
-**Checklist Submission Entry Point**:
-- Driver app includes "Pre-Movement Checklist" button on TO detail screen (optional per policy)
-- On submit, links `transport_order_id` to submission
+**TLS-01 Hooks** (DS-02-10):
+- TO assignment → driver `Available` → `Assigned`
+- Execution start → driver `Assigned` → `On Execution`
+- TO completion → driver `On Execution` → `Available`
 
-**Status Visibility**:
-- Driver sees own checklist submission history
-- Driver sees "Vehicle under maintenance" banner if last checklist rejected
+### 9.2 With Driver Mobile (Sprint 4 DM-01)
+
+**Checklist Reference**:
+- Mobile app fetches `GET /api/v1/checklist-template` for display purposes
+- Inspection submission is supervisor-side only (not driver-submitted)
+
+**Driver State Visibility**:
+- Mobile reads `GET /api/v1/drivers/{driver_id}/state` to show current assignment state
 
 ---
 
-## 9. Validation Rules
+## 10. Validation Rules
 
-### 9.1 Checklist Template
+### 10.1 Vehicle Inspection
 
-- Template must have at least 3 items
-- `item_number` must be unique within template
-- Cannot deactivate template with pending submissions
+- All 54 checklist items must have `ChecklistResponse` entries before completion
+- Rejection requires non-empty `rejection_reason`
+- Cannot inspect a vehicle already under maintenance (warning surfaced in UI)
+- Cannot inspect a TO not in `Assigned` status
 
-### 9.2 Checklist Submission
-
-- All mandatory items must have answers
-- If `answer_type = 'photo'`, photo URL required in answer JSON
-- Cannot submit checklist for vehicle already under maintenance (warning, not error)
-
-### 9.3 Attendance
+### 10.2 Attendance
 
 - `exit_datetime >= entry_datetime`
-- Cannot have overlapping attendance for same driver (entry_new < exit_existing)
+- Unique-together: (driver, date) — one attendance record per driver per day
 - Same-day edit/delete only
+- Working hours warning when exceeding `WorkingHoursConfig.max_daily_hours`
 
-### 9.4 Leave
+### 10.3 Leave
 
 - `end_date >= start_date`
 - Cannot have overlapping leave for same driver
-- Cannot delete leave if `cancelled_at` already set
+- Cannot cancel already-cancelled leave
+- Cannot edit leave after start_date has passed
+
+### 10.4 Driver State Transitions
+
+- Only valid transitions per state machine (§4.2) are accepted
+- Invalid transitions raise `InvalidStatusTransitionError`
+- Every transition logged to `DriverStateLog`
 
 ---
 
-## 10. Reports & Dashboards (Phase 2 enhancements)
+## 11. Sub-task Reference
 
-### 10.1 Fleet Readiness Dashboard
+### DS-01 Sub-tasks (Vehicle Inspection)
 
-**Widgets**:
-- Active drivers count (not on leave)
-- Available vehicles count (not under maintenance)
-- Pending checklist reviews count
-- Average working hours per driver (last 30 days)
+| # | Sub-task | Jira |
+|---|----------|------|
+| DS-01-1 | `ChecklistSection` + `ChecklistItem` models + data migration (seed 7 sections, 54 items) | DFS-050-1 |
+| DS-01-2 | `VehicleInspection` + `ChecklistResponse` models | DFS-050-2 |
+| DS-01-3 | `VehicleInspectionAdmin` — list view (TO ref, vehicle, supervisor, status, date) | DFS-050-3 |
+| DS-01-4 | `VehicleInspectionAdmin` — change form with `ChecklistResponseInline` | DFS-050-4 |
+| DS-01-5 | `VehicleInspectionAdmin.save_model` — validate + TO status transition | DFS-050-5 |
+| DS-01-6 | `VehicleInspectionAdmin` — reject action + `_RejectReasonForm` | DFS-050-6 |
+| DS-01-7 | `VehicleAdmin.mark_under_maintenance` action + TO reset guard | DFS-050-7 |
+| DS-01-8 | Inspection queue API — `GET /api/v1/inspections/queue` | DFS-050-8 |
+| DS-01-9 | Checklist submission API — `POST /api/v1/inspections` | DFS-050-9 |
+| DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}` | DFS-050-10 |
+| DS-01-11 | Inspection reject API — `POST /api/v1/inspections/{inspection_id}/reject` | DFS-050-11 |
+| DS-01-12 | Under Maintenance API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` | DFS-050-12 |
+| DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` | DFS-050-13 |
+| DS-01-14 | Audit logging — inspections, rejections, Under Maintenance decisions | DFS-050-14 |
 
-### 10.2 Compliance Reports
+### DS-02 Sub-tasks (Driver State, Attendance & Leave)
 
-- Checklist submission rate (% of trips with approved checklist)
-- Rejection rate by template type
-- Average review time (submission → review)
-- Top rejection reasons (from supervisor remarks)
-
----
-
-## 11. Dependencies
-
-### Upstream
-- `02-master-data`: Vehicle (MDM-05), Driver (MDM-06), POI (MDM-04)
-- `01-foundation`: RBAC, User model
-
-### Downstream
-- `05-transport`: TDO assignment guards, execution guards (TLS-01)
-- `09-mobile-apps`: Driver checklist submission (DM-01 optional)
+| # | Sub-task | Jira |
+|---|----------|------|
+| DS-02-1 | `DriverState` enum field on Driver model + migration | DFS-051-1 |
+| DS-02-2 | `DriverAttendance` model + migration | DFS-051-2 |
+| DS-02-3 | `DriverLeave` model + migration | DFS-051-3 |
+| DS-02-4 | `DriverStateLog` audit model + migration | DFS-051-4 |
+| DS-02-5 | `WorkingHoursConfig` model (max daily hours, default 12h) | DFS-051-5 |
+| DS-02-6 | `DriverStateAdmin` — list view with state badges, filters, read-only guards | DFS-051-6 |
+| DS-02-7 | `DriverAttendanceAdmin` — list + change form, working hours validation | DFS-051-7 |
+| DS-02-8 | `DriverLeaveAdmin` — leave form, overlap validation, state transition | DFS-051-8 |
+| DS-02-9 | Driver state machine service — transitions, validation, audit | DFS-051-9 |
+| DS-02-10 | TLS-01 hooks — auto-update driver state on TO lifecycle events | DFS-051-10 |
+| DS-02-11 | Attendance CRUD API — `POST/GET/PATCH/DELETE /api/v1/driver-attendance` | DFS-051-11 |
+| DS-02-12 | Leave CRUD API — `POST/GET/PATCH /api/v1/driver-leave` + cancel | DFS-051-12 |
+| DS-02-13 | Driver state board API — `GET /api/v1/drivers/state-board` | DFS-051-13 |
+| DS-02-14 | TO-02 conflict guard — On Leave drivers blocked from assignment | DFS-051-14 |
+| DS-02-15 | Working hours guardrail — warning on threshold exceeded | DFS-051-15 |
+| DS-02-16 | Supervisor UI — attendance grid, leave calendar, state board | DFS-051-16 |
+| DS-02-17 | Audit logging — state transitions, attendance, leave records | DFS-051-17 |
 
 ---
 
@@ -665,10 +913,23 @@ Menu.Fleet.Supervisor.View
 
 | Story | Scope | Implementation Focus |
 |-------|-------|----------------------|
-| **DS-01** | Vehicle licence, health & handover checklists | Template model + submission/review flow + admin UI + vehicle state guard |
-| **DS-02** | Driver state, attendance & leave (supervisor) | Attendance model + leave model + TDO assignment guards + admin UI |
+| **DS-01** | Vehicle daily inspection checklist (predefined, immutable) | Predefined section/item models + data migration + inspection/response flow + admin + TO status transition + Under Maintenance guard |
+| **DS-02** | Driver state, attendance & leave (supervisor) | DriverState enum + state machine service + TLS-01 hooks + attendance model + leave model + working hours config + admin + APIs |
 
 ---
 
-**Last Updated**: 2026-05-06  
+## 13. Dependencies
+
+### Upstream
+- `02-master-data`: Vehicle (MDM-05), Driver (MDM-06), POI (MDM-04)
+- `01-foundation`: RBAC, User model, TenantAwareModel
+- `05-transport`: TransportOrder model (TO-02 assignment, TLS-01 lifecycle)
+
+### Downstream
+- `05-transport`: TDO assignment guards, execution guards (TLS-01), TO status transitions
+- `09-mobile-apps`: Checklist reference display, driver state visibility (DM-01)
+
+---
+
+**Last Updated**: 2026-05-12  
 **Related Modules**: [05-transport](../05-transport/README.md), [03-users](../03-users/README.md) (Driver Interface), [02-master-data](../02-master-data/README.md)

@@ -37,7 +37,7 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 - [ ] POI detail (or linked screen) lists all L/U points for that site
 
 ### AC-2: Point definition
-- [ ] User creates a point with: **name/label** (required), **short code** (unique per POI), **operation type** = `LOAD` | `UNLOAD` | `BOTH` (default per org policy or required explicit choice)
+- [ ] User creates a point with: **name/label** (required), **short code** (unique per POI), **operation type** = `LOAD` | `UNLOAD` (required explicit choice — no combined “both” type)
 - [ ] Optional: display order, optional notes, **active/inactive** flag
 - [ ] Inactive points: not assignable for **new** queue rows; historical assignments remain readable
 
@@ -87,7 +87,7 @@ PATCH  /api/v1/loading-unloading-points/{id}                             # Updat
 
 - [ ] LoadingUnloadingPoint model created with migration passing `makemigrations --check`
 - [ ] Each point is owned by exactly one POI; only active POIs allow new active points (AC-1)
-- [ ] Point definition includes name, short code (unique per POI), operation type (LOAD/UNLOAD/BOTH), active/inactive flag (AC-2)
+- [ ] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag (AC-2)
 - [ ] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
 - [ ] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles (AC-3)
 - [ ] Audit log records who/when/what on every create, update, and deactivate action (AC-3)

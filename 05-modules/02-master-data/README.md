@@ -29,8 +29,9 @@ This module defines master data configuration and management for the DFMS platfo
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
+| [loading-unloading-points.md](loading-unloading-points.md) | Loading/unloading points — POI sub-location master (bays/lines/docks). Model, admin (standalone + inline under POIAdmin), API, RBAC, seed data. Consumed by CC-01, LD-01, QC-01 | 6.5.1, 6.12.2, 6.13.1 | DFS-063 (LUP-01) — Sprint 4 | ~230 |
 
-**Total Documentation**: ~1,650 lines of comprehensive technical specifications (driver compliance: see `03-users/driver-user-profiles.md`)
+**Total Documentation**: ~1,880 lines of comprehensive technical specifications (driver compliance: see `03-users/driver-user-profiles.md`)
 
 **Helper (US-061) — full specification**: [helper-master-data.md](../03-users/helper-master-data.md) (lives under **12-users** because helpers may link to platform users via optional `user_id`).
 
@@ -70,7 +71,7 @@ This module defines master data configuration and management for the DFMS platfo
 ### Downstream Dependencies
 **Modules that depend on this master data**:
 - **`03-operations/`**: Requisitions, TRs, TOs, Trips all reference master data
-- **`04-poi-operations/`**: Gate, scaling, QC operations use POI and product data
+- **`04-poi-operations/`**: Gate, scaling, QC operations use POI and product data; **Command Center (CC-01)** and **Loading/Unloading (LD-01)** consume `LoadingUnloadingPoint` for bay assignment and event capture
 - **`05-vendor-management/`**: Vendor onboarding creates vendor master records
 - **`06-fleet-management/`**: Vehicle, driver, helper registration
 - **All operational modules**: Reference master data for entities
@@ -89,6 +90,7 @@ This module defines master data configuration and management for the DFMS platfo
 | Story ID | Title | Feature Area |
 |----------|-------|--------------|
 | US-014 | Capacity Checking and Warnings | POI Management |
+| DFS-063 (LUP-01) | Loading & Unloading Points — Create & Maintain per POI | POI Sub-Location Master (Sprint 4) |
 
 ### Master Data Embedded in Workflows
 Master data creation is integrated into workflow stories:
@@ -124,6 +126,14 @@ QC: requires_qc (boolean only — no qc_checklist FK).
 Status: is_active.
 ```
 
+### LoadingUnloadingPoint (`LoadingUnloadingPoint`) — Sprint 4
+```text
+FK to POI (PROTECT). Identification: name, short_code (unique per POI).
+operation_type: LOAD / UNLOAD. is_active, display_order (optional), notes.
+created_by FK to User. Consumed by CC-01, LD-01, QC-01 for bay assignment and events.
+Full spec: loading-unloading-points.md (LUP-01, DFS-063).
+```
+
 ### Other notes
 - **No generic `MasterEntity` JSON table** for these records — each entity has its own table.
 - **Vehicle** uses **`capacity` + `capacity_unit`** (not only “tonnage”).
@@ -137,6 +147,7 @@ REST routes are registered in **`apps/master_data/urls.py`** under the global **
 | Resource | Example path |
 |----------|----------------|
 | POIs | `GET/POST /api/v1/pois`, `GET/PATCH/DELETE /api/v1/pois/{id}/` |
+| L/U Points | `POST /api/v1/pois/{poi_id}/loading-unloading-points`, `GET /api/v1/loading-unloading-points/{id}` |
 | Products | `GET/POST /api/v1/products`, … |
 | Bulk jobs | `GET/POST /api/v1/bulk-imports/`, `GET/POST /api/v1/bulk-exports/` |
 

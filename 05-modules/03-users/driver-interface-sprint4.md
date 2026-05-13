@@ -1,10 +1,10 @@
 ---
 module: 03-users
 specification: Driver Interface (Sprint 4 — TO Execution, Responsive Web)
-version: 1.0
+version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-06
+last_updated: 2026-05-12
 related_stories: DFS-053 (DM-01)
 jira_epic: DFS-071
 ---
@@ -133,8 +133,9 @@ Table or accordion list:
   - Notes (optional text area)
   - Photo upload (optional)
   - [Submit] button
-    → Calls `POST /api/v1/driver/transport-orders/{to_id}/milestones/`
+    → Calls `PATCH /api/v1/driver/transport-orders/{to_id}/milestones`
     → Success: refresh TO detail, timeline updates
+    → On §6.8.1.7 failure: stable error message (vehicle unavailable, driver on leave, vehicle under maintenance)
 
 **POD Section**:
 - Visible only after all milestones completed (or configurable per lane — e.g., FG outbound after Gate Out Source + Loading)
@@ -144,7 +145,7 @@ Table or accordion list:
     - **Signature** (optional): canvas widget (finger drawing)
     - **Notes** (optional): text area
     - [Submit POD] button
-      → Calls `POST /api/v1/driver/transport-orders/{to_id}/pod/`
+      → Calls `POST /api/v1/driver/transport-orders/{to_id}/pod`
       → Backend triggers closure engine (POD-01)
       → Success: TO moves to Completed tab
 
@@ -160,16 +161,17 @@ Table or accordion list:
 
 ## 2. Data Model
 
-### 2.1 TOMilestone (new model in `apps/transport/`)
+### 2.1 ExecutionMilestone (new model in `apps/transport/`)
 
 ```python
-TOMilestone {
+ExecutionMilestone(TenantAwareModel) {
     milestone_id: UUID
     transport_order: FK → TransportOrder
     
     # Milestone definition
     milestone_type: enum                # ['execution_started', 'gate_in_source', 'loading_done', 'gate_out_source', 
                                         #  'gate_in_destination', 'unloading_done', 'gate_out_destination']
+                                        # Reconciled with TLS-01 milestone set
     
     # Recorded data
     recorded_at: DateTime               # When driver recorded this milestone
@@ -178,31 +180,30 @@ TOMilestone {
     # Context
     recorded_by: FK → User (Driver)
     notes: text (nullable)
-    photo: ImageField (nullable)        # Evidence photo (compressed)
+    photo: ImageField (nullable)        # Evidence photo (auto-compressed via compression utility)
     
     # Geolocation (Phase 2)
     latitude: Decimal (nullable)
     longitude: Decimal (nullable)
     
-    # Metadata
-    tenant_id: UUID
+    # Metadata (inherited from TenantAwareModel)
     created_at: DateTime
 }
 ```
 
 **Constraints**:
 - Unique: `(transport_order, milestone_type)` — one milestone record per type per TO
-- `milestone_type` values align with TO execution flow (lane-specific)
+- `milestone_type` values reconciled with TLS-01 event types
 
-### 2.2 TOPOD (new model in `apps/transport/pod/`)
+### 2.2 ProofOfDelivery (new model in `apps/transport/`)
 
 ```python
-TOPOD {
+ProofOfDelivery(TenantAwareModel) {
     pod_id: UUID
     transport_order: OneToOne → TransportOrder  # One POD per TO
     
     # POD artifacts
-    photo: ImageField                   # Required: delivery evidence (compressed on upload)
+    photo: ImageField                   # Required: delivery evidence (auto-compressed via compression utility)
     signature: ImageField (nullable)    # Optional: canvas signature image
     notes: text (nullable)              # Driver remarks
     
@@ -210,8 +211,7 @@ TOPOD {
     submitted_by: FK → User (Driver)
     submitted_at: DateTime
     
-    # Metadata
-    tenant_id: UUID
+    # Metadata (inherited from TenantAwareModel)
 }
 ```
 
@@ -234,7 +234,7 @@ TransportOrder {
     source_channel: enum                # ['planner', 'gate_on_demand']
                                         # Sprint 3 TOs = 'planner'; GT-02 TOs = 'gate_on_demand'
     
-    # Execution timestamps (denormalized from TOMilestone for fast queries)
+    # Execution timestamps (denormalized from ExecutionMilestone for fast queries)
     execution_started_at: DateTime (nullable)
     gate_in_source_at: DateTime (nullable)
     loading_done_at: DateTime (nullable)
@@ -251,10 +251,12 @@ TransportOrder {
 
 ## 3. API Endpoints
 
+**Security**: All driver endpoints scope queries to the authenticated driver. Requests for TOs not assigned to the authenticated driver return **404** (not 403), preventing enumeration of other drivers' TOs.
+
 ### 3.1 Driver TO List
 
 ```http
-GET    /api/v1/driver/transport-orders/
+GET    /api/v1/driver/transport-orders
        → List TOs assigned to authenticated driver
        → Filters: ?status=ready_for_dispatch | in_progress | completed
        → Response: [
@@ -274,8 +276,8 @@ GET    /api/v1/driver/transport-orders/
 ### 3.2 Driver TO Detail
 
 ```http
-GET    /api/v1/driver/transport-orders/{to_id}/
-       → Detailed TO view for driver
+GET    /api/v1/driver/transport-orders/{to_id}
+       → Detailed TO view for driver (404 if not owned)
        → Response: {
            to_id, to_number, status, execution_state, flow_type,
            product: {...},
@@ -300,7 +302,7 @@ GET    /api/v1/driver/transport-orders/{to_id}/
 ### 3.3 Record Milestone
 
 ```http
-POST   /api/v1/driver/transport-orders/{to_id}/milestones/
+PATCH  /api/v1/driver/transport-orders/{to_id}/milestones
        → Driver records a milestone
        → Body: {
            milestone_type: "gate_in_source",
@@ -309,35 +311,58 @@ POST   /api/v1/driver/transport-orders/{to_id}/milestones/
            photo: base64 or multipart file (optional)
          }
        → Side effects:
-           - Create TOMilestone record
+           - §6.8.1.7 fleet availability validation on first execution action
+           - Create ExecutionMilestone record
            - Update TransportOrder.execution_state (via service)
            - Update denormalized timestamp fields
            - Write TOExecutionEvent (TLS-01 timeline)
+           - Audit log entry (DM-01-12)
        → Response: {
            milestone_id,
            transport_order: {execution_state, next_milestone}
          }
+       → Error (§6.8.1.7 failure): 400 {
+           error: "fleet_availability_failed",
+           detail: "Vehicle DHK-1234 is under maintenance" | "Driver is on leave until 2026-05-15"
+         }
 ```
 
 **Validations**:
-- Driver must be assigned to this TO
+- Driver must be assigned to this TO (404 if not owned)
 - Milestone must be next in sequence (cannot skip steps)
 - TO must not be closed
+- **§6.8.1.7**: On first execution action, fleet availability validation must pass (vehicle available, driver not on leave, vehicle not under maintenance)
 
-### 3.4 Submit POD
+### 3.4 List Milestones
 
 ```http
-POST   /api/v1/driver/transport-orders/{to_id}/pod/
+GET    /api/v1/driver/transport-orders/{to_id}/milestones
+       → List all milestones recorded for this TO (404 if not owned)
+       → Response: [
+           {
+             milestone_id, milestone_type, recorded_at, actual_timestamp,
+             recorded_by: {id, name},
+             notes, photo_url
+           },
+           ...
+         ]
+```
+
+### 3.5 Submit POD
+
+```http
+POST   /api/v1/driver/transport-orders/{to_id}/pod
        → Driver submits POD
        → Body: multipart/form-data
-           - photo: file (required, max 5MB)
+           - photo: file (required, auto-compressed before storage)
            - signature: file (optional, canvas output)
            - notes: text (optional)
        → Side effects:
-           - Create TOPOD record
+           - Create ProofOfDelivery record
            - Update TransportOrder.pod_submitted_at
            - Trigger closure engine (POD-01 service)
            - If closure conditions met: execution_state = 'closed', closed_at = now
+           - Audit log entry (DM-01-12)
        → Response: {
            pod_id,
            transport_order: {execution_state, closed_at}
@@ -345,40 +370,56 @@ POST   /api/v1/driver/transport-orders/{to_id}/pod/
 ```
 
 **Validations**:
-- Driver must be assigned to this TO
+- Driver must be assigned to this TO (404 if not owned)
 - All required milestones must be completed (per flow_type)
 - POD not already submitted (OneToOne enforced)
+
+### 3.6 Retrieve POD
+
+```http
+GET    /api/v1/driver/transport-orders/{to_id}/pod
+       → Retrieve POD detail for this TO (404 if not owned or no POD submitted)
+       → Response: {
+           pod_id,
+           photo_url, signature_url,
+           notes,
+           submitted_by: {id, name},
+           submitted_at
+         }
+```
 
 ---
 
 ## 4. Django Admin Configuration
 
-### 4.1 TOMilestone Admin
+### 4.1 ExecutionMilestoneAdmin (read-only)
+
+Uses `TenantOnlyAdminMixin`. All fields are **read-only** (support/debug use only).
 
 **List View**:
-- Columns: TO Number, Milestone Type, Recorded At, Driver, Status
-- Filters: `milestone_type`, `recorded_at` (date range), `transport_order__status`
-- Search: TO number, Driver name
-- Actions: Bulk export CSV
+- `list_display`: TO Number, Milestone Type, Recorded At, Driver
+- `list_filter`: `transport_order`, `milestone_type`
+- `search_fields`: TO number
+- Read-only — no add/edit/delete actions
 
-**Detail View**:
-- Read-only: TO (link), Milestone Type, Recorded At, Actual Timestamp, Driver
-- Editable: Notes, Photo (image preview)
-- Custom admin action: **"View on Timeline"** (redirects to TO detail with TLS-01 timeline)
+**Detail View** (change form):
+- Read-only: TO (link), Milestone Type, Recorded At, Actual Timestamp, Driver, Notes
+- Photo preview (if present)
 
-### 4.2 TOPOD Admin
+### 4.2 ProofOfDeliveryAdmin (read-only)
+
+Uses `TenantOnlyAdminMixin`. All fields are **read-only** (support/debug use only).
 
 **List View**:
-- Columns: TO Number, Submitted By, Submitted At, Photo (thumbnail), Signature (yes/no)
-- Filters: `submitted_at` (date range), `submitted_by` (driver FK)
-- Search: TO number
-- Actions: Bulk download POD photos (ZIP)
+- `list_display`: TO Number (ref), Driver, Submitted At
+- `list_filter`: `submitted_at` (date range)
+- `search_fields`: TO number
+- Read-only — no add/edit/delete actions
 
-**Detail View**:
-- Read-only: TO (link), Submitted By, Submitted At
-- Image preview widgets: Photo (large), Signature (if present)
-- Notes: read-only text area
-- Custom admin action: **"Verify POD"** (manual review flag — Phase 2)
+**Detail View** (change form):
+- Read-only: TO (link), Submitted By, Submitted At, Notes
+- Photo preview (large image widget)
+- Signature preview (if present)
 
 ---
 
@@ -436,12 +477,14 @@ def record_milestone(transport_order, milestone_type, driver):
     if milestone_type != expected_next:
         raise ValidationError(f"Expected milestone: {expected_next}, got: {milestone_type}")
     
-    # 4. Fleet readiness check on FIRST execution action (§6.8.1.7)
-    if milestone_type == 'started':
-        validate_execution_readiness(transport_order)  # DS-02 guards
+    # 4. §6.8.1.7 Fleet availability validation on first execution action
+    if is_first_execution_action(transport_order, milestone_type):
+        validate_fleet_availability(transport_order)
+        # Raises ValidationError with stable error codes:
+        #   "vehicle_unavailable", "driver_on_leave", "vehicle_under_maintenance"
     
     # 5. Create milestone record
-    milestone = TOMilestone.objects.create(...)
+    milestone = ExecutionMilestone.objects.create(...)
     
     # 6. Advance execution state
     transport_order.execution_state = milestone_type_to_state(milestone_type)
@@ -455,6 +498,46 @@ def record_milestone(transport_order, milestone_type, driver):
         actor_user=driver,
         ...
     )
+    
+    # 8. Audit log (DM-01-12)
+    log_milestone_recording(transport_order, milestone, driver)
+```
+
+### 5.3 §6.8.1.7 Fleet Availability Validation Service
+
+**Service** (`apps/transport/services/fleet_availability_service.py`):
+
+Re-validates vehicle and driver availability on the **first driver execution action** (typically `execution_started`). If validation fails, the milestone PATCH returns a stable error.
+
+```python
+def validate_fleet_availability(transport_order):
+    """
+    §6.8.1.7 — re-validate vehicle/driver availability at execution start.
+    Raises ValidationError with stable error code on failure.
+    """
+    vehicle = transport_order.assigned_vehicle
+    driver = transport_order.assigned_driver
+    
+    # Vehicle not under maintenance
+    if vehicle.is_under_maintenance():
+        raise ValidationError(
+            code="vehicle_under_maintenance",
+            detail=f"Vehicle {vehicle.registration} is under maintenance."
+        )
+    
+    # Vehicle not already dispatched on another active TO
+    if vehicle.is_dispatched_elsewhere(exclude_to=transport_order):
+        raise ValidationError(
+            code="vehicle_unavailable",
+            detail=f"Vehicle {vehicle.registration} is assigned to another active TO."
+        )
+    
+    # Driver not on leave
+    if driver.is_on_leave():
+        raise ValidationError(
+            code="driver_on_leave",
+            detail=f"Driver is on leave until {driver.leave_end_date}."
+        )
 ```
 
 ---
@@ -474,12 +557,21 @@ def record_milestone(transport_order, milestone_type, driver):
 - High-contrast status badges (colorblind-safe)
 - Screen reader labels for icons
 
-### 6.2 Photo Capture
+### 6.2 Photo Capture & Compression
 
-**Compression**:
-- Client-side: resize to max 1920px width, JPEG quality 85%
-- Server-side: further compress to max 1MB (lossy)
-- Store in `media/pod_photos/` and `media/milestone_photos/`
+**Photo Compression Utility** (`apps/transport/utils/image_compression.py`):
+- Auto-compress images **before storage** (both milestone photos and POD photos)
+- Max dimension: configurable (default 1920px longest edge)
+- Max file size: configurable (default 1MB after compression)
+- Format: JPEG, quality 85%
+- Applied server-side on upload via utility function
+
+**Client-side** (optional pre-compression):
+- Resize to max 1920px width, JPEG quality 85%
+
+**Storage paths**:
+- POD photos: `media/pod_photos/`
+- Milestone photos: `media/milestone_photos/`
 
 **Camera Integration**:
 - HTML5 `<input type="file" capture="environment">` for mobile camera
@@ -515,6 +607,7 @@ def record_milestone(transport_order, milestone_type, driver):
 ### 7.1 TO Visibility
 
 - Driver sees only TOs where `assigned_driver = driver` AND `status != 'cancelled'`
+- Non-owned TO requests return **404** (not 403) to prevent enumeration
 - "Ready for Dispatch" tab: `execution_state = 'ready_for_dispatch'`
 - "In Progress" tab: `execution_state IN (started, gate_in_source, loading, ...)`
 - "Completed" tab: `execution_state = 'closed'`
@@ -530,15 +623,18 @@ def record_milestone(transport_order, milestone_type, driver):
 
 - POD can only be submitted after all required milestones completed
 - Photo is mandatory; signature and notes are optional
+- Photos auto-compressed before storage via compression utility
 - POD submission triggers closure engine (POD-01)
 - If closure conditions not met (e.g., QC pending), TO stays in `pod_submitted` state until closure unblocked
 
-### 7.4 Execution Readiness Enforcement
+### 7.4 §6.8.1.7 Fleet Availability Enforcement
 
-On first milestone (`started`), validate:
-- Vehicle not under maintenance (DS-01)
-- Driver not on leave (DS-02)
-- Optional: pre-movement checklist approved (if policy enabled)
+On **first driver execution action** (typically `execution_started` milestone), re-validate:
+- Vehicle not under maintenance
+- Vehicle not dispatched on another active TO
+- Driver not on leave
+
+Milestone PATCH fails with **stable error codes** (`vehicle_unavailable`, `driver_on_leave`, `vehicle_under_maintenance`) when validation fails. Driver sees descriptive error message and must contact supervisor.
 
 ---
 
@@ -549,11 +645,12 @@ On first milestone (`started`), validate:
 **Milestone recording writes to timeline**:
 - Every milestone creates a `TOExecutionEvent` record (see TLS-01 spec)
 - `event_type = milestone_type`, `actor_user = driver`, `source_module = 'driver_mobile'`
+- `ExecutionMilestone.milestone_type` values reconciled with TLS-01 event types
 
 ### 8.2 With POD Closure (POD-01)
 
 **POD submission triggers closure**:
-- Driver submits POD → `TOPOD` created
+- Driver submits POD → `ProofOfDelivery` created
 - Service calls `apps/transport/closure/closure_engine.py:evaluate_closure_conditions(transport_order)`
 - If all gates passed (per flow_type): `execution_state = 'closed'`, `closed_at = now()`
 - If gates blocked (e.g., QC pending): `execution_state = 'pod_submitted'`, closure deferred
@@ -569,6 +666,13 @@ On first milestone (`started`), validate:
 **Conflict resolution**:
 - If gate records `gate_in_source` before driver records milestone, driver milestone creation is no-op (already recorded)
 - Timeline service deduplicates by `event_type` + `transport_order` within 5-minute window
+
+### 8.4 With Fleet Availability (§6.8.1.7)
+
+**First-execution-action validation**:
+- Fleet availability validation service (`apps/transport/services/fleet_availability_service.py`) called on first driver execution action
+- Queries vehicle maintenance status and driver leave status from `08-fleet-management` models
+- Returns stable error codes consumed by the milestone API (see §5.3)
 
 ---
 
@@ -613,28 +717,41 @@ Menu.DriverMobile.View
 
 1. Driver logs in → sees TO in "Ready for Dispatch" tab
 2. Taps TO card → TO detail screen
-3. Taps [Mark as Started] → milestone recorded, execution_state = 'started'
+3. Taps [Mark as Started] → §6.8.1.7 fleet validation passes → milestone recorded, execution_state = 'started'
 4. Arrives at source gate → taps [Record Gate In] → execution_state = 'gate_in_source'
 5. Loading completes → taps [Record Loading Done] → execution_state = 'loading'
 6. Exits gate → taps [Record Gate Out] → execution_state = 'gate_out_source'
-7. [Capture POD] button enabled → taps → uploads photo, signs, taps [Submit]
+7. [Capture POD] button enabled → taps → uploads photo (auto-compressed), signs, taps [Submit]
 8. POD-01 closure engine evaluates → all gates passed → TO closed
 9. TO moves to "Completed" tab
 
-### 10.2 Blocked Execution (Driver on Leave)
+### 10.2 Blocked Execution — §6.8.1.7 Failure (Vehicle Under Maintenance)
 
 1. Driver logs in, sees TO in "Ready for Dispatch"
-2. Taps [Mark as Started] → API returns 400: "Driver is on leave"
-3. Error banner: "You are on leave until {date}. Cannot start execution."
+2. Taps [Mark as Started] → API returns 400: `{"error": "vehicle_under_maintenance", "detail": "Vehicle DHK-1234 is under maintenance."}`
+3. Error banner: "Vehicle is under maintenance. Cannot start execution."
 4. Driver contacts supervisor
 
-### 10.3 POD Submission Before Milestones Complete
+### 10.3 Blocked Execution — §6.8.1.7 Failure (Driver on Leave)
+
+1. Driver logs in, sees TO in "Ready for Dispatch"
+2. Taps [Mark as Started] → API returns 400: `{"error": "driver_on_leave", "detail": "Driver is on leave until 2026-05-15."}`
+3. Error banner: "You are on leave until 2026-05-15. Cannot start execution."
+4. Driver contacts supervisor
+
+### 10.4 POD Submission Before Milestones Complete
 
 1. Driver tries to tap [Capture POD] before recording "Gate Out" milestone
 2. Button disabled (grayed out)
 3. Tooltip: "Complete all milestones first"
 
-### 10.4 Offline Scenario (Phase 2)
+### 10.5 Security — Access to Another Driver's TO
+
+1. Driver A attempts GET `/api/v1/driver/transport-orders/{to_id}` for a TO assigned to Driver B
+2. API returns **404** (not 403)
+3. No information about the TO is leaked
+
+### 10.6 Offline Scenario (Phase 2)
 
 1. Driver loses network after marking "Started"
 2. Records "Gate In" milestone → saved to local queue
@@ -647,7 +764,7 @@ Menu.DriverMobile.View
 
 ### Upstream
 - `05-transport`: TransportOrder model, execution_state field
-- `08-fleet-management`: Execution readiness guards (DS-01, DS-02)
+- `08-fleet-management`: Fleet availability validation (§6.8.1.7 — vehicle maintenance, driver leave)
 - `01-foundation`: Auth, RBAC
 
 ### Downstream
@@ -658,9 +775,26 @@ Menu.DriverMobile.View
 
 ## 12. Sprint 4 Story Mapping
 
-| Story | Scope | Implementation Focus |
-|-------|-------|----------------------|
-| **DM-01** | TO list, execution milestones & POD capture | TOMilestone model + TOPOD model + mobile UI + API endpoints + milestone sequencing service + POD-01 closure trigger |
+| Story | Scope |
+|-------|-------|
+| **DM-01** | TO list, execution milestones & POD capture |
+
+### DM-01 Sub-tasks
+
+| # | Sub-task | Jira | Focus |
+|---|----------|------|-------|
+| DM-01-1 | `ProofOfDelivery` model + migration | DFS-053-1 | FK to TO, photo (ImageField), optional signature, `submitted_by`, `submitted_at` |
+| DM-01-2 | `ExecutionMilestone` model + migration | DFS-053-2 | FK to TO, `milestone_type` enum, `recorded_at`, `recorded_by`; reconcile types with TLS-01 |
+| DM-01-3 | `ProofOfDeliveryAdmin` (read-only) | DFS-053-3 | Read-only `list_display` (TO ref, driver, submitted_at), photo preview in change form |
+| DM-01-4 | `ExecutionMilestoneAdmin` (read-only) | DFS-053-4 | Read-only `list_display`, `list_filter` (TO, milestone_type), search by TO number |
+| DM-01-5 | Driver TO list API | DFS-053-5 | `GET /api/v1/driver/transport-orders` scoped to authenticated driver |
+| DM-01-6 | Driver TO detail API | DFS-053-6 | `GET /api/v1/driver/transport-orders/{to_id}` — pickup/drop POI, product, qty, instructions |
+| DM-01-7 | Milestone record API + §6.8.1.7 validation | DFS-053-7 | `PATCH /api/v1/driver/transport-orders/{to_id}/milestones` + fleet availability validation |
+| DM-01-8 | POD upload API + media storage config | DFS-053-8 | `POST /api/v1/driver/transport-orders/{to_id}/pod` + S3/local media config |
+| DM-01-9 | Fleet availability validation service | DFS-053-9 | §6.8.1.7 — re-validate vehicle + driver availability on first execution action |
+| DM-01-10 | Photo compression utility | DFS-053-10 | Auto-compress images before storage (max dimension + file size enforced) |
+| DM-01-11 | Mobile/responsive UI | DFS-053-11 | TO list, TO detail, milestone recording, POD capture form with camera/gallery |
+| DM-01-12 | Audit logging | DFS-053-12 | Audit trail on milestone recordings and POD submissions |
 
 ---
 
@@ -676,6 +810,6 @@ Menu.DriverMobile.View
 
 ---
 
-**Last Updated**: 2026-05-06  
+**Last Updated**: 2026-05-12  
 **Implementation Note**: This is a **responsive web interface** accessed via mobile browsers, not a native mobile app. No app store deployment required.  
 **Related Modules**: [05-transport](../05-transport/README.md), [08-fleet-management](../08-fleet-management/README.md), [06-poi-operations](../06-poi-operations/README.md)
