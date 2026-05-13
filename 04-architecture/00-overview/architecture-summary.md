@@ -36,13 +36,13 @@ This repository documents architecture at **C4 Level 1-2** only:
 - **What**: DFMS as a black box
 - **Shows**: Users, external systems, data flows
 - **Document**: [System Overview](../01-system-design/system-overview.md)
-- **Diagram**: [System Context Diagram](../01-system-design/diagrams/system-context-diagram.mmd)
+- **Diagram**: [System Context Diagram](../05-diagrams/architecture/system-context-diagram.mmd)
 
 #### **Level 2: Container View**
 - **What**: High-level technical building blocks
 - **Shows**: Web app, mobile apps, API layer, database, message queue
 - **Document**: [Container View](../01-system-design/container-view.md)
-- **Diagram**: [Container Diagram](../01-system-design/diagrams/container-diagram.mmd)
+- **Diagram**: [Container Diagram](../05-diagrams/architecture/container-diagram.mmd)
 
 #### **Level 3-4: Components & Code**
 - **What**: Detailed implementation

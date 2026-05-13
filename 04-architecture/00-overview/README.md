@@ -75,7 +75,7 @@ This technical context follows the **C4 Model** for architecture documentation:
 
 | Level | Scope | Documents |
 |-------|-------|-----------|
-| **Level 1** | System Context | [System Overview](../01-system-design/system-overview.md), [System Context Diagram](../01-system-design/diagrams/system-context-diagram.mmd) |
+| **Level 1** | System Context | [System Overview](../01-system-design/system-overview.md), [System Context Diagram](../05-diagrams/architecture/system-context-diagram.mmd) |
 | **Level 2** | Containers | [Container View](../01-system-design/container-view.md), [Module Boundaries](../01-system-design/modules/module-boundaries.md) |
 | **Level 3-4** | Components & Code | ❌ Not in this repo (implementation repos) |
 
@@ -163,7 +163,7 @@ Modules communicate via events:
 ### **Diagrams**
 - **Format**: Mermaid (`.mmd` files)
 - **Style**: C4 Model conventions
-- **Location**: [../01-system-design/diagrams/](../01-system-design/diagrams/)
+- **Location**: [../05-diagrams/architecture/](../05-diagrams/architecture/)
 
 ### **Contracts**
 - **APIs**: OpenAPI 3.0 (`.yaml` files)

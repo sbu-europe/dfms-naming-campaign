@@ -81,9 +81,10 @@ Data model visualizations:
 ## 📊 Diagram Locations
 
 ### Architecture Diagrams
-- **C4 Level 1-2**: `01-system-design/diagrams/`
-- **System Context**: `01-system-design/diagrams/system-context-diagram.mmd`
-- **Container View**: `01-system-design/diagrams/container-diagram.mmd`
+- **Architecture Overview**: `05-diagrams/architecture/system-architecture-overview.mmd`
+- **C4 Level 1-2**: `05-diagrams/architecture/`
+- **System Context**: `05-diagrams/architecture/system-context-diagram.mmd`
+- **Container View**: `05-diagrams/architecture/container-diagram.mmd`
 
 ### Workflow Diagrams
 - **Operational Flows**: `02-workflows/operational-flows/` (embedded in documents)

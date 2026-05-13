@@ -28,7 +28,7 @@ These diagrams show:
 
 ## 🔗 Related Documentation
 
-- **[System-Level Diagrams](../../01-system-design/diagrams/)** - C4 Level 1-2 diagrams
+- **[System-Level Diagrams](../../05-diagrams/architecture/)** - C4 Level 1-2 diagrams
 - **[Backend Architecture](../)** - Django architecture documentation
 - **[All Diagrams Index](../../05-diagrams/diagrams-index.md)** - Complete catalog of all diagrams
 
