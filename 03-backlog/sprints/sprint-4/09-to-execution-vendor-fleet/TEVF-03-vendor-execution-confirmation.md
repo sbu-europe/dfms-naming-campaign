@@ -27,9 +27,14 @@ Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-
 ## Acceptance criteria (product-aligned)
 
 - [ ] **Vendor receives TO notification** — *product note:* comprehensive notification channels are **Phase 3**; Phase 1 uses **in-app / email** as per [08-vendor-management/README.md](../08-vendor-management/README.md) until the notification program lands.
-- [ ] **Vendor assigns** for execution:
-  - **Vehicle number**
-  - **Driver details** (name and phone number; additional IDs per VM-08)
+- [ ] **Vendor assigns** for execution. Required vs optional fields:
+  - **Mandatory:**
+    - **Vehicle number**
+    - **Driver name** and **driver phone number**
+  - **Optional:**
+    - **Driver NID/License** *(optional)*
+    - **Helper details with NID** *(optional)*
+  - Full field contract (validations, vehicle type/capacity match, update-with-reason) is owned by **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)**.
 - [ ] **After TO completion**, vendor may submit:
   - **POD**
   - **GRN copy**

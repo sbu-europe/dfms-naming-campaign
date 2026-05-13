@@ -36,15 +36,19 @@ Once inside this screen, **the form is identical** for both types.
                      (rate hidden — see 05-assigned-tos-list.md)
 3. Vendor taps "Confirm Vehicle & Driver" (gate: required before trip start)
 4. App displays confirmation form (per-TO one-off — Phase 1):
-   - Driver info (name, phone, NID/license)
-   - Vehicle info (number, type, capacity)
-   - Helpers (optional: name + NID)
+   - **Mandatory:**
+     - Vehicle info: number, type, capacity
+     - Driver info: name, phone
+   - **Optional:**
+     - Driver NID/License *(optional — may be added later via the update flow)*
+     - Helpers — zero or more *(optional — each helper, if provided, captures name + NID)*
    - POD upload (when TO/tenant policy requires; can also be uploaded later in lifecycle)
    - GRN copy upload (when applicable)
 5. App validates:
    - Vehicle capacity >= TO required capacity
    - Vehicle type matches TO required vehicle type
-   - All mandatory fields filled (driver name + phone + NID/license; vehicle number + type + capacity)
+   - All mandatory fields filled: vehicle number + type + capacity, driver name + phone
+   - Optional fields (driver NID/License, helpers) are accepted if blank/empty; if provided, each helper entry must have **both** name and NID
 6. Vendor confirms details
 7. System marks TO as READY_FOR_DISPATCH (or equivalent)
 8. Trip can be dispatched/started
@@ -78,16 +82,16 @@ interface PostAwardAssignment {
   // Entry-point context (informational, not editable here)
   assignment_type: 'BID_WON' | 'CONTRACTUAL';
 
-  // Required capture (VM-07)
+  // Required capture (VM-07) — mandatory fields
   driver_name: string;
   driver_phone: string;
-  driver_nid_or_license: string;
-
   vehicle_number: string;
   vehicle_type: string;
   vehicle_capacity_tons: number;
 
-  helpers?: Array<{ name: string; nid: string }>;
+  // Optional capture (VM-07) — may be omitted at confirmation, added later via update flow
+  driver_nid_or_license?: string;                 // optional
+  helpers?: Array<{ name: string; nid: string }>; // optional; if present, name + nid both required per entry
 
   // Documents (uploaded over the lifecycle)
   pod_attachments?: Array<{ file_id: string; uploaded_at: Date }>;

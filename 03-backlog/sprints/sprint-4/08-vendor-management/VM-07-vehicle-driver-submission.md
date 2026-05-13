@@ -35,15 +35,19 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 - [ ] System requires a **confirmed** vehicle/driver/helper capture after award/assignment and **before** trip start (no trip start without it)
 
 ### AC-2: Fields & documents (vendor)
-- [ ] **On confirmation (before trip start),** vendor provides:
-  - Vehicle number
-  - Capacity
-  - Driver name and contact information
-  - Driver NID/License
-  - Helper details with NID
+- [ ] **On confirmation (before trip start),** vendor provides the following fields. Mandatory vs optional is enforced server-side:
+  - **Mandatory:**
+    - Vehicle number
+    - Vehicle type (must match TO required vehicle type — AC-2 validation)
+    - Vehicle capacity (must be ≥ TO required capacity — AC-2 validation)
+    - Driver name
+    - Driver contact information (phone)
+  - **Optional:**
+    - **Driver NID/License** *(optional — may be left blank at confirmation; can be added later via the update flow in AC-3)*
+    - **Helper details with NID** *(optional — zero or more helpers; each helper, if provided, captures name + NID)*
 - [ ] **POD** — Proof of Delivery: vendor can upload POD artifact (file/image; formats/limits TBD) when required by TO/tenant policy
 - [ ] **GRN copy** — Goods Receipt Note copy: vendor can upload GRN document (file/image) when applicable to the delivery flow
-- [ ] **Invoice** — vendor may upload invoice **only after** trip/TO is **Completed** (or product-defined terminal “completed” state); system **blocks** invoice upload before completion
+- [ ] **Invoice** — vendor may upload invoice **only after** trip/TO is **Completed** (or product-defined terminal "completed" state); system **blocks** invoice upload before completion
 
 ### AC-3: Update/Change with Reason + Audit Trail
 - [ ] Vendor can update vehicle and driver details with **audit trail**
