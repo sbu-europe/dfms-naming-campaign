@@ -53,7 +53,7 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LUP-01-1 | LoadingUnloadingPoint model + migration (FK to POI, name, short_code, operation_type enum, is_active, display_order, notes) | DFS-063-1 | Pending |
+| LUP-01-1 | LoadingUnloadingPoint model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Pending |
 | LUP-01-2 | LoadingUnloadingPointAdmin — list view with POI filter + operation type filter, standalone with POI FK dropdown, save_model validates unique code per POI + active POI check | DFS-063-2 | Pending |
 | LUP-01-3 | LoadingUnloadingPointInline — TabularInline under POIAdmin for quick point management from POI detail | DFS-063-3 | Pending |
 | LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Pending |

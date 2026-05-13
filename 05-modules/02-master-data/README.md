@@ -129,7 +129,7 @@ Status: is_active.
 ### LoadingUnloadingPoint (`LoadingUnloadingPoint`) — Sprint 4
 ```text
 FK to POI (PROTECT). Identification: name, short_code (unique per POI).
-operation_type: LOAD / UNLOAD. is_active, display_order (optional), notes.
+operation_type: LOAD / UNLOAD. is_active, notes.
 created_by FK to User. Consumed by CC-01, LD-01, QC-01 for bay assignment and events.
 Full spec: loading-unloading-points.md (LUP-01, DFS-063).
 ```

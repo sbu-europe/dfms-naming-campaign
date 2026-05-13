@@ -4,7 +4,7 @@ specification: Loading & Unloading Points — POI Sub-Location Master
 version: 1.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-12
+last_updated: 2026-05-13
 related_stories: DFS-063 (LUP-01)
 jira_epic: DFS-074
 prd_refs:
@@ -64,9 +64,8 @@ class LoadingUnloadingPoint(TenantAwareModel):
         verbose_name="Operation Type",
     )
 
-    # Status & ordering
+    # Status
     is_active = models.BooleanField(default=True)
-    display_order = models.PositiveIntegerField(null=True, blank=True)
 
     # Notes
     notes = models.TextField(blank=True, default="")
@@ -80,7 +79,7 @@ class LoadingUnloadingPoint(TenantAwareModel):
     class Meta:
         app_label = "master_data"
         db_table = "loading_unloading_points"
-        ordering = ["poi", "display_order", "short_code"]
+        ordering = ["poi", "short_code"]
         verbose_name = "Loading/Unloading Point"
         verbose_name_plural = "Loading/Unloading Points"
         constraints = [
@@ -111,7 +110,7 @@ class LoadingUnloadingPoint(TenantAwareModel):
 - `short_code` must be unique within the POI (DB-level constraint + admin validation)
 - `name` required, max 100 chars
 - `operation_type` required — one of `LOAD`, `UNLOAD` (each point is either loading-only or unloading-only)
-- `display_order` optional — used for ordering within a POI
+- Within a POI, list ordering is by `short_code` (default model ordering)
 
 ### 2.2 Deactivation Rules
 
@@ -141,13 +140,13 @@ class LoadingUnloadingPointAdmin(TenantOnlyAdminMixin, admin.ModelAdmin):
 ```
 
 **List View**:
-- Columns: POI, Short Code, Name, Operation Type, Display Order, Active, Created At
+- Columns: POI, Short Code, Name, Operation Type, Active, Created At
 - Filters: `poi`, `operation_type`, `is_active`
 - Search: `short_code`, `name`
 - Actions: Bulk activate / bulk deactivate
 
 **Detail View**:
-- Fields: POI (FK dropdown), Name, Short Code, Operation Type, Display Order, Is Active, Notes
+- Fields: POI (FK dropdown), Name, Short Code, Operation Type, Is Active, Notes
 - `save_model`:
   - Validates `short_code` unique within selected POI
   - Validates POI is active (if creating new active point)
@@ -165,7 +164,7 @@ class LoadingUnloadingPointAdmin(TenantOnlyAdminMixin, admin.ModelAdmin):
 class LoadingUnloadingPointInline(_TenantInlineMixin, admin.TabularInline):
     model = LoadingUnloadingPoint
     extra = 1
-    fields = ("name", "short_code", "operation_type", "display_order", "is_active", "notes")
+    fields = ("name", "short_code", "operation_type", "is_active", "notes")
 ```
 
 - TabularInline on `POIAdmin` for quick point management from POI detail
@@ -179,7 +178,7 @@ class LoadingUnloadingPointInline(_TenantInlineMixin, admin.TabularInline):
 ```http
 POST   /api/v1/pois/{poi_id}/loading-unloading-points
        → Create L/U point under POI
-       → Body: {name, short_code, operation_type, display_order, is_active, notes}
+       → Body: {name, short_code, operation_type, is_active, notes}
        → Validations: unique short_code per POI, POI must be active
        → Response: {id, name, short_code, operation_type, ...}
 
@@ -191,7 +190,6 @@ GET    /api/v1/pois/{poi_id}/loading-unloading-points?type=&is_active=
              name: "North Loading Bay",
              short_code: "BAY-01",
              operation_type: "LOAD",
-             display_order: 1,
              is_active: true,
              notes: null
            }
@@ -199,11 +197,11 @@ GET    /api/v1/pois/{poi_id}/loading-unloading-points?type=&is_active=
 
 GET    /api/v1/loading-unloading-points/{id}
        → Point detail
-       → Response: {id, poi, name, short_code, operation_type, display_order, is_active, notes}
+       → Response: {id, poi, name, short_code, operation_type, is_active, notes}
 
 PATCH  /api/v1/loading-unloading-points/{id}
-       → Update point (name, display_order, is_active, notes)
-       → Body: {name, display_order, is_active, notes}
+       → Update point (name, is_active, notes)
+       → Body: {name, is_active, notes}
        → Note: short_code and operation_type are immutable after creation
 ```
 
@@ -292,7 +290,7 @@ At least two POIs in UAT each have multiple L/U points:
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LUP-01-1 | `LoadingUnloadingPoint` model + migration (FK to POI, name, short_code, operation_type enum, is_active, display_order, notes) | DFS-063-1 | Pending |
+| LUP-01-1 | `LoadingUnloadingPoint` model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Pending |
 | LUP-01-2 | `LoadingUnloadingPointAdmin` — standalone with POI FK dropdown, `save_model` validates unique code per POI + active POI check | DFS-063-2 | Pending |
 | LUP-01-3 | `LoadingUnloadingPointInline` — TabularInline under POIAdmin for quick point management | DFS-063-3 | Pending |
 | LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Pending |
@@ -333,5 +331,5 @@ At least two POIs in UAT each have multiple L/U points:
 
 ---
 
-**Last Updated**: 2026-05-12  
+**Last Updated**: 2026-05-13  
 **Related Modules**: [poi-management.md](poi-management.md) (parent entity), [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md) (consumer)
