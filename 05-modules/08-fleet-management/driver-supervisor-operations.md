@@ -25,40 +25,57 @@ Unlike master data management (MDM-05 Vehicle, MDM-06 Driver from Sprint 2), thi
 
 ## 0. Menu Structure & Navigation
 
+### 0.1 Implemented portal sidebar (code)
+
+Tenant portal navigation is **not** a nested tree in the API. It is defined in `apps/core/portal_navigation.py` as `PORTAL_NAV_SECTIONS` and exposed via `build_portal_navigation()` as:
+
+`{ "sections": [ { "heading", "icon", "items": [ { "id", "label", "url", "icon" } ] } ] }`
+
+**Rules today**
+
+- **Flat structure**: each **section** has a `heading` and a list of **items**; each item is a **single** link (typically a Django Admin `url`). There is no first-class “folder” item with child rows—deeper IA is expressed as **separate sibling links** or **in-page** tabs/routes on the target screen.
+- **Visibility**: `_item_visible()` grants an item if the user matches `permission_any` (resolved permission codes must intersect the item’s list), or matches optional `role_any` (OR shortcut before permission check), unless blocked by `role_exclude`.
+- **Platform admin** uses `PLATFORM_NAV_SECTIONS` only (tenant ops menus are omitted).
+
+**Gap vs this spec**: there is **no** `heading: "Fleet operations"` block and **no** Driver Supervisor operations links in `PORTAL_NAV_SECTIONS` yet (vehicle inspections, state board, attendance, leave admin/APIs from DS-01/DS-02 are still to be wired). When added, they should follow the same **flat** pattern: e.g. a **Fleet operations** section whose items are one link per changelist/form surface, each gated by `Menu.*` / `Fleet.DriverSupervisor.*` as in §8.
+
+### 0.2 Fleet operations — target information architecture (product)
+
+The tree below is **conceptual grouping** for DS-01 / DS-02 UX (screens and drill-down), **not** a representation of nested sidebar JSON.
+
 ```
-Sidebar (Driver Supervisor)
-└── Fleet
-      └── Driver Supervisor
-            ├── Vehicle Inspections                — predefined daily checklist queue + history
-            │     ├── Inspection Queue            — TOs in Assigned status awaiting inspection
-            │     ├── Inspection History          — all completed inspections (filterable)
-            │     └── Checklist Reference         — read-only predefined sections + items
-            │
-            ├── Driver State Board                — real-time driver state overview
-            │     └── State History               — full audit log of state transitions
-            │
-            ├── Driver Attendance                 — daily entry/exit + working hours
-            │     ├── Mark Attendance             — manual entry form (driver, POI, entry/exit time)
-            │     └── Attendance Log              — searchable history
-            │
-            └── Driver Leave Management           — On Leave windows
-                  ├── Register Leave              — driver, start/end date, reason
-                  └── Leave Calendar              — active/upcoming leave (filterable by driver)
+Fleet operations (target section — flat items when implemented)
+├── Vehicle Inspections              — queue + history + checklist reference (in-app or separate admin URLs)
+│     ├── Inspection Queue
+│     ├── Inspection History
+│     └── Checklist Reference
+├── Driver State Board               — real-time driver state overview
+│     └── State History              — full audit log (detail view / drawer, not a second sidebar node)
+├── Driver Attendance
+│     ├── Mark Attendance
+│     └── Attendance Log
+└── Driver Leave Management
+      ├── Register Leave
+      └── Leave Calendar
 ```
 
 ### Role → menu mapping
 
-| Role | Fleet > Driver Supervisor | Master Data (Driver/Vehicle) |
+| Role | Fleet operations (target items) | Master Data (Driver/Vehicle) |
 |------|:-------------------------:|:----------------------------:|
 | Driver Supervisor | ✓ (full operational CRUD) | — (no Master Data permission) |
 | Tenant Admin | ✓ (read-only config view) | ✓ (master CRUD) |
 | TDO | ✓ (state board, leave — read-only) | — (no Master Data permission) |
 | Driver | — | — (no Master Data permission) |
 
+\* **Fleet operations column** describes **target** access once Fleet operations menu items exist in `portal_navigation.py`. Until then, portal visibility for `driver_supervisor` follows whatever sections/items intersect that role’s seeded `Menu.*` / transport permissions (see `apps/core/role_seed_data.py`).
+
 ### Screen hierarchy
 
+**Target product flow** (same IA as §0.2; routes may be SPA or Admin—implementation detail).
+
 ```
-Fleet → Driver Supervisor → Vehicle Inspections
+Fleet operations → Vehicle Inspections
   ├── Inspection Queue (TOs in Assigned status)
   │     └── [row click] ──► Inspection Form
   │                           ├── Vehicle + TO context (read-only header)
@@ -77,12 +94,12 @@ Fleet → Driver Supervisor → Vehicle Inspections
   └── Checklist Reference (read-only)
         └── All 7 sections + items (predefined, immutable)
 
-Fleet → Driver Supervisor → Driver State Board
+Fleet operations → Driver State Board
   └── Table: Driver, Current State (badge), POI, Last Transition, Changed By
         └── Filters: state, POI
         └── [row click] ──► State History (audit log)
 
-Fleet → Driver Supervisor → Driver Attendance
+Fleet operations → Driver Attendance
   ├── Mark Attendance
   │     └── Form: Driver (dropdown), POI (dropdown), Entry Time, Exit Time (nullable), Notes
   │           └── [Save] ──► Attendance Log (row added)
@@ -93,7 +110,7 @@ Fleet → Driver Supervisor → Driver Attendance
         └── Table: Driver, POI, Date, Entry, Exit, Hours, Notes
               └── [Edit] / [Delete] (same-day only)
 
-Fleet → Driver Supervisor → Driver Leave Management
+Fleet operations → Driver Leave Management
   ├── Register Leave
   │     └── Form: Driver (dropdown), Start Date, End Date, Reason (text)
   │           └── [Save] ──► Driver state → On Leave (via state machine service)
@@ -781,16 +798,21 @@ Fleet.DriverSupervisor.Leave.Cancel
 
 ### 8.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
 
+Register a top-level section with **`heading`: `"Fleet operations"`** (display label in the portal) and **flat** `items`—one dict per link—each using `permission_any` (and `role_any` only where the product explicitly needs a role shortcut, matching existing patterns). Example gate for the section’s operational links:
+
 ```python
-Menu.Fleet.Supervisor.View
+Menu.Fleet.Supervisor.View  # add to PermissionCodes + seed; not present in repo until DS nav is implemented
+# Sidebar shows under "Fleet operations"; permission code can stay Menu.Fleet.* for catalog consistency
 ```
+
+Each concrete screen (inspection queue, attendance admin, etc.) should list the minimal `Menu.*` / `Fleet.*` codes it needs rather than relying on a single umbrella, so visibility stays aligned with §1 and §8.3.
 
 ### 8.3 Role → Permission Mapping
 
 **Driver Supervisor**:
 - All `Fleet.DriverSupervisor.*` permissions
 - `Fleet.Vehicle.SetUnderMaintenance`
-- No `MasterData.*` permissions — driver, vehicle, and POI context in Fleet UIs comes from Fleet/Transport APIs (TO-linked data, state board, operational endpoints), not Master Data RBAC.
+- No `MasterData.*` permissions — driver, vehicle, and POI context in Fleet operations UIs comes from Fleet/Transport APIs (TO-linked data, state board, operational endpoints), not Master Data RBAC.
 
 **TDO**:
 - `Fleet.DriverSupervisor.DriverState.View`
