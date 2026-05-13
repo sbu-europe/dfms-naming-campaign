@@ -4,7 +4,7 @@ specification: Driver Supervisor Operations
 version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-12
+last_updated: 2026-05-13
 related_stories: DFS-050 (DS-01), DFS-051 (DS-02)
 jira_epic: DFS-070
 ---
@@ -50,10 +50,10 @@ Sidebar (Driver Supervisor)
 
 | Role | Fleet > Driver Supervisor | Master Data (Driver/Vehicle) |
 |------|:-------------------------:|:----------------------------:|
-| Driver Supervisor | ✓ (full operational CRUD) | Read-only |
+| Driver Supervisor | ✓ (full operational CRUD) | — (no Master Data permission) |
 | Tenant Admin | ✓ (read-only config view) | ✓ (master CRUD) |
-| TDO | ✓ (state board, leave — read-only) | Read-only (for assignment) |
-| Driver | — | Read-only (own profile) |
+| TDO | ✓ (state board, leave — read-only) | — (no Master Data permission) |
+| Driver | — | — (no Master Data permission) |
 
 ### Screen hierarchy
 
@@ -790,13 +790,14 @@ Menu.Fleet.Supervisor.View
 **Driver Supervisor**:
 - All `Fleet.DriverSupervisor.*` permissions
 - `Fleet.Vehicle.SetUnderMaintenance`
-- `MasterData.Driver.Read`, `MasterData.Vehicle.Read` (for dropdowns)
+- No `MasterData.*` permissions — driver, vehicle, and POI context in Fleet UIs comes from Fleet/Transport APIs (TO-linked data, state board, operational endpoints), not Master Data RBAC.
 
 **TDO**:
 - `Fleet.DriverSupervisor.DriverState.View`
 - `Fleet.DriverSupervisor.Attendance.Read`
 - `Fleet.DriverSupervisor.Leave.Read`
 - (for assignment conflict checks and visibility)
+- No `MasterData.*` permissions
 
 **Tenant Admin**:
 - All above permissions (read-only view)
@@ -931,5 +932,5 @@ Menu.Fleet.Supervisor.View
 
 ---
 
-**Last Updated**: 2026-05-12  
+**Last Updated**: 2026-05-13  
 **Related Modules**: [05-transport](../05-transport/README.md), [03-users](../03-users/README.md) (Driver Interface), [02-master-data](../02-master-data/README.md)
