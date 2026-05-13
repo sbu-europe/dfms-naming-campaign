@@ -16,7 +16,7 @@ This document provides a complete index of all diagrams in the technical context
 ## 🏗️ Architecture Diagrams (C4 Model)
 
 ### ⭐ System Architecture Overview (Start Here)
-- **Location**: `05-diagrams/system-architecture-overview.mmd`
+- **Location**: `01-system-design/diagrams/system-architecture-overview.mmd`
 - **Description**: **Single-page overview** of the full Phase 1 stack — clients → Nginx → Django (12 modules, RBAC, Audit) → Celery Workers → PostgreSQL + Redis + S3 → External integrations. Best starting point for new team members.
 
 ### C4 Level 1: System Context

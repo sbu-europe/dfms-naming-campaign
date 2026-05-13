@@ -12,6 +12,10 @@ This folder contains the foundational C4 architecture diagrams that show the sys
 
 ## 📁 Contents
 
+### ⭐ System Architecture Overview (Start Here)
+**File**: `system-architecture-overview.mmd`  
+**Description**: Single-page overview of the full Phase 1 stack — clients → Nginx → Django (12 modules, RBAC, Audit) → Celery → PostgreSQL + Redis + S3 → external integrations. Best starting point for new team members.
+
 ### C4 Level 1: System Context Diagram
 **File**: `system-context-diagram.mmd`  
 **Description**: Shows DFMS and its relationships with external actors and systems
@@ -41,6 +45,6 @@ These diagrams provide the **big picture** of DFMS architecture:
 
 ---
 
-**Last Updated**: February 27, 2026  
+**Last Updated**: May 13, 2026  
 **Diagram Format**: Mermaid (.mmd)  
-**Total Diagrams**: 2
+**Total Diagrams**: 3
