@@ -50,8 +50,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor Self-Registration (mobile) + platform invite onboarding](VM-01-vendor-onboarding-entry.md) | VM-01 | ~ | ~ | Pending |
-| 2 | [Compliance Docs + Testimonial/Reference + company profile (no vehicle/driver master)](VM-02-compliance-docs-and-profile.md) | VM-02 | ~ | ~ | Pending |
+| 1 | [Vendor Mobile Onboarding (Self-registration/invite + compliance docs + company profile)](VM-01-vendor-mobile-onbiorading.md) | VM-01/02 | ~ | ~ | Pending |
 
 ---
 

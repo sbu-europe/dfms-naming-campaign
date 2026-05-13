@@ -169,8 +169,7 @@ Wave E — Closure
 
 | #   | Story / Context                                                                                                                   | Task ID | Jira | SP  | Status  |
 | --- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | ---- | --- | ------- |
-| 1   | [Vendor Onboarding Entry (Self-registration + Invite)](08-vendor-management/VM-01-vendor-onboarding-entry.md)                     | VM-01   | ~    | ~   | Pending |
-| 2   | [Compliance Docs + company profile (no vehicle/driver master)](08-vendor-management/VM-02-compliance-docs-and-profile.md)                  | VM-02   | ~    | ~   | Pending |
+| 1   | [Vendor Mobile Onboarding (Self-registration/invite + compliance docs + profile)](08-vendor-management/VM-01-vendor-mobile-onbiorading.md) | VM-01/02 | ~   | ~   | Pending |
 | 3   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-03-vendor-tenant-join-and-approval.md)                  | VM-03   | ~    | ~   | Pending |
 | 4   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-04-vendor-portal-views.md)                                       | VM-04   | ~    | ~   | Pending |
 | 5   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md) | VM-05   | ~    | ~   | Pending |
@@ -338,8 +337,7 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
 - **Vendor management (planning context)**
   - [Vendor management index](08-vendor-management/README.md)
   - [Vendor mobile context](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
-  - [VM-01 — Vendor onboarding entry](08-vendor-management/VM-01-vendor-onboarding-entry.md)
-  - [VM-02 — Compliance docs & profile](08-vendor-management/VM-02-compliance-docs-and-profile.md)
+  - [VM-01/02 — Vendor mobile onboarding](08-vendor-management/VM-01-vendor-mobile-onbiorading.md)
   - [VM-03 — Vendor ↔ tenant join & approval](08-vendor-management/VM-03-vendor-tenant-join-and-approval.md)
   - [VM-04 — Vendor portal views](08-vendor-management/VM-04-vendor-portal-views.md)
   - [VM-05 — TDO publish TO to bidding portal](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md)
