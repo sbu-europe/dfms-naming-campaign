@@ -1,14 +1,17 @@
 # Django Implementation Diagrams
 
-> Visual diagrams specific to Django implementation
+> Visual diagrams specific to the Django backend implementation
 
-## 📖 Overview
+## 📖 Why Two Diagram Folders?
 
-This folder contains Django-specific implementation diagrams that complement the high-level architecture diagrams.
+There are two separate diagram locations in this repo — they serve different purposes:
 
-**Relationship to Other Diagrams**:
-- **[High-Level Diagrams](../../05-diagrams/)** - System context, sequences, states, deployment (technology-agnostic)
-- **This folder** - Django components, data flows, implementation details
+| Folder | What it contains | Who it's for |
+|--------|-----------------|--------------|
+| **[`05-diagrams/`](../../05-diagrams/)** | Technology-agnostic `.mmd` files — system overview, C4 context/container, deployment, sequences, states, ERD, integrations | Architects, PMs, all engineers |
+| **This folder (`04-backend/diagrams/`)** | Django-specific `.md` files — app structure, request/data flow through Django layers, component interactions | Backend engineers implementing the Django codebase |
+
+> If you're looking for the **system architecture overview**, go to [`05-diagrams/architecture/`](../../05-diagrams/architecture/).
 
 ## 📁 Contents
 

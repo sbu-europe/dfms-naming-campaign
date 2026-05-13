@@ -22,43 +22,48 @@ This document contains component-level diagrams showing Django apps, models, vie
 ## Django Apps Structure
 
 ```
-dfms-backend/
+nourish-backend/
 ├── apps/
-│   ├── core/                    # Core functionality
-│   │   ├── models.py            # Base models
-│   │   ├── views.py             # Base views
-│   │   ├── services.py          # Core services
-│   │   └── permissions.py       # Permission classes
 │   │
-│   ├── tenants/                 # Multi-tenancy
-│   │   ├── models.py            # Tenant model
-│   │   └── middleware.py        # Tenant middleware
+│   ├── core/              # RBAC, Auth, Middleware, Dashboard (SHARED_APPS)
+│   │   ├── models.py      # Role, Permission, RolePermission, TenantAwareModel
+│   │   ├── middleware.py  # TenantStatus, SessionControl, Audit, AdminTitle
+│   │   ├── rbac_service.py
+│   │   └── permissions.py
 │   │
-│   ├── users/                   # User management
-│   │   ├── models.py            # User, Role, Permission
-│   │   ├── serializers.py      # User serializers
-│   │   └── views.py             # User viewsets
+│   ├── tenants/           # Multi-tenancy (SHARED_APPS)
+│   │   ├── models.py      # Tenant, Domain
+│   │   └── admin.py
 │   │
-│   ├── transport/               # Transport management
-│   │   ├── models.py            # TransportOrder, TransportRequest
-│   │   ├── serializers.py       # Transport serializers
-│   │   ├── views.py             # Transport viewsets
-│   │   ├── services.py          # Transport services
-│   │   └── tasks.py             # Celery tasks
+│   ├── users/             # User management (TENANT_APPS)
+│   │   ├── models.py      # User, UserRole
+│   │   └── views.py
 │   │
-│   ├── fleet/                   # Fleet management
-│   │   ├── models.py            # Vehicle, Driver
-│   │   ├── serializers.py       # Fleet serializers
-│   │   └── views.py             # Fleet viewsets
+│   ├── master_data/       # Products, POIs, Routes, Vehicles, Fleet, Fuel (TENANT_APPS)
+│   │   ├── models.py      # Vehicle, VehicleBrand, Product, POI, Route, Zone…
+│   │   └── services.py
 │   │
-│   └── notifications/            # Notifications
-│       ├── services.py          # Email, SMS, Push
-│       └── tasks.py             # Notification tasks
+│   ├── requisitions/      # Product Requisition Management (TENANT_APPS)
+│   ├── transport/         # Transport Orders & Requests (TENANT_APPS)
+│   ├── vendors/           # Vendor Management (TENANT_APPS)
+│   ├── operations/        # Gate, Scaling, Loading, Command Center (TENANT_APPS)
+│   │   ├── gate/
+│   │   ├── scaling/
+│   │   ├── loading/
+│   │   └── command_center/
+│   ├── quality/           # QC Inspections (TENANT_APPS)
+│   ├── costing/           # Trip Costing & Finance (TENANT_APPS)
+│   ├── tracking/          # Real-time Trip Tracking (TENANT_APPS)
+│   ├── notifications/     # Alerts & Notifications (TENANT_APPS)
+│   ├── reporting/         # Analytics & Reports (TENANT_APPS)
+│   └── audit/             # Immutable Audit Log (TENANT_APPS)
 │
-└── config/                      # Configuration
-    ├── settings/                # Settings modules
-    ├── urls.py                  # URL routing
-    └── wsgi.py                  # WSGI config
+└── config/
+    ├── settings/          # base.py, development.py, production.py
+    ├── celery.py
+    ├── urls.py
+    ├── wsgi.py
+    └── asgi.py
 ```
 
 ---
