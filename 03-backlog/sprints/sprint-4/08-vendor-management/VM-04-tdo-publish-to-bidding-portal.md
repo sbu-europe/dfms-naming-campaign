@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-05 — TDO Publish TO to Bidding Portal (deadline + eligibility + notify)
+# VM-04 — TDO Publish TO to Bidding Portal (deadline + eligibility + notify)
 
 ## User Story
 
@@ -46,13 +46,13 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 - [ ] System auto-closes bidding at the deadline and blocks late submissions
 
 ### AC-4: Eligibility & Visibility Scoping
-- [ ] Only vendors who **completed platform registration** and are **approved to join** the TO’s tenant (VM-03) can be eligible
+- [ ] Only vendors who **completed platform onboarding** and are **approved to join** the TO’s tenant (VM-02) can be eligible
 - [ ] Only **non-contractual** vendors (for that tenant membership) are eligible to bid
 - [ ] Vendor eligibility is scoped to:
-  - Vendors approved to join the TO’s tenant (VM-03 gating)
+  - Vendors approved to join the TO’s tenant (VM-02 gating)
   - Vendor rating ≥ minimum threshold (if configured/available)
   - Vendor is not blacklisted (if blacklist exists)
-  - **Phase 1 simplification**: do not filter eligibility by vendor fleet/vehicle profile (no pre-created vehicles). Vehicle type/capacity are enforced during post-award vehicle/driver submission (VM-08) and/or dispatch readiness checks.
+  - **Phase 1 simplification**: do not filter eligibility by vendor fleet/vehicle profile (no pre-created vehicles). Vehicle type/capacity are enforced during post-award vehicle/driver submission (VM-07) and/or dispatch readiness checks.
 
 ### AC-5: State Transitions + Audit Trail
 - [ ] Publishing creates a bidding session linked to the TO
@@ -68,7 +68,7 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 ### AC-7: Notifications
 - [ ] On publish, system notifies eligible vendors (in-app + email/SMS where applicable)
 - [ ] System sends reminder notifications before deadline (recommended: 1 hour prior)
-- [ ] System notifies TDO on new bid submission events (from VM-06)
+- [ ] System notifies TDO on new bid submission events (from VM-05)
 
 ## Suggested API Endpoints
 
@@ -94,8 +94,8 @@ Body: { reason }
 ## Dependencies
 
 - **Feature context:** [TEVF-02 — Non-contractual bidding](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) (publish requirements alignment).
-- **Requires**: tenant join approval gating (VM-03); vendor registration + compliance completeness where relevant (VM-01/VM-02); notification/eventing.
-- **Enables**: vendor browse/bid flows (VM-04/06), evaluation/award (VM-07).
+- **Requires**: tenant join approval gating (VM-02); vendor onboarding completeness where relevant (VM-01); notification/eventing.
+- **Enables**: vendor browse/bid flows (VM-03/VM-05), evaluation/award (VM-06).
 
 ## Definition of Done
 

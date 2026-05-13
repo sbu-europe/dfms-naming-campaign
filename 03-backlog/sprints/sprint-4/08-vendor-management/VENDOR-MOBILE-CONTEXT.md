@@ -30,18 +30,18 @@ This page exists so the Sprint 4 vendor-management backlog can be navigated **fr
 
 ## Sprint 4 backlog ↔ Vendor Mobile App mapping (quick navigation)
 
-Backlog files are numbered **VM-01 … VM-09** in delivery order (see [`README.md`](README.md)).
+Backlog files are numbered **VM-01 … VM-08** in delivery order (see [`README.md`](README.md)).
 
 | Sprint item | Sprint 4 file | Vendor Mobile App context file(s) |
 |---|---|---|
 | VM-01 + VM-02 Vendor mobile onboarding (self/invite + docs/profile) | [`VM-01-vendor-mobile-onbiorading.md`](VM-01-vendor-mobile-onbiorading.md) | [`01-onboarding-and-verification.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md), [`09-profile-management.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/09-profile-management.md) |
-| VM-03 Vendor ↔ tenant join | [`VM-03-vendor-tenant-join-and-approval.md`](VM-03-vendor-tenant-join-and-approval.md) | [`02-tenant-membership.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md) |
-| VM-04 Vendor portal views | [`VM-04-vendor-portal-views.md`](VM-04-vendor-portal-views.md) | [`03-bid-opportunities-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md), [`05-assigned-tos-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/05-assigned-tos-list.md), [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`08-completed-trip-history.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/08-completed-trip-history.md) |
-| VM-05 TDO publish TO to bidding portal | [`VM-05-tdo-publish-to-bidding-portal.md`](VM-05-tdo-publish-to-bidding-portal.md) | *(admin/TDO surface; mobile consumes publish via bid opportunities)* |
-| VM-06 Bid submission | [`VM-06-bid-submission.md`](VM-06-bid-submission.md) | [`04-bid-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md) |
-| VM-07 Bid evaluation (TDO/admin surface) | [`VM-07-bid-evaluation.md`](VM-07-bid-evaluation.md) | *(mobile sees outcomes via status changes in lists/details)* |
-| VM-08 Bid/TO requirements + vehicle–driver confirmation | [`VM-08-vehicle-driver-submission.md`](VM-08-vehicle-driver-submission.md) | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
-| VM-09 Real-time TO updates | [`VM-09-realtime-to-updates.md`](VM-09-realtime-to-updates.md) | [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`10-security-and-access-control.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md) |
+| VM-02 Vendor ↔ tenant join | [`VM-02-vendor-tenant-join-and-approval.md`](VM-02-vendor-tenant-join-and-approval.md) | [`02-tenant-membership.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md) |
+| VM-03 Vendor portal views | [`VM-03-vendor-portal-views.md`](VM-03-vendor-portal-views.md) | [`03-bid-opportunities-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md), [`05-assigned-tos-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/05-assigned-tos-list.md), [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`08-completed-trip-history.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/08-completed-trip-history.md) |
+| VM-04 TDO publish TO to bidding portal | [`VM-04-tdo-publish-to-bidding-portal.md`](VM-04-tdo-publish-to-bidding-portal.md) | *(admin/TDO surface; mobile consumes publish via bid opportunities)* |
+| VM-05 Bid submission | [`VM-05-bid-submission.md`](VM-05-bid-submission.md) | [`04-bid-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md) |
+| VM-06 Bid evaluation (TDO/admin surface) | [`VM-06-bid-evaluation.md`](VM-06-bid-evaluation.md) | *(mobile sees outcomes via status changes in lists/details)* |
+| VM-07 Bid/TO requirements + vehicle–driver confirmation | [`VM-07-vehicle-driver-submission.md`](VM-07-vehicle-driver-submission.md) | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
+| VM-08 Real-time TO updates | [`VM-08-realtime-to-updates.md`](VM-08-realtime-to-updates.md) | [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`10-security-and-access-control.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md) |
 
 ## Sprint 4 note (tracking vs driver mobile)
 

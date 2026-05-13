@@ -19,5 +19,5 @@ last_updated: 2026-05-06
 - **Contractual:** vendor may receive direct TO assignment for that tenant (no bidding for that relationship).
 - **Non-Contractual:** vendor may see published bids and submit bids for that tenant.
 
-Backlog: **VM-03** (`VM-03-vendor-tenant-join-and-approval.md`).
+Backlog: **VM-02** (`VM-02-vendor-tenant-join-and-approval.md`).
 

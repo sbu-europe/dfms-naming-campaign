@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-09 — Real-time TO Updates in Vendor Portal (Assigned/Completed/Closed)
+# VM-08 — Real-time TO Updates in Vendor Portal (Assigned/Completed/Closed)
 
 ## User Story
 
@@ -45,9 +45,9 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-09-1 | TO status event stream definition (Assigned/Completed/Closed) | ~ | Pending |
-| VM-09-2 | Vendor portal update mechanism (polling/websocket) | ~ | Pending |
-| VM-09-3 | Permission enforcement: vendor read-only on TO status | ~ | Pending |
+| VM-08-1 | TO status event stream definition (Assigned/Completed/Closed) | ~ | Pending |
+| VM-08-2 | Vendor portal update mechanism (polling/websocket) | ~ | Pending |
+| VM-08-3 | Permission enforcement: vendor read-only on TO status | ~ | Pending |
 
 ## API Endpoints (suggested)
 

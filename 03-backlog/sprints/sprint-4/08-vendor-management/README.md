@@ -46,7 +46,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 ## Epic: Vendor Onboarding & Verification
 
-> Establish the vendor lifecycle entry point; **tenant join (VM-03)** gates tenant bids/TOs. There is **no** Platform Admin verification queue after vendor sign-up. Backlog files are numbered **VM-01 … VM-09** in delivery order.
+> Establish the vendor lifecycle entry point; **tenant join (VM-02)** gates tenant bids/TOs. There is **no** Platform Admin verification queue after vendor sign-up. Backlog files are numbered **VM-01 … VM-08** in delivery order.
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
@@ -60,11 +60,11 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-03-vendor-tenant-join-and-approval.md) | VM-03 | ~ | ~ | Pending |
-| 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-04-vendor-portal-views.md) | VM-04 | ~ | ~ | Pending |
-| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-06-bid-submission.md) | VM-06 | ~ | ~ | Pending |
-| 4 | [Bid/TO requirements + vehicle–driver confirmation (post-award, + audit)](VM-08-vehicle-driver-submission.md) | VM-08 | ~ | ~ | Pending |
-| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-09-realtime-to-updates.md) | VM-09 | ~ | ~ | Pending |
+| 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-02-vendor-tenant-join-and-approval.md) | VM-02 | ~ | ~ | Pending |
+| 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-03-vendor-portal-views.md) | VM-03 | ~ | ~ | Pending |
+| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
+| 4 | [Bid/TO requirements + vehicle–driver confirmation (post-award, + audit)](VM-07-vehicle-driver-submission.md) | VM-07 | ~ | ~ | Pending |
+| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-08-realtime-to-updates.md) | VM-08 | ~ | ~ | Pending |
 
 ---
 
@@ -74,8 +74,8 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-05-tdo-publish-to-bidding-portal.md) | VM-05 | ~ | ~ | Pending |
-| 2 | [Bid Comparison + select winner(s) + reject-all + winning log](VM-07-bid-evaluation.md) | VM-07 | ~ | ~ | Pending |
+| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-04-tdo-publish-to-bidding-portal.md) | VM-04 | ~ | ~ | Pending |
+| 2 | [Bid Comparison + select winner(s) + reject-all + winning log](VM-06-bid-evaluation.md) | VM-06 | ~ | ~ | Pending |
 
 ---
 
@@ -152,11 +152,11 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 | VM-02 Compliance docs + profile | `05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md`, `.../09-profile-management.md` | Document upload, company profile + testimonial (no vehicle/driver master at onboarding) |
 | VM-03 Vendor ↔ tenant join | `05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md` | Active tenants list, join request create, tenant approve/reject |
 | VM-04 Vendor portal views | `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md`, `.../05-assigned-tos-list.md`, `.../08-completed-trip-history.md` | Vendor-scoped lists for bids/TOs/trips (tenant membership scoped) |
-| VM-05 TDO publish TO to bidding portal | *(TDO/admin; see `VM-05-tdo-publish-to-bidding-portal.md`)* | Publish session + eligibility + notifications |
+| VM-04 TDO publish TO to bidding portal | *(TDO/admin; see `VM-04-tdo-publish-to-bidding-portal.md`)* | Publish session + eligibility + notifications |
 | VM-06 Bid submission | `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` | Bid submit endpoint + bid window validation |
 | VM-07 Bid evaluation (TDO) | *(admin/TDO surface; affects mobile via status changes in lists/details)* | Award endpoint + winning log |
-| VM-08 Bid/TO requirements + vehicle–driver confirmation | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit |
-| VM-09 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
+| VM-07 Bid/TO requirements + vehicle–driver confirmation | `05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit |
+| VM-08 Real-time TO updates | `05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md`, `.../10-security-and-access-control.md` | TO/trip status event feed (polling) |
 
 ---
 

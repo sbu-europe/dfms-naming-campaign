@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-07 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
+# VM-06 — Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
 
 ## User Story
 
@@ -27,7 +27,7 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 ### AC-1: Side-by-side Bid Comparison
 - [ ] TDO can compare bids side-by-side including:
   - Proposed cost / rate
-  - **Offered number of vehicles** (from VM-06 bid payload)
+  - **Offered number of vehicles** (from VM-05 bid payload)
   - Bid submission time
   - Remarks (optional)
   - Bid validity (deadline/window)
@@ -36,7 +36,7 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 - [ ] System provides basic bid statistics (min/avg/max)
 
 ### AC-2: Winner Selection (single or multiple vendors)
-- [ ] System supports awarding **one or more winning vendors** for a TO when the transport model requires split capacity (e.g. sum of awarded vehicles covers `required_vehicle_count` from VM-05)
+- [ ] System supports awarding **one or more winning vendors** for a TO when the transport model requires split capacity (e.g. sum of awarded vehicles covers `required_vehicle_count` from VM-04)
 - [ ] TDO can assign **per-vendor awarded vehicle count** (≤ vendor’s offered count; totals must satisfy business rules)
 - [ ] Once an award decision is **approved/finalized**, it is persisted and visible in audit/winning log; **no further vendor changes** without controlled amendment flow (future hook if needed)
 - [ ] Approving an award transitions:
@@ -65,11 +65,11 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-07-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
-| VM-07-2 | Award action endpoint enforcing **capacity-aware** winner selection (single or multi-vendor) | ~ | Pending |
-| VM-07-3 | Winning log persistence + audit visibility | ~ | Pending |
-| VM-07-4 | Post-award trigger: require vendor vehicle/driver submission (VM-08) | ~ | Pending |
-| VM-07-5 | Reject-all endpoint + notifications | ~ | Pending |
+| VM-06-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
+| VM-06-2 | Award action endpoint enforcing **capacity-aware** winner selection (single or multi-vendor) | ~ | Pending |
+| VM-06-3 | Winning log persistence + audit visibility | ~ | Pending |
+| VM-06-4 | Post-award trigger: require vendor vehicle/driver submission (VM-07) | ~ | Pending |
+| VM-06-5 | Reject-all endpoint + notifications | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -88,8 +88,8 @@ Body: { reason }
 
 ## Dependencies
 
-- **Requires**: VM-06 bid submissions; TO/bid linkage; role TDO.
-- **Enables**: VM-08 post-award vehicle/driver submission; vendor notifications; operational execution.
+- **Requires**: VM-05 bid submissions; TO/bid linkage; role TDO.
+- **Enables**: VM-07 post-award vehicle/driver submission; vendor notifications; operational execution.
 
 ## Definition of Done
 

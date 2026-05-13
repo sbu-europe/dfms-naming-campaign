@@ -10,7 +10,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-06 — Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
+# VM-05 — Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
 
 ## User Story
 
@@ -20,7 +20,7 @@ assignee: ~
 
 ## Business Context
 
-TDO publishes TOs to the bidding portal (VM-05) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions, record an **immutable bid** after submit (**no PATCH / edit** per [TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)), optionally support **withdraw before close** if product policy enables it, and maintain full auditability.
+TDO publishes TOs to the bidding portal (VM-04) with defined windows and requirements. Vendors submit structured bids within the submission window. The system must prevent late submissions, record an **immutable bid** after submit (**no PATCH / edit** per [TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)), optionally support **withdraw before close** if product policy enables it, and maintain full auditability.
 
 ## Acceptance Criteria
 
@@ -35,14 +35,14 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
   - Required vehicle type
   - Bid submission window
   - Required quantity of vehicles
-  - Optional **reference / guide rate** (if provided at publish — VM-05)
+  - Optional **reference / guide rate** (if provided at publish — VM-04)
 
 ### AC-2: Structured Bid Submission
 - [ ] Vendor can submit a bid with:
   - Proposed cost / rate (mandatory, numeric, > 0)
   - **Offered number of vehicles** (mandatory integer ≥ 1; must not exceed any server-side max tied to TO demand)
   - Remarks (optional)
-- [ ] **Phase 1 simplification**: bid submission does **not** collect vehicle registration / driver / helper identity (those are captured post-award in VM-08).
+- [ ] **Phase 1 simplification**: bid submission does **not** collect vehicle registration / driver / helper identity (those are captured post-award in VM-07).
 - [ ] System enforces **one submitted bid per vendor per TO**; **after submit, bid fields are immutable** (no edit endpoint)
 - [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
@@ -78,11 +78,11 @@ TDO publishes TOs to the bidding portal (VM-05) with defined windows and require
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-06-1 | Bid submission API + validation (rate, **offered_vehicle_count**, optional remarks) | ~ | Pending |
-| VM-06-2 | Bid window enforcement (server-side) | ~ | Pending |
-| VM-06-3 | Store bid timestamp + validity window metadata | ~ | Pending |
-| VM-06-4 | Withdraw endpoint (if policy) + audit events — **no bid PATCH after submit** | ~ | Pending |
-| VM-06-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
+| VM-05-1 | Bid submission API + validation (rate, **offered_vehicle_count**, optional remarks) | ~ | Pending |
+| VM-05-2 | Bid window enforcement (server-side) | ~ | Pending |
+| VM-05-3 | Store bid timestamp + validity window metadata | ~ | Pending |
+| VM-05-4 | Withdraw endpoint (if policy) + audit events — **no bid PATCH after submit** | ~ | Pending |
+| VM-05-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -102,8 +102,8 @@ GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 
 ## Dependencies
 
-- **Requires**: VM-04 bid list visibility; VM-03 tenant join approval; VM-05 bid publication workflow from TDO; completed vendor registration (VM-01/VM-02).
-- **Enables**: VM-07 bid evaluation; VM-08 vehicle/driver submission after award.
+- **Requires**: VM-03 bid list visibility; VM-02 tenant join approval; VM-04 bid publication workflow from TDO; completed vendor onboarding (VM-01).
+- **Enables**: VM-06 bid evaluation; VM-07 vehicle/driver submission after award.
 
 ## Definition of Done
 

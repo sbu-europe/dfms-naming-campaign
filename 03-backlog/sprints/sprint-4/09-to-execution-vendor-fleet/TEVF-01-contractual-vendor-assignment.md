@@ -7,10 +7,10 @@ version: "1.0"
 phase: "Phase 1"
 status: Draft
 aligned_stories:
-  - ../08-vendor-management/VM-03-vendor-tenant-join-and-approval.md
-  - ../08-vendor-management/VM-04-vendor-portal-views.md
-  - ../08-vendor-management/VM-08-vehicle-driver-submission.md
-  - ../08-vendor-management/VM-09-realtime-to-updates.md
+  - ../08-vendor-management/VM-02-vendor-tenant-join-and-approval.md
+  - ../08-vendor-management/VM-03-vendor-portal-views.md
+  - ../08-vendor-management/VM-07-vehicle-driver-submission.md
+  - ../08-vendor-management/VM-08-realtime-to-updates.md
 last_updated: 2026-05-12
 ---
 
@@ -24,7 +24,7 @@ last_updated: 2026-05-12
 
 ## Business context
 
-**TO Execution – Vendor Fleet** splits into contractual vs non-contractual paths. This document covers the **contractual** branch only. Vendor eligibility as “contractual” for a tenant is set on **vendor ↔ tenant join approval** ([VM-03](../08-vendor-management/VM-03-vendor-tenant-join-and-approval.md)).
+**TO Execution – Vendor Fleet** splits into contractual vs non-contractual paths. This document covers the **contractual** branch only. Vendor eligibility as “contractual” for a tenant is set on **vendor ↔ tenant join approval** ([VM-02](../08-vendor-management/VM-02-vendor-tenant-join-and-approval.md)).
 
 ## Acceptance criteria (product-aligned)
 

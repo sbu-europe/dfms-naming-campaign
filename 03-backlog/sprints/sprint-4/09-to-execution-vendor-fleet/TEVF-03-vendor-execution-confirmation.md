@@ -7,8 +7,8 @@ version: "1.0"
 phase: "Phase 1"
 status: Draft
 aligned_stories:
-  - ../08-vendor-management/VM-08-vehicle-driver-submission.md
-  - ../08-vendor-management/VM-09-realtime-to-updates.md
+  - ../08-vendor-management/VM-07-vehicle-driver-submission.md
+  - ../08-vendor-management/VM-08-realtime-to-updates.md
 last_updated: 2026-05-12
 ---
 
@@ -22,7 +22,7 @@ last_updated: 2026-05-12
 
 ## Business context
 
-Execution handoff for **vendor-assigned** TOs is implemented in **[VM-08](../08-vendor-management/VM-08-vehicle-driver-submission.md)** (vehicle, driver, helper, documents, invoice gating). This TEVF is the **feature umbrella**; VM-08 remains the sprint backlog **source of truth** for fields and APIs.
+Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)** (vehicle, driver, helper, documents, invoice gating). This TEVF is the **feature umbrella**; VM-07 remains the sprint backlog **source of truth** for fields and APIs.
 
 ## Acceptance criteria (product-aligned)
 

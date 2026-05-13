@@ -170,13 +170,13 @@ Wave E — Closure
 | #   | Story / Context                                                                                                                   | Task ID | Jira | SP  | Status  |
 | --- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | ---- | --- | ------- |
 | 1   | [Vendor Mobile Onboarding (Self-registration/invite + compliance docs + profile)](08-vendor-management/VM-01-vendor-mobile-onbiorading.md) | VM-01/02 | ~   | ~   | Pending |
-| 3   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-03-vendor-tenant-join-and-approval.md)                  | VM-03   | ~    | ~   | Pending |
-| 4   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-04-vendor-portal-views.md)                                       | VM-04   | ~    | ~   | Pending |
-| 5   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md) | VM-05   | ~    | ~   | Pending |
-| 6   | [Bid Submission (windows + immutable bid + late-bid prevention)](08-vendor-management/VM-06-bid-submission.md)                    | VM-06   | ~    | ~   | Pending |
-| 7   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-07-bid-evaluation.md)                     | VM-07   | ~    | ~   | Pending |
-| 8   | [Bid/TO requirements + vehicle–driver confirmation (post-award)](08-vendor-management/VM-08-vehicle-driver-submission.md)                  | VM-08   | ~    | ~   | Pending |
-| 9   | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-09-realtime-to-updates.md)                                        | VM-09   | ~    | ~   | Pending |
+| 3   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-02-vendor-tenant-join-and-approval.md)                  | VM-02   | ~    | ~   | Pending |
+| 4   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-03-vendor-portal-views.md)                                       | VM-03   | ~    | ~   | Pending |
+| 5   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md) | VM-04   | ~    | ~   | Pending |
+| 6   | [Bid Submission (windows + immutable bid + late-bid prevention)](08-vendor-management/VM-05-bid-submission.md)                    | VM-05   | ~    | ~   | Pending |
+| 7   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-06-bid-evaluation.md)                     | VM-06   | ~    | ~   | Pending |
+| 8   | [Bid/TO requirements + vehicle–driver confirmation (post-award)](08-vendor-management/VM-07-vehicle-driver-submission.md)                  | VM-07   | ~    | ~   | Pending |
+| 9   | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-08-realtime-to-updates.md)                                        | VM-08   | ~    | ~   | Pending |
 
 
 ---
@@ -338,13 +338,13 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
   - [Vendor management index](08-vendor-management/README.md)
   - [Vendor mobile context](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
   - [VM-01/02 — Vendor mobile onboarding](08-vendor-management/VM-01-vendor-mobile-onbiorading.md)
-  - [VM-03 — Vendor ↔ tenant join & approval](08-vendor-management/VM-03-vendor-tenant-join-and-approval.md)
-  - [VM-04 — Vendor portal views](08-vendor-management/VM-04-vendor-portal-views.md)
-  - [VM-05 — TDO publish TO to bidding portal](08-vendor-management/VM-05-tdo-publish-to-bidding-portal.md)
-  - [VM-06 — Bid submission](08-vendor-management/VM-06-bid-submission.md)
-  - [VM-07 — Bid evaluation](08-vendor-management/VM-07-bid-evaluation.md)
-  - [VM-08 — Bid/TO requirements + vehicle–driver confirmation](08-vendor-management/VM-08-vehicle-driver-submission.md)
-  - [VM-09 — Realtime TO updates](08-vendor-management/VM-09-realtime-to-updates.md)
+  - [VM-02 — Vendor ↔ tenant join & approval](08-vendor-management/VM-02-vendor-tenant-join-and-approval.md)
+  - [VM-03 — Vendor portal views](08-vendor-management/VM-03-vendor-portal-views.md)
+  - [VM-04 — TDO publish TO to bidding portal](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md)
+  - [VM-05 — Bid submission](08-vendor-management/VM-05-bid-submission.md)
+  - [VM-06 — Bid evaluation](08-vendor-management/VM-06-bid-evaluation.md)
+  - [VM-07 — Bid/TO requirements + vehicle–driver confirmation](08-vendor-management/VM-07-vehicle-driver-submission.md)
+  - [VM-08 — Realtime TO updates](08-vendor-management/VM-08-realtime-to-updates.md)
 
 - **TO execution — vendor fleet & own-fleet availability (TEVF-01…04)**
   - [09 — Folder index](09-to-execution-vendor-fleet/README.md)

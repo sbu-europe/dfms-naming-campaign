@@ -12,7 +12,7 @@ story_points: ~
 assignee: ~
 ---
 
-# VM-08 — Bid/TO requirement visibility + vehicle–driver confirmation (+ updates, audit)
+# VM-07 — Bid/TO requirement visibility + vehicle–driver confirmation (+ updates, audit)
 
 ## User Story
 
@@ -22,7 +22,7 @@ assignee: ~
 
 ## Business Context
 
-After a vendor **wins a bid** (non-contractual) or **receives assignment** (contractual), they must **see the relevant requirement context** for that Transport Order (TO)—at minimum what was published or agreed (e.g. route, vehicle type/capacity expectations from **VM-05** / TO data)—then **confirm** concrete vehicle, driver, and helper execution details before trip start. That confirmation is the operational handoff for dispatch readiness. Later changes stay controlled via **audit trail** and **reason**.
+After a vendor **wins a bid** (non-contractual) or **receives assignment** (contractual), they must **see the relevant requirement context** for that Transport Order (TO)—at minimum what was published or agreed (e.g. route, vehicle type/capacity expectations from **VM-04** / TO data)—then **confirm** concrete vehicle, driver, and helper execution details before trip start. That confirmation is the operational handoff for dispatch readiness. Later changes stay controlled via **audit trail** and **reason**.
 
 ## Phase 1 Simplification (no vendor fleet/driver master data)
 
@@ -64,11 +64,11 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-08-1 | Award/assignment → show requirement context + “confirm vehicle/driver” gate | ~ | Pending |
-| VM-08-2 | Confirmation API + validation for required fields | ~ | Pending |
-| VM-08-3 | Update API requiring reason + audit log entry | ~ | Pending |
-| VM-08-4 | Transport visibility event on substitutions | ~ | Pending |
-| VM-08-5 | POD + GRN document upload APIs + storage; invoice upload gated on trip completion | ~ | Pending |
+| VM-07-1 | Award/assignment → show requirement context + “confirm vehicle/driver” gate | ~ | Pending |
+| VM-07-2 | Confirmation API + validation for required fields | ~ | Pending |
+| VM-07-3 | Update API requiring reason + audit log entry | ~ | Pending |
+| VM-07-4 | Transport visibility event on substitutions | ~ | Pending |
+| VM-07-5 | POD + GRN document upload APIs + storage; invoice upload gated on trip completion | ~ | Pending |
 
 ## API Endpoints (suggested)
 
@@ -82,7 +82,7 @@ POST  /api/v1/vendor/transport-orders/{to_id}/invoice          Body: multipart  
 
 ## Dependencies
 
-- **Requires**: VM-07 award decision (or contractual assignment trigger), TO/bid publication data (**VM-05** / TO domain), transport order/trip entity, file storage for uploads, authoritative trip/TO status for invoice gating.
+- **Requires**: VM-06 award decision (or contractual assignment trigger), TO/bid publication data (**VM-04** / TO domain), transport order/trip entity, file storage for uploads, authoritative trip/TO status for invoice gating.
 - **Enables**: Trip execution readiness; transport ops can proceed with dispatch/trip lifecycle.
 
 ## Definition of Done
