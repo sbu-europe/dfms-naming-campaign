@@ -40,9 +40,13 @@ This folder contains the high-level system architecture for DFMS, following the 
 
 ## 🏗️ C4 Architecture Documents
 
+### ⭐ Full-Stack Overview
+**Diagram**: [05-diagrams/architecture/system-architecture-overview.mmd](../05-diagrams/architecture/system-architecture-overview.mmd)  
+Single-page view of the complete Phase 1 stack. Start here.
+
 ### Level 1: System Context
-**Documentation**: [system-overview.md](./system-overview.md) (415 lines)  
-**Diagram**: [diagrams/system-context-diagram.mmd](./diagrams/system-context-diagram.mmd)
+**Documentation**: [system-overview.md](./system-overview.md)  
+**Diagram**: [05-diagrams/architecture/system-context-diagram.mmd](../05-diagrams/architecture/system-context-diagram.mmd)
 
 **Shows**:
 - DFMS system and its purpose
@@ -52,8 +56,8 @@ This folder contains the high-level system architecture for DFMS, following the 
 - Integration points
 
 ### Level 2: Container View
-**Documentation**: [container-view.md](./container-view.md) (634 lines)  
-**Diagram**: [diagrams/container-diagram.mmd](./diagrams/container-diagram.mmd)
+**Documentation**: [container-view.md](./container-view.md)  
+**Diagram**: [05-diagrams/architecture/container-diagram.mmd](../05-diagrams/architecture/container-diagram.mmd)
 
 **Shows**:
 - 10 technical containers (web app, mobile apps, API server, etc.)

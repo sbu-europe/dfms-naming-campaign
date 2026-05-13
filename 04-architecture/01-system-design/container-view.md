@@ -519,7 +519,7 @@ s3://dfms-files/
 
 ## 📊 Container Diagram
 
-See [container-diagram.mmd](./diagrams/container-diagram.mmd) for visual representation.
+See [container-diagram.mmd](../05-diagrams/architecture/container-diagram.mmd) for visual representation.
 
 **Key Elements**:
 - All 10 containers
@@ -632,8 +632,9 @@ Kubernetes Cluster (EKS)
 - [Technology Stack](../00-overview/technology-stack-overview.md)
 
 ### Diagrams
-- [System Context Diagram](./diagrams/system-context-diagram.mmd) - C4 Level 1
-- [Container Diagram](./diagrams/container-diagram.mmd) - C4 Level 2
+- [System Architecture Overview](../05-diagrams/architecture/system-architecture-overview.mmd) - Full-stack overview ⭐
+- [System Context Diagram](../05-diagrams/architecture/system-context-diagram.mmd) - C4 Level 1
+- [Container Diagram](../05-diagrams/architecture/container-diagram.mmd) - C4 Level 2
 
 ---
 

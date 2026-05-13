@@ -200,7 +200,9 @@ DFMS provides:
 
 ## 🏗️ System Context Diagram
 
-See [system-context-diagram.mmd](./diagrams/system-context-diagram.mmd) for visual representation.
+See [system-context-diagram.mmd](../05-diagrams/architecture/system-context-diagram.mmd) for visual representation.
+
+> **Full-stack overview**: [system-architecture-overview.mmd](../05-diagrams/architecture/system-architecture-overview.mmd) ⭐
 
 **Key Elements**:
 - **DFMS Platform** (center) - The system being built
