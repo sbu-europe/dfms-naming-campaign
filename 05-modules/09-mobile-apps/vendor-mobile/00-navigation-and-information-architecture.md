@@ -144,11 +144,13 @@ Tenant cards should display one of:
 - **Active Trips**
   - Active Trip Tracking (map + status timeline + call driver)
 - **Completed Trip History**
-  - Filters: date range, payment status
+  - Filters: date range, payment status, assignment type
   - For `assignment_type=CONTRACTUAL`: `bid_amount` is **hidden / replaced with "—"** in cards and detail; `payment_status` still shown
-- **Completed Trip Details**
-  - Download POD (PDF)
-  - Upload Invoice (gated: only after Completed)
+- **Completed Trip Details** — **the only vendor mobile surface for POD / GRN / Invoice uploads**
+  - **Upload POD** (vendor record copy) — gated to `to_status=COMPLETED`
+  - **Upload GRN copy** — gated to `to_status=COMPLETED`
+  - **Upload Invoice** — gated to `to_status=COMPLETED`
+  - Download POD / GRN / Invoice (if previously uploaded)
 
 #### Profile tab — **both vendor types**
 
@@ -200,8 +202,8 @@ flowchart TD
   H --> TR[Trips Tab<br/>both vendor types]
   TR --> AT
   TR --> CH[Completed Trip History<br/>bid_amount hidden if CONTRACTUAL]
-  CH --> CTD[Completed Trip Details + POD]
-  CTD --> INV[Upload Invoice<br/>only after Completed]
+  CH --> CTD[Completed Trip Details]
+  CTD --> UP[Upload POD + GRN copy + Invoice<br/>all three gated to Completed]
 
   H --> PR[Profile Tab<br/>tenant memberships read-only with vendor_type]
 ```
@@ -219,11 +221,10 @@ flowchart LR
   REF[Vendor opens Assigned TOs tab<br/>list refresh] --> APP[TO appears with assignment_type=CONTRACTUAL]
   APP --> ATO[Assigned TOs tab]
   ATO --> AD[TO Details<br/>assignment_type=CONTRACTUAL, rate hidden]
-  AD --> VM7[Confirm vehicle + driver + helpers VM-07]
+  AD --> VM7[Confirm vehicle + driver + helpers VM-07<br/>no doc uploads on this form]
   VM7 --> TRIP[Active Trip Tracking VM-08]
-  TRIP --> POD[Upload POD + GRN]
-  POD --> COMP[Completed Trip History]
-  COMP --> INV[Upload Invoice gated to Completed]
+  TRIP --> COMP[TO reaches COMPLETED -> Completed Trip Details]
+  COMP --> UP[Upload POD + GRN copy + Invoice<br/>all three gated to Completed]
 ```
 
 ### Non-Contractual entry (bidding)
@@ -237,11 +238,10 @@ flowchart LR
   WAIT --> OUT{TDO decision VM-06}
   OUT -- Rejected / Reject-all --> ENDX[Bid card flips to Not awarded on next refresh]
   OUT -- Won --> ATO[Assigned TOs tab<br/>assignment_type=BID_WON, winning_bid_amount visible]
-  ATO --> VM7[Confirm vehicle + driver + helpers VM-07]
+  ATO --> VM7[Confirm vehicle + driver + helpers VM-07<br/>no doc uploads on this form]
   VM7 --> TRIP[Active Trip Tracking VM-08]
-  TRIP --> POD[Upload POD + GRN]
-  POD --> COMP[Completed Trip History bid_amount visible]
-  COMP --> INV[Upload Invoice gated to Completed]
+  TRIP --> COMP[TO reaches COMPLETED -> Completed Trip Details<br/>bid_amount visible]
+  COMP --> UP[Upload POD + GRN copy + Invoice<br/>all three gated to Completed]
 ```
 
 ---

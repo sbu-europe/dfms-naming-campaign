@@ -35,17 +35,19 @@ Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-
     - **Driver NID/License** *(optional)*
     - **Helper details with NID** *(optional)*
   - Full field contract (validations, vehicle type/capacity match, update-with-reason) is owned by **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)**.
-- [ ] **After TO completion**, vendor may submit:
-  - **POD**
-  - **GRN copy**
-  - **Invoice** — **only after** trip / TO completion (enforced in VM-08)
+- [ ] **Vendor uploads — all gated to "after trip/TO Completed":**
+  - **POD** (vendor copy) — **only after** trip/TO `COMPLETED`
+  - **GRN copy** — **only after** trip/TO `COMPLETED`
+  - **Invoice** — **only after** trip/TO `COMPLETED`
+  - Server **MUST** reject uploads of any of these three doc types before the TO reaches `COMPLETED` (per VM-07).
+  - **Driver-side POD** (DM-01 / POD-01) is a separate artifact captured by the driver inside their own app at closure; it gates **TO closure**. The vendor's POD upload here is a **record-copy** that happens **after** the TO is already Completed.
 
 ## Functional requirements
 
 | Priority | Requirement |
 |----------|-------------|
 | **Critical** | System **SHALL** notify winning / assigned vendors (in-app minimum in Phase 1; extend per notification roadmap). |
-| **High** | System **SHALL** allow vendor to submit **POD**, **GRN**, and **invoice** subject to lifecycle rules. |
+| **Critical** | System **SHALL** allow vendor to submit **POD**, **GRN**, and **Invoice only after the trip/TO has reached `COMPLETED`**; uploads of any of the three before that state MUST be rejected (per VM-07). |
 
 ## Traceability
 

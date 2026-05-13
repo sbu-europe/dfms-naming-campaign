@@ -88,7 +88,7 @@ interface AssignedTO {
 | Rate / payable amount | **HIDDEN** | shows `winning_bid_amount` |
 | Awarded vehicle count | shown (from contractual allocation) | shown (`awarded_vehicle_count`) |
 | "Confirm Vehicle & Driver" CTA | shown if not confirmed | shown if not confirmed |
-| POD / GRN / Invoice uploads | per VM-07 (same rules both types) | same |
+| POD / GRN / Invoice uploads | **Not on this screen** — all three uploads are gated to `to_status=COMPLETED` and live on **Completed Trip Details** (see `08-completed-trip-history.md`) | same |
 
 ### Discovery model (no notifications in mobile app)
 

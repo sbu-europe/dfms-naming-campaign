@@ -74,8 +74,9 @@ Render decisions are driven by the **`assignment_type`** field on the TO, NOT by
 | Contractual / payable rate | n/a | **Hide / omit** (backend MUST NOT return) |
 | `awarded_vehicle_count` | Show | Show (from contractual allocation) |
 | "Confirm Vehicle & Driver" CTA | Show until confirmed | Show until confirmed |
-| POD / GRN upload | Same rules (per policy) | Same rules (per policy) |
-| Invoice upload | Gated to Completed | Gated to Completed |
+| POD upload (vendor copy) | **Gated to Completed** — uploaded from Completed Trip Details | **Gated to Completed** — uploaded from Completed Trip Details |
+| GRN copy upload | **Gated to Completed** — uploaded from Completed Trip Details | **Gated to Completed** — uploaded from Completed Trip Details |
+| Invoice upload | Gated to Completed — uploaded from Completed Trip Details | Gated to Completed — uploaded from Completed Trip Details |
 | Status timeline (VM-08) | Same | Same |
 
 ## 5. How vendors discover events (no notifications in mobile app)
@@ -103,12 +104,11 @@ flowchart TD
   WAIT --> APP[TO appears with assignment_type=CONTRACTUAL on list refresh]
   APP --> ATO[Assigned TOs tab]
   ATO --> AD[TO Details<br/>rate hidden, assignment_type=CONTRACTUAL]
-  AD --> VM7[Confirm Vehicle/Driver/Helpers VM-07]
+  AD --> VM7[Confirm Vehicle/Driver/Helpers VM-07<br/>no doc uploads on this form]
   VM7 --> RDY[TO -> READY_FOR_DISPATCH]
   RDY --> TRIP[Active Trip Tracking VM-08]
-  TRIP --> POD[Upload POD + GRN as required]
-  POD --> COMP[Completed Trip History<br/>rate hidden, payment_status shown]
-  COMP --> INV[Upload Invoice gated to Completed]
+  TRIP --> COMP[TO reaches COMPLETED -> Completed Trip Details<br/>rate hidden, payment_status shown]
+  COMP --> UPL[Upload POD + GRN copy + Invoice<br/>all three gated to Completed]
 ```
 
 ### Non-Contractual end-to-end (this tenant)
@@ -124,12 +124,11 @@ flowchart TD
   EV -- Rejected / Reject-all --> LOSE[Bid card: Not awarded<br/>visible on next refresh]
   EV -- Won --> WIN[Bid card: You won<br/>visible on next refresh]
   WIN --> ATO[Assigned TOs tab<br/>TO appears with assignment_type=BID_WON,<br/>winning_bid_amount visible]
-  ATO --> VM7[Confirm Vehicle/Driver/Helpers VM-07]
+  ATO --> VM7[Confirm Vehicle/Driver/Helpers VM-07<br/>no doc uploads on this form]
   VM7 --> RDY[TO -> READY_FOR_DISPATCH]
   RDY --> TRIP[Active Trip Tracking VM-08]
-  TRIP --> POD[Upload POD + GRN as required]
-  POD --> COMP[Completed Trip History<br/>bid_amount visible]
-  COMP --> INV[Upload Invoice gated to Completed]
+  TRIP --> COMP[TO reaches COMPLETED -> Completed Trip Details<br/>bid_amount visible]
+  COMP --> UPL[Upload POD + GRN copy + Invoice<br/>all three gated to Completed]
 ```
 
 ## 7. State machine reference
@@ -166,14 +165,14 @@ ASSIGNED ──(VM-07 confirm vehicle/driver/helpers)──> READY_FOR_DISPATCH
        COMPLETED ──(closure)──> CLOSED
 ```
 
-Invoice upload is **only** valid once `to_status >= COMPLETED`.
+**POD, GRN copy, and Invoice uploads are all valid only once `to_status >= COMPLETED`.** Pre-trip the vendor only confirms vehicle/driver/helper (VM-07); no document uploads happen on that form. All three doc uploads happen from the Completed Trip Details screen.
 
 ## 8. Server-side enforcement summary (must-haves)
 
 - Bid endpoints (VM-05) MUST reject calls from members whose `vendor_type != NON_CONTRACTUAL` for the TO's tenant.
 - Bid list endpoints (VM-03 / VM-04 consumption) MUST NOT return TOs to vendors who are not `(APPROVED, NON_CONTRACTUAL)` for the owning tenant.
 - TO list/detail endpoints MUST NOT return rate fields when `assignment_type=CONTRACTUAL`, regardless of caller's other memberships.
-- Invoice upload endpoint MUST reject before `to_status=COMPLETED` (both types).
+- Vendor document upload endpoint MUST reject **POD, GRN copy, and Invoice** uploads before `to_status=COMPLETED` (both vendor types, all three `doc_type` values).
 - VM-07 confirmation endpoint MUST be reachable for both `assignment_type` values; the form contract is identical.
 - **Bidding-session edit endpoint (VM-04 AC-6) MUST accept changes to `bid_open_date` / `bid_close_date` only**; any payload attempting to change other published parameters MUST be rejected (`400`). Use cancel + republish for non-timeline changes.
 - Bid-submit endpoint MUST treat the **server-side** `bid_close_date` at request time as authoritative; do not honor a client-supplied or client-cached deadline.

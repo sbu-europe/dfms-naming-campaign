@@ -15,6 +15,8 @@ After receiving a TO assignment — by **winning a bid** (Non-Contractual) **or*
 
 **Phase 1 rule:** Vendors do **not** manage driver/vehicle master lists. Capture is a **per-TO** confirmation (not a reusable fleet profile). This applies equally to both vendor types.
 
+> **Out of scope on this screen:** POD, GRN copy, and Invoice uploads are **NOT** part of the pre-trip post-award form. All three vendor document uploads are gated server-side to `to_status=COMPLETED` and happen later, from the **Completed Trip Details** screen (see [`08-completed-trip-history.md`](08-completed-trip-history.md)).
+
 ## Entry points (per vendor type)
 
 > Phase 1 vendor mobile has **no notifications**. Both entry points are reached by the vendor opening the relevant tab and refreshing.
@@ -35,15 +37,13 @@ Once inside this screen, **the form is identical** for both types.
    - For CONTRACTUAL: shows route, product, required vehicle type/capacity, awarded_vehicle_count
                      (rate hidden — see 05-assigned-tos-list.md)
 3. Vendor taps "Confirm Vehicle & Driver" (gate: required before trip start)
-4. App displays confirmation form (per-TO one-off — Phase 1):
+4. App displays confirmation form (per-TO one-off — Phase 1, **no document uploads on this screen**):
    - **Mandatory:**
      - Vehicle info: number, type, capacity
      - Driver info: name, phone
    - **Optional:**
      - Driver NID/License *(optional — may be added later via the update flow)*
      - Helpers — zero or more *(optional — each helper, if provided, captures name + NID)*
-   - POD upload (when TO/tenant policy requires; can also be uploaded later in lifecycle)
-   - GRN copy upload (when applicable)
 5. App validates:
    - Vehicle capacity >= TO required capacity
    - Vehicle type matches TO required vehicle type
@@ -52,7 +52,7 @@ Once inside this screen, **the form is identical** for both types.
 6. Vendor confirms details
 7. System marks TO as READY_FOR_DISPATCH (or equivalent)
 8. Trip can be dispatched/started
-9. After trip Completed: vendor may upload Invoice (blocked before Completed by server)
+9. **After trip `COMPLETED`** the vendor can upload **POD, GRN copy, and Invoice** from the Completed Trip Details screen (`08-completed-trip-history.md`). Server hard-blocks all three doc-type uploads before Completed.
 ```
 
 ## Update flow (post-confirmation)
@@ -65,13 +65,19 @@ Once inside this screen, **the form is identical** for both types.
 
 ## Document upload rules (recap)
 
+**All three vendor doc uploads are gated to `to_status=COMPLETED`. None of them appear on this pre-trip post-award form** — they live on the Completed Trip Details screen (`08-completed-trip-history.md`).
+
 | Document | When uploadable | Vendor type | Notes |
 |---|---|---|---|
-| **POD** | When required by TO/tenant policy; typically on/after delivery | Both | Multiple uploads allowed |
-| **GRN copy** | When applicable to delivery flow | Both | Multiple uploads allowed |
-| **Invoice** | **Only after** `to_status=COMPLETED` (or equivalent terminal) | Both | Server hard-blocks upload before Completed |
+| **POD** *(vendor record copy)* | **Only after** `to_status=COMPLETED` | Both | Required when TO/tenant policy mandates a vendor POD upload; uploaded from Completed Trip Details. Driver-side POD (DM-01) is a separate artifact captured by the driver at closure. |
+| **GRN copy** | **Only after** `to_status=COMPLETED` | Both | Required when applicable to the delivery flow; uploaded from Completed Trip Details. |
+| **Invoice** | **Only after** `to_status=COMPLETED` | Both | Uploaded from Completed Trip Details. |
+
+Server hard-blocks all three before `COMPLETED` regardless of `doc_type`.
 
 ## Data model (example)
+
+> This payload covers the **pre-trip post-award confirmation only** (vehicle / driver / helper). Vendor document uploads (POD, GRN copy, Invoice) are a separate post-Completed payload — see `08-completed-trip-history.md`.
 
 ```typescript
 interface PostAwardAssignment {
@@ -92,11 +98,6 @@ interface PostAwardAssignment {
   // Optional capture (VM-07) — may be omitted at confirmation, added later via update flow
   driver_nid_or_license?: string;                 // optional
   helpers?: Array<{ name: string; nid: string }>; // optional; if present, name + nid both required per entry
-
-  // Documents (uploaded over the lifecycle)
-  pod_attachments?: Array<{ file_id: string; uploaded_at: Date }>;
-  grn_copy_attachments?: Array<{ file_id: string; uploaded_at: Date }>;
-  invoice_attachment?: { file_id: string; uploaded_at: Date };  // only after trip Completed
 
   // Audit
   assigned_by: string;                                          // vendor user id

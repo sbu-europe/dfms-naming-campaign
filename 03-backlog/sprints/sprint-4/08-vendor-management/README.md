@@ -123,8 +123,8 @@ flowchart TD
   WIN --> CONF
   CONF --> RDY[TO -> READY_FOR_DISPATCH]
   RDY --> RT[VM-08 real-time TO status<br/>Assigned -> Completed -> Closed<br/>vendor cannot modify status]
-  RT --> POD[POD + GRN copy uploads when required]
-  POD --> INV[After Completed: vendor uploads invoice]
+  RT --> DONE{TO reached COMPLETED?}
+  DONE -- Yes --> DOC[Vendor uploads POD + GRN copy + Invoice<br/>all three gated to Completed<br/>uploaded from Completed Trip view]
 ```
 
 ### Path comparison (side-by-side)
@@ -139,7 +139,7 @@ flowchart TD
 | Mobile screens **hidden** for this tenant | Bid Opportunities + Bid Submission | — |
 | Selection / split capacity | Multi-vendor direct assignment | Multi-winner award per `awarded_vehicle_count` (VM-06) |
 | Cancellation | TDO reassign / cancel (audited) | TDO reject-all + reason; vendor withdraw (policy) |
-| Common from this point on | **VM-07** (vehicle/driver/helper confirmation) → **VM-08** (status) → POD / GRN / invoice gating | same |
+| Common from this point on | **VM-07** (vehicle/driver/helper confirmation, pre-trip) → **VM-08** (status) → after `COMPLETED`: vendor uploads **POD + GRN + Invoice** (all three gated to Completed) | same |
 
 ---
 
@@ -168,7 +168,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
 | **VM-04** TDO publish TO to bidding portal | Non-Contractual only | *(admin/TDO surface; mobile consumes publish via bid opportunities list)* | Publish session + eligibility + notifications (TEVF-02) |
 | **VM-05** Bid submission | Non-Contractual only | `04-bid-submission.md` | Bid submit endpoint + bid window validation; immutable after submit; withdraw (policy) |
 | **VM-06** Bid evaluation (TDO surface) | Non-Contractual only | *(mobile sees outcomes via status changes in lists/details)* | Award endpoint (per-vendor `awarded_vehicle_count`) + winning log + reject-all (with reason) |
-| **VM-07** Bid/TO requirements + vehicle–driver confirmation | Both | `06-post-award-driver-vehicle-submission.md` | Post-award confirmation endpoint; update-with-reason + audit; POD/GRN upload; invoice gated to Completed |
+| **VM-07** Bid/TO requirements + vehicle–driver confirmation | Both | `06-post-award-driver-vehicle-submission.md` (pre-trip form), `08-completed-trip-history.md` (post-Completed uploads) | Post-award confirmation endpoint (vehicle/driver/helper) **pre-trip**; **all three vendor doc uploads — POD, GRN, Invoice — gated to `to_status=COMPLETED`** server-side; update-with-reason + audit |
 | **VM-08** Real-time TO updates | Both | `07-active-trip-tracking.md`, `10-security-and-access-control.md` | TO/trip status event feed (polling/websocket); vendor read-only on TO status |
 
 ---
@@ -182,7 +182,7 @@ This maps Sprint 4 vendor-management backlog items to the Vendor Mobile App spli
   - **Contractual**: direct TO assignment (no bidding); contractual rate applied server-side; **rate hidden** from vendor mobile + portal ([TEVF-01](../09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)).
   - **Non-Contractual**: bid submission required (rate + offered vehicle count); vendor sees their own bid amount ([TEVF-02](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)).
 - **Vendor type is scoped per (vendor, tenant)** — a single vendor can be Contractual for Tenant A and Non-Contractual for Tenant B; gating evaluates independently per tenant.
-- **Common execution leg:** Once the TO reaches `ASSIGNED` (either path), the downstream flow is identical — **VM-07** (vehicle/driver/helper confirmation) → **VM-08** (real-time status) → POD / GRN / invoice (invoice gated to `Completed`). See [TEVF-03](../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
+- **Common execution leg:** Once the TO reaches `ASSIGNED` (either path), the downstream flow is identical — **VM-07** (vehicle/driver/helper confirmation, pre-trip) → **VM-08** (real-time status) → **after `to_status=COMPLETED`**: vendor uploads **POD + GRN copy + Invoice** (all three uploads gated to Completed server-side; uploaded from the Completed Trip view in vendor mobile). See [TEVF-03](../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
 - **Bidding session mutability (VM-04 / TEVF-02):** post-publish, **only the bidding window timeline** (`bid_open_date`, `bid_close_date`) is editable by TDO. All other published parameters (`required_vehicle_count`, `required_vehicle_type`, `required_capacity`, `reference_rate`, eligibility filters) are **immutable**; any other change requires **cancel + republish**. Already-submitted bids stay valid regardless of timeline updates; only future submissions feel the new deadline.
 - **Mobile screen visibility rules** (source of truth: [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)):
   - Bid Opportunities + Bid Submission screens are **only** populated for tenants where the vendor is `NON_CONTRACTUAL`.

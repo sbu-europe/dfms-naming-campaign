@@ -143,9 +143,9 @@ flowchart TD
 | Cancel / reject mechanism | TDO can reassign / cancel (audit) | TDO reject-all with reason; vendor withdraw (policy) |
 | TDO post-publish edits | n/a | **Bidding window timeline only** (`bid_open_date` / `bid_close_date`); all other params immutable → cancel + republish |
 | Vendor app discovery | Refresh Assigned TOs tab — no notifications in Phase 1 | Refresh Bids tab + Assigned TOs tab — no notifications in Phase 1 |
-| Trip + POD / GRN / Invoice | Same VM-07 / VM-08 path | Same VM-07 / VM-08 path |
+| Trip + uploads | Same VM-07 / VM-08 path — **POD + GRN + Invoice all uploaded after `COMPLETED`** | Same |
 
-> **Common leg:** Once a TO is in `ASSIGNED` (either path), all downstream behavior (VM-07 confirmation, VM-08 status, POD / GRN / invoice gating) is **identical**.
+> **Common leg:** Once a TO is in `ASSIGNED` (either path), all downstream behavior is **identical** — VM-07 vehicle/driver/helper confirmation (pre-trip), VM-08 status updates, then after `to_status=COMPLETED` the vendor uploads **POD + GRN copy + Invoice** (all three gated to Completed) from the **Completed Trip** view.
 
 ---
 
@@ -168,7 +168,7 @@ flowchart TD
   EV -- lose / reject-all --> END1[End of TO for vendor]
 
   CONF --> RT[VM-08 real-time TO status: Assigned / Completed / Closed]
-  RT --> DOC[POD + GRN copy uploads; invoice after Completed]
+  RT --> DOC[After Completed: vendor uploads POD + GRN copy + Invoice<br/>all three gated to Completed<br/>uploaded from Completed Trip view]
 ```
 
 ---
