@@ -15,6 +15,10 @@ This document provides a complete index of all diagrams in the technical context
 
 ## 🏗️ Architecture Diagrams (C4 Model)
 
+### ⭐ System Architecture Overview (Start Here)
+- **Location**: `05-diagrams/system-architecture-overview.mmd`
+- **Description**: **Single-page overview** of the full Phase 1 stack — clients → Nginx → Django (12 modules, RBAC, Audit) → Celery Workers → PostgreSQL + Redis + S3 → External integrations. Best starting point for new team members.
+
 ### C4 Level 1: System Context
 - **Location**: `01-system-design/diagrams/system-context-diagram.mmd`
 - **Document**: [system-overview.md](../01-system-design/system-overview.md)
@@ -23,7 +27,7 @@ This document provides a complete index of all diagrams in the technical context
 ### C4 Level 2: Container View
 - **Location**: `01-system-design/diagrams/container-diagram.mmd`
 - **Document**: [container-view.md](../01-system-design/container-view.md)
-- **Description**: Container-level architecture showing 10 containers and their interactions
+- **Description**: Container-level architecture showing building blocks and their interactions
 
 ---
 
@@ -170,7 +174,7 @@ Located in `04-diagrams/states/`:
 ## 📈 Statistics
 
 ### Total Diagrams
-- **Architecture Diagrams**: 2 (C4 Level 1-2)
+- **Architecture Diagrams**: 3 (Overview + C4 Level 1-2)
 - **Workflow Diagrams**: 12 (operational + user workflows)
 - **Exception Diagrams**: 14
 - **Sequence Diagrams**: 3
@@ -179,12 +183,12 @@ Located in `04-diagrams/states/`:
 - **State Diagrams**: 2
 - **ER Diagrams**: 1
 - **Data Flow Diagrams**: 1
-- **Total**: **37 diagrams**
+- **Total**: **38 diagrams**
 
 ### By Format
-- **Mermaid**: 32 diagrams
+- **Mermaid**: 33 diagrams
 - **Embedded in Documents**: 29 diagrams
-- **Standalone Files**: 3 diagrams
+- **Standalone Files**: 4 diagrams
 
 ---
 
@@ -216,7 +220,7 @@ Located in `04-diagrams/states/`:
 
 ---
 
-**Last Updated**: February 13, 2026  
+**Last Updated**: May 13, 2026  
 **Status**: ✅ Complete  
 **Contact**: Md. Mahfuzur Rahman (Mahfuzur.rahman@brainstation-23.com)
 

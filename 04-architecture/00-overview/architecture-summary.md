@@ -78,19 +78,21 @@ This repository documents architecture at **C4 Level 1-2** only:
 - Module-level APIs and events
 - Independent module evolution
 
-**Modules**:
-1. Master Data Management
-2. Product Requisition Management
-3. Transport Management
-4. Vendor Management
-5. Operations Management (Gate, Scaling, Command Center, Loading/Unloading)
-6. Quality Control
-7. Fleet & Vehicle Management
-8. Fuel Management
-9. Trip Costing & Finance
-10. Reporting & Analytics
-11. Mobile Applications
-12. Notifications & Alerts
+**Implemented Django apps** (`apps/`):
+1. `master_data` — Master Data Management (incl. vehicles/fleet and fuel master records)
+2. `requisitions` — Product Requisition Management
+3. `transport` — Transport Management
+4. `vendors` — Vendor Management
+5. `operations` — Operations Management (Gate, Scaling, Command Center, Loading/Unloading)
+6. `quality` — Quality Control
+7. `costing` — Trip Costing & Finance
+8. `tracking` — Real-time Trip Tracking
+9. `reporting` — Reporting & Analytics
+10. `notifications` — Notifications & Alerts
+11. `users` — User Management
+12. **Shared services**: `core` (RBAC, auth, middleware, dashboard), `audit` (immutable audit trail), `tenants` (multi-tenancy)
+
+> **Note**: "Fleet & Vehicle Management" and "Fuel Management" are not separate apps in Phase 1 — vehicle and fuel master data live in `master_data`. Dedicated fleet/fuel modules are planned for Phase 2+.
 
 **Benefits**:
 - Easier to understand and maintain
@@ -365,7 +367,8 @@ DFMS architecture evolves through distinct phases to balance cost, complexity, a
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
 │  │   Master     │  │   Product    │  │  Transport   │     │
-│  │    Data      │  │ Requisition  │  │  Management  │     │
+│  │  Data (incl. │  │ Requisition  │  │  Management  │     │
+│  │ Fleet/Fuel)  │  │  Management  │  │              │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
@@ -374,18 +377,18 @@ DFMS architecture evolves through distinct phases to balance cost, complexity, a
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 │                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │    Fleet     │  │     Fuel     │  │     Trip     │     │
-│  │  Management  │  │  Management  │  │   Costing    │     │
+│  │    Trip      │  │  Tracking    │  │  Reporting   │     │
+│  │   Costing    │  │  (Real-time) │  │  & Analytics │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 │                                                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Reporting   │  │    Mobile    │  │Notifications │     │
-│  │  & Analytics │  │     Apps     │  │  & Alerts    │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
+│  ┌──────────────┐  ┌──────────────┐                        │
+│  │Notifications │  │    Mobile    │                        │
+│  │  & Alerts    │  │     Apps     │                        │
+│  └──────────────┘  └──────────────┘                        │
 │                                                              │
 ├─────────────────────────────────────────────────────────────┤
 │              Shared Services & Infrastructure                │
-│  (Auth, Logging, Monitoring, File Storage, Cache)          │
+│  (Core/RBAC, Audit Logging, Auth, Cache, File Storage)     │
 └─────────────────────────────────────────────────────────────┘
 ```
 

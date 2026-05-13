@@ -1,105 +1,76 @@
-%% DFMS Deployment Diagram
-%% Shows infrastructure and deployment architecture
+%% DFMS Deployment Diagram — Phase 1 (Current)
+%% Shows actual Phase 1 infrastructure: single server, Docker Compose, Nginx
 %%
 %% Phase Notes:
-%% - Phase 1: Single EC2 instance, Nginx reverse proxy, Redis for message queue
-%% - Phase 2+: Kubernetes/ECS, API Gateway (Kong/AWS), RabbitMQ/SQS
-%% See: ADR-004 (Phase 1 Modular Monolith) and phase-1-deployment.md
+%% - Phase 1 (current): Single EC2 instance, Docker Compose, Nginx reverse proxy, Redis broker
+%% - Phase 2+: ECS/Kubernetes, ALB, Kong/AWS API Gateway, RabbitMQ/SQS, CloudFront
+%% See: ADR-004 (Phase 1 Modular Monolith)
 
 graph TB
     subgraph Internet["Internet"]
         Users["Users<br/>(Web & Mobile)"]
     end
-    
-    subgraph AWS["AWS Cloud"]
-        subgraph VPC["VPC (10.0.0.0/16)"]
-            subgraph PublicSubnet["Public Subnet (10.0.1.0/24)"]
-                ALB["Application Load Balancer<br/>(ALB)<br/><br/>HTTPS:443<br/>HTTP:80"]
-                APIGateway["API Gateway<br/>(Kong/AWS API Gateway)<br/><br/>Authentication<br/>Rate Limiting"]
-                NAT["NAT Gateway<br/><br/>Outbound Internet"]
-            end
-            
-            subgraph PrivateSubnet["Private Subnet (10.0.2.0/24)"]
-                subgraph ECS["ECS Cluster / EC2 Instances"]
-                    APIServer["API Server<br/>(Django + FastAPI)<br/><br/>Auto-scaling: 2-10 instances<br/>Port: 8000"]
-                    Worker["Background Worker<br/>(Celery)<br/><br/>Auto-scaling: 1-5 instances"]
-                end
-                
-                RDS["RDS PostgreSQL<br/><br/>Primary + Read Replicas<br/>Multi-AZ"]
-                Redis["ElastiCache Redis<br/><br/>Cluster Mode<br/>Session & Cache"]
-            end
-            
-            subgraph DataSubnet["Data Subnet (10.0.3.0/24)"]
-                S3["S3 Buckets<br/><br/>Documents<br/>Photos/Videos<br/>Reports"]
-                SQS["SQS / RabbitMQ<br/><br/>Message Queue<br/>Event Bus"]
-            end
-        end
-        
-        subgraph Monitoring["Monitoring & Logging"]
-            CloudWatch["CloudWatch<br/><br/>Logs & Metrics"]
-            Prometheus["Prometheus<br/>(Phase 2)<br/><br/>Metrics Collection"]
-            Grafana["Grafana<br/>(Phase 2)<br/><br/>Visualization"]
-        end
-        
-        subgraph CDN["CDN"]
-            CloudFront["CloudFront<br/><br/>Static Assets<br/>API Caching"]
+
+    subgraph EC2["AWS EC2 Instance (Phase 1)"]
+        subgraph DockerCompose["Docker Compose Stack"]
+            Nginx["Nginx 1.25<br/>(Reverse Proxy)<br/><br/>Port 80/443<br/>Static files<br/>SSL termination"]
+
+            APIServer["Django API Server<br/>(Django + DRF)<br/><br/>Port 8000<br/>Business logic<br/>REST APIs"]
+
+            CeleryWorker["Celery Worker<br/><br/>Async task processing<br/>Concurrency: 4"]
+
+            CeleryBeat["Celery Beat<br/><br/>Scheduled jobs<br/>DatabaseScheduler"]
+
+            Redis["Redis 7<br/><br/>Celery broker (db/0)<br/>Cache (db/1)<br/>Task results (db/2)"]
+
+            Postgres["PostgreSQL 15<br/><br/>Multi-tenant schemas<br/>django_tenants<br/>Port 5432"]
+
+            MediaVol[("Media Volume<br/><br/>Uploaded files<br/>Photos/Videos")]
+
+            StaticVol[("Static Volume<br/><br/>CSS/JS/Images")]
         end
     end
-    
-    subgraph External["External Services"]
+
+    subgraph External["External Services (Planned)"]
         GPS["GPS/VTS Provider<br/><br/>Vehicle Tracking API"]
         ERP["ERP System<br/><br/>Financial Sync API"]
         Maps["Maps Service<br/><br/>Route Planning API"]
         SMS["SMS Gateway<br/><br/>Notification API"]
-        Payment["Payment Gateway<br/><br/>Payment API"]
     end
-    
-    %% User Connections
-    Users -->|HTTPS| CloudFront
-    CloudFront -->|HTTPS| ALB
-    Users -->|HTTPS| ALB
-    
-    %% Load Balancer to API Gateway
-    ALB -->|HTTPS| APIGateway
-    
-    %% API Gateway to Services
-    APIGateway -->|HTTPS:8000| APIServer
-    APIServer -->|SQL:5432| RDS
-    APIServer -->|Redis:6379| Redis
-    APIServer -->|S3 API| S3
-    APIServer -->|SQS API| SQS
-    
-    %% Worker Connections
-    Worker -->|SQL:5432| RDS
-    Worker -->|Redis:6379| Redis
-    Worker -->|SQS API| SQS
-    Worker -->|S3 API| S3
-    
-    %% External Connections
-    APIServer -->|HTTPS| GPS
-    APIServer -->|HTTPS| ERP
-    APIServer -->|HTTPS| Maps
-    APIServer -->|HTTPS| SMS
-    APIServer -->|HTTPS| Payment
-    
-    %% Outbound Internet
-    APIServer -->|HTTPS| NAT
-    Worker -->|HTTPS| NAT
-    NAT -->|HTTPS| Internet
-    
-    %% Monitoring
-    APIServer -.->|Metrics| CloudWatch
-    Worker -.->|Metrics| CloudWatch
-    RDS -.->|Metrics| CloudWatch
-    Redis -.->|Metrics| CloudWatch
-    
-    %% Phase 2 Monitoring
-    APIServer -.->|Metrics| Prometheus
-    Prometheus -.->|Dashboards| Grafana
-    
-    style AWS fill:#FF9900
-    style VPC fill:#232F3E
-    style PublicSubnet fill:#146EB4
-    style PrivateSubnet fill:#146EB4
-    style DataSubnet fill:#146EB4
 
+    %% User to Nginx
+    Users -->|"HTTPS/HTTP"| Nginx
+
+    %% Nginx to Django
+    Nginx -->|"HTTP :8000<br/>(proxy_pass)"| APIServer
+    Nginx -->|"Static files"| StaticVol
+    Nginx -->|"Media files"| MediaVol
+
+    %% Django to data stores
+    APIServer -->|"SQL :5432"| Postgres
+    APIServer -->|"Redis :6379"| Redis
+    APIServer -->|"File I/O"| MediaVol
+
+    %% Celery connections
+    Redis -->|"Consume tasks"| CeleryWorker
+    Redis -->|"Consume schedule"| CeleryBeat
+    CeleryBeat -->|"Enqueue tasks"| Redis
+    CeleryWorker -->|"SQL :5432"| Postgres
+    CeleryWorker -->|"File I/O"| MediaVol
+
+    %% External (not yet integrated)
+    APIServer -.->|"HTTPS (planned)"| GPS
+    APIServer -.->|"HTTPS (planned)"| ERP
+    APIServer -.->|"HTTPS (planned)"| Maps
+    CeleryWorker -.->|"HTTPS (planned)"| SMS
+
+    classDef serverStyle fill:#232F3E,stroke:#FF9900,stroke-width:2px,color:#ffffff
+    classDef appStyle fill:#1168bd,stroke:#0b4884,stroke-width:2px,color:#ffffff
+    classDef dataStyle fill:#438dd5,stroke:#2e5f8d,stroke-width:2px,color:#ffffff
+    classDef externalStyle fill:#999999,stroke:#666666,stroke-width:2px,color:#ffffff
+    classDef storageStyle fill:#3f8624,stroke:#2d6119,stroke-width:2px,color:#ffffff
+
+    class Nginx,APIServer,CeleryWorker,CeleryBeat appStyle
+    class Redis,Postgres dataStyle
+    class MediaVol,StaticVol storageStyle
+    class GPS,ERP,Maps,SMS externalStyle

@@ -1,0 +1,107 @@
+%% DFMS System Architecture Overview — Phase 1 (Single-Page)
+%% Shows the full stack in one diagram: clients → Nginx → Django → data stores → external systems
+%% Phase 1: Single EC2, Docker Compose, Nginx, Gunicorn, PostgreSQL (schema-per-tenant), Redis, S3 (prod)
+%% Last Updated: May 2026
+
+graph TB
+
+    %% ── Clients ──────────────────────────────────────────────
+    subgraph Clients["👥 Clients"]
+        WEB["Web Browser\nDjango Templates + Bootstrap 5\n(Internal staff portal)"]
+        MOB["Mobile App\nFlutter — iOS & Android\n(Drivers, QC, Vendors)\n⚠ Planned"]
+    end
+
+    %% ── Web Server ───────────────────────────────────────────
+    subgraph WebServer["🌐 Web Server (Nginx 1.25)"]
+        NGINX["Nginx\nReverse proxy :80/:443\nSSL termination\nServes static & media files"]
+    end
+
+    %% ── Application ──────────────────────────────────────────
+    subgraph AppLayer["⚙️ Application Layer (Django 4.x + DRF)"]
+        direction TB
+        MIDDLEWARE["Middleware Stack\nTenantMain → TenantStatus → Session\n→ SessionControl → Audit → CSRF/Auth"]
+        DJANGO["Django Views + DRF ViewSets\n12 Business Modules\n(master_data · requisitions · transport\nvendors · operations · quality\ncosting · tracking · notifications · reporting)"]
+        RBAC["RBAC / Auth\nJWT (SimpleJWT) + Session (Redis)\nRole·Permission·UserRole\n135 permissions · OTP · session limits"]
+        AUDIT["Audit App\nImmutable action log per tenant"]
+    end
+
+    %% ── Background Workers ───────────────────────────────────
+    subgraph Workers["🔄 Background Workers (Celery)"]
+        WORKER["Celery Worker\nconcurrency=4\nAsync task processing"]
+        BEAT["Celery Beat\nDatabaseScheduler\nScheduled / periodic jobs"]
+    end
+
+    %% ── Data Layer ───────────────────────────────────────────
+    subgraph DataLayer["🗄️ Data Layer"]
+        PG[("PostgreSQL 15\ndjango-tenants\npublic schema → platform\ntenant schemas → business data")]
+        REDIS[("Redis 7\ndb/0 → Celery broker\ndb/1 → App cache + sessions\ndb/2 → Task results")]
+    end
+
+    %% ── Storage ──────────────────────────────────────────────
+    subgraph Storage["📦 File Storage"]
+        S3["AWS S3\nMedia uploads · Static files\nBackups\n(prod only)"]
+        LOCAL["Local Volume\nMedia + Static\n(dev / QA only)"]
+    end
+
+    %% ── External Services ────────────────────────────────────
+    subgraph External["🔌 External Integrations (Planned)"]
+        GPS["GPS / VTS\nVehicle tracking"]
+        SMS["SMS Gateway\nNotifications & OTPs"]
+        MAPS["Maps Service\nRoute planning · Geocoding"]
+        ERP["ERP System\nFinancial sync"]
+    end
+
+    %% ── Connections ──────────────────────────────────────────
+
+    %% Clients → Nginx
+    WEB  -->|"HTTPS"| NGINX
+    MOB  -.->|"HTTPS (planned)"| NGINX
+
+    %% Nginx → Django
+    NGINX -->|"HTTP proxy_pass :8000"| MIDDLEWARE
+
+    %% Django internals
+    MIDDLEWARE --> DJANGO
+    MIDDLEWARE --> RBAC
+    MIDDLEWARE --> AUDIT
+    DJANGO --> RBAC
+    DJANGO --> AUDIT
+
+    %% Django → Data
+    DJANGO -->|"ORM (tenant schema)"| PG
+    DJANGO -->|"Cache / Sessions"| REDIS
+    DJANGO -->|"Enqueue tasks"| REDIS
+
+    %% Django → Storage
+    DJANGO -->|"S3 API (prod)"| S3
+    DJANGO -->|"File I/O (dev/QA)"| LOCAL
+
+    %% Celery → Data
+    REDIS -->|"Consume tasks"| WORKER
+    REDIS -->|"Consume schedule"| BEAT
+    BEAT  -->|"Enqueue"| REDIS
+    WORKER -->|"ORM"| PG
+    WORKER -->|"File writes"| S3
+
+    %% External (planned)
+    DJANGO  -.->|"REST (planned)"| GPS
+    DJANGO  -.->|"REST (planned)"| MAPS
+    DJANGO  -.->|"REST (planned)"| ERP
+    WORKER  -.->|"REST (planned)"| SMS
+
+    %% ── Styles ───────────────────────────────────────────────
+    classDef clientStyle    fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b
+    classDef nginxStyle     fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#e65100
+    classDef appStyle       fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    classDef workerStyle    fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+    classDef dataStyle      fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#b71c1c
+    classDef storageStyle   fill:#fce4ec,stroke:#ad1457,stroke-width:2px,color:#880e4f
+    classDef externalStyle  fill:#f5f5f5,stroke:#757575,stroke-width:2px,color:#212121
+
+    class WEB,MOB clientStyle
+    class NGINX nginxStyle
+    class MIDDLEWARE,DJANGO,RBAC,AUDIT appStyle
+    class WORKER,BEAT workerStyle
+    class PG,REDIS dataStyle
+    class S3,LOCAL storageStyle
+    class GPS,SMS,MAPS,ERP externalStyle
