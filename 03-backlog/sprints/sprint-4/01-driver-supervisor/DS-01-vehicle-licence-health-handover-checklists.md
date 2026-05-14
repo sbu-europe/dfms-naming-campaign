@@ -18,12 +18,38 @@ prd_refs:
 ## User Story
 
 **As a** Driver Supervisor  
-**I want to** complete a vehicle inspection checklist after vehicle and driver are assigned to a TO, and mark vehicles Under Maintenance when needed  
-**So that** only inspected vehicles proceed to dispatch and audit evidence exists for every inspection
+**I want to** optionally run a full vehiclea inspection checklist after TDO (Own Fleet) has assigned vehicle, driver, helper, and ETA to a TO, then either release the TO to **Dispatch** or, if inspection fails, park the vehicle in **Under Maintenance** and send the TO back for replanning  
+**So that** dispatch is not blocked when inspection is unnecessary or waived, while unsafe vehicles are removed from service with a clear audit trail and the TO is returned to **Under Planning** for TDO to reassign resources
 
 ## Business Context
 
-PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registration (MDM-05, Sprint 2). After the TDO assigns a vehicle and driver to a TO (TO-02, Sprint 3 — status `Assigned`), the Driver Supervisor inspects the vehicle using a predefined daily checklist. Successful completion advances the TO to `Ready for Dispatch`. If critical issues are found, the supervisor can mark the vehicle **Under Maintenance**, which unlinks it from the TO and forces reassignment.
+PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registration (MDM-05, Sprint 2). This story refines **who** moves an assigned TO toward execution and **how** the vehicle checklist fits in.
+
+**Upstream handover (TDO — Own Fleet)**  
+Before the Driver Supervisor acts, the TDO (Own Fleet) must complete assignment on the TO: **vehicle**, **driver**, **helper(s)**, and **ETA**. Until those are recorded, the TO is not in the Driver Supervisor’s dispatch-readiness queue.
+a
+**Driver Supervisor — gate to Dispatch**  
+Once the TO is fully assigned, the Driver Supervisor is responsible for progressing it toward **Dispatch** (releasing the TO for operational dispatch / driver execution — align exact status label with TO and Trip models, e.g. transition into the dispatch-released state used by DM/driver apps).
+
+**Decision before Dispatch: checklist or skip**  
+Immediately before setting the TO to **Dispatch**, the Driver Supervisor **chooses**:
+
+| Choice | Behaviour |
+|--------|-----------|
+| **Skip checklist** | Supervisor may transition the TO to **Dispatch** without opening or submitting a checklist. No inspection record is required for that path. |
+| **Proceed with checklist** | Supervisor completes the predefined daily inspection for the **vehicle in the context of this TO** (all items, remarks as defined in AC-1). After all items are reviewed, the supervisor records an outcome: |
+
+**Outcome when checklist was used**
+
+| Outcome | Vehicle | Transport Order (TO) |
+|---------|---------|----------------------|
+| **Vehicle OK** | Remains in normal operational status (no maintenance flag from this flow). | Supervisor may transition TO to **Dispatch**. |
+| **Vehicle not OK** | Vehicle status → **Under Maintenance** (excluded from new TDO assignment until cleared). | TO status → **Under Planning** — assignment is effectively rolled back for replanning; TDO must reassign vehicle, driver, helper, and ETA when a substitute vehicle is available. |
+
+**Implementation alignment (for dev / PO)**  
+- Today’s codebase may use `Assigned` → `Ready for Dispatch` before execution; this story allows **either** retaining `Ready for Dispatch` as an optional intermediate **or** collapsing so the supervisor’s “Dispatch” action is the single gate after `Assigned` — **confirm** with transport-order and trip state diagrams.  
+- **Under Planning** on the TO is the **business** target when inspection fails; if the TO entity has no `under_planning` enum yet, map to the agreed technical state (e.g. extend `TOStatus`, or equivalent rollback to a planning queue) without changing the business rule above.  
+- **Under Maintenance** spelling is canonical for the vehicle master / operational flag.
 
 ## Acceptance Criteria
 
@@ -60,7 +86,7 @@ PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registra
 | | 5 | Mudguard R/S |
 | | 6 | Air Cutter |
 | **Electric** | 1 | Head Light R/S |
-| | 2 | Battery Water |
+| | 2 | Battery Water |a
 | | 3 | Parking Light Front RS & LS |
 | | 4 | Parking Light Rear RS & LS |
 | | 5 | Indicator Light Front RS & LS |
@@ -76,7 +102,7 @@ PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registra
 | | 2 | Chassis Nut & Bolt |
 | | 3 | All U Bolt |
 | | 4 | Leaf Spring |
-| | 5 | Leaf Spring Hanger |
+| | 5 | Leaf Spring Hanger |a
 | **Cabin** | 1 | Door RS & LS |
 | | 2 | Door Lock RS & LS |
 | | 3 | Foot Rest RS & LS |
@@ -90,46 +116,47 @@ PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registra
 
 - [ ] Checklist sections and items are **predefined and immutable** — no user can modify them
 
-### AC-2: Driver Supervisor completes checklist & updates TO status
-- [ ] After TDO assigns vehicle + driver to a TO (TO-02, status `Assigned`), the TO appears in the **Driver Supervisor's inspection queue**
-- [ ] Driver Supervisor completes the daily inspection checklist for the **vehicle + TO** context — fills remarks per item
-- [ ] On successful completion: TO status → `Ready for Dispatch`
-- [ ] Each submission stores: vehicle ID, TO ID, section, item, remarks, date/time, submitting supervisor; full history retained
-- [ ] If critical issues found, supervisor can **reject** the vehicle — TO remains in `Assigned` and the vehicle is flagged for follow-up
+### AC-2: Preconditions, optional checklist, and transition to Dispatch
+- [ ] A TO appears in the **Driver Supervisor dispatch-readiness queue** only when **TDO (Own Fleet)** has assigned **vehicle**, **driver**, **helper(s)**, and **ETA** and the TO is in the applicable **Assigned** (or equivalent) status
+- [ ] Driver Supervisor may transition the TO to **Dispatch** **without** completing a checklist (**skip path**)
+- [ ] If the supervisor **chooses** the checklist path: they complete the daily inspection for the **vehicle + TO** context — fills remarks per item — then explicitly records **Vehicle OK** or **Vehicle not OK**
+- [ ] On **Vehicle OK** (checklist path): supervisor may transition TO to **Dispatch**
+- [ ] On **skip path**: no inspection payload is required; audit should still record *who* dispatched and *when*, and that checklist was skipped (policy: mandatory audit field)
+- [ ] Each **completed** checklist submission stores: vehicle ID, TO ID, section, item, remarks, outcome (OK / not OK), date/time, submitting supervisor; full history retained
 
-### AC-3: Vehicle status — Under Maintenance
-- [ ] After completing the checklist, supervisor can mark the vehicle as **Under Maintenance** if inspection reveals issues requiring repair
-- [ ] Vehicle in Under Maintenance is **excluded** from new TDO assignment (aligns with TO-02 rules) and surfaced in supervisor list
-- [ ] When a vehicle is marked Under Maintenance while linked to an `Assigned` TO, the TO status → `Created` (vehicle unlinked, TDO must reassign)
+### AC-3: Vehicle status — Under Maintenance & TO → Under Planning
+- [ ] When checklist outcome is **Vehicle not OK**: vehicle → **Under Maintenance**; linked TO → **Under Planning** (vehicle/driver/helper/ETA cleared or marked invalid per data rules so TDO must replan — specify in technical design)
+- [ ] Vehicle in **Under Maintenance** is **excluded** from new TDO assignment until returned to service (aligns with TO-02 / fleet rules)
+- [ ] Partial checklist save may be allowed as **draft**; **Dispatch** and **Vehicle not OK** finalisation are only allowed when business rules for completeness are met (define in technical design)
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | DS-01-1 | `ChecklistSection` + `ChecklistItem` models + data migration to seed all 7 sections and predefined items | DFS-050-1 | Pending |
-| DS-01-2 | `VehicleInspection` + `ChecklistResponse` models — FK to TO, vehicle, supervisor; response stores item + status + remarks | DFS-050-2 | Pending |
-| DS-01-3 | `VehicleInspectionAdmin` — `list_display` (TO ref, vehicle, supervisor, status, date), `list_filter` (status, vehicle), search by TO number; queryset filtered to TOs in `Assigned` status | DFS-050-3 | Pending |
-| DS-01-4 | `VehicleInspectionAdmin` — change form with `ChecklistResponseInline` (all items per section), readonly fields for completed inspections | DFS-050-4 | Pending |
-| DS-01-5 | `VehicleInspectionAdmin.save_model` — validate all responses filled, set `inspection_completed_at`, transition TO status `Assigned` → `Ready for Dispatch` | DFS-050-5 | Pending |
-| DS-01-6 | `VehicleInspectionAdmin` reject action — TO stays `Assigned`, vehicle flagged for follow-up, rejection reason required via `_RejectReasonForm` | DFS-050-6 | Pending |
-| DS-01-7 | `VehicleAdmin.mark_under_maintenance` custom action + TO reassignment guard service — `Assigned` TO → `Created`, vehicle unlinked | DFS-050-7 | Pending |
-| DS-01-8 | Inspection queue API — `GET /api/v1/inspections/queue` (TOs pending inspection) | DFS-050-8 | Pending |
-| DS-01-9 | Checklist submission API — `POST /api/v1/inspections` (submit responses, trigger TO status transition) | DFS-050-9 | Pending |
-| DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}` (all responses + metadata) | DFS-050-10 | Pending |
-| DS-01-11 | Inspection reject API — `POST /api/v1/inspections/{inspection_id}/reject` (reason required) | DFS-050-11 | Pending |
-| DS-01-12 | Under Maintenance API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` + TO reset | DFS-050-12 | Pending |
-| DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` (read-only sections + items for mobile/frontend) | DFS-050-13 | Pending |
-| DS-01-14 | Audit logging on all inspection submissions, rejections, and Under Maintenance decisions | DFS-050-14 | Pending |
+| DS-01-2 | `VehicleInspection` + `ChecklistResponse` models — FK to TO, vehicle, supervisor; optional linkage when checklist skipped; response stores item + remarks + outcome | DFS-050-2 | Pending |
+| DS-01-3 | `VehicleInspectionAdmin` — queue: TOs **Assigned** with vehicle, driver, helper, ETA populated (Own Fleet); filters/search as before | DFS-050-3 | Pending |
+| DS-01-4 | `VehicleInspectionAdmin` — change form with `ChecklistResponseInline` (all items per section); readonly after completion; separate action or flag for **skip checklist → Dispatch** | DFS-050-4 | Pending |
+| DS-01-5 | Status transitions: **skip** → TO to **Dispatch** (or agreed intermediate); **checklist OK** → TO to **Dispatch**; validate guards vs `TO_STATUS_TRANSITIONS` | DFS-050-5 | Pending |
+| DS-01-6 | Checklist completion with **Vehicle not OK** — persist outcome, set vehicle **Under Maintenance**, transition TO → **Under Planning** (or mapped enum); reason / notes if required by policy | DFS-050-6 | Pending |
+| DS-01-7 | Remove or repurpose old “reject → TO stays Assigned” path unless retained for non-maintenance declines; `VehicleAdmin.mark_under_maintenance` + TO rollback service aligned to **Under Planning** | DFS-050-7 | Pending |
+| DS-01-8 | Inspection / dispatch queue API — `GET` queue (Assigned + full assignment + Own Fleet) | DFS-050-8 | Pending |
+| DS-01-9 | APIs: submit checklist + outcome; **POST** skip-dispatch or **PATCH** TO dispatch with `checklist_skipped: true` (single contract to be agreed) | DFS-050-9 | Pending |
+| DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}` | DFS-050-10 | Pending |
+| DS-01-11 | Deprecate or merge **reject** API with **not OK** + maintenance path | DFS-050-11 | Pending |
+| DS-01-12 | **Under Maintenance** API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` + TO → **Under Planning** (replace “reset to Created” where story supersedes) | DFS-050-12 | Pending |
+| DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` (read-only) | DFS-050-13 | Pending |
+| DS-01-14 | Audit logging: checklist submissions, skip-dispatch, OK / not OK outcomes, Under Maintenance | DFS-050-14 | Pending |
 
-## API Endpoints
-
+## API Endpoints (draft — reconcile with gateway and TO PATCH contract)
+a
 ```
-GET    /api/v1/inspections/queue                     # TOs in Assigned status — supervisor inspection queue
-POST   /api/v1/inspections                           # Submit completed checklist; triggers TO → Ready for Dispatch
+GET    /api/v1/inspections/queue                     # TOs Assigned, Own Fleet, vehicle+driver+helper+ETA set
+GET    /api/v1/checklist-template                    # Read-only — sections + items
+POST   /api/v1/inspections                           # Submit completed checklist + outcome (OK → allow dispatch; not OK → maintenance + TO Under Planning)
+POST   /api/v1/transport-orders/{to_id}/dispatch     # Supervisor dispatch: optional body { checklist_skipped: true } OR prerequisite inspection OK (contract TBD)
 GET    /api/v1/inspections/{inspection_id}           # Inspection detail with all responses
-POST   /api/v1/inspections/{inspection_id}/reject    # Reject vehicle; TO stays Assigned; reason required
-POST   /api/v1/vehicles/{vehicle_id}/under-maintenance   # Mark vehicle Under Maintenance; resets linked TO to Created
-GET    /api/v1/checklist-template                    # Read-only — sections + items (for mobile/frontend rendering)
+POST   /api/v1/vehicles/{vehicle_id}/under-maintenance   # Mark vehicle Under Maintenance; linked TO → Under Planning (when driven from inspection failure)
 ```
 
 ## Access & Permissions
@@ -137,29 +164,30 @@ GET    /api/v1/checklist-template                    # Read-only — sections + 
 > Full menu structure and role-access matrix: [`README.md`](../README.md)
 
 | Action | Role |
-|--------|------|
-| View inspection queue (own POI) | Driver Supervisor |
-| Complete daily inspection checklist for TO | Driver Supervisor |
-| Reject vehicle on inspection | Driver Supervisor |
-| Mark vehicle Under Maintenance | Driver Supervisor |
+|--------|------|a
+| View dispatch-readiness / inspection queue (own POI) | Driver Supervisor |
+| Skip checklist and set TO to Dispatch | Driver Supervisor |
+| Complete daily inspection checklist and record OK / not OK | Driver Supervisor |
+| Mark vehicle Under Maintenance (from inspection not OK) | Driver Supervisor |
 | View inspection history (read-only) | Driver Supervisor, TDO, Dispatch Manager |
 | View vehicle status board | Driver Supervisor, TDO (read-only) |
 
 ## Dependencies
 
-- **Requires**: MDM-05 (vehicles), TO-02 (assigned TO + vehicle + driver link — provides `Assigned` status trigger)
-- **Enables**: DM-01 (checklist completion gates **first driver execution action** — TO must be `Ready for Dispatch` before driver can act)
+- **Requires**: MDM-05 (vehicles), TO-02 — TDO (Own Fleet) assigns **vehicle**, **driver**, **helper**, **ETA**; TO in **Assigned** (or agreed equivalent)
+- **Requires**: Product/technical decision on TO state model for **Under Planning** vs existing `created` / new enum; Trip/TO alignment for **Dispatch**
+- **Enables**: DM-01 and driver execution — **update** downstream gates: execution may require “supervisor-released to Dispatch” rather than “checklist completed” only
 
 ## Definition of Done
 
-- [ ] **Checklist seeded**: all 7 sections and their items exist in the database via data migration — confirmed by running `manage.py migrate` on a clean DB
-- [ ] **Admin list view**: `VehicleInspectionAdmin` inspection queue shows only TOs with `Assigned` status; filterable by vehicle, supervisor; search by TO number
-- [ ] **Change form works**: `ChecklistResponseInline` renders all checklist items grouped by section; remarks field per item; readonly after completion
-- [ ] **Checklist submission correct**: `VehicleInspectionAdmin.save_model` validates all responses → TO status becomes `Ready for Dispatch`; `inspection_completed_at` is set
-- [ ] **Rejection path works**: reject action → TO stays `Assigned`; vehicle flagged; rejection reason persisted via `_RejectReasonForm`; supervisor cannot reject without reason
-- [ ] **Under Maintenance enforced**: `VehicleAdmin.mark_under_maintenance` action → vehicle no longer appears in TDO assignment vehicle dropdown; linked `Assigned` TO resets to `Created`
-- [ ] **Audit trail complete**: every inspection submission, rejection, and Under Maintenance decision records user, timestamp, and before/after state
-- [ ] **Unit tests**: status transition guards (`Assigned` → `Ready for Dispatch`, reject path, Under Maintenance → TO reset to `Created`) covered by automated tests
-- [ ] **UAT — happy path**: TDO assigns vehicle + driver → supervisor opens checklist → fills all items → saves → TO becomes `Ready for Dispatch`
-- [ ] **UAT — rejection path**: supervisor inspects vehicle → rejects with reason → TO stays `Assigned`; vehicle flagged for follow-up
-- [ ] **UAT — maintenance path**: supervisor marks vehicle Under Maintenance → vehicle excluded from future assignments; linked TO reset to `Created`; TDO reassigns
+- [ ] **Checklist seeded**: all 7 sections and items via data migration — verified on clean DB
+- [ ] **Queue rule**: only TOs with full TDO assignment (vehicle, driver, helper, ETA) appear for Driver Supervisora
+- [ ] **Skip path**: supervisor can set TO to **Dispatch** without checklist; audit shows skip
+- [ ] **Checklist OK path**: full responses + OK → supervisor can set TO to **Dispatch**
+- [ ] **Not OK path**: vehicle **Under Maintenance**; TO **Under Planning**; TDO can reassign; vehicle excluded from assignment pickers
+- [ ] **Audit trail**: user, timestamp, before/after state for dispatch, checklist completion, skip, and maintenance outcomes
+- [ ] **Automated tests**: transitions for skip, OK, not OK + maintenance + TO rollback
+- [ ] **UAT — skip**: TDO assigns all resources → supervisor dispatches without checklist → TO reaches Dispatch
+- [ ] **UAT — OK**: TDO assigns → supervisor completes checklist → OK → Dispatch
+- [ ] **UAT — maintenance**: TDO assigns → supervisor completes checklist → not OK → vehicle Under Maintenance, TO Under Planning → TDO replans
+a

@@ -345,14 +345,14 @@ apps/
 │   ├── pod/                            # NEW: POD model + capture (POD-01 + DM-01)
 │   └── models.py                       # TransportOrder (+ execution_state, flow_type fields)
 │
+├── fleet_supervisor/                   # NEW: Fleet supervisor ops (DS-01, DS-02) — tenant app
+│   ├── models.py                      #   ChecklistSection, ChecklistItem, VehicleInspection,
+│   │                                  #   ChecklistResponse, DriverAttendance, DriverLeave,
+│   │                                  #   DriverStateLog, WorkingHoursConfig
+│   ├── admin.py                       #   Inspection / attendance / leave / state-log admin
+│   └── services.py                    #   Driver state machine, inspection, under-maintenance
+│
 ├── users/                              # User management (Sprint 1/2)
-│   ├── supervisor/                     # NEW: Checklist, attendance, leave (DS-01, DS-02)
-│   │   ├── models.py                  #   ChecklistSection, ChecklistItem, VehicleInspection,
-│   │   │                              #   ChecklistResponse, DriverAttendance, DriverLeave,
-│   │   │                              #   DriverStateLog
-│   │   ├── admin.py                   #   VehicleInspectionAdmin, DriverAttendanceAdmin,
-│   │   │                              #   DriverLeaveAdmin, DriverStateAdmin
-│   │   └── services.py               #   Driver state machine, working hours guardrail
 │   └── driver_mobile/                  # NEW: Driver responsive web interface (DM-01)
 │       ├── models.py                  #   ExecutionMilestone, ProofOfDelivery
 │       ├── admin.py                   #   Read-only admin views for support/debug
@@ -689,7 +689,7 @@ Menu.MasterData.OperationPoints.View
 - `apps/transport/closure/closure_engine.py` (closure matrices)
 - `apps/operations/scaling/services.py` (token generation, net weight calculation)
 - `apps/quality/checkpoint/services.py` (sampling, decision, resample, override)
-- `apps/users/supervisor/services.py` (driver state machine, working hours guardrail)
+- `apps/fleet_supervisor/services.py` (driver state machine, working hours guardrail)
 
 ### Integration Tests
 
