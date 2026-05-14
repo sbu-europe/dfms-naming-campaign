@@ -120,6 +120,8 @@ When adding or changing admin for Sprint 4, confirm:
 - `DriverLeaveAdmin` — date range, overlap validation, driver state → On Leave
 - `DriverStateAdmin` — state badges, filterable by state/POI
 
+**DS-02-16 (Sprint 4 scope)**: “Attendance grid”, “leave calendar”, and “state board” are **Django Admin** experiences only — rich `ModelAdmin` changelists (`list_display`, `list_filter`, `date_hierarchy`, search, ordering) plus standard forms. No separate responsive calendar component or data-grid SPA in Sprint 4 unless product files a new story.
+
 **Key APIs**:
 - `GET /api/v1/inspections/queue` — TOs pending inspection
 - `POST /api/v1/inspections` — submit checklist, trigger TO status transition

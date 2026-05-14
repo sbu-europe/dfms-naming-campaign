@@ -65,8 +65,10 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 | DS-02-13 | Driver state board API — `GET /api/v1/drivers/state-board` (filterable by state, POI) | DFS-051-13 | Pending |
 | DS-02-14 | TO-02 conflict guard extension — On Leave drivers blocked from new TDO assignment at API level | DFS-051-14 | Pending |
 | DS-02-15 | Working hours guardrail — warning response when daily attendance hours exceed configured max | DFS-051-15 | Pending |
-| DS-02-16 | Supervisor UI — attendance grid, leave calendar, driver state board | DFS-051-16 | Pending |
+| DS-02-16 | Supervisor UI (Sprint 4 = Django Admin only) — see note below | DFS-051-16 | Pending |
 | DS-02-17 | Audit logging on all state transitions, attendance entries, and leave records | DFS-051-17 | Pending |
+
+**Sprint 4 UI delivery (DS-02-16)** — aligns with [Sprint 4 Implementation Overview](../../../../05-modules/SPRINT-4-IMPLEMENTATION-OVERVIEW.md) **Django Admin first**. “Attendance grid”, “leave calendar”, and “driver state board” mean **operational views built with `ModelAdmin` changelists** (columns, `list_filter`, `date_hierarchy` / date-scoped navigation, search, ordering, badges on list rows) plus standard add/change forms — **not** a separate SPA, full-page calendar widget, or custom grid component unless product opens a follow-up story. DS-02-7, DS-02-8, and DS-02-6 (or equivalent read-only state list) satisfy DS-02-16 when exposed in portal nav to the right URLs.
 
 ## API Endpoints
 
@@ -96,8 +98,8 @@ POST   /api/v1/driver-leave/{id}/cancel                         # Cancel leave e
 | Edit / delete attendance | Driver Supervisor |
 | Set driver On Leave | Driver Supervisor |
 | Cancel leave early | Driver Supervisor |
-| View attendance grid | Driver Supervisor |
-| View leave calendar | Driver Supervisor, TDO (read-only) |
+| View attendance grid (Django Admin changelist — filters / date drill-down) | Driver Supervisor |
+| View leave calendar (Django Admin changelist — date hierarchy / filters; not a separate calendar app) | Driver Supervisor, TDO (read-only) |
 
 ## Dependencies
 
@@ -117,5 +119,5 @@ POST   /api/v1/driver-leave/{id}/cancel                         # Cancel leave e
 - [ ] **Working hours guardrail**: API returns warning when daily attendance total exceeds configured max (default 12h); soft block in MVP
 - [ ] **Audit trail complete**: every state transition, attendance record, and leave record logged with user, timestamp, before/after state
 - [ ] **Unit tests**: state transition rules, On Leave → assignment block, working hours calculation, date overlap rejection
-- [ ] **UAT — attendance**: supervisor records attendance → visible in attendance grid with calculated working hours
+- [ ] **UAT — attendance**: supervisor records attendance → visible on **Driver Attendance** admin changelist (“grid”) with calculated working hours
 - [ ] **UAT — leave**: supervisor sets driver On Leave → TDO cannot assign that driver; leave ends or cancelled → driver becomes Available again
