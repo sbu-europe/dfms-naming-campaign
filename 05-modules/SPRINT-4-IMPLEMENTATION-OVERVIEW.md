@@ -114,20 +114,22 @@ When adding or changing admin for Sprint 4, confirm:
 
 **Admin Flows**:
 - Predefined daily inspection checklist (7 sections, 60+ items — Engine, Clutch, Gear Box, Container, Electric, Chassis, Cabin)
-- `VehicleInspectionAdmin` — inspection queue (TOs in `Assigned` status), checklist response inline, save_model validates all responses → TO → `Ready for Dispatch`
-- Reject action with mandatory reason; Under Maintenance action resets linked TO to `Created`
+- `VehicleInspectionAdmin` — **dispatch queue** (TOs in **`ready_for_dispatch`** — implemented), checklist inline, complete → TO **Dispatched** / reject → vehicle **Under Maintenance** + TO **Under Planning**
+- **Maintenance queue** *(planned DS-01-15)* — vehicles **Under Maintenance**; re-inspection → vehicle **Available** on pass (no TO dispatch)
+- Reject action with mandatory reason; `VehicleAdmin.mark_under_maintenance` resets linked **`assigned`** TOs to **`created`**
 - `DriverAttendanceAdmin` — date/driver uniqueness, working hours warning (configurable max, default 12h)
 - `DriverLeaveAdmin` — date range, overlap validation, driver state → On Leave
 - `DriverStateAdmin` — state badges, filterable by state/POI
 
 **DS-02-16 (Sprint 4 scope)**: “Attendance grid”, “leave calendar”, and “state board” are **Django Admin** experiences only — rich `ModelAdmin` changelists (`list_display`, `list_filter`, `date_hierarchy`, search, ordering) plus standard forms. No separate responsive calendar component or data-grid SPA in Sprint 4 unless product files a new story.
 
-**Key APIs**:
-- `GET /api/v1/inspections/queue` — TOs pending inspection
-- `POST /api/v1/inspections` — submit checklist, trigger TO status transition
-- `POST /api/v1/inspections/{id}/reject` — reject with reason
-- `POST /api/v1/vehicles/{id}/under-maintenance` — mark Under Maintenance + TO reset
+**Key APIs** (see [`driver-supervisor-operations.md`](./08-fleet-management/driver-supervisor-operations.md) §7 for authoritative contracts):
+- `GET /api/v1/inspections/queue` — TOs **ready for dispatch**
+- `POST /api/v1/transport-orders/{to_id}/dispatch` — `skip_inspection` | `start_inspection`
+- `PATCH/POST /api/v1/inspections/{id}/responses|approve|reject` — checklist + outcomes
+- `POST /api/v1/vehicles/{id}/under-maintenance` — mark Under Maintenance
 - `GET /api/v1/checklist-template` — read-only sections + items
+- **Planned (DS-01-15–17):** `GET /api/v1/vehicles/under-maintenance`, `POST /api/v1/vehicles/{id}/re-inspection`; `approve`/`reject` branch on `inspection_purpose` for return-to-service
 - CRUD: `/api/v1/driver-attendance`, `/api/v1/driver-leave`
 - `GET /api/v1/drivers/state-board` — filterable driver state board
 
@@ -480,6 +482,17 @@ sequenceDiagram
 - `VehicleInspection` + `ChecklistResponse` capture per-TO inspection results
 - Sections: Engine (9), Clutch (6), Gear Box (5), Container (6), Electric (13), Chassis (5), Cabin (10)
 
+### 2b. Maintenance return-to-service (DS-01 — planned)
+
+**Decision**: Vehicles in **`under_maintenance`** are cleared back to **`available`** only via a **maintenance-clearance** `VehicleInspection` (same checklist, **no** linked TO). Reuse `PATCH/POST …/inspections/{id}/responses|approve|reject` with purpose branching — **do not** call `dispatch_to_after_ready` on clearance approve.
+
+**Rationale**: Closes the inspection loop without master-data admin; preserves audit trail; keeps pre-dispatch and return-to-service side-effects isolated.
+
+**Implications** (see module spec §3.7, §6.7):
+- Migration: `VehicleInspection.inspection_purpose` + nullable `transport_order`
+- Admin maintenance queue + portal nav item; `GET /vehicles/under-maintenance`, `POST /vehicles/{id}/re-inspection`
+- Block clearance when `vehicle.is_active is False` (MDM reactivation required)
+
 ### 3. Execution State via Status + Sub-State (TLS-01)
 
 **Decision**: Extend `TransportOrder` with full §6.8.5 lifecycle using `TOStatus` + `TOSubState` enums, tracked via `TOStatusTransitionLog`.
@@ -770,7 +783,7 @@ Menu.MasterData.OperationPoints.View
 
 **New models** (require migrations):
 - `ChecklistSection`, `ChecklistItem` (+ data migration to seed 7 sections and all items)
-- `VehicleInspection`, `ChecklistResponse`
+- `VehicleInspection`, `ChecklistResponse` (+ **planned** migration: `inspection_purpose`, nullable `transport_order` for DS-01-16)
 - `DriverAttendance`, `DriverLeave`, `DriverStateLog`
 - `ExecutionMilestone`, `ProofOfDelivery`
 - `GateVisitSession`, `GateIn`, `GateOut`, `GateOnDemandTORequest`, `GateActivityLog`
@@ -783,7 +796,7 @@ Menu.MasterData.OperationPoints.View
 
 **Extended models** (add fields):
 - `TransportOrder`: `execution_state`, `flow_type`, `source_channel`, `transfer_type`, denormalized timestamps
-- `Vehicle`: `current_state` enum add `'under_maintenance'`
+- `Vehicle`: `operational_status` uses existing `under_maintenance` / `available` values (no new enum on Vehicle for DS-01 clearance)
 - `Driver`: `state` enum field (Available, Assigned, On Leave, On Execution)
 
 ### RBAC Setup

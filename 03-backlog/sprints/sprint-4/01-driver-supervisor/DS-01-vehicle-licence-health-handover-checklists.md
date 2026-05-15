@@ -21,6 +21,10 @@ prd_refs:
 **I want to** optionally run a full vehicle inspection checklist after TDO (Own Fleet) has assigned vehicle, driver, helper(s), and ETA to a TO, then either release the TO to **Dispatch** or, if inspection fails, park the vehicle in **Under Maintenance** and send the TO back for replanning  
 **So that** dispatch is not blocked when inspection is unnecessary or waived, while unsafe vehicles are removed from service with a clear audit trail and the TO is returned to **Under Planning** for TDO to reassign resources
 
+**As a** Driver Supervisor  
+**I want to** see all vehicles currently in **Under Maintenance**, re-run the daily inspection checklist after repairs, and — when the vehicle passes — set it back to **Available** for TDO assignment  
+**So that** maintained vehicles re-enter the fleet only after a documented sign-off, without relying on master-data admin or informal status changes
+
 ## Business Context
 
 PRD §6.6.1.2 (Phase 1) separates **operational readiness** from master registration (MDM-05, Sprint 2). This story refines **who** moves an assigned TO toward execution and **how** the vehicle checklist fits in.
@@ -50,6 +54,21 @@ Immediately before setting the TO to **Dispatch**, the Driver Supervisor **choos
 - Today’s codebase may use `Assigned` → `Ready for Dispatch` before execution; this story allows **either** retaining `Ready for Dispatch` as an optional intermediate **or** collapsing so the supervisor’s “Dispatch” action is the single gate after `Assigned` — **confirm** with transport-order and trip state diagrams.  
 - **Under Planning** on the TO is the **business** target when inspection fails; if the TO entity has no `under_planning` enum yet, map to the agreed technical state (e.g. extend `TOStatus`, or equivalent rollback to a planning queue) without changing the business rule above.  
 - **Under Maintenance** spelling is canonical for the vehicle master / operational flag.
+
+**Return to service (Driver Supervisor — maintenance queue)**  
+Vehicles enter **Under Maintenance** from this story’s inspection **not OK** path, from `POST …/under-maintenance`, or from master-data rules (e.g. `is_active=False`). The Driver Supervisor needs a dedicated view of **under-maintenance** vehicles (same POI / own-fleet scope as other supervisor queues) to close the loop:
+
+| Step | Behaviour |
+|------|-----------|
+| **List** | Supervisor sees vehicles with `operational_status` = **Under Maintenance** (registration, fleet/POI, date flagged, last inspection outcome if any). |
+| **Re-inspect** | Supervisor starts a **new** daily inspection for that vehicle using the **same predefined checklist** (AC-1). Context is **return-to-service** — no TO in **Ready for Dispatch** is required or created. |
+| **Pass** | On **Vehicle OK** (all items reviewed per AC-1 rules): vehicle `operational_status` → **Available**; inspection stored with type/context indicating **maintenance clearance** (distinct from pre-dispatch inspection on a TO). |
+| **Fail** | On **Vehicle not OK**: vehicle **remains** **Under Maintenance**; inspection rejected with reason; vehicle stays excluded from TDO assignment. |
+
+**Product rules (return-to-service)**  
+- Clearing maintenance is **only** via a **passed** re-inspection on this path (no “set available” without checklist completion).  
+- Vehicles with `is_active=False` in MDM may still appear in the list for visibility but **cannot** be set to **Available** until reactivated in master data — surface a clear blocking message.  
+- Re-inspection does **not** auto-reassign any TO; TDO replans **Under Planning** orders separately when a substitute or this vehicle is ready.
 
 ## Acceptance Criteria
 
@@ -129,6 +148,19 @@ Immediately before setting the TO to **Dispatch**, the Driver Supervisor **choos
 - [x] Vehicle in **Under Maintenance** is **excluded** from new TDO assignment (`TDOAssignmentService.assign_vehicle`)
 - [x] Partial checklist save is allowed (admin/API can save responses while **pending**); **Dispatch** and **reject** finalisation only when completeness / business rules are met (`complete_inspection` / `reject_inspection`)
 
+### AC-4: Under Maintenance vehicle list (Driver Supervisor)
+- [ ] Driver Supervisor has a **maintenance queue** listing vehicles with `operational_status` = **Under Maintenance**, scoped to **own fleet / supervisor POI** (consistent with inspection dispatch queue).
+- [ ] Each row shows at minimum: vehicle registration (or display ID), operational status, **since** (when status became under maintenance, or last status-change timestamp), and **last inspection** summary (date, outcome: rejected / n/a if none).
+- [ ] List supports **search/filter** by registration (and POI if multi-site supervisors exist).
+- [ ] Vehicles flagged under maintenance only via MDM `is_active=False` appear with an indicator that **master-data reactivation** is required before return-to-service.
+
+### AC-5: Re-inspection and return to Available
+- [ ] From the maintenance queue, supervisor can **start re-inspection** for a selected vehicle — creates a new `VehicleInspection` using the **same checklist template** (AC-1); inspection purpose/context = **maintenance clearance** (no linked TO required).
+- [ ] Supervisor completes all checklist items (remarks + per-line `ok` / `issue` / `na` as AC-2); partial save allowed while **pending**.
+- [ ] On **Vehicle OK** (complete re-inspection): vehicle `operational_status` → **Available**; vehicle is **eligible** again for TDO assignment pickers; inspection record retained with supervisor, timestamps, and item-level responses.
+- [ ] On **Vehicle not OK** (reject re-inspection): vehicle **stays** **Under Maintenance**; `rejection_reason` captured; no TO or dispatch side-effects.
+- [ ] **Audit**: maintenance clearance (pass) and failed re-inspection (reject) are logged (who, when, vehicle ID, inspection ID) — align with DS-01-14.
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status (vs `apps/fleet_supervisor` + transport) |
@@ -147,6 +179,9 @@ Immediately before setting the TO to **Dispatch**, the Driver Supervisor **choos
 | DS-01-12 | **Under Maintenance** API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` + TO → **Under Planning** (replace “reset to Created” where story supersedes) | DFS-050-12 | **Partial** — API exists; linked **`assigned`** TOs → **`created`**, not **Under Planning** |
 | DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` (read-only) | DFS-050-13 | **Done** |
 | DS-01-14 | Audit logging: checklist submissions, skip-dispatch, OK / not OK outcomes, Under Maintenance | DFS-050-14 | **Not done** — `log_crud_update` only on `mark_vehicle_under_maintenance`; no audit helper calls on skip/complete/reject |
+| DS-01-15 | **Under Maintenance** vehicle list — admin view + `GET` API (own-fleet / POI scope); columns per AC-4 | DFS-050-15 | **Not started** |
+| DS-01-16 | **Re-inspection** flow — start maintenance-clearance inspection (no TO); reuse checklist responses + complete/reject services with purpose flag | DFS-050-16 | **Not started** |
+| DS-01-17 | **Return to Available** — on re-inspection pass, set `operational_status` → **Available**; guard `is_active=False`; audit event | DFS-050-17 | **Not started** |
 
 ## API Endpoints (implemented — `apps/fleet_supervisor/urls.py`)
 
@@ -161,6 +196,19 @@ POST   /api/v1/inspections/<uuid:inspection_id>/reject
 POST   /api/v1/vehicles/<uuid:vehicle_id>/under-maintenance
 ```
 
+### API Endpoints (planned — maintenance return-to-service)
+
+```
+GET    /api/v1/vehicles/under-maintenance              # maintenance queue (AC-4)
+POST   /api/v1/vehicles/<uuid:vehicle_id>/re-inspection # start maintenance-clearance inspection (AC-5)
+# Reuse existing inspection APIs for responses / approve / reject once inspection_id exists:
+PATCH  /api/v1/inspections/<uuid:inspection_id>/responses
+POST   /api/v1/inspections/<uuid:inspection_id>/approve   # → vehicle Available (AC-5)
+POST   /api/v1/inspections/<uuid:inspection_id>/reject     # → vehicle stays Under Maintenance (AC-5)
+```
+
+> **Contract note:** `approve` on a maintenance-clearance inspection must **not** dispatch a TO; it only transitions vehicle to **Available**. Distinguish inspection `purpose` (or nullable `transport_order`) in API payloads and admin.
+
 ## Access & Permissions
 
 > Full menu structure and role-access matrix: [`README.md`](../README.md)
@@ -171,6 +219,8 @@ POST   /api/v1/vehicles/<uuid:vehicle_id>/under-maintenance
 | Skip checklist and set TO to Dispatch | Driver Supervisor |
 | Complete daily inspection checklist and record OK / not OK | Driver Supervisor |
 | Mark vehicle Under Maintenance (from inspection not OK) | Driver Supervisor |
+| View **Under Maintenance** vehicle list (maintenance queue) | Driver Supervisor |
+| Start re-inspection and clear vehicle to **Available** (after passed checklist) | Driver Supervisor |
 | View inspection history (read-only) | Driver Supervisor, TDO, Dispatch Manager |
 | View vehicle status board | Driver Supervisor, TDO (read-only) |
 
@@ -179,6 +229,7 @@ POST   /api/v1/vehicles/<uuid:vehicle_id>/under-maintenance
 - **Requires**: MDM-05 (vehicles), TO-02 — TDO (Own Fleet) assigns **vehicle**, **driver**, **helper**, **ETA**; TO in **Assigned** (or agreed equivalent)
 - **Requires**: Product/technical decision on TO state model for **Under Planning** vs existing `created` / new enum; Trip/TO alignment for **Dispatch**
 - **Enables**: DM-01 and driver execution — **update** downstream gates: execution may require “supervisor-released to Dispatch” rather than “checklist completed” only
+- **Related**: TDO assignment pickers must respect **Available** only — return-to-service unblocks the same exclusion introduced in AC-3
 
 ## Definition of Done
 
@@ -192,3 +243,7 @@ POST   /api/v1/vehicles/<uuid:vehicle_id>/under-maintenance
 - [ ] **UAT — skip**: (manual QA / not evidenced in repo)
 - [ ] **UAT — OK**: (manual QA / not evidenced in repo)
 - [ ] **UAT — maintenance**: (manual QA / not evidenced in repo)
+- [ ] **Maintenance queue**: supervisor sees all **Under Maintenance** vehicles for their scope (AC-4)
+- [ ] **Re-inspection pass**: full checklist → vehicle **Available**; vehicle appears in TDO assignment (AC-5)
+- [ ] **Re-inspection fail**: vehicle stays **Under Maintenance**; reason recorded (AC-5)
+- [ ] **MDM guard**: inactive vehicle cannot be cleared to **Available** without reactivation message (AC-5)
