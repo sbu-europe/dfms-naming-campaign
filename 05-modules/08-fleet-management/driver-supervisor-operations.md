@@ -2,10 +2,10 @@
 
 ## module: 08-fleet-management
 specification: Driver Supervisor Operations
-version: 2.1
+version: 2.2
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-14
+last_updated: 2026-05-15
 related_stories: DFS-050 (DS-01), DFS-051 (DS-02)
 jira_epic: DFS-070
 
@@ -13,7 +13,7 @@ jira_epic: DFS-070
 
 ## Overview
 
-The **Driver Supervisor Operations** specification covers pre-movement vehicle inspections, driver state management, workforce attendance, and leave management for own-fleet execution. This layer sits **between TDO assignment (Sprint 3)** and **driver field execution (Sprint 4 DM-01)**, enforcing that vehicles and drivers meet operational readiness criteria before a Transport Order can progress to active execution.
+The **Driver Supervisor Operations** specification covers pre-dispatch vehicle inspections (optional checklist for own fleet), driver state management, workforce attendance, and leave management. **As implemented**, the inspection and dispatch gate applies when a Transport Order is already **Ready for Dispatch** (after TDO has assigned resources and set ETA per `TDOAssignmentService` in `apps/transport/services.py`). The supervisor either **skips inspection** and dispatches immediately or **starts** a pending `VehicleInspection`, completes the checklist, and then the TO moves to **Dispatched** (own fleet also transitions the linked `Trip` via `dispatch_to_after_ready` in `apps/fleet_supervisor/services.py`).
 
 Unlike master data management (MDM-05 Vehicle, MDM-06 Driver from Sprint 2), this module captures **operational truths** — daily inspections, driver state transitions, attendance, leave windows, and maintenance decisions — that change frequently and gate field execution.
 
@@ -33,10 +33,10 @@ class FleetSupervisorConfig(AppConfig):
     verbose_name = "Fleet Supervisor"
 ```
 
-**Upgrade note**: If a tenant database previously applied migrations for the old `supervisor` app label (`apps/users/supervisor`), remove those rows from `django_migrations` and reconcile tables before applying `fleet_supervisor` migrations, or reset the tenant schema — both apps use the same physical `db_table` names.
+**Legacy note**: A historical `apps/users/supervisor` package still exists in the repository tree but is **not** listed in `INSTALLED_APPS`. Production tenants use `apps.fleet_supervisor` only (`TENANT_APPS` in `config/settings/base.py`). If an old tenant schema ever had a different app label for the same tables, reconcile `django_migrations` before applying `fleet_supervisor` migrations.
 
 **Dependencies**: MDM-05 (Vehicle), MDM-06 (Driver / `users.Driver`), `05-transport` (TO execution state), `01-foundation` (RBAC)
-**Enables**: TDO assignment conflict checks (leave/maintenance), driver execution action guards, fleet readiness dashboard
+**Enables**: Supervisor dispatch (skip vs checklist) after TDO ready-for-dispatch, TDO assignment conflict checks (leave / under-maintenance vehicle), driver execution guards (partial — see §6.5), fleet readiness views in admin/API
 
 ---
 
@@ -54,169 +54,72 @@ Tenant portal navigation is **not** a nested tree in the API. It is defined in `
 - **Visibility**: `_item_visible()` grants an item if the user matches `permission_any` (resolved permission codes must intersect the item's list), or matches optional `role_any` (OR shortcut before permission check), unless blocked by `role_exclude`.
 - **Platform admin** uses `PLATFORM_NAV_SECTIONS` only (tenant ops menus are omitted).
 
-**Implemented in code**: Add a `**heading`: `"Fleet operations"`** block to `PORTAL_NAV_SECTIONS` in `apps/core/portal_navigation.py` with flat links to `fleet_supervisor` Django Admin changelists. Use `permission_any` with `Fleet.*` permission codes (see §8). Example structure (add after the Transport section):
+**Implemented in code**: `PORTAL_NAV_SECTIONS` in `apps/core/portal_navigation.py` includes a **Fleet operations** block with these tenant portal links (flat items):
 
-```python
-{
-    "heading": "Fleet operations",
-    "icon": "clipboard2-check",
-    "items": [
-        {
-            "id": "fleet_inspection_queue",
-            "label": "Vehicle Inspections",
-            "url": "/admin/fleet_supervisor/vehicleinspection/",
-            "icon": "clipboard2-check",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_INSPECTION_VIEW_QUEUE,
-                PermissionCodes.FLEET_DS_INSPECTION_SUBMIT,
-            ],
-            "role_any": ["driver_supervisor"],
-        },
-        {
-            "id": "fleet_checklist_reference",
-            "label": "Checklist Reference",
-            "url": "/admin/fleet_supervisor/checklistsection/",
-            "icon": "list-check",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_INSPECTION_VIEW_QUEUE,
-                PermissionCodes.FLEET_DS_INSPECTION_VIEW_HISTORY,
-            ],
-            "role_any": ["driver_supervisor", "tdo_own_fleet"],
-        },
-        {
-            "id": "fleet_driver_state_board",
-            "label": "Driver State Board",
-            "url": "/admin/fleet_supervisor/driverstatelog/",
-            "icon": "person-lines-fill",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW,
-            ],
-            "role_any": ["driver_supervisor", "tdo_own_fleet"],
-        },
-        {
-            "id": "fleet_attendance",
-            "label": "Driver Attendance",
-            "url": "/admin/fleet_supervisor/driverattendance/",
-            "icon": "calendar-check",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_ATTENDANCE_WRITE,
-                PermissionCodes.FLEET_DS_ATTENDANCE_READ,
-            ],
-            "role_any": ["driver_supervisor"],
-        },
-        {
-            "id": "fleet_leave",
-            "label": "Driver Leave",
-            "url": "/admin/fleet_supervisor/driverleave/",
-            "icon": "calendar-x",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_LEAVE_WRITE,
-                PermissionCodes.FLEET_DS_LEAVE_READ,
-            ],
-            "role_any": ["driver_supervisor"],
-        },
-        {
-            "id": "fleet_working_hours_config",
-            "label": "Working Hours Config",
-            "url": "/admin/fleet_supervisor/workinghoursconfig/",
-            "icon": "clock",
-            "permission_any": [
-                PermissionCodes.FLEET_DS_ATTENDANCE_WRITE,
-            ],
-            "role_any": ["driver_supervisor"],
-        },
-    ],
-},
-```
+| Item id | Label | Admin URL | `permission_any` (any one grants) | `role_any` |
+| --- | --- | --- | --- | --- |
+| `fleet_dispatch_queue` | Dispatch queue | `/admin/fleet_supervisor/vehicleinspection/dispatch-queue/` | `FLEET_DS_INSPECTION_VIEW_QUEUE`, `FLEET_DS_INSPECTION_SUBMIT` | `driver_supervisor`, `tdo_own_fleet` |
+| `fleet_inspection_queue` | Inspection records | `/admin/fleet_supervisor/vehicleinspection/` | same as above | `driver_supervisor`, `tdo_own_fleet` |
+| `fleet_attendance` | Driver Attendance | `/admin/fleet_supervisor/driverattendance/` | `FLEET_DS_ATTENDANCE_WRITE`, `FLEET_DS_ATTENDANCE_READ` | `driver_supervisor` |
+| `fleet_leave` | Driver Leave | `/admin/fleet_supervisor/driverleave/` | `FLEET_DS_LEAVE_WRITE`, `FLEET_DS_LEAVE_READ` | `driver_supervisor` |
+| `fleet_working_hours_config` | Working Hours Config | `/admin/fleet_supervisor/workinghoursconfig/` | `FLEET_DS_ATTENDANCE_WRITE` | `driver_supervisor` |
+
+**Not linked from the portal today** (models are registered in `apps/fleet_supervisor/admin.py`; open by URL or app index): **Checklist Sections / Items** (`/admin/fleet_supervisor/checklistsection/`), **Driver State Logs** (`/admin/fleet_supervisor/driverstatelog/`).
 
 Re-seed RBAC (`python manage.py seed_dfms_rbac`) after permission catalog changes so roles receive new permission rows; users may need to **log out and back in** (permission cache TTL ~5 minutes).
 
-### 0.2 Fleet operations — target information architecture (product)
+### 0.2 Fleet operations — information architecture vs portal (as implemented)
 
-The tree below is **conceptual grouping** for DS-01 / DS-02 UX (screens and drill-down), **not** a representation of nested sidebar JSON.
+The tree below remains useful **product language**; the **tenant portal** currently exposes only the items in §0.1 (dispatch queue, inspection records, attendance, leave, working hours). **Checklist reference** and **driver state log** admins exist but are reached via Django admin URLs, not sidebar links.
 
-**Sprint 4 binding**: DS-02 “attendance grid”, “leave calendar”, and “state board” are implemented as **Django Admin** changelists and forms (see §0.1 links) — `list_display`, `list_filter`, `date_hierarchy`, search — not as a separate calendar/grid SPA unless a later story explicitly adds one.
+**Sprint 4 binding**: Attendance “grid”, leave “calendar”, and the state audit trail are **Django Admin** changelists (`DriverAttendanceAdmin`, `DriverLeaveAdmin`, `DriverStateLogAdmin`) — not standalone SPAs.
 
 ```
-Fleet operations (target section — flat items when implemented)
-├── Vehicle Inspections              — queue + history + checklist reference (in-app or separate admin URLs)
-│     ├── Inspection Queue
-│     ├── Inspection History
-│     └── Checklist Reference
-├── Driver State Board               — real-time driver state overview
-│     └── State History              — full audit log (detail view / drawer, not a second sidebar node)
-├── Driver Attendance
-│     ├── Mark Attendance
-│     └── Attendance Log
-└── Driver Leave Management
-      ├── Register Leave
-      └── Leave Calendar
+Fleet operations (portal + admin)
+├── Dispatch queue (portal)          — TOs Ready for Dispatch; skip inspection or open checklist
+├── Inspection records (portal)     — VehicleInspection changelist + change form + submit / reject
+├── Checklist reference (admin URL) — ChecklistSection / ChecklistItem read-only
+├── Driver state log (admin URL)    — DriverStateLog read-only audit ("state board" data shape)
+├── Driver Attendance (portal)
+└── Driver Leave + Working Hours Config (portal)
 ```
 
 ### Role → menu mapping
 
 
-| Role              | Fleet operations (target items)    | Master Data (Driver/Vehicle)  |
-| ----------------- | ---------------------------------- | ----------------------------- |
-| Driver Supervisor | ✓ (full operational CRUD)          | — (no Master Data permission) |
-| Tenant Admin      | ✓ (read-only config view)          | ✓ (master CRUD)               |
-| TDO               | ✓ (state board, leave — read-only) | — (no Master Data permission) |
-| Driver            | —                                  | — (no Master Data permission) |
+| Role              | Portal Fleet operations links (§0.1) | Checklist / state log (admin URLs) | Master Data (Driver/Vehicle) |
+| ----------------- | -------------------------------------- | ------------------------------------ | ---------------------------- |
+| Driver Supervisor | ✓ (per permissions)                  | ✓ with fleet permissions           | — (unless separate MDM perms) |
+| Tenant Admin      | ✓ (tenant admin bypass in fleet admin) | ✓                                  | ✓ (master CRUD)              |
+| TDO               | ✓ dispatch + inspection **read** (VIEW_QUEUE; SUBMIT only for roles that have it) | State log: **not** in portal; has `FLEET_DS_DRIVER_STATE_VIEW` for API/admin URL | — (no default MDM write)     |
+| Driver            | —                                      | —                                    | —                            |
 
+### Screen hierarchy (aligned with code)
 
- **Fleet operations column** describes **target** access once Fleet operations menu items exist in `portal_navigation.py`. Until then, portal visibility for `driver_supervisor` follows whatever sections/items intersect that role's seeded `Menu.`* / transport permissions (see `apps/core/role_seed_data.py`).
-
-### Screen hierarchy
-
-**Target product flow** (same IA as §0.2). **Sprint 4:** implement using **Django Admin** routes (`ModelAdmin` list/change); later phases may introduce SPA surfaces for the same IA without changing the underlying models or APIs.
+**Sprint 4:** Primary supervisor vehicle flow uses **Django Admin** custom views + templates under `templates/admin/fleet_supervisor/`.
 
 ```
-Fleet operations → Vehicle Inspections
-  ├── Inspection Queue (TOs in Assigned status)
-  │     └── [row click] ──► Inspection Form
-  │                           ├── Vehicle + TO context (read-only header)
-  │                           ├── Checklist sections (7 predefined sections)
-  │                           │     └── Items per section — Remarks field per item
-  │                           ├── [Submit Inspection]
-  │                           │     └── TO status → Ready for Dispatch
-  │                           │     └── inspection_completed_at set
-  │                           └── [Reject Vehicle]
-  │                                 └── Rejection reason required (_RejectReasonForm)
-  │                                 └── TO stays Assigned; vehicle flagged
-  │
-  ├── Inspection History
-  │     └── Searchable by vehicle, TO, supervisor, date range, outcome
-  │
-  └── Checklist Reference (read-only)
-        └── All 7 sections + items (predefined, immutable)
-
-Fleet operations → Driver State Board
-  └── **Sprint 4:** Django Admin changelist on `DriverStateLog` (or read-only aggregate of `Driver` + last log) — product “board” = filtered/sorted table with state badges (not a canvas dashboard). Columns: Driver, Current State (badge), POI, Last Transition, Changed By; filters: state, POI; row click → State History (audit log)
-
-Fleet operations → Driver Attendance
-  ├── Mark Attendance
-  │     └── Form: Driver (dropdown), POI (dropdown), Entry Time, Exit Time (nullable), Notes
-  │           └── [Save] ──► Attendance Log (row added)
-  │                          └── Auto-calculate: working_hours = exit - entry
-  │                          └── Warning if hours > configured max (default 12h)
-  │
-  └── Attendance Log
-        └── **Sprint 4:** Django Admin changelist on `DriverAttendance` — product “grid” = `list_display` columns (driver, POI, date, entry, exit, hours)
-        └── Table: Driver, POI, Date, Entry, Exit, Hours, Notes
-              └── [Edit] / [Delete] (same-day only)
-
-Fleet operations → Driver Leave Management
-  ├── Register Leave
-  │     └── Form: Driver (dropdown), Start Date, End Date, Reason (text)
-  │           └── [Save] ──► Driver state → On Leave (via state machine service)
-  │                          └── TDO assignment guard: conflict check enforced
-  │
-  └── Leave Calendar
-        └── **Sprint 4:** Django Admin changelist on `DriverLeave` (`date_hierarchy` on start/end, `list_filter` by driver/status) — product “calendar” = date-scoped list, not a third-party calendar widget
-        └── List: Driver, Start Date, End Date, Reason, Status (Active / Upcoming / Expired)
-              └── [Cancel] (if not yet started or active — driver → Available)
+Fleet operations → Supervisor dispatch queue
+  └── TOs in Ready for Dispatch
+        ├── [Skip inspection] ──► TO Dispatched (Trip dispatched own fleet)
+        └── [Start inspection] ──► Pending VehicleInspection + checklist inline
+              ├── [Save] ──► persist checklist lines only
+              ├── [Complete inspection & dispatch] (POST _submit_inspection)
+              │     └── All checklist lines present → completed + TO Dispatched
+              └── [Reject] (custom URL) ──► rejected + vehicle Under Maintenance + TO Under Planning
 ```
 
+```
+Fleet operations → Driver State Log (admin)
+  └── Changelist: driver, to_state badge, from_state, timestamp, changed_by, trigger
+        └── API GET /api/v1/drivers/state-board uses latest log per driver + optional POI filter
+
+Fleet operations → Driver Attendance (portal)
+  └── Same as prior spec: changelist + same-day edit/delete + CSV export action
+
+Fleet operations → Driver Leave (portal)
+  └── Changelist + overlap guard on save + admin action Cancel selected leave(s)
+```
 ---
 
 ## 1. Roles & Access
@@ -253,7 +156,7 @@ ChecklistSection {
 }
 ```
 
-**Predefined sections** (seeded via data migration — DS-01-1):
+**Predefined sections** (seeded in migration `apps/fleet_supervisor/migrations/0002_seed_checklist.py`):
 
 
 | #   | Section   | Items Count |
@@ -310,7 +213,8 @@ VehicleInspection {
     # Inspection outcome
     status: enum                       # ['pending', 'completed', 'rejected']
     inspection_completed_at: DateTime (nullable)  # Set on successful completion
-    rejection_reason: text (nullable)  # Required when status = rejected
+    completion_remarks: text (blank allowed)      # Optional supervisor summary on completion
+    rejection_reason: text (blank allowed)        # Required (non-empty) when rejecting via service/admin
 
     created_at: DateTime               # TenantAwareModel
     updated_at: DateTime               # TenantAwareModel
@@ -476,58 +380,58 @@ WorkingHoursConfig {
 
 - The `current_state` field **already exists** using `DriverCurrentState` enum (`TextChoices`).
 - **Current values**: `AVAILABLE = "available"`, `ASSIGNED = "assigned"`, `ON_LEAVE = "on_leave"`.
-- **DS-02-1 migration**: Add `ON_EXECUTION = "on_execution", "On Execution"` to `DriverCurrentState`.
+- **DS-02-1**: `ON_EXECUTION = "on_execution"` is present on `DriverCurrentState` in `apps/users/models.py` (with migration in repo).
 - All state machine transitions use `driver.current_state` (not `driver.state`).
 - All transitions go through the `DriverStateMachine` service (§5.3 / §6.4).
 
 ---
 
-## 3. Vehicle Inspection Lifecycle
+## 3. Vehicle Inspection & Supervisor Dispatch (as implemented)
 
 ### 3.1 Predefined checklist (no configuration)
 
-The daily inspection checklist is **predefined and immutable**. All 7 sections and 54 items are seeded via a data migration (DS-01-1). No user can add, edit, or delete sections or items.
+The daily inspection checklist is **predefined and immutable**. All 7 sections and 54 items are seeded in `apps/fleet_supervisor/migrations/0002_seed_checklist.py`. No user can add, edit, or delete sections or items via admin (`ReadOnlyFleetAdmin` on section/item models).
 
-```
-Data Migration (one-time)
-  └─► Seed ChecklistSection (7 sections)
-        └─► Seed ChecklistItem (54 items across sections)
-              └─► Available system-wide (read-only reference)
-```
+When a pending inspection is opened, `ensure_checklist_responses_for_inspection()` in `apps/fleet_supervisor/services.py` creates any missing `ChecklistResponse` rows with **default `status = ok`** and empty remarks; supervisors adjust lines to Issue / N/A as needed.
 
-### 3.2 Inspection flow (TO-driven)
+### 3.2 Transport order status context
 
-```
-TDO assigns vehicle + driver to TO (Sprint 3 TO-02)
-  └─► TO status = Assigned
-        └─► TO appears in Supervisor Inspection Queue
+Own-fleet assignment flow (see `TDOAssignmentService` in `apps/transport/services.py`): vehicle and driver assignment can move a TO to **Assigned**; setting **ETA** moves the TO to **Ready for Dispatch** (and creates trip data as implemented in transport). **Vehicle inspection does not run on Assigned** in code; it runs only while the TO is **Ready for Dispatch**.
 
-Driver Supervisor
-  └─► Opens TO from inspection queue
-        └─► Creates VehicleInspection (auto-linked to TO + vehicle)
-              └─► Fills ChecklistResponse for each item (status + remarks)
-                    ├─► [Submit — All OK]
-                    │     └─► VehicleInspection.status = completed
-                    │           └─► inspection_completed_at = now()
-                    │                 └─► TO status: Assigned → Ready for Dispatch
-                    │
-                    └─► [Reject]
-                          └─► VehicleInspection.status = rejected
-                                └─► rejection_reason required (_RejectReasonForm)
-                                      └─► TO stays in Assigned status
-                                            └─► Vehicle flagged for follow-up
-```
+### 3.3 Supervisor dispatch queue (admin + API)
 
-### 3.3 Under Maintenance flow (independent action)
+- **Admin**: Custom view `VehicleInspectionAdmin.dispatch_queue_view` at `/admin/fleet_supervisor/vehicleinspection/dispatch-queue/` lists TOs in `TOStatus.READY_FOR_DISPATCH`. For each own-fleet row with a vehicle, the supervisor can:
+  - **Skip inspection** — calls `supervisor_dispatch_intent(..., "skip_inspection")` → `dispatch_to_after_ready()` → TO **Dispatched** (own fleet: trip must be `ASSIGNED` then transitioned to `DISPATCHED` via `TripService`).
+  - **Start inspection** — calls `supervisor_dispatch_intent(..., "start_inspection")` → creates a **pending** `VehicleInspection` (if none) and redirects to the inspection change form.
+- **API**: `POST /api/v1/transport-orders/<to_id>/dispatch` with body `{"intent": "skip_inspection"|"start_inspection"}` (`TransportOrderSupervisorDispatchView` in `apps/fleet_supervisor/views.py`).
 
-```
-Driver Supervisor
-  └─► Marks vehicle as Under Maintenance (via VehicleAdmin action or API)
-        └─► Vehicle.operational_status = OperationalStatus.UNDER_MAINTENANCE
-              └─► Vehicle excluded from new TDO assignments
-                    └─► Any linked TO in Assigned status → reset to Created (vehicle unlinked)
-                          └─► TDO must reassign vehicle
-```
+Skip is **blocked** if a pending inspection already exists for that TO (supervisor must complete or reject it first).
+
+### 3.4 Completing an inspection
+
+- **Admin**: Saving related inlines with POST key **`_submit_inspection`** triggers `complete_inspection()` after inlines persist (`VehicleInspectionAdmin.save_related`).
+- **API**: `PATCH /api/v1/inspections/<id>/responses` (optional) then `POST /api/v1/inspections/<id>/approve` with optional `remarks` and optional `responses` (`approve_inspection` → `complete_inspection`).
+
+`complete_inspection()` requires:
+
+- Inspection **pending**
+- Response count equals total `ChecklistItem` count
+- Linked TO status **ready_for_dispatch**
+
+On success: inspection → **completed**, `inspection_completed_at` set, `completion_remarks` stored, then **`dispatch_to_after_ready`** (TO → **dispatched**, trip dispatched for own fleet).
+
+### 3.5 Rejecting an inspection
+
+`reject_inspection()` (admin reject URL + `POST /api/v1/inspections/<id>/reject`) requires a **non-empty reason** and:
+
+- Inspection **pending**
+- Linked TO **ready_for_dispatch**
+
+Effects: inspection → **rejected** with `rejection_reason`; vehicle `operational_status` → **under_maintenance**; TO → **`under_planning`** with vehicle, driver cleared and helpers cleared; **attempt** to transition driver to **available** via `DriverStateMachine` (ignored if transition invalid).
+
+### 3.6 Under Maintenance (vehicle admin action)
+
+`VehicleAdmin.mark_under_maintenance` in `apps/master_data/admin.py` calls `mark_vehicle_under_maintenance()` — sets vehicle under maintenance and resets linked TOs in **`assigned`** back to **`created`** with vehicle/driver unlinked (unchanged from earlier plan; **not** the same as inspection rejection, which targets **ready_for_dispatch** TOs).
 
 ---
 
@@ -568,7 +472,7 @@ The four states map to `DriverCurrentState` in `apps/users/models.py`:
 | `DriverCurrentState.AVAILABLE`    | `"available"`    | Available                          |
 | `DriverCurrentState.ASSIGNED`     | `"assigned"`     | Assigned                           |
 | `DriverCurrentState.ON_LEAVE`     | `"on_leave"`     | On Leave                           |
-| `DriverCurrentState.ON_EXECUTION` | `"on_execution"` | On Execution *(DS-02-1 adds this)* |
+| `DriverCurrentState.ON_EXECUTION` | `"on_execution"` | On Execution |
 
 
 ### 4.2 Transition rules
@@ -634,7 +538,7 @@ class FleetSupervisorAdminBase(AdminPaginationMixin, TenantOnlyAdminMixin, admin
     def _has_fleet_permission(self, request, write: bool = False) -> bool:
         if self._is_platform(request):
             return False
-        if self._tenant_admin_allowed(request) or request.user.is_superuser:
+        if self._tenant_admin_allowed(request):
             return True
         perms = request.user.get_all_permissions()
         if "*" in perms:
@@ -716,6 +620,8 @@ class ChecklistItemAdmin(ReadOnlyFleetAdmin):
 
 ### 5.3 VehicleInspection Admin (DS-01-3, DS-01-4, DS-01-5, DS-01-6)
 
+Implementation: `VehicleInspectionAdmin` in `apps/fleet_supervisor/admin.py`.
+
 ```python
 @admin.register(VehicleInspection)
 class VehicleInspectionAdmin(FleetSupervisorAdminBase):
@@ -724,50 +630,53 @@ class VehicleInspectionAdmin(FleetSupervisorAdminBase):
     _ds_readonly_roles = ("tdo_own_fleet",)
 ```
 
-**List View** (DS-01-3):
+**Custom templates**: `change_list_template`, `change_form_template` under `templates/admin/fleet_supervisor/vehicleinspection/`; inline uses `checklist_inline.html` with per-line status/remarks.
 
-- Columns: TO Reference, Vehicle (registration), Supervisor, Status (badge), Inspection Date
-- Filters: `status`, `vehicle`
-- Search: TO number (`transport_order__to_number`)
-- Default queryset: filtered to TOs in `Assigned` status (inspection queue); expose History tab via separate URL or filter toggle
+**Dispatch queue** (not the changelist): `get_urls()` registers `dispatch-queue/` → `dispatch_queue_view` — lists **TOs in `ready_for_dispatch`**, links to start/skip inspection (see §3.3). Changelist adds `dispatch_queue_url` in context for navigation.
 
-**Change Form** (DS-01-4):
+**List view (inspection records)**:
 
-- Header fields (read-only): TO reference, vehicle registration, supervisor name
-- Inline: `ChecklistResponseInline` (TabularInline) — all items grouped by section; `status` dropdown + `remarks` textarea per item
-- Completed inspections: all fields read-only (`get_readonly_fields` returns all when `obj.status == 'completed'`)
+- `list_display`: `transport_order`, `vehicle`, `completed_by` (supervisor display name), `status_badge`, `inspection_completed_at`
+- `list_filter`: `status`, `vehicle`; `search_fields`: `transport_order__to_number`
+- **Default queryset**: excludes **rejected** unless the user filters by status (pending + completed only when no `status__exact` query param).
 
-`**save_model`** (DS-01-5):
+**Change form**:
 
-- Validates all 54 `ChecklistResponse` entries are filled (`inspection.responses.count() == ChecklistItem.objects.count()`)
-- Sets `inspection.status = 'completed'`, `inspection.inspection_completed_at = timezone.now()`
-- Transitions TO status: `Assigned` → `Ready for Dispatch` in `@transaction.atomic`
-- Uses `self.message_user(request, ..., level=messages.SUCCESS)` for user feedback
+- Fieldsets include `transport_order`, `vehicle`, `supervisor`, `status`, `completion_remarks`, `rejection_reason` plus collapsed timestamps.
+- `ChecklistResponseInline`: checklist item read-only; status + remarks editable when user has submit permission; TDO read-only role can **view** inline via custom `has_*_permission` on the inline.
+- **Read-only rules**: If status is **completed**, all model fields become read-only. For pending/rejected, `transport_order`, `vehicle`, `supervisor`, `status`, `rejection_reason` are read-only once the object exists; `completion_remarks` read-only when not pending.
 
-**Reject action** (DS-01-6):
+**Completing an inspection (not plain “Save”)**:
 
-- Custom admin action using `_RejectReasonForm` (Django `Form` with `reason: CharField(required=True)`)
-- Rendered via `self.admin_site.admin_view()` — custom URL via `get_urls()`
-- Sets `inspection.status = 'rejected'`, `inspection.rejection_reason = reason`
-- TO stays in `Assigned` status; vehicle flagged for follow-up
-- Pattern: intermediate confirmation view (like transport `create_from_tr_view`) rendered with `TemplateResponse`
+- Checklist persistence uses normal admin save for inlines.
+- **`save_related`**: if `request.POST` contains **`_submit_inspection`**, calls `complete_inspection()` with optional `completion_remarks` from the form; on `BusinessRuleError`, surfaces message and raises `ValidationError`.
+- Success message states the TO is **Dispatched** (matches `dispatch_to_after_ready`).
+
+**Reject flow**:
+
+- `get_urls()` adds `<uuid:inspection_id>/reject/` → `_reject_view` with `_RejectReasonForm`; on POST calls `reject_inspection()` (see §3.5).
 
 ### 5.4 VehicleAdmin — Under Maintenance action (DS-01-7)
 
-**Custom action** added to the existing `VehicleAdmin` in `apps/master_data/admin.py`:
+**Custom action** on `VehicleAdmin` in `apps/master_data/admin.py`:
 
 ```python
 @admin.action(description="Mark selected vehicle(s) as Under Maintenance")
 def mark_under_maintenance(self, request, queryset):
     from apps.fleet_supervisor.services import mark_vehicle_under_maintenance
+
+    total_reset = 0
     for vehicle in queryset:
-        mark_vehicle_under_maintenance(vehicle.id, performed_by=request.user)
-    self.message_user(request, f"{queryset.count()} vehicle(s) marked Under Maintenance.")
+        reset_ids = mark_vehicle_under_maintenance(vehicle.id, performed_by=request.user)
+        total_reset += len(reset_ids)
+    msg = f"{queryset.count()} vehicle(s) marked Under Maintenance."
+    if total_reset:
+        msg += f" {total_reset} linked Transport Order(s) reset to Created."
+    self.message_user(request, msg)
 ```
 
 - Sets `Vehicle.operational_status = OperationalStatus.UNDER_MAINTENANCE`
-- Resets any linked `Assigned` TOs → `Created` (vehicle and driver unlinked)
-- TDO must reassign vehicle
+- Resets any linked **`assigned`** TOs → **`created`** (vehicle and driver unlinked)
 
 ### 5.5 DriverStateLog Admin / Driver State Board (DS-02-6)
 
@@ -778,15 +687,14 @@ class DriverStateLogAdmin(ReadOnlyFleetAdmin):
     _ds_readonly_roles = ("tdo_own_fleet",)
 ```
 
-**List View** (serves as the Driver State Board):
+**List View** (audit trail / “state board”):
 
-- Columns: Driver Name, Current State (badge via `state_badge` method using `format_html`), POI, Timestamp (Last Transition), Changed By, Trigger
-- `state_badge` method: colour-coded state labels using `dfms-badge--`* CSS classes (same pattern as `_to_badge` in `transport/admin.py`)
-- Filters: `trigger` (manual/auto), `to_state`
-- Search: driver name (`driver__user__first_name`, `driver__user__last_name`)
-- Read-only (no add/edit/delete — audit log)
+- Columns: `driver`, **`state_badge`** (from **`to_state`** on the log row, not live driver aggregate), **`from_state`**, `timestamp`, `changed_by`, `trigger`
+- There is **no POI column** on this changelist in code (POI filtering on the **API** state board uses `driver__permanent_vehicle__assigned_poi`; see §7.2).
+- Filters: `trigger`, `to_state`; search: driver user first/last name
+- Read-only (no add/edit/delete)
 
-**State badge helper** (follow `transport/admin.py` pattern):
+**State badge helper** (log `to_state`):
 
 ```python
 _STATE_BADGE = {
@@ -858,19 +766,17 @@ class DriverLeaveAdmin(FleetSupervisorAdminBase):
 - Fields: `driver`, `start_date`, `end_date`, `reason`
 - `save_model`:
   - Sets `registered_by = request.user` on creation
-  - Validates no overlapping leave for same driver (`DriverLeave.objects.filter(driver=driver, cancelled_at__isnull=True, end_date__gte=start_date, start_date__lte=end_date).exclude(pk=obj.pk)`)
-  - Transitions driver `current_state` → `DriverCurrentState.ON_LEAVE` via state machine service when `start_date <= date.today()`
-  - Logs transition to `DriverStateLog`
+  - Overlap check: if an overlapping non-cancelled leave exists, shows **error** message and **returns without calling `super().save_model`** (record not saved)
+  - After save: if `start_date <= date.today()`, attempts `DriverStateMachine` → `ON_LEAVE` (warning only if `InvalidStatusTransitionError`)
 
-**Cancel action**:
+**Cancel**:
 
-- Sets `cancelled_at = timezone.now()`, `cancelled_by = request.user`
-- Transitions driver `current_state` → `DriverCurrentState.AVAILABLE` via state machine service
+- Admin **action** `cancel_leave` on selected rows: sets `cancelled_at` / `cancelled_by`, then if driver is still `ON_LEAVE`, transitions to **`AVAILABLE`** (swallows invalid transition)
 
 **Validations**:
 
 - `end_date >= start_date` (form-level `clean()`)
-- No overlapping leave windows for same driver (service-level check)
+- No overlapping leave windows for same driver (admin `save_model` guard; API returns 400 on overlap)
 
 ### 5.8 WorkingHoursConfig Admin
 
@@ -881,7 +787,9 @@ class WorkingHoursConfigAdmin(FleetSupervisorAdminBase):
     _fleet_write_perm = PermissionCodes.FLEET_DS_ATTENDANCE_WRITE
 ```
 
-- One config per tenant (use `get_or_create` in `save_model`); hide the "Add" button if one already exists
+- `list_display`: `max_daily_hours`, `warning_enabled`, `updated_at`
+- **`has_add_permission`**: returns `False` if any config row already exists (single row per tenant in practice)
+- **`save_model`**: on add, if a row already exists, shows error and returns without saving; otherwise delegates to `ModelAdmin.save_model` (working-hours warnings for attendance use `WorkingHoursConfig.objects.get_or_create` in `check_working_hours_warning`, independent of this guard)
 
 ---
 
@@ -947,80 +855,33 @@ def mark_vehicle_under_maintenance(vehicle_id, performed_by):
     return reset_to_ids
 ```
 
-### 6.3 Inspection Completion → TO Status Transition (DS-01-5)
+### 6.3 Inspection completion & rejection (`apps/fleet_supervisor/services.py`)
 
-```python
-# apps/fleet_supervisor/services.py
-from apps.transport.constants import TOStatus
+**Completion** — `complete_inspection(inspection_id, performed_by, completion_remarks="")`:
 
-@transaction.atomic
-def complete_inspection(inspection_id, performed_by):
-    inspection = VehicleInspection.objects.select_for_update().get(id=inspection_id)
+- Requires inspection **pending**, response count ≥ total checklist items, linked TO **`ready_for_dispatch`**
+- Sets inspection **completed**, timestamps, `completion_remarks`, then calls **`dispatch_to_after_ready`** (TO → **`dispatched`**; own fleet trip dispatch via `TripService` as implemented there)
 
-    # Validate all responses filled
-    expected_count = ChecklistItem.objects.count()
-    actual_count = inspection.responses.count()
-    if actual_count < expected_count:
-        raise BusinessRuleError("All checklist items must have responses.")
+**Rejection** — `reject_inspection(inspection_id, reason, performed_by)`:
 
-    inspection.status = 'completed'
-    inspection.inspection_completed_at = timezone.now()
-    inspection.save(update_fields=["status", "inspection_completed_at", "updated_at"])
-
-    # Transition TO
-    to = inspection.transport_order
-    to.status = TOStatus.READY_FOR_DISPATCH
-    to.save(update_fields=["status", "updated_at"])
-```
+- Requires non-empty reason; inspection **pending**; TO **`ready_for_dispatch`**
+- Sets inspection **rejected** + `rejection_reason`; vehicle → **under maintenance**; TO → **`under_planning`** with vehicle/driver cleared and helpers cleared; attempts driver → **available** via `DriverStateMachine` (invalid transitions ignored)
 
 ### 6.4 Driver State Machine Service (DS-02-9)
 
-```python
-# apps/fleet_supervisor/services.py
-from apps.users.models import DriverCurrentState
+Implemented in `apps/fleet_supervisor/services.py` as class **`DriverStateMachine`**. Invalid transitions raise **`InvalidStatusTransitionError`** from **`apps.core.exceptions`** (not defined in the fleet_supervisor module).
 
-class InvalidStatusTransitionError(Exception):
-    pass
+Valid transitions match the table in §4.2; allowed targets are computed in a **`_valid_transitions`** property (same edges as the spec table). Each successful `transition()` updates `driver.current_state` and appends a **`DriverStateLog`** row (`timestamp=timezone.now()`, `notes` defaulting to `""`).
 
+### 6.5 TLS-01 hooks — automatic driver state updates (DS-02-10)
 
-class DriverStateMachine:
-    VALID_TRANSITIONS = {
-        DriverCurrentState.AVAILABLE:    [DriverCurrentState.ASSIGNED, DriverCurrentState.ON_LEAVE],
-        DriverCurrentState.ASSIGNED:     [DriverCurrentState.ON_EXECUTION, DriverCurrentState.AVAILABLE],
-        DriverCurrentState.ON_EXECUTION: [DriverCurrentState.AVAILABLE],
-        DriverCurrentState.ON_LEAVE:     [DriverCurrentState.AVAILABLE],
-    }
+| Event | Implemented? | Where |
+| ----- | ------------ | ----- |
+| TO reaches **Assigned** (vehicle + driver set on own-fleet TO) | **Yes** | `TDOAssignmentService._try_transition_to_assigned` in `apps/transport/services.py` calls `DriverStateMachine().transition(..., ASSIGNED, trigger="auto", ...)` inside a try/except (failures swallowed) |
+| TO execution starts → **On Execution** | **Not wired** | No `DriverStateMachine` call located in `apps/transport` for trip/TO start beyond assignment |
+| TO / trip completed → **Available** | **Not wired** | Same — `DriverStateMachine` supports the transition but transport layer does not invoke it in the current codebase |
 
-    @transaction.atomic
-    def transition(self, driver, to_state, changed_by=None, trigger='manual', notes=None):
-        from_state = driver.current_state
-        if to_state not in self.VALID_TRANSITIONS.get(from_state, []):
-            raise InvalidStatusTransitionError(
-                f"Cannot transition from {from_state} to {to_state}"
-            )
-        driver.current_state = to_state
-        driver.save(update_fields=["current_state", "updated_at"])
-
-        DriverStateLog.objects.create(
-            driver=driver,
-            from_state=from_state,
-            to_state=to_state,
-            changed_by=changed_by,
-            trigger=trigger,
-            timestamp=timezone.now(),
-            notes=notes,
-        )
-```
-
-### 6.5 TLS-01 Hooks — Automatic Driver State Updates (DS-02-10)
-
-
-| Event                        | Hook Action                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------ |
-| TO assigned (TO-02)          | `DriverStateMachine().transition(driver, DriverCurrentState.ASSIGNED, trigger='auto')`     |
-| TO execution starts (TLS-01) | `DriverStateMachine().transition(driver, DriverCurrentState.ON_EXECUTION, trigger='auto')` |
-| TO completed (TLS-01)        | `DriverStateMachine().transition(driver, DriverCurrentState.AVAILABLE, trigger='auto')`    |
-
+Product flows that depend on **On Execution** should treat current_state as **authoritative only for Assigned / On Leave** until TLS-01 hooks are added.
 
 ### 6.6 Working Hours Guardrail (DS-02-15)
 
@@ -1044,207 +905,93 @@ Soft warning only — not a hard block in MVP. Shown via `self.message_user(requ
 
 ## 7. API Endpoints
 
-### 7.1 Vehicle Inspections (DS-01-8 through DS-01-13)
+Routes are registered in `apps/fleet_supervisor/urls.py` and included from `config/urls.py` under **`/api/v1/`** (same prefix as other tenant APIs).
 
-```http
-GET    /api/v1/inspections/queue
-       → TOs in Assigned status — supervisor inspection queue
-       → Response: [{ to_id, to_reference, vehicle, driver, assigned_at }]
+**Permissioning (as implemented)**: Fleet supervisor views use **`IsTenantUser`** only (`apps/core/permissions.py`). They do **not** enforce individual `Fleet.DriverSupervisor.*` codes at the DRF layer; Django Admin uses those codes via `FleetSupervisorAdminBase`. Harden the API separately if fine-grained RBAC is required.
 
-POST   /api/v1/inspections
-       → Submit completed checklist; triggers TO → Ready for Dispatch
-       → Body: { transport_order_id, responses: [{ checklist_item_id, status, remarks }] }
-       → Response: { inspection_id, status: "completed", to_status: "ready_for_dispatch" }
+### 7.1 Checklist template (DS-01-13)
 
-GET    /api/v1/inspections/{inspection_id}
-       → Inspection detail with all responses
-       → Response: { inspection_id, to, vehicle, supervisor, status, responses: [...] }
+`GET /api/v1/checklist-template` — returns `{ "sections": [ { "id", "name", "display_order", "items": [ { "id", "name", "item_number", "remarks" } ] } ] }`.
 
-POST   /api/v1/inspections/{inspection_id}/reject
-       → Reject vehicle; TO stays Assigned; reason required
-       → Body: { reason }
-       → Response: { inspection_id, status: "rejected" }
+### 7.2 Inspection queue (DS-01-8)
 
-POST   /api/v1/vehicles/{vehicle_id}/under-maintenance
-       → Mark vehicle Under Maintenance; resets linked Assigned TOs to Created
-       → Body: { reason (optional) }
-       → Response: { vehicle_id, operational_status: "under_maintenance", reset_to_ids: [...] }
+`GET /api/v1/inspections/queue` — lists transport orders with **`status = ready_for_dispatch`**. Each element includes `to_id`, `to_reference`, `status`, `fleet_type`, `requires_vehicle_inspection` (own fleet **and** vehicle assigned), stringified `vehicle` / `driver`, `assigned_at` (currently `updated_at` on the TO), and `eta_datetime`.
 
-GET    /api/v1/checklist-template
-       → Read-only — all predefined sections + items (for mobile/frontend rendering)
-       → Response: { sections: [{ id, name, display_order, items: [{ id, name, item_number }] }] }
-```
+### 7.3 Supervisor dispatch intent (replaces monolithic “create inspection” POST)
 
-### 7.2 Driver State (DS-02-13)
+`POST /api/v1/transport-orders/<uuid:to_id>/dispatch` — JSON body `{"intent": "skip_inspection" | "start_inspection"}`.
 
-```http
-GET    /api/v1/drivers/state-board
-       → Driver state board — filterable by state, POI
-       → Filters: ?state=available&poi_id=...
-       → Response: [{ driver_id, name, current_state, poi, last_transition_at }]
+- **`skip_inspection`**: dispatches the TO (`dispatch_to_after_ready`). Returns `{ to_id, to_status, skipped_inspection?: true }` or `{ already_dispatched: true }` if already dispatched. **400** if a **pending** inspection exists for that TO.
+- **`start_inspection`**: own fleet + vehicle required; creates or reuses a **pending** `VehicleInspection`, ensures checklist rows. Returns `{ inspection_id, to_status }` and may include `existing_pending_inspection: true`.
 
-GET    /api/v1/drivers/{driver_id}/state
-       → Single driver current state + transition history
-       → Response: { driver_id, current_state, history: [{ from_state, to_state, trigger, timestamp, changed_by }] }
-```
+### 7.4 Inspection detail (DS-01-10)
 
-### 7.3 Driver Attendance (DS-02-11)
+`GET /api/v1/inspections/<uuid:inspection_id>` — `VehicleInspectionDetailSerializer`: model `id`, FK ids, `transport_order_number`, `vehicle_registration`, `supervisor_name`, `status`, `inspection_completed_at`, `completion_remarks`, `rejection_reason`, nested `responses` (`checklist_item`, `status`, `remarks`), timestamps.
 
-```http
-POST   /api/v1/driver-attendance
-       → Create attendance record
-       → Body: { driver_id, poi_id, entry_datetime, exit_datetime (nullable), notes }
-       → Response: { attendance_id, working_hours, warning (nullable) }
+### 7.5 Checklist responses upsert (DS-01-10b)
 
-GET    /api/v1/driver-attendance
-       → List attendance records
-       → Filters: ?driver=...&date_from=...&date_to=...&poi=...
-       → Response: [{ attendance_id, driver, poi, date, entry_datetime, exit_datetime, working_hours }]
+`PATCH /api/v1/inspections/<uuid:inspection_id>/responses` — body `{ "responses": [ { "checklist_item": "<uuid>", "status": "ok"|"issue"|"na", "remarks": "..." } ] }` (at least one row). **400** if inspection not pending.
 
-PATCH  /api/v1/driver-attendance/{id}
-       → Edit attendance entry (same-day only)
-       → Body: { exit_datetime, notes }
+### 7.6 Approve inspection (DS-01-10c)
 
-DELETE /api/v1/driver-attendance/{id}
-       → Delete attendance entry (same-day only, supervisor permission)
-```
+`POST /api/v1/inspections/<uuid:inspection_id>/approve` — optional `remarks` (maps to `completion_remarks`) and optional `responses` array (same shape as §7.5). Runs `approve_inspection` → `complete_inspection` + dispatch. Returns `{ inspection_id, inspection_status, to_status }`.
 
-### 7.4 Driver Leave (DS-02-12)
+### 7.7 Reject inspection (DS-01-11)
 
-```http
-POST   /api/v1/driver-leave
-       → Create leave record; triggers driver current_state → On Leave (if start_date <= today)
-       → Body: { driver_id, start_date, end_date, reason }
-       → Response: { leave_id, status: "active"/"upcoming" }
+`POST /api/v1/inspections/<uuid:inspection_id>/reject` — body `{ "reason": "..." }`. Returns `{ inspection_id, "status": "rejected" }`. On failure, **`detail`** may be a generic exception string (view catches `BusinessRuleError` and `DoesNotExist`).
 
-GET    /api/v1/driver-leave
-       → List leave records
-       → Filters: ?driver=...&status=active&date_from=...&date_to=...
-       → Response: [{ leave_id, driver, start_date, end_date, reason, status }]
+### 7.8 Under maintenance (DS-01-12)
 
-PATCH  /api/v1/driver-leave/{id}
-       → Edit leave dates (before start only)
-       → Body: { start_date, end_date, reason }
+`POST /api/v1/vehicles/<uuid:vehicle_id>/under-maintenance` — no JSON body required. Returns `{ vehicle_id, operational_status: "under_maintenance", reset_to_ids: [...] }`. Errors return **400** with `{ "detail": "..." }` (broad `except` in view).
 
-POST   /api/v1/driver-leave/{id}/cancel
-       → Cancel leave; driver current_state → Available
-       → Response: { leave_id, cancelled_at, driver_current_state: "available" }
-```
+### 7.9 Driver attendance (DS-02-11)
+
+- `GET /api/v1/driver-attendance` — query: `driver`, `poi`, `date_from`, `date_to`. Serializes `id`, `driver`, `driver_name`, `poi`, `poi_name`, `date`, times, `working_hours`, `notes`, computed `warning`.
+- `POST /api/v1/driver-attendance` — body fields **`driver`**, **`poi`**, **`entry_datetime`**, optional **`exit_datetime`**, optional **`notes`** (UUID FKs for driver/poi). `date` and `working_hours` are derived server-side. Response **`201`**: `{ attendance_id, working_hours, warning }`.
+- `PATCH /api/v1/driver-attendance/<uuid:attendance_id>` — same calendar day only else **403**; body `exit_datetime`, `notes`.
+- `DELETE /api/v1/driver-attendance/<uuid:attendance_id>` — same day only else **403**; **204** on success.
+
+### 7.10 Driver leave (DS-02-12)
+
+- `GET /api/v1/driver-leave` — query: `driver`, `date_from`, `date_to`, `status` (`active` \| `upcoming` \| `expired` \| `cancelled`).
+- `POST /api/v1/driver-leave` — body `driver`, `start_date`, `end_date`, `reason`. Overlap → **400**. Response **`201`**: `{ leave_id, status }` where `status` is model helper `leave_status`.
+- `PATCH /api/v1/driver-leave/<uuid:leave_id>` — disallowed once `start_date <= today` (**403**). Body uses same fields as create serializer.
+- `POST /api/v1/driver-leave/<uuid:leave_id>/cancel` — idempotent guard if already cancelled (**400**). Returns `{ leave_id, cancelled_at, driver_current_state }`.
+
+### 7.11 Driver state board (DS-02-13)
+
+`GET /api/v1/drivers/state-board` — query `state` (filters log `to_state`), `poi_id` (filters `driver__permanent_vehicle__assigned_poi`). Returns **latest log row per driver** serialized with: `driver_id`, `driver_name`, **`current_state`** (live field on `Driver`), `from_state`, `to_state`, `trigger`, `last_transition_at`, `changed_by_name`.
+
+### 7.12 Single driver state + history
+
+`GET /api/v1/drivers/<uuid:driver_id>/state` — `{ driver_id, current_state, history: [ ... same serializer as state board rows ... ] }`.
 
 ---
 
 ## 8. Permissions & RBAC
 
-### 8.1 Permission Codes (add to `apps/core/constants_rbac.py`)
+### 8.1 Permission codes (`apps/core/constants_rbac.py`)
 
-Add the following attributes to the `PermissionCodes` class, following the existing `SCREAMING_SNAKE_CASE = "Dot.Separated.Code"` pattern:
+Fleet supervisor permission codes are **defined** on `PermissionCodes` (inspection submit/reject/view queue/view history, vehicle under maintenance, driver state view/history, attendance read/write, leave read/write/cancel, menu fleet supervisor view). Mirror entries exist in `PERMISSION_DEFINITIONS` inside `apps/core/role_seed_data.py`.
 
-```python
-class PermissionCodes:
-    # ... existing codes ...
+**Seeded roles (excerpt)**:
 
-    # Fleet operations — Vehicle Inspection
-    FLEET_DS_INSPECTION_SUBMIT        = "Fleet.DriverSupervisor.Inspection.Submit"
-    FLEET_DS_INSPECTION_REJECT        = "Fleet.DriverSupervisor.Inspection.Reject"
-    FLEET_DS_INSPECTION_VIEW_QUEUE    = "Fleet.DriverSupervisor.Inspection.ViewQueue"
-    FLEET_DS_INSPECTION_VIEW_HISTORY  = "Fleet.DriverSupervisor.Inspection.ViewHistory"
+- **`driver_supervisor`**: full fleet supervisor permission bundle including `MENU_FLEET_SUPERVISOR_VIEW` and inspection/attendance/leave/state codes (see `SEED_ROLES` in `role_seed_data.py`).
+- **`tdo_own_fleet`**: read-only fleet additions — `FLEET_DS_DRIVER_STATE_VIEW`, `FLEET_DS_ATTENDANCE_READ`, `FLEET_DS_LEAVE_READ`, `FLEET_DS_INSPECTION_VIEW_QUEUE` (no inspection submit).
 
-    # Fleet operations — Vehicle Maintenance
-    FLEET_VEHICLE_SET_UNDER_MAINTENANCE = "Fleet.Vehicle.SetUnderMaintenance"
+### 8.2 Portal navigation (`apps/core/portal_navigation.py`)
 
-    # Fleet operations — Driver State
-    FLEET_DS_DRIVER_STATE_VIEW         = "Fleet.DriverSupervisor.DriverState.View"
-    FLEET_DS_DRIVER_STATE_VIEW_HISTORY = "Fleet.DriverSupervisor.DriverState.ViewHistory"
+See §0.1 for the live **Fleet operations** menu. Sidebar entries intentionally omit checklist reference and driver state log; users with the right codes can still open those model admins via direct URL or the Django admin app index.
 
-    # Fleet operations — Attendance
-    FLEET_DS_ATTENDANCE_WRITE = "Fleet.DriverSupervisor.Attendance.Write"
-    FLEET_DS_ATTENDANCE_READ  = "Fleet.DriverSupervisor.Attendance.Read"
+### 8.3 Re-seeding RBAC
 
-    # Fleet operations — Leave
-    FLEET_DS_LEAVE_WRITE  = "Fleet.DriverSupervisor.Leave.Write"
-    FLEET_DS_LEAVE_READ   = "Fleet.DriverSupervisor.Leave.Read"
-    FLEET_DS_LEAVE_CANCEL = "Fleet.DriverSupervisor.Leave.Cancel"
-
-    # Menu — Fleet operations navigation
-    MENU_FLEET_SUPERVISOR_VIEW = "Menu.Fleet.Supervisor.View"
-```
-
-Add corresponding entries to `PERMISSION_DEFINITIONS` in `apps/core/role_seed_data.py`:
-
-```python
-PERMISSION_DEFINITIONS: list[tuple[str, str, str, str]] = [
-    # ... existing entries ...
-    (PermissionCodes.FLEET_DS_INSPECTION_SUBMIT,        "Submit vehicle inspection",          "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_INSPECTION_REJECT,        "Reject vehicle inspection",          "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_INSPECTION_VIEW_QUEUE,    "View inspection queue",              "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_INSPECTION_VIEW_HISTORY,  "View inspection history",            "Fleet", "local"),
-    (PermissionCodes.FLEET_VEHICLE_SET_UNDER_MAINTENANCE, "Mark vehicle under maintenance",   "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW,         "View driver state board",           "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW_HISTORY, "View driver state history",         "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_ATTENDANCE_WRITE,          "Create/update driver attendance",   "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_ATTENDANCE_READ,           "Read driver attendance",            "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_LEAVE_WRITE,               "Create/update driver leave",        "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_LEAVE_READ,                "Read driver leave",                 "Fleet", "local"),
-    (PermissionCodes.FLEET_DS_LEAVE_CANCEL,              "Cancel driver leave",               "Fleet", "local"),
-    (PermissionCodes.MENU_FLEET_SUPERVISOR_VIEW,         "View Fleet operations menu",        "Menu",  "local"),
-]
-```
-
-### 8.2 Menu Permissions (add to `apps/core/portal_navigation.py`)
-
-Add `Fleet operations` section to `PORTAL_NAV_SECTIONS` as shown in §0.1. Each item uses `permission_any` with the minimal codes it needs.
-
-### 8.3 Role → Permission Mapping (update `apps/core/role_seed_data.py`)
-
-`**driver_supervisor` role** (already exists in `SEED_ROLES` with role code `"driver_supervisor"` — update its permission list):
-
-```python
-(
-    "driver_supervisor",
-    "Driver Supervisor",
-    PredefinedDepartment.OPERATIONS,
-    [
-        PermissionCodes.MENU_DASHBOARD_VIEW,
-        PermissionCodes.TRANSPORT_TO_READ,
-        PermissionCodes.MENU_TRANSPORT_ORDERS_VIEW,
-        PermissionCodes.MENU_FLEET_SUPERVISOR_VIEW,
-        # Inspection
-        PermissionCodes.FLEET_DS_INSPECTION_SUBMIT,
-        PermissionCodes.FLEET_DS_INSPECTION_REJECT,
-        PermissionCodes.FLEET_DS_INSPECTION_VIEW_QUEUE,
-        PermissionCodes.FLEET_DS_INSPECTION_VIEW_HISTORY,
-        PermissionCodes.FLEET_VEHICLE_SET_UNDER_MAINTENANCE,
-        # Driver State
-        PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW,
-        PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW_HISTORY,
-        # Attendance
-        PermissionCodes.FLEET_DS_ATTENDANCE_WRITE,
-        PermissionCodes.FLEET_DS_ATTENDANCE_READ,
-        # Leave
-        PermissionCodes.FLEET_DS_LEAVE_WRITE,
-        PermissionCodes.FLEET_DS_LEAVE_READ,
-        PermissionCodes.FLEET_DS_LEAVE_CANCEL,
-    ],
-),
-```
-
-`**tdo_own_fleet` role** (add read-only fleet permissions to existing entry):
-
-```python
-# Add to existing tdo_own_fleet permissions:
-PermissionCodes.FLEET_DS_DRIVER_STATE_VIEW,
-PermissionCodes.FLEET_DS_ATTENDANCE_READ,
-PermissionCodes.FLEET_DS_LEAVE_READ,
-PermissionCodes.FLEET_DS_INSPECTION_VIEW_QUEUE,   # to see inspection status of TOs they assigned
-```
-
-`**tenant_admin**` already receives `*` or full permission set — no change needed for read-only access.
-
-After updating `role_seed_data.py`, re-seed:
+After any change to permission definitions or role rows:
 
 ```bash
 python manage.py seed_dfms_rbac --reset
 ```
+
+(Use project-documented flags if your environment differs.)
 
 ---
 
@@ -1252,24 +999,19 @@ python manage.py seed_dfms_rbac --reset
 
 ### 9.1 With Transport (Sprint 3 TO-02, Sprint 4 TLS-01)
 
-**TDO Assignment** (extend `apps/transport/admin.py` `TransportOrderAdmin.save_model`):
+**TDO assignment** — implemented in `TDOAssignmentService` (`apps/transport/services.py`) and mirrored in transport admin validation helpers:
 
-- Call `validate_vehicle_availability(vehicle)` → checks `vehicle.operational_status != OperationalStatus.UNDER_MAINTENANCE`
-- Call `validate_driver_availability(driver)` → checks `driver.current_state != DriverCurrentState.ON_LEAVE`
+- **Vehicle**: blocked when `operational_status == UNDER_MAINTENANCE`
+- **Driver**: blocked when `current_state == ON_LEAVE` (DS-02-14)
 
-**Inspection Completion** (DS-01-5):
+**Supervisor inspection & dispatch** — `apps/fleet_supervisor/services.py`:
 
-- `VehicleInspection.status = 'completed'` → TO transitions `Assigned` → `Ready for Dispatch` via `complete_inspection()` service
+- Queue + dispatch intents operate only on TOs in **`ready_for_dispatch`**
+- **`complete_inspection`** / admin submit → **`dispatch_to_after_ready`** → TO **`dispatched`** (own fleet trip dispatch)
+- **`reject_inspection`** → inspection rejected, vehicle under maintenance, TO **`under_planning`**, crew cleared (see §3.5)
+- **`mark_vehicle_under_maintenance`** (vehicle admin / API) → resets linked **`assigned`** TOs to **`created`**
 
-**Under Maintenance** (DS-01-7):
-
-- `Vehicle.operational_status = UNDER_MAINTENANCE` → linked `Assigned` TOs reset to `Created`
-
-**TLS-01 Hooks** (DS-02-10):
-
-- TO assignment → `DriverStateMachine().transition(driver, DriverCurrentState.ASSIGNED, trigger='auto')`
-- Execution start → `DriverStateMachine().transition(driver, DriverCurrentState.ON_EXECUTION, trigger='auto')`
-- TO completion → `DriverStateMachine().transition(driver, DriverCurrentState.AVAILABLE, trigger='auto')`
+**TLS-01 driver automation** — see §6.5: **Assigned** transition on own-fleet assignment is wired; **On Execution** / back to **Available** are **not** wired from transport in the current tree.
 
 ### 9.2 With Driver Mobile (Sprint 4 DM-01)
 
@@ -1286,12 +1028,13 @@ python manage.py seed_dfms_rbac --reset
 
 ## 10. Validation Rules
 
-### 10.1 Vehicle Inspection
+### 10.1 Vehicle inspection & dispatch
 
-- All 54 checklist items must have `ChecklistResponse` entries before completion
-- Rejection requires non-empty `rejection_reason`
-- Cannot inspect a vehicle with `operational_status == UNDER_MAINTENANCE` (warning surfaced in UI)
-- Cannot inspect a TO not in `Assigned` status
+- Completing an inspection requires one `ChecklistResponse` per checklist item (`complete_inspection` count check); pending rows are auto-created as **ok** when the inspection form loads (`ensure_checklist_responses_for_inspection`)
+- Completion and rejection both require the linked TO to be **`ready_for_dispatch`**
+- Rejection requires a non-empty reason (`reject_inspection` / serializers)
+- **Skip inspection** is disallowed while a **pending** inspection exists for the same TO
+- Inspection **rejection** sets the vehicle to **under maintenance** and moves the TO to **`under_planning`** (not “stay assigned”)
 
 ### 10.2 Attendance
 
@@ -1310,7 +1053,7 @@ python manage.py seed_dfms_rbac --reset
 ### 10.4 Driver State Transitions
 
 - Only valid transitions per state machine (§4.2) are accepted
-- Invalid transitions raise `InvalidStatusTransitionError`
+- Invalid transitions raise **`InvalidStatusTransitionError`** from **`apps.core.exceptions`**
 - Every transition logged to `DriverStateLog`
 
 ---
@@ -1322,16 +1065,16 @@ python manage.py seed_dfms_rbac --reset
 
 | #        | Sub-task                                                                                          | Jira       |
 | -------- | ------------------------------------------------------------------------------------------------- | ---------- |
-| DS-01-1  | `ChecklistSection` + `ChecklistItem` models + data migration (seed 7 sections, 54 items)          | DFS-050-1  |
+| DS-01-1  | `ChecklistSection` + `ChecklistItem` + seed migration `0002_seed_checklist` (7 sections, 54 items)          | DFS-050-1  |
 | DS-01-2  | `VehicleInspection` + `ChecklistResponse` models                                                  | DFS-050-2  |
-| DS-01-3  | `VehicleInspectionAdmin` — list view (TO ref, vehicle, supervisor, status badge, date)            | DFS-050-3  |
+| DS-01-3  | `VehicleInspectionAdmin` — changelist, **dispatch queue**, templates, inline, `_submit_inspection` / reject URL | DFS-050-3  |
 | DS-01-4  | `VehicleInspectionAdmin` — change form with `ChecklistResponseInline` (TabularInline)             | DFS-050-4  |
-| DS-01-5  | `VehicleInspectionAdmin.save_model` — validate + TO status transition via service                 | DFS-050-5  |
+| DS-01-5  | `complete_inspection` + `save_related` (`_submit_inspection`) — dispatches TO after checklist        | DFS-050-5  |
 | DS-01-6  | `VehicleInspectionAdmin` — reject action + `_RejectReasonForm` (intermediate view via `get_urls`) | DFS-050-6  |
 | DS-01-7  | `VehicleAdmin.mark_under_maintenance` action + `mark_vehicle_under_maintenance` service           | DFS-050-7  |
-| DS-01-8  | Inspection queue API — `GET /api/v1/inspections/queue`                                            | DFS-050-8  |
-| DS-01-9  | Checklist submission API — `POST /api/v1/inspections`                                             | DFS-050-9  |
-| DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}`                                 | DFS-050-10 |
+| DS-01-8  | Inspection queue API — `GET /api/v1/inspections/queue` (**Ready for Dispatch** TOs)                  | DFS-050-8  |
+| DS-01-9  | `POST /api/v1/transport-orders/<to_id>/dispatch` — skip vs start inspection (*not* `POST /inspections`) | DFS-050-9  |
+| DS-01-10 | Inspection detail + `PATCH .../responses` + `POST .../approve`                                       | DFS-050-10 |
 | DS-01-11 | Inspection reject API — `POST /api/v1/inspections/{inspection_id}/reject`                         | DFS-050-11 |
 | DS-01-12 | Under Maintenance API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance`                    | DFS-050-12 |
 | DS-01-13 | Checklist template API — `GET /api/v1/checklist-template`                                         | DFS-050-13 |
@@ -1343,7 +1086,7 @@ python manage.py seed_dfms_rbac --reset
 
 | #        | Sub-task                                                                                               | Jira       |
 | -------- | ------------------------------------------------------------------------------------------------------ | ---------- |
-| DS-02-1  | Add `ON_EXECUTION = "on_execution"` to `DriverCurrentState` enum in `apps/users/models.py` + migration | DFS-051-1  |
+| DS-02-1  | `ON_EXECUTION` on `DriverCurrentState` in `apps/users/models.py` (+ migration in repo)                  | DFS-051-1  |
 | DS-02-2  | `DriverAttendance` model + migration                                                                   | DFS-051-2  |
 | DS-02-3  | `DriverLeave` model + migration                                                                        | DFS-051-3  |
 | DS-02-4  | `DriverStateLog` audit model + migration                                                               | DFS-051-4  |
@@ -1352,7 +1095,7 @@ python manage.py seed_dfms_rbac --reset
 | DS-02-7  | `DriverAttendanceAdmin` — list + change form, working hours validation, same-day guard                 | DFS-051-7  |
 | DS-02-8  | `DriverLeaveAdmin` — leave form, overlap validation, state transition, cancel action                   | DFS-051-8  |
 | DS-02-9  | `DriverStateMachine` service — transitions via `driver.current_state`, validation, audit               | DFS-051-9  |
-| DS-02-10 | TLS-01 hooks — auto-update `driver.current_state` on TO lifecycle events                               | DFS-051-10 |
+| DS-02-10 | TLS-01 hooks — **partial**: `ASSIGNED` on own-fleet TDO assignment only (`TDOAssignmentService`); **no** `ON_EXECUTION` / completion hooks in transport yet | DFS-051-10 |
 | DS-02-11 | Attendance CRUD API — `POST/GET/PATCH/DELETE /api/v1/driver-attendance`                                | DFS-051-11 |
 | DS-02-12 | Leave CRUD API — `POST/GET/PATCH /api/v1/driver-leave` + cancel                                        | DFS-051-12 |
 | DS-02-13 | Driver state board API — `GET /api/v1/drivers/state-board`                                             | DFS-051-13 |
@@ -1369,8 +1112,8 @@ python manage.py seed_dfms_rbac --reset
 
 | Story     | Scope                                                      | Implementation Focus                                                                                                                                                                                                                                   |
 | --------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **DS-01** | Vehicle daily inspection checklist (predefined, immutable) | Predefined section/item models + data migration + inspection/response flow + admin (`FleetSupervisorAdminBase`) + TO status transition service + Under Maintenance guard in `VehicleAdmin`                                                             |
-| **DS-02** | Driver state, attendance & leave (supervisor)              | Add `ON_EXECUTION` to `DriverCurrentState` + `DriverStateMachine` service (uses `driver.current_state`) + TLS-01 hooks + attendance model + leave model + working hours config + admin + APIs + update `driver_supervisor` role in `role_seed_data.py` |
+| **DS-01** | Vehicle inspection (predefined checklist) + supervisor dispatch | Models + `0002_seed_checklist` + `VehicleInspectionAdmin` / dispatch queue + `complete_inspection` / `reject_inspection` / `supervisor_dispatch_intent` + APIs in §7 + `VehicleAdmin.mark_under_maintenance` |
+| **DS-02** | Driver state, attendance & leave                                 | `DriverCurrentState` includes `ON_EXECUTION` + `DriverStateMachine` + models/admin + attendance/leave APIs + **partial** TLS-01 wiring (see §6.5) + `role_seed_data` fleet rows |
 
 
 ---
@@ -1391,5 +1134,5 @@ python manage.py seed_dfms_rbac --reset
 
 ---
 
-**Last Updated**: 2026-05-14
+**Last Updated**: 2026-05-15
 **Related Modules**: [05-transport](../05-transport/README.md), [03-users](../03-users/README.md) (Driver Interface), [02-master-data](../02-master-data/README.md)
