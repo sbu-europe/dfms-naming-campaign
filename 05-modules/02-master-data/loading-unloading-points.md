@@ -106,36 +106,37 @@ class LoadingUnloadingPoint(TenantAwareModel):
 ### 2.1 Creation Rules
 
 - POI must be **active** (`poi.is_active = True`) to create a new active point
-- `short_code` required, alphanumeric + dash/underscore, max 20 chars
-- `short_code` must be unique within the POI (DB-level constraint + admin validation)
+- `short_code` required, max 20 chars
+- `(poi, short_code)` is unique in the database (enforced by `UniqueConstraint`)
 - `name` required, max 100 chars
 - `operation_type` required — one of `LOAD`, `UNLOAD` (each point is either loading-only or unloading-only)
 - Within a POI, list ordering is by `short_code` (default model ordering)
 
 ### 2.2 Deactivation Rules
 
-- Setting `is_active = False` hides the point from CC-01 assignment dropdowns
-- Active assignments (BayAssignment with `assignment_status IN ('assigned', 'started')`) are **not cancelled** — they complete normally
-- Historical assignments remain readable
-- Cannot hard-delete a point that has associated assignments — soft-deactivate only
+- Setting `is_active = False` marks the point inactive so downstream assignment/event flows should exclude it for new work
+- Historical assignments remain readable when downstream systems store references to this point (integration wiring not implemented in this sprint)
+- Hard delete behavior is not explicitly prevented at the admin layer in this sprint; deactivation is supported via `is_active` / bulk actions.
 
 ### 2.3 Referential Integrity
 
-- CC-01 `BayAssignment` FKs to `LoadingUnloadingPoint` — assignment requires `is_active = True` at assignment time
-- LD-01 `LoadEvent` / `UnloadEvent` FKs to `LoadingUnloadingPoint` — denormalized reference to where event occurred
-- QC-01 `QCDecision` FKs to `LoadingUnloadingPoint` on QC Pass — QC Supervisor selects from active points
+- Expected downstream consumers:
+  - CC-01 `BayAssignment` (FK to `LoadingUnloadingPoint`)
+  - LD-01 Load/Unload events (FK to `LoadingUnloadingPoint`)
+  - QC-01 QC decisions (FK to `LoadingUnloadingPoint`)
+  - Note: these consumer models/endpoints are not implemented in this sprint; this module currently delivers the master data definition and admin UI.
 
 ---
 
 ## 3. Django Admin Configuration
 
-### 3.1 LoadTenantOnlyAdminMixiningUnloadingPointAdmin (standalone)
+### 3.1 LoadingUnloadingPointAdmin (standalone)
 
 **Sub-task**: LUP-01-2
 
 ```python
 @admin.register(LoadingUnloadingPoint)
-class LoadingUnloadingPointAdmin(TenantOnlyAdminMixin, admin.ModelAdmin):
+class LoadingUnloadingPointAdmin(TenantMasterDataAdmin):
     # ...
 ```
 
@@ -148,9 +149,10 @@ class LoadingUnloadingPointAdmin(TenantOnlyAdminMixin, admin.ModelAdmin):
 **Detail View**:
 - Fields: POI (FK dropdown), Name, Short Code, Operation Type, Is Active, Notes
 - `save_model`:
-  - Validates `short_code` unique within selected POI
-  - Validates POI is active (if creating new active point)
+  - Validates POI is active (if creating a new active point)
   - Sets `created_by` on creation
+
+Note: uniqueness of `short_code` within the selected POI is enforced by the model-level DB constraint; it is not custom-validated in `save_model`.
 
 **Permissions** (role-gated via `has_*_permission`):
 - Tenant Admin, Master Data Manager: full CRUD
@@ -161,7 +163,7 @@ class LoadingUnloadingPointAdmin(TenantOnlyAdminMixin, admin.ModelAdmin):
 **Sub-task**: LUP-01-3
 
 ```python
-class LoadingUnloadingPointInline(_TenantInlineMixin, admin.TabularInline):
+class LoadingUnloadingPointInline(_LUPInlineMixin, admin.TabularInline):
     model = LoadingUnloadingPoint
     extra = 1
     fields = ("name", "short_code", "operation_type", "is_active", "notes")
@@ -169,7 +171,7 @@ class LoadingUnloadingPointInline(_TenantInlineMixin, admin.TabularInline):
 
 - TabularInline on `POIAdmin` for quick point management from POI detail
 - Extra: 1 (one empty form for quick add)
-- Inherits `_TenantInlineMixin` permission pattern from existing inlines
+- Inherits the permission gates from the `POIAdmin` inline mixin pattern
 
 ---
 
@@ -177,35 +179,13 @@ class LoadingUnloadingPointInline(_TenantInlineMixin, admin.TabularInline):
 
 ```http
 POST   /api/v1/pois/{poi_id}/loading-unloading-points
-       → Create L/U point under POI
-       → Body: {name, short_code, operation_type, is_active, notes}
-       → Validations: unique short_code per POI, POI must be active
-       → Response: {id, name, short_code, operation_type, ...}
-
-GET    /api/v1/pois/{poi_id}/loading-unloading-points?type=&is_active=
-       → List points for a POI (filterable by operation type and active status)
-       → Response: [
-           {
-             id,
-             name: "North Loading Bay",
-             short_code: "BAY-01",
-             operation_type: "LOAD",
-             is_active: true,
-             notes: null
-           }
-         ]
-
+GET    /api/v1/pois/{poi_id}/loading-unloading-points
 GET    /api/v1/loading-unloading-points/{id}
-       → Point detail
-       → Response: {id, poi, name, short_code, operation_type, is_active, notes}
-
 PATCH  /api/v1/loading-unloading-points/{id}
-       → Update point (name, is_active, notes)
-       → Body: {name, is_active, notes}
-       → Note: short_code and operation_type are immutable after creation
 ```
 
-**URL registration**: Routes registered in `apps/master_data/urls.py` under the global `/api/v1/` prefix, consistent with existing POI endpoints.
+**Status (Sprint 4)**: Not implemented in this codebase yet.
+In this sprint the module delivers Django admin UI and the `LoadingUnloadingPoint` model/migration; the DRF routes/viewsets for the API contract are not registered under `apps/master_data/urls.py`.
 
 ---
 
@@ -244,28 +224,21 @@ Menu.MasterData.LoadingUnloadingPoints.View
 | Rule | Enforcement |
 |------|-------------|
 | `name` required, max 100 chars | Model field + form |
-| `short_code` required, max 20 chars, alphanumeric + dash/underscore | Model field + regex validator |
-| `short_code` unique within POI | DB UniqueConstraint + `save_model` |
-| `operation_type` required (LOAD / UNLOAD / BOTH) | Model choices |
-| POI must be active for new active point | `save_model` guard |
-| Cannot delete point with active assignments | Admin `has_delete_permission` guard → soft deactivate |
-| Inactive points excluded from CC-01 assignment dropdowns | CC-01 queryset filter |
-| Duplicate short_code returns clear error message | API validation response |
-| Invalid/inactive POI returns clear error message | API validation response |
+| `short_code` required, max 20 chars | Model field (no regex validator in this sprint) + DB uniqueness |
+| `(poi, short_code)` unique | DB `UniqueConstraint` (enforced at persistence time) |
+| `operation_type` required (LOAD / UNLOAD) | Model choices |
+| POI must be active for new active point | `LoadingUnloadingPointAdmin.save_model` guard |
+| Deactivation supported via `is_active` | Admin `is_active` toggle / bulk actions |
 
 ---
 
 ## 7. Audit Trail
 
-Every create, update, and deactivate action is audit-logged:
+This module stores standard model audit fields:
+- `created_by` (set on create via Django admin)
+- `created_at` / `updated_at`
 
-| Action | Logged Fields |
-|--------|---------------|
-| Create | user, timestamp, POI, short_code, operation_type, all fields |
-| Update | user, timestamp, changed fields (before/after) |
-| Deactivate | user, timestamp, reason (if captured) |
-
-Uses the same audit pattern as other master data entities (`apps.audit` integration).
+In this sprint, detailed CRUD audit logging through `apps.audit.services.log_crud_*` is not implemented for `LoadingUnloadingPoint` (no calls found in the admin/view code).
 
 ---
 
@@ -290,9 +263,9 @@ At least two POIs in UAT each have multiple L/U points:
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LUP-01-1 | `LoadingUnloadingPoint` model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Pending |
-| LUP-01-2 | `LoadingUnloadingPointAdmin` — standalone with POI FK dropdown, `save_model` validates unique code per POI + active POI check | DFS-063-2 | Pending |
-| LUP-01-3 | `LoadingUnloadingPointInline` — TabularInline under POIAdmin for quick point management | DFS-063-3 | Pending |
+| LUP-01-1 | `LoadingUnloadingPoint` model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Done |
+| LUP-01-2 | `LoadingUnloadingPointAdmin` — standalone with POI FK dropdown; `save_model` enforces active-POI for new active points (uniqueness is DB-enforced) | DFS-063-2 | Partial |
+| LUP-01-3 | `LoadingUnloadingPointInline` — TabularInline under POIAdmin for quick point management | DFS-063-3 | Done |
 | LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Pending |
 | LUP-01-5 | List-by-POI API (GET — list active points for a given POI) | DFS-063-5 | Pending |
 | LUP-01-6 | Update API (PATCH — update point details, activate/deactivate) | DFS-063-6 | Pending |
@@ -316,20 +289,20 @@ At least two POIs in UAT each have multiple L/U points:
 
 ## 11. Definition of Done
 
-- [ ] `LoadingUnloadingPoint` model created with migration passing `makemigrations --check`
-- [ ] Each point is owned by exactly one POI; only active POIs allow new active points
-- [ ] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag
+- [x] `LoadingUnloadingPoint` model created with migration passing `makemigrations --check`
+- [x] Each point is owned by exactly one POI; only active POIs allow new active points
+- [x] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag
 - [ ] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
-- [ ] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles
+- [x] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles
 - [ ] Audit log records who/when/what on every create, update, and deactivate action
-- [ ] `LoadingUnloadingPointAdmin` standalone list + detail working with POI filter
-- [ ] `LoadingUnloadingPointInline` under POIAdmin renders correctly with add/edit
+- [x] `LoadingUnloadingPointAdmin` standalone list + detail working with POI filter
+- [x] `LoadingUnloadingPointInline` under POIAdmin renders correctly with add/edit
 - [ ] List-by-POI API returns points filterable by operation type and active status
-- [ ] Validation errors returned for duplicate short code within a POI and for inactive/invalid POI
+- [ ] Validation errors returned for duplicate short code within a POI and for inactive/invalid POI (via API contract)
 - [ ] At least two POIs in UAT each have multiple L/U points; Command Center can retrieve the list
 - [ ] Field dictionary documented and shared with frontend for CC-01/LD-01 integration
 
 ---
 
-**Last Updated**: 2026-05-13  
+**Last Updated**: 2026-05-15  
 **Related Modules**: [poi-management.md](poi-management.md) (parent entity), [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md) (consumer)

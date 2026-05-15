@@ -32,17 +32,17 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 ## Acceptance Criteria
 
 ### AC-1: Parent POI
-- [ ] Each L/U point is **owned by exactly one POI** (tenant-scoped FK)
-- [ ] Only **Active** POIs (per §6.5.1) allow creation of new active points
-- [ ] POI detail (or linked screen) lists all L/U points for that site
+- [x] Each L/U point is **owned by exactly one POI** (tenant-scoped FK)
+- [x] Only **Active** POIs (per §6.5.1) allow creation of new active points
+- [x] POI detail (or linked screen) lists all L/U points for that site
 
 ### AC-2: Point definition
-- [ ] User creates a point with: **name/label** (required), **short code** (unique per POI), **operation type** = `LOAD` | `UNLOAD` (required explicit choice — no combined “both” type)
-- [ ] Optional: display order, optional notes, **active/inactive** flag
+- [x] User creates a point with: **name/label** (required), **short code** (unique per POI), **operation type** = `LOAD` | `UNLOAD` (required explicit choice — no combined “both” type)
+- [x] Optional: display order, optional notes, **active/inactive** flag
 - [ ] Inactive points: not assignable for **new** queue rows; historical assignments remain readable
 
 ### AC-3: RBAC & audit
-- [ ] Create/update/deactivate is restricted to roles aligned with **master data** / **Tenant Admin** (same class as POI management per §6.3.1)
+- [x] Create/update/deactivate is restricted to roles aligned with **master data** / **Tenant Admin** (same class as POI management per §6.3.1)
 - [ ] Audit: who/when/what changed on each point
 
 ### AC-4: API contract for downstream stories
@@ -53,14 +53,14 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LUP-01-1 | LoadingUnloadingPoint model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Pending |
-| LUP-01-2 | LoadingUnloadingPointAdmin — list view with POI filter + operation type filter, standalone with POI FK dropdown, save_model validates unique code per POI + active POI check | DFS-063-2 | Pending |
-| LUP-01-3 | LoadingUnloadingPointInline — TabularInline under POIAdmin for quick point management from POI detail | DFS-063-3 | Pending |
-| LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Pending |
-| LUP-01-5 | List-by-POI API (GET — list active points for a given POI, consumed by CC-01 and LD-01) | DFS-063-5 | Pending |
-| LUP-01-6 | Update API (PATCH — update point details, activate/deactivate) | DFS-063-6 | Pending |
-| LUP-01-7 | Audit logging on create / update / deactivate (who, when, what changed) | DFS-063-7 | Pending |
-| LUP-01-8 | Seed data — at least two POIs with multiple L/U points for UAT | DFS-063-8 | Pending |
+| LUP-01-1 | LoadingUnloadingPoint model + migration (FK to POI, name, short_code, operation_type enum, is_active, notes) | DFS-063-1 | Done |
+| LUP-01-2 | LoadingUnloadingPointAdmin — list view with POI filter + operation type filter, standalone with POI FK dropdown, save_model validates unique code per POI + active POI check | DFS-063-2 | Partial |
+| LUP-01-3 | LoadingUnloadingPointInline — TabularInline under POIAdmin for quick point management from POI detail | DFS-063-3 | Done |
+| LUP-01-4 | Create API (POST — create L/U point under a POI) | DFS-063-4 | Not done |
+| LUP-01-5 | List-by-POI API (GET — list active points for a given POI, consumed by CC-01 and LD-01) | DFS-063-5 | Not done |
+| LUP-01-6 | Update API (PATCH — update point details, activate/deactivate) | DFS-063-6 | Not done |
+| LUP-01-7 | Audit logging on create / update / deactivate (who, when, what changed) | DFS-063-7 | Not done |
+| LUP-01-8 | Seed data — at least two POIs with multiple L/U points for UAT | DFS-063-8 | Not done |
 
 ## API Endpoints
 
@@ -85,11 +85,11 @@ PATCH  /api/v1/loading-unloading-points/{id}                             # Updat
 
 ## Definition of Done
 
-- [ ] LoadingUnloadingPoint model created with migration passing `makemigrations --check`
-- [ ] Each point is owned by exactly one POI; only active POIs allow new active points (AC-1)
-- [ ] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag (AC-2)
+- [x] LoadingUnloadingPoint model created with migration passing `makemigrations --check`
+- [x] Each point is owned by exactly one POI; only active POIs allow new active points (AC-1)
+- [x] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag (AC-2)
 - [ ] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
-- [ ] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles (AC-3)
+- [x] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles (AC-3)
 - [ ] Audit log records who/when/what on every create, update, and deactivate action (AC-3)
 - [ ] List-by-POI API returns points filterable by operation type and active status (AC-4)
 - [ ] Validation errors returned for duplicate short code within a POI and for inactive/invalid POI (AC-4)
