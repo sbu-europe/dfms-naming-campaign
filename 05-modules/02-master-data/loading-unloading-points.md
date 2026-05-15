@@ -212,7 +212,9 @@ MasterData.LoadingUnloadingPoint.Read       # View list and detail
 ### 5.3 Menu Permissions
 
 ```python
-Menu.MasterData.LoadingUnloadingPoints.View
+Menu.MasterData.LoadingUnloadingP### AC-4: API contract for downstream stories
+- [ ] List endpoints (by POI id) used by Command Center assignment UI and loading personnel "my bay" views
+- [ ] Validations return clear errors for duplicate code or invalid POIoints.View
 ```
 
 **Menu position**: Master Data → Loading/Unloading Points (alongside POIs, Products, Vehicles, etc.)
