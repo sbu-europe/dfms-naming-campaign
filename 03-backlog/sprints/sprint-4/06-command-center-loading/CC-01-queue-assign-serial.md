@@ -52,8 +52,8 @@ prd_refs:
 
 ### AC-6: Raw-material QC checkpoint trigger
 - [ ] For **raw-material** TOs, Command Center updates TO sub-state to make it visible to QC Supervisor (per TLS-01 lifecycle; e.g. `QC Started`)
-- [ ] Command Center does **not** assign unloading point for raw-material TOs — QC Supervisor assigns unloading point directly after QC pass in **QC-01**
-- [ ] QC capture and unloading assignment for raw materials is handled entirely in **QC-01** (this story only creates the trigger/handoff context)
+- [ ] Command Center does **not** assign unloading point for raw-material TOs **until QC Pass** — after Pass, **CC Officer** assigns unloading point via `[Assign Bay]` (QC-01 records Pass/Fail only)
+- [ ] QC capture is in **QC-01**; this story flags TO for QC and assigns unloading point **after** QC Pass (same bay/serial flow as FG inbound)
 - [ ] For **finished-goods inbound unloading** assignments, system records unload path states without mandatory QC checkpoint in Sprint 4
 
 ## Sub-tasks

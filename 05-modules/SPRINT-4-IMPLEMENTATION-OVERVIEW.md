@@ -19,7 +19,7 @@ This document provides a comprehensive overview of Sprint 4 implementation conte
 - **Event-Driven Timeline**: All actions write to unified `TOStatusTransitionLog` timeline (TLS-01)
 - **Closure Engine**: Rule-based closure evaluation triggered by POD, QC decision, or gate-out
 - **Predefined Checklists**: Vehicle inspection uses immutable 7-section daily checklist (no configurable templates)
-- **QC-Gated Unloading**: For RM inbound, QC Supervisor assigns unloading point directly on QC Pass (not Command Center)
+- **QC-Gated Unloading**: For RM inbound, QC records Pass/Fail; **Command Center** assigns the unloading point only after QC Pass (QC does not assign bays)
 
 **Total Story Points**: 83 SP  
 **Total Stories**: 12 stories across 6 epics  
@@ -247,7 +247,7 @@ When adding or changing admin for Sprint 4, confirm:
 - `GET /api/v1/loading-unloading-points/{id}` — point detail
 - `PATCH /api/v1/loading-unloading-points/{id}` — update / deactivate
 
-**Integration**: Consumed by CC-01 (bay assignment target), LD-01 (event location), QC-01 (unloading point assignment on QC Pass)
+**Integration**: Consumed by CC-01 (bay assignment target, including RM unloading after QC Pass), LD-01 (event location); QC-01 gates CC assignment (no L/U point on QCDecision)
 
 ---
 
@@ -265,7 +265,7 @@ When adding or changing admin for Sprint 4, confirm:
 
 **Admin Flows**:
 - CC-01: Queue Dashboard → Assign Bay (product/vehicle type match warnings) → Issue Waiting Serial
-- CC-01 AC-6 (RM QC handoff): For RM TOs, Command Center updates TO sub-state for QC visibility; does **NOT** assign unloading point — QC Supervisor assigns it directly on QC Pass (QC-01)
+- CC-01 AC-6 (RM QC handoff): For RM TOs, Command Center flags TO for QC visibility and does **not** assign an unloading point until QC Pass; **CC Officer** then assigns unloading point via `[Assign Bay]` (QC-01 records Pass/Fail only)
 - LD-01: `LoadEventAdmin` / `UnloadEventAdmin` — start/end datetime, bags/weight/seal, end ≥ start validation, TLS-01 event emission
 
 **Key APIs**:
@@ -291,7 +291,7 @@ When adding or changing admin for Sprint 4, confirm:
 - `ClosureChecklist` (per-TO prerequisite flags: pod_uploaded, scale_out_done, gate_out_done, loading_complete, unloading_complete, qc_passed)
 - `ProofOfDelivery` (POD artifacts — defined in DM-01)
 - `QCSample` (FK to TO, auto-gen sample_id, physical_analysis text, remarks, timestamp)
-- `QCDecision` (FK to TO, decision enum Pass/Fail, unloading_point FK, timestamp, remarks)
+- `QCDecision` (FK to TO, decision enum Pass/Fail, timestamp, remarks — no unloading_point FK; assignment is CC-01's responsibility after Pass)
 
 **Services**:
 - State Machine Service: code-first rules table defining valid transitions per flow lane (FG outbound, FG inbound, RM inbound)
@@ -305,11 +305,11 @@ When adding or changing admin for Sprint 4, confirm:
 - Halted sub-state reserved (§6.8.6 Phase 2 — no trigger in Sprint 4)
 
 **QC Workflow (Sprint 4 Simplified)**:
-- Entry: CC-01 flags RM TO for QC visibility
+- Entry: CC-01 flags RM TO for QC visibility; CC does **not** assign an unloading point at this stage
 - Sample creation: QC Supervisor creates sample with physical analysis + remarks
-- Decision: Pass → QC Supervisor assigns unloading point directly; Fail → unloading blocked
-- Resample (AC-4): During unloading, QC Supervisor can trigger resample → clears decision, cancels active unloading assignment
-- Override to failed (AC-5): During unloading, QC Supervisor can change decision to Fail → cancels unloading assignment
+- Decision: Pass → TO marked `qc_passed=True`; **CC Officer then assigns the unloading point** in CC-01 (QC Supervisor does not assign it); Fail → unloading blocked, CC assignment blocked
+- Resample (AC-4): During unloading, QC Supervisor can trigger resample → clears decision, cancels active CC-01 unloading assignment, TO returns to QC queue
+- Override to failed (AC-5): During unloading, QC Supervisor can change decision to Fail → cancels CC-01 unloading assignment; CC blocked until new QC Pass
 
 **Closure Matrices**:
 - **FG Outbound**: Loading ✓ + Scale-Out ✓ + Gate-Out ✓ + POD ✓ → Closed
@@ -426,7 +426,8 @@ sequenceDiagram
         CC->>Timeline: Flag TO for QC visibility
         QC->>Timeline: Create Sample + Record Decision
         alt QC Pass
-            QC->>Timeline: Assign Unloading Point
+            QC->>Timeline: Record QC Pass
+            CC->>Timeline: Assign Unloading Point + Waiting Serial
         else QC Fail
             QC-->>Closure: Block Closure
         end
@@ -550,19 +551,19 @@ sequenceDiagram
 - `ClosureChecklist` model caches per-TO prerequisite flags for fast lookup
 - Exceptions list view shows TOs blocked from closing with blocking reasons
 
-### 7. QC Supervisor Assigns Unloading Point (QC-01 AC-3/AC-6)
+### 7. CC Assigns Unloading Point After QC Pass (QC-01 AC-3 / CC-01 AC-6)
 
-**Decision**: For RM inbound TOs, **QC Supervisor** assigns unloading point directly on QC Pass — Command Center does **not** assign unloading point for RM TOs.
+**Decision**: For RM inbound TOs, **QC Supervisor** records sample + Pass/Fail only. On **Pass**, the TO is marked `qc_passed=True` and re-enters the Command Center queue; the **CC Officer** assigns the unloading point from LUP-01 master (same `[Assign Bay]` flow as FG inbound). QC does **not** hold an `unloading_point` FK on `QCDecision`.
 
 **Rationale**:
-- QC is the quality gate between scale-in and unloading
-- Gives QC Supervisor full control over the unloading decision
-- Avoids double-assignment (CC assigns, then QC overrides)
+- QC is the quality gate between scale-in and unloading assignment
+- Bay/serial issuance stays with Command Center (consistent with FG inbound and loading flows)
+- Avoids split ownership of queue tokens and waiting serials across QC and CC
 
 **Implications**:
-- CC-01 AC-6: CC flags TO for QC visibility but does not assign unloading point for RM TOs
-- QC-01 AC-3: On Pass, QC Supervisor selects unloading point from LUP-01 master
-- QC-01 AC-4/AC-5: Resample or override-to-failed during unloading cancels active unloading assignment
+- CC-01 AC-6: CC flags TO for QC visibility; `[Assign Bay]` for RM unloading is disabled until an active QC Pass exists
+- QC-01 AC-3: On Pass, TO is QC-passed only — CC assigns unloading point separately
+- QC-01 AC-4/AC-5: Resample or override-to-failed during unloading cancels active **CC** unloading assignment
 
 ### 8. Document Category Routing at Gate (GT-01 AC-2)
 
@@ -589,7 +590,7 @@ sequenceDiagram
 - **Scaling Operator**: Scale-in/out, queue token issuance, gate pass print
 - **Command Center Officer**: Queue management, bay assignment, QC trigger for RM TOs
 - **Loading / Unloading Personnel**: Start/end timestamp capture, bags/weight/seal
-- **QC Supervisor / Inspector**: QC sampling, pass/fail decision, unloading point assignment, resample/override
+- **QC Supervisor / Inspector**: QC sampling, pass/fail decision, resample/override (no bay assignment — CC assigns unloading point after Pass)
 
 ### New Permission Codes (add to `apps/core/constants_rbac.py`)
 
@@ -644,7 +645,6 @@ Quality.QCCheckpoint.Sample.Create
 Quality.QCCheckpoint.Decision.Write
 Quality.QCCheckpoint.Resample
 Quality.QCCheckpoint.Override
-Quality.QCCheckpoint.AssignUnloadingPoint
 Quality.QCCheckpoint.Read
 
 # Timeline & Closure (TLS-01, POD-01)
@@ -715,8 +715,8 @@ Menu.MasterData.OperationPoints.View
    - Assertions: All timeline events recorded, closure gates passed, TO state = `closed`
 
 2. **RM Inbound with QC Pass**:
-   - TDO → Ready for Dispatch → Gate-In Dest → Scale-In → CC flags for QC → QC Sample → QC Pass → QC Supervisor assigns unloading point → Unloading → Scale-Out → Gate-Out → POD → Closed
-   - Assertions: QC checkpoint created, QC pass recorded, unloading point assigned by QC, closure gates passed
+   - TDO → Ready for Dispatch → Gate-In Dest → Scale-In → CC flags for QC → QC Sample → QC Pass → **CC Officer assigns unloading point** → Unloading → Scale-Out → Gate-Out → POD → Closed
+   - Assertions: QC checkpoint created, QC pass recorded, unloading point assigned by CC (after Pass), closure gates passed
 
 3. **RM Inbound with QC Fail** (blocked closure):
    - Same flow as above, but QC decision = Fail
@@ -757,7 +757,7 @@ Menu.MasterData.OperationPoints.View
 - Scale-in → token print → queue token
 - Scale-out → net weight calculation → gate pass print
 - Command Center queue → bay assignment → waiting serial
-- RM TO → CC flags for QC → QC sample → QC pass → QC assigns unloading point
+- RM TO → CC flags for QC → QC sample → QC pass → CC Officer assigns unloading point
 - Loading start → bags count → seal number → end
 - Unloading start → bags → weight → end
 - QC resample during unloading → unloading assignment cancelled
@@ -901,8 +901,8 @@ Menu.MasterData.OperationPoints.View
 | **Loading/Unloading Point** | Physical bay/line/dock within a POI (master data, LUP-01) |
 | **POD** | Proof of Delivery — photo + optional signature captured by driver (DM-01) |
 | **QC Sample** | Quality sample record created by QC Supervisor with physical analysis + remarks (QC-01) |
-| **QC Decision** | Pass/Fail outcome recorded by QC Supervisor; Pass → unloading point assignment (QC-01) |
-| **QC Checkpoint** | Simplified QC for RM inbound: sample → decision → unloading gate (QC-01) |
+| **QC Decision** | Pass/Fail outcome recorded by QC Supervisor; Pass unblocks CC unloading assignment (QC-01) |
+| **QC Checkpoint** | Simplified QC for RM inbound: sample → decision → CC assigns bay after Pass (QC-01) |
 | **Closure Engine** | Service that evaluates flow-specific closure gates and closes TO (POD-01) |
 | **Closure Checklist** | Per-TO prerequisite flags cache for fast closure evaluation (POD-01) |
 | **Timeline Event** | Append-only audit record: `TOStatusTransitionLog` (TLS-01) |

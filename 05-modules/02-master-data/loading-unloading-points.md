@@ -23,7 +23,7 @@ This is a **pure master data module** — it defines, configures, and maintains 
 
 **Module path**: `apps/master_data/` (extends existing master data app — child of POI)  
 **Dependencies**: `apps/master_data/` (POI model from MDM-04)  
-**Consumed by**: CC-01 (bay assignment), LD-01 (event capture), QC-01 (unloading point assignment on QC Pass)
+**Consumed by**: CC-01 (bay assignment, including RM unloading after QC Pass), LD-01 (event capture); QC-01 gates CC assignment (no L/U point on QCDecision)
 
 ---
 
@@ -123,8 +123,8 @@ class LoadingUnloadingPoint(TenantAwareModel):
 - Expected downstream consumers:
   - CC-01 `BayAssignment` (FK to `LoadingUnloadingPoint`)
   - LD-01 Load/Unload events (FK to `LoadingUnloadingPoint`)
-  - QC-01 QC decisions (FK to `LoadingUnloadingPoint`)
-  - Note: these consumer models/endpoints are not implemented in this sprint; this module currently delivers the master data definition and admin UI.
+  - QC-01 does **not** FK to `LoadingUnloadingPoint` on `QCDecision` (CC-01 `BayAssignment` holds the point)
+  - Note: CC/LD consumer models/endpoints are not fully implemented in this sprint; this module delivers the master data definition and admin UI.
 
 ---
 
@@ -285,7 +285,7 @@ At least two POIs in UAT each have multiple L/U points:
 ### Downstream (consumers)
 - `apps/operations/command_center/` → CC-01: bay assignment target (FK to LoadingUnloadingPoint)
 - `apps/operations/loading/` → LD-01: load/unload event location (FK to LoadingUnloadingPoint)
-- `apps/quality/checkpoint/` → QC-01: QC Supervisor assigns unloading point on QC Pass (FK to LoadingUnloadingPoint)
+- `apps/quality/checkpoint/` → QC-01: Pass/Fail only (no unloading_point FK); CC-01 `BayAssignment` references `LoadingUnloadingPoint` after QC Pass
 
 ---
 

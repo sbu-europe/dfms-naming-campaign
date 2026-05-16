@@ -15,9 +15,9 @@ jira_epic: DFS-072
 
 This specification covers three tightly coupled modules in the yard chain:
 
-- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. For RM inbound, CC flags the TO for QC visibility but **does not** assign an unloading point — that is the QC Supervisor's responsibility on QC Pass.
+- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. For RM inbound, CC flags the TO for QC visibility; after QC Pass, CC assigns the unloading point (not QC Supervisor).
 - **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
-- **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision → unloading point assignment on Pass. Resample and override-to-failed are available during active unloading.
+- **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
 **Module paths**: `apps/operations/command_center/`, `apps/operations/loading/`, `apps/quality/checkpoint/`  
 **Dependencies**: `apps/operations/scaling/` (QueueToken, WeighingSession), `apps/master_data/` (LoadingUnloadingPoint), `apps/transport/` (TransportOrder, FlowLane, TOStatus)  
@@ -35,8 +35,8 @@ Understanding which module acts at each step per lane removes ambiguity for admi
 | Scale-in (SC-01) | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` |
 | CC queue visible | ✓ | ✓ | ✓ (CC flags for QC; does NOT assign unloading point) |
 | **CC assigns loading point** | ✓ → sub: `assigned_loading_point` | — | — |
-| **QC: sample + pass** (QC-01) | — | — | sub: `qc_passed`; QC assigns unloading point |
-| **CC assigns unloading point** | — | ✓ → sub: `assigned_unloading_point` | ❌ QC Supervisor does this |
+| **QC: sample + pass** (QC-01) | — | — | sub: `qc_passed`; TO returns to CC queue |
+| **CC assigns unloading point** | — | ✓ → sub: `assigned_unloading_point` | ✓ → sub: `assigned_unloading_point` (CC does this after QC Pass) |
 | Loading start/end (LD-01) | ✓ `LoadEvent` | — | — |
 | Unloading start/end (LD-01) | — | ✓ `UnloadEvent` | ✓ `UnloadEvent` |
 | Scale-out (SC-01) | gates: loading complete | gates: unloading complete | gates: unloading complete + QC pass |
@@ -190,8 +190,7 @@ QCDecision(TenantAwareModel) {
     qc_sample: FK → QCSample
     decision: enum ['pass', 'fail']
 
-    # On Pass: QC Supervisor assigns unloading point directly
-    unloading_point: FK → LoadingUnloadingPoint (nullable — set on Pass only)
+    # No unloading_point FK here — CC assigns the unloading point via BayAssignment after QC Pass
 
     is_active: boolean (default True)
     # Set to False when resample is triggered; new sample + decision replace
@@ -232,7 +231,7 @@ Loading/unloading completion is a **pre-condition gate for scale-out** (SC-01 §
 | Action | Sub-state written | Side effects |
 |--------|-------------------|--------------|
 | QC sample created | `sampling_started` | — |
-| QC Pass recorded | `qc_passed` | QC Supervisor assigns unloading point; BayAssignment created; UnloadEvent can be started |
+| QC Pass recorded | `qc_passed` | TO marked `qc_passed=True`; TO re-enters CC queue; **CC Officer assigns unloading point** via BayAssignment |
 | QC Fail recorded | `qc_failed` | Unloading blocked; scale-out blocked; gate-out blocked |
 | Resample triggered (during unloading) | `resampling` | Active BayAssignment cancelled; UnloadEvent.end_datetime remains null; TO returns to CC queue |
 | Override to failed (during unloading) | `qc_failed` | BayAssignment cancelled; gate-out blocked |
@@ -290,9 +289,9 @@ CC Officer sees RM inbound QueueEntry (requires_qc=True)
               └─► TO becomes visible in QC Supervisor's queue (QC-01)
 ```
 
-Note: CC **cannot** assign a bay for RM inbound TOs. The `[Assign Bay]` button is hidden/disabled when `requires_qc=True` and no `QCDecision(decision='pass')` exists.
+Note: CC **cannot** assign an unloading point for RM inbound TOs until QC has passed. The `[Assign Bay]` button is hidden/disabled when `requires_qc=True` and no active `QCDecision(decision='pass')` exists for the TO.
 
-After QC Pass, the **QC Supervisor** assigns the unloading point (see §5.2). A new `BayAssignment` entry then appears in the RM inbound TO's session.
+After QC Pass, the **CC Officer assigns the unloading point** using the normal `[Assign Bay]` flow (§3.3), filtered to `operation_type=UNLOAD` points. A new `BayAssignment` entry then appears in the RM inbound TO's session.
 
 ---
 
@@ -366,16 +365,14 @@ QC Supervisor opens QC Checkpoint → My Queue
 QC Supervisor submits Pass decision
   └─► Select: QC Sample (FK)
   └─► Decision: Pass
-  └─► Select: Unloading Point (dropdown — operation_type=UNLOAD, is_active=True, same POI)
   └─► Remarks (optional)
   └─► [Submit Decision]
-        └─► QCService.record_decision(sample, 'pass', unloading_point, decided_by):
+        └─► QCService.record_decision(sample, 'pass', decided_by):
               ├─► Create QCDecision (decision='pass', is_active=True)
-              ├─► Create BayAssignment (transport_order, unloading_point, assigned_by=supervisor)
-              ├─► Auto-issue WaitingSerial for the BayAssignment
-              ├─► QueueEntry.status = 'assigned'
               ├─► Emit QC_PASSED → TLS-01 (sub: qc_passed)
-              └─► UnloadEvent can now be started by unloading personnel
+              ├─► QueueEntry.status = 'waiting' (re-enters CC queue, now unblocked)
+              └─► CC Officer can now assign unloading point via [Assign Bay] (§3.3)
+                    (no BayAssignment created here — that is CC's step)
 ```
 
 ### 5.3 QC decision — Fail
@@ -565,13 +562,11 @@ Uses `TenantOnlyAdminMixin`. **QC Supervisor role**.
 **Change Form**:
 - `qc_sample`: autocomplete, filtered to samples without an active decision
 - `decision`: radio buttons (Pass / Fail)
-- `unloading_point`: FK dropdown — **only shown/required when `decision = 'pass'`**:
-  - `formfield_for_foreignkey` filters to `operation_type=UNLOAD, is_active=True, poi=supervisor's POI`
-  - `clean()`: validates `unloading_point` is set when `decision = 'pass'`
+- **No `unloading_point` field** — unloading point is assigned by CC Officer after QC Pass, not here
 - `remarks`: required when `decision = 'fail'`
 - `save_model`:
-  - Pass: `QCService.record_decision('pass', unloading_point)` — creates BayAssignment, issues WaitingSerial, emits QC_PASSED
-  - Fail: `QCService.record_decision('fail')` — blocks unloading/scale-out/gate-out, emits QC_FAILED
+  - Pass: `QCService.record_decision('pass', decided_by)` — creates QCDecision, marks TO `qc_passed=True`, re-queues in CC, emits QC_PASSED
+  - Fail: `QCService.record_decision('fail', decided_by)` — blocks unloading/scale-out/gate-out, emits QC_FAILED
 
 **Custom admin actions on QCDecisionAdmin (active decisions only)**:
 
@@ -590,7 +585,7 @@ def override_to_failed(self, request, queryset):
 ```
 
 **List View**:
-- Columns: Sample ID, TO Number, Decision badge (Pass/Fail), Unloading Point (nullable), Is Active, Decided At, Decided By
+- Columns: Sample ID, TO Number, Decision badge (Pass/Fail), Is Active, Decided At, Decided By
 - Filters: `decision`, `is_active`, `qc_sample__transport_order__destination_poi`
 - Search: TO number, Sample ID
 
@@ -655,8 +650,9 @@ POST   /api/v1/qc/samples
        → Side effects: QCSample created, SAMPLING_STARTED → TLS-01
 
 POST   /api/v1/qc/decisions
-       → Body: { qc_sample_id, decision (pass|fail), unloading_point_id (required if pass), remarks }
-       → Side effects: QCDecision created; on pass: BayAssignment + WaitingSerial; TLS-01 event
+       → Body: { qc_sample_id, decision (pass|fail), remarks }
+       → Side effects: QCDecision created; on pass: TO marked qc_passed=True, re-queues in CC; TLS-01 event
+       → (no unloading_point_id — CC assigns that separately via /api/v1/command-center/assignments)
 
 POST   /api/v1/qc/decisions/{id}/resample
        → Side effects: QCDecision superseded, BayAssignment cancelled, UnloadEvent cleared, TLS-01 event
@@ -682,7 +678,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 - LoadEvent only for FG outbound; UnloadEvent only for FG inbound / RM inbound (enforced by queryset scoping)
 
 ### QC-01
-- `unloading_point` required when `decision = 'pass'`
+- No `unloading_point` in QC decision — CC Officer assigns unloading point after QC Pass via CC-01
 - `remarks` required when `decision = 'fail'` or `override-fail`
 - Resample only when `QCDecision.is_active = True` (there must be a current decision to supersede)
 - Override-to-fail only on `decision = 'pass'` active decisions; cannot override a fail to a fail
@@ -730,10 +726,10 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 |----------|-------|----------------------|
 | QC-01-1 | Models + migration | QCSample, QCDecision |
 | QC-01-2 | QCSampleAdmin | TO queryset restricted to RM inbound at_destination + flagged_for_qc; QCService in save_model |
-| QC-01-3 | QCDecisionAdmin | Unloading point shown only on Pass; remarks required on Fail; trigger_resample + override_to_failed admin actions |
+| QC-01-3 | QCDecisionAdmin | Pass/Fail only — no unloading point field; on Pass marks qc_passed=True and re-queues TO in CC; remarks required on Fail; trigger_resample + override_to_failed admin actions |
 | QC-01-4 | QC queue REST API (GET) | RM inbound TOs awaiting QC |
 | QC-01-5 | QC sample REST API (POST) | Create sample |
-| QC-01-6 | QC decision REST API (POST) | Pass (with unloading point) / Fail |
+| QC-01-6 | QC decision REST API (POST) | Pass / Fail; on Pass marks qc_passed=True, re-queues in CC (CC assigns unloading point separately) |
 | QC-01-7 | Resample REST API (POST) | Supersede decision, cancel BayAssignment, clear UnloadEvent |
 | QC-01-8 | Override-to-failed REST API (POST) | Same side effects as resample; decision set to fail |
 

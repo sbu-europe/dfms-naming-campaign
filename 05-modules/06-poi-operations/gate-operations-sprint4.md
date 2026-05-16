@@ -506,8 +506,8 @@ The table below is the authoritative per-lane TO status progression for the **ya
 | **Gate-in recorded** (GT-01) | → `at_source` | → `at_destination` | → `at_destination` |
 | Scale-in completed (SC-01) | `at_source` (sub: scale_in) | `at_destination` (sub: scale_in) | `at_destination` (sub: scale_in) |
 | **Scale-in → CC queue release** | sub: waiting_cc | sub: waiting_cc | sub: waiting_cc → **CC flags for QC** |
-| **QC: sample + pass** (RM only) | — | — | sub: qc_passed; QC assigns unloading point |
-| CC assigns loading point (CC-01) | `at_source` (sub: `assigned_loading_point`) | `at_destination` (sub: `assigned_unloading_point`) | — (QC Supervisor assigns unloading point on QC Pass; CC only flags for QC) |
+| **QC: sample + pass** (RM only) | — | — | sub: `qc_passed` (QC records Pass/Fail only) |
+| CC assigns L/U point (CC-01) | `at_source` (sub: `assigned_loading_point`) | `at_destination` (sub: `assigned_unloading_point`) | `at_destination` (sub: `assigned_unloading_point`; **after QC Pass**) |
 | Loading completed (LD-01) | sub: loading_completed | — | — |
 | Unloading completed (LD-01) | — | sub: unloading_completed | sub: unloading_completed |
 | Scale-out completed (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
@@ -518,7 +518,7 @@ The table below is the authoritative per-lane TO status progression for the **ya
 
 - **FG outbound**: After scale-out at the source POI the TO advances to `in_transit_destination`. The vehicle leaves the source gate and will arrive at destination (where it is an **FG inbound** visit). The gate-out at source records `gate_out_source` sub-state.
 - **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state.
-- **RM inbound QC**: Command Center flags the TO for QC visibility *before* assigning an unloading point. QC Supervisor assigns the unloading point on QC Pass (see §9.4). If QC fails, gate-out is blocked.
+- **RM inbound QC**: Command Center flags the TO for QC visibility *before* assigning an unloading point. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If QC fails, gate-out is blocked (see §9.4).
 - Sub-states above are carried in `TOStatusTransitionLog.to_sub_state` (TLS-01 schema) and are not exposed as top-level `TO.status` values.
 
 ---

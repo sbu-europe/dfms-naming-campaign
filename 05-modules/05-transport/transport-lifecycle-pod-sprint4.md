@@ -679,7 +679,7 @@ Django Admin changelist filtered to TOs blocked from closing:
 
 **Entry condition**: QC is available only after Command Center (CC-01) flags the RM TO for QC.
 
-**Flow**: CC-01 flags TO for QC → QC Supervisor creates sample → QC Supervisor makes pass/fail decision → If pass, QC Supervisor assigns unloading point directly → If fail, unloading blocked.
+**Flow**: CC-01 flags TO for QC → QC Supervisor creates sample → QC Supervisor records pass/fail → If pass, TO marked `qc_passed=True` and **CC Officer** assigns unloading point (CC-01) → If fail, unloading blocked.
 
 **Resample (AC-4)**: While unloading in progress, QC Supervisor can trigger resample → clears decision, cancels active CC-01 unloading assignment, TO returns to QC queue.
 
@@ -727,9 +727,7 @@ QCDecision {
     
     # Decision
     decision: enum ['pass', 'fail']          # Pass or Fail
-    
-    # Unloading point assignment (Pass only)
-    unloading_point: FK → LoadingUnloadingPoint (nullable)  # QC Supervisor assigns directly on Pass
+    # No unloading_point FK — CC-01 BayAssignment assigns L/U point after Pass
     
     # Timing
     timestamp: DateTime                      # When decision was made
@@ -794,7 +792,6 @@ QC Supervisor opens QC Queue
 QC Supervisor (same form, Decision section — enabled after sample exists)
   └─► Input section:
         ├─► Decision: Pass / Fail (radio buttons)
-        ├─► Unloading Point: dropdown (visible only if Pass — QC Supervisor assigns directly)
         ├─► Remarks: text area (required if Fail)
         └─► [Submit Decision]
               └─► Backend:
@@ -802,7 +799,6 @@ QC Supervisor (same form, Decision section — enabled after sample exists)
                     │
                     ├─► Create QCDecision:
                     │     ├─► decision = form.decision (pass/fail)
-                    │     ├─► unloading_point = form.unloading_point (if pass)
                     │     ├─► timestamp = now()
                     │     ├─► remarks = form.remarks
                     │     ├─► decided_by = current_user
@@ -813,9 +809,9 @@ QC Supervisor (same form, Decision section — enabled after sample exists)
                     │     └─► If fail: to_sub_state = QC_FAILED
                     │
                     ├─► If Pass:
-                    │     ├─► QC Supervisor assigns unloading point directly (no handoff to CC)
-                    │     ├─► Trigger: evaluate_closure(transport_order)
-                    │     └─► Response: "QC passed. Unloading point assigned. Vehicle released."
+                    │     ├─► Mark TO qc_passed=True; re-queue in CC-01 for unloading assignment
+                    │     ├─► Trigger: evaluate_closure(transport_order)  # gates only; unloading still needs CC bay
+                    │     └─► Response: "QC passed. CC Officer can now assign unloading point."
                     │
                     └─► If Fail:
                           ├─► Unloading blocked — vehicle cannot be assigned unloading point
@@ -1092,7 +1088,6 @@ POST   /api/v1/transport-orders/{to_id}/qc/decision
        → Submit QC decision (pass/fail)
        → Body: {
            decision: "pass" | "fail",
-           unloading_point_id: UUID (required if pass — QC Supervisor assigns directly),
            remarks: "All samples meet quality standards" (required if fail)
          }
        → Validations:
@@ -1100,11 +1095,11 @@ POST   /api/v1/transport-orders/{to_id}/qc/decision
            - No active QCDecision already exists (unless previous was deactivated by resample)
        → Side effects:
            - Write TOStatusTransitionLog (QC_PASSED or QC_FAILED)
-           - If pass: assign unloading point, trigger closure evaluation
-           - If fail: block unloading assignment
+           - If pass: mark qc_passed=True, re-queue TO in CC-01; trigger closure evaluation
+           - If fail: block CC unloading assignment
        → Response: {
            decision_id,
-           message: "QC passed. Unloading point assigned." | "QC failed. Unloading blocked."
+           message: "QC passed. CC Officer can now assign unloading point." | "QC failed. Unloading blocked."
          }
 
 GET    /api/v1/transport-orders/{to_id}/qc/decision
@@ -1112,7 +1107,7 @@ GET    /api/v1/transport-orders/{to_id}/qc/decision
        → Response: {
            decision_id,
            decision: "pass" | "fail",
-           unloading_point: {id, name} | null,
+           qc_passed: true | false,
            timestamp,
            decided_by: {user_id, name},
            remarks,
@@ -1215,7 +1210,7 @@ POST   /api/v1/transport-orders/{to_id}/qc/override
 - Sample has auto-generated `sample_id`, physical analysis text, remarks
 
 **Decision (AC-3)**:
-- Pass: QC Supervisor assigns unloading point directly (no handoff to CC-01)
+- Pass: TO marked qc_passed=True; CC Officer assigns unloading point in CC-01 (QC does not assign bay)
 - Fail: unloading blocked, closure blocked
 
 **Resample during unloading (AC-4)**:
