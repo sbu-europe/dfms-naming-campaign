@@ -4,7 +4,8 @@ specification: Gate Operations (Sprint 4 — TO-Centric)
 version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-12
+last_updated: 2026-05-16
+changelog: "v2.1 — added §4.5 full TO status chain per lane; revised §5.1 gate-out guard matrix with TO status prerequisites; updated GateOutAdmin queryset restriction"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -74,7 +75,7 @@ Operations → Gate → Vehicle Entry (Gate-In)
         │
         └── [Submit Gate-In]
               └─► Create GateVisitSession + GateIn record
-                    └─► Update TO.execution_state (if TO-linked)
+                    └─► Validate TO status per flow lane (§4.0); advance TO.status → at_source / at_destination
                           └─► Emit GATE_IN event to TLS-01 timeline
                                 └─► Redirect: Active Visits
 
@@ -332,29 +333,91 @@ Feature flag check wraps the gate-in service: if the resolved flow is not `to_li
 
 ## 4. Gate-In Flow (GT-01)
 
+### 4.0 TO eligibility for gate-in entry (flow lane × `TransportOrder.status`)
+
+Gate-in for **planner-created / TO-linked** visits is allowed only when the TO is in the **lane-specific in-transit status** that follows driver execution start (DM-01 §6.8.1.7). This is the yard counterpart to the driver’s first post-dispatch transition (`Dispatched` → in transit).
+
+| Flow lane (`TransportOrder.flow_lane`) | Gate POI must match | Required `TransportOrder.status` before gate-in | After successful gate-in (`TO.status` →) |
+|----------------------------------------|---------------------|--------------------------------------------------|------------------------------------------|
+| **FG outbound** (`fg_outbound`) | `origin_poi` | `in_transit_source` (In Transit – Source) | `at_source` |
+| **FG inbound** (`fg_inbound`) | `destination_poi` | `in_transit_destination` (In Transit – Destination) | `at_destination` |
+| **RM inbound** (`rm_inbound`) | `destination_poi` | `in_transit_destination` (In Transit – Destination) | `at_destination` |
+
+**Canonical constants** (single source of truth — shared with driver start transitions in `apps/transport/constants.py`):
+
+```python
+# Gate-in: TO must already be in transit before yard records physical entry.
+GATE_IN_ELIGIBLE_TO_STATUSES: dict[str, list[str]] = {
+    FlowLane.FG_OUTBOUND: [TOStatus.IN_TRANSIT_SOURCE],
+    FlowLane.FG_INBOUND: [TOStatus.IN_TRANSIT_DESTINATION],
+    FlowLane.RM_INBOUND: [TOStatus.IN_TRANSIT_DESTINATION],
+}
+
+# Post gate-in: advance TLS-01 execution status (yard actor).
+GATE_IN_SUCCESS_TO_STATUS: dict[str, str] = {
+    FlowLane.FG_OUTBOUND: TOStatus.AT_SOURCE,
+    FlowLane.FG_INBOUND: TOStatus.AT_DESTINATION,
+    FlowLane.RM_INBOUND: TOStatus.AT_DESTINATION,
+}
+```
+
+**Service-layer validation** (`apps/operations/gate/services.py` — `GateInService`):
+
+```python
+def validate_to_eligible_for_gate_in(
+    to: TransportOrder,
+    *,
+    gate_poi_id,
+) -> None:
+    """
+    Raises ValidationError with a gateman-readable message when:
+    - flow_lane is missing or unknown
+    - TO.status is not in GATE_IN_ELIGIBLE_TO_STATUSES[flow_lane]
+    - gate_poi is not the correct leg POI for the lane (origin vs destination)
+    - an active GateVisitSession already exists for this TO at this POI
+    """
+```
+
+**Exemptions**
+
+- **GT-02 on-demand TO**: gate-in is recorded in the same transaction as TO creation (`status='created'`). Eligibility rules above apply only to **existing** planner TOs looked up at the gate.
+- **Feature-flagged Dealer/Supplier paths** without a pre-existing TO: eligibility is satisfied by creating the TO first (GT-02), then gate-in.
+
+**Typical sequence (FG outbound at source)**
+
+```
+Ready for Dispatch → (supervisor dispatch) → Dispatched
+  → (driver: execution started) → in_transit_source
+    → (gateman: gate-in at origin POI) → at_source → scale-in → …
+```
+
 ### 4.1 TO-First Entry (Planner TO exists — Internal Transfer path)
 
 ```
 Gateman opens Gate-In form
   └─► Enters vehicle registration (required)
         └─► Selects document category: Internal Transfer (TO/Challan)
-              └─► Enters TO/Challan number
+              └─► Enters TO/Challan number (or selects TO via autocomplete — queryset pre-filtered)
                     └─► Backend lookup: TransportOrder.objects.get(to_number=...)
                           ├─► If found:
+                          │     ├─► GateInService.validate_to_eligible_for_gate_in(to, gate_poi_id=session POI)
+                          │     │     ├─► flow_lane + status in GATE_IN_ELIGIBLE_TO_STATUSES
+                          │     │     └─► POI = origin (FG outbound) or destination (FG/RM inbound)
                           │     ├─► Validate vehicle matches assigned vehicle on TO (warn + supervisor override if mismatch)
                           │     ├─► Pre-fill: product details, quantity from TO
                           │     ├─► Gateman enters: driver name, driver contact, party name, project/from info, remarks
                           │     └─► [Submit Gate-In]
                           │           └─► Create GateVisitSession + GateIn record
-                          │                 └─► Update TO.execution_state:
-                          │                       ├─► If POI = TO.origin_poi: 'gate_in_source'
-                          │                       └─► If POI = TO.destination_poi: 'gate_in_destination'
-                          │                             └─► Emit GATE_IN event (TLS-01 timeline)
-                          │                                   └─► Log GateActivityLog(action='gate_in')
-                          │                                         └─► Success redirect: Active Visits
+                          │                 └─► GateInService.record_gate_in(to):
+                          │                       ├─► TO.status → GATE_IN_SUCCESS_TO_STATUS[flow_lane]
+                          │                       └─► Emit GATE_IN event (TLS-01 timeline; actor=gate)
+                          │                             └─► Log GateActivityLog(action='gate_in')
+                          │                                   └─► Success redirect: Active Visits
                           │
                           └─► If not found:
                                 └─► Error: "TO not found. [Create On-Demand TO]" button enabled (GT-02)
+                          └─► If found but wrong status / POI:
+                                └─► ValidationError, e.g. "TO must be In Transit – Source at this POI before gate-in (FG outbound)."
 ```
 
 ### 4.2 Dealer/Supplier Entry (feature-flagged — GT-02 on-demand path)
@@ -433,6 +496,33 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
 
 ---
 
+## 4.5 Full TO status chain per lane (gate-in → gate-out)
+
+The table below is the authoritative per-lane TO status progression for the **yard chain**. Every module (Gate, Scale, Command Center, Loading, QC) advances `TO.status` one step by calling the TLS-01 event ingest service — no module skips steps.
+
+| Step | FG outbound | FG inbound | RM inbound |
+|------|------------|-----------|-----------|
+| Pre-gate-in (driver started) | `in_transit_source` | `in_transit_destination` | `in_transit_destination` |
+| **Gate-in recorded** (GT-01) | → `at_source` | → `at_destination` | → `at_destination` |
+| Scale-in completed (SC-01) | `at_source` (sub: scale_in) | `at_destination` (sub: scale_in) | `at_destination` (sub: scale_in) |
+| **Scale-in → CC queue release** | sub: waiting_cc | sub: waiting_cc | sub: waiting_cc → **CC flags for QC** |
+| **QC: sample + pass** (RM only) | — | — | sub: qc_passed; QC assigns unloading point |
+| CC assigns loading point (CC-01) | `at_source` (sub: `assigned_loading_point`) | `at_destination` (sub: `assigned_unloading_point`) | — (QC Supervisor assigns unloading point on QC Pass; CC only flags for QC) |
+| Loading completed (LD-01) | sub: loading_completed | — | — |
+| Unloading completed (LD-01) | — | sub: unloading_completed | sub: unloading_completed |
+| Scale-out completed (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
+| **Gate-out recorded** (GT-01) | sub: gate_out_source (FG outbound origin gate exit → vehicle now **in_transit_destination**) | sub: gate_out_destination | sub: gate_out_destination |
+| POD submitted + closure (POD-01) | → `completed` → `closed` | → `completed` → `closed` | → `completed` → `closed` |
+
+**Key notes:**
+
+- **FG outbound**: After scale-out at the source POI the TO advances to `in_transit_destination`. The vehicle leaves the source gate and will arrive at destination (where it is an **FG inbound** visit). The gate-out at source records `gate_out_source` sub-state.
+- **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state.
+- **RM inbound QC**: Command Center flags the TO for QC visibility *before* assigning an unloading point. QC Supervisor assigns the unloading point on QC Pass (see §9.4). If QC fails, gate-out is blocked.
+- Sub-states above are carried in `TOStatusTransitionLog.to_sub_state` (TLS-01 schema) and are not exposed as top-level `TO.status` values.
+
+---
+
 ## 5. Gate-Out Flow (GT-01)
 
 ### 5.1 Guard Matrix (GT-01 AC-3)
@@ -443,6 +533,14 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
 | **FG inbound** | ✓ Required | — | ✓ Required | — |
 | **RM inbound** | ✓ Required | — | ✓ Required | ✓ Required |
 
+**TO.status required for gate-out lookup (GateOutAdmin queryset filter)**:
+
+| Flow Lane | Gate-out available when `TO.status` is |
+|-----------|----------------------------------------|
+| FG outbound (at origin) | `in_transit_destination` (scale-out at source has already advanced the status) |
+| FG inbound (at destination) | `delivered_unloaded` |
+| RM inbound (at destination) | `delivered_unloaded` |
+
 ### 5.2 Exit Validation & Clearance Checks
 
 ```
@@ -452,39 +550,38 @@ Gateman opens Gate-Out form
               ├─► If not found: Error "No active visit for this TO"
               │
               └─► If found:
-                    ├─► Display visit summary: Vehicle, Driver, Gate-In Time, Dwell Time
+                    ├─► Display visit summary: Vehicle, Driver, Gate-In Time, Dwell Time, Current TO Status
                     │
-                    ├─► Guard Matrix Checks (backend validation in save_model):
+                    ├─► Guard Matrix Checks (GateOutService — called from save_model):
                     │     │
                     │     ├─► FG Outbound:
-                    │     │     ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
-                    │     │     └─► Loading completed? → LoadingOperation.completed_at not null
+                    │     │     ├─► Scale-out completed? → WeighingSession.scale_out_completed = True
+                    │     │     └─► Loading completed? → LoadEvent.end_datetime not null
                     │     │
                     │     ├─► FG Inbound:
-                    │     │     ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
-                    │     │     └─► Unloading completed? → UnloadingOperation.completed_at not null
+                    │     │     ├─► Scale-out completed? → WeighingSession.scale_out_completed = True
+                    │     │     └─► Unloading completed? → UnloadEvent.end_datetime not null
                     │     │
                     │     └─► RM Inbound:
-                    │           ├─► Scale-out completed? → ScaleRecord.scale_out_at not null
-                    │           ├─► Unloading completed? → UnloadingOperation.completed_at not null
-                    │           └─► QC not failed? → TOQCCheckpoint.qc_passed != False
+                    │           ├─► Scale-out completed? → WeighingSession.scale_out_completed = True
+                    │           ├─► Unloading completed? → UnloadEvent.end_datetime not null
+                    │           └─► QC not failed? → QCDecision.decision != 'fail' (must exist + passed)
                     │
-                    │     └─► If any required check fails: raise ValidationError with missing step
+                    │     └─► Any check fails → ValidationError naming the blocking step
                     │
                     ├─► Gateman enters exit remarks (optional)
                     │
                     └─► [Submit Gate-Out]
-                          └─► Create GateOut record:
-                                ├─► gate_out_at = now()
-                                ├─► clearance flags = computed from checks
-                                └─► remarks = form.remarks
-                                      └─► Update GateVisitSession.status = 'closed'
-                                            └─► Update TO.execution_state:
-                                                  ├─► If POI = TO.origin_poi: 'gate_out_source'
-                                                  └─► If POI = TO.destination_poi: 'gate_out_destination'
-                                                        └─► Emit GATE_OUT event (TLS-01)
-                                                              └─► Log GateActivityLog(action='gate_out')
-                                                                    └─► Remove from Active Visits → Visit History
+                          └─► Create GateOut record (gate_out_at = now, clearance flags, remarks)
+                                └─► GateVisitSession.status = 'closed'
+                                      └─► GateOutService.record_gate_out(to, poi):
+                                            ├─► FG outbound at origin POI:
+                                            │     └─► Emit GATE_OUT_SOURCE event (TLS-01)
+                                            │           (TO already at in_transit_destination from scale-out step)
+                                            └─► FG inbound / RM inbound at destination POI:
+                                                  └─► Emit GATE_OUT_DESTINATION event (TLS-01)
+                                                        └─► Log GateActivityLog(action='gate_out')
+                                                              └─► Remove from Active Visits → Visit History
 ```
 
 ---
@@ -493,16 +590,47 @@ Gateman opens Gate-Out form
 
 ### 6.1 GateInAdmin (GT-01-2, GT-01-3)
 
-Uses `TenantOnlyAdminMixin`.
+Uses `TenantOnlyAdminMixin`. **Business rules live in `GateInService`**; admin stays thin (validate → delegate → message user).
 
 **Change Form**:
-- TO number autocomplete lookup field
-- Vehicle registration validation in `save_model` (matches assigned vehicle on TO; warn + supervisor override on mismatch)
-- Document category routing logic:
+- `autocomplete_fields = ["transport_order", "vehicle"]` (or raw `to_number` + hidden FK pattern if UX prefers challan field)
+- **TO queryset restriction** — `formfield_for_foreignkey` on `transport_order`:
+
+```python
+def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    if db_field.name == "transport_order":
+        poi = get_gate_poi_for_request(request)  # tenant + gateman's assigned POI
+        kwargs["queryset"] = (
+            TransportOrder.objects.filter(tenant=request.tenant)
+            .filter(
+                Q(flow_lane=FlowLane.FG_OUTBOUND, origin_poi=poi, status=TOStatus.IN_TRANSIT_SOURCE)
+                | Q(
+                    flow_lane__in=(FlowLane.FG_INBOUND, FlowLane.RM_INBOUND),
+                    destination_poi=poi,
+                    status=TOStatus.IN_TRANSIT_DESTINATION,
+                )
+            )
+            .exclude(
+                gate_visit_sessions__poi=poi,
+                gate_visit_sessions__status=GateVisitStatus.ACTIVE,
+            )
+            .select_related("origin_poi", "destination_poi", "assigned_vehicle")
+            .order_by("-updated_at")
+        )
+    return super().formfield_for_foreignkey(db_field, request, **kwargs)
+```
+
+- **Read-only helpers on change form** (after TO selected): `flow_lane_badge`, `to_status_badge`, `eligible_gate_in_hint` (e.g. “FG outbound — requires In Transit – Source at origin POI”)
+- Vehicle registration validation in `save_model` → `GateInService.validate_vehicle_match(...)` (warn + supervisor override on mismatch)
+- Document category routing → `GateInService.resolve_operational_flow(...)`:
   - `Internal Transfer` → active (Sprint 4 E2E)
   - `Dealer (DO)` / `Supplier (PO)` / `Distributor` → feature-flag gated
 - Inline for gate-in items (product, quantity)
-- `save_model` sets `gate_in_at` timestamp and creates `GateVisitSession`
+- `save_model`:
+  1. `GateInService.validate_to_eligible_for_gate_in(to, gate_poi_id=...)`
+  2. `GateInService.create_visit_and_gate_in(...)` — sets `gate_in_at`, creates `GateVisitSession`, advances `TO.status`, emits TLS-01 event
+  3. `GateActivityLog` via service (not duplicated in admin)
+- `clean()` on `GateInAdminForm` mirrors service rules for immediate form errors (admin double-validation pattern used elsewhere in DFMS)
 
 **List View**:
 - Columns: TO Number, Vehicle Registration, Document Category, Gate-In Time, Driver Name, Party Name, Created By
@@ -517,12 +645,29 @@ Uses `TenantOnlyAdminMixin`.
 
 ### 6.2 GateOutAdmin (GT-01-4)
 
-Uses `TenantOnlyAdminMixin`.
+Uses `TenantOnlyAdminMixin`. **Business rules live in `GateOutService`**; admin stays thin.
 
 **Change Form**:
-- Gate-out guard matrix enforcement in `save_model`:
-  - Checks scale-out completed, loading/unloading completed per flow type
-  - RM inbound additionally checks QC not failed
+- **GateVisitSession / TO queryset restriction** — `formfield_for_foreignkey` shows only sessions with `status='active'` and no existing GateOut, scoped to the gateman's POI:
+
+```python
+def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    if db_field.name == "gate_visit_session":
+        poi = get_gate_poi_for_request(request)
+        kwargs["queryset"] = (
+            GateVisitSession.objects.filter(poi=poi, status=GateVisitStatus.ACTIVE)
+            .exclude(gate_out__isnull=False)
+            .select_related("transport_order", "vehicle")
+            .order_by("-created_at")
+        )
+    return super().formfield_for_foreignkey(db_field, request, **kwargs)
+```
+
+- **Read-only info panel**: on selecting a session, display Vehicle, Driver, Gate-In Time, Dwell Time, Current TO Status badge, Guard Matrix status (✓/pending per lane)
+- Guard matrix enforcement in `save_model` → `GateOutService.validate_guard_matrix(session)`:
+  - FG outbound: `WeighingSession.scale_out_completed` + `LoadEvent.end_datetime not null`
+  - FG inbound: `WeighingSession.scale_out_completed` + `UnloadEvent.end_datetime not null`
+  - RM inbound: all of above + `QCDecision.decision = 'pass'` (must exist and be pass)
 - `get_readonly_fields` locks completed records (once GateOut saved, all fields read-only)
 
 **List View**:
@@ -596,9 +741,13 @@ POST   /api/v1/gate/gate-in
            project_from_info: "Factory A" (nullable),
            remarks: "Vehicle front bumper dent noted" (nullable)
          }
+       → Validations (TO-linked):
+           - `GateInService.validate_to_eligible_for_gate_in` (§4.0): lane × status × POI
+           - Vehicle registration match (warn / override policy)
+           - No duplicate active visit at POI
        → Side effects:
            - Create GateVisitSession + GateIn
-           - Update TO.execution_state (if TO-linked)
+           - `TO.status` → `GATE_IN_SUCCESS_TO_STATUS[flow_lane]` (if TO-linked)
            - Emit GATE_IN event to TLS-01
            - Create GateActivityLog entry
        → Response: {
@@ -734,6 +883,19 @@ GET    /api/v1/gate/on-demand-to/{to_id}
 
 ## 8. Business Rules
 
+### 8.0 TO status eligibility for gate-in (GT-01 — TO-linked)
+
+| Flow lane | Gate-in allowed when `TO.status` is | Gate POI | Blocked example message |
+|-----------|-------------------------------------|----------|-------------------------|
+| FG outbound | `in_transit_source` | `origin_poi` | “TO is not In Transit – Source. Driver must start execution before gate-in.” |
+| FG inbound | `in_transit_destination` | `destination_poi` | “TO is not In Transit – Destination.” |
+| RM inbound | `in_transit_destination` | `destination_poi` | Same as FG inbound |
+
+- Constants: `GATE_IN_ELIGIBLE_TO_STATUSES` / `GATE_IN_SUCCESS_TO_STATUS` in `apps/transport/constants.py` (§4.0).
+- **Do not** gate on `Ready for Dispatch` or `Dispatched` alone — driver must complete the first in-transit milestone first.
+- Wrong POI for lane (e.g. FG outbound TO selected at destination gate): reject with POI-specific message.
+- Same validation in **admin**, **REST API**, and any future Gateman UI (single service).
+
 ### 8.1 Gate-In Fields (per PRD §6.10.1)
 
 | Field | Required | Notes |
@@ -836,10 +998,14 @@ Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document cate
 
 ### 9.5 With Driver Mobile (DM-01)
 
+**Prerequisite chain**:
+- Supervisor dispatch → `Dispatched`
+- Driver **execution started** (DM-01) → `in_transit_source` (FG outbound) or `in_transit_destination` (FG/RM inbound) — see `FIRST_DRIVER_TRANSITION` in `apps/transport/constants.py`
+- Only then is the TO eligible for **gate-in** (§4.0)
+
 **Milestone complementarity**:
-- Driver may record "Gate In" milestone via mobile (DM-01)
-- Gateman records gate-in via admin (GT-01)
-- Both write to `TOExecutionEvent` timeline (TLS-01 deduplicates)
+- Driver mobile does **not** replace yard gate-in for TLS-01 yard steps; gateman records authoritative gate-in via admin/API (GT-01)
+- Both actors write to `TOExecutionEvent` timeline (TLS-01); gate-in advances `TO.status` to `at_source` / `at_destination`
 
 ---
 
@@ -889,8 +1055,15 @@ Menu.Gate.OnDemandTO.View
 - Vehicle registration required (max 15 chars, alphanumeric + dash)
 - Document category required (must be valid enum value)
 - Document number required (max 50 chars)
-- For TO-linked flow: TO must exist; vehicle should match assigned vehicle on TO (warn + supervisor override)
-- Cannot gate-in if active GateVisitSession already exists for same vehicle at same POI
+- For TO-linked flow:
+  - TO must exist with `flow_lane` set
+  - **Status gate (§4.0 / §8.0):**
+    - FG outbound → `status == in_transit_source` and gate POI == `origin_poi`
+    - FG inbound → `status == in_transit_destination` and gate POI == `destination_poi`
+    - RM inbound → `status == in_transit_destination` and gate POI == `destination_poi`
+  - On success → `TO.status` advances to `at_source` or `at_destination` per lane
+  - Vehicle should match assigned vehicle on TO (warn + supervisor override)
+- Cannot gate-in if active GateVisitSession already exists for same vehicle (or same TO) at same POI
 - Feature-flagged categories rejected if flag is off
 
 ### 11.2 Gate-Out
@@ -949,10 +1122,10 @@ Menu.Gate.OnDemandTO.View
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
 | GT-01-1 | Models + migration | GateVisitSession + GateIn + GateOut models (FK to TO, Vehicle; document category enum, remarks, driver fields) |
-| GT-01-2 | GateInAdmin | Change form with TO autocomplete, vehicle validation in `save_model`, document category routing |
+| GT-01-2 | GateInAdmin | TO autocomplete filtered by §4.0 eligibility; `GateInService` in `save_model`; lane/status badges; document category routing |
 | GT-01-3 | GateInAdmin inline | Gate-in items (product, quantity); `save_model` sets timestamp + creates GateVisitSession |
 | GT-01-4 | GateOutAdmin | Guard matrix in `save_model`; `get_readonly_fields` locks completed records |
-| GT-01-5 | Gate-in REST API (POST) | Create gate-in with TO lookup + vehicle validation |
+| GT-01-5 | Gate-in REST API (POST) | Create gate-in with TO lookup + §4.0 status/POI validation + vehicle validation |
 | GT-01-6 | Gate-in list/detail API (GET) | Filters: date, vehicle, doc_category, to_number, search |
 | GT-01-7 | Gate-out REST API (POST) | Create gate-out with guard matrix enforcement |
 | GT-01-8 | Gate-out list/detail API (GET) | Filters: date, vehicle, search |
@@ -979,5 +1152,5 @@ Menu.Gate.OnDemandTO.View
 
 ---
 
-**Last Updated**: 2026-05-12  
+**Last Updated**: 2026-05-16  
 **Related Modules**: [05-transport](../05-transport/README.md), [06-poi-operations](./README.md), [03-users/driver-interface](../03-users/driver-interface-sprint4.md)
