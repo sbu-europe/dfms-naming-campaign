@@ -4,8 +4,8 @@ specification: Gate Operations (Sprint 4 — TO-Centric)
 version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-16
-changelog: "v2.1 — added §4.5 full TO status chain per lane; revised §5.1 gate-out guard matrix with TO status prerequisites; updated GateOutAdmin queryset restriction"
+last_updated: 2026-05-18
+changelog: "v2.2 — document GT-02 on-demand TO.status after create+gate-in (§4.0, §4.3, §4.5, §6.4, §7.4); v2.1 — §4.5 TO status chain, §5.1 gate-out guards, GateOutAdmin queryset"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -116,23 +116,27 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
         │     ├── Driver Name, Driver Contact (manual entry)
         │     └── Remarks
         │
-        ├── Step 3: Routing
-        │     ├── Source POI: 
-        │     │     ├── Dealer DO: auto-set to current gate POI (depot/factory)
-        │     │     └── Supplier PO: Supplier site (FK from party)
+        ├── Step 3: Routing (auto-derived — not entered on admin/API)
+        │     ├── Source POI:
+        │     │     ├── Dealer DO: current gate POI (session)
+        │     │     └── Supplier PO: Supplier `site_poi` (Master Data)
         │     ├── Destination POI:
-        │     │     ├── Dealer DO: Dealer site (FK from party)
-        │     │     └── Supplier PO: current gate POI (factory/depot)
-        │     └── Vehicle Type: default = 'Covered Truck' (editable)
+        │     │     ├── Dealer DO: Dealer `site_poi` (Master Data)
+        │     │     └── Supplier PO: current gate POI (session)
+        │     └── Vehicle: registration at yard (admin wizard field / gate-in flow §4.2)
         │
         └── [Create TO & Gate-In]
               └─► Backend:
                     ├─► Create TransportOrder:
                     │     ├─► source = 'GATE'
                     │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' (Dealer) or 'RM_SUPPLIER_INBOUND' (Supplier)
+                    │     ├─► status = 'created' (initial; see §4.3 for post gate-in status)
                     │     └─► Emit TO_CREATED event to TLS-01
                     │
                     └─► Create GateVisitSession + GateIn (gate_in_at = now)
+                          ├─► TO.status → GATE_IN_SUCCESS_TO_STATUS[flow_lane] (same transaction)
+                          │     ├─► Dealer DO (FG outbound): `at_source`
+                          │     └─► Supplier PO (RM inbound): `at_destination`
                           └─► Success: redirect to Active Visits
 ```
 
@@ -385,7 +389,9 @@ def validate_to_eligible_for_gate_in(
 
 **Exemptions**
 
-- **GT-02 on-demand TO**: gate-in is recorded in the same transaction as TO creation (`status='created'`). Eligibility rules above apply only to **existing** planner TOs looked up at the gate.
+- **GT-02 on-demand TO**: gate-in is recorded in the **same atomic transaction** as TO creation. The TO is inserted with `status='created'`, then `record_gate_in_status` advances it via `GATE_IN_SUCCESS_TO_STATUS` (§4.0) — eligibility rules above apply only to **existing** planner TOs looked up at the gate (`skip_to_eligibility=True` in code).
+  - **Dealer DO** (`flow_lane=fg_outbound`): persisted status after success → **`at_source`**
+  - **Supplier PO** (`flow_lane=rm_inbound`): persisted status after success → **`at_destination`**
 - **Feature-flagged Dealer/Supplier paths** without a pre-existing TO: eligibility is satisfied by creating the TO first (GT-02), then gate-in.
 
 **Typical sequence (FG outbound at source)**
@@ -476,7 +482,7 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
                     │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' or 'RM_SUPPLIER_INBOUND'
                     │     ├─► fleet_type = 'own' (default)
                     │     ├─► status = 'created'
-                    │     ├─► origin_poi, destination_poi from wizard
+                    │     ├─► origin_poi, destination_poi from resolve_on_demand_routing
                     │     ├─► allocated_quantity_mt = expected_quantity_mt
                     │     ├─► QC linkage flag set (Supplier PO path)
                     │     └─► No TR link, no TDO assignment required
@@ -488,10 +494,22 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
                     │     └─► Otherwise: manual confirm + audit log
                     │
                     ├─► Create GateVisitSession + GateIn (gate_in_at = now)
+                    │     └─► record_gate_in_status → GATE_IN_SUCCESS_TO_STATUS[flow_lane]:
+                    │           ├─► Dealer DO (FG outbound): `created` → **`at_source`**
+                    │           └─► Supplier PO (RM inbound): `created` → **`at_destination`**
                     │
                     └─► Log GateActivityLog(action='on_demand_to_created')
-                          └─► Success: redirect to Active Visits
+                          └─► Success: redirect to Active Visits (TO already at yard execution status above)
 ```
+
+**GT-02 TO.status after create & gate-in (authoritative)**
+
+| Path | `flow_lane` | Initial insert | After gate-in (persisted) |
+|------|-------------|------------------|---------------------------|
+| Dealer DO Outbound | `fg_outbound` | `created` | **`at_source`** |
+| Supplier PO Inbound | `rm_inbound` | `created` | **`at_destination`** |
+
+Implementation: `gate_services.create_on_demand_to_and_gate_in` → `create_gate_in(..., skip_to_eligibility=True)` → `record_gate_in_status`. On-demand TOs **do not** pass through `in_transit_source` / `in_transit_destination` (planner/driver steps are skipped).
 
 ---
 
@@ -515,6 +533,7 @@ The table below is the authoritative per-lane TO status progression for the **ya
 
 **Key notes:**
 
+- **GT-02 on-demand entry**: Dealer DO and Supplier PO paths create the TO at `created` and gate-in in one transaction; the TO is already at **`at_source`** (FG outbound) or **`at_destination`** (RM inbound) before scale-in — see §4.3. They skip the “Pre-gate-in (driver started)” row in the table above.
 - **FG outbound**: After scale-out at the source POI the TO advances to `in_transit_destination`. The vehicle leaves the source gate and will arrive at destination (where it is an **FG inbound** visit). The gate-out at source records `gate_out_source` sub-state.
 - **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state.
 - **RM inbound QC**: Command Center flags the TO for QC visibility *before* assigning an unloading point. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If QC fails, gate-out is blocked (see §9.4).
@@ -685,19 +704,32 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 - Read-only: TO (link), Vehicle (link), POI, Status
 - Inline: GateIn (read-only), GateOut (read-only), related ScaleRecord, BayAssignment, LoadingOperation
 
-### 6.4 OnDemandTOAdmin (GT-02-2, GT-02-3)
+### 6.4 On-Demand TO — Django admin (`GateOnDemandTORequestAdmin`, GT-02)
 
-Uses `TenantOnlyAdminMixin`.
+**Implementation:** `apps/operations/gate/admin.py` — `GateOnDemandTORequestAdmin` with `GateOnDemandTOAdminForm`. One add form; `path_type` selects Dealer DO vs Supplier PO (GT-02-2 / GT-02-3 behaviour in a single admin).
 
-**Dealer DO form** (GT-02-2):
-- `save_model` creates FG TO with `transfer_type=FG_DEALER_OUTBOUND`
-- Generates unique TO number
-- Links to gate-in stub/session
+Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the wizard payload and links to created `TransportOrder` + `GateVisitSession` (read-only on change).
 
-**Supplier PO form** (GT-02-3):
-- `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND`
-- Sets QC linkage flag
-- Links to gate session
+**Add form fieldsets (gateman input only):**
+
+| Fieldset | Fields |
+|----------|--------|
+| Path type | `path_type` (`dealer_do` / `supplier_po`) |
+| Document & party | `document_number`, `dealer` *or* `supplier`, `product`, `quantity_mt`, `driver_name`, `driver_contact`, `remarks` |
+| Vehicle | `vehicle_registration` (free text; format validated, no MDM lookup) |
+
+**Not on the form (derived in `GateOnDemandTOAdminForm.clean` / `save_model` via `gate_services.resolve_on_demand_routing`):**
+
+| Derived | Rule |
+|---------|------|
+| `gate_poi` | Current gate from session (`get_gate_poi_for_request`) |
+| `source_poi` | Dealer DO → `gate_poi`; Supplier PO → `supplier.site_poi` |
+| `destination_poi` | Dealer DO → `dealer.site_poi`; Supplier PO → `gate_poi` |
+| `vehicle` / visit reg | Stored on `TransportOrder.vendor_vehicle_registration` and gate visit records; optional `Vehicle` FK only for TO-linked gate-in |
+
+**Master Data prerequisite:** Dealer and Supplier records must have **`site_poi`** set (`master_data.Dealer` / `Supplier.site_poi` FK). Otherwise validation fails with a clear message to configure Site POI in MDM.
+
+**`save_model`:** calls `gate_services.create_on_demand_to_and_gate_in` (FG `transfer_type=FG_DEALER_OUTBOUND` or RM `RM_SUPPLIER_INBOUND`, gate-in in same transaction, `GateActivityLog` `on_demand_to_created`). On success the linked `TransportOrder.status` is **`at_source`** (Dealer DO) or **`at_destination`** (Supplier PO) — not `created` (see §4.3).
 
 ### 6.5 GateActivityLog Admin (GT-01-12)
 
@@ -817,21 +849,24 @@ POST   /api/v1/gate/on-demand-to/dealer
        → Create FG TO from Dealer DO
        → Body: {
            do_number: "DO-2026-1234",
-           dealer_name: "ABC Dealer",
+           dealer_id: UUID,
            product_id: UUID,
            planned_quantity_mt: 50.0,
            driver_name: "John Doe",
            driver_contact: "+8801712345678",
+           vehicle_registration: "DHK-1234",
+           gate_poi_id: UUID (optional — session/default gate),
            remarks: "Urgent delivery" (nullable)
          }
+       → Routing: source_poi = gate_poi; destination_poi = dealer.site_poi (not in body)
        → Side effects:
-           - Create TransportOrder (source='GATE', transfer_type='FG_DEALER_OUTBOUND')
+           - Create TransportOrder (source='GATE', transfer_type='FG_DEALER_OUTBOUND', initial status='created')
+           - Create GateVisitSession + GateIn; advance TO.status → **at_source** (GATE_IN_SUCCESS_TO_STATUS)
            - Feature-flagged stock check (AC-3): stub with manual confirm if inventory module not ready
-           - Create GateVisitSession + GateIn
            - Emit TO_CREATED event to TLS-01
            - Create GateActivityLog(action='on_demand_to_created')
        → Response: {
-           transport_order: {to_id, to_number, transfer_type: "FG_DEALER_OUTBOUND"},
+           transport_order: {to_id, to_number, transfer_type: "FG_DEALER_OUTBOUND", status: "at_source"},
            gate_visit_session_id,
            gate_in_at,
            message: "Dealer TO created and gate-in recorded."
@@ -841,21 +876,24 @@ POST   /api/v1/gate/on-demand-to/supplier
        → Create RM TO from Supplier PO
        → Body: {
            po_number: "PO-2026-5678",
-           supplier_name: "XYZ Supplier",
+           supplier_id: UUID,
            product_id: UUID,
            expected_quantity_mt: 25.0,
            driver_name: "Jane Doe",
            driver_contact: "+8801798765432",
+           vehicle_registration: "DHK-5678",
+           gate_poi_id: UUID (optional),
            remarks: "Scheduled delivery" (nullable)
          }
+       → Routing: source_poi = supplier.site_poi; destination_poi = gate_poi (not in body)
        → Side effects:
-           - Create TransportOrder (source='GATE', transfer_type='RM_SUPPLIER_INBOUND')
+           - Create TransportOrder (source='GATE', transfer_type='RM_SUPPLIER_INBOUND', initial status='created')
            - Set QC linkage flag for inbound workflow
-           - Create GateVisitSession + GateIn
+           - Create GateVisitSession + GateIn; advance TO.status → **at_destination** (GATE_IN_SUCCESS_TO_STATUS)
            - Emit TO_CREATED event to TLS-01
            - Create GateActivityLog(action='on_demand_to_created')
        → Response: {
-           transport_order: {to_id, to_number, transfer_type: "RM_SUPPLIER_INBOUND"},
+           transport_order: {to_id, to_number, transfer_type: "RM_SUPPLIER_INBOUND", status: "at_destination"},
            gate_visit_session_id,
            gate_in_at,
            message: "Supplier TO created and gate-in recorded."
@@ -920,7 +958,7 @@ Clearance check on gate-out:
 - `source = 'GATE'`
 - `transfer_type = 'FG_DEALER_OUTBOUND'`
 - `origin_poi = current_gate_poi` (depot/factory)
-- `destination_poi = dealer_site` (from party FK)
+- `destination_poi = dealer.site_poi` (Master Data FK on `Dealer`; required)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_source'`
 - No TR link, no TDO assignment required
@@ -929,7 +967,7 @@ Clearance check on gate-out:
 **Supplier PO path** (AC-2 — `transfer_type=RM_SUPPLIER_INBOUND`):
 - `source = 'GATE'`
 - `transfer_type = 'RM_SUPPLIER_INBOUND'`
-- `origin_poi = supplier_site` (from party FK)
+- `origin_poi = supplier.site_poi` (Master Data FK on `Supplier`; required)
 - `destination_poi = current_gate_poi` (factory/depot)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_destination'`
