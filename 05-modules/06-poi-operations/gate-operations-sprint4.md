@@ -57,18 +57,23 @@ Sidebar (Gateman)
 ```
 Operations → Gate → Vehicle Entry (Gate-In)
   └─► Entry Form
-        ├── Vehicle Registration: required text input (max 15 chars)
+        ├── Transport Order: autocomplete (eligible in-transit TOs only)
+        │     └─► On select, backend derives (read-only summary panel):
+        │           ├── Gate POI — `origin_poi` / `destination_poi` per flow lane (§4.0)
+        │           ├── Vehicle — `TransportOrder.vehicle` (or vendor registration)
+        │           ├── Product — TO line items → PR product codes/names
+        │           ├── Quantity — `allocated_quantity` or sum of TO line allocations
+        │           ├── Driver — assigned driver (own fleet) or `vendor_driver_name`
+        │           └── Driver contact — driver `contact_number` or vendor `phone`
+        │
         ├── Document Category: radio buttons
         │     ├── Supplier (PO) / Port → Inbound QC Workflow
         │     ├── Dealer (DO) → Outbound FG Workflow
         │     ├── Distributor (PO/DO) → Outbound FG Workflow
         │     └── Internal Transfer (TO/Challan) → TO-Linked Workflow
         │
-        ├── Document Number: challan/TO/PO/DO number (text input)
-        ├── Product Details: gate-in item (item code lookup)
-        ├── Quantity: decimal (nullable — empty vehicles)
+        ├── Document Number: from TO (`gate_document_number` or `to_number`) — not manual on TO-linked path
         ├── Date/Time: auto-set to now (editable within 1 hour)
-        ├── Driver: Name + Contact (text inputs)
         ├── Party Name: text input (supplier/dealer/distributor)
         ├── Project / From Info: text input
         ├── Remarks: text area (optional — discrepancies, visual inspection)
@@ -395,29 +400,23 @@ Ready for Dispatch → (supervisor dispatch) → Dispatched
 
 ```
 Gateman opens Gate-In form
-  └─► Enters vehicle registration (required)
-        └─► Selects document category: Internal Transfer (TO/Challan)
-              └─► Enters TO/Challan number (or selects TO via autocomplete — queryset pre-filtered)
-                    └─► Backend lookup: TransportOrder.objects.get(to_number=...)
-                          ├─► If found:
-                          │     ├─► GateInService.validate_to_eligible_for_gate_in(to, gate_poi_id=session POI)
-                          │     │     ├─► flow_lane + status in GATE_IN_ELIGIBLE_TO_STATUSES
-                          │     │     └─► POI = origin (FG outbound) or destination (FG/RM inbound)
-                          │     ├─► Validate vehicle matches assigned vehicle on TO (warn + supervisor override if mismatch)
-                          │     ├─► Pre-fill: product details, quantity from TO
-                          │     ├─► Gateman enters: driver name, driver contact, party name, project/from info, remarks
-                          │     └─► [Submit Gate-In]
-                          │           └─► Create GateVisitSession + GateIn record
-                          │                 └─► GateInService.record_gate_in(to):
-                          │                       ├─► TO.status → GATE_IN_SUCCESS_TO_STATUS[flow_lane]
-                          │                       └─► Emit GATE_IN event (TLS-01 timeline; actor=gate)
-                          │                             └─► Log GateActivityLog(action='gate_in')
-                          │                                   └─► Success redirect: Active Visits
-                          │
-                          └─► If not found:
-                                └─► Error: "TO not found. [Create On-Demand TO]" button enabled (GT-02)
-                          └─► If found but wrong status / POI:
-                                └─► ValidationError, e.g. "TO must be In Transit – Source at this POI before gate-in (FG outbound)."
+  └─► Selects document category: Internal Transfer (TO/Challan)
+        └─► Selects Transport Order (autocomplete — in-transit TOs only, §4.0)
+              ├─► Gate POI resolved from TO (not entered manually):
+              │     ├─► FG outbound + in_transit_source → origin_poi
+              │     └─► FG/RM inbound + in_transit_destination → destination_poi
+              ├─► Vehicle pre-filled from TransportOrder.vehicle (supervisor may override mismatch)
+              ├─► Gateman enters: document number, driver, party, remarks
+              └─► [Submit Gate-In]
+                    ├─► GateInService.validate_to_eligible_for_gate_in(to, gate_poi_id=resolved POI)
+                    ├─► GateInService.validate_vehicle_match(to, vehicle)
+                    └─► Create GateVisitSession + GateIn
+                          ├─► TO.status → GATE_IN_SUCCESS_TO_STATUS[flow_lane]
+                          └─► Emit GATE_IN + GateActivityLog → Active Visits
+              └─► If TO ineligible / not in autocomplete:
+                    └─► ValidationError (wrong status, POI, or active visit exists)
+              └─► If TO not found:
+                    └─► [Create On-Demand TO] (GT-02)
 ```
 
 ### 4.2 Dealer/Supplier Entry (feature-flagged — GT-02 on-demand path)
@@ -592,35 +591,26 @@ Gateman opens Gate-Out form
 
 Uses `TenantOnlyAdminMixin`. **Business rules live in `GateInService`**; admin stays thin (validate → delegate → message user).
 
-**Change Form**:
-- `autocomplete_fields = ["transport_order", "vehicle"]` (or raw `to_number` + hidden FK pattern if UX prefers challan field)
-- **TO queryset restriction** — `formfield_for_foreignkey` on `transport_order`:
+**Change Form (add)**:
+- Field order: **Transport Order** first, then **Vehicle** (pre-filled from TO; not a free-text registration field on this path).
+- **Gate POI is not a user-editable field** on add — `GateInService.resolve_gate_poi_for_to(to)` sets it on submit:
+  - FG outbound + `in_transit_source` → `origin_poi`
+  - FG/RM inbound + `in_transit_destination` → `destination_poi`
+- `autocomplete_fields = ["transport_order", "vehicle"]` — POI removed from autocomplete.
+- **TO queryset** — shared helper `gate_eligible_transport_orders_queryset(gate_poi_id=…)` used by `GateInAdmin.formfield_for_foreignkey`, `TransportOrderAdmin.get_queryset` / `get_search_results` (gate-in autocomplete), and `to_prefill` JSON endpoint:
+  - Eligible statuses per §4.0 (`in_transit_source` / `in_transit_destination`).
+  - Gateman: optional `gate_poi_id` from session scopes TOs whose resolved gate POI matches.
+  - Gate supervisor: unscoped eligible TOs across tenant POIs.
+  - Excludes TOs with an active `GateVisitSession`.
+- **Live pre-fill** — `GET …/gatein/to-prefill/<to_id>/` returns `{ poi_label, vehicle_id, vehicle_label }`; change-form JS updates read-only summary and sets vehicle select2 on TO change.
 
 ```python
-def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    if db_field.name == "transport_order":
-        poi = get_gate_poi_for_request(request)  # tenant + gateman's assigned POI
-        kwargs["queryset"] = (
-            TransportOrder.objects.filter(tenant=request.tenant)
-            .filter(
-                Q(flow_lane=FlowLane.FG_OUTBOUND, origin_poi=poi, status=TOStatus.IN_TRANSIT_SOURCE)
-                | Q(
-                    flow_lane__in=(FlowLane.FG_INBOUND, FlowLane.RM_INBOUND),
-                    destination_poi=poi,
-                    status=TOStatus.IN_TRANSIT_DESTINATION,
-                )
-            )
-            .exclude(
-                gate_visit_sessions__poi=poi,
-                gate_visit_sessions__status=GateVisitStatus.ACTIVE,
-            )
-            .select_related("origin_poi", "destination_poi", "assigned_vehicle")
-            .order_by("-updated_at")
-        )
-    return super().formfield_for_foreignkey(db_field, request, **kwargs)
+# apps/operations/gate/gate_services.py
+def resolve_gate_poi_for_to(to: TransportOrder) -> POI: ...
+def gate_eligible_transport_orders_queryset(*, gate_poi_id=None): ...
 ```
 
-- **Read-only helpers on change form** (after TO selected): `flow_lane_badge`, `to_status_badge`, `eligible_gate_in_hint` (e.g. “FG outbound — requires In Transit – Source at origin POI”)
+- **Read-only helpers on change form** (after TO selected): derived POI + vehicle summary panel; optional `flow_lane_badge`, `to_status_badge` on detail view
 - Vehicle registration validation in `save_model` → `GateInService.validate_vehicle_match(...)` (warn + supervisor override on mismatch)
 - Document category routing → `GateInService.resolve_operational_flow(...)`:
   - `Internal Transfer` → active (Sprint 4 E2E)
