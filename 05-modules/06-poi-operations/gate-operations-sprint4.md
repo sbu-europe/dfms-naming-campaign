@@ -5,7 +5,7 @@ version: 2.0
 phase: Phase 1
 sprint: Sprint 4
 last_updated: 2026-05-19
-changelog: "v2.4 — project_from_info required + origin_poi prefill; §6.1.1 visit summary card (GateVisitSummaryWidget); v2.3 — YARD-01 integration; v2.2 — GT-02 on-demand TO.status; v2.1 — §4.5 chain, §5.1 guards"
+changelog: "v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -635,7 +635,7 @@ All gate operator admin screens must match the **existing DFMS Django admin shel
 1. **Mixin stack**: `GateAdminBase` → `YardAdminBase` → `TenantOnlyAdminMixin` → `DynamicPaginationMixin`. Keep default `change_list_template` unless extending `admin/dynamic_pagination_changelist.html`.
 2. **Status badges**: `format_html` + `dfms-badge--{modifier}` + Bootstrap Icons (`bi-*`, `font-size:10px`). Map lane/visit/TO states to modifiers in `data-display.md` (e.g. `dfms-badge--under-planning`, `dfms-badge--fulfilled`). No inline hex colours.
 3. **Buttons** (custom `change_form.html` only): `dfms-btn-secondary`, `dfms-btn-save`, `dfms-btn-draft`, `dfms-btn-add` per `custom.css` and `django-admin-draft-submit.mdc`.
-4. **Tables & changelist**: Use default `#result_list` and `.module` styling. **Exception — TO visit summary card** on Gate-In add (§6.1.1): scoped styles in `templates/admin/operations/gatein/change_form.html` using DFMS tokens (`--dfms-primary`, `--body-bg`); same pattern as other ops readonly panels (QC `to_context_panel` references gate markup). Do not add new global card systems.
+4. **Tables & changelist**: Use default `#result_list` and `.module` styling. **TO visit summary card** on Gate-In add (§6.1.1) uses the **shared entity summary card** (`.to-tr-header` / `.to-tr-meta` in `static/admin/css/custom.css`) — same markup/CSS as Transport “Create TO from TR” (`templates/admin/transport/transportorder/create_from_tr.html`). Gate-in add template only adds field-layout overrides (hide label, warning strip); no purple-bordered alternate card.
 5. **Pagination**: Use the shared per-page dropdown; do not replace with custom paginator UI.
 6. **Light/dark mode**: CSS variables only (`var(--dfms-grey-*)`, `var(--body-bg)`, etc.). Verify changelist, change form, badges, and guard-matrix panels in both themes.
 7. **Custom templates**: Extend `admin/change_form.html` or `admin/dynamic_pagination_changelist.html`; no extra stylesheets beyond `custom.css`.
@@ -704,44 +704,44 @@ def extract_gate_in_context_from_to(to: TransportOrder) -> GateInTOContext: ...
 - Read-only after 1 hour: all timestamps
 - Remarks: editable by Gateman who created the record
 
-### 6.1.1 Visit summary card (TO prefill UI — implemented pattern)
+### 6.1.1 Visit summary card (TO prefill UI — shared entity card)
 
-Gate-In **add** uses a read-only **visit summary card** so the gateman sees all TO-derived context in one place before entering party/remarks. Reuse this pattern for other yard screens that anchor on a TO (e.g. scale-in, loading assignment — see `docs/poi-scoped-operational-roles.md`).
+Gate-In **add** uses a read-only **entity summary card** so the gateman sees all TO-derived context before party/remarks. **Visual and markup must match the Transport TR summary card** (Port Consignment / FG TR — grey panel, purple TO/TR id line, 4-column responsive meta grid). Reuse for other yard TO-anchored screens (see `docs/poi-scoped-operational-roles.md`).
 
-**Reference implementation (do not duplicate markup elsewhere without copying this structure):**
+**Shared card reference (canonical CSS):**
 
 | Piece | Path |
 |-------|------|
-| Widget HTML shell | `apps/operations/gate/widgets.py` — `GateVisitSummaryWidget` |
-| Form field (add only) | `apps/operations/gate/forms.py` — `visit_summary` on `GateInAdminForm` |
-| Fieldset placement | `apps/operations/gate/admin.py` — Visit fieldset: `transport_order`, `visit_summary` |
-| Scoped CSS | `templates/admin/operations/gatein/change_form.html` — `.gate-visit-summary*` |
+| Shared CSS | `static/admin/css/custom.css` — `.to-tr-header`, `.to-tr-header__number`, `.to-tr-meta`, `.to-tr-meta__item` |
+| Reference markup | `templates/admin/transport/transportorder/create_from_tr.html` (TR summary block) |
+| Gate widget | `apps/operations/gate/widgets.py` — `GateVisitSummaryWidget` (same class names) |
+| Form field (add only) | `apps/operations/gate/forms.py` — `visit_summary` |
+| Fieldset | `apps/operations/gate/admin.py` — `transport_order`, `visit_summary` |
+| Gate-only overrides | `templates/admin/operations/gatein/change_form.html` — hide field label, `.gate-to-summary__hint` / `__warning` |
 | Live refresh | `static/admin/js/gatein_to_prefill.js` |
 | JSON endpoint | `GateInAdmin.to_prefill_view` → `build_gate_in_prefill_payload` |
 
-**Visual design (matches existing backend):**
+**Visual design (shared entity card — do not use the old purple-bordered gate card):**
 
-- Card container: `.gate-visit-summary` — 2px border, 8px radius, light gradient using `var(--dfms-primary)` at 8% mix; `box-shadow` from primary token.
-- Header: `.gate-visit-summary__header` — uppercase label, Bootstrap Icon `bi-truck-front`, primary colour.
-- Hint: `.gate-visit-summary__hint` — quiet body text (“Select a transport order above…”).
-- Warning strip: `.gate-visit-summary__warning` — amber `#fef3c7` / `#92400e` when prefill returns `warning` (e.g. incomplete driver on TO).
-- Grid: `.gate-visit-summary__grid` — 3 columns desktop, 1 column below 900px; product row spans 2 columns (`.gate-visit-summary__cell--wide`).
-- Cell typography: label 0.75rem uppercase; value 1.25rem bold; vehicle value 1.5rem primary-dark.
-- States: `.gate-visit-summary--empty` (placeholder `—`, primary border) → `.gate-visit-summary--ready` (success border/shadow after successful prefill).
-- **No new global CSS file** — styles live only in the gate-in `change_form.html` `{% block extrastyle %}` on add.
+- **Container** `.to-tr-header` — `var(--darkened-bg)` fill, `1px solid var(--border-color)`, `8px` radius, padding `1rem 1.25rem`.
+- **Title row** `.to-tr-header__number` — `bi-truck` + **TO number** in `var(--dfms-primary)`, bold ~0.95rem (e.g. `TO-20260512-0042`). Empty state: title shows `—`.
+- **Hint** `.gate-to-summary__hint` — one line below title: “Select a transport order above…”
+- **Warning** `.gate-to-summary__warning` — amber strip when prefill `warning` is set (e.g. incomplete driver on TO).
+- **Grid** `.to-tr-meta` — `repeat(auto-fill, minmax(150px, 1fr))`; each cell `.to-tr-meta__item` with `<strong>` label (uppercase, quiet) + `<span>` value (semibold).
+- **States** `.to-tr-header--empty` / `.to-tr-header--populated` — muted placeholder values vs loaded TO (no green border / no primary gradient).
 
-**Card cells (left → right, top → bottom):**
+**Card cells (grid order; TO number is in the title row only):**
 
-| Cell ID | Label | Source |
-|---------|-------|--------|
-| `gate-summary-to` | Transport order | `to.to_number` |
+| Cell ID | Label (`<strong>`) | Source |
+|---------|-------------------|--------|
 | `gate-summary-poi` | Gate POI | `resolve_gate_poi_for_to(to)` → `{code} — {name}` |
 | `gate-summary-vehicle` | Vehicle | `vehicle` FK or `vendor_vehicle_registration` |
-| `gate-summary-product` | Product | TO line items (wide cell) |
+| `gate-summary-product` | Product | TO line items |
 | `gate-summary-quantity` | Quantity | `allocated_quantity` / line sum + UOM |
 | `gate-summary-driver` | Driver | Assigned driver or vendor driver name |
 | `gate-summary-contact` | Driver contact | Driver / vendor phone |
-| `gate-summary-origin` | Project / From (source) | `origin_poi` → `{code} — {name}` *(v2.4 — add to widget + JS)* |
+| `gate-summary-origin` | Project / From (source) | `origin_poi` → `{code} — {name}` |
+| `gate-summary-to` | *(title row only)* | `to.to_number` — updated by JS in `.to-tr-header__number span` |
 
 **Fields hidden on add** (values applied in `GateInAdminForm.clean()` / service, not typed twice):
 
@@ -773,7 +773,7 @@ Gate-In **add** uses a read-only **visit summary card** so the gateman sees all 
 
 1. Read URL template from `#gate-prefill-config[data-prefill-url-template]` (placeholder `__TO_ID__`).
 2. On `#id_transport_order` change / Select2 select / clear → `GET` prefill URL.
-3. Update all `gate-summary-*` cells; toggle `--empty` / `--ready`.
+3. Update all `gate-summary-*` cells and title `#gate-summary-to`; toggle `.to-tr-header--empty` / `--populated`.
 4. Set `#id_project_from_info` to `data.project_from_info` when present (do not clear on empty TO — leave last value or blank per product rule; prefer clear on Select2 clear).
 5. Supervisor vehicle override checkbox unchanged (`gatein-vehicle-override` body class).
 
