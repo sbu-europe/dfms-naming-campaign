@@ -1,7 +1,7 @@
 ---
 module: 06-poi-operations
 specification: Scaling Operations (Sprint 4 — TO-Centric)
-version: 1.0
+version: 1.2
 phase: Phase 1
 sprint: Sprint 4
 last_updated: 2026-05-19
@@ -13,10 +13,10 @@ jira_epic: DFS-072
 
 ## Overview
 
-The **Scaling Operations** specification covers weighbridge scale-in/out, queue token (P.C. code) issuance, net weight calculation, and printable gate pass. Every weighing operation is anchored to a `GateVisitSession` (and therefore to a `TransportOrder`). Scale-in is a **prerequisite** for Command Center queue entry; scale-out is a **prerequisite** for gate-out (GT-01 guard matrix).
+The **Scaling Operations** specification covers weighbridge scale-in/out, **P.C. code capture** (operator-entered at scale-in — the system does **not** generate P.C. codes), net weight calculation, and printable gate pass. Every weighing operation is anchored to a `GateVisitSession` (and therefore to a `TransportOrder`). Scale-in is a **prerequisite** for Command Center queue entry; scale-out is a **prerequisite** for gate-out (GT-01 guard matrix).
 
 **Module path**: `apps/operations/scaling/`  
-**Dependencies**: `apps/operations/gate/` (GateVisitSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
+**Dependencies**: `apps/operations/gate/` (`GateVisitSession`, `yard_leg`), `apps/operations/yard_context.py` (`OPERATIONS_BY_LEG_AND_LANE`), `apps/transport/` (TransportOrder, FlowLane, TOStatus), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
 **Enables**: Command Center queue (CC-01), gate-out clearance (GT-01), net weight for POD-01
 
 ### Codebase baseline (May 2026)
@@ -37,7 +37,7 @@ Sidebar (Scaling Operator)
 └── Operations
       └── Scaling
             ├── Scale-In                  — record loaded/empty weight for arriving vehicle
-            │     └── Scale-In Form       — session lookup, weight capture, discrepancy flags, token issuance
+            │     └── Scale-In Form       — session lookup, **P.C. code** (required input), weight capture, discrepancy flags
             │
             ├── Scale-Out                 — record tare/remaining weight for departing vehicle
             │     └── Scale-Out Form      — session lookup, weight capture, net weight display, gate pass
@@ -72,6 +72,7 @@ WeighingSession(TenantAwareModel) {
     gate_visit_session: FK → GateVisitSession (OneToOne)
     transport_order: FK → TransportOrder (nullable — copied from session for fast joins)
     poi: FK → POI
+    yard_leg: CharField (copied from `gate_visit_session.yard_leg` on create — used for list filters and scale-out guard UI)
 
     # Status
     scale_out_completed: boolean (default False)
@@ -93,6 +94,9 @@ ScaleIn(TenantAwareModel) {
     # Weight
     gross_weight_mt: Decimal(10, 3)           # loaded vehicle weight
     is_empty_vehicle: boolean (default False) # if True, gross_weight is tare
+
+    # P.C. code (operator-entered — not system-generated)
+    pc_code: string (max 50, required)        # transcribed from physical waiting slip / yard issue
 
     # Discrepancy flags
     seal_intact: boolean (nullable)
@@ -129,24 +133,27 @@ ScaleOut(TenantAwareModel) {
 
 ### 1.4 QueueToken (new model — extends `TenantAwareModel`)
 
-Issued automatically on successful scale-in; carries the P.C. code serial.
+Created on successful scale-in for CC-01 queue linkage. The **P.C. code is not generated** — it is copied from the operator input on `ScaleIn.pc_code` at create time.
 
 ```python
 QueueToken(TenantAwareModel) {
     id: UUID (PK)
 
     weighing_session: FK → WeighingSession (OneToOne)
-    token_number: string (unique per POI per day — format: 'PC-{POI_CODE}-{YYYYMMDD}-{seq:04d}')
+    poi: FK → POI                         # denormalised from session for uniqueness scope
+    pc_code: string (max 50, required)    # same value as ScaleIn.pc_code (trimmed)
 
     status: enum ['waiting', 'assigned', 'closed']
-    # waiting → issued, in CC queue
+    # waiting → on CC queue
     # assigned → CC has assigned a loading/unloading bay
-    # closed → vehicle completed loading/unloading and exited
+    # closed → scale-out completed for this visit
 
     issued_at: DateTime
     created_by: FK → User
 }
 ```
+
+**Uniqueness**: `pc_code` must be unique among tokens at the same `poi` while `status in ('waiting', 'assigned')`. Closed tokens do not block reuse of the same physical code on a later day (business accepts yard re-issue). Enforce via `UniqueConstraint` + `ScaleInService.validate_pc_code()`.
 
 ---
 
@@ -154,15 +161,21 @@ QueueToken(TenantAwareModel) {
 
 Scale-in and scale-out advance `TO.status` via the TLS-01 event ingest service. Sub-states are recorded in `TOStatusTransitionLog`.
 
+**Leg key**: Eligibility and yard-step sub-states are keyed by **`(flow_lane, yard_leg)`** on the active `GateVisitSession` (set at gate-in — see GT-01 / YARD-01). `flow_lane` alone is insufficient for FG outbound, which has **two** weigh cycles on one TO (source leg + destination leg). Policy table: `apps/operations/yard_context.py` → `OPERATIONS_BY_LEG_AND_LANE`.
+
 ### 2.1 Scale-In eligibility and result
 
-| Flow Lane | Required `TO.status` before scale-in | Sub-state written on scale-in |
-|-----------|--------------------------------------|-------------------------------|
-| FG outbound | `at_source` | `scale_in` |
-| FG inbound | `at_destination` | `scale_in` |
-| RM inbound | `at_destination` | `scale_in` |
+| Flow lane | `yard_leg` | Required `TO.status` before scale-in | TLS / yard sub-state on scale-in |
+|-----------|------------|--------------------------------------|----------------------------------|
+| FG outbound | `source` | `at_source` | `scale_in_source` |
+| FG outbound | `destination` | `at_destination` | `scale_in_dest` |
+| FG inbound | `destination` | `at_destination` | `scale_in_dest` |
+| RM inbound | `destination` | `at_destination` | `scale_in_dest` |
 
-**Prerequisite**: An active `GateVisitSession` with no existing `WeighingSession` must exist for the TO at the current POI.
+**Prerequisites**:
+- Active `GateVisitSession` at the operator’s POI with `yard_leg` set (blank `yard_leg` — GT-02 edge case — must be rejected or resolved before scale-in; see §2.3).
+- No existing `WeighingSession` for that session (one weigh cycle per visit).
+- `resolve_yard_context(session).allowed_operations` includes `"scale_in"`.
 
 **Service-layer validation** (`apps/operations/scaling/services.py` — `ScaleInService`):
 
@@ -172,27 +185,37 @@ def validate_to_eligible_for_scale_in(
 ) -> None:
     """
     Raises ValidationError when:
-    - No active GateVisitSession for this vehicle at this POI
+    - session.yard_leg is blank
     - WeighingSession already exists for this GateVisitSession
-    - TO.status not in {at_source (FG outbound) | at_destination (FG/RM inbound)}
+    - (flow_lane, yard_leg) not in SCALE_IN_ELIGIBLE_TO_STATUSES
+    - TO.status != SCALE_IN_ELIGIBLE_TO_STATUSES[(flow_lane, yard_leg)]
+    - session.poi_id != operator working POI
+    - "scale_in" not in resolve_yard_context(session).allowed_operations
+    - pc_code blank or duplicate among active QueueToken at session.poi_id
     """
+
+def validate_pc_code(*, poi_id, pc_code: str) -> None:
+    """Trim, require non-empty, max length 50; 409 if pc_code in use at POI (waiting/assigned)."""
 ```
 
 **On successful scale-in** (all within one `atomic()` block — if any step fails, all roll back):
-1. Create `WeighingSession` + `ScaleIn` record
-2. Auto-issue `QueueToken` (status = `waiting`)
+1. Create `WeighingSession` + `ScaleIn` record (copy `poi` + `transport_order` from session; persist operator `pc_code`)
+2. Create `QueueToken` (`pc_code` = `ScaleIn.pc_code`, `status = waiting`) — no serial generation
 3. **Create `QueueEntry`** in CC-01 directly via `CCService.create_queue_entry()` — **not** via signal or webhook. A failed signal would leave the vehicle invisible in Command Center.
-4. Call `record_yard_sub_state(to, TOSubState.SCALE_IN, actor=request.user)` then `record_yard_sub_state(to, TOSubState.WAITING_CC, actor=request.user)` (YARD-01 Step 1)
+4. `sub = scale_in_sub_state_for_session(session)` — see §2.3 — then `record_yard_sub_state(to, sub, …)` and `record_yard_sub_state(to, TOSubState.WAITING_CC, …)` (YARD-01)
 
 ### 2.2 Scale-Out eligibility and result
 
-Scale-out can only be recorded after loading/unloading is complete. The **CC-01/LD-01 flow** drives the TO to the correct sub-state before scale-out is allowed.
+Scale-out can only be recorded after the **yard work for that leg** is complete (loading at source, unloading at destination). The **CC-01/LD-01 flow** drives intermediate sub-states before scale-out is allowed.
 
-| Flow Lane | Required pre-conditions before scale-out | `TO.status` after scale-out |
-|-----------|------------------------------------------|-----------------------------|
-| FG outbound | `LoadEvent.end_datetime not null` (loading complete) | → `in_transit_destination` |
-| FG inbound | `UnloadEvent.end_datetime not null` (unloading complete) | → `delivered_unloaded` |
-| RM inbound | `UnloadEvent.end_datetime not null` + `QCDecision.decision = 'pass'` | → `delivered_unloaded` |
+| Flow lane | `yard_leg` | Required pre-conditions before scale-out | `TO.status` after scale-out |
+|-----------|------------|------------------------------------------|-----------------------------|
+| FG outbound | `source` | `LoadEvent.end_datetime not null` (loading complete) | → `in_transit_destination` |
+| FG outbound | `destination` | `UnloadEvent.end_datetime not null` (unloading complete) | → `delivered_unloaded` |
+| FG inbound | `destination` | `UnloadEvent.end_datetime not null` (unloading complete) | → `delivered_unloaded` |
+| RM inbound | `destination` | `UnloadEvent.end_datetime not null` + `QCDecision.decision = 'pass'` | → `delivered_unloaded` |
+
+> **FG finished goods (full trip)**: source leg scale-out advances the TO to `in_transit_destination` (vehicle en route to destination). After gate-in at destination (`yard_leg=destination`, `at_destination`), a **new** `GateVisitSession` + `WeighingSession` runs the destination scale-in → unload → scale-out → `delivered_unloaded` chain.
 
 **Service-layer validation** (`ScaleOutService`):
 
@@ -203,34 +226,71 @@ def validate_eligible_for_scale_out(
     """
     Raises ValidationError when:
     - ScaleOut already exists (immutability guard)
-    - flow_lane = FG outbound and LoadEvent not completed
-    - flow_lane = FG inbound and UnloadEvent not completed
-    - flow_lane = RM inbound and (UnloadEvent not completed OR QCDecision.decision != 'pass')
-    """
+    - session.yard_leg blank or key not in SCALE_OUT_PRECONDITIONS
+    - (FG outbound, source) and LoadEvent not completed for this TO
+    - (*, destination) and UnloadEvent not completed for this TO
+    - (RM inbound, destination) and QCDecision.decision != 'pass'
+  """
 ```
 
 **On successful scale-out**:
 1. Create `ScaleOut`, auto-calculate `net_weight_mt = gross_weight_mt − tare_weight_mt`
 2. Set `WeighingSession.scale_out_completed = True`
-3. Emit `SCALE_OUT` event to TLS-01; advance `TO.status` per lane table above
-4. Close `QueueToken.status = 'closed'`
-5. Issue `GatePass` (printable; linked to WeighingSession)
+3. Emit `SCALE_OUT` / `SCALE_OUT_SOURCE` or `SCALE_OUT_DEST` to TLS-01 (§2.3); advance `TO.status` via `SCALE_OUT_RESULT_TO_STATUS[(flow_lane, yard_leg)]`
+4. `record_yard_sub_state(to, scale_out_sub_state_for_session(session), …)` then close token
+5. Close `QueueToken.status = 'closed'`
+6. Issue `GatePass` (printable; linked to WeighingSession)
 
-**Constants** (add to `apps/transport/constants.py`):
+**Constants** (add to `apps/transport/constants.py`; import `YardLeg` from `apps.operations.gate.constants`):
 
 ```python
-SCALE_IN_ELIGIBLE_TO_STATUSES: dict[str, str] = {
-    FlowLane.FG_OUTBOUND: TOStatus.AT_SOURCE,
-    FlowLane.FG_INBOUND: TOStatus.AT_DESTINATION,
-    FlowLane.RM_INBOUND: TOStatus.AT_DESTINATION,
+# (flow_lane, yard_leg) → required TO.status before scale-in
+SCALE_IN_ELIGIBLE_TO_STATUSES: dict[tuple[str, str], str] = {
+    (FlowLane.FG_OUTBOUND, YardLeg.SOURCE): TOStatus.AT_SOURCE,
+    (FlowLane.FG_OUTBOUND, YardLeg.DESTINATION): TOStatus.AT_DESTINATION,
+    (FlowLane.FG_INBOUND, YardLeg.DESTINATION): TOStatus.AT_DESTINATION,
+    (FlowLane.RM_INBOUND, YardLeg.DESTINATION): TOStatus.AT_DESTINATION,
 }
 
-SCALE_OUT_RESULT_TO_STATUS: dict[str, str] = {
-    FlowLane.FG_OUTBOUND: TOStatus.IN_TRANSIT_DESTINATION,
-    FlowLane.FG_INBOUND: TOStatus.DELIVERED_UNLOADED,
-    FlowLane.RM_INBOUND: TOStatus.DELIVERED_UNLOADED,
+# (flow_lane, yard_leg) → TO.status after successful scale-out
+SCALE_OUT_RESULT_TO_STATUS: dict[tuple[str, str], str] = {
+    (FlowLane.FG_OUTBOUND, YardLeg.SOURCE): TOStatus.IN_TRANSIT_DESTINATION,
+    (FlowLane.FG_OUTBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
+    (FlowLane.FG_INBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
+    (FlowLane.RM_INBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
 }
 ```
+
+### 2.3 TLS sub-states — leg-specific (not generic `scale_in`)
+
+**Decision**: Use **leg-specific** sub-states aligned with [transport-lifecycle-pod-sprint4.md](../05-transport/transport-lifecycle-pod-sprint4.md) (`scale_in_source`, `scale_in_dest`, `scale_out_source`, `scale_out_dest`). Generic `scale_in` is **not** sufficient: a single FG outbound TO has two weigh cycles; CC-01, LD-01, and the TLS timeline must distinguish source vs destination yard steps.
+
+| `yard_leg` | Scale-in sub-state | After scale-in (queue) | Scale-out sub-state |
+|------------|-------------------|------------------------|---------------------|
+| `source` | `scale_in_source` | `waiting_cc` (unchanged) | `scale_out_source` |
+| `destination` | `scale_in_dest` | `waiting_cc` (unchanged) | `scale_out_dest` |
+
+**Implementation helpers** (`apps/operations/scaling/services.py`):
+
+```python
+def scale_in_sub_state_for_session(session: GateVisitSession) -> str:
+    if session.yard_leg == YardLeg.SOURCE:
+        return TOSubState.SCALE_IN_SOURCE
+    if session.yard_leg == YardLeg.DESTINATION:
+        return TOSubState.SCALE_IN_DEST
+    raise ValidationError("Gate visit has no yard leg; complete gate-in before scaling.")
+
+def scale_out_sub_state_for_session(session: GateVisitSession) -> str:
+    if session.yard_leg == YardLeg.SOURCE:
+        return TOSubState.SCALE_OUT_SOURCE
+    if session.yard_leg == YardLeg.DESTINATION:
+        return TOSubState.SCALE_OUT_DEST
+    raise ValidationError("Gate visit has no yard leg.")
+```
+
+**SC-01-10 code change**: Extend `TOSubState` in `apps/transport/constants.py` with `SCALE_IN_SOURCE`, `SCALE_IN_DEST`, `SCALE_OUT_SOURCE`, `SCALE_OUT_DEST` (values match TLS-01). Deprecate use of generic `TOSubState.SCALE_IN` for new yard writes; existing rows may remain until backfill.
+
+**TLS-01 event payload** (recommended): include `yard_leg`, `gate_visit_session_id`, and `sub_state` in `TOStatusTransitionLog.payload` for SCALE_IN / SCALE_OUT events.
 
 ---
 
@@ -245,17 +305,18 @@ Scaling Operator opens Scale-In form
               └─► If found:
                     ├─► Display: TO Number, Vehicle, Flow Lane badge, Gate-In Time
                     ├─► ScaleInService.validate_to_eligible_for_scale_in(session)
+                    ├─► Enter: **P.C. Code** — required (operator input from physical slip)
                     ├─► Enter: Gross Weight (MT) — required
                     ├─► Check: Is Empty Vehicle? — if yes, document as tare only
                     ├─► Discrepancy flags: Seal Intact (Y/N/N/A), Document Match (Y/N)
                     ├─► Discrepancy Notes: free text (required if any flag = N)
                     └─► [Submit Scale-In]
-                          └─► ScaleInService.record_scale_in(session, weight, flags):
-                                ├─► Create WeighingSession
-                                ├─► Create ScaleIn record
-                                ├─► Auto-issue QueueToken (PC code, status=waiting)
-                                ├─► Emit SCALE_IN → TLS-01 (sub: scale_in → waiting_cc)
-                                └─► Success: show token number + [Print Token] button
+                          └─► ScaleInService.record_scale_in(session, pc_code, weight, flags):
+                                ├─► validate_pc_code(poi, pc_code) — required, trimmed, unique among active tokens at POI
+                                ├─► Create WeighingSession + ScaleIn (with pc_code)
+                                ├─► Create QueueToken (pc_code copied, status=waiting)
+                                ├─► Emit SCALE_IN → TLS-01 (sub: scale_in_source | scale_in_dest → waiting_cc)
+                                └─► Success: show P.C. code + [Print Token] button (reprints entered code + visit summary)
 ```
 
 ---
@@ -270,10 +331,10 @@ Scaling Operator opens Scale-Out form
               │
               └─► If found:
                     ├─► Display: TO Number, Vehicle, Flow Lane, Gross Weight (from ScaleIn)
-                    ├─► Show Guard pre-check (read-only summary):
-                    │     ├─► FG outbound: Loading complete? ✓/✗
-                    │     ├─► FG inbound: Unloading complete? ✓/✗
-                    │     └─► RM inbound: Unloading complete? ✓/✗ | QC Passed? ✓/✗
+                    ├─► Show Guard pre-check (read-only summary; keyed by session.yard_leg):
+                    │     ├─► yard_leg=source (FG outbound): Loading complete? ✓/✗
+                    │     ├─► yard_leg=destination (FG outbound / FG inbound): Unloading complete? ✓/✗
+                    │     └─► yard_leg=destination (RM inbound): Unloading complete? ✓/✗ | QC Passed? ✓/✗
                     ├─► ScaleOutService.validate_eligible_for_scale_out(session)
                     ├─► Enter: Tare Weight (MT) — required
                     ├─► Display (auto-calculated): Net Weight = Gross − Tare
@@ -282,7 +343,7 @@ Scaling Operator opens Scale-Out form
                                 ├─► Create ScaleOut (net_weight auto-set)
                                 ├─► WeighingSession.scale_out_completed = True
                                 ├─► QueueToken.status = 'closed'
-                                ├─► Emit SCALE_OUT → TLS-01; advance TO.status per lane
+                                ├─► Emit SCALE_OUT → TLS-01 (sub: scale_out_source | scale_out_dest); advance TO.status per (lane, yard_leg)
                                 └─► Success: show net weight + [Print Gate Pass] button
 ```
 
@@ -346,13 +407,24 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
         poi_id = self._scope_poi_id(request)  # from YardAdminBase
         qs = (
             GateVisitSession.objects.filter(status=GateVisitStatus.ACTIVE)
+            .exclude(yard_leg="")  # GT-02 blank leg — not eligible for scale-in
             .filter(
-                transport_order__status__in=[
-                    TOStatus.AT_SOURCE,      # FG outbound
-                    TOStatus.AT_DESTINATION, # FG inbound, RM inbound
-                ]
+                Q(
+                    yard_leg=YardLeg.SOURCE,
+                    transport_order__flow_lane=FlowLane.FG_OUTBOUND,
+                    transport_order__status=TOStatus.AT_SOURCE,
+                )
+                | Q(
+                    yard_leg=YardLeg.DESTINATION,
+                    transport_order__status=TOStatus.AT_DESTINATION,
+                    transport_order__flow_lane__in=(
+                        FlowLane.FG_OUTBOUND,
+                        FlowLane.FG_INBOUND,
+                        FlowLane.RM_INBOUND,
+                    ),
+                )
             )
-            .exclude(weighing_session__isnull=False)  # no existing WeighingSession
+            .exclude(weighing_session__isnull=False)
             .select_related("transport_order", "vehicle")
             .order_by("-created_at")
         )
@@ -362,17 +434,18 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
-- **Read-only info panel** (after session selected): Flow Lane badge, TO Number, Gate-In Time, TO Status badge
+- **Read-only info panel** (after session selected): Flow Lane badge, **Yard leg** badge, TO Number, Gate-In Time, TO Status badge
 - `save_model`:
   1. `ScaleInService.validate_to_eligible_for_scale_in(session)`
-  2. `ScaleInService.record_scale_in(...)` — creates WeighingSession, ScaleIn, QueueToken; emits TLS-01 event
-  3. After save: `self.message_user(request, f"Scale-in recorded. Queue Token: {token.token_number}")`
+  2. `ScaleInService.record_scale_in(..., pc_code=...)` — creates WeighingSession, ScaleIn, QueueToken; emits TLS-01 event
+  3. Change form fields: `pc_code` required on scale-in (not on ScaleOut)
+  4. After save: `self.message_user(request, f"Scale-in recorded. P.C. Code: {scale_in.pc_code}")`
 - `get_readonly_fields`: all fields read-only once `WeighingSession.scale_out_completed = True`
 
 **List View**:
-- Columns: TO Number, Vehicle, Flow Lane, Gross Weight (MT), Is Empty, Seal Intact, Scale-In Time, Token Number, Created By
+- Columns: TO Number, Vehicle, Flow Lane, **P.C. Code**, Gross Weight (MT), Is Empty, Seal Intact, Scale-In Time, Created By
 - Filters: `gate_visit_session__poi`, `scale_in_at` (date range), `is_empty_vehicle`
-- Search: TO number, Vehicle registration, Token number
+- Search: TO number, Vehicle registration, **P.C. code**
 
 ### 5.2 ScaleOutAdmin (SC-01-3)
 
@@ -400,11 +473,11 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
-- **Guard pre-check panel** (read-only, computed from TO + related records):
+- **Guard pre-check panel** (read-only, computed from `weighing_session.gate_visit_session.yard_leg` + TO):
   - Displayed as a `readonly_field` helper `guard_precondition_status`:
-    - FG outbound: ✅ Loading complete / ⏳ Awaiting loading
-    - FG/RM inbound: ✅ Unloading complete / ⏳ Awaiting unloading
-    - RM inbound additional: ✅ QC Passed / ⏳ Awaiting QC / ❌ QC Failed
+    - `yard_leg=source`: ✅ Loading complete / ⏳ Awaiting loading
+    - `yard_leg=destination` (FG outbound or FG inbound): ✅ Unloading complete / ⏳ Awaiting unloading
+    - `yard_leg=destination` + RM inbound: ✅ Unloading complete / ⏳ Awaiting unloading; ✅ QC Passed / ⏳ Awaiting QC / ❌ QC Failed
 - `tare_weight_mt` input field
 - `net_weight_mt`: `readonly_field` — auto-calculated display (`gross_weight_mt − tare_weight_mt`)
 - `save_model`:
@@ -420,12 +493,12 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 
 ### 5.3 QueueTokenAdmin (SC-01-4)
 
-Read-oriented admin; tokens are created by service, not manually.
+Read-oriented admin; tokens are created by `ScaleInService`, not manually. `pc_code` is **read-only** on this admin (captured on scale-in only).
 
 **List View**:
-- Columns: Token Number, TO Number, Vehicle, Flow Lane, Status badge, Issued At, Closed At (nullable)
+- Columns: **P.C. Code**, TO Number, Vehicle, Flow Lane, Status badge, Issued At
 - Filters: `status`, `poi`, `issued_at` (date range)
-- Search: Token number, TO number, Vehicle registration
+- Search: P.C. code, TO number, Vehicle registration
 
 **Status badge colours**:
 ```python
@@ -437,7 +510,7 @@ _TOKEN_STATUS_BADGE = {
 ```
 
 **Actions**:
-- `[Print Token]` — custom action → `HttpResponse` with print CSS template (vehicle number, product type, P.C. code serial, gross weight, TO reference, POI)
+- `[Print Token]` — custom action → `HttpResponse` with print CSS template (vehicle number, product type, **operator-entered P.C. code**, gross weight, TO reference, POI)
 
 **Detail View**: read-only all fields; link to WeighingSession + GateVisitSession
 
@@ -446,7 +519,7 @@ _TOKEN_STATUS_BADGE = {
 Gate pass is not a separate model — it is rendered on demand from `ScaleOut` + `WeighingSession` + `GateIn` data.
 
 **Custom admin action on ScaleOutAdmin**: `"Print Gate Pass"`:
-- Renders printable template: Vehicle number, Item name (from GateIn.product_details), Net Weight (MT), P.C. code, TO Number, Date/Time, Scale Operator, POI
+- Renders printable template: Vehicle number, Item name (from GateIn.product_details), Net Weight (MT), P.C. code (from `ScaleIn.pc_code`), TO Number, Date/Time, Scale Operator, POI
 - `HttpResponse` with `Content-Type: text/html` (print CSS)
 
 ---
@@ -455,10 +528,10 @@ Gate pass is not a separate model — it is rendered on demand from `ScaleOut` +
 
 ```http
 POST   /api/v1/scaling/scale-in
-       → Body: { gate_visit_session_id, gross_weight_mt, is_empty_vehicle, seal_intact, document_match, discrepancy_notes }
-       → Validations: gate-in prerequisite (active session, correct TO status), no duplicate scale-in
-       → Side effects: Create WeighingSession + ScaleIn, auto-issue QueueToken, emit SCALE_IN to TLS-01
-       → Response: { scale_in_id, weighing_session_id, queue_token: { token_number, status }, scale_in_at }
+       → Body: { gate_visit_session_id, pc_code, gross_weight_mt, is_empty_vehicle, seal_intact, document_match, discrepancy_notes }
+       → Validations: gate-in prerequisite, `(flow_lane, yard_leg)` / TO status, **pc_code required + unique at POI among active tokens**, no duplicate scale-in
+       → Side effects: Create WeighingSession + ScaleIn + QueueToken (pc_code from body), emit SCALE_IN to TLS-01
+       → Response: { scale_in_id, weighing_session_id, pc_code, queue_token: { id, pc_code, status }, scale_in_at }
 
 POST   /api/v1/scaling/scale-out
        → Body: { weighing_session_id, tare_weight_mt }
@@ -483,12 +556,14 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 
 ## 7. Validation Rules
 
+- **P.C. code**: required on scale-in; trimmed; max 50 chars; unique at POI among `QueueToken` with `status in (waiting, assigned)` → 409 Conflict on duplicate
 - Gross weight > 0 (empty vehicle flag overrides quantity requirement, but weight is still measured)
 - Tare weight > 0 and < gross weight (service-level check)
 - Net weight auto-calculated; not editable
 - Once ScaleOut created, all fields on ScaleIn + ScaleOut are immutable (400 on any PATCH attempt)
 - Duplicate scale-in for same GateVisitSession → 409 Conflict
-- Scale-out before loading/unloading complete per lane → 422 Unprocessable with reason
+- Scale-out before loading/unloading complete for the session’s `yard_leg` → 422 Unprocessable with reason
+- Scale-in with blank `yard_leg` on session → 422 Unprocessable
 
 ---
 
@@ -511,17 +586,17 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
-| SC-01-1 | Models + migration | WeighingSession, ScaleIn, ScaleOut, QueueToken |
-| SC-01-2 | ScaleInAdmin | Queryset restriction (AT_SOURCE / AT_DESTINATION), guard pre-check panel, ScaleInService in save_model |
-| SC-01-3 | ScaleOutAdmin | Queryset restriction (scale_out_completed=False), guard pre-check panel, immutability via get_readonly_fields |
-| SC-01-4 | QueueTokenAdmin + Print action | Token list, status badges, printable token (print CSS) |
-| SC-01-5 | Scale-in REST API (POST) | Gate-in prerequisite + TO status validation |
-| SC-01-6 | Scale-out REST API (POST) | Pre-condition checks per lane, net weight, TO status advance |
+| SC-01-1 | Models + migration | WeighingSession, ScaleIn (`pc_code`), ScaleOut, QueueToken (`pc_code`, POI-scoped active uniqueness) |
+| SC-01-2 | ScaleInAdmin | Queryset restriction by `(yard_leg, TO.status)` pairs; yard-leg badge; ScaleInService in save_model |
+| SC-01-3 | ScaleOutAdmin | Queryset restriction (`scale_out_completed=False`); guard pre-check by `yard_leg`; immutability via `get_readonly_fields` |
+| SC-01-4 | QueueTokenAdmin + Print action | Read-only token list (pc_code from scale-in); printable slip reprints entered P.C. code |
+| SC-01-5 | Scale-in REST API (POST) | Gate-in + `(flow_lane, yard_leg)` / TO status validation |
+| SC-01-6 | Scale-out REST API (POST) | Pre-condition checks per `(flow_lane, yard_leg)`, net weight, TO status advance |
 | SC-01-7 | Queue token list API (GET) | Filter by status/poi/date; CC-01 feed |
 | SC-01-8 | Print endpoints | Queue token + gate pass HTML print views |
-| SC-01-9 | TLS-01 event emission | SCALE_IN + SCALE_OUT events |
-| SC-01-10 | Constants | SCALE_IN_ELIGIBLE_TO_STATUSES, SCALE_OUT_RESULT_TO_STATUS in apps/transport/constants.py |
-| SC-01-11 | YARD-01 integration | `ScaleAdminBase` → `YardAdminBase`; `create_queue_entry` call in `ScaleInService` (atomic); `record_yard_sub_state(SCALE_IN → WAITING_CC)` |
+| SC-01-9 | TLS-01 event emission | SCALE_IN / SCALE_OUT events with leg-specific sub-states + `yard_leg` in payload |
+| SC-01-10 | Constants | `SCALE_IN_ELIGIBLE_TO_STATUSES`, `SCALE_OUT_RESULT_TO_STATUS` keyed by `(flow_lane, yard_leg)`; extend `TOSubState` with `scale_in_source`, `scale_in_dest`, `scale_out_source`, `scale_out_dest` |
+| SC-01-11 | YARD-01 integration | `ScaleAdminBase` → `YardAdminBase`; `create_queue_entry` in `ScaleInService` (atomic); `record_yard_sub_state(scale_in_* → WAITING_CC)` per §2.3 |
 
 ---
 
