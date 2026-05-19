@@ -4,7 +4,7 @@ specification: QC Operations — Raw-Material Sampling & Pass/Fail Decision (Spr
 version: 1.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-16
+last_updated: 2026-05-19
 related_stories: DFS-064 (QC-01)
 jira_epic: DFS-072
 ---
@@ -18,8 +18,18 @@ The **QC Operations** specification covers the Sprint 4 raw-material quality che
 **Scope boundary**: QC Supervisor creates a sample and records a Pass or Fail decision. That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **Command Center Officer** assigns the unloading point (CC-01). QC Supervisor does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded.
 
 **Module path**: `apps/quality/checkpoint/`  
-**Dependencies**: `apps/operations/command_center/` (QueueEntry, BayAssignment), `apps/operations/scaling/` (WeighingSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), `apps/master_data/` (POI)  
+**Dependencies**: `apps/operations/command_center/` (QueueEntry, BayAssignment), `apps/operations/scaling/` (WeighingSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), `apps/master_data/` (POI), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
 **Enables**: CC-01 unloading point assignment (on Pass), scale-out gate (QC pass required for RM inbound), gate-out guard matrix (GT-01), TO closure (POD-01)
+
+### Codebase baseline (May 2026)
+
+| Path | Exists | Notes |
+|------|--------|-------|
+| `apps/quality/models.py` | ✓ | Legacy `QCEvent`, `QCSample`, `QCInspection` linked to `GateEntry` (old 13-state machine). **Frozen — do not extend.** |
+| `apps/quality/admin.py` | ✗ | Does not exist |
+| `apps/quality/checkpoint/` | ✗ | Directory does not exist — must be created as a Django sub-package |
+
+Sprint 4 QC models (`QCSample`, `QCDecision`) live in `apps/quality/checkpoint/models.py` to isolate them from the legacy `QCEvent`-based models. The legacy models remain in place and are **not modified**.
 
 ---
 
@@ -323,13 +333,59 @@ QC Supervisor on QC Detail view (decision='pass', unloading in progress)
 
 ## 5. Django Admin Configuration
 
+### UI — design system consistency (required)
+
+All QC inspector admin screens must match the **existing DFMS Django admin shell** (Sprint 1 PAP-01). Reuse patterns from `apps/operations/gate/admin.py` and `data-display.md` — do not introduce parallel CSS, badge colours, or pagination markup.
+
+| Asset | Purpose |
+|-------|---------|
+| `static/admin/css/custom.css` | Tokens, light/dark theme, tables, cards, buttons, pagination, forms |
+| `static/admin/js/dfms_theme.js` | Theme toggle |
+| `templates/admin/dynamic_pagination_changelist.html` | Changelist pagination via `QCAdminBase` → `YardAdminBase` |
+| `DFMS-product-context/07-design-system/02-components/data-display.md` | Badge catalogue (`dfms-badge--approved`, `dfms-badge--cancelled`, etc.) |
+| `.cursor/rules/django-admin-draft-submit.mdc` | Buttons, breadcrumbs, override intermediate forms |
+
+**Required patterns**
+
+1. **Mixin stack**: `QCAdminBase` → `YardAdminBase` → `DynamicPaginationMixin`.
+2. **Status badges**: Use `_DECISION_BADGE` / QC status mappings with `dfms-badge--*` modifiers only (see §5.3–5.4); Bootstrap Icons at 10px.
+3. **Buttons**: Override and resample flows use `dfms-btn-secondary` / primary save classes; intermediate override form matches standard admin form layout.
+4. **Tables & cards**: Default `#result_list`; readonly `to_context_panel` / `qc_context_panel` use gate-style panels, not custom card CSS.
+5. **Pagination**: Shared mixin only.
+6. **Light/dark mode**: Verify sample list, decision list, and override form in both themes.
+7. **Custom templates**: Extend `admin/change_form.html` for override remarks; no extra CSS files.
+
 ### 5.1 Design principle
 
 Admin stays **thin**: validate → call service → message user. No business logic in `save_model`. The two custom actions (`trigger_resample`, `override_to_failed`) are the main admin-specific surfaces.
 
+### 5.0 YARD-01 integration: admin base and POI resolution
+
+`QCAdminBase` inherits `YardAdminBase` from `apps/operations/admin_base.py` (YARD-01 Step 5). Placed in `apps/quality/checkpoint/admin.py`:
+
+```python
+from apps.operations.admin_base import YardAdminBase
+from apps.core.constants_rbac import PermissionCodes
+
+class QCAdminBase(YardAdminBase):
+    # "qc_inspector_physical" is the only seeded POI-scoped QC yard role (SEED_ROLES).
+    # There is no separate "qc_supervisor" role code — QC supervisor capability is
+    # distinguished by permission code (write_perm), not a separate role entry.
+    operator_role_code    = "qc_inspector_physical"   # matches SEED_ROLES / SYSTEM_ROLE_CODES
+    supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})
+    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ   # replace with QC-specific perm once added
+    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE
+```
+
+**POI resolution**: `_scope_poi_id(request)` returns the QC supervisor's assigned POI. The `get_qc_poi_for_request(request)` helper referenced in the `formfield_for_foreignkey` examples below is replaced by `self._scope_poi_id(request)` (consistent with other yard admins). A dedicated `qc_poi.py` is **not needed** — `yard_poi.get_working_poi_for_request` covers this.
+
+**`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED]` so that only actionable items appear.
+
+**`QueueEntry.qc_passed` update**: when `QCService.record_decision(decision='pass')` is called, it must also set `QueueEntry.qc_passed=True` for the TO's active queue entry. This unblocks the CC bay-assignment form.
+
 ### 5.2 QCSampleAdmin (QC-01-2)
 
-Uses `TenantOnlyAdminMixin`. Accessible to QC Supervisor and QC Inspector.
+Uses `QCAdminBase` (→ `YardAdminBase`). Accessible to QC Supervisor and QC Inspector.
 
 **Change Form**:
 - `transport_order`: autocomplete, **queryset restricted** in `formfield_for_foreignkey`:
@@ -337,22 +393,27 @@ Uses `TenantOnlyAdminMixin`. Accessible to QC Supervisor and QC Inspector.
 ```python
 def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == "transport_order":
-        poi = get_qc_poi_for_request(request)  # supervisor's assigned POI
-        kwargs["queryset"] = (
+        poi_id = self._scope_poi_id(request)  # from YardAdminBase
+        qs = (
             TransportOrder.objects
             .filter(
                 flow_lane=FlowLane.RM_INBOUND,
-                destination_poi=poi,
                 status=TOStatus.AT_DESTINATION,
+                sub_state__in=[
+                    TOSubState.FLAGGED_FOR_QC,
+                    TOSubState.SAMPLING_STARTED,
+                ],
             )
             .filter(
-                # QueueEntry must exist, be RM-flagged, not yet assigned to unloading
                 queue_entry__requires_qc=True,
                 queue_entry__status__in=["waiting", "assigned"],
             )
             .select_related("destination_poi")
             .order_by("-updated_at")
         )
+        if poi_id:
+            qs = qs.filter(destination_poi_id=poi_id)
+        kwargs["queryset"] = qs
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
@@ -397,7 +458,7 @@ def save_model(self, request, obj, form, change):
 
 ### 5.3 QCDecisionAdmin (QC-01-3)
 
-Uses `TenantOnlyAdminMixin`. Accessible to **QC Supervisor only** (not Inspector).
+Uses `QCAdminBase` (→ `YardAdminBase`). Accessible to **QC Supervisor only** (not Inspector).
 
 **Change Form**:
 - `qc_sample`: autocomplete, **queryset restricted** — only samples whose TO has no active `QCDecision`:
@@ -405,18 +466,19 @@ Uses `TenantOnlyAdminMixin`. Accessible to **QC Supervisor only** (not Inspector
 ```python
 def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == "qc_sample":
-        poi = get_qc_poi_for_request(request)
-        # Samples where: TO is RM inbound, at this POI, no active QCDecision yet
+        poi_id = self._scope_poi_id(request)  # from YardAdminBase
         already_decided = QCDecision.objects.filter(
             is_active=True
         ).values_list("qc_sample__transport_order_id", flat=True)
-        kwargs["queryset"] = (
+        qs = (
             QCSample.objects
-            .filter(transport_order__destination_poi=poi)
             .exclude(transport_order_id__in=already_decided)
             .select_related("transport_order")
             .order_by("-sampled_at")
         )
+        if poi_id:
+            qs = qs.filter(transport_order__destination_poi_id=poi_id)
+        kwargs["queryset"] = qs
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
@@ -653,9 +715,9 @@ Menu.QC.Checkpoint.Queue.View
 
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
-| QC-01-1 | Models + migration | `QCSample` (sample_id auto-gen, physical_analysis, remarks, FK to TO + POI); `QCDecision` (decision enum, is_active, FK to sample + TO; **no unloading_point FK**) |
-| QC-01-2 | `QCSampleAdmin` | `formfield_for_foreignkey` restricts TO to RM inbound, AT_DESTINATION, flagged; TO context panel readonly_fields; `save_model` → `QCService.create_sample()`; `has_change_permission=False` |
-| QC-01-3 | `QCDecisionAdmin` | `formfield_for_foreignkey` restricts samples to undecided; no unloading_point field; `clean()` enforces remarks on Fail; `save_model` → `QCService.record_decision()`; `has_change_permission=False` |
+| QC-01-1 | Models + migration | `QCSample` + `QCDecision` under `apps/quality/checkpoint/`; legacy `apps/quality/models.py` unchanged |
+| QC-01-2 | `QCSampleAdmin` | `QCAdminBase`→`YardAdminBase`; `_scope_poi_id` replaces `get_qc_poi_for_request`; TO queryset uses `sub_state__in=[FLAGGED_FOR_QC, SAMPLING_STARTED]`; `has_change_permission=False` |
+| QC-01-3 | `QCDecisionAdmin` | Same base; no unloading_point field; `clean()` enforces remarks on Fail; on Pass sets `QueueEntry.qc_passed=True`; `has_change_permission=False` |
 | QC-01-4 | `trigger_resample` admin action | Single-row only; calls `QCService.trigger_resample()`; user-facing success/error message |
 | QC-01-5 | `override_to_failed` admin action | Intermediate-form pattern to collect required remarks; calls `QCService.override_to_failed()` |
 | QC-01-6 | `QCService` | `create_sample()`, `record_decision()`, `trigger_resample()`, `override_to_failed()` — all validation + side effects |
@@ -666,8 +728,9 @@ Menu.QC.Checkpoint.Queue.View
 | QC-01-11 | Override-to-fail API (`POST`) | Mutate decision; cancel CC assignment; clear UnloadEvent |
 | QC-01-12 | TLS-01 event emission | 5 event types (§8); called from service, not admin |
 | QC-01-13 | CC-01 / LD-01 cancellation integration | `CCService.cancel_bay_assignment()` called from QCService; `UnloadEvent.cancelled_by_resample` flag set |
+| QC-01-14 | YARD-01 integration | `QCAdminBase`→`YardAdminBase`; `yard_poi.get_working_poi_for_request` (no dedicated `qc_poi.py`); `QueueEntry.qc_passed` set on Pass |
 
 ---
 
-**Last Updated**: 2026-05-16  
-**Related Modules**: [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md)
+**Last Updated**: 2026-05-19  
+**Related Modules**: [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md)

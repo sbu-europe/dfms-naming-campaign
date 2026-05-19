@@ -4,7 +4,7 @@ title: Own-Fleet TO Execution - Supervisor, Driver, Yard (Gate & Scale), Command
 phase: phase-1
 start_date: ~
 end_date: ~
-total_story_points: 83
+total_story_points: 91
 status: Planned
 jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 ---
@@ -55,12 +55,15 @@ Wave A — Crew & compliance (parallel with early TLS stub)
 Wave B — TLS-01 state machine (§6.8.5 extensions) + TO Ready for Dispatch → driver eligibility
   TLS-01   (execution + yard + closure substates; event ingest from yard + driver)
 
+Wave B.5 — Yard foundation (blocks scale, command center, loading, unloading, QC screens)
+  YARD-01  (operator site assignment, source vs destination visit, current yard step on TO, shared site rules)
+
 Wave C — Driver field channel (no map / GPS in Sprint 4)
   DM-01   (§6.16.1.1 — TO list when Ready for Dispatch; milestones; POD)
 
 Wave D — Yard chain (outbound + inbound)
   LUP-01 (loading/unloading **points** per POI — can start once POI exists; before first CC assignment)
-  GT-02 (on-demand TO when no planner TO) → GT-01 → SC-01 → CC-01 → LD-01
+  YARD-01 → GT-02 (on-demand TO when no planner TO) → GT-01 → SC-01 → CC-01 → LD-01
   Finished-goods inbound path (e.g., Port Consignment TO from planner): after **CC-01 unloading-point assignment** and unload capture (LD-01), proceed to closure gate in POD-01 (QC optional per policy)
   Raw-material path: after **CC-01 unloading-point assignment** and unload capture (LD-01), run **QC-01** (sampling + QC yes/no), then proceed to closure gate in POD-01
   (planner TO path: skip GT-02)
@@ -100,9 +103,23 @@ Wave E — Closure
 
 ---
 
+## Epic: Yard Foundation
+
+> Shared rules so each yard role only sees their depot’s work. **Must complete before** scaling, command center, loading/unloading, and QC screens ship.
+
+
+| #   | Story                                                                                          | Task ID | Jira    | SP  | Status  |
+| --- | ---------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
+| 1   | [Yard foundation — operator site assignment & shared rules](09-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | YARD-01 | DFS-065 | 8   | Pending |
+
+
+**Sub-total**: 8 SP
+
+---
+
 ## Epic: Gate Operations
 
-> Gate-in / gate-out / remarks for **TO-linked internal transfer** (and other document categories per PRD); supports **source and destination** POIs. **On-demand TO** for dealer DO and supplier PO per **§6.10.2.1–§6.10.2.2**.
+> Gate-in / gate-out / remarks for **TO-linked internal transfer** (and other document categories per PRD); supports **source and destination** POIs. **On-demand TO** for dealer DO and supplier PO per **§6.10.2.1–§6.10.2.2**. Uses **YARD-01** for operator site and source vs destination on each visit.
 
 
 | #   | Story                                                                                          | Task ID | Jira    | SP  | Status  |
@@ -233,9 +250,12 @@ Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
     │         └──► DM-01 (driver TO list & milestones)
     │         └──► yard + POD-01
     │
+    ├──► YARD-01 (operator site, source vs destination visit, yard step on TO)
+    │         └──► GT-01, SC-01, CC-01, LD-01, QC-01
+    │
     ├──► GT-02 (gate-created TO) → TDO assignment as needed — gate path when no planner TO
     │
-    ├──► LUP-01 → GT-01 → SC-01 → CC-01 → LD-01
+    ├──► LUP-01 → YARD-01 → GT-01 → SC-01 → CC-01 → LD-01
     │         ├──► FG outbound / FG inbound closure path (POD-01 rules)
     │         └──► QC-01 (raw-material checkpoint) → POD-01
     │
@@ -300,6 +320,9 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
 
 - **Driver mobile**
   - [DM-01 — Driver TO list, milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md)
+
+- **Yard foundation**
+  - [YARD-01 — Yard foundation (operator site & shared rules)](09-yard-foundation/YARD-01-poi-scoped-yard-platform.md)
 
 - **Gate**
   - [GT-01 — Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md)

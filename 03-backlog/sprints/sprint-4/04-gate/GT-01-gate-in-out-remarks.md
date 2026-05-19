@@ -57,6 +57,11 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 ### AC-5: Linkage to TO
 - [ ] Gate events update **TO timeline** (TLS-01) with timestamps
 
+### AC-6: Site assignment and visit type (YARD-01)
+- [ ] On gate-in, record whether the visit is at **source** or **destination** for that transport order
+- [ ] Gateman works from their **assigned site** (admin-maintained), not ad hoc invite data only
+- [ ] Gate screens keep current gateman/supervisor behaviour after shared yard rules are applied
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
@@ -73,6 +78,7 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 | GT-01-10 | Gateman UI — fast-entry gate-in form (vehicle reg, TO lookup, document category, remarks); barcode = out of scope | DFS-054-10 | Pending |
 | GT-01-11 | Gateman UI — gate-out form with guard status indicators | DFS-054-11 | Pending |
 | GT-01-12 | GateActivityLog model + audit logging on gate-in, gate-out, and remarks (user, POI, timestamp, action) | DFS-054-12 | Pending |
+| GT-01-13 | Source vs destination on gate-in; gateman site from formal assignment (**YARD-01**) | DFS-054-13 | Pending |
 
 ## API Endpoints
 
@@ -102,7 +108,7 @@ GET    /api/v1/gate/visit-sessions/{session_id}                # Full visit sess
 
 ## Dependencies
 
-- **Requires**: **TLS-01**; **TO** exists and is in a state that permits gate-in (**§6.8.5**, post–Ready for Dispatch as per technical design)
+- **Requires**: **TLS-01**; **YARD-01** (operator site assignment, source vs destination on visit); **TO** exists and is in a state that permits gate-in (**§6.8.5**, post–Ready for Dispatch as per technical design)
 - **Before**: SC-01 (scale-in after gate-in)
 
 ## Definition of Done
@@ -118,3 +124,4 @@ GET    /api/v1/gate/visit-sessions/{session_id}                # Full visit sess
 - [ ] UAT: vehicle arrives → gate-in → scale-in → … → gate-out happy path completes end-to-end
 - [ ] Unit tests cover gate-out guard rules for all three flow types (FG outbound, FG inbound, RM inbound)
 - [ ] Gateman can only operate within their assigned POI; unauthorised POI access returns 403
+- [ ] Every gate-in records source vs destination; gateman uses assigned site (AC-6)

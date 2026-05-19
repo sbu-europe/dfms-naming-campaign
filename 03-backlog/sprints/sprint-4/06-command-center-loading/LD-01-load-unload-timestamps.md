@@ -52,13 +52,19 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 ### AC-4: TLS / gate integration
 - [ ] Events feed TLS-01 sub-states (Loading Started/Completed; Unloading Started/Completed)
 
+### AC-5: Loading vs unloading by site and trip leg (YARD-01)
+- [ ] **Loading** personnel only see outbound trips at **source** site with an assigned loading bay
+- [ ] **Unloading** personnel only see inbound trips at **destination** site; raw-material trips without QC pass cannot start unload
+- [ ] Loading and unloading are separate menus/roles
+- [ ] If QC orders resample or fail during unload, the active unload assignment is cancelled and shown clearly
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LD-01-1 | LoadEvent + UnloadEvent models + migration (FK to TO, BayAssignment, L/U point; start/end datetime, bags, weight, seal) | DFS-057-1 | Pending |
-| LD-01-2 | LoadEventAdmin — change form with vehicle selection (from CC-01 assignment), start/end datetime fields, bags/weight/seal, save_model validates end ≥ start + emits TLS-01 event | DFS-057-2 | Pending |
-| LD-01-3 | UnloadEventAdmin — change form with unload start/end, bags/weight, save_model persists QC handoff context for RM TOs + emits TLS-01 event | DFS-057-3 | Pending |
+| LD-01-1 | Load and unload event records — including flag when unload cancelled for QC resample (**YARD-01**) | DFS-057-1 | Pending |
+| LD-01-2 | Loading screen — source-site outbound only, assigned bay required | DFS-057-2 | Pending |
+| LD-01-3 | Unloading screen — destination-site inbound only; QC and resample messaging | DFS-057-3 | Pending |
 | LD-01-4 | Load start/end API (POST — create load event linked to TO and bay assignment) | DFS-057-4 | Pending |
 | LD-01-5 | Unload start/end API (POST — create unload event linked to TO and bay assignment) | DFS-057-5 | Pending |
 | LD-01-6 | QC handoff reference API (GET — retrieve unload event context for QC-01 consumption) | DFS-057-6 | Pending |
@@ -88,7 +94,7 @@ GET    /api/v1/unload-events/{id}/qc-handoff                   # QC handoff cont
 
 ## Dependencies
 
-- **Requires**: CC-01 (assignment), TLS-01, **LUP-01**
+- **Requires**: CC-01 (assignment), TLS-01, **YARD-01**, **LUP-01**
 - **Feeds**: QC-01
 
 ## Definition of Done
@@ -101,4 +107,5 @@ GET    /api/v1/unload-events/{id}/qc-handoff                   # QC handoff cont
 - [ ] TLS-01 sub-state transitions emitted: Loading Started, Loading Completed, Unloading Started, Unloading Completed (AC-4)
 - [ ] Load/unload events visible on TO timeline via TLS-01
 - [ ] Audit log entry created on every load and unload event
+- [ ] Loading only at source for outbound FG; unloading only at destination for inbound lanes (AC-5)
 - [ ] UAT: load start/end captured at source POI; unload start/end at destination POI for full E2E flow

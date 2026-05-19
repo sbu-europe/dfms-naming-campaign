@@ -77,12 +77,17 @@ Sprint 4 keeps the model simple:
 - [ ] All QC events (sample creation, decision, resample, override) are written to TO timeline (TLS-01) with auditable payload
 - [ ] POD-01 closure gate reads **latest** QC decision for raw-material TOs: pass allows closure, fail blocks closure
 
+### AC-7: QC at one site (YARD-01)
+- [ ] QC uses the **Sprint 4 raw-material checkpoint** only — not the old gate-linked QC records
+- [ ] QC supervisor sees only raw-material vehicles at **their site** that command center has flagged for QC or that are in sampling
+- [ ] On **Pass**, command center can assign the unloading point; on **Fail**, assignment stays blocked
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| QC-01-1 | QCSample + QCDecision models + migration (FK to TO, auto-gen sample_id, physical_analysis, remarks, decision enum Pass/Fail — **no unloading_point FK on QCDecision**) | DFS-064-1 | Pending |
-| QC-01-2 | QCSampleAdmin — Django Admin form with readonly TO context (TO ref, vehicle, POI), save_model auto-generates sample ID | DFS-064-2 | Pending |
+| QC-01-1 | Sample and decision records for Sprint 4 RM checkpoint (QC does not assign unloading point) | DFS-064-1 | Pending |
+| QC-01-2 | Sample screen — supervisor’s site only; TO and vehicle context read-only | DFS-064-2 | Pending |
 | QC-01-3 | QCDecisionAdmin — decision form with Pass/Fail dropdown; on Pass, marks TO as QC-passed and makes it available in CC-01 queue for unloading point assignment; no unloading point FK on this form | DFS-064-3 | Pending |
 | QC-01-4 | Resample custom admin action — clears previous decision, cancels active CC-01 unloading assignment via service call, returns TO to QC queue | DFS-064-4 | Pending |
 | QC-01-5 | Override-to-failed custom admin action — sets decision to Fail, cancels active CC-01 unloading assignment, blocks CC from re-assigning until new QC Pass | DFS-064-5 | Pending |
@@ -124,7 +129,7 @@ POST   /api/v1/transport-orders/{to_id}/qc/override               # Override dec
 
 ## Dependencies
 
-- **Requires**: CC-01, LD-01, TLS-01
+- **Requires**: CC-01, LD-01, TLS-01, **YARD-01**
 - **Blocks**: POD-01 raw-material closure path
 
 ## Definition of Done

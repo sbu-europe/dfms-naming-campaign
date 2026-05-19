@@ -61,12 +61,16 @@ Supports both outbound and inbound TO visits (FG outbound loading lane, FG inbou
 ### AC-5: TO linkage
 - [ ] Weighing session linked to **TO** and POI (source vs destination visit)
 
+### AC-6: Operator site and command center handoff (YARD-01)
+- [ ] Scaling operator only sees vehicles at **their assigned site**; if unassigned, sees an empty list and guidance to contact admin
+- [ ] When scale-in completes, the vehicle **always** appears on the command center queue at that site in the same action — if scale-in fails, the vehicle does not appear on the queue
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | SC-01-1 | WeighingSession + ScaleIn + ScaleOut models + migration (FK to GateVisitSession, TO; weight fields, discrepancy flags, operator, timestamps) | DFS-055-1 | Pending |
-| SC-01-2 | ScaleInAdmin — change form with vehicle number lookup, gate-in validation in `save_model` (rejects if no completed gate-in for session), weight capture fields, discrepancy flag checkboxes | DFS-055-2 | Pending |
+| SC-01-2 | Scale-in screen — vehicle lookup limited to operator’s site; business rules in service layer | DFS-055-2 | Pending |
 | SC-01-3 | ScaleOutAdmin — change form with net weight auto-calculation in `save_model` (loaded − empty), immutability enforcement via `get_readonly_fields` for completed sessions | DFS-055-3 | Pending |
 | SC-01-4 | QueueToken model + auto-generation in `ScaleInAdmin.save_model` — unique P.C. code serial, FK to WeighingSession | DFS-055-4 | Pending |
 | SC-01-5 | Scale-in REST API (POST) — create scale-in with gate-in prerequisite check, weight capture, returns queue token | DFS-055-5 | Pending |
@@ -75,7 +79,7 @@ Supports both outbound and inbound TO visits (FG outbound loading lane, FG inbou
 | SC-01-8 | Scale-out detail REST API (GET) — includes net weight, gate pass data | DFS-055-8 | Pending |
 | SC-01-9 | Queue token print template — browser print CSS for desk printer (vehicle number, product type, P.C. code serial, weights, TO reference) | DFS-055-9 | Pending |
 | SC-01-10 | Gate pass print template — browser print CSS for scale-out (vehicle number, item name, net weight, P.C. code) | DFS-055-10 | Pending |
-| SC-01-11 | CC-01 queue feed integration — webhook/signal on scale-in completion to push new queue entry to Command Center | DFS-055-11 | Pending |
+| SC-01-11 | Command center queue updated in the same step as scale-in (no separate background step that can fail silently) | DFS-055-11 | Pending |
 | SC-01-12 | Scaling operator UI — scale-in form, scale-out form, session list with status indicators | DFS-055-12 | Pending |
 | SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` timeline events on save | DFS-055-13 | Pending |
 
@@ -110,7 +114,7 @@ GET    /api/v1/scaling/scale-out/{scale_out_id}/gate-pass        # Printable gat
 
 ## Dependencies
 
-- **Requires**: GT-01
+- **Requires**: GT-01, **YARD-01**
 - **Enables**: CC-01
 
 ## Definition of Done
@@ -121,7 +125,8 @@ GET    /api/v1/scaling/scale-out/{scale_out_id}/gate-pass        # Printable gat
 - [ ] QueueToken auto-generated on scale-in with unique P.C. code serial; includes vehicle number, product type, and serial
 - [ ] Queue token printable via browser print CSS on desk printer
 - [ ] Gate pass printable after scale-out with vehicle number, item name, net weight, and P.C. code
-- [ ] CC-01 queue feed receives new entry on scale-in completion (webhook or signal)
+- [ ] Command center queue updated together with scale-in; failure on either step rolls back both (AC-6)
+- [ ] Scaling operator without site assignment sees no vehicles from other depots (AC-6)
 - [ ] Scale-in and scale-out REST APIs enforce gate-in prerequisite and return correct HTTP status codes
 - [ ] Weight records are immutable after scale-out; PATCH/PUT returns 403 on locked sessions
 - [ ] `SCALE_IN` / `SCALE_OUT` timeline events emitted to TLS-01 with timestamps

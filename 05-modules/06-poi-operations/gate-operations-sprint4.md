@@ -4,8 +4,8 @@ specification: Gate Operations (Sprint 4 — TO-Centric)
 version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-18
-changelog: "v2.2 — document GT-02 on-demand TO.status after create+gate-in (§4.0, §4.3, §4.5, §6.4, §7.4); v2.1 — §4.5 TO status chain, §5.1 gate-out guards, GateOutAdmin queryset"
+last_updated: 2026-05-19
+changelog: "v2.4 — project_from_info required + origin_poi prefill; §6.1.1 visit summary card (GateVisitSummaryWidget); v2.3 — YARD-01 integration; v2.2 — GT-02 on-demand TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -58,13 +58,15 @@ Sidebar (Gateman)
 Operations → Gate → Vehicle Entry (Gate-In)
   └─► Entry Form
         ├── Transport Order: autocomplete (eligible in-transit TOs only)
-        │     └─► On select, backend derives (read-only summary panel):
-        │           ├── Gate POI — `origin_poi` / `destination_poi` per flow lane (§4.0)
+        │     └─► On select, **visit summary card** (read-only; §6.1.1) shows:
+        │           ├── Transport order — `to_number`
+        │           ├── Gate POI — resolved POI for this visit (`origin_poi` / `destination_poi` per §4.0)
         │           ├── Vehicle — `TransportOrder.vehicle` (or vendor registration)
         │           ├── Product — TO line items → PR product codes/names
         │           ├── Quantity — `allocated_quantity` or sum of TO line allocations
         │           ├── Driver — assigned driver (own fleet) or `vendor_driver_name`
-        │           └── Driver contact — driver `contact_number` or vendor `phone`
+        │           ├── Driver contact — driver `contact_number` or vendor `phone`
+        │           └── Project / From (source) — `TransportOrder.origin_poi` label (`{poi_code} — {name}`)
         │
         ├── Document Category: radio buttons
         │     ├── Supplier (PO) / Port → Inbound QC Workflow
@@ -75,7 +77,7 @@ Operations → Gate → Vehicle Entry (Gate-In)
         ├── Document Number: from TO (`gate_document_number` or `to_number`) — not manual on TO-linked path
         ├── Date/Time: auto-set to now (editable within 1 hour)
         ├── Party Name: text input (supplier/dealer/distributor)
-        ├── Project / From Info: text input
+        ├── Project / From Info: text input — **required on TO-linked submit**; default from `TransportOrder.origin_poi` (§6.1.1); gateman may edit before submit
         ├── Remarks: text area (optional — discrepancies, visual inspection)
         │
         └── [Submit Gate-In]
@@ -170,6 +172,12 @@ GateVisitSession(TenantAwareModel) {
     # Status
     status: enum ['active', 'closed']                # closed when GateOut record created
 
+    # YARD-01: visit leg (set at gate-in time by gate_services.create_gate_in)
+    yard_leg: CharField ['source', 'destination', '']
+    # 'source'      → session.poi == to.origin_poi  (FG outbound load path)
+    # 'destination' → session.poi == to.destination_poi  (FG/RM inbound unload path)
+    # ''            → blank for GT-02 on-demand where leg cannot be determined at creation
+
     # Metadata
     created_by: FK → User (Gateman)
     created_at: DateTime
@@ -180,6 +188,7 @@ GateVisitSession(TenantAwareModel) {
 **Constraints**:
 - Cannot create a new active session for same vehicle at same POI if one already exists
 - Status transitions: `active` → `closed` (on gate-out creation)
+- `yard_leg` is set in `gate_services.create_gate_in()` inside the same `atomic()` block as session creation; downstream modules (SC-01, CC-01, LD-01) filter by `yard_leg` — they must guard against blank with `if session.yard_leg`
 
 ### 2.2 GateIn (new model — extends `TenantAwareModel`)
 
@@ -211,7 +220,7 @@ GateIn(TenantAwareModel) {
     driver_name: string (max 100)
     driver_contact: string (max 20)
     party_name: string (max 200, nullable)
-    project_from_info: string (max 200, nullable)
+    project_from_info: string (max 200)  # PRD "Project From Information"; TO-linked: default origin_poi label
     remarks: text (nullable)            # discrepancy notes
 
     # Metadata
@@ -412,7 +421,9 @@ Gateman opens Gate-In form
               │     ├─► FG outbound + in_transit_source → origin_poi
               │     └─► FG/RM inbound + in_transit_destination → destination_poi
               ├─► Vehicle pre-filled from TransportOrder.vehicle (supervisor may override mismatch)
-              ├─► Gateman enters: document number, driver, party, remarks
+              ├─► Product, quantity, driver, contact, document number — from TO via service (`extract_gate_in_context_from_to`); not typed on add form
+              ├─► **Project / From Info** — default `{origin_poi.poi_code} — {origin_poi.name}`; required on submit; editable if yard uses informal project labels
+              ├─► Gateman enters: party name (optional), remarks (optional)
               └─► [Submit Gate-In]
                     ├─► GateInService.validate_to_eligible_for_gate_in(to, gate_poi_id=resolved POI)
                     ├─► GateInService.validate_vehicle_match(to, vehicle)
@@ -606,12 +617,47 @@ Gateman opens Gate-Out form
 
 ## 6. Django Admin Configuration
 
+### UI — design system consistency (required)
+
+All gate operator admin screens must match the **existing DFMS Django admin shell** (Sprint 1 PAP-01). Reuse patterns from `apps/operations/gate/admin.py`, requisitions, and transport admin — do not introduce parallel CSS, badge colours, or pagination markup.
+
+| Asset | Purpose |
+|-------|---------|
+| `static/admin/css/custom.css` | Design tokens (`--dfms-*`), light/dark via `[data-theme="dark"]`, tables (`#result_list`), cards (`.module`), buttons (`dfms-btn-*`), pagination, forms |
+| `static/admin/js/dfms_theme.js` | Light/dark toggle; persists `dfms-admin-theme` in `localStorage` |
+| `templates/admin/base_site.html` | Base shell and asset includes |
+| `templates/admin/dynamic_pagination_changelist.html` | Changelist per-page control (`DynamicPaginationMixin` via `TenantOnlyAdminMixin` / `YardAdminBase`) |
+| `DFMS-product-context/07-design-system/02-components/data-display.md` | Badge modifier catalogue |
+| `.cursor/rules/django-admin-draft-submit.mdc` | Draft/submit buttons, breadcrumbs, standard button classes |
+
+**Required patterns**
+
+1. **Mixin stack**: `GateAdminBase` → `YardAdminBase` → `TenantOnlyAdminMixin` → `DynamicPaginationMixin`. Keep default `change_list_template` unless extending `admin/dynamic_pagination_changelist.html`.
+2. **Status badges**: `format_html` + `dfms-badge--{modifier}` + Bootstrap Icons (`bi-*`, `font-size:10px`). Map lane/visit/TO states to modifiers in `data-display.md` (e.g. `dfms-badge--under-planning`, `dfms-badge--fulfilled`). No inline hex colours.
+3. **Buttons** (custom `change_form.html` only): `dfms-btn-secondary`, `dfms-btn-save`, `dfms-btn-draft`, `dfms-btn-add` per `custom.css` and `django-admin-draft-submit.mdc`.
+4. **Tables & changelist**: Use default `#result_list` and `.module` styling. **Exception — TO visit summary card** on Gate-In add (§6.1.1): scoped styles in `templates/admin/operations/gatein/change_form.html` using DFMS tokens (`--dfms-primary`, `--body-bg`); same pattern as other ops readonly panels (QC `to_context_panel` references gate markup). Do not add new global card systems.
+5. **Pagination**: Use the shared per-page dropdown; do not replace with custom paginator UI.
+6. **Light/dark mode**: CSS variables only (`var(--dfms-grey-*)`, `var(--body-bg)`, etc.). Verify changelist, change form, badges, and guard-matrix panels in both themes.
+7. **Custom templates**: Extend `admin/change_form.html` or `admin/dynamic_pagination_changelist.html`; no extra stylesheets beyond `custom.css`.
+
+### 6.0 YARD-01 integration: admin base and POI resolution
+
+`GateAdminBase` inherits `YardAdminBase` from `apps/operations/admin_base.py` (YARD-01 Step 5). This means:
+
+- `operator_role_code = "gateman"`, `supervisor_role_codes = {"gate_supervisor"}`
+- `_scope_poi_id` continues to call `get_gate_poi_for_request(request)` first (session key + URL param) then falls through to `yard_poi.get_working_poi_for_request(request, role_code="gateman")` when session is empty
+- **`default_gate_poi_for_user` no longer queries `InvitationToken.invitee`** — that field does not exist and the query silently failed. It now reads `UserOperationalPOI` (YARD-01 Step 2). The legacy `dfms_gate_poi_id` session key is aliased to the new `dfms_active_poi_id` key for one release.
+- `has_delete_permission` → `False` (all gate records are audit entries)
+- All existing `GateInAdmin`, `GateOutAdmin`, `GateVisitSessionAdmin`, `GateOnDemandTORequestAdmin` are **unchanged** in their fieldsets, list_display, and save_model logic.
+
+**Backward compatibility**: existing gateman sessions keep working. Session key `dfms_gate_poi_id` is read as a fallback in `gate_poi.py`'s refactored `default_gate_poi_for_user`.
+
 ### 6.1 GateInAdmin (GT-01-2, GT-01-3)
 
-Uses `TenantOnlyAdminMixin`. **Business rules live in `GateInService`**; admin stays thin (validate → delegate → message user).
+Uses `GateAdminBase` (→ `YardAdminBase`). **Business rules live in `GateInService`**; admin stays thin (validate → delegate → message user).
 
 **Change Form (add)**:
-- Field order: **Transport Order** first, then **Vehicle** (pre-filled from TO; not a free-text registration field on this path).
+- Field order: **Transport Order** → **visit summary card** (§6.1.1) → gate-in details (`document_category`, `gate_in_at`, `party_name`, `project_from_info`, `remarks`). Vehicle and cargo/driver fields are TO-derived (hidden on add; applied in `clean()`).
 - **Gate POI is not a user-editable field** on add — `GateInService.resolve_gate_poi_for_to(to)` sets it on submit:
   - FG outbound + `in_transit_source` → `origin_poi`
   - FG/RM inbound + `in_transit_destination` → `destination_poi`
@@ -621,15 +667,21 @@ Uses `TenantOnlyAdminMixin`. **Business rules live in `GateInService`**; admin s
   - Gateman: optional `gate_poi_id` from session scopes TOs whose resolved gate POI matches.
   - Gate supervisor: unscoped eligible TOs across tenant POIs.
   - Excludes TOs with an active `GateVisitSession`.
-- **Live pre-fill** — `GET …/gatein/to-prefill/<to_id>/` returns `{ poi_label, vehicle_id, vehicle_label }`; change-form JS updates read-only summary and sets vehicle select2 on TO change.
+- **Live pre-fill** — `GET …/gatein/to-prefill/<to_id>/` → `build_gate_in_prefill_payload(to)`; `static/admin/js/gatein_to_prefill.js` refreshes the visit summary card and writes `#id_project_from_info` when the TO changes (see §6.1.1).
+- **Project / From Info (TO-linked)** — required on submit. Default = display label of `TransportOrder.origin_poi` (`{poi_code} — {name}`). Also set server-side in `GateInAdminForm.clean()` via `extract_gate_in_context_from_to` when the client omits it. Gateman may override the text field before submit. GT-02 on-demand: Dealer DO → current gate POI label; Supplier PO → `supplier.site_poi` label (the shipment origin).
 
 ```python
 # apps/operations/gate/gate_services.py
 def resolve_gate_poi_for_to(to: TransportOrder) -> POI: ...
 def gate_eligible_transport_orders_queryset(*, gate_poi_id=None): ...
+def build_gate_in_prefill_payload(to: TransportOrder) -> dict: ...  # §6.1.1
+def extract_gate_in_context_from_to(to: TransportOrder) -> GateInTOContext: ...
+# GateInTOContext includes project_from_info (origin_poi label) after v2.4
+# YARD-01: set yard_leg inside create_gate_in() atomic block
+# yard_leg = YardLeg.SOURCE if to.origin_poi_id == poi.pk else YardLeg.DESTINATION
 ```
 
-- **Read-only helpers on change form** (after TO selected): derived POI + vehicle summary panel; optional `flow_lane_badge`, `to_status_badge` on detail view
+- **Detail view**: optional `flow_lane_badge`, `to_status_badge` on change form
 - Vehicle registration validation in `save_model` → `GateInService.validate_vehicle_match(...)` (warn + supervisor override on mismatch)
 - Document category routing → `GateInService.resolve_operational_flow(...)`:
   - `Internal Transfer` → active (Sprint 4 E2E)
@@ -651,6 +703,81 @@ def gate_eligible_transport_orders_queryset(*, gate_poi_id=None): ...
 - Editable (within 1 hour): Gate-In Time
 - Read-only after 1 hour: all timestamps
 - Remarks: editable by Gateman who created the record
+
+### 6.1.1 Visit summary card (TO prefill UI — implemented pattern)
+
+Gate-In **add** uses a read-only **visit summary card** so the gateman sees all TO-derived context in one place before entering party/remarks. Reuse this pattern for other yard screens that anchor on a TO (e.g. scale-in, loading assignment — see `docs/poi-scoped-operational-roles.md`).
+
+**Reference implementation (do not duplicate markup elsewhere without copying this structure):**
+
+| Piece | Path |
+|-------|------|
+| Widget HTML shell | `apps/operations/gate/widgets.py` — `GateVisitSummaryWidget` |
+| Form field (add only) | `apps/operations/gate/forms.py` — `visit_summary` on `GateInAdminForm` |
+| Fieldset placement | `apps/operations/gate/admin.py` — Visit fieldset: `transport_order`, `visit_summary` |
+| Scoped CSS | `templates/admin/operations/gatein/change_form.html` — `.gate-visit-summary*` |
+| Live refresh | `static/admin/js/gatein_to_prefill.js` |
+| JSON endpoint | `GateInAdmin.to_prefill_view` → `build_gate_in_prefill_payload` |
+
+**Visual design (matches existing backend):**
+
+- Card container: `.gate-visit-summary` — 2px border, 8px radius, light gradient using `var(--dfms-primary)` at 8% mix; `box-shadow` from primary token.
+- Header: `.gate-visit-summary__header` — uppercase label, Bootstrap Icon `bi-truck-front`, primary colour.
+- Hint: `.gate-visit-summary__hint` — quiet body text (“Select a transport order above…”).
+- Warning strip: `.gate-visit-summary__warning` — amber `#fef3c7` / `#92400e` when prefill returns `warning` (e.g. incomplete driver on TO).
+- Grid: `.gate-visit-summary__grid` — 3 columns desktop, 1 column below 900px; product row spans 2 columns (`.gate-visit-summary__cell--wide`).
+- Cell typography: label 0.75rem uppercase; value 1.25rem bold; vehicle value 1.5rem primary-dark.
+- States: `.gate-visit-summary--empty` (placeholder `—`, primary border) → `.gate-visit-summary--ready` (success border/shadow after successful prefill).
+- **No new global CSS file** — styles live only in the gate-in `change_form.html` `{% block extrastyle %}` on add.
+
+**Card cells (left → right, top → bottom):**
+
+| Cell ID | Label | Source |
+|---------|-------|--------|
+| `gate-summary-to` | Transport order | `to.to_number` |
+| `gate-summary-poi` | Gate POI | `resolve_gate_poi_for_to(to)` → `{code} — {name}` |
+| `gate-summary-vehicle` | Vehicle | `vehicle` FK or `vendor_vehicle_registration` |
+| `gate-summary-product` | Product | TO line items (wide cell) |
+| `gate-summary-quantity` | Quantity | `allocated_quantity` / line sum + UOM |
+| `gate-summary-driver` | Driver | Assigned driver or vendor driver name |
+| `gate-summary-contact` | Driver contact | Driver / vendor phone |
+| `gate-summary-origin` | Project / From (source) | `origin_poi` → `{code} — {name}` *(v2.4 — add to widget + JS)* |
+
+**Fields hidden on add** (values applied in `GateInAdminForm.clean()` / service, not typed twice):
+
+`vehicle`, `product_details`, `quantity`, `driver_name`, `driver_contact`, `document_number` — CSS `display: none` in `change_form.html`.
+
+**`project_from_info` stays visible** in the “Gate-in details” fieldset; JS pre-fills `#id_project_from_info` from the payload; server enforces default + required on submit.
+
+**Prefill endpoint payload** (`build_gate_in_prefill_payload`):
+
+```json
+{
+  "to_number": "TO-20260512-0042",
+  "poi_label": "DEP01 — Dhaka Depot",
+  "origin_poi_label": "FM01 — Narayanganj Feed Mill",
+  "project_from_info": "FM01 — Narayanganj Feed Mill",
+  "vehicle_label": "DHK-1234",
+  "product_details": "FG-001 — Layer Feed (50 MT)",
+  "quantity_label": "50 MT",
+  "driver_name": "Karim Ahmed",
+  "driver_contact": "+8801712345678",
+  "warning": ""
+}
+```
+
+- `origin_poi_label` and `project_from_info` use the same string (origin POI display label).
+- `warning` non-empty → show warning strip; gateman may still proceed only if remaining validation passes (e.g. fix driver on TO first).
+
+**JS behaviour** (`gatein_to_prefill.js`):
+
+1. Read URL template from `#gate-prefill-config[data-prefill-url-template]` (placeholder `__TO_ID__`).
+2. On `#id_transport_order` change / Select2 select / clear → `GET` prefill URL.
+3. Update all `gate-summary-*` cells; toggle `--empty` / `--ready`.
+4. Set `#id_project_from_info` to `data.project_from_info` when present (do not clear on empty TO — leave last value or blank per product rule; prefer clear on Select2 clear).
+5. Supervisor vehicle override checkbox unchanged (`gatein-vehicle-override` body class).
+
+**REST API (GT-01-5):** TO-linked POST may omit `project_from_info`; service defaults from `origin_poi` before persist. If sent, stored as provided. Required non-blank after defaulting for TO-linked creates.
 
 ### 6.2 GateOutAdmin (GT-01-4)
 
@@ -726,6 +853,7 @@ Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the w
 | `source_poi` | Dealer DO → `gate_poi`; Supplier PO → `supplier.site_poi` |
 | `destination_poi` | Dealer DO → `dealer.site_poi`; Supplier PO → `gate_poi` |
 | `vehicle` / visit reg | Stored on `TransportOrder.vendor_vehicle_registration` and gate visit records; optional `Vehicle` FK only for TO-linked gate-in |
+| `project_from_info` on `GateIn` | Dealer DO → gate POI label; Supplier PO → `supplier.site_poi` label (same `{code} — {name}` format) |
 
 **Master Data prerequisite:** Dealer and Supplier records must have **`site_poi`** set (`master_data.Dealer` / `Supplier.site_poi` FK). Otherwise validation fails with a clear message to configure Site POI in MDM.
 
@@ -760,11 +888,14 @@ POST   /api/v1/gate/gate-in
            driver_name: "John Doe",
            driver_contact: "+8801712345678",
            party_name: "ABC Corp" (nullable),
-           project_from_info: "Factory A" (nullable),
+           project_from_info: "FM01 — Narayanganj Feed Mill" (optional in body; required after default for TO-linked),
            remarks: "Vehicle front bumper dent noted" (nullable)
          }
+       → TO-linked defaults:
+           - When `transport_order` resolved: if `project_from_info` blank → `{origin_poi.poi_code} — {origin_poi.name}`
        → Validations (TO-linked):
            - `GateInService.validate_to_eligible_for_gate_in` (§4.0): lane × status × POI
+           - `project_from_info` non-blank after defaulting
            - Vehicle registration match (warn / override policy)
            - No duplicate active visit at POI
        → Side effects:
@@ -937,7 +1068,7 @@ GET    /api/v1/gate/on-demand-to/{to_id}
 | Driver Name | ✓ | Max 100 chars |
 | Driver Contact | ✓ | Valid phone format |
 | Party Name | — | Supplier/dealer/distributor name |
-| Project / From Info | — | Source context |
+| Project / From Info | ✓ (TO-linked) | Default `TransportOrder.origin_poi` label (`{poi_code} — {name}`); shown on visit summary card; editable text field; GT-02 defaults per §4.2 routing |
 | Remarks | — | Discrepancies, visual inspection notes |
 
 ### 8.2 Gate-Out Guard Matrix (GT-01 AC-3)
@@ -1161,6 +1292,7 @@ Menu.Gate.OnDemandTO.View
 | GT-01-10 | Gateman UI | Fast-entry gate-in form |
 | GT-01-11 | Gateman UI | Gate-out form with guard status indicators |
 | GT-01-12 | GateActivityLog | Audit logging on gate-in, gate-out, and remarks |
+| GT-01-13 | YARD-01 integration | Set `yard_leg` in `create_gate_in()`; `GateAdminBase` → `YardAdminBase`; fix `InvitationToken.invitee` bug in `gate_poi.py` via `UserOperationalPOI` |
 
 ### GT-02 — On-Demand TO Creation
 

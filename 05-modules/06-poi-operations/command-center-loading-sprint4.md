@@ -4,7 +4,7 @@ specification: Command Center, Loading/Unloading & QC Operations (Sprint 4 — T
 version: 1.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-16
+last_updated: 2026-05-19
 related_stories: DFS-056 (CC-01), DFS-057 (LD-01), DFS-058 (QC-01)
 jira_epic: DFS-072
 ---
@@ -20,8 +20,20 @@ This specification covers three tightly coupled modules in the yard chain:
 - **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
 **Module paths**: `apps/operations/command_center/`, `apps/operations/loading/`, `apps/quality/checkpoint/`  
-**Dependencies**: `apps/operations/scaling/` (QueueToken, WeighingSession), `apps/master_data/` (LoadingUnloadingPoint), `apps/transport/` (TransportOrder, FlowLane, TOStatus)  
+**Dependencies**: `apps/operations/scaling/` (QueueToken, WeighingSession), `apps/master_data/` (LoadingUnloadingPoint), `apps/transport/` (TransportOrder, FlowLane, TOStatus), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
 **Enables**: Scale-out prerequisite (LD-01 completion), gate-out guard matrix (GT-01), TO closure (POD-01)
+
+### Codebase baseline (May 2026)
+
+| Path | Exists | Notes |
+|------|--------|-------|
+| `apps/operations/command_center/views.py` | ✓ | `CommandCenterDashboardView` (legacy counts), `ActiveTripsView` — no Sprint 4 models |
+| `apps/operations/command_center/models.py` | ✗ | Must be created for `QueueEntry`, `BayAssignment`, `WaitingSerial` |
+| `apps/operations/loading/models.py` | ✓ | Legacy `LoadingOperation` linked to `GateEntry` — **do not extend** |
+| `apps/operations/loading/admin.py` | ✗ | Must be created for `LoadEventAdmin`, `UnloadEventAdmin` |
+| `apps/quality/checkpoint/` | ✗ | Directory does not exist; `QCSample` and `QCDecision` go here |
+
+All new Sprint 4 models use **separate migration files** so legacy `LoadingOperation` and `GateEntry`-linked models are untouched.
 
 ---
 
@@ -48,7 +60,7 @@ Understanding which module acts at each step per lane removes ambiguity for admi
 
 ### 1.1 QueueEntry (new model — extends `TenantAwareModel`)
 
-Auto-created by scale-in signal. Represents one vehicle in the CC assignment queue.
+**Created directly by `CCService.create_queue_entry()`** called from `ScaleInService.record_scale_in()` within the same `atomic()` block — **not** by a signal or webhook (YARD-01 transactional consistency requirement).
 
 ```python
 QueueEntry(TenantAwareModel) {
@@ -66,6 +78,12 @@ QueueEntry(TenantAwareModel) {
     requires_qc: boolean (default False)
     # True for RM inbound TOs — set automatically from TO.flow_lane on creation
 
+    # YARD-01 AC-6: QC pass flag for RM inbound
+    qc_passed: boolean (null=True, blank=True)
+    # null  → N/A (FG lanes, or RM before QC decision)
+    # True  → QC passed — CC can assign unloading point
+    # False → QC failed or resampled — CC unloading point blocked
+
     created_at: DateTime
 }
 ```
@@ -81,7 +99,8 @@ BayAssignment(TenantAwareModel) {
     queue_entry: FK → QueueEntry (OneToOne)
     transport_order: FK → TransportOrder
     loading_unloading_point: FK → LoadingUnloadingPoint
-    waiting_serial: FK → WaitingSerial (OneToOne)
+
+    # waiting_serial FK removed — see YARD-01 §7.3 circular FK fix below
 
     assigned_by: FK → User (CC Officer)
     assigned_at: DateTime
@@ -98,11 +117,14 @@ BayAssignment(TenantAwareModel) {
 
 Unique serial number per loading/unloading point assignment. Immutable after issue.
 
+**YARD-01 §7.3 fix**: `WaitingSerial` owns the FK to `BayAssignment` (not the reverse). The previous design had a FK on both sides, creating a circular create-order deadlock. Access the serial from `assignment.waiting_serial` via the reverse `OneToOne` relation.
+
 ```python
 WaitingSerial(TenantAwareModel) {
     id: UUID (PK)
 
-    bay_assignment: FK → BayAssignment (OneToOne)
+    # WaitingSerial holds the FK — BayAssignment has no waiting_serial FK
+    bay_assignment: FK → BayAssignment (OneToOne, related_name='waiting_serial')
     serial_number: string (unique per LoadingUnloadingPoint per day — format: '{POINT_CODE}-{YYYYMMDD}-{seq:03d}')
     issued_at: DateTime
     issued_by: FK → User
@@ -155,6 +177,11 @@ UnloadEvent(TenantAwareModel) {
     # QC context for RM TOs
     qc_sample_taken: boolean (default False)
     notes: text (nullable)
+
+    # YARD-01 AC-6: resample cancellation flag
+    cancelled_by_resample: boolean (default False)
+    # True when QC-01 resample or override-to-fail triggered BayAssignment cancellation
+    # during active unloading. end_datetime remains null.
 
     created_by: FK → User
     updated_by: FK → User (nullable)
@@ -420,9 +447,65 @@ QC Supervisor overrides decision to Fail while unloading is active
 
 ## 6. Django Admin Configuration
 
+### UI — design system consistency (required)
+
+All command-center, loading, and unloading admin screens must match the **existing DFMS Django admin shell** (Sprint 1 PAP-01). Reuse gate/scaling badge and panel patterns — do not introduce parallel CSS, badge colours, or pagination markup.
+
+| Asset | Purpose |
+|-------|---------|
+| `static/admin/css/custom.css` | Tokens, light/dark theme, tables, cards, buttons, pagination |
+| `static/admin/js/dfms_theme.js` | Theme toggle |
+| `templates/admin/dynamic_pagination_changelist.html` | Via `CCAdminBase` / `LoadEventAdminBase` / `UnloadEventAdminBase` → `YardAdminBase` |
+| `DFMS-product-context/07-design-system/02-components/data-display.md` | Badge catalogue for queue, QC, and bay-assignment states |
+| `.cursor/rules/django-admin-draft-submit.mdc` | Buttons and breadcrumbs |
+
+**Required patterns**
+
+1. **Mixin stack**: Each module base → `YardAdminBase` → `DynamicPaginationMixin`.
+2. **Status badges**: `_QUEUE_STATUS_BADGE` and QC decision badges use existing `dfms-badge--*` modifiers; no inline colours.
+3. **Buttons**: Bay assign, complete load/unload, and QC override actions use `dfms-btn-*` from `custom.css`.
+4. **Tables & cards**: Queue and bay changelists use default `#result_list`; assignment detail panels follow gate readonly-panel style.
+5. **Pagination**: Shared per-page control on all queue and event changelists.
+6. **Light/dark mode**: Test CC queue, bay board, load/unload forms, and embedded QC lists in both themes.
+7. **Custom templates**: Only where assign/complete actions need extra buttons; extend admin bases and inherit theme tokens.
+
+### 6.0 YARD-01 integration: admin base and POI resolution
+
+All CC, LD, and QC admin classes inherit **`YardAdminBase`** from `apps/operations/admin_base.py` (YARD-01 Step 5). Create one base per module:
+
+```python
+# apps/operations/command_center/admin.py
+from apps.operations.admin_base import YardAdminBase
+from apps.core.constants_rbac import PermissionCodes
+
+class CCAdminBase(YardAdminBase):
+    operator_role_code    = "command_center_officer"  # matches SEED_ROLES / SYSTEM_ROLE_CODES
+    supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})
+    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ   # replace with CC-specific perm once added
+    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE
+
+# apps/operations/loading/admin.py
+# Loading and unloading are SEPARATE roles in SEED_ROLES — each admin has its own base.
+class LoadEventAdminBase(YardAdminBase):
+    operator_role_code    = "loading_personnel"       # matches SEED_ROLES / SYSTEM_ROLE_CODES
+    supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})
+    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ
+    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE
+
+class UnloadEventAdminBase(YardAdminBase):
+    operator_role_code    = "unloading_personnel"     # matches SEED_ROLES / SYSTEM_ROLE_CODES
+    supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})
+    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ
+    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE
+```
+
+**POI resolution**: all `formfield_for_foreignkey` overrides use `self._scope_poi_id(request)` (inherited from `YardAdminBase`) instead of a bespoke `get_poi_for_operator(request)` call. This ensures consistency and the fail-closed empty-queryset behaviour for unassigned operators.
+
+**`get_queryset`**: `YardAdminBase.get_queryset` filters by `poi_id=self._scope_poi_id(request)` for operator roles. CC/LD admin querysets **additionally** filter by `TransportOrder.sub_state` to show only relevant work items (e.g. `sub_state=TOSubState.WAITING_CC` for the CC queue).
+
 ### 6.1 QueueEntryAdmin (CC-01-2)
 
-Uses `TenantOnlyAdminMixin`. **Primary working screen for CC Officer**.
+Uses `CCAdminBase` (→ `YardAdminBase`). **Primary working screen for CC Officer**.
 
 **List View (Queue Dashboard)**:
 - Columns: Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since, Status badge
@@ -467,7 +550,7 @@ def flag_for_qc(self, request, queryset):
 
 ### 6.2 BayAssignmentAdmin (CC-01-3)
 
-Uses `TenantOnlyAdminMixin`.
+Uses `CCAdminBase` (→ `YardAdminBase`).
 
 **Change Form**:
 - `queue_entry`: autocomplete (filtered to status='waiting', poi=officer's POI, requires_qc=False)
@@ -476,18 +559,18 @@ Uses `TenantOnlyAdminMixin`.
 ```python
 def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == "loading_unloading_point":
-        poi = get_poi_for_operator(request)
-        # Infer operation_type from queue_entry if available
+        poi_id = self._scope_poi_id(request)  # from YardAdminBase
         queue_entry_id = request.GET.get("queue_entry")
         op_type = infer_operation_type(queue_entry_id)  # LOAD or UNLOAD from flow_lane
-        kwargs["queryset"] = (
+        qs = (
             LoadingUnloadingPoint.objects.filter(
-                poi=poi, operation_type=op_type, is_active=True
+                operation_type=op_type, is_active=True
             )
-            .exclude(
-                bay_assignments__is_active=True,  # exclude points currently in use
-            )
+            .exclude(bay_assignments__is_active=True)
         )
+        if poi_id:
+            qs = qs.filter(poi_id=poi_id)
+        kwargs["queryset"] = qs
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
@@ -495,7 +578,7 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 
 ### 6.3 LoadEventAdmin (LD-01-2)
 
-Uses `TenantOnlyAdminMixin`. **FG outbound only**.
+Uses `LoadEventAdminBase` (→ `YardAdminBase`). **FG outbound only**.
 
 **Change Form**:
 - `bay_assignment`: autocomplete, filtered to active FG outbound BayAssignments at operator's POI
@@ -513,7 +596,7 @@ Uses `TenantOnlyAdminMixin`. **FG outbound only**.
 
 ### 6.4 UnloadEventAdmin (LD-01-3)
 
-Uses `TenantOnlyAdminMixin`. **FG inbound + RM inbound**.
+Uses `UnloadEventAdminBase` (→ `YardAdminBase`). **FG inbound + RM inbound**.
 
 **Change Form**:
 - `bay_assignment`: autocomplete, filtered to active inbound BayAssignments at operator's POI
@@ -528,7 +611,7 @@ Uses `TenantOnlyAdminMixin`. **FG inbound + RM inbound**.
 
 ### 6.5 QCSampleAdmin (QC-01-2)
 
-Uses `TenantOnlyAdminMixin`. **QC Supervisor role**.
+Uses `QCAdminBase` (→ `YardAdminBase`). **QC Supervisor role**. `QCAdminBase` is defined in `apps/quality/checkpoint/admin.py` (see `qc-operations-sprint4.md` §6.0).
 
 **Change Form**:
 - `transport_order`: autocomplete, filtered to RM inbound TOs with sub_state in (`flagged_for_qc`, `sampling_started`):
@@ -557,7 +640,7 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 
 ### 6.6 QCDecisionAdmin (QC-01-3)
 
-Uses `TenantOnlyAdminMixin`. **QC Supervisor role**.
+Uses `QCAdminBase` (→ `YardAdminBase`). **QC Supervisor role**.
 
 **Change Form**:
 - `qc_sample`: autocomplete, filtered to samples without an active decision
@@ -689,7 +772,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Module | Direction | How |
 |--------|-----------|-----|
-| SC-01 (Scale-In) | Upstream | QueueToken created by SC-01; QueueEntry auto-created via signal |
+| SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — no signal (YARD-01) |
 | GT-01 (Gate-Out) | Downstream | LoadEvent/UnloadEvent completion + QCDecision.decision='pass' are gate-out guard conditions |
 | SC-01 (Scale-Out) | Downstream gate | LoadEvent/UnloadEvent completion (+ QC pass for RM) unlocks scale-out |
 | LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK for bay assignment; queryset filtered by poi + operation_type + is_active |
@@ -703,9 +786,9 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
-| CC-01-1 | Models + migration | QueueEntry, BayAssignment, WaitingSerial |
-| CC-01-2 | QueueEntryAdmin | Queue dashboard list view; Assign Bay + Flag for QC custom actions |
-| CC-01-3 | BayAssignmentAdmin | formfield_for_foreignkey for loading_unloading_point (op_type, active, not in use); CCService in save_model |
+| CC-01-1 | Models + migration | QueueEntry (with `qc_passed` field), BayAssignment (no `waiting_serial` FK), WaitingSerial (owns FK → BayAssignment) |
+| CC-01-2 | QueueEntryAdmin | Queue dashboard filtered by `sub_state=WAITING_CC`; Assign Bay + Flag for QC actions; `CCAdminBase` → `YardAdminBase` |
+| CC-01-3 | BayAssignmentAdmin | `_scope_poi_id` for formfield_for_foreignkey; CCService in save_model |
 | CC-01-4 | CC queue REST API (GET) | Filter by status/requires_qc/poi |
 | CC-01-5 | Bay assignment REST API (POST) | Flow lane + op_type validation; BayAssignment + WaitingSerial |
 | CC-01-6 | Flag for QC REST API (POST) | RM inbound only; TLS-01 sub_state |
@@ -714,7 +797,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
-| LD-01-1 | Models + migration | LoadEvent, UnloadEvent |
+| LD-01-1 | Models + migration | LoadEvent, UnloadEvent (with `cancelled_by_resample` field) |
 | LD-01-2 | LoadEventAdmin | FG outbound only; start/end datetime; LDService in save_model; get_readonly_fields |
 | LD-01-3 | UnloadEventAdmin | FG inbound + RM inbound; qc_sample_taken checkbox; cancel on resample |
 | LD-01-4 | Load events REST API | POST (start) + PATCH (complete) |
@@ -735,5 +818,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 ---
 
-**Last Updated**: 2026-05-16  
-**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [05-transport](../05-transport/README.md)
+| CC-01-7 | YARD-01 integration | `CCAdminBase` (`command_center_officer`) + `LoadEventAdminBase` (`loading_personnel`) + `UnloadEventAdminBase` (`unloading_personnel`) → `YardAdminBase`; `QueueEntry.qc_passed`; `WaitingSerial` FK direction; `UnloadEvent.cancelled_by_resample`; `create_queue_entry` called atomically from `ScaleInService` |
+
+**Last Updated**: 2026-05-19  
+**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)

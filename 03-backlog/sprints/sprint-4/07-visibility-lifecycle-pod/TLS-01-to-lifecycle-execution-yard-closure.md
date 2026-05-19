@@ -81,11 +81,16 @@ The PRD defines the full TO lifecycle as: **Draft → Planned → Assigned → D
 - [ ] **TO timeline** API for driver app and ops views (no map requirement in Sprint 4)
 - [ ] Status and sub-state viewable per actor role (TP, TDO, operations staff per §6.8.5 functional requirements)
 
+### AC-6: Current yard step on the transport order (YARD-01)
+- [ ] Each transport order shows its **current yard step** (e.g. waiting for command center, flagged for QC, loading in progress) for operations screens
+- [ ] Yard step updates together with the audited timeline — one source of truth for “where is this vehicle in the yard?”
+- [ ] Gate, scale, command center, loading, unloading, and QC screens filter waiting work by this step
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TLS-01-1 | TOStatus + TOSubState + TOStatusTransitionLog models + migration (status enum, sub_state enum, transition log with from/to/actor/timestamp/payload) | DFS-059-1 | Pending |
+| TLS-01-1 | TO status, yard steps, and transition history — including current yard step on the TO (**YARD-01**) | DFS-059-1 | Pending |
 | TLS-01-2 | State machine service — code-first rules table defining valid transitions per flow lane (FG outbound, FG inbound, RM inbound) | DFS-059-2 | Pending |
 | TLS-01-3 | TOStatusAdmin — Django Admin read-only timeline view showing all transitions for a TO, filterable by TO, status, date range (support/debug) | DFS-059-3 | Pending |
 | TLS-01-4 | TOTimelineInline — TabularInline under TransportOrderAdmin showing status transition history | DFS-059-4 | Pending |
@@ -123,11 +128,13 @@ GET    /api/v1/transport-orders/{to_id}/transitions/validate      # Dry-run: che
 ## Dependencies
 
 - **Requires**: TO-02 baseline statuses (**Ready for Dispatch** set by TDO in Sprint 3 flow)
+- **Coordinates with**: **YARD-01** (current yard step on the TO — align with TLS-01-1 and YARD-01-4)
 - **Blocks**: DM-01, yard chain, QC-01, POD-01
 
 ## Definition of Done
 
 - [ ] TOStatus, TOSubState, and TOStatusTransitionLog models store the full lifecycle with from/to/actor/timestamp/payload per transition
+- [ ] Current yard step visible on the TO and kept in sync with the timeline (AC-6 / **YARD-01**)
 - [ ] State machine service enforces forward-only transitions per flow lane (FG outbound, FG inbound, RM inbound)
 - [ ] Invalid transition attempt returns a stable error code with descriptive message
 - [ ] Halted sub-state value is reserved in the enum but no trigger is implemented (§6.8.6 Phase 2 placeholder)

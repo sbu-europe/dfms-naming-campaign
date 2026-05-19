@@ -4,7 +4,7 @@ specification: Scaling Operations (Sprint 4 — TO-Centric)
 version: 1.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-16
+last_updated: 2026-05-19
 related_stories: DFS-055 (SC-01)
 jira_epic: DFS-072
 ---
@@ -16,8 +16,17 @@ jira_epic: DFS-072
 The **Scaling Operations** specification covers weighbridge scale-in/out, queue token (P.C. code) issuance, net weight calculation, and printable gate pass. Every weighing operation is anchored to a `GateVisitSession` (and therefore to a `TransportOrder`). Scale-in is a **prerequisite** for Command Center queue entry; scale-out is a **prerequisite** for gate-out (GT-01 guard matrix).
 
 **Module path**: `apps/operations/scaling/`  
-**Dependencies**: `apps/operations/gate/` (GateVisitSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus)  
+**Dependencies**: `apps/operations/gate/` (GateVisitSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
 **Enables**: Command Center queue (CC-01), gate-out clearance (GT-01), net weight for POD-01
+
+### Codebase baseline (May 2026)
+
+`apps/operations/scaling/` exists with:
+- `models.py` — legacy `ScaleRecord` tied to `GateEntry` (old 13-state machine). **Do not extend.** Sprint 4 creates new `WeighingSession`, `ScaleIn`, `ScaleOut`, `QueueToken` models as separate classes.
+- `services.py` — legacy `WeightService.record_tare` / `record_gross`. **Do not extend.**
+- `admin.py` — **does not exist** (to be created in SC-01).
+
+The new Sprint 4 models live alongside legacy in `apps/operations/scaling/models.py` in a clearly separated section. Legacy `ScaleRecord` is frozen (no new admin, no new API).
 
 ---
 
@@ -169,11 +178,11 @@ def validate_to_eligible_for_scale_in(
     """
 ```
 
-**On successful scale-in**:
+**On successful scale-in** (all within one `atomic()` block — if any step fails, all roll back):
 1. Create `WeighingSession` + `ScaleIn` record
 2. Auto-issue `QueueToken` (status = `waiting`)
-3. Emit `SCALE_IN` event to TLS-01 (sub_state = `scale_in`, then `waiting_cc`)
-4. Signal/webhook to CC-01 queue feed (new token visible in Command Center)
+3. **Create `QueueEntry`** in CC-01 directly via `CCService.create_queue_entry()` — **not** via signal or webhook. A failed signal would leave the vehicle invisible in Command Center.
+4. Call `record_yard_sub_state(to, TOSubState.SCALE_IN, actor=request.user)` then `record_yard_sub_state(to, TOSubState.WAITING_CC, actor=request.user)` (YARD-01 Step 1)
 
 ### 2.2 Scale-Out eligibility and result
 
@@ -281,9 +290,51 @@ Scaling Operator opens Scale-Out form
 
 ## 5. Django Admin Configuration
 
+### UI — design system consistency (required)
+
+All scaling operator admin screens must match the **existing DFMS Django admin shell** (Sprint 1 PAP-01). Reuse patterns from `apps/operations/gate/admin.py` and other yard admins — do not introduce parallel CSS, badge colours, or pagination markup.
+
+| Asset | Purpose |
+|-------|---------|
+| `static/admin/css/custom.css` | Design tokens (`--dfms-*`), light/dark via `[data-theme="dark"]`, tables, cards, buttons, pagination, forms |
+| `static/admin/js/dfms_theme.js` | Light/dark toggle (`dfms-admin-theme` in `localStorage`) |
+| `templates/admin/dynamic_pagination_changelist.html` | Changelist per-page control via `YardAdminBase` → `DynamicPaginationMixin` |
+| `DFMS-product-context/07-design-system/02-components/data-display.md` | Badge modifier catalogue |
+| `.cursor/rules/django-admin-draft-submit.mdc` | Button and breadcrumb conventions |
+
+**Required patterns**
+
+1. **Mixin stack**: `ScaleAdminBase` → `YardAdminBase` → `TenantOnlyAdminMixin` → `DynamicPaginationMixin`.
+2. **Status badges**: `dfms-badge--*` + Bootstrap Icons for token/session states (see `_TOKEN_STATUS_BADGE` below); no inline hex colours.
+3. **Buttons**: `dfms-btn-*` classes from `custom.css` on any custom change-form actions (e.g. weigh complete, print gate pass trigger).
+4. **Tables & cards**: Default changelist table and `.module` fieldsets; session info panels reuse gate-style readonly markup.
+5. **Pagination**: Shared per-page dropdown only.
+6. **Light/dark mode**: Variables only; test changelist, scale-in/out forms, and token print view in both themes. **Print CSS** for queue tokens may add `@media print` rules but must not redefine brand colours outside `custom.css` tokens.
+7. **Custom templates**: Extend admin base templates; load no stylesheets beyond `custom.css`.
+
+### 5.0 YARD-01 integration: admin base and POI resolution
+
+Both `ScaleInAdmin` and `ScaleOutAdmin` inherit **`YardAdminBase`** from `apps/operations/admin_base.py` (YARD-01 Step 5). `apps/operations/scaling/admin.py` does not yet exist and must be created as part of SC-01.
+
+```python
+# apps/operations/scaling/admin.py
+from apps.operations.admin_base import YardAdminBase
+from apps.core.constants_rbac import PermissionCodes
+
+class ScaleAdminBase(YardAdminBase):
+    operator_role_code   = "scaling_operator"
+    supervisor_role_codes = frozenset({"gate_supervisor"})  # or dedicated scale supervisor if RBAC adds one
+    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ   # reuse until SC-01-specific perm added
+    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE # reuse until SC-01-specific perm added
+```
+
+`formfield_for_foreignkey` for `gate_visit_session` must call `_scope_poi_id(request)` (inherited) to restrict the session queryset to the operator's POI. Supervisors see all sessions.
+
+`get_queryset` is already handled by `YardAdminBase`: operator with no `UserOperationalPOI` → `qs.none()` + warning banner. No additional guard needed in the scaling admin.
+
 ### 5.1 ScaleInAdmin (SC-01-2)
 
-Uses `TenantOnlyAdminMixin`. **Business rules in `ScaleInService`**.
+Uses `ScaleAdminBase` (→ `YardAdminBase`). **Business rules in `ScaleInService`**.
 
 **Change Form**:
 - `autocomplete_fields = ["gate_visit_session"]`
@@ -292,9 +343,9 @@ Uses `TenantOnlyAdminMixin`. **Business rules in `ScaleInService`**.
 ```python
 def formfield_for_foreignkey(self, db_field, request, **kwargs):
     if db_field.name == "gate_visit_session":
-        poi = get_poi_for_operator(request)
-        kwargs["queryset"] = (
-            GateVisitSession.objects.filter(poi=poi, status=GateVisitStatus.ACTIVE)
+        poi_id = self._scope_poi_id(request)  # from YardAdminBase
+        qs = (
+            GateVisitSession.objects.filter(status=GateVisitStatus.ACTIVE)
             .filter(
                 transport_order__status__in=[
                     TOStatus.AT_SOURCE,      # FG outbound
@@ -305,6 +356,9 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
             .select_related("transport_order", "vehicle")
             .order_by("-created_at")
         )
+        if poi_id:
+            qs = qs.filter(poi_id=poi_id)
+        kwargs["queryset"] = qs
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
@@ -443,7 +497,7 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 | Module | Direction | How |
 |--------|-----------|-----|
 | GT-01 (Gate-In) | Upstream | GateVisitSession FK; scale-in only after gate-in |
-| CC-01 (Command Center) | Downstream | QueueToken signal/webhook feeds CC queue; token status updated by CC on bay assignment |
+| CC-01 (Command Center) | Downstream | `ScaleInService` calls `CCService.create_queue_entry()` directly within the same `atomic()` block — no signal/webhook (YARD-01); token status updated by CC on bay assignment |
 | LD-01 (Loading/Unloading) | Upstream for scale-out | LoadEvent/UnloadEvent completion gates scale-out validation |
 | QC-01 | Upstream for scale-out (RM) | QCDecision.decision = 'pass' required before scale-out for RM inbound |
 | GT-01 (Gate-Out) | Downstream | `WeighingSession.scale_out_completed` is the gate-out guard check |
@@ -467,8 +521,9 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 | SC-01-8 | Print endpoints | Queue token + gate pass HTML print views |
 | SC-01-9 | TLS-01 event emission | SCALE_IN + SCALE_OUT events |
 | SC-01-10 | Constants | SCALE_IN_ELIGIBLE_TO_STATUSES, SCALE_OUT_RESULT_TO_STATUS in apps/transport/constants.py |
+| SC-01-11 | YARD-01 integration | `ScaleAdminBase` → `YardAdminBase`; `create_queue_entry` call in `ScaleInService` (atomic); `record_yard_sub_state(SCALE_IN → WAITING_CC)` |
 
 ---
 
-**Last Updated**: 2026-05-16  
-**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [05-transport](../05-transport/README.md)
+**Last Updated**: 2026-05-19  
+**Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)

@@ -56,13 +56,18 @@ prd_refs:
 - [ ] QC capture is in **QC-01**; this story flags TO for QC and assigns unloading point **after** QC Pass (same bay/serial flow as FG inbound)
 - [ ] For **finished-goods inbound unloading** assignments, system records unload path states without mandatory QC checkpoint in Sprint 4
 
+### AC-7: Command center at one site (YARD-01)
+- [ ] Officer queue and assignment screens show only vehicles at **their assigned site**
+- [ ] For raw-material trips, queue shows whether **QC has passed** so bay assignment stays blocked until pass
+- [ ] Waiting serial can be issued as soon as bay is assigned without data-entry dead ends
+
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| CC-01-1 | QueueEntry + BayAssignment + WaitingSerial models + migration (FK to TO, ScaleEntry, L/U point) | DFS-056-1 | Pending |
-| CC-01-2 | QueueEntryAdmin — list view with filters (product type, urgency, status), auto-populated from SC-01 scale-in events | DFS-056-2 | Pending |
-| CC-01-3 | BayAssignmentAdmin — change form with L/U point dropdown (from LUP-01), save_model validates product/vehicle type match + updates TO sub-state via TLS-01 | DFS-056-3 | Pending |
+| CC-01-1 | Queue, bay assignment, and waiting serial records — including QC-passed flag for raw material (**YARD-01**) | DFS-056-1 | Pending |
+| CC-01-2 | Command center queue screen — vehicles at officer’s site only; fed from scale-in | DFS-056-2 | Pending |
+| CC-01-3 | Bay assignment screen — loading/unloading points at same site only (**LUP-01**); updates TO yard step | DFS-056-3 | Pending |
 | CC-01-4 | WaitingSerialAdmin — read-only after issue, issuer + timestamp audit fields | DFS-056-4 | Pending |
 | CC-01-5 | Queue list API (GET with filters: product type, urgency, status) | DFS-056-5 | Pending |
 | CC-01-6 | Bay assignment API (POST — assign vehicle to L/U point) | DFS-056-6 | Pending |
@@ -94,7 +99,7 @@ GET    /api/v1/command-center/my-bay?loading_point_id=                    # Load
 
 ## Dependencies
 
-- **Requires**: SC-01, TLS-01, **LUP-01** (at least one active L/U point per POI used in UAT)
+- **Requires**: SC-01, TLS-01, **YARD-01**, **LUP-01** (at least one active L/U point per POI used in UAT)
 
 ## Definition of Done
 
@@ -108,4 +113,6 @@ GET    /api/v1/command-center/my-bay?loading_point_id=                    # Load
 - [ ] RM TOs: Command Center updates TO sub-state for QC visibility; does NOT assign unloading point (AC-6)
 - [ ] FG inbound TOs: unload path states recorded without mandatory QC checkpoint
 - [ ] Audit log entry created on every assignment and serial issuance
+- [ ] Officer sees only their site’s queue; other depots’ vehicles never listed (AC-7)
+- [ ] Raw-material bay assignment blocked until QC pass is reflected on the queue (AC-7)
 - [ ] UAT: assign vehicle → loading screen shows assignment without email/push
