@@ -1,34 +1,57 @@
 ---
 module: 05-transport
-specification: Transport Lifecycle, POD & QC Checkpoint (Sprint 4)
-version: 2.0
+specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
+version: 3.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-12
-related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01)
+last_updated: 2026-05-20
+changelog: "v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
+related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
 
-# Transport Lifecycle, POD & QC Checkpoint Specification (Sprint 4)
+# Transport Lifecycle, POD & QC Integration (Sprint 4)
 
 ## Overview
 
-This specification covers three interconnected capabilities that manage the full Transport Order execution lifecycle:
+This specification covers three interconnected capabilities for Transport Order execution:
 
-1. **TLS-01 — TO Lifecycle & Timeline**: Two-level status/sub-state tracking, code-first state machine, event ingest, audit trail
+1. **TLS-01 — TO Lifecycle & Timeline**: Canonical `TransportOrder.status`, yard `sub_state`, transition log, driver state machine
 2. **POD-01 — TO Closure & POD Linkage**: Lane-aware closure rule engine, auto-close trigger, exceptions list, manual close guard
-3. **QC-01 — Raw Material QC Checkpoint**: Sample creation, pass/fail decision, resample during unloading, override-to-failed
+3. **QC-01 — TLS/POD integration only**: How RM inbound QC events write to the timeline and feed closure gates (full QC spec is separate)
 
-The TO lifecycle state machine tracks execution from "Draft" through yard operations to "Closed" using a **TOStatus + TOSubState** pair (PRD §6.8.5). The **closure engine** evaluates flow-specific gates (FG outbound, FG inbound, RM inbound) and transitions TOs to "Closed" only when all conditions are met. QC checkpoints are **triggered by Command Center** (CC-01) for RM inbound TOs and block closure until QC passes.
+**Architecture (Sprint 4 authoritative):**
 
-**Module path**: 
-- `apps/transport/lifecycle/` (state machine + event ingest + execution guards)
-- `apps/transport/closure/` (closure rule engine)
-- `apps/transport/pod/` (POD model + capture)
-- `apps/quality/checkpoint/` (QC checkpoint for Sprint 4)
+- **Canonical status** lives on `TransportOrder.status` (`TOStatus` in `apps/transport/constants.py`). There is no separate `to_status` column.
+- **Yard workflow step** lives on `TransportOrder.sub_state` (`TOSubState`). Yard operator admins filter on this field (YARD-01). There is no separate `to_sub_state` column.
+- **Lane key** is `TransportOrder.flow_lane` (`fg_outbound` | `fg_inbound` | `rm_inbound`), not `flow_type`.
+- Yard modules write TLS events **directly** via `timeline_service` helpers — there is no central `event_ingest.py` facade.
 
-**Dependencies**: All Sprint 4 yard operations (GT-01, SC-01, CC-01, LD-01), `08-fleet-management` (DS-01, DS-02), `09-mobile-apps` (DM-01)  
+The closure engine evaluates flow-specific gates and transitions TOs to `closed` only when prerequisites are met. RM inbound QC is triggered by Command Center (CC-01); QC Pass unblocks CC unloading assignment and contributes to closure.
+
+**Module paths**:
+
+- `apps/transport/lifecycle/` — timeline + canonical status transitions + driver rules
+- `apps/transport/closure/` — closure rule engine (POD-01)
+- `apps/transport/pod/` — POD model + capture (DM-01)
+- QC models/services/admin: `apps/quality/checkpoint/` — see [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
+
+**Dependencies**:
+
+| Prerequisite | Spec |
+|--------------|------|
+| **YARD-01** (foundation) | [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-implementation.md), [docs/poi-scoped-operational-roles.md](../../../docs/poi-scoped-operational-roles.md) |
+| Yard operations | GT-01, SC-01, CC-01, LD-01 |
+| Fleet / driver | DS-01, DS-02, DM-01 |
+
 **Enables**: End-to-end TO execution visibility, closure triggers, KPI tracking
+
+**Related yard specs** (authoritative for operator UI and POI scoping):
+
+- [gate-operations-sprint4.md](../06-poi-operations/gate-operations-sprint4.md) — §4.5 yard chain table
+- [scaling-operations-sprint4.md](../06-poi-operations/scaling-operations-sprint4.md)
+- [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md)
+- [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
 ---
 
@@ -39,904 +62,461 @@ Sidebar (Transport Planner / TDO)
 └── Logistics / Transport
       └── Transport Orders
             └── TO Detail (existing)
-                  ├── Timeline Tab (NEW — TLS-01)      — visual execution timeline + event log
-                  │     └─► Event list: Gate-in, Scale-in, Bay assigned, Loading done, POD, Closed
-                  │           └─► Each event: timestamp, actor, remarks
-                  │
-                  ├── Closure Checklist (NEW — POD-01) — closure gate status widget
-                  │     └─► FG Outbound matrix: [✓] Loading Done, [✓] Scale-Out, [✓] Gate-Out, [✓] POD, [✗] Closure
-                  │           └─► If blocked: "Closure blocked: Scale-out not completed"
-                  │
-                  └── POD Section (NEW — POD-01)       — POD photo/signature preview
-                        └─► If POD submitted: display photo, signature, notes, submitted by/at
-                              └─► [Download POD]
+                  ├── Timeline Tab (TLS-01)       — execution timeline from TOStatusTransitionLog
+                  ├── Closure Checklist (POD-01)  — lane-aware prerequisite widget
+                  └── POD Section (POD-01)        — POD preview (DM-01 ProofOfDelivery)
 
-Sidebar (QC Supervisor)
+Sidebar (qc_inspector_physical — QC Inspector – Physical)
 └── Quality
-      └── QC Checkpoint (NEW — QC-01)
-            ├── QC Queue                         — RM TOs flagged for QC by CC-01, awaiting sample/decision
-            │     └── [row click] ──► QC Checkpoint Form
-            │
-            ├── Active Unloading (QC view)       — RM TOs currently unloading where QC can resample/override
-            │     └── [Resample] / [Override to Failed] custom actions
-            │
-            └── QC History                       — completed checkpoints (searchable)
-                  └── [Export CSV]
+      └── QC Checkpoint (QC-01)
+            ├── My Queue / Samples / Decisions
+            └── Resample + Override actions (during unloading)
+            (Full menu spec: qc-operations-sprint4.md §0–1)
 ```
+
+Transport Planner / TDO views are **tenant-wide** (not POI-scoped). Yard operator menus are POI-scoped via YARD-01 (`YardAdminBase`).
 
 ---
 
 ## 1. TLS-01: TO Lifecycle & Timeline
 
-### 1.1 TOStatus + TOSubState (PRD §6.8.5 State Chain)
+### 1.1 Status model — canonical status + yard sub-state
 
-Sprint 4 replaces the flat `execution_state` enum with a two-level status/sub-state model.
+Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.8.5 paired enum on separate columns:
 
-**Sprint 3 legacy field** (no change):
-- `TransportOrder.status` — remains: `created`, `vehicle_assigned`, `vendor_assigned`, `confirmed`, `in_progress`, `completed`, `cancelled`
+| Field | Purpose | Written by |
+|-------|---------|------------|
+| `TransportOrder.status` | Coarse lifecycle (`TOStatus`) | Driver (in-transit only), gate (gate-in status bump), scale-out, dispatch, closure, admin |
+| `TransportOrder.sub_state` | Yard workflow step (`TOSubState`) | Gate (gate-out markers), scale, CC, LD, QC services |
 
-**Sprint 4 new fields**:
-- `TransportOrder.to_status` — coarse status (`TOStatus` TextChoices)
-- `TransportOrder.to_sub_state` — fine-grained sub-state (`TOSubState` TextChoices)
+**Alias**: `TransportOrder.tls_status` property returns `status` for API compatibility.
 
-#### 1.1.1 TOStatus Enum
+**Sprint 3 planning statuses** (unchanged keys on the same `status` column):
+
+`created` → `assigned` → `ready_for_dispatch` → `dispatched` → … → `completed` / `closed` / `cancelled` / `under_planning`
+
+**Sprint 4 execution statuses** (append to `TOStatus` in `apps/transport/constants.py`):
 
 ```python
 class TOStatus(models.TextChoices):
-    DRAFT               = 'draft',                'Draft'                    # Sprint 3 creation
-    PLANNED             = 'planned',              'Planned'
-    ASSIGNED            = 'assigned',             'Assigned'
-    DISPATCHED          = 'dispatched',           'Dispatched'
-    IN_TRANSIT_SOURCE   = 'in_transit_source',    'In Transit – Source'
-    AT_SOURCE           = 'at_source',            'At Source'
-    LOADED              = 'loaded',               'Loaded / Pickup Completed'
-    IN_TRANSIT_DEST     = 'in_transit_dest',      'In Transit – Destination'
-    AT_DESTINATION      = 'at_destination',       'At Destination'
-    DELIVERED           = 'delivered',            'Delivered / Unloaded'
-    COMPLETED           = 'completed',            'Completed'
-    CLOSED              = 'closed',               'Closed'
-    CANCELLED           = 'cancelled',            'Cancelled'
+    # Sprint 3 planning
+    CREATED              = "created",              "Created"
+    ASSIGNED             = "assigned",             "Assigned"
+    READY_FOR_DISPATCH   = "ready_for_dispatch",   "Ready for Dispatch"
+    DISPATCHED           = "dispatched",           "Dispatched"
+    UNDER_PLANNING       = "under_planning",       "Under Planning"
+    CANCELLED            = "cancelled",            "Cancelled"
+    # Sprint 4 execution
+    IN_TRANSIT_SOURCE    = "in_transit_source",    "In Transit – Source"
+    AT_SOURCE            = "at_source",            "At Source"
+    LOADED_PICKUP_COMPLETED = "loaded_pickup_completed", "Loaded / Pickup Completed"
+    IN_TRANSIT_DESTINATION  = "in_transit_destination",  "In Transit – Destination"
+    AT_DESTINATION       = "at_destination",       "At Destination"
+    DELIVERED_UNLOADED   = "delivered_unloaded",   "Delivered / Unloaded"
+    COMPLETED            = "completed",            "Completed"
+    CLOSED               = "closed",               "Closed"
+    IN_PROGRESS          = "in_progress",          "In Progress"  # legacy alias
 ```
 
-#### 1.1.2 TOSubState Enum
+**Yard sub-states** (`TransportOrder.sub_state` — `TOSubState` in `apps/transport/constants.py`):
 
 ```python
 class TOSubState(models.TextChoices):
-    # --- Planned ---
-    FLEET_DECIDED           = 'fleet_decided',           'Fleet Decided'
-    AWAITING_ASSIGNMENT     = 'awaiting_assignment',     'Awaiting Assignment'
-
-    # --- Assigned ---
-    VEHICLE_DRIVER_HELPER_ASSIGNED = 'vdh_assigned',     'Vehicle/Driver/Helper Assigned'
-    ASSIGNMENT_CONFIRMED    = 'assignment_confirmed',    'Assignment Confirmed'
-
-    # --- Dispatched ---
-    DISPATCH_APPROVED       = 'dispatch_approved',       'Dispatch Approved'
-    VEHICLE_DEPARTED        = 'vehicle_departed',        'Vehicle Departed'
-
-    # --- In Transit – Source ---
-    EN_ROUTE_TO_SOURCE      = 'en_route_source',         'En Route to Source'
-    DELAYED_SOURCE          = 'delayed_source',          'Delayed'
-    HALTED_SOURCE           = 'halted_source',           'Halted'              # §6.8.6 Phase 2
-
-    # --- At Source ---
-    GATE_IN_SOURCE          = 'gate_in_source',          'Gate-in Recorded'
-    SCALE_IN_SOURCE         = 'scale_in_source',         'Scale-in'
-    WAITING_PARKED_SOURCE   = 'waiting_parked_source',   'Waiting / Parked'
-
-    # --- Loaded / Pickup Completed ---
-    LOADING_STARTED         = 'loading_started',         'Loading Started'
-    LOADING_COMPLETED       = 'loading_completed',       'Loading Completed'
-    SCALE_OUT_SOURCE        = 'scale_out_source',        'Scale-out'
-    ASSIGNED_TO_LOADING_POINT = 'assigned_loading_pt',   'Assigned to Loading Point'
-    PICKUP_CONFIRMED        = 'pickup_confirmed',        'Pick-up Confirmed'
-    GATE_OUT_SOURCE         = 'gate_out_source',         'Gate-out'
-
-    # --- In Transit – Destination ---
-    EN_ROUTE_TO_DEST        = 'en_route_dest',           'En Route to Destination'
-    DELAYED_DEST            = 'delayed_dest',            'Delayed'
-    HALTED_DEST             = 'halted_dest',             'Halted'              # §6.8.6 Phase 2
-
-    # --- At Destination ---
-    GATE_IN_DEST            = 'gate_in_dest',            'Gate-in Recorded'
-    SCALE_IN_DEST           = 'scale_in_dest',           'Scale-in'
-    WAITING_PARKED_DEST     = 'waiting_parked_dest',     'Waiting / Parked'
-    ASSIGNED_TO_UNLOADING_POINT = 'assigned_unloading_pt', 'Assigned to Unloading Point'
-    SAMPLING_STARTED        = 'sampling_started',        'Sampling Started'
-    QC_STARTED              = 'qc_started',              'QC Started'
-    LAB_ANALYSIS_IN_PROGRESS = 'lab_analysis',           'Lab Analysis In Progress'
-
-    # --- Delivered / Unloaded ---
-    UNLOADING_STARTED       = 'unloading_started',       'Unloading Started'
-    UNLOADING_COMPLETED     = 'unloading_completed',     'Unloading Completed'
-    SCALE_OUT_DEST          = 'scale_out_dest',          'Scale-out'
-    POD_SUBMITTED           = 'pod_submitted',           'POD Submitted'
-    RECEIVER_CONFIRMATION   = 'receiver_confirmation',   'Receiver Confirmation'
-
-    # --- Completed ---
-    QC_PASSED               = 'qc_passed',               'QC Passed'
-    QC_FAILED               = 'qc_failed',               'QC Failed'
+    # Leg-specific scale/gate (prefer for new writes)
+    SCALE_IN_SOURCE          = "scale_in_source"
+    SCALE_IN_DEST            = "scale_in_dest"
+    SCALE_OUT_SOURCE         = "scale_out_source"
+    SCALE_OUT_DEST           = "scale_out_dest"
+    GATE_OUT_SOURCE          = "gate_out_source"
+    GATE_OUT_DESTINATION     = "gate_out_destination"
+    # CC / QC / LD workflow (POI admin query fields)
+    WAITING_CC               = "waiting_cc"
+    FLAGGED_FOR_QC           = "flagged_for_qc"
+    ASSIGNED_LOADING_POINT   = "assigned_loading_point"
+    ASSIGNED_UNLOADING_POINT = "assigned_unloading_point"
+    SAMPLING_STARTED         = "sampling_started"
+    QC_PASSED                = "qc_passed"
+    QC_FAILED                = "qc_failed"
+    RESAMPLING               = "resampling"
+    LOADING_STARTED          = "loading_started"
+    LOADING_COMPLETED        = "loading_completed"
+    UNLOADING_STARTED        = "unloading_started"
+    UNLOADING_COMPLETED      = "unloading_completed"
+    SCALE_IN                 = "scale_in"  # legacy — do not use for new yard writes
 ```
 
-> **Note**: `HALTED_SOURCE` and `HALTED_DEST` sub-states are **reserved** but have no trigger in Sprint 4 (§6.8.6 Phase 2).
+> **Phase 2 (not Sprint 4):** PRD §6.8.5 planning/dispatch sub-states (`fleet_decided`, `vdh_assigned`, `halted_source`, `lab_analysis`, etc.) are **not** persisted on `TransportOrder.sub_state` in Sprint 4.
 
-#### 1.1.3 Full State Chain Table
+**Reset rule:** When canonical `status` advances into `SUB_STATE_RESET_ON_STATUS`, `sub_state` is cleared to `""`:
 
-| TOStatus | Sub-States | Trigger Source |
-|----------|-----------|----------------|
-| Draft | *(none — Sprint 3)* | Planner creates TO |
-| Planned | Fleet Decided, Awaiting Assignment | Fleet module |
-| Assigned | Vehicle/Driver/Helper Assigned, Assignment Confirmed | DS-01, DM-01 |
-| Dispatched | Dispatch Approved, Vehicle Departed | TDO / DS-01 |
-| In Transit – Source | En Route to Source, Delayed, ~~Halted~~ (reserved) | DM-01, GPS Phase 2 |
-| At Source | Gate-in Recorded, Scale-in, Waiting/Parked | GT-01, SC-01, CC-01 |
-| Loaded / Pickup Completed | Loading Started, Loading Completed, Scale-out, Assigned to Loading Point, Pick-up Confirmed, Gate-out | LD-01, SC-01, CC-01, GT-01 |
-| In Transit – Destination | En Route to Destination, Delayed, ~~Halted~~ (reserved) | DM-01, GPS Phase 2 |
-| At Destination | Gate-in Recorded, Scale-in, Waiting/Parked, Assigned to Unloading Point, Sampling Started, QC Started, Lab Analysis In Progress | GT-01, SC-01, CC-01, QC-01 |
-| Delivered / Unloaded | Unloading Started, Unloading Completed, Scale-out, POD Submitted, Receiver Confirmation | LD-01, SC-01, DM-01 |
-| Completed | QC Passed, QC Failed | QC-01 |
-| Closed | *(none)* | Closure engine |
-
-### 1.2 Flow Lane Mapping
-
-Each flow lane defines which status/sub-state transitions are valid and which yard operation triggers them:
-
-**FG Outbound** (loading at source):
-```
-Draft → Planned → Assigned → Dispatched
-  → In Transit – Source (En Route to Source)
-    → At Source (Gate-in, Scale-in, Waiting/Parked)
-      → Loaded (Assigned to Loading Point, Loading Started, Loading Completed, Scale-out, Pick-up Confirmed, Gate-out)
-        → In Transit – Destination (En Route to Destination)
-          → Delivered (POD Submitted, Receiver Confirmation)
-            → Closed
+```python
+SUB_STATE_RESET_ON_STATUS = frozenset({
+    "in_transit_destination",
+    "delivered_unloaded",
+    "completed",
+    "closed",
+    "cancelled",
+})
 ```
 
-**FG Inbound** (unloading at destination):
-```
-Draft → Planned → Assigned → Dispatched
-  → In Transit – Destination (En Route to Destination)
-    → At Destination (Gate-in, Scale-in, Waiting/Parked)
-      → Delivered (Assigned to Unloading Point, Unloading Started, Unloading Completed, Scale-out, POD Submitted, Receiver Confirmation)
-        → Closed
-```
+Call `maybe_clear_sub_state_on_status(to, new_status=...)` after every canonical status bump that may cross this boundary.
 
-**RM Inbound** (unloading + QC at destination):
-```
-Draft → Planned → Assigned → Dispatched
-  → In Transit – Destination (En Route to Destination)
-    → At Destination (Gate-in, Scale-in, Waiting/Parked, Assigned to Unloading Point, Sampling Started, QC Started, Lab Analysis In Progress)
-      → Delivered (Unloading Started, Unloading Completed, Scale-out, POD Submitted, Receiver Confirmation)
-        → Completed (QC Passed | QC Failed)
-          → Closed (only if QC Passed)
-```
+### 1.2 Per-lane execution chain (canonical status)
 
-### 1.3 Data Model
+Authoritative yard progression is in [gate-operations-sprint4.md §4.5](../06-poi-operations/gate-operations-sprint4.md). Summary:
 
-#### 1.3.1 TransportOrder Extensions
+| Step | FG outbound | FG inbound | RM inbound |
+|------|------------|-----------|-----------|
+| Pre-gate-in (driver) | `in_transit_source` | `in_transit_destination` | `in_transit_destination` |
+| Gate-in (GT-01) | → `at_source` (source leg) or → `at_destination` (dest leg) | → `at_destination` | → `at_destination` |
+| Scale-in (SC-01) | `sub_state`: leg scale-in → `waiting_cc` | same | same |
+| CC queue / QC flag | `sub_state`: bay assign or `flagged_for_qc` | bay assign | CC flags QC; QC sample/decision |
+| QC Pass (RM only) | — | — | `sub_state`: `qc_passed`; CC assigns unload bay |
+| Load / unload (LD-01) | load sub-states | unload sub-states | unload sub-states |
+| Scale-out (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
+| Gate-out (GT-01) | `sub_state`: `gate_out_source` or `gate_out_destination` | same | same |
+| Driver POD (DM-01) | → `completed` (when business rules met) | same | same |
+| Closure (POD-01) | → `closed` | same | same (RM: only if QC Pass) |
+
+**GT-02 on-demand:** Dealer DO → `at_source`; Supplier PO → `at_destination` in the same transaction as gate-in (skips driver in-transit steps).
+
+**Important:** Most yard steps change **`sub_state` only** while `status` stays at `at_source` / `at_destination`. Canonical `status` advances on gate-in, scale-out, driver milestones, POD, and closure — not on every bay assign or load start.
+
+### 1.3 Data model
+
+#### 1.3.1 TransportOrder (Sprint 4 fields)
 
 ```python
 TransportOrder {
-    # ... existing Sprint 3 fields ...
-    
-    # Sprint 4 — two-level status tracking (replaces flat execution_state)
-    to_status: TOStatus                      # Coarse status enum
-    to_sub_state: TOSubState (nullable)      # Fine-grained sub-state (null when sub-state not applicable)
-    flow_type: enum                          # ['fg_outbound', 'fg_inbound', 'rm_inbound', 'internal_transfer']
-    source_channel: enum                     # ['planner', 'gate_on_demand']
-    
-    # Denormalized execution timestamps (canonical data in TOStatusTransitionLog)
-    execution_started_at: DateTime (nullable)
-    gate_in_source_at: DateTime (nullable)
-    loading_done_at: DateTime (nullable)
-    gate_out_source_at: DateTime (nullable)
-    gate_in_destination_at: DateTime (nullable)
-    unloading_done_at: DateTime (nullable)
-    qc_passed_at: DateTime (nullable)
-    gate_out_destination_at: DateTime (nullable)
-    pod_submitted_at: DateTime (nullable)
-    closed_at: DateTime (nullable)
+    # ... Sprint 3 fields ...
+
+    status: TOStatus                    # Canonical lifecycle (NOT to_status)
+    sub_state: CharField(max_length=40) # Yard step; default ""; db_index (YARD-01)
+
+    flow_lane: FlowLane                 # fg_outbound | fg_inbound | rm_inbound
+    source: TOSource                    # PLANNER | GATE
+    transfer_type: TOTransferType       # GT-02 only; nullable
+
+    requires_qc: boolean                # RM inbound flag
+    qc_passed: boolean (null=True)      # Denormalized QC outcome; QC Pass sets True
+
+    # Denormalized timestamps (optional — canonical audit in TOStatusTransitionLog)
+    execution_started_at, gate_in_source_at, loading_done_at, ...
 }
 ```
 
-#### 1.3.2 TOStatusTransitionLog (new model — replaces TOExecutionEvent)
+#### 1.3.2 TOStatusTransitionLog
+
+Immutable audit trail. **Implemented schema** (`apps/transport/models.py`):
 
 ```python
 TOStatusTransitionLog {
     id: UUID
     transport_order: FK → TransportOrder
-    
-    # Transition
-    from_status: TOStatus (nullable)         # Previous to_status (null for first transition)
-    from_sub_state: TOSubState (nullable)
-    to_status: TOStatus                      # New to_status after transition
-    to_sub_state: TOSubState (nullable)
-    
-    # Actor
-    actor: FK → User (nullable)              # Who triggered (null for system events)
-    
-    # Timing
-    timestamp: DateTime                      # When the transition occurred
-    
-    # Context
-    payload: JSONField                       # Event-specific data (e.g., {gross_weight_kg, pc_code, remarks})
-    
-    # Metadata
-    tenant_id: UUID
-    created_at: DateTime                     # System timestamp
+
+    from_status: CharField              # Previous status (blank on first entry)
+    to_status: CharField                 # New status after this log row
+    sub_state: CharField (blank=True)    # Set when yard step changes WITHOUT status change
+
+    actor: FK → User (nullable)
+    actor_role: CharField
+    source_module: CharField             # gate | scaling | command_center | loading | quality | transport | closure | driver
+    notes: TextField
+
+    created_at: DateTime                 # System timestamp (ordering key)
 }
 ```
 
-**Constraints**:
-- Index: `(transport_order, timestamp)` — fast timeline queries
-- Append-only (no updates/deletes — audit trail integrity)
-- `payload` JSON stores event-specific context (weight, gate number, bay, QC result, etc.)
+**Log patterns:**
 
-#### 1.3.3 ClosureChecklist (new model — per-TO prerequisite flags)
+| Event type | `from_status` / `to_status` | `sub_state` |
+|------------|----------------------------|-------------|
+| Canonical status change | `old` → `new` | blank (or cleared on TO separately) |
+| Yard step only | `current` → `current` | new sub-state value |
+
+There is **no** `payload` JSON, `from_sub_state`, or `to_sub_state` pair on the log model. Context (POI, visit, weight) goes in `notes` or module-specific audit tables (`GateActivityLog`, etc.).
+
+#### 1.3.3 ClosureChecklist (POD-01 — planned)
 
 ```python
 ClosureChecklist {
-    id: UUID
-    transport_order: OneToOne → TransportOrder  # One checklist per TO
-    
-    # Flow type (denormalized for rule engine)
-    flow_type: enum                          # ['fg_outbound', 'fg_inbound', 'rm_inbound']
-    
-    # Prerequisite flags
-    pod_uploaded: boolean                    # True if TOPOD exists
-    scale_out_done: boolean                  # Scale-out recorded
-    gate_out_done: boolean                   # Gate-out recorded
-    loading_complete: boolean                # Loading complete (FG outbound only)
-    unloading_complete: boolean              # Unloading complete (FG/RM inbound only)
-    qc_passed: boolean (nullable)           # True if latest QC decision = Pass; False if Fail; None if pending/not required
-    
-    # Derived status
-    closure_eligible: boolean                # True if all flow-specific gates passed (auto-calculated)
-    closure_block_reason: text (nullable)    # First failing rule (e.g., "Scale-out not completed")
-    
-    # Timestamps
+    transport_order: OneToOne → TransportOrder
+    flow_lane: FlowLane                 # Denormalized from TO
+
+    pod_uploaded: boolean
+    scale_out_done: boolean
+    gate_out_done: boolean
+    loading_complete: boolean            # FG outbound
+    unloading_complete: boolean          # FG/RM inbound
+    sampling_done: boolean                # RM inbound — ≥1 QCSample
+    qc_passed: boolean (nullable)        # RM inbound — active QCDecision pass
+
+    closure_eligible: boolean
+    closure_block_reason: text (nullable)
     last_evaluated_at: DateTime
-    
-    # Metadata
-    tenant_id: UUID
 }
 ```
 
-### 1.4 State Machine Service (`apps/transport/lifecycle/state_machine.py`)
+### 1.4 Timeline services (`apps/transport/lifecycle/timeline_service.py`)
 
-**Code-first rules table**: Forward-only transitions per flow lane. No backward transitions except admin cancel.
-
-```python
-TRANSITION_RULES = {
-    'fg_outbound': [
-        (TOStatus.DRAFT,             None,                          TOStatus.PLANNED,           TOSubState.FLEET_DECIDED),
-        (TOStatus.PLANNED,           TOSubState.FLEET_DECIDED,      TOStatus.PLANNED,           TOSubState.AWAITING_ASSIGNMENT),
-        (TOStatus.PLANNED,           TOSubState.AWAITING_ASSIGNMENT,TOStatus.ASSIGNED,           TOSubState.VEHICLE_DRIVER_HELPER_ASSIGNED),
-        (TOStatus.ASSIGNED,          TOSubState.VEHICLE_DRIVER_HELPER_ASSIGNED, TOStatus.ASSIGNED, TOSubState.ASSIGNMENT_CONFIRMED),
-        (TOStatus.ASSIGNED,          TOSubState.ASSIGNMENT_CONFIRMED,TOStatus.DISPATCHED,        TOSubState.DISPATCH_APPROVED),
-        (TOStatus.DISPATCHED,        TOSubState.DISPATCH_APPROVED,  TOStatus.DISPATCHED,         TOSubState.VEHICLE_DEPARTED),
-        (TOStatus.DISPATCHED,        TOSubState.VEHICLE_DEPARTED,   TOStatus.IN_TRANSIT_SOURCE,  TOSubState.EN_ROUTE_TO_SOURCE),
-        (TOStatus.IN_TRANSIT_SOURCE, TOSubState.EN_ROUTE_TO_SOURCE, TOStatus.AT_SOURCE,          TOSubState.GATE_IN_SOURCE),
-        (TOStatus.AT_SOURCE,         TOSubState.GATE_IN_SOURCE,     TOStatus.AT_SOURCE,          TOSubState.SCALE_IN_SOURCE),
-        (TOStatus.AT_SOURCE,         TOSubState.SCALE_IN_SOURCE,    TOStatus.AT_SOURCE,          TOSubState.WAITING_PARKED_SOURCE),
-        (TOStatus.AT_SOURCE,         '*',                           TOStatus.LOADED,             TOSubState.ASSIGNED_TO_LOADING_POINT),
-        (TOStatus.LOADED,            TOSubState.ASSIGNED_TO_LOADING_POINT, TOStatus.LOADED,      TOSubState.LOADING_STARTED),
-        (TOStatus.LOADED,            TOSubState.LOADING_STARTED,    TOStatus.LOADED,             TOSubState.LOADING_COMPLETED),
-        (TOStatus.LOADED,            TOSubState.LOADING_COMPLETED,  TOStatus.LOADED,             TOSubState.SCALE_OUT_SOURCE),
-        (TOStatus.LOADED,            TOSubState.SCALE_OUT_SOURCE,   TOStatus.LOADED,             TOSubState.PICKUP_CONFIRMED),
-        (TOStatus.LOADED,            TOSubState.PICKUP_CONFIRMED,   TOStatus.LOADED,             TOSubState.GATE_OUT_SOURCE),
-        (TOStatus.LOADED,            TOSubState.GATE_OUT_SOURCE,    TOStatus.IN_TRANSIT_DEST,    TOSubState.EN_ROUTE_TO_DEST),
-        (TOStatus.IN_TRANSIT_DEST,   TOSubState.EN_ROUTE_TO_DEST,   TOStatus.DELIVERED,          TOSubState.POD_SUBMITTED),
-        (TOStatus.DELIVERED,         TOSubState.POD_SUBMITTED,      TOStatus.DELIVERED,          TOSubState.RECEIVER_CONFIRMATION),
-        (TOStatus.DELIVERED,         TOSubState.RECEIVER_CONFIRMATION, TOStatus.CLOSED,           None),
-    ],
-    'fg_inbound': [
-        # ... similar chain, yard ops at destination (unloading) ...
-    ],
-    'rm_inbound': [
-        # ... similar chain, yard ops at destination + QC gate before closure ...
-    ],
-}
-
-def validate_transition(transport_order, target_status, target_sub_state):
-    """
-    Validate whether the proposed transition is allowed by the flow-lane rules table.
-    Raises InvalidStatusTransitionError if not allowed.
-    Returns True if valid.
-    """
-    flow_rules = TRANSITION_RULES.get(transport_order.flow_type)
-    current = (transport_order.to_status, transport_order.to_sub_state)
-    target = (target_status, target_sub_state)
-    
-    for from_status, from_sub, to_status, to_sub in flow_rules:
-        if from_status == current[0] and (from_sub == current[1] or from_sub == '*'):
-            if to_status == target[0] and to_sub == target[1]:
-                return True
-    
-    raise InvalidStatusTransitionError(
-        f"Cannot transition from {current} to {target} for flow {transport_order.flow_type}"
-    )
-
-def apply_transition(transport_order, target_status, target_sub_state, actor=None, payload=None):
-    """
-    Validate + apply transition atomically.
-    Writes TOStatusTransitionLog, updates TO, refreshes closure checklist.
-    """
-    validate_transition(transport_order, target_status, target_sub_state)
-    
-    log = TOStatusTransitionLog.objects.create(
-        transport_order=transport_order,
-        from_status=transport_order.to_status,
-        from_sub_state=transport_order.to_sub_state,
-        to_status=target_status,
-        to_sub_state=target_sub_state,
-        actor=actor,
-        timestamp=timezone.now(),
-        payload=payload or {},
-    )
-    
-    transport_order.to_status = target_status
-    transport_order.to_sub_state = target_sub_state
-    transport_order.save(update_fields=['to_status', 'to_sub_state'])
-    
-    update_denormalized_timestamp(transport_order, target_status, target_sub_state)
-    refresh_closure_checklist(transport_order)
-    
-    return log
-```
-
-### 1.5 Event Ingest Service (`apps/transport/lifecycle/event_ingest.py`)
-
-Receives events from upstream yard modules and translates them into state transitions.
-
-**Event sources**:
-| Source Module | Events | Target Sub-State |
-|---------------|--------|-------------------|
-| GT-01 (Gate) | gate_in, gate_out | Gate-in Recorded, Gate-out |
-| SC-01 (Scaling) | scale_in, scale_out | Scale-in, Scale-out |
-| CC-01 (Command Center) | bay_assigned, qc_flagged | Assigned to Loading/Unloading Point, QC Started |
-| LD-01 (Loading/Unloading) | loading_started, loading_completed, unloading_started, unloading_completed | Loading Started/Completed, Unloading Started/Completed |
-| QC-01 (Quality) | sampling_done, qc_decision, resample, override | Sampling Started, QC Passed/Failed |
-| DM-01 (Driver Mobile) | execution_started, pod_submitted | Vehicle Departed, POD Submitted |
+All yard and lifecycle modules **must** use these helpers — do not write `TOStatusTransitionLog` or `sub_state` ad hoc.
 
 ```python
-def ingest_event(transport_order, event_type, actor=None, payload=None, source_module=None):
+def record_transition(to, *, from_status, to_status, actor, source_module, notes=""):
+    """Append log row for a canonical status change."""
+
+def record_yard_sub_state(to, *, sub_state, actor, source_module, notes=""):
     """
-    Translate an upstream module event into a state machine transition.
-    
-    Determines target (status, sub_state) from event_type + current state + flow_type,
-    then delegates to apply_transition().
+    Atomically: set TransportOrder.sub_state + append log row
+    (from_status == to_status == to.status).
+    Does NOT advance canonical status.
     """
-    target_status, target_sub_state = resolve_target_state(
-        transport_order, event_type
-    )
-    
-    merged_payload = {**(payload or {}), 'source_module': source_module, 'event_type': event_type}
-    
-    return apply_transition(
-        transport_order, target_status, target_sub_state,
-        actor=actor, payload=merged_payload
-    )
+
+def maybe_clear_sub_state_on_status(to, *, new_status):
+    """Clear sub_state when new_status ∈ SUB_STATE_RESET_ON_STATUS."""
+
+def timeline_for_to(to) -> list[dict]:
+    """Read model for timeline API / admin."""
 ```
 
-### 1.6 Fleet Availability Validation (§6.8.1.7)
-
-On first driver execution action (e.g., "Mark as Started" from DM-01, or first gate-in), validate fleet readiness:
+**Canonical status helper** (`apps/transport/lifecycle/transition_service.py`):
 
 ```python
-def validate_fleet_availability(transport_order):
+@transaction.atomic
+def apply_to_status_transition(to, target_status, *, actor, source_module, notes=""):
     """
-    §6.8.1.7 — Called on first driver execution action.
-    Raises BusinessRuleError if fleet not available.
+    Set TransportOrder.status, append TOStatusTransitionLog via record_transition().
+    Caller must call maybe_clear_sub_state_on_status() when target ∈ SUB_STATE_RESET_ON_STATUS.
     """
-    vehicle = transport_order.vehicle
-    driver = transport_order.driver
-    
-    if vehicle and vehicle.is_under_maintenance:
-        raise BusinessRuleError("Vehicle is under maintenance — cannot start execution")
-    if driver and driver.is_on_leave:
-        raise BusinessRuleError("Driver is on leave — cannot start execution")
 ```
 
-### 1.7 Django Admin Configuration
+### 1.5 Driver state machine (`apps/transport/lifecycle/state_machine.py`)
+
+Drivers may **only** set in-transit statuses from `Dispatched`:
+
+| `flow_lane` | Allowed transition |
+|-------------|-------------------|
+| `fg_outbound` | `dispatched` → `in_transit_source` |
+| `fg_inbound`, `rm_inbound` | `dispatched` → `in_transit_destination` |
+
+All other execution statuses are written by yard services or lifecycle/closure. Forward-only table: `TO_STATUS_TRANSITIONS` in `apps/transport/constants.py`.
+
+Fleet availability (§6.8.1.7): validate vehicle not under maintenance and driver not on leave on first driver execution action (DM-01) and optionally at gate-in (GT-01).
+
+### 1.6 Yard-module TLS integration matrix
+
+Yard modules call timeline helpers **in the same `atomic()` block** as their domain writes. There is no `event_ingest.py`.
+
+| Module | Service action | `status` change | `sub_state` change | `source_module` |
+|--------|----------------|-----------------|-------------------|-----------------|
+| **GT-01** gate-in | `record_gate_in_status` | → `at_source` / `at_destination` per lane | — | `gate` |
+| **GT-01** gate-out | `record_gate_out_status` | — | `gate_out_source` or `gate_out_destination` | `gate` |
+| **SC-01** scale-in | `ScaleInService.record_scale_in` | — | leg `scale_in_*` → `waiting_cc` | `scaling` |
+| **SC-01** scale-out | `ScaleOutService.record_scale_out` | → per `SCALE_OUT_RESULT_TO_STATUS` | leg `scale_out_*`; then clear sub_state | `scaling` |
+| **CC-01** flag QC | `CCService.flag_for_qc` | — | `flagged_for_qc` | `command_center` |
+| **CC-01** assign bay | `CCService.assign_bay` | — | `assigned_loading_point` or `assigned_unloading_point` | `command_center` |
+| **LD-01** load start/complete | `LDService.start/complete_loading` | — | `loading_started` / `loading_completed` | `loading` |
+| **LD-01** unload start/complete | `LDService.start/complete_unloading` | — | `unloading_started` / `unloading_completed` | `loading` |
+| **QC-01** sample | `QCService.create_sample` | — | `sampling_started` | `quality` |
+| **QC-01** decision pass/fail | `QCService.record_decision` | — | `qc_passed` / `qc_failed`; sets `TO.qc_passed` | `quality` |
+| **QC-01** resample | `QCService.trigger_resample` | — | `resampling` | `quality` |
+| **QC-01** override fail | `QCService.override_to_failed` | — | `qc_failed` | `quality` |
+| **DM-01** driver in-transit | driver transition service | → `in_transit_*` | — | `driver` |
+| **DM-01** POD | POD submit handler | → `completed` (when rules met) | — | `driver` |
+| **POD-01** closure | `close_transport_order` | → `closed` | clear sub_state | `closure` |
+
+**Transactional requirements:**
+
+- SC-01 scale-in must call `CCService.create_queue_entry()` in the **same** `atomic()` as scale-in (see scaling spec).
+- QC resample/override must call `CCService.cancel_bay_assignment()` and set `UnloadEvent.cancelled_by_resample=True` (see qc-ops §3.3–3.4).
+
+**Audit context (recommended in `notes` or parallel audit rows):**
+
+- `poi_id`, `gate_visit_session_id`, `yard_leg` — from `GateVisitSession` / `YardContext` when available
+
+### 1.7 YARD-01 foundation (prerequisite)
+
+TLS-01 yard integration assumes YARD-01 foundation is merged before POI operator admins emit events at scale:
+
+| Step | Deliverable | TLS impact |
+|------|-------------|------------|
+| 1 | `TransportOrder.sub_state` + `TOSubState` | POI querysets filter yard queues |
+| 2 | `UserOperationalPOI` | Operator POI assignment |
+| 3 | `yard_poi.py` | Session + assignment POI resolution |
+| 4 | `GateVisitSession.yard_leg` | Scale/LD leg eligibility |
+| 5 | `YardAdminBase` | Fail-closed POI querysets |
+| 6 | `YardContext` / policy dict | Service-layer leg×lane rules |
+
+See [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-implementation.md) and [docs/poi-scoped-operational-roles.md](../../../docs/poi-scoped-operational-roles.md).
+
+### 1.8 Django Admin (TLS-01)
 
 **TOStatusTransitionLog — List View**:
-- Columns: TO Number, From Status, From Sub-State, To Status, To Sub-State, Actor, Timestamp
-- Filters: `to_status`, `to_sub_state`, `timestamp` (date range), `transport_order__flow_type`
+
+- Columns: TO Number, From Status, To Status, Sub-State, Source Module, Actor, Created At
+- Filters: `to_status`, `sub_state`, `source_module`, `created_at`, `transport_order__flow_lane`
 - Search: TO number
-- Actions: Bulk export CSV
 
-**TOStatusTransitionLog — Detail View**:
-- Read-only: TO (link), From Status → To Status, From Sub-State → To Sub-State, Actor (link), Timestamp
-- JSON widget for `payload` (expandable)
-- Custom admin action: **"View Full Timeline"** (redirect to TO timeline view)
+**TransportOrder admin** (existing): `status_badge`, `sub_state_badge` via `admin_badges.py`.
 
-### 1.8 Sub-Tasks (TLS-01-1 through TLS-01-10)
+### 1.9 Sub-Tasks (TLS-01)
 
-| Sub-Task | Scope |
-|----------|-------|
-| TLS-01-1 | `TOStatus` + `TOSubState` TextChoices enums |
-| TLS-01-2 | `TOStatusTransitionLog` model + migration |
-| TLS-01-3 | `TransportOrder` field additions (`to_status`, `to_sub_state`) + migration |
-| TLS-01-4 | Code-first transition rules table per flow lane |
-| TLS-01-5 | `validate_transition()` + `apply_transition()` service functions |
-| TLS-01-6 | Event ingest service (translate upstream events → transitions) |
-| TLS-01-7 | Fleet availability validation (§6.8.1.7) |
-| TLS-01-8 | Timeline API endpoints (GET timeline, GET status, POST transitions, GET validate) |
-| TLS-01-9 | Django Admin for `TOStatusTransitionLog` |
-| TLS-01-10 | Denormalized timestamp updates + closure checklist refresh hook |
+| Sub-Task | Scope | Status note |
+|----------|-------|-------------|
+| TLS-01-1 | `TOStatus` + `TOSubState` in `constants.py` | Partial — enums in code |
+| TLS-01-2 | `TOStatusTransitionLog` + `sub_state` column on log | Partial |
+| TLS-01-3 | `TransportOrder.sub_state` migration (YARD-01 Step 1) | Partial |
+| TLS-01-4 | `TO_STATUS_TRANSITIONS` + driver rules in `state_machine.py` | Partial |
+| TLS-01-5 | `apply_to_status_transition()` + `record_yard_sub_state()` | Partial |
+| TLS-01-6 | Yard integration matrix (§1.6) wired in GT/SC/CC/LD/QC services | In progress |
+| TLS-01-7 | Fleet availability validation | Per DM-01 / GT-01 |
+| TLS-01-8 | Timeline / status API endpoints | Planned |
+| TLS-01-9 | Django Admin for `TOStatusTransitionLog` | Planned |
+| TLS-01-10 | `maybe_clear_sub_state_on_status` on all canonical bumps; closure refresh hook | In progress |
 
 ---
 
 ## 2. POD-01: TO Closure & POD Linkage
 
-### 2.1 Data Model
+### 2.1 ProofOfDelivery
 
-#### 2.1.1 TOPOD (already defined in DM-01 spec)
+Defined in DM-01 (`ProofOfDelivery` / driver POD API). On submit:
 
-```python
-TOPOD {
-    pod_id: UUID
-    transport_order: OneToOne → TransportOrder
-    
-    # POD artifacts
-    photo: ImageField                       # Required: delivery evidence
-    signature: ImageField (nullable)        # Optional: canvas signature
-    notes: text (nullable)                  # Driver remarks
-    
-    # Submission
-    submitted_by: FK → User (Driver)
-    submitted_at: DateTime
-    
-    # Metadata
-    tenant_id: UUID
-}
-```
+1. Create POD record
+2. Advance TO to `completed` when lane rules allow
+3. Call `evaluate_closure_conditions()` → may auto-close to `closed`
 
-#### 2.1.2 ClosureChecklist (per-TO prerequisite flags)
+### 2.2 ClosureRuleEngine (`apps/transport/closure/closure_engine.py`)
 
-See §1.3.3 above. Fields: `pod_uploaded`, `scale_out_done`, `gate_out_done`, `loading_complete`, `unloading_complete`, `qc_passed`.
+**Current code (May 2026):** minimal path — auto-close `completed` → `closed` when POD exists. **Target (this spec):** full lane matrices below.
 
-### 2.2 ClosureRuleEngine Service (`apps/transport/closure/closure_engine.py`)
-
-Lane-aware rule evaluation. Each flow lane has a closure matrix defining which prerequisite flags must be true.
+Lane-aware evaluation keyed on `transport_order.flow_lane`:
 
 ```python
 CLOSURE_MATRICES = {
-    'fg_outbound': ['loading_complete', 'scale_out_done', 'gate_out_done', 'pod_uploaded'],
-    'fg_inbound':  ['unloading_complete', 'scale_out_done', 'gate_out_done', 'pod_uploaded'],
-    'rm_inbound':  ['unloading_complete', 'sampling_done', 'qc_passed', 'scale_out_done', 'gate_out_done', 'pod_uploaded'],
+    "fg_outbound": ["loading_complete", "scale_out_done", "gate_out_done", "pod_uploaded"],
+    "fg_inbound":  ["unloading_complete", "scale_out_done", "gate_out_done", "pod_uploaded"],
+    "rm_inbound":  ["unloading_complete", "sampling_done", "qc_passed", "scale_out_done", "gate_out_done", "pod_uploaded"],
 }
-
-CLOSURE_MESSAGES = {
-    'loading_complete':   "Loading not completed",
-    'unloading_complete': "Unloading not completed",
-    'sampling_done':      "QC sampling not completed",
-    'qc_passed':          "QC not passed",
-    'scale_out_done':     "Scale-out not completed",
-    'gate_out_done':      "Gate-out not completed",
-    'pod_uploaded':       "POD not uploaded",
-}
-
-def evaluate_closure(transport_order):
-    """
-    Evaluate closure gates for a TO using its flow-lane closure matrix.
-    Reads latest QC decision for RM inbound TOs.
-    
-    Returns:
-        (can_close: bool, block_reason: str | None)
-    """
-    checklist = get_or_create_closure_checklist(transport_order)
-    refresh_closure_checklist(transport_order)
-    
-    matrix = CLOSURE_MATRICES.get(transport_order.flow_type)
-    if not matrix:
-        return (False, f"Unknown flow_type: {transport_order.flow_type}")
-    
-    for prerequisite in matrix:
-        if prerequisite == 'qc_passed':
-            latest_decision = get_latest_qc_decision(transport_order)
-            if latest_decision is None or latest_decision.decision != 'pass':
-                return (False, CLOSURE_MESSAGES[prerequisite])
-        elif not getattr(checklist, prerequisite, False):
-            return (False, CLOSURE_MESSAGES[prerequisite])
-    
-    return (True, None)
 ```
 
-### 2.3 Closure Matrices
+### 2.3 `refresh_closure_checklist()` — read yard records, not sub_state alone
 
-**FG Outbound** closure gates:
-- Loading complete ✓
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
+Prerequisite flags must be derived from **domain rows**, not inferred only from `TransportOrder.sub_state`:
 
-**FG Inbound** closure gates:
-- Unloading complete ✓
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
-
-**RM Inbound** closure gates:
-- Unloading complete ✓
-- Sampling done ✓
-- QC passed ✓ (reads latest `QCDecision` — Pass allows closure, Fail blocks)
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
-
-### 2.4 Auto-Close Trigger
-
-Signal/hook that evaluates closure rules whenever **any prerequisite is fulfilled**:
+| Flag | Source |
+|------|--------|
+| `loading_complete` | Active visit leg: `LoadEvent.end_datetime` not null (FG outbound source leg) |
+| `unloading_complete` | `UnloadEvent.end_datetime` not null and not `cancelled_by_resample` |
+| `scale_out_done` | Destination (or source exit) `WeighingSession.scale_out_completed = True` for active visit |
+| `gate_out_done` | `GateOut` exists for active/closed `GateVisitSession` at yard POI |
+| `pod_uploaded` | `ProofOfDelivery` exists |
+| `sampling_done` | ≥1 `QCSample` in `apps/quality/checkpoint/` for TO |
+| `qc_passed` | Active `QCDecision.decision = 'pass'` **and** `TransportOrder.qc_passed = True` |
 
 ```python
-def on_prerequisite_fulfilled(transport_order, fulfilled_flag):
-    """
-    Called by upstream modules after completing a closure-relevant action.
-    Triggers: POD submission (DM-01), QC decision (QC-01), gate-out (GT-01),
-              loading/unloading complete (LD-01), scale-out (SC-01).
-    """
-    checklist = refresh_closure_checklist(transport_order)
-    
-    can_close, block_reason = evaluate_closure(transport_order)
-    
-    if can_close:
-        close_transport_order(transport_order)
-    else:
-        checklist.closure_block_reason = block_reason
-        checklist.closure_eligible = False
-        checklist.last_evaluated_at = timezone.now()
-        checklist.save()
-
-def close_transport_order(transport_order, closed_by=None):
-    """
-    Transition TO to 'closed' state via state machine.
-    """
-    apply_transition(
-        transport_order,
-        target_status=TOStatus.CLOSED,
-        target_sub_state=None,
-        actor=closed_by,
-        payload={'source': 'closure_engine', 'auto_close': closed_by is None}
-    )
-    transport_order.closed_at = timezone.now()
-    transport_order.status = 'completed'  # Update legacy status field
-    transport_order.save(update_fields=['closed_at', 'status'])
+def evaluate_closure(transport_order) -> tuple[bool, str | None]:
+    checklist = get_or_create_closure_checklist(transport_order)
+    refresh_closure_checklist(transport_order)  # recomputes flags from table above
+    matrix = CLOSURE_MATRICES.get(transport_order.flow_lane)
+    ...
 ```
 
-### 2.5 Exceptions List View (Django Admin)
+### 2.4 Auto-close trigger
 
-Django Admin changelist filtered to TOs blocked from closing:
+Call `evaluate_closure_conditions()` after any closure-relevant action:
 
-**List View** — `ClosureExceptionsAdmin`:
-- Filter: `closure_eligible = False` (hardcoded queryset filter)
-- Columns: TO Number, Flow Type, Blocking Reason, Last Evaluated At
-- Search: TO number
-- Custom column: **Blocking Reason** — displays `closure_block_reason` with red badge
-- Actions: Bulk recalculate checklists (refresh flags)
+- POD submission (DM-01)
+- Gate-out (GT-01)
+- Scale-out (SC-01)
+- Loading/unloading complete (LD-01)
+- QC decision (QC-01)
 
-### 2.6 Manual Close Action (Admin Guard)
+**Status path to closed:**
 
-**Use case**: Exception handling (e.g., QC failed but customer approved shipment)
+```
+delivered_unloaded → (driver POD) → completed → (all gates pass) → closed
+```
 
-**Permissions**: `Transport.TO.Close` (Transport Planner, Tenant Admin only)
+Manual close uses the same gate evaluation; force-close requires override reason + audit log.
 
-**Admin action** — enforces all prerequisites before allowing close:
-- Button: **"Close TO"** (visible only if TO not closed)
-- On submit:
-  1. **Guard validation**: `evaluate_closure(transport_order)` — if any prerequisite fails, show error with blocking reason
-  2. **If all gates pass**: `close_transport_order(transport_order, closed_by=admin_user)`
-  3. **If gates blocked**: Display: "Cannot close TO: [block_reason]. Resolve prerequisites first."
-- Override: **"Force Close TO"** (requires override reason, logs audit record)
-  - Confirmation modal: "Override closure rules? Reason required."
-  - Input: Override reason (text, mandatory)
-  - On submit: Close TO regardless of gate status, log `TOClosureOverride` audit record
+### 2.5 Admin & API
 
-### 2.7 Django Admin Configuration (ClosureChecklist)
+**ClosureExceptionsAdmin**: changelist where `closure_eligible = False`.
 
-**List View**:
-- Columns: TO Number, Flow Type, Closure Eligible, Block Reason, Last Evaluated At
-- Filters: `flow_type`, `closure_eligible`
-- Search: TO number
-- Actions: Bulk recalculate checklists
+**Manual close / force close**: `Transport.TO.Close` / `Transport.TO.ForceClose` permissions.
 
-**Detail View**:
-- Read-only: TO (link), Flow Type
-- Prerequisite flags (checkboxes — read-only):
-  - [✓] POD Uploaded
-  - [✓] Scale-Out Done
-  - [✓] Gate-Out Done
-  - [✓] Loading Complete (if FG outbound)
-  - [✓] Unloading Complete (if FG/RM inbound)
-  - [✓] QC Passed (if RM — reads latest QCDecision)
-- Closure Status: Eligible (Yes/No), Block Reason (text)
-- Custom admin action: **"Refresh Checklist"** (recalculate flags)
-- Custom admin action: **"Close TO"** (guard validation) / **"Force Close TO"** (override)
+**Closure exceptions API** — `GET /api/v1/transport-orders/closure-exceptions`:
 
-### 2.8 Sub-Tasks (POD-01-1 through POD-01-10)
+- Filter `flow_lane` (not `flow_type`)
+- Optional `poi_id`: TOs with an active or most recent `GateVisitSession.poi_id = poi_id`, or `destination_poi_id` / `origin_poi_id` match for planner context
+
+### 2.6 Sub-Tasks (POD-01)
 
 | Sub-Task | Scope |
 |----------|-------|
 | POD-01-1 | `ClosureChecklist` model + migration |
-| POD-01-2 | `ClosureRuleEngine` service — closure matrices per flow lane |
-| POD-01-3 | `refresh_closure_checklist()` function — recompute flags from yard events |
-| POD-01-4 | Auto-close trigger hook — evaluate on any prerequisite fulfilled |
-| POD-01-5 | FG outbound closure matrix implementation |
-| POD-01-6 | FG inbound closure matrix implementation |
-| POD-01-7 | RM inbound closure matrix implementation (reads latest QCDecision) |
-| POD-01-8 | Exceptions list view (Django Admin filtered changelist) |
-| POD-01-9 | Manual close + force close admin actions with guard validation |
-| POD-01-10 | Closure API endpoints (POST close, GET closure-status, GET closure-exceptions) |
+| POD-01-2 | `CLOSURE_MATRICES` + `evaluate_closure()` |
+| POD-01-3 | `refresh_closure_checklist()` from yard domain rows (§2.3) |
+| POD-01-4 | Auto-close hook on prerequisite fulfillment |
+| POD-01-5–7 | Per-lane matrix tests |
+| POD-01-8 | Exceptions admin changelist |
+| POD-01-9 | Manual + force close admin actions |
+| POD-01-10 | Closure API endpoints |
 
 ---
 
-## 3. QC-01: Raw Material QC Checkpoint
+## 3. QC-01 — TLS & closure integration (not the full QC spec)
 
-### 3.1 Overview
+**Canonical QC specification:** [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
-**Sprint 4 scope**: QC for RM inbound TOs — sample creation, pass/fail decision, resample during unloading, override-to-failed during unloading. Detailed physical/lab workflows (§6.15 full QC) are **Phase 2**.
+This section covers only how QC connects to TLS-01 and POD-01.
 
-**Entry condition**: QC is available only after Command Center (CC-01) flags the RM TO for QC.
+### 3.1 Role & permissions
 
-**Flow**: CC-01 flags TO for QC → QC Supervisor creates sample → QC Supervisor records pass/fail → If pass, TO marked `qc_passed=True` and **CC Officer** assigns unloading point (CC-01) → If fail, unloading blocked.
+- **Actor:** `qc_inspector_physical` (QC Inspector – Physical) with `Quality.QCCheckpoint.*` permissions
+- There is **no** `qc_supervisor` seed role; Pass/Fail/resample/override use `Quality.QCCheckpoint.Decision.Write` or `gate_supervisor` via `QCAdminBase.supervisor_role_codes`
+- QC admin is POI-scoped: `QCAdminBase` → `YardAdminBase`; filters on `destination_poi_id = working POI`
 
-**Resample (AC-4)**: While unloading in progress, QC Supervisor can trigger resample → clears decision, cancels active CC-01 unloading assignment, TO returns to QC queue.
-
-**Override to Failed (AC-5)**: While unloading in progress, QC Supervisor can change decision to Fail → cancels unloading assignment, blocks re-assignment.
-
-### 3.2 Data Model
-
-#### 3.2.1 QCSample
-
-```python
-QCSample {
-    id: UUID
-    transport_order: FK → TransportOrder     # Multiple samples possible (resample creates new record)
-    
-    # Sample identification
-    sample_id: string (auto-generated)       # e.g., "QCS-2026-0001" — auto-gen unique ID
-    
-    # Sample data
-    physical_analysis: text                  # Physical analysis input by QC Supervisor
-    remarks: text (nullable)                 # Additional notes
-    
-    # Timing
-    timestamp: DateTime                      # When sample was created
-    
-    # Actor
-    created_by: FK → User (QC Supervisor)
-    
-    # Metadata
-    tenant_id: UUID
-    created_at: DateTime
-}
-```
-
-**Constraints**:
-- `sample_id` is auto-generated, unique per tenant
-- Multiple `QCSample` records per TO allowed (resample creates a new sample)
-- QC decision is blocked until at least one sample exists for the TO
-
-#### 3.2.2 QCDecision
-
-```python
-QCDecision {
-    id: UUID
-    transport_order: FK → TransportOrder     # Multiple decisions possible (resample clears, override creates new)
-    
-    # Decision
-    decision: enum ['pass', 'fail']          # Pass or Fail
-    # No unloading_point FK — CC-01 BayAssignment assigns L/U point after Pass
-    
-    # Timing
-    timestamp: DateTime                      # When decision was made
-    
-    # Context
-    remarks: text (nullable)                 # Required if Fail
-    
-    # Actor
-    decided_by: FK → User (QC Supervisor)
-    
-    # Metadata
-    tenant_id: UUID
-    created_at: DateTime
-    is_active: boolean (default True)        # False when superseded by resample/override
-}
-```
-
-**Constraints**:
-- Only one `is_active = True` QCDecision per TO at any time
-- Closure engine reads the latest active QCDecision: Pass allows closure, Fail blocks
-
-### 3.3 QC Checkpoint Flow
-
-#### 3.3.1 Entry Condition (CC-01 trigger)
+### 3.2 RM inbound flow (TLS-relevant)
 
 ```
-Command Center Officer flags RM inbound TO for QC (CC-01)
-  └─► Backend checks: TO.flow_type = 'rm_inbound'
-        └─► TO appears in QC Supervisor's QC Queue
-              └─► QC decision is blocked until at least one QCSample exists
+CC-01 flag_for_qc  →  sub_state = flagged_for_qc
+QC sample          →  sub_state = sampling_started
+QC Pass            →  sub_state = qc_passed; TO.qc_passed=True; QueueEntry.qc_passed=True
+CC assign unload   →  sub_state = assigned_unloading_point
+LD unload          →  sub_state = unloading_started / unloading_completed
+QC Fail            →  sub_state = qc_failed; blocks CC assign, scale-out, gate-out, closure
+Resample           →  sub_state = resampling; supersedes QCDecision; cancels BayAssignment
+Override to fail   →  sub_state = qc_failed; mutates pass decision in place
 ```
 
-#### 3.3.2 Sample Creation (AC-2)
+QC does **not** assign unloading bays — CC-01 does after Pass.
 
-```
-QC Supervisor opens QC Queue
-  └─► List: TO Number, Product, Vehicle, Status
-        └─► [row click] ──► QC Checkpoint Form
-              ├─► Read-only: TO Summary, Product, Vehicle
-              ├─► Input: Physical Analysis (text — required)
-              ├─► Input: Remarks (optional)
-              └─► [Create Sample]
-                    └─► Backend:
-                          ├─► Create QCSample:
-                          │     ├─► sample_id = auto-generated
-                          │     ├─► physical_analysis = form.physical_analysis
-                          │     ├─► remarks = form.remarks
-                          │     ├─► timestamp = now()
-                          │     └─► created_by = current_user
-                          │
-                          ├─► Write TOStatusTransitionLog:
-                          │     └─► to_status = AT_DESTINATION, to_sub_state = SAMPLING_STARTED
-                          │
-                          └─► Response:
-                                ├─► Success: "Sample {sample_id} created. Proceed to QC decision."
-                                └─► Decision form now enabled
-```
+### 3.3 TLS writes from QC
 
-#### 3.3.3 QC Decision (AC-3)
+All QC TLS writes go through `QCService` → `record_yard_sub_state(..., source_module="quality")`. Canonical `status` stays `at_destination` through QC and unloading until scale-out advances it.
 
-```
-QC Supervisor (same form, Decision section — enabled after sample exists)
-  └─► Input section:
-        ├─► Decision: Pass / Fail (radio buttons)
-        ├─► Remarks: text area (required if Fail)
-        └─► [Submit Decision]
-              └─► Backend:
-                    ├─► Validate: at least one QCSample exists for this TO
-                    │
-                    ├─► Create QCDecision:
-                    │     ├─► decision = form.decision (pass/fail)
-                    │     ├─► timestamp = now()
-                    │     ├─► remarks = form.remarks
-                    │     ├─► decided_by = current_user
-                    │     └─► is_active = True
-                    │
-                    ├─► Write TOStatusTransitionLog:
-                    │     ├─► If pass: to_sub_state = QC_PASSED
-                    │     └─► If fail: to_sub_state = QC_FAILED
-                    │
-                    ├─► If Pass:
-                    │     ├─► Mark TO qc_passed=True; re-queue in CC-01 for unloading assignment
-                    │     ├─► Trigger: evaluate_closure(transport_order)  # gates only; unloading still needs CC bay
-                    │     └─► Response: "QC passed. CC Officer can now assign unloading point."
-                    │
-                    └─► If Fail:
-                          ├─► Unloading blocked — vehicle cannot be assigned unloading point
-                          └─► Response: "QC failed. Unloading blocked."
-```
+| QC action | Sub-state | Other TO fields |
+|-----------|-----------|-----------------|
+| Sample created | `sampling_started` | — |
+| Pass | `qc_passed` | `qc_passed=True`, `QueueEntry.qc_passed=True` |
+| Fail | `qc_failed` | `qc_passed=False` |
+| Resample | `resampling` | `qc_passed` cleared; `QueueEntry.qc_passed=False` |
+| Override fail | `qc_failed` | same as Fail |
 
-#### 3.3.4 Resample During Unloading (AC-4 — NEW)
+### 3.4 Closure integration
 
-While unloading is in progress, QC Supervisor can trigger a resample. This is used when QC concerns arise after unloading has begun.
+RM inbound closure requires:
 
-```
-QC Supervisor views Active Unloading list (RM TOs currently unloading)
-  └─► [Resample] custom admin action on a TO row
-        └─► Confirmation: "Trigger resample? This will cancel the active unloading assignment."
-              └─► Backend (@transaction.atomic):
-                    ├─► Validate: TO is in unloading state (to_sub_state in [UNLOADING_STARTED])
-                    │
-                    ├─► Deactivate current QCDecision:
-                    │     └─► QCDecision.objects.filter(transport_order=TO, is_active=True)
-                    │           .update(is_active=False)
-                    │
-                    ├─► Cancel active CC-01 unloading assignment:
-                    │     └─► Cancel/release the BayAssignment for this TO
-                    │     └─► CC-01 integration: mark assignment as cancelled with reason='qc_resample'
-                    │
-                    ├─► Write TOStatusTransitionLog:
-                    │     └─► to_status = AT_DESTINATION, to_sub_state = QC_STARTED
-                    │         payload = {reason: 'resample', cancelled_assignment_id: ...}
-                    │
-                    ├─► TO returns to QC Queue (status reverts to QC stage)
-                    │
-                    └─► Response: "Resample triggered. Unloading cancelled. TO returned to QC queue."
-```
+- `sampling_done` — ≥1 checkpoint `QCSample`
+- `qc_passed` — active `QCDecision` with `decision='pass'`
 
-#### 3.3.5 Override to Failed During Unloading (AC-5 — NEW)
+Fail or pending QC blocks closure even if unloading completed.
 
-While unloading is in progress, QC Supervisor can change the decision to Fail. This stops unloading and prevents re-assignment.
+### 3.5 QC API surface
 
-```
-QC Supervisor views Active Unloading list (RM TOs currently unloading)
-  └─► [Override to Failed] custom admin action on a TO row
-        └─► Input: Remarks (required — reason for override)
-              └─► Confirmation: "Override QC to Failed? This will cancel unloading and block re-assignment."
-                    └─► Backend (@transaction.atomic):
-                          ├─► Validate: TO is in unloading state (to_sub_state in [UNLOADING_STARTED])
-                          │
-                          ├─► Deactivate current QCDecision:
-                          │     └─► QCDecision.objects.filter(transport_order=TO, is_active=True)
-                          │           .update(is_active=False)
-                          │
-                          ├─► Create new QCDecision:
-                          │     ├─► decision = 'fail'
-                          │     ├─► remarks = form.remarks
-                          │     ├─► decided_by = current_user
-                          │     ├─► timestamp = now()
-                          │     └─► is_active = True
-                          │
-                          ├─► Cancel active CC-01 unloading assignment:
-                          │     └─► Cancel/release the BayAssignment for this TO
-                          │     └─► CC-01 integration: mark assignment as cancelled with reason='qc_override_fail'
-                          │
-                          ├─► Block re-assignment:
-                          │     └─► TO cannot be assigned a new unloading point while latest QCDecision = Fail
-                          │
-                          ├─► Write TOStatusTransitionLog:
-                          │     └─► to_sub_state = QC_FAILED
-                          │         payload = {reason: 'override_to_failed', cancelled_assignment_id: ...}
-                          │
-                          ├─► Closure blocked (ClosureChecklist.qc_passed = False)
-                          │
-                          └─► Response: "QC overridden to Failed. Unloading cancelled. Re-assignment blocked."
-```
-
-### 3.4 QC → Closure Integration
-
-All QC events are written to the TO timeline via TLS-01 (`TOStatusTransitionLog`).
-
-The POD-01 closure gate reads the **latest active `QCDecision`** for the TO:
-- `decision = 'pass'` → allows closure
-- `decision = 'fail'` → blocks closure
-- No active decision → blocks closure (pending)
-
-### 3.5 Django Admin Configuration
-
-**QCSample — List View**:
-- Columns: Sample ID, TO Number, Physical Analysis (truncated), Remarks, Timestamp, Created By
-- Filters: `timestamp` (date range)
-- Search: TO number, Sample ID
-- Actions: Bulk export CSV
-
-**QCDecision — List View**:
-- Columns: TO Number, Decision (Pass/Fail badge), Unloading Point, Timestamp, Decided By, Active
-- Filters: `decision`, `is_active`, `timestamp` (date range)
-- Search: TO number
-- Status Badge: Green = Pass, Red = Fail
-
-**QCDecision — Detail View**:
-- Read-only: TO (link), Decision, Unloading Point (link), Timestamp, Decided By (link), Remarks, Active
-- Custom admin action: **"View TO Timeline"** (redirect to TLS-01)
-
-**QC Queue** (custom admin changelist):
-- Filter: RM TOs flagged for QC by CC-01, where no active QCDecision exists (or returned to QC by resample)
-- Columns: TO Number, Product, Vehicle, QC Flagged At, Sample Count, Status (Awaiting Sample / Awaiting Decision)
-
-**Active Unloading (QC view)** (custom admin changelist):
-- Filter: RM TOs currently in unloading state with active QCDecision = Pass
-- Columns: TO Number, Product, Vehicle, Unloading Point, Unloading Started At
-- Custom actions: **"Resample"** (AC-4), **"Override to Failed"** (AC-5)
-
-### 3.6 Sub-Tasks (QC-01-1 through QC-01-12)
-
-| Sub-Task | Scope |
-|----------|-------|
-| QC-01-1 | `QCSample` model + migration |
-| QC-01-2 | `QCDecision` model + migration |
-| QC-01-3 | Auto-generated `sample_id` logic |
-| QC-01-4 | Sample creation service (AC-2) |
-| QC-01-5 | QC decision service — Pass with unloading point assignment (AC-3) |
-| QC-01-6 | QC decision service — Fail with unloading block (AC-3) |
-| QC-01-7 | Resample during unloading — clear decision, cancel CC-01 assignment (AC-4) |
-| QC-01-8 | Override to Failed during unloading — cancel assignment, block re-assignment (AC-5) |
-| QC-01-9 | CC-01 unloading cancellation integration (shared by AC-4 and AC-5) |
-| QC-01-10 | All QC events written to TOStatusTransitionLog via TLS-01 |
-| QC-01-11 | QC API endpoints (samples, decision, resample, override) |
-| QC-01-12 | Django Admin — QCSample, QCDecision, QC Queue, Active Unloading changelistswith resample/override actions |
+QC REST endpoints are defined in [qc-operations-sprint4.md §6](../06-poi-operations/qc-operations-sprint4.md) under `/api/v1/qc/*` — not under `/api/v1/transport-orders/{id}/qc/*`. Transport timeline API may **embed** QC decision summary for planner read models.
 
 ---
 
@@ -946,418 +526,173 @@ The POD-01 closure gate reads the **latest active `QCDecision`** for the TO:
 
 ```http
 GET    /api/v1/transport-orders/{to_id}/timeline
-       → Fetch full execution timeline (TOStatusTransitionLog entries)
        → Response: {
            to_id,
-           flow_type,
-           to_status,
-           to_sub_state,
-           transitions: [
-             {
-               id,
-               from_status: "at_source",
-               from_sub_state: "gate_in_source",
-               to_status: "at_source",
-               to_sub_state: "scale_in_source",
-               actor: {user_id, name, role},
-               timestamp: "2026-05-12T09:00:00Z",
-               payload: {remarks: "Vehicle arrived on time", source_module: "gate"}
-             },
-             ...
-           ]
+           flow_lane,
+           status,              # canonical TOStatus
+           sub_state,           # current yard step (may be "")
+           transitions: [{
+             id,
+             from_status,
+             to_status,
+             sub_state,         # set on yard-only rows
+             actor: { user_id, name, role },
+             source_module,
+             notes,
+             created_at
+           }]
          }
 
 GET    /api/v1/transport-orders/{to_id}/status
-       → Fetch current TO status (role-filtered — returns only fields the caller's role can see)
-       → Response: {
-           to_id,
-           to_status,
-           to_sub_state,
-           flow_type,
-           last_transition_at
-         }
+       → Response: { to_id, status, sub_state, flow_lane, last_transition_at }
 
 POST   /api/v1/transport-orders/{to_id}/transitions
-       → Manually trigger a status transition (used by admin / internal services)
-       → Body: {
-           target_status: "at_source",
-           target_sub_state: "gate_in_source",
-           payload: {remarks: "..."}
-         }
-       → Validations: state machine rules, flow lane, permissions
-       → Response: {
-           transition_id,
-           from_status, from_sub_state,
-           to_status, to_sub_state,
-           timestamp
-         }
+       → Body: { target_status, notes }   # admin / internal only; NOT yard sub_state
+       → Uses apply_to_status_transition(); requires Transport.TO.Transitions.Write
 
-GET    /api/v1/transport-orders/{to_id}/transitions/validate
-       → Dry-run: check if a proposed transition is valid without applying it
-       → Query: ?target_status=at_source&target_sub_state=gate_in_source
-       → Response: {
-           valid: true | false,
-           reason: "..." (if invalid)
-         }
+GET    /api/v1/transport-orders/{to_id}/transitions/validate?target_status=...
+       → Dry-run against TO_STATUS_TRANSITIONS + driver rules
 ```
+
+Planner/TDO endpoints are **not** POI-filtered. Yard modules should not use this POST for routine ops — they call service helpers directly.
 
 ### 4.2 TO Closure (POD-01)
 
 ```http
 POST   /api/v1/transport-orders/{to_id}/close
-       → Close TO (evaluates closure gates first, blocks if prerequisites not met)
-       → Body: {
-           force: false,                    # If true, override closure rules (requires reason)
-           override_reason: "..."           # Required if force = true
-         }
-       → Response: {
-           closed: true | false,
-           block_reason: "..." (if not closed)
-         }
+       → Body: { force: false, override_reason: "..." }
+       → Evaluates refresh_closure_checklist() + CLOSURE_MATRICES
 
 GET    /api/v1/transport-orders/{to_id}/closure-status
-       → Fetch closure checklist status
-       → Response: {
-           to_id,
-           flow_type,
-           closure_eligible: false,
-           closure_block_reason: "Scale-out not completed",
-           prerequisites: {
-             pod_uploaded: true,
-             scale_out_done: false,
-             gate_out_done: false,
-             loading_complete: true,
-             unloading_complete: null,       # null = not applicable for this flow
-             qc_passed: null
-           },
-           last_evaluated_at: "2026-05-12T15:00:00Z"
-         }
+       → Response: { flow_lane, closure_eligible, closure_block_reason, prerequisites: {...} }
 
-GET    /api/v1/transport-orders/closure-exceptions
-       → List TOs blocked from closing
-       → Filters: ?flow_type=rm_inbound&poi_id=...
-       → Response: [
-           {
-             to_id, to_number, flow_type,
-             closure_block_reason: "QC not passed",
-             last_evaluated_at: "2026-05-12T15:00:00Z"
-           },
-           ...
-         ]
+GET    /api/v1/transport-orders/closure-exceptions?flow_lane=&poi_id=
+       → Blocked TOs; poi_id filters by visit/POI association (§2.5)
 ```
 
-### 4.3 POD Submission (already covered in DM-01)
+### 4.3 POD Submission (DM-01)
 
 ```http
 POST   /api/v1/driver/transport-orders/{to_id}/pod/
-       → Driver submits POD
-       → Side effects: Sets pod_uploaded = True on ClosureChecklist, triggers auto-close evaluation
-```
-
-### 4.4 QC Checkpoint (QC-01)
-
-```http
-POST   /api/v1/transport-orders/{to_id}/qc/samples
-       → Create QC sample
-       → Body: {
-           physical_analysis: "Color: amber, Odor: neutral, Texture: fine powder",
-           remarks: "3 samples collected from top, middle, bottom" (optional)
-         }
-       → Validations:
-           - TO must be flagged for QC by CC-01
-           - TO.flow_type = 'rm_inbound'
-       → Response: {
-           sample_id: "QCS-2026-0001",
-           message: "Sample created. QC decision now available."
-         }
-
-GET    /api/v1/transport-orders/{to_id}/qc/samples
-       → List all QC samples for a TO
-       → Response: [
-           {
-             sample_id: "QCS-2026-0001",
-             physical_analysis: "...",
-             remarks: "...",
-             timestamp: "2026-05-12T14:00:00Z",
-             created_by: {user_id, name}
-           },
-           ...
-         ]
-
-POST   /api/v1/transport-orders/{to_id}/qc/decision
-       → Submit QC decision (pass/fail)
-       → Body: {
-           decision: "pass" | "fail",
-           remarks: "All samples meet quality standards" (required if fail)
-         }
-       → Validations:
-           - At least one QCSample must exist for this TO
-           - No active QCDecision already exists (unless previous was deactivated by resample)
-       → Side effects:
-           - Write TOStatusTransitionLog (QC_PASSED or QC_FAILED)
-           - If pass: mark qc_passed=True, re-queue TO in CC-01; trigger closure evaluation
-           - If fail: block CC unloading assignment
-       → Response: {
-           decision_id,
-           message: "QC passed. CC Officer can now assign unloading point." | "QC failed. Unloading blocked."
-         }
-
-GET    /api/v1/transport-orders/{to_id}/qc/decision
-       → Get latest active QC decision for a TO
-       → Response: {
-           decision_id,
-           decision: "pass" | "fail",
-           qc_passed: true | false,
-           timestamp,
-           decided_by: {user_id, name},
-           remarks,
-           is_active: true
-         }
-
-POST   /api/v1/transport-orders/{to_id}/qc/resample
-       → Trigger resample during unloading (AC-4)
-       → Validations:
-           - TO must be in unloading state
-           - Active QCDecision must exist with decision = 'pass'
-       → Side effects:
-           - Deactivate current QCDecision
-           - Cancel active CC-01 unloading assignment
-           - TO returns to QC queue (status reverts to AT_DESTINATION / QC_STARTED)
-           - Write TOStatusTransitionLog
-       → Response: {
-           message: "Resample triggered. Unloading cancelled. TO returned to QC queue."
-         }
-
-POST   /api/v1/transport-orders/{to_id}/qc/override
-       → Override QC decision to Failed during unloading (AC-5)
-       → Body: {
-           remarks: "Quality degradation observed during unloading" (required)
-         }
-       → Validations:
-           - TO must be in unloading state
-           - Active QCDecision must exist with decision = 'pass'
-       → Side effects:
-           - Deactivate current QCDecision
-           - Create new QCDecision with decision = 'fail', is_active = True
-           - Cancel active CC-01 unloading assignment
-           - Block re-assignment
-           - Write TOStatusTransitionLog (QC_FAILED)
-           - Closure blocked
-       → Response: {
-           message: "QC overridden to Failed. Unloading cancelled. Re-assignment blocked."
-         }
+       → Side effects: ProofOfDelivery created; status → completed when eligible;
+         evaluate_closure_conditions()
 ```
 
 ---
 
 ## 5. Business Rules
 
-### 5.1 TO Lifecycle Rules
+### 5.1 Lifecycle
 
-**Status/sub-state transitions**:
-- Transitions must follow flow-lane rules table (forward-only, no skipping)
-- Upstream module events advance status via `event_ingest.ingest_event()` → `state_machine.apply_transition()`
-- Backward transitions not allowed (except admin cancel, QC resample/override)
-- `TOStatusTransitionLog` records every transition with actor, timestamp, payload
+- **Drivers** set in-transit statuses only (`state_machine.validate_driver_transition`).
+- **Yard modules** set `sub_state` via `record_yard_sub_state`; advance canonical `status` only where §1.6 matrix specifies.
+- **No backward** canonical transitions except admin cancel and QC resample/override side effects on assignments (status stays forward-only).
+- Every write appends `TOStatusTransitionLog` via timeline helpers.
 
-**Fleet availability validation** (§6.8.1.7):
-- On first driver execution action, validate:
-  - Vehicle not under maintenance
-  - Driver not on leave
+### 5.2 Closure
 
-**Halted sub-state** (§6.8.6):
-- Reserved in `TOSubState` enum but no trigger in Sprint 4 (Phase 2)
+See §2.2–2.4. RM inbound cannot close with active `QCDecision.decision = 'fail'`.
 
-### 5.2 Closure Rules
+### 5.3 QC (summary)
 
-**FG Outbound closure gates**:
-- Loading complete ✓
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
-
-**FG Inbound closure gates**:
-- Unloading complete ✓
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
-
-**RM Inbound closure gates**:
-- Unloading complete ✓
-- Sampling done ✓
-- QC passed ✓ (latest active QCDecision must be Pass)
-- Scale-out done ✓
-- Gate-out done ✓
-- POD uploaded ✓
-
-**Auto-close trigger**:
-- Evaluated when **any** prerequisite is fulfilled (POD, QC decision, gate-out, loading/unloading complete, scale-out)
-- If all gates pass → auto-close TO
-- If gates blocked → update `ClosureChecklist.closure_block_reason`
-
-**Manual close**:
-- Guard validation enforces all prerequisites
-- Force close requires override reason (audit logged)
-
-### 5.3 QC Checkpoint Rules
-
-**Entry condition**:
-- QC available only after CC-01 flags RM TO for QC
-- QC not created for FG TOs
-
-**Sampling (AC-2)**:
-- Cannot submit QC decision without at least one QCSample
-- Sample has auto-generated `sample_id`, physical analysis text, remarks
-
-**Decision (AC-3)**:
-- Pass: TO marked qc_passed=True; CC Officer assigns unloading point in CC-01 (QC does not assign bay)
-- Fail: unloading blocked, closure blocked
-
-**Resample during unloading (AC-4)**:
-- QC Supervisor triggers resample while unloading in progress
-- Clears (deactivates) current QCDecision
-- Cancels active CC-01 unloading assignment
-- TO returns to QC queue
-
-**Override to Failed during unloading (AC-5)**:
-- QC Supervisor changes decision to Fail while unloading in progress
-- Cancels active CC-01 unloading assignment
-- Blocks re-assignment (no new unloading point can be assigned)
-- Closure blocked
+See [qc-operations-sprint4.md §7–8](../06-poi-operations/qc-operations-sprint4.md).
 
 ---
 
 ## 6. Integration Points
 
-### 6.1 Event Ingest — All Sprint 4 Yard Modules
+### 6.1 YARD-01 & POI-scoped operations
 
-Every yard action is received by the **event ingest service** and translated into a state machine transition:
+| Concern | Integration |
+|---------|-------------|
+| POI scoping | Operator UIs only; TLS read APIs tenant-wide for planner roles |
+| Visit anchor | `GateVisitSession` links gate → scale → CC → LD → gate-out |
+| `yard_leg` | Set at gate-in; SC/LD use `(flow_lane, yard_leg)` eligibility |
+| Fail closed | Missing POI assignment → empty yard admin querysets (not TLS) |
 
-| Source | Event | Writes to TOStatusTransitionLog |
-|--------|-------|---------------------------------|
-| GT-01 (Gate) | gate_in / gate_out | Gate-in Recorded / Gate-out sub-state |
-| SC-01 (Scaling) | scale_in / scale_out | Scale-in / Scale-out sub-state |
-| CC-01 (Command Center) | bay_assigned / qc_flagged | Assigned to Loading/Unloading Point / QC Started |
-| LD-01 (Loading/Unloading) | loading_started / loading_completed / unloading_started / unloading_completed | Loading/Unloading Started/Completed sub-state |
-| QC-01 (Quality) | sample_created / qc_decision / resample / override | Sampling Started / QC Passed/Failed |
-| DM-01 (Driver Mobile) | execution_started / pod_submitted | Vehicle Departed / POD Submitted |
+### 6.2 Yard modules → TLS
 
-### 6.2 With Driver Supervisor (DS-01, DS-02)
+See §1.6 integration matrix. Authoritative per-module specs:
 
-**Fleet availability validation (§6.8.1.7)**:
-- `apps/transport/lifecycle/execution_guards.py:validate_fleet_availability()`
-- Called by: Driver mobile "Mark as Started" (DM-01), first gate-in (GT-01)
-- Checks: Vehicle not under maintenance, Driver not on leave
+- GT-01: [gate-operations-sprint4.md](../06-poi-operations/gate-operations-sprint4.md)
+- SC-01: [scaling-operations-sprint4.md](../06-poi-operations/scaling-operations-sprint4.md)
+- CC-01 / LD-01: [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md)
+- QC-01: [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
-### 6.3 With Command Center (CC-01)
+### 6.3 Driver Supervisor (DS-01, DS-02)
 
-**QC flag trigger**:
-- CC-01 flags RM inbound TO for QC → TO appears in QC Queue
+Fleet availability on first execution action; dispatch gate at `ready_for_dispatch`.
 
-**CC-01 unloading cancellation** (used by QC-01 AC-4 and AC-5):
-- Resample and Override-to-Failed both cancel the active CC-01 unloading assignment
-- CC-01 service exposes `cancel_unloading_assignment(transport_order, reason)` for QC-01 integration
+### 6.4 Command Center ↔ QC
 
-### 6.4 With Closure Engine (POD-01)
-
-**QC → Closure**:
-- Closure engine reads latest active `QCDecision` for RM TOs
-- Pass → allows closure; Fail → blocks closure; No decision → blocks closure
+- CC `flag_for_qc` → QC queue visible (`sub_state = flagged_for_qc`)
+- QC Pass → `QueueEntry.qc_passed=True` → CC `[Assign Bay]` unblocked
+- QC resample/override → `CCService.cancel_bay_assignment()`
 
 ---
 
 ## 7. Permissions & RBAC
 
-### 7.1 Permission Codes (add to `apps/core/constants_rbac.py`)
-
 ```python
 # Timeline (TLS-01)
 Transport.TO.Timeline.Read
 Transport.TO.Status.Read
-Transport.TO.Transitions.Write              # Manual transition trigger
+Transport.TO.Transitions.Write       # Manual canonical transition (admin)
 
 # Closure (POD-01)
-Transport.TO.Close                          # Manual close (guard validation)
-Transport.TO.ForceClose                     # Force close (override)
+Transport.TO.Close
+Transport.TO.ForceClose
 Transport.POD.Read
-Transport.POD.Submit                        # Driver (covered in DM-01)
+Transport.POD.Submit                   # Driver (DM-01)
 
-# QC Checkpoint (QC-01)
-Quality.QC.Sample.Create                    # QC Supervisor
-Quality.QC.Decision.Write                   # QC Supervisor
-Quality.QC.Resample                         # QC Supervisor (AC-4)
-Quality.QC.Override                         # QC Supervisor (AC-5)
-Quality.QC.Read                             # All stakeholders
+# QC Checkpoint — see qc-operations-sprint4.md §10
+Quality.QCCheckpoint.Sample.Create
+Quality.QCCheckpoint.Decision.Write
+Quality.QCCheckpoint.Resample
+Quality.QCCheckpoint.Override
+Quality.QCCheckpoint.Read
+Menu.QC.Checkpoint.View
 ```
 
-### 7.2 Role → Permission Mapping
+**qc_inspector_physical:** QC checkpoint permissions + optional `Transport.TO.Timeline.Read`.
 
-**Transport Planner / TDO**:
-- `Transport.TO.Timeline.Read`
-- `Transport.TO.Status.Read`
-- `Transport.TO.Close` (manual close with guard)
-- `Transport.POD.Read`
-
-**Tenant Admin**:
-- All Transport Planner permissions
-- `Transport.TO.ForceClose` (override)
-- `Transport.TO.Transitions.Write`
-
-**Driver**:
-- `Transport.TO.Status.Read` (own TOs only)
-- `Transport.POD.Submit` (covered in DM-01)
-
-**Command Center Officer**:
-- `Transport.TO.Timeline.Read`
-- `Transport.TO.Status.Read`
-
-**QC Supervisor**:
-- `Quality.QC.Sample.Create`
-- `Quality.QC.Decision.Write`
-- `Quality.QC.Resample`
-- `Quality.QC.Override`
-- `Quality.QC.Read`
-- `Transport.TO.Timeline.Read`
+**command_center_officer:** `Transport.TO.Timeline.Read`, `Quality.QCCheckpoint.Read` (read-only QC status).
 
 ---
 
 ## 8. Reports & KPIs (Phase 2)
 
-### 8.1 TO Execution Metrics
-
-- Average cycle time (Draft → Closed) per flow type
-- Bottleneck analysis (longest stage by TOStatus)
-- On-time delivery rate (closed_at <= planned_delivery_datetime)
-
-### 8.2 QC Performance
-
-- QC pass rate (% of RM TOs that passed QC)
-- Resample rate (% of RM TOs that required resample)
-- Average QC turnaround time (QC flagged → QC decision)
-- Top rejection reasons (from QCDecision.remarks where decision = fail)
+- Cycle time by `flow_lane` and bottleneck `status` / dwell in `sub_state`
+- QC pass/resample rates from checkpoint `QCDecision` / `QCSample`
+- Closure block reason distribution from `ClosureChecklist`
 
 ---
 
 ## 9. Dependencies
 
-### Upstream
-- All Sprint 4 modules (GT-01, SC-01, CC-01, LD-01, DS-01, DS-02, DM-01, QC-01)
+### Upstream (blocking order)
+
+1. **YARD-01** foundation (Steps 1–6)
+2. GT-01, SC-01, CC-01, LD-01 (emit §1.6 events)
+3. QC-01 checkpoint app (RM TLS + closure gates)
+4. DS-01, DS-02, DM-01 (driver + POD)
 
 ### Downstream
-- No downstream dependencies (this is the terminal module)
+
+Terminal module for Sprint 4 execution — no further modules depend on TLS/POD beyond reporting (Phase 2).
 
 ---
 
 ## 10. Sprint 4 Story Mapping
 
-| Story | Scope | Implementation Focus |
-|-------|-------|----------------------|
-| **TLS-01** (TLS-01-1 to TLS-01-10) | TO lifecycle — `TOStatus` + `TOSubState` state chain (PRD §6.8.5), code-first state machine, event ingest, audit trail | `TOStatusTransitionLog` model + state machine service + event ingest service + fleet availability validation + timeline/status API + admin UI |
-| **POD-01** (POD-01-1 to POD-01-10) | TO closure — lane-aware closure rule engine, auto-close trigger, exceptions list, manual close guard | `ClosureChecklist` model + `ClosureRuleEngine` service + closure matrices + auto-close hook + exceptions list view + manual/force close admin actions + closure API |
-| **QC-01** (QC-01-1 to QC-01-12) | Raw-material QC — sample creation, pass/fail decision, resample during unloading, override-to-failed | `QCSample` + `QCDecision` models + sample/decision services + resample (AC-4) + override (AC-5) + CC-01 unloading cancellation integration + QC events to timeline + admin UI + API endpoints |
+| Story | Scope | Implementation focus |
+|-------|-------|---------------------|
+| **TLS-01** | Lifecycle + timeline | `status` + `sub_state` model; `timeline_service`; driver `state_machine`; §1.6 yard wiring; timeline API + admin |
+| **POD-01** | Closure | `ClosureChecklist`; `refresh_closure_checklist` from yard rows; auto-close; exceptions admin/API |
+| **QC-01** | RM QC | **Implement from** [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md); TLS integration per §3 here |
 
 ---
 
-**Last Updated**: 2026-05-12  
-**Version**: 2.0  
-**Related Modules**: All Sprint 4 modules ([gate-operations-sprint4.md](../06-poi-operations/gate-operations-sprint4.md), [scaling-operations-sprint4.md](../06-poi-operations/scaling-operations-sprint4.md), [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md), [driver-interface-sprint4.md](../03-users/driver-interface-sprint4.md), [driver-supervisor-operations.md](../08-fleet-management/driver-supervisor-operations.md))
+**Last Updated**: 2026-05-20  
+**Version**: 3.0  
+**Related Modules**: [gate-operations-sprint4.md](../06-poi-operations/gate-operations-sprint4.md), [scaling-operations-sprint4.md](../06-poi-operations/scaling-operations-sprint4.md), [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md), [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md), [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-implementation.md), [driver-interface-sprint4.md](../03-users/driver-interface-sprint4.md), [driver-supervisor-operations.md](../08-fleet-management/driver-supervisor-operations.md)

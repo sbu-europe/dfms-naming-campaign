@@ -4,19 +4,19 @@ jira_type: Story
 jira_epic: ~
 jira_sprint: "Sprint 4"
 story_id: TLS-01
-title: TO Lifecycle — Execution, Yard & Closure Substates (+ Audit)
+title: TO Lifecycle — Execution, Yard Step & Timeline Audit
 epic: Lifecycle
 status: Pending
 story_points: 13
 assignee: ~
 prd_refs:
   - "§6.8.5 TO Lifecycle Management (Phase 1)"
-  - "§6.8.7 Trip Closure & Proof of Delivery (POD) (Phase 1 — closure substates only; POD rules in POD-01)"
-  - "§6.14.2 QC Trigger on Unloading – Notify QC Department (Phase 3 notification deferred; in-app event retained)"
-  - "§6.15.4.1 QC Pass/Fail/Auto-Pass Tracking (Phase 1)"
+  - "§6.8.7 Trip Closure & Proof of Delivery (POD) (Phase 1 — closure hooks only; rules in POD-01)"
+  - "§6.15.4.1 QC Pass/Fail/Auto-Pass Tracking (Phase 1 — RM sub_state + qc_passed flag)"
+implementation_spec: "../../../05-modules/05-transport/transport-lifecycle-pod-sprint4.md"
 ---
 
-# TLS-01 — TO Lifecycle (§6.8.5) — Execution, Yard & Closure
+# TLS-01 — TO Lifecycle (§6.8.5) — Execution, Yard Step & Timeline
 
 ## User Story
 
@@ -26,124 +26,175 @@ prd_refs:
 
 ## Business Context
 
-Sprint 4 extends **§6.8.5** with **execution**, **yard**, and **closure** substates on the **Transport Order** only. Sprint 3 / TO-02 delivers assignment and may set **`Ready for Dispatch`** (TDO); that status makes the TO **driver-visible** (DM-01).
+Sprint 4 extends **§6.8.5** on the **Transport Order only** using two persisted fields:
 
-The PRD defines the full TO lifecycle as: **Draft → Planned → Assigned → Dispatched → In Transit – Source → At Source → Loaded / Pickup Completed → In Transit – Destination → At Destination → Delivered / Unloaded → Completed → Closed**. Sprint 3 covers Draft through Dispatched; this story covers **In Transit – Source** onward.
+| Field | Purpose |
+|-------|---------|
+| `TransportOrder.status` | Canonical lifecycle (`TOStatus`) — planning + execution + closure |
+| `TransportOrder.sub_state` | Current **yard workflow step** (`TOSubState`, YARD-01) — queryable by POI operator screens |
 
-**§6.8.6** (halt / re-delivery management workflow) is **Phase 2** — design transitions so a **Halted** sub-state can be added later without migration pain. Note: the PRD includes `Halted` as a sub-state under In Transit states in Phase 1; Sprint 4 reserves the sub-state value but does not implement the halt trigger or re-delivery flow.
+There is **no** separate `to_status` / `to_sub_state` column pair. PRD labels (Draft, Planned, …) map to **`status`** keys; yard steps (scale-in, waiting for CC, QC passed, loading, …) map to **`sub_state`**.
 
-**§6.8.7** closure rules (QC Pass + POD + gate-out → auto-close) are consumed by **POD-01**; this story defines the closure *substates* and *transition hooks* that POD-01 calls.
+**Authoritative implementation spec:** [transport-lifecycle-pod-sprint4.md v3.0](../../../05-modules/05-transport/transport-lifecycle-pod-sprint4.md)  
+**Yard chain reference:** [gate-operations-sprint4.md §4.5](../../../05-modules/06-poi-operations/gate-operations-sprint4.md)
 
-**§6.8.2** map / live tracking is **not** Sprint 4 backlog; timeline APIs are data-only for mobile and ops views.
+Sprint 3 / TO-02 delivers assignment through **`ready_for_dispatch`** and **`dispatched`**. This story covers **driver in-transit** onward and all yard TLS writes.
+
+**Integration pattern:** Yard modules (GT/SC/CC/LD/QC) call `record_yard_sub_state()` and `apply_to_status_transition()` directly in their services — there is **no** central event-ingest facade.
+
+**§6.8.6** (halt / re-delivery) is **Phase 2** — schema allows new `sub_state` values later; no halt trigger in Sprint 4.
+
+**§6.8.7** auto-close rules live in **POD-01**; this story provides timeline hooks and canonical status transitions POD-01 calls.
+
+**§6.8.2** map / live tracking is **not** Sprint 4; timeline APIs are data-only.
 
 ## Acceptance Criteria
 
-### AC-1: States & sub-states (per §6.8.5)
-- [ ] Model **TO** lifecycle per **§6.8.5** — full state chain with defined sub-states:
+### AC-1: Canonical status + yard sub-state
 
-| PRD State | Sub-states (per PRD) | Sprint 4 scope |
-|---|---|---|
-| **Draft** | — | Sprint 3 shipped (TO-01) |
-| **Planned** | Fleet Decided, Awaiting Assignment | Sprint 3 shipped (TO-01) |
-| **Assigned** | Vehicle Assigned, Driver Assigned, Helper Assigned, Assignment Confirmed | Sprint 3 shipped (TO-02) |
-| **Dispatched** | Dispatch Approved, Vehicle Departed | Sprint 3 shipped (TO-02) |
-| **In Transit – Source** | En Route to Source, Delayed, Halted | Halted reserved; no trigger in Sprint 4 (§6.8.6 Phase 2) |
-| **At Source** | Gate-in Recorded, Scale-in, Waiting / Parked | Yard entry states driven by GT-01, SC-01 |
-| **Loaded / Pickup Completed** | Loading Started, Loading Completed, Scale-out, Assigned to Loading Point, Pick-up Confirmed/Gate-out | CC-01 + LD-01 + SC-01 + GT-01 events |
-| **In Transit – Destination** | En Route to Destination, Delayed, Halted | Halted reserved; no trigger in Sprint 4 |
-| **At Destination** | Gate-in Recorded, Scale-in, Waiting / Parked, Assigned to Unloading Point, Sampling Started, QC Started (Physical Inspection), Lab Analysis In Progress | QC sub-states simplified in Sprint 4 (QC-01: sampling_done + qc_passed only) |
-| **Delivered / Unloaded** | Unloading Started, Unloading Completed, Scale-out, POD Submitted, Receiver Confirmation | POD capture via DM-01 |
-| **Completed** | QC Passed, QC Failed | QC-01 outcome drives sub-state |
-| **Closed** | Closed (QC Pass + POD Uploaded, Gate-out recorded) | Auto-close rule in POD-01; this story provides the transition hook |
-
+- [ ] **`TransportOrder.status`** holds the full execution chain per lane using `TOStatus` keys in `apps/transport/constants.py` (same column as Sprint 3 planning statuses)
+- [ ] **`TransportOrder.sub_state`** holds the current yard step using `TOSubState` (denormalized for POI admin querysets — YARD-01)
 - [ ] **One TO = one execution thread** (Phase 1)
-- [ ] Include explicit flow-lane mapping in lifecycle rules:
-  - FG outbound lane (loading path)
-  - FG inbound lane (unloading path)
-  - RM inbound lane (unloading + QC checkpoint path)
-- [ ] Include raw-material checkpoint states/events for QC-01 (sampling + QC decision; Sprint 4 simplified yes/no outcome only)
+
+**Canonical status (`status`) — Sprint 4 execution keys:**
+
+| PRD label (§6.8.5) | `TOStatus` key | Sprint 4 scope |
+|---|---|---|
+| Created / Assigned / Ready for Dispatch / Dispatched | `created`, `assigned`, `ready_for_dispatch`, `dispatched` | Sprint 3 (TO-01/02) |
+| In Transit – Source | `in_transit_source` | DM-01 driver milestone |
+| At Source | `at_source` | GT-01 gate-in (source leg) |
+| Loaded / Pickup Completed | `loaded_pickup_completed` | Optional canonical bump; loading mostly tracked in `sub_state` while at source |
+| In Transit – Destination | `in_transit_destination` | SC-01 scale-out (FG outbound source) or driver milestone |
+| At Destination | `at_destination` | GT-01 gate-in (destination leg) |
+| Delivered / Unloaded | `delivered_unloaded` | SC-01 scale-out (inbound / dest leg) |
+| Completed | `completed` | DM-01 POD submission (when lane rules allow) |
+| Closed | `closed` | POD-01 closure engine |
+
+**Yard step (`sub_state`) — written by yard modules while status often stays at `at_source` / `at_destination`:**
+
+| Yard event | Typical `sub_state` value | Source module |
+|---|---|---|
+| Scale-in | `scale_in_source` / `scale_in_dest` → `waiting_cc` | SC-01 |
+| CC flag for QC (RM) | `flagged_for_qc` | CC-01 |
+| Bay assigned | `assigned_loading_point` / `assigned_unloading_point` | CC-01 |
+| QC sample / decision | `sampling_started`, `qc_passed`, `qc_failed`, `resampling` | QC-01 |
+| Load / unload | `loading_started`, `loading_completed`, `unloading_started`, `unloading_completed` | LD-01 |
+| Scale-out / gate-out markers | `scale_out_*`, `gate_out_*` | SC-01, GT-01 |
+
+- [ ] **`sub_state` cleared** when canonical `status` enters `SUB_STATE_RESET_ON_STATUS` (`in_transit_destination`, `delivered_unloaded`, `completed`, `closed`, `cancelled`) via `maybe_clear_sub_state_on_status()`
+- [ ] Explicit **`flow_lane`** mapping in rules and docs: `fg_outbound`, `fg_inbound`, `rm_inbound`
+- [ ] RM inbound QC outcomes remain at **`status = at_destination`** with `sub_state = qc_passed | qc_failed` (not a separate Completed status for QC alone)
+- [ ] PRD planning/dispatch micro-sub-states (`fleet_decided`, `lab_analysis`, etc.) are **Phase 2** — not persisted on `sub_state` in Sprint 4
 
 ### AC-2: Transition rules
-- [ ] Enforce valid forward-only graph per PRD: "State Transitions can only occur according to allowed workflow rules (e.g., TO cannot be dispatched before assignment is confirmed)"
-- [ ] Cannot enter yard steps before **Ready for Dispatch** (and any policy gates such as DS-01 checklist, if enabled)
-- [ ] Rules for gate-in vs driver milestones documented to avoid double truth
-- [ ] **§6.8.1.7** Fleet Availability Validation invoked on **first driver execution action** (or agreed alternative — document)
+
+- [ ] **`TO_STATUS_TRANSITIONS`** enforces forward-only **canonical `status`** changes (driver, gate-in, scale-out, POD, closure)
+- [ ] **Drivers** may only transition `dispatched` → `in_transit_source` (FG outbound) or `in_transit_destination` (FG/RM inbound) — validated in `state_machine.py`
+- [ ] **Gate-in** requires TO in lane-specific in-transit status (`in_transit_source` / `in_transit_destination` per GT-01 §4.0), not merely `ready_for_dispatch`
+- [ ] **Yard sub-state** updates do not require a canonical status change; documented in yard integration matrix (implementation spec §1.6)
+- [ ] Gate-in vs driver milestones documented — gateman records authoritative yard gate-in; driver records in-transit only (no double truth)
+- [ ] **§6.8.1.7** Fleet Availability Validation on **first driver execution action** (`validate_for_driver_execution`)
 
 ### AC-3: Actors & visibility
-- [ ] Per PRD: TP, TDO, and Driver can **view** current TO status and sub-states based on activity completion
-- [ ] TP, TDO, Driver (limited), Gate, Scale, Command Center, Load/Unload roles trigger **allowed** transitions only (role-gated)
 
-### AC-4: Audit
-- [ ] Every transition stores: from, to, user/service, timestamp, optional payload JSON (per PRD: "System logs all state transitions for audit purposes")
-- [ ] Sampling/QC checkpoint events store explicit outcome payload (`sampling_done`, `qc_passed`)
+- [ ] TP, TDO, and Driver can **view** current `status` and `sub_state` on assigned / tenant TOs
+- [ ] **Tenant-wide read** for planner/TDO timeline APIs; **POI-scoped** yard operator queues filter on `sub_state` + visit POI (YARD-01 — not TLS read API filtering)
+- [ ] Allowed **writers** by actor:
+  - Driver → in-transit `status` only
+  - `gateman` → gate-in `status` bump; gate-out `sub_state`
+  - `scaling_operator` → scale `sub_state`; scale-out `sub_state` + `status`
+  - `command_center_officer` → CC `sub_state`
+  - `loading_personnel` / `unloading_personnel` → LD `sub_state`
+  - `qc_inspector_physical` → QC `sub_state` (+ `TransportOrder.qc_passed` on Pass)
+  - System / admin → closure `status` → `closed`
+
+### AC-4: Audit (`TOStatusTransitionLog`)
+
+- [ ] Every canonical status change appends a log row: `from_status`, `to_status`, `actor`, `actor_role`, `source_module`, `notes`, `created_at`
+- [ ] Every yard sub-state change appends a log row: `from_status == to_status == current status`, **`sub_state` set**, same actor/metadata fields
+- [ ] **No JSON payload column** — context in `notes` or module audit tables (`GateActivityLog`, etc.)
+- [ ] QC Pass/Fail auditable via log `sub_state` + `TransportOrder.qc_passed` + checkpoint `QCDecision` (QC-01)
 
 ### AC-5: Read APIs
-- [ ] **TO timeline** API for driver app and ops views (no map requirement in Sprint 4)
-- [ ] Status and sub-state viewable per actor role (TP, TDO, operations staff per §6.8.5 functional requirements)
+
+- [ ] `GET /api/v1/transport-orders/{to_id}/timeline` — ordered transition history (`status`, `sub_state`, `source_module`, actor, timestamps)
+- [ ] `GET /api/v1/transport-orders/{to_id}/status` — current `status`, `sub_state`, `flow_lane`
+- [ ] `GET /api/v1/transport-orders/{to_id}/transitions/validate` — dry-run canonical transition (admin/support)
+- [ ] No map requirement in Sprint 4
 
 ### AC-6: Current yard step on the transport order (YARD-01)
-- [ ] Each transport order shows its **current yard step** (e.g. waiting for command center, flagged for QC, loading in progress) for operations screens
-- [ ] Yard step updates together with the audited timeline — one source of truth for “where is this vehicle in the yard?”
-- [ ] Gate, scale, command center, loading, unloading, and QC screens filter waiting work by this step
+
+- [ ] Each TO exposes **`sub_state`** as the current yard step (e.g. `waiting_cc`, `flagged_for_qc`, `loading_started`)
+- [ ] Yard step updates **atomically** with the timeline via `record_yard_sub_state()` — one source of truth
+- [ ] Gate, scale, command center, loading, unloading, and QC admin querysets filter work by `sub_state` (+ POI scope via YARD-01)
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TLS-01-1 | TO status, yard steps, and transition history — including current yard step on the TO (**YARD-01**) | DFS-059-1 | Pending |
-| TLS-01-2 | State machine service — code-first rules table defining valid transitions per flow lane (FG outbound, FG inbound, RM inbound) | DFS-059-2 | Pending |
-| TLS-01-3 | TOStatusAdmin — Django Admin read-only timeline view showing all transitions for a TO, filterable by TO, status, date range (support/debug) | DFS-059-3 | Pending |
-| TLS-01-4 | TOTimelineInline — TabularInline under TransportOrderAdmin showing status transition history | DFS-059-4 | Pending |
-| TLS-01-5 | Migration from existing Sprint 3 TO statuses (TO-01/02) to new expanded status + sub-state set | DFS-059-5 | Pending |
-| TLS-01-6 | Event ingest service — receives events from GT-01, SC-01, CC-01, LD-01, QC-01, DM-01 and triggers appropriate state transitions | DFS-059-6 | Pending |
-| TLS-01-7 | TO timeline REST API (GET) — returns ordered transition history for a TO | DFS-059-7 | Pending |
-| TLS-01-8 | TO status/sub-state REST API (GET) — returns current status + sub-state, role-filtered per actor | DFS-059-8 | Pending |
-| TLS-01-9 | §6.8.1.7 Fleet Availability Validation service — invoked on first driver execution action to validate fleet readiness | DFS-059-9 | Pending |
-| TLS-01-10 | Audit logging service — logs every transition with from/to/user/timestamp/payload; QC events include sampling_done + qc_passed payload | DFS-059-10 | Pending |
+| TLS-01-1 | `TOStatus` / `TOSubState` constants; `TransportOrder.sub_state`; `TOStatusTransitionLog`; `timeline_service` (`record_transition`, `record_yard_sub_state`, `maybe_clear_sub_state_on_status`) | DFS-059-1 | Partial |
+| TLS-01-2 | Canonical `TO_STATUS_TRANSITIONS` + driver rules (`state_machine.py`); yard integration matrix documented and wired in GT/SC/CC/LD/QC services | DFS-059-2 | Partial |
+| TLS-01-3 | `TOStatusTransitionLogAdmin` — read-only changelist/detail; filters: TO, `to_status`, `sub_state`, `source_module`, date | DFS-059-3 | Pending |
+| TLS-01-4 | `TOTimelineInline` — TabularInline under `TransportOrderAdmin` (status, sub_state, actor, source_module, created_at) | DFS-059-4 | Pending |
+| TLS-01-5 | Migration: extend execution `status` values on existing TOs; add `sub_state` (default `""`); backfill none required | DFS-059-5 | Partial |
+| TLS-01-6 | Verify yard-module TLS wiring per integration matrix (§1.6) — GT, SC, CC, LD, QC call timeline helpers in same `atomic()` as domain writes | DFS-059-6 | In progress |
+| TLS-01-7 | Timeline REST API (`GET …/timeline`) | DFS-059-7 | Pending |
+| TLS-01-8 | Status REST API (`GET …/status`) — returns `status`, `sub_state`, `flow_lane` | DFS-059-8 | Pending |
+| TLS-01-9 | §6.8.1.7 Fleet Availability Validation on first driver execution action | DFS-059-9 | Partial |
+| TLS-01-10 | `apply_to_status_transition()` for admin/break-glass POST; `POST …/transitions` validates against `TO_STATUS_TRANSITIONS` (not used by yard modules) | DFS-059-10 | Partial |
 
 ## API Endpoints
 
 ```
-GET    /api/v1/transport-orders/{to_id}/timeline                  # TO transition history (ordered)
-GET    /api/v1/transport-orders/{to_id}/status                    # Current status + sub-state (role-filtered)
-POST   /api/v1/transport-orders/{to_id}/transitions               # Trigger a state transition (used by event ingest)
-GET    /api/v1/transport-orders/{to_id}/transitions/validate      # Dry-run: check if a transition is valid
+GET    /api/v1/transport-orders/{to_id}/timeline
+       # Ordered TOStatusTransitionLog entries (status + sub_state + source_module)
+
+GET    /api/v1/transport-orders/{to_id}/status
+       # Current status, sub_state, flow_lane
+
+POST   /api/v1/transport-orders/{to_id}/transitions
+       # Admin / break-glass canonical status only (Transport.TO.Transitions.Write)
+       # Body: { target_status, notes } — yard sub_state is NOT set via this endpoint
+
+GET    /api/v1/transport-orders/{to_id}/transitions/validate?target_status=...
+       # Dry-run canonical transition validity
 ```
+
+QC REST endpoints live under `/api/v1/qc/*` (QC-01 story) — not nested under transport-orders.
 
 ## Access & Permissions
 
-> Full menu structure and role-access matrix: [`README.md`](../README.md)
+> Full menu structure: [transport-lifecycle-pod-sprint4.md §0](../../../05-modules/05-transport/transport-lifecycle-pod-sprint4.md)
 
 | Action | Role |
 |--------|------|
 | View TO timeline (full history) | Transport Planner, TDO, Operations Manager, Support |
-| View current TO status + sub-state | Transport Planner, TDO, Driver, Gate Operator, Scale Operator, CC Operator |
-| Trigger state transition | System (event ingest), role-gated per transition type |
+| View current status + sub_state | Transport Planner, TDO, Driver (own TOs), yard operators (via admin/API as applicable) |
+| Trigger canonical status (POST transitions) | Tenant Admin, Support (break-glass) |
+| Yard sub-state writes | Yard services only (`gateman`, `scaling_operator`, `command_center_officer`, `loading_personnel`, `unloading_personnel`, `qc_inspector_physical`) |
 | View admin debug timeline | Support, Operations Manager |
-
-- TP, TDO, and Driver can view current status and sub-states per §6.8.5
-- State transitions are role-gated: only the actor permitted for that transition type can trigger it
-- Admin timeline view is read-only for support/debug purposes
 
 ## Dependencies
 
-- **Requires**: TO-02 baseline statuses (**Ready for Dispatch** set by TDO in Sprint 3 flow)
-- **Coordinates with**: **YARD-01** (current yard step on the TO — align with TLS-01-1 and YARD-01-4)
-- **Blocks**: DM-01, yard chain, QC-01, POD-01
+- **Requires**: TO-02 baseline (`ready_for_dispatch`, `dispatched` on same `status` column)
+- **Requires**: **YARD-01** Steps 1–5 before POI yard TLS integration is testable end-to-end (`sub_state`, `UserOperationalPOI`, `yard_poi`, `yard_leg`, `YardAdminBase`) — see [yard-foundation-implementation.md](../../../05-modules/06-poi-operations/yard-foundation-implementation.md)
+- **Coordinates with**: GT-01, SC-01, CC-01, LD-01, QC-01 (each emits §1.6 events)
+- **Blocks**: DM-01 (timeline read + driver transitions), QC-01 (timeline writes), POD-01 (closure transitions)
 
 ## Definition of Done
 
-- [ ] TOStatus, TOSubState, and TOStatusTransitionLog models store the full lifecycle with from/to/actor/timestamp/payload per transition
-- [ ] Current yard step visible on the TO and kept in sync with the timeline (AC-6 / **YARD-01**)
-- [ ] State machine service enforces forward-only transitions per flow lane (FG outbound, FG inbound, RM inbound)
-- [ ] Invalid transition attempt returns a stable error code with descriptive message
-- [ ] Halted sub-state value is reserved in the enum but no trigger is implemented (§6.8.6 Phase 2 placeholder)
-- [ ] Migration maps existing Sprint 3 TO statuses (TO-01/02) to the new expanded status set without data loss
-- [ ] Event ingest service receives events from GT-01, SC-01, CC-01, LD-01, QC-01, DM-01 and triggers the correct transitions
-- [ ] §6.8.1.7 Fleet Availability Validation fires on first driver execution action
-- [ ] TO timeline API returns ordered transition history; status API returns current status + sub-state filtered by actor role
-- [ ] Django Admin TOStatusAdmin shows read-only transition timeline per TO, filterable by TO, status, and date
-- [ ] Every transition is audit-logged with from/to/user/timestamp/payload; QC events include sampling_done and qc_passed
-- [ ] Golden-path transitions covered by automated tests
-- [ ] UAT: operations signs off on state names vs training deck
-- [ ] UAT: TP, TDO, and Driver can view current TO status and sub-states (§6.8.5 FR)
+- [ ] `TOStatus`, `TOSubState`, `TransportOrder.status`, `TransportOrder.sub_state`, and `TOStatusTransitionLog` match implementation spec v3.0
+- [ ] Current yard step visible on TO (`sub_state` badge in admin) and synced with timeline (AC-6 / YARD-01)
+- [ ] `TO_STATUS_TRANSITIONS` + driver rules enforce forward-only **canonical** status changes
+- [ ] Yard modules wired per integration matrix — no ad-hoc log writes; SC-01 scale-in + CC queue in same transaction
+- [ ] `maybe_clear_sub_state_on_status()` called when canonical status crosses reset boundary
+- [ ] Invalid canonical transition returns stable error with descriptive message
+- [ ] §6.8.6 halt/re-delivery deferred Phase 2 (no Sprint 4 trigger; schema extensible)
+- [ ] Migration extends execution statuses without data loss; existing TOs have `sub_state=""`
+- [ ] §6.8.1.7 Fleet Availability Validation on first driver execution action
+- [ ] Timeline and status GET APIs return `status`, `sub_state`, `flow_lane`
+- [ ] `TOStatusTransitionLogAdmin` + timeline inline on TO admin
+- [ ] Every TLS write audit-logged via timeline helpers (`source_module`, `notes`, `sub_state` when yard-only)
+- [ ] Automated tests: canonical status bumps (gate-in, scale-out) **and** sub_state-only paths (scale-in, CC assign, load start)
+- [ ] UAT: operations signs off on status + yard step labels vs training deck
+- [ ] UAT: TP, TDO, Driver view current status and sub_state (§6.8.5 FR)
