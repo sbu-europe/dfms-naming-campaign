@@ -4,7 +4,7 @@ specification: QC Operations — Raw-Material Sampling & Pass/Fail Decision (Spr
 version: 1.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-19
+last_updated: 2026-05-20
 related_stories: DFS-064 (QC-01)
 jira_epic: DFS-072
 ---
@@ -15,7 +15,9 @@ jira_epic: DFS-072
 
 The **QC Operations** specification covers the Sprint 4 raw-material quality checkpoint that sits between scale-in and unloading assignment for **RM inbound** Transport Orders.
 
-**Scope boundary**: QC Supervisor creates a sample and records a Pass or Fail decision. That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **Command Center Officer** assigns the unloading point (CC-01). QC Supervisor does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded.
+**Scope boundary**: The POI-scoped yard role **`qc_inspector_physical`** (`QC Inspector – Physical`, `SEED_ROLES`) performs sampling and Pass/Fail decisions when granted write permissions (see §1.1). That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **`command_center_officer`** assigns the unloading point (CC-01). QC does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded.
+
+There is **no** `qc_supervisor` role code in `apps/core/role_seed_data.py`. Supervisor-style actions (decide, resample, override) are gated by `Quality.QCCheckpoint.*` write permissions on `QCAdminBase`, not by a second seeded role.
 
 **Module path**: `apps/quality/checkpoint/`  
 **Dependencies**: `apps/operations/command_center/` (QueueEntry, BayAssignment), `apps/operations/scaling/` (WeighingSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), `apps/master_data/` (POI), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
@@ -39,8 +41,8 @@ Sprint 4 QC models (`QCSample`, `QCDecision`) live in `apps/quality/checkpoint/m
 Gate-In (GT-01)
   └─► Scale-In (SC-01) — QueueEntry created, requires_qc=True
         └─► CC flags for QC (CC-01) — no unloading point assigned yet
-              └─► QC Supervisor: Create Sample (QC-01)
-                    └─► QC Supervisor: Record Decision (QC-01)
+              └─► QC Inspector – Physical: Create Sample (QC-01)
+                    └─► QC Inspector – Physical (+ write perm): Record Decision (QC-01)
                           ├─► PASS: TO marked qc_passed=True → CC assigns unloading point (CC-01)
                           │           └─► Unloading starts (LD-01) → Scale-Out (SC-01) → Gate-Out (GT-01)
                           │
@@ -51,7 +53,7 @@ Gate-In (GT-01)
 **During unloading** (after CC assigns point and LD-01 starts):
 
 ```
-QC Supervisor can:
+User with `Quality.QCCheckpoint.Decision.Write` (typically `qc_inspector_physical` + write perm, or `gate_supervisor`) can:
   ├─► Trigger Resample → cancels active CC unloading assignment; TO returns to QC queue
   └─► Override to Failed → cancels active CC unloading assignment; gate-out blocked
 ```
@@ -61,7 +63,7 @@ QC Supervisor can:
 ## 1. Menu Structure & Navigation
 
 ```
-Sidebar (QC Supervisor / Inspector)
+Sidebar (`qc_inspector_physical` — QC Inspector – Physical)
 └── Quality
       └── QC Checkpoint
             ├── My Queue              — RM inbound TOs flagged for QC, awaiting sample / decision
@@ -74,12 +76,38 @@ Sidebar (QC Supervisor / Inspector)
 
 ### Role → menu mapping
 
-| Role | My Queue | Samples | Decisions |
-|------|:--------:|:-------:|:---------:|
-| QC Supervisor | ✓ (create, decide, resample, override) | ✓ | ✓ |
-| QC Inspector | ✓ (create sample only) | ✓ (read-only) | Read-only |
-| CC Officer | — | — | Read-only (to check pass status) |
-| Tenant Admin | — | Read-only | Read-only |
+Uses seeded role **codes** from `apps/core/role_seed_data.py` / `apps/users/yard_constants.POI_SCOPED_ROLE_CODES`. Capability within QC Checkpoint is split by **permission**, not by a second QC role.
+
+| Role code | Display name | My Queue | Samples | Decisions |
+|-----------|--------------|:--------:|:-------:|:---------:|
+| `qc_inspector_physical` + `Quality.QCCheckpoint.Decision.Write` | QC Inspector – Physical (write) | ✓ create, decide, resample, override | ✓ | ✓ |
+| `qc_inspector_physical` (read only) | QC Inspector – Physical | ✓ create sample only | ✓ read-only | Read-only |
+| `gate_supervisor` | Gate Supervisor | Read-only audit | Read-only | Read-only (+ override via `supervisor_role_codes`) |
+| `command_center_officer` | Command Center Officer | — | — | Read-only (pass status for CC-01) |
+| `tenant_admin` | Tenant Admin | — | Read-only | Read-only |
+
+### 1.1 RBAC — seeded role (`qc_inspector_physical`)
+
+| Field | Value |
+|-------|--------|
+| Role code | `qc_inspector_physical` |
+| Display name | QC Inspector – Physical |
+| Department | `PredefinedDepartment.QA_QC` |
+| POI-scoped | Yes — requires active `UserOperationalPOI` (YARD-01) |
+| Current seed menus | `MENU_DASHBOARD_VIEW`, `REQUISITION_TR_READ`, `MENU_QC_VIEW`, `MENU_REQUISITIONS_VIEW` |
+
+**Sprint 4 seed additions** (assign on `qc_inspector_physical` in `role_seed_data.py`; register codes in `constants_rbac.py`):
+
+| Permission | Typical grantee |
+|------------|-----------------|
+| `Quality.QCCheckpoint.Sample.Create` | `qc_inspector_physical` |
+| `Quality.QCCheckpoint.Read` | `qc_inspector_physical`, `command_center_officer`, transport planner / TDO roles as needed |
+| `Quality.QCCheckpoint.Decision.Write` | `qc_inspector_physical` (senior inspectors) **or** rely on `gate_supervisor` via `QCAdminBase.supervisor_role_codes` |
+| `Quality.QCCheckpoint.Resample` | Same as Decision.Write |
+| `Quality.QCCheckpoint.Override` | Same as Decision.Write |
+| `Menu.QC.Checkpoint.View` | `qc_inspector_physical` (replaces legacy `MENU_QC_VIEW` for yard checkpoint nav when portal block is enabled) |
+
+**Admin base** (`QCAdminBase`): `operator_role_code = "qc_inspector_physical"`; `supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})` — same pattern as `ScalingAdminBase` / `GateAdminBase`.
 
 ---
 
@@ -104,7 +132,7 @@ QCSample(TenantAwareModel) {
     remarks: text (nullable)
 
     sampled_at: DateTime (auto = timezone.now on create)
-    created_by: FK → User                    # QC Supervisor or Inspector
+    created_by: FK → User                    # qc_inspector_physical (or supervisor with write perm)
     created_at: DateTime
 }
 ```
@@ -132,7 +160,7 @@ QCDecision(TenantAwareModel) {
     # Set to False when resample triggered; the new cycle's decision becomes is_active=True
 
     decided_at: DateTime (auto = timezone.now on create)
-    decided_by: FK → User                  # QC Supervisor only
+    decided_by: FK → User                  # requires Quality.QCCheckpoint.Decision.Write
     remarks: text (nullable)               # required when decision = 'fail'
 }
 ```
@@ -227,7 +255,7 @@ def trigger_resample(
     - If active UnloadEvent (end_datetime is null): mark as cancelled_by_resample=True
     - QueueEntry.status = 'waiting', qc_passed=False  (back to CC queue, blocked)
     - Emits RESAMPLING_TRIGGERED → TLS-01 (sub_state='resampling')
-    - New QCSample + QCDecision cycle starts fresh (QC Supervisor must call create_sample again)
+    - New QCSample + QCDecision cycle starts fresh (qc_inspector_physical must call create_sample again)
     """
 ```
 
@@ -261,7 +289,7 @@ def override_to_failed(
 ### 4.1 Sample creation
 
 ```
-QC Supervisor opens QC Checkpoint → My Queue
+qc_inspector_physical opens QC Checkpoint → My Queue
   └─► Sees list of TOs: sub_state in ['flagged_for_qc', 'sampling_started'], same POI
         └─► Clicks row → QC Detail view
               ├─► Read-only context panel: TO Number, Vehicle, Product, Origin POI, Gross Weight
@@ -277,7 +305,7 @@ QC Supervisor opens QC Checkpoint → My Queue
 ### 4.2 Recording a decision
 
 ```
-QC Supervisor on QC Detail view (sample exists, no active decision)
+User with Decision.Write on QC Detail view (sample exists, no active decision)
   └─► [Record Decision] button
         ├─► Select: Sample (dropdown, pre-selected if only one)
         ├─► Decision: Pass / Fail (radio)
@@ -300,7 +328,7 @@ QC Supervisor on QC Detail view (sample exists, no active decision)
 ### 4.3 Resample (during active unloading)
 
 ```
-QC Supervisor on QC Detail view (decision='pass', unloading in progress)
+User with Decision.Write on QC Detail view (decision='pass', unloading in progress)
   └─► [Trigger Resample] button (only shown when BayAssignment is active)
         ├─► Confirmation modal: "This will cancel the active unloading assignment. Continue?"
         └─► Remarks: reason for resample (optional)
@@ -316,7 +344,7 @@ QC Supervisor on QC Detail view (decision='pass', unloading in progress)
 ### 4.4 Override to failed (during active unloading)
 
 ```
-QC Supervisor on QC Detail view (decision='pass', unloading in progress)
+User with Decision.Write on QC Detail view (decision='pass', unloading in progress)
   └─► [Override to Failed] button (only shown when BayAssignment is active)
         ├─► Confirmation modal: "This will cancel the active unloading assignment and set QC to Failed."
         └─► Remarks: reason (required)
@@ -368,16 +396,13 @@ from apps.operations.admin_base import YardAdminBase
 from apps.core.constants_rbac import PermissionCodes
 
 class QCAdminBase(YardAdminBase):
-    # "qc_inspector_physical" is the only seeded POI-scoped QC yard role (SEED_ROLES).
-    # There is no separate "qc_supervisor" role code — QC supervisor capability is
-    # distinguished by permission code (write_perm), not a separate role entry.
-    operator_role_code    = "qc_inspector_physical"   # matches SEED_ROLES / SYSTEM_ROLE_CODES
+    operator_role_code    = "qc_inspector_physical"   # SEED_ROLES / POI_SCOPED_ROLE_CODES
     supervisor_role_codes = frozenset({"gate_supervisor", "tenant_admin"})
-    read_perm  = PermissionCodes.OPERATIONS_GATE_ENTRY_READ   # replace with QC-specific perm once added
-    write_perm = PermissionCodes.OPERATIONS_GATE_ENTRY_CREATE
+    read_perm  = PermissionCodes.QUALITY_QC_CHECKPOINT_READ
+    write_perm = PermissionCodes.QUALITY_QC_CHECKPOINT_DECISION_WRITE
 ```
 
-**POI resolution**: `_scope_poi_id(request)` returns the QC supervisor's assigned POI. The `get_qc_poi_for_request(request)` helper referenced in the `formfield_for_foreignkey` examples below is replaced by `self._scope_poi_id(request)` (consistent with other yard admins). A dedicated `qc_poi.py` is **not needed** — `yard_poi.get_working_poi_for_request` covers this.
+**POI resolution**: `_scope_poi_id(request)` returns the inspector's assigned POI via `UserOperationalPOI` for `qc_inspector_physical`. The `get_qc_poi_for_request(request)` helper referenced in the `formfield_for_foreignkey` examples below is replaced by `self._scope_poi_id(request)` (consistent with other yard admins). A dedicated `qc_poi.py` is **not needed** — `yard_poi.get_working_poi_for_request` covers this.
 
 **`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED]` so that only actionable items appear.
 
@@ -385,7 +410,7 @@ class QCAdminBase(YardAdminBase):
 
 ### 5.2 QCSampleAdmin (QC-01-2)
 
-Uses `QCAdminBase` (→ `YardAdminBase`). Accessible to QC Supervisor and QC Inspector.
+Uses `QCAdminBase` (→ `YardAdminBase`). Add allowed for `qc_inspector_physical` (and supervisors). Edit blocked (`has_change_permission=False`).
 
 **Change Form**:
 - `transport_order`: autocomplete, **queryset restricted** in `formfield_for_foreignkey`:
@@ -458,7 +483,7 @@ def save_model(self, request, obj, form, change):
 
 ### 5.3 QCDecisionAdmin (QC-01-3)
 
-Uses `QCAdminBase` (→ `YardAdminBase`). Accessible to **QC Supervisor only** (not Inspector).
+Uses `QCAdminBase` (→ `YardAdminBase`). Add / resample / override require `write_perm` (`Quality.QCCheckpoint.Decision.Write` or `gate_supervisor`). Read-only list for inspectors without write.
 
 **Change Form**:
 - `qc_sample`: autocomplete, **queryset restricted** — only samples whose TO has no active `QCDecision`:
@@ -690,21 +715,47 @@ All events include `transport_order_id`, `poi_id`, `actor_id`, `timestamp`.
 
 ## 10. Permissions (RBAC)
 
-Permission codes (add to `apps/core/constants_rbac.py`):
+Permission codes (add to `apps/core/constants_rbac.py` as `PermissionCodes` constants, e.g. `QUALITY_QC_CHECKPOINT_READ`):
 
 ```python
-Quality.QCCheckpoint.Sample.Create    # QC Supervisor, QC Inspector
-Quality.QCCheckpoint.Decision.Write   # QC Supervisor only
-Quality.QCCheckpoint.Resample         # QC Supervisor only
-Quality.QCCheckpoint.Override         # QC Supervisor only
-Quality.QCCheckpoint.Read             # QC Supervisor, QC Inspector, CC Officer, TP, TDO
+Quality.QCCheckpoint.Sample.Create    # qc_inspector_physical
+Quality.QCCheckpoint.Decision.Write   # qc_inspector_physical (+ write grant) or gate_supervisor
+Quality.QCCheckpoint.Resample         # same as Decision.Write
+Quality.QCCheckpoint.Override         # same as Decision.Write
+Quality.QCCheckpoint.Read             # qc_inspector_physical, command_center_officer, TP, TDO
 ```
 
-Menu code (add to `apps/core/portal_navigation.py`):
+**`role_seed_data.py`** — extend the existing `qc_inspector_physical` tuple (do not add a new QC role):
 
 ```python
-Menu.QC.Checkpoint.View
-Menu.QC.Checkpoint.Queue.View
+(
+    "qc_inspector_physical",
+    "QC Inspector – Physical",
+    PredefinedDepartment.QA_QC,
+    [
+        # existing
+        PermissionCodes.MENU_DASHBOARD_VIEW,
+        PermissionCodes.REQUISITION_TR_READ,
+        PermissionCodes.MENU_QC_VIEW,
+        PermissionCodes.MENU_REQUISITIONS_VIEW,
+        # QC-01 additions
+        PermissionCodes.MENU_QC_CHECKPOINT_VIEW,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_READ,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_SAMPLE_CREATE,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_DECISION_WRITE,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_RESAMPLE,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_OVERRIDE,
+    ],
+),
+```
+
+Grant **Decision.Write / Resample / Override** only on tenants where every physical inspector may decide; otherwise omit those three from seed and rely on `gate_supervisor` + `QCAdminBase.supervisor_role_codes` for Pass/Fail and during-unloading actions.
+
+Menu codes (add to `apps/core/portal_navigation.py` under **Quality → QC Checkpoint**):
+
+```python
+Menu.QC.Checkpoint.View          # qc_inspector_physical
+Menu.QC.Checkpoint.Queue.View    # qc_inspector_physical
 ```
 
 ---
@@ -729,8 +780,9 @@ Menu.QC.Checkpoint.Queue.View
 | QC-01-12 | TLS-01 event emission | 5 event types (§8); called from service, not admin |
 | QC-01-13 | CC-01 / LD-01 cancellation integration | `CCService.cancel_bay_assignment()` called from QCService; `UnloadEvent.cancelled_by_resample` flag set |
 | QC-01-14 | YARD-01 integration | `QCAdminBase`→`YardAdminBase`; `yard_poi.get_working_poi_for_request` (no dedicated `qc_poi.py`); `QueueEntry.qc_passed` set on Pass |
+| QC-01-15 | RBAC seed | Add QC checkpoint permissions to `qc_inspector_physical` in `role_seed_data.py`; register permission catalog entries; enable portal nav for `Menu.QC.Checkpoint.View` |
 
 ---
 
-**Last Updated**: 2026-05-19  
+**Last Updated**: 2026-05-20  
 **Related Modules**: [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md)
