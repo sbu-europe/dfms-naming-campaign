@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
-version: 3.0
+version: 3.1
 phase: Phase 1
 sprint: Sprint 4
 last_updated: 2026-05-20
-changelog: "v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
+changelog: "v3.1 — POD-01: Transport Planner triggers closed status after verifying TO details; prerequisite refresh on yard/POD events (no system auto-close). v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
 related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
@@ -17,7 +17,7 @@ jira_epic: DFS-075
 This specification covers three interconnected capabilities for Transport Order execution:
 
 1. **TLS-01 — TO Lifecycle & Timeline**: Canonical `TransportOrder.status`, yard `sub_state`, transition log, driver state machine
-2. **POD-01 — TO Closure & POD Linkage**: Lane-aware closure rule engine, auto-close trigger, exceptions list, manual close guard
+2. **POD-01 — TO Closure & POD Linkage**: Lane-aware closure rule engine, **Transport Planner–triggered close** after TO verification, exceptions list, force-close guard
 3. **QC-01 — TLS/POD integration only**: How RM inbound QC events write to the timeline and feed closure gates (full QC spec is separate)
 
 **Architecture (Sprint 4 authoritative):**
@@ -27,7 +27,7 @@ This specification covers three interconnected capabilities for Transport Order 
 - **Lane key** is `TransportOrder.flow_lane` (`fg_outbound` | `fg_inbound` | `rm_inbound`), not `flow_type`.
 - Yard modules write TLS events **directly** via `timeline_service` helpers — there is no central `event_ingest.py` facade.
 
-The closure engine evaluates flow-specific gates and transitions TOs to `closed` only when prerequisites are met. RM inbound QC is triggered by Command Center (CC-01); QC Pass unblocks CC unloading assignment and contributes to closure.
+The closure engine evaluates flow-specific gates before any close attempt. **`closed` is set only when a Transport Planner (TP) explicitly triggers closure** after reviewing the TO timeline, closure checklist, POD, and lane-specific yard/QC records. RM inbound QC is triggered by Command Center (CC-01); QC Pass unblocks CC unloading assignment and is a prerequisite TP must verify before closing.
 
 **Module paths**:
 
@@ -63,7 +63,7 @@ Sidebar (Transport Planner / TDO)
       └── Transport Orders
             └── TO Detail (existing)
                   ├── Timeline Tab (TLS-01)       — execution timeline from TOStatusTransitionLog
-                  ├── Closure Checklist (POD-01)  — lane-aware prerequisite widget
+                  ├── Closure Checklist (POD-01)  — lane-aware prerequisites; TP verifies then triggers close
                   └── POD Section (POD-01)        — POD preview (DM-01 ProofOfDelivery)
 
 Sidebar (qc_inspector_physical — QC Inspector – Physical)
@@ -176,7 +176,7 @@ Authoritative yard progression is in [gate-operations-sprint4.md §4.5](../06-po
 | Scale-out (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
 | Gate-out (GT-01) | `sub_state`: `gate_out_source` or `gate_out_destination` | same | same |
 | Driver POD (DM-01) | → `completed` (when business rules met) | same | same |
-| Closure (POD-01) | → `closed` | same | same (RM: only if QC Pass) |
+| Closure (POD-01) | → `closed` (**TP triggers** after verification) | same | same (RM: TP verifies QC Pass) |
 
 **GT-02 on-demand:** Dealer DO → `at_source`; Supplier PO → `at_destination` in the same transaction as gate-in (skips driver in-transit steps).
 
@@ -323,7 +323,7 @@ Yard modules call timeline helpers **in the same `atomic()` block** as their dom
 | **QC-01** override fail | `QCService.override_to_failed` | — | `qc_failed` | `quality` |
 | **DM-01** driver in-transit | driver transition service | → `in_transit_*` | — | `driver` |
 | **DM-01** POD | POD submit handler | → `completed` (when rules met) | — | `driver` |
-| **POD-01** closure | `close_transport_order` | → `closed` | clear sub_state | `closure` |
+| **POD-01** closure | `close_transport_order` (**TP action**) | → `closed` | clear sub_state | `closure` (actor = TP user) |
 
 **Transactional requirements:**
 
@@ -384,11 +384,13 @@ Defined in DM-01 (`ProofOfDelivery` / driver POD API). On submit:
 
 1. Create POD record
 2. Advance TO to `completed` when lane rules allow
-3. Call `evaluate_closure_conditions()` → may auto-close to `closed`
+3. Call `refresh_closure_checklist()` (recompute prerequisite flags only — **does not** transition to `closed`)
+
+**Who closes:** Transport Planner reviews the TO (timeline, checklist, POD, yard/QC domain rows) and **triggers** `closed` via admin action or `POST .../close` when all lane gates pass.
 
 ### 2.2 ClosureRuleEngine (`apps/transport/closure/closure_engine.py`)
 
-**Current code (May 2026):** minimal path — auto-close `completed` → `closed` when POD exists. **Target (this spec):** full lane matrices below.
+**Current code (May 2026):** minimal path — auto-close `completed` → `closed` when POD exists (to be replaced). **Target (this spec):** full lane matrices; **TP-triggered close only** (no system auto-close).
 
 Lane-aware evaluation keyed on `transport_order.flow_lane`:
 
@@ -422,9 +424,19 @@ def evaluate_closure(transport_order) -> tuple[bool, str | None]:
     ...
 ```
 
-### 2.4 Auto-close trigger
+### 2.4 Closure trigger — Transport Planner
 
-Call `evaluate_closure_conditions()` after any closure-relevant action:
+**Responsible role:** **Transport Planner (TP)** — not the driver, yard operators, or TDO.
+
+**TP workflow:**
+
+1. TO reaches `completed` (typically after driver POD and yard execution).
+2. TP opens TO detail → **Closure Checklist** tab and **Timeline** tab; reviews POD section, lane matrix flags, and any RM QC outcome.
+3. TP confirms operational details match expectations (load/unload timestamps, scale-out, gate-out, POD artifact, QC pass for `rm_inbound`).
+4. TP triggers close (`[Close TO]` in admin or `POST /api/v1/transport-orders/{to_id}/close`).
+5. System runs `refresh_closure_checklist()` + `evaluate_closure()`; on success → `completed` → `closed` with `source_module=closure` and **actor = TP user**; on failure → 422 with `closure_block_reason` (TO stays `completed`).
+
+**Prerequisite refresh (system, not close):** After closure-relevant yard/POD events, call `refresh_closure_checklist()` only so the checklist UI stays current:
 
 - POD submission (DM-01)
 - Gate-out (GT-01)
@@ -435,16 +447,16 @@ Call `evaluate_closure_conditions()` after any closure-relevant action:
 **Status path to closed:**
 
 ```
-delivered_unloaded → (driver POD) → completed → (all gates pass) → closed
+delivered_unloaded → (driver POD) → completed → (TP verifies all details + triggers close) → closed
 ```
 
-Manual close uses the same gate evaluation; force-close requires override reason + audit log.
+**Force close** (`Transport.TO.ForceClose`): override when TP (or delegated admin) must close despite a failed gate; requires override reason + audit log.
 
 ### 2.5 Admin & API
 
-**ClosureExceptionsAdmin**: changelist where `closure_eligible = False`.
+**ClosureExceptionsAdmin**: changelist where `closure_eligible = False` — TOs awaiting TP review or blocked by unmet prerequisites.
 
-**Manual close / force close**: `Transport.TO.Close` / `Transport.TO.ForceClose` permissions.
+**Close / force close**: `Transport.TO.Close` (TP) / `Transport.TO.ForceClose` (override).
 
 **Closure exceptions API** — `GET /api/v1/transport-orders/closure-exceptions`:
 
@@ -458,7 +470,7 @@ Manual close uses the same gate evaluation; force-close requires override reason
 | POD-01-1 | `ClosureChecklist` model + migration |
 | POD-01-2 | `CLOSURE_MATRICES` + `evaluate_closure()` |
 | POD-01-3 | `refresh_closure_checklist()` from yard domain rows (§2.3) |
-| POD-01-4 | Auto-close hook on prerequisite fulfillment |
+| POD-01-4 | Checklist refresh hook on prerequisite events; **no** system auto-close |
 | POD-01-5–7 | Per-lane matrix tests |
 | POD-01-8 | Exceptions admin changelist |
 | POD-01-9 | Manual + force close admin actions |
@@ -561,7 +573,7 @@ Planner/TDO endpoints are **not** POI-filtered. Yard modules should not use this
 ```http
 POST   /api/v1/transport-orders/{to_id}/close
        → Body: { force: false, override_reason: "..." }
-       → Evaluates refresh_closure_checklist() + CLOSURE_MATRICES
+       → **TP only** (Transport.TO.Close); evaluates refresh_closure_checklist() + CLOSURE_MATRICES; transitions to closed on success
 
 GET    /api/v1/transport-orders/{to_id}/closure-status
        → Response: { flow_lane, closure_eligible, closure_block_reason, prerequisites: {...} }
@@ -575,7 +587,7 @@ GET    /api/v1/transport-orders/closure-exceptions?flow_lane=&poi_id=
 ```http
 POST   /api/v1/driver/transport-orders/{to_id}/pod/
        → Side effects: ProofOfDelivery created; status → completed when eligible;
-         evaluate_closure_conditions()
+         refresh_closure_checklist() (TP closes later)
 ```
 
 ---
@@ -591,7 +603,12 @@ POST   /api/v1/driver/transport-orders/{to_id}/pod/
 
 ### 5.2 Closure
 
-See §2.2–2.4. RM inbound cannot close with active `QCDecision.decision = 'fail'`.
+See §2.2–2.4.
+
+- **Transport Planner** is responsible for triggering `closed` after verifying TO timeline, closure checklist, POD, and lane-specific yard/QC records.
+- TDO and yard roles may **view** closure status but do **not** trigger close.
+- System refreshes checklist flags on prerequisite events; it does **not** auto-close without a TP close action.
+- RM inbound cannot close with active `QCDecision.decision = 'fail'` (TP close attempt returns blocking reason).
 
 ### 5.3 QC (summary)
 
@@ -658,6 +675,10 @@ Menu.QC.Checkpoint.View
 
 **command_center_officer:** `Transport.TO.Timeline.Read`, `Quality.QCCheckpoint.Read` (read-only QC status).
 
+**transport_planner:** `Transport.TO.Close`, `Transport.TO.Timeline.Read`, `Transport.POD.Read` — **only role that triggers TO close** after verification (§2.4).
+
+**tdo:** `Transport.TO.Timeline.Read`, `Transport.POD.Read` — read-only; no `Transport.TO.Close`.
+
 ---
 
 ## 8. Reports & KPIs (Phase 2)
@@ -688,11 +709,11 @@ Terminal module for Sprint 4 execution — no further modules depend on TLS/POD 
 | Story | Scope | Implementation focus |
 |-------|-------|---------------------|
 | **TLS-01** | Lifecycle + timeline | `status` + `sub_state` model; `timeline_service`; driver `state_machine`; §1.6 yard wiring; timeline API + admin |
-| **POD-01** | Closure | `ClosureChecklist`; `refresh_closure_checklist` from yard rows; auto-close; exceptions admin/API |
+| **POD-01** | Closure | `ClosureChecklist`; `refresh_closure_checklist` from yard rows; **TP-triggered close**; exceptions admin/API |
 | **QC-01** | RM QC | **Implement from** [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md); TLS integration per §3 here |
 
 ---
 
 **Last Updated**: 2026-05-20  
-**Version**: 3.0  
+**Version**: 3.1  
 **Related Modules**: [gate-operations-sprint4.md](../06-poi-operations/gate-operations-sprint4.md), [scaling-operations-sprint4.md](../06-poi-operations/scaling-operations-sprint4.md), [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md), [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md), [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-implementation.md), [driver-interface-sprint4.md](../03-users/driver-interface-sprint4.md), [driver-supervisor-operations.md](../08-fleet-management/driver-supervisor-operations.md)
