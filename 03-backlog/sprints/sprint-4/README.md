@@ -110,7 +110,7 @@ Wave E — Closure
 
 | #   | Story                                                                                          | Task ID | Jira    | SP  | Status  |
 | --- | ---------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [Yard foundation — operator site assignment & shared rules](09-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | YARD-01 | DFS-065 | 8   | Pending |
+| 1   | [Yard foundation — operator site assignment & shared rules](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | YARD-01 | DFS-065 | 8   | Pending |
 
 
 **Sub-total**: 8 SP
@@ -322,7 +322,7 @@ Use this as the canonical entry point for everything under `03-backlog/sprints/s
   - [DM-01 — Driver TO list, milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md)
 
 - **Yard foundation**
-  - [YARD-01 — Yard foundation (operator site & shared rules)](09-yard-foundation/YARD-01-poi-scoped-yard-platform.md)
+  - [YARD-01 — Yard foundation (operator site & shared rules)](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)
 
 - **Gate**
   - [GT-01 — Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md)
