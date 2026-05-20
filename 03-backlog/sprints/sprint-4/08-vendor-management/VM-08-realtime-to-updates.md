@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Real-time TO Updates in Vendor Portal (Assigned/Completed/Closed)
 epic: Vendor Portal & Operations
 status: Pending
-story_points: ~
+story_points: 5
 assignee: ~
 ---
 
@@ -41,13 +41,17 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 - [ ] **[Critical]** System SHALL provide real-time TO updates to vendor portal.
 - [ ] **[Critical]** Vendor SHALL not modify TO status directly.
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-08-1 | TO status event stream definition (Assigned/Completed/Closed) | ~ | Pending |
-| VM-08-2 | Vendor portal update mechanism (polling/websocket) | ~ | Pending |
-| VM-08-3 | Permission enforcement: vendor read-only on TO status | ~ | Pending |
+| VM-08-1 | Vendor-scoped TO queryset — only TOs assigned/allotted to vendor via contractual path or bid award (VM-02/VM-06/TEVF-01) | ~ | Pending |
+| VM-08-2 | `GET /api/v1/vendor/transport-orders` + `GET .../{to_id}` — include status (`Assigned` / `Completed` / `Closed` per product enum) | ~ | Pending |
+| VM-08-3 | `GET .../updates?since=` — cursor / timestamp delta for **near-real-time** polling client | ~ | Pending |
+| VM-08-4 | Optional **WebSocket/SSE** channel — push TO status change events to Vendor Mobile | ~ | Pending |
+| VM-08-5 | Emit domain events on TO lifecycle transitions consumed by vendor channel | ~ | Pending |
+| VM-08-6 | Authorisation — vendor **read-only** on status; reject mutating verbs on vendor TO status | ~ | Pending |
+| VM-08-7 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | ~ | Pending |
 
 ## API Endpoints (suggested)
 

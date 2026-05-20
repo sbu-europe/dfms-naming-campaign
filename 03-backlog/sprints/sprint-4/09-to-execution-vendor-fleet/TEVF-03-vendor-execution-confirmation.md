@@ -3,6 +3,7 @@ jira_key: ~
 jira_type: Feature-context
 jira_sprint: "Sprint 4"
 title: "Vendor Execution & Confirmation"
+story_points: 3
 version: "1.0"
 phase: "Phase 1"
 status: Draft
@@ -49,10 +50,21 @@ Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-
 | **Critical** | System **SHALL** notify winning / assigned vendors (in-app minimum in Phase 1; extend per notification roadmap). |
 | **Critical** | System **SHALL** allow vendor to submit **POD**, **GRN**, and **Invoice only after the trip/TO has reached `COMPLETED`**; uploads of any of the three before that state MUST be rejected (per VM-07). |
 
+## Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| TEVF-03-1 | **Phase 1 notifications** — in-app (+ email where wired) when vendor is assigned or award is finalized; defer full multi-channel to roadmap | ~ | Pending |
+| TEVF-03-2 | **VM-07** — requirement surface + `POST` / `PATCH` vehicle–driver confirmation; trip-start gate; substitution visibility | ~ | Pending |
+| TEVF-03-3 | **VM-07** — `POST .../documents` for POD / GRN / INVOICE with **Completed-only** gate + tenant policy on top | ~ | Pending |
+| TEVF-03-4 | **VM-08** — vendor TO list + delta / `since` polling or push; statuses Assigned / Completed / Closed | ~ | Pending |
+| TEVF-03-5 | **Cross-flow docs** — distinguish driver POD (DM-01 / POD-01, closure gate) vs vendor record-copy POD after Completed | ~ | Pending |
+| TEVF-03-6 | **Contractual path** — ensure vendor assignment UI never exposes resolved contractual rate (TEVF-01 + VM-03) | ~ | Pending |
+
 ## Traceability
 
 | Topic | Owner |
 |-------|--------|
-| Confirmation payload, updates with reason, POD/GRN/invoice | VM-08 |
-| TO status visibility to vendor | VM-09 |
-| Contractual rate hidden from vendor | TEVF-01 + VM-04 visibility |
+| Confirmation payload, updates with reason, POD/GRN/invoice | VM-07 |
+| TO status visibility to vendor | VM-08 |
+| Contractual rate hidden from vendor | TEVF-01 + VM-03 visibility |

@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Vendor Mobile Onboarding — Self-Registration, Tenant Isolation, Compliance Docs & Company Profile
 epic: Vendor Onboarding & Verification
 status: Pending
-story_points: ~
+story_points: 8
 assignee: ~
 ---
 
@@ -117,16 +117,18 @@ PATCH  /api/v1/vendors/registrations/{id}
 - Per-tenant membership (VM-02): `vendor_type` ∈ {`CONTRACTUAL`, `NON_CONTRACTUAL`} — set only by Tenant Admin on join approval
 - Registration/profile schema must **exclude** vendor-managed vehicle/driver master payloads (aligned with VM-07 for execution-time capture)
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| ONB-1 | Vendor registration API + mobile client validation | ~ | Pending |
-| ONB-2 | Registration API excludes vendor type (tenant assigns on join — VM-02) | ~ | Pending |
-| ONB-3 | Registration audit log events | ~ | Pending |
-| ONB-4 | Document upload storage + validation (required docs) | ~ | Pending |
-| ONB-5 | Registration profile schema (company, contacts, testimonial, documents) — **exclude** vehicle/driver master payloads | ~ | Pending |
-| ONB-6 | Audit logging for document/profile changes + resubmissions | ~ | Pending |
+| VM-01-1 | Vendor identity / pre-user model + auth hook for self-registration | ~ | Pending |
+| VM-01-2 | `POST/GET /api/v1/vendors/registrations` — create + retrieve registration; server validation mirrors mobile required fields | ~ | Pending |
+| VM-01-3 | Registration payload **excludes** `vendor_type` (tenant assigns on join — VM-02) | ~ | Pending |
+| VM-01-4 | `POST /api/v1/vendors/registrations/{id}/documents` — Trade License, BIN, TIN mandatory before first complete submit; storage + MIME/size policy | ~ | Pending |
+| VM-01-5 | `PATCH /api/v1/vendors/registrations/{id}` — company + contacts + testimonial; resubmission-friendly versioning / history | ~ | Pending |
+| VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | Pending |
+| VM-01-7 | Audit: registration attempts (who/when/outcome) + structured audit for document/profile mutations | ~ | Pending |
+| VM-01-8 | Post-registration: vendor **platform-active** state; surface **active tenants** + join-request entry (handoff to VM-02) | ~ | Pending |
 
 ## Dependencies
 

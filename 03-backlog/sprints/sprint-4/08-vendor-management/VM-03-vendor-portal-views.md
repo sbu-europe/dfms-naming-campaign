@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Vendor Portal Views (Active Bids/Active Trips/Completed Trips) + Visibility Rules
 epic: Vendor Portal & Operations
 status: Pending
-story_points: ~
+story_points: 5
 assignee: ~
 ---
 
@@ -56,16 +56,18 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 
 - [ ] **[Critical]** System SHALL allow eligible vendors to view the bidding list when bids are published.
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-03-1 | Vendor portal access control middleware (approved only) | ~ | Pending |
-| VM-03-2 | Active tenants list API | ~ | Pending |
-| VM-03-3 | Joined tenants list API (with status) | ~ | Pending |
-| VM-03-4 | Active bids list API (scoped to joined tenants) | ~ | Pending |
-| VM-03-5 | Active trips list API (scoped to joined tenants) | ~ | Pending |
-| VM-03-6 | Completed trips list API (scoped to joined tenants) | ~ | Pending |
+| VM-03-1 | Vendor portal access guard — completed onboarding (VM-01) + **≥1** `APPROVED` membership (VM-02) | ~ | Pending |
+| VM-03-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — active tenant directory (reuse VM-02-2 contract) | ~ | Pending |
+| VM-03-3 | `GET /api/v1/vendor/tenants/joined` — per-tenant `join_status` + `vendor_type` for gating | ~ | Pending |
+| VM-03-4 | `GET /api/v1/vendor/bids?status=ACTIVE` — **NON_CONTRACTUAL** + `APPROVED` tenant + published/open sessions (VM-04) | ~ | Pending |
+| VM-03-5 | `GET /api/v1/vendor/trips?status=ACTIVE` — scoped to `APPROVED` tenants; **CONTRACTUAL** sees assigned/execution TOs; **NON_CONTRACTUAL** post-award trips | ~ | Pending |
+| VM-03-6 | `GET /api/v1/vendor/trips?status=COMPLETED` — same tenant + type rules as active trips | ~ | Pending |
+| VM-03-7 | Vendor Mobile — tab/list UX for Active Bids / Active Trips / Completed Trips + empty states when gated out | ~ | Pending |
+| VM-03-8 | Integration tests — vendor **A** `NON_CONTRACTUAL`@T1 + **CONTRACTUAL**@T2 sees correct independent surfaces | ~ | Pending |
 
 ## API Endpoints (suggested)
 

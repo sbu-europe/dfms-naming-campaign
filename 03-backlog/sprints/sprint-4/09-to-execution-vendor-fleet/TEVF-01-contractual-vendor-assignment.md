@@ -3,6 +3,7 @@ jira_key: ~
 jira_type: Feature-context
 jira_sprint: "Sprint 4"
 title: "Contractual Vendor Assignment (TDO – Vendor Fleet)"
+story_points: 3
 version: "1.0"
 phase: "Phase 1"
 status: Draft
@@ -41,14 +42,27 @@ last_updated: 2026-05-12
 | **Critical** | System **SHALL** allow assignment of TOs to contractual vendors (TDO – Vendor Fleet). |
 | **Critical** | System **SHALL** hide contractual **price rates** from the **contractual vendor** portal view (show assignment and operational context without exposing rate). |
 
+## Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| TEVF-01-1 | Product rules — TO flag / filter for **contractual-eligible** TOs in TDO – Vendor Fleet UI (align tenant policy) | ~ | Pending |
+| TEVF-01-2 | Assignment persistence — TO↔vendor link(s) with **capacity split** / multi-vendor rows; FK integrity vs `required_vehicle_count` | ~ | Pending |
+| TEVF-01-3 | Contractual **rate resolution** service — read-only to vendor; source = rate tables / contract backend (no vendor edit endpoint) | ~ | Pending |
+| TEVF-01-4 | TDO assign API — e.g. `POST /api/v1/tdo/transport-orders/{to_id}/contractual-assignments` with vendor allocation payload; guard **membership `vendor_type=CONTRACTUAL`** (VM-02) | ~ | Pending |
+| TEVF-01-5 | Vendor portal + mobile — assigned TO detail **omits** rate fields; show operational context only (extends VM-03 visibility) | ~ | Pending |
+| TEVF-01-6 | TO status transitions + audit — assign/reassign actor, timestamp, vendors, quantities | ~ | Pending |
+| TEVF-01-7 | Handoff to execution — trigger VM-07 confirmation requirement + VM-08 status stream for assigned vendor | ~ | Pending |
+
 ## Implementation traceability
 
 | Concern | Story / note |
 |---------|--------------|
-| Vendor marked contractual per tenant | VM-03 |
-| Vendor sees assigned TO without rate | VM-04 visibility rules; extend with “hide rate” for contractual |
-| Post-assignment vehicle/driver + documents | VM-08 |
-| TO status visibility | VM-09 |
+| Vendor marked contractual per tenant | VM-02 |
+| Vendor portal lists + gating | VM-03 |
+| Vendor sees assigned TO without rate | VM-03 + TEVF-01 serializers / mobile DTOs omit rate |
+| Post-assignment vehicle/driver + documents | VM-07 |
+| TO status visibility | VM-08 |
 
 ## Out of scope (Phase 1 clarification)
 

@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: TDO Publish TO to Bidding Portal (deadline + eligibility + notify)
 epic: TDO Bid Evaluation
 status: Pending
-story_points: ~
+story_points: 8
 assignee: ~
 ---
 
@@ -78,6 +78,22 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 - [ ] On publish, system notifies eligible vendors (in-app + email/SMS where applicable)
 - [ ] System sends reminder notifications before deadline (recommended: 1 hour prior)
 - [ ] System notifies TDO on new bid submission events (from VM-05)
+
+## Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| VM-04-1 | `BiddingSession` (or equivalent) model — FK TO, window (`bid_open_date`, `bid_close_date`), immutable publish params, session status enum | ~ | Pending |
+| VM-04-2 | Publish pre-checks — TO status (e.g. `PLANNED`), data completeness (route, pickup, vehicle type/capacity, `required_vehicle_count`), no duplicate active session | ~ | Pending |
+| VM-04-3 | `POST .../bidding/publish` — persist params; transition TO → `OPEN_FOR_BIDDING` (or product enum); `bid_open_date` default now; **deadline policy** min 2h / max 7d | ~ | Pending |
+| VM-04-4 | Eligibility resolver — `APPROVED` membership + **NON_CONTRACTUAL** for tenant + optional rating floor + blacklist hook (Phase 1: no fleet pre-filter) | ~ | Pending |
+| VM-04-5 | Auto-close job / scheduler — at `bid_close_date` close session; hard-block late bids (VM-05) | ~ | Pending |
+| VM-04-6 | `PATCH .../bidding/window` — timeline-only edits; **open** immutable after session opens; close shrink/extend rules + max extension count (config default 2) | ~ | Pending |
+| VM-04-7 | `POST .../bidding/cancel` — required reason; terminate session + invalidate in-flight bids per cancel policy; audit | ~ | Pending |
+| VM-04-8 | Cancel + republish flow — document + implement as only path for non-timeline param changes | ~ | Pending |
+| VM-04-9 | Notifications — publish blast to eligible vendors; 1h reminder; wire **TDO new bid** event (VM-05) | ~ | Pending |
+| VM-04-10 | Audit — publish payload; each window update with **before/after** open/close; cancel reason; `BIDDING_WINDOW_UPDATED` event | ~ | Pending |
+| VM-04-11 | TDO UI — publish form + active session dashboard (bid counts) + window editor + cancel | ~ | Pending |
 
 ## Suggested API Endpoints
 

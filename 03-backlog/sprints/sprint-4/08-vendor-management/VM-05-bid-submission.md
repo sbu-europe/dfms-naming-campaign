@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
 epic: Vendor Portal & Operations
 status: Pending
-story_points: ~
+story_points: 6
 assignee: ~
 ---
 
@@ -75,15 +75,19 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 - [ ] **[High]** System SHALL prevent bid submission after window closure.
 - [ ] **[High]** Bids MAY be manually closed or cancelled without awarding.
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | Bid submission API + validation (rate, **offered_vehicle_count**, optional remarks) | ~ | Pending |
-| VM-05-2 | Bid window enforcement (server-side) | ~ | Pending |
-| VM-05-3 | Store bid timestamp + validity window metadata | ~ | Pending |
-| VM-05-4 | Withdraw endpoint (if policy) + audit events — **no bid PATCH after submit** | ~ | Pending |
-| VM-05-5 | Close/cancel bid controls (admin/TDO side) | ~ | Pending |
+| VM-05-1 | `Bid` model — FK session + vendor; `proposed_cost`, `offered_vehicle_count`, `remarks`, `status`, immutable after `SUBMITTED` | ~ | Pending |
+| VM-05-2 | `POST .../bids` — membership + **NON_CONTRACTUAL** guard; **one bid per vendor per session**; numeric validations; cap `offered_vehicle_count` vs TO demand | ~ | Pending |
+| VM-05-3 | Window enforcement — compare server time to **effective** `bid_close_date` / `bid_open_date` (post VM-04 window shifts) | ~ | Pending |
+| VM-05-4 | Record `submitted_at` + snapshot of validity window / session times for audit | ~ | Pending |
+| VM-05-5 | `GET .../bids/{bid_id}` — vendor read own bid; TDO list/detail in VM-06 | ~ | Pending |
+| VM-05-6 | `DELETE .../bids/{bid_id}` (withdraw) — tenant policy flag; before close only; status `WITHDRAWN`; no field mutation | ~ | Pending |
+| VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | Pending |
+| VM-05-8 | Notifications — vendor confirmation; **TDO new bid** (in-app + optional email) per AC-7 | ~ | Pending |
+| VM-05-9 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | Pending |
 
 ## API Endpoints (suggested)
 

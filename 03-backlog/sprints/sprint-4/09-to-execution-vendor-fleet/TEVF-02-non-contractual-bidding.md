@@ -3,6 +3,7 @@ jira_key: ~
 jira_type: Feature-context
 jira_sprint: "Sprint 4"
 title: "Non-Contractual Vendor (Bidding Workflow)"
+story_points: 3
 version: "1.0"
 phase: "Phase 1"
 status: Draft
@@ -48,6 +49,18 @@ Non-contractual vendors (**VM-02** membership type) participate via a **publishe
 | **Critical** | Vendor **SHALL** submit **price** and **vehicle count** (capacity offered) for the bid. |
 | **Critical** | System **SHALL** restrict TDO post-publish edits to the **bidding window timeline (open and/or close date+time)** only. All other publish parameters **SHALL** be immutable post-publish; any other change requires **cancel + republish**. |
 | **High** | System **SHALL** allow TDO to select **winning vendor(s)** per operational preference (including multi-vendor outcomes where supported). |
+
+## Sub-tasks
+
+| # | Sub-task | Jira | Status |
+|---|----------|------|--------|
+| TEVF-02-1 | **Publish** — VM-04: session create, TO → open bidding, immutable non-timeline params, deadline policy, eligibility (join + non-contractual) | ~ | Pending |
+| TEVF-02-2 | **Window lifecycle** — VM-04: `PATCH` timeline-only rules, shrink/extend limits, auto-close scheduler, cancel + republish path | ~ | Pending |
+| TEVF-02-3 | **Vendor bid** — VM-05: structured payload (rate + `offered_vehicle_count`), immutability, window enforcement, optional withdraw, TDO notifications | ~ | Pending |
+| TEVF-02-4 | **Evaluation & award** — VM-06: compare/sort, multi-vendor award math, winning log, reject-all, terminal bid states | ~ | Pending |
+| TEVF-02-5 | **Notifications & audit** — publish/close/award/reject-all events; bid timestamp evidence chain | ~ | Pending |
+| TEVF-02-6 | **Execution handoff** — post-award vendor sees outcome + enters VM-07 / VM-08 tracks (TEVF-03 umbrella) | ~ | Pending |
+| TEVF-02-7 | **E2E validation** — scripted journey publish → N bids → window update → award/reject-all; align with [TESTING-FLOW.md](TESTING-FLOW.md) | ~ | Pending |
 
 ## Traceability to VM stories
 

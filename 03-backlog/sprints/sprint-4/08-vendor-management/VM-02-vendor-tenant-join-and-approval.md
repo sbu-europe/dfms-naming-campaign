@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Vendor ↔ Tenant Join + Approval + Tenant-Assigned Vendor Type + Visibility Scoping
 epic: Vendor Portal & Operations
 status: Pending
-story_points: ~
+story_points: 5
 assignee: ~
 ---
 
@@ -53,16 +53,18 @@ Tenant Admin cannot invite vendors or see the global vendor directory; tenant-si
 - [ ] **Approve** audit entry includes selected `vendor_type`
 - [ ] Vendor receives notification on approval/rejection
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-02-1 | Tenant directory (active tenants) API for vendors | ~ | Pending |
-| VM-02-2 | Vendor join request API + status model | ~ | Pending |
-| VM-02-3 | Tenant-side join queue + approve (with mandatory `vendor_type`) / reject actions | ~ | Pending |
-| VM-02-4 | Enforce scoping on bids/trips/TO queries by joined tenants + per-tenant `vendor_type` | ~ | Pending |
-| VM-02-5 | Notifications + audit events (include `vendor_type` on approve) | ~ | Pending |
-| VM-02-6 | Data model: membership/join record stores `vendor_type` per `(vendor, tenant)` | ~ | Pending |
+| VM-02-1 | Membership model — `(vendor, tenant)`, `status`, `vendor_type` (nullable until `APPROVED`), timestamps | ~ | Pending |
+| VM-02-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — directory of tenants vendor may request to join | ~ | Pending |
+| VM-02-3 | `POST /api/v1/vendor/tenants/{tenant_id}/join-requests` — idempotent rules, `PENDING` visibility to vendor | ~ | Pending |
+| VM-02-4 | `GET /api/v1/tenant/vendors/join-requests` — tenant queue + filters (`PENDING` / history) | ~ | Pending |
+| VM-02-5 | `POST .../approve` — mandatory body `vendor_type` (`CONTRACTUAL` \| `NON_CONTRACTUAL`); transition to `APPROVED` | ~ | Pending |
+| VM-02-6 | `POST .../reject` — remarks/reason required; transition to `REJECTED`; vendor loses tenant data access | ~ | Pending |
+| VM-02-7 | Query guards — bids / trips / TOs / bidding sessions return **only** `APPROVED` memberships; per-tenant `vendor_type` exposed to portal layer | ~ | Pending |
+| VM-02-8 | Notifications (vendor: approved/rejected; optional in-app + email) + audit (approve includes `vendor_type`) | ~ | Pending |
 
 ## API Endpoints (suggested)
 

@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 title: Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
 epic: TDO Bid Evaluation
 status: Pending
-story_points: ~
+story_points: 8
 assignee: ~
 ---
 
@@ -61,15 +61,18 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 - [ ] **[Critical]** System SHALL support **winner selection** for a TO, including **multiple winning vendors** when required.
 - [ ] **[High]** System SHALL track bid winning log with user and timestamp.
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-06-1 | Bid comparison view/query (by TO/bid window) | ~ | Pending |
-| VM-06-2 | Award action endpoint enforcing **capacity-aware** winner selection (single or multi-vendor) | ~ | Pending |
-| VM-06-3 | Winning log persistence + audit visibility | ~ | Pending |
-| VM-06-4 | Post-award trigger: require vendor vehicle/driver submission (VM-07) | ~ | Pending |
-| VM-06-5 | Reject-all endpoint + notifications | ~ | Pending |
+| VM-06-1 | `GET /api/v1/tdo/transport-orders/{to_id}/bids` — joined bid + vendor metadata; sort by cost, offered count, rating, time | ~ | Pending |
+| VM-06-2 | Comparison aggregates — min/avg/max rate; highlight lowest bid | ~ | Pending |
+| VM-06-3 | Award validation — Σ `awarded_vehicle_count` ≤ `required_vehicle_count`; per line ≤ vendor `offered_vehicle_count`; session still awardable | ~ | Pending |
+| VM-06-4 | `POST .../award` — persist allocation; winning bids → `ACCEPTED`; others → `REJECTED`/`CLOSED`; **finalize** lock + winning log (TDO user, timestamp, bid ids, counts) | ~ | Pending |
+| VM-06-5 | TO / trip state transitions after award — handoff flag for **VM-07** vehicle–driver confirmation | ~ | Pending |
+| VM-06-6 | `POST .../reject-all` — mandatory reason; close session; notify all bidders | ~ | Pending |
+| VM-06-7 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | Pending |
+| VM-06-8 | Audit — award decision payload; reject-all reason | ~ | Pending |
 
 ## API Endpoints (suggested)
 

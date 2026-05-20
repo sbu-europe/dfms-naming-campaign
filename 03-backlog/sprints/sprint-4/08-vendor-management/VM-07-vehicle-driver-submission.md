@@ -8,7 +8,7 @@ prd_context:
   - ../../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md
 epic: Vendor Portal & Operations
 status: Pending
-story_points: ~
+story_points: 8
 assignee: ~
 ---
 
@@ -67,15 +67,18 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 - [ ] **[Critical]** System SHALL allow vendor uploads of **POD, GRN copy, and Invoice only when the trip/TO has reached `COMPLETED`** (or equivalent terminal state). Uploads of any of these MUST be rejected before that state regardless of TO/tenant policy.
 - [ ] **[High]** System SHALL still apply per-document tenant-policy rules (e.g. whether POD/GRN are required versus optional artifacts) on top of the Completed gate.
 
-## Sub-tasks (implementation checklist)
+## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-07-1 | Award/assignment → show requirement context + “confirm vehicle/driver” gate | ~ | Pending |
-| VM-07-2 | Confirmation API + validation for required fields | ~ | Pending |
-| VM-07-3 | Update API requiring reason + audit log entry | ~ | Pending |
-| VM-07-4 | Transport visibility event on substitutions | ~ | Pending |
-| VM-07-5 | POD + GRN + Invoice document upload APIs + storage; **all three uploads gated to trip Completed** server-side; per-document tenant-policy rules layered on top | ~ | Pending |
+| VM-07-1 | `GET` requirement context for TO — merge TO + publish params (VM-04) visible to assigned/winner vendor only | ~ | Pending |
+| VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver **confirmation** record exists | ~ | Pending |
+| VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | Pending |
+| VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | Pending |
+| VM-07-5 | Internal event/notification — **substitution** visible to Transport (per AC-4) | ~ | Pending |
+| VM-07-6 | `POST .../documents` — multipart `doc_type`: `POD` \| `GRN_COPY` \| `INVOICE`; **409 if TO status ≠ `COMPLETED`** for all three types | ~ | Pending |
+| VM-07-7 | Tenant policy hooks — after Completed gate, enforce required-vs-optional per doc type | ~ | Pending |
+| VM-07-8 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | Pending |
 
 ## API Endpoints (suggested)
 
