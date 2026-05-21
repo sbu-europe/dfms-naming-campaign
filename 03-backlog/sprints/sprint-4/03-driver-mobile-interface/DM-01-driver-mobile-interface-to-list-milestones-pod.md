@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 story_id: DM-01
 title: Driver Mobile — TO List, Execution Milestones & POD
 epic: Driver Mobile
-status: Pending
+status: In Progress
 story_points: 8
 assignee: Farhan Tanvir(farhanT23)
 prd_refs:
@@ -61,46 +61,46 @@ The driver app does **not** invent statuses; each driver action maps to an **all
 
 ### AC-1: TO list & detail (assigned, Ready for Dispatch onward)
 - [ ] Driver sees **only TOs assigned to them** with status **`Ready for Dispatch`** or any **downstream** TLS-01 execution state through **Closed**
-- [ ] TOs in **`Ready for Dispatch`** appear in the driver list/detail as **awaiting supervisor dispatch** — execution transition controls are **disabled** with clear messaging (e.g. “Awaiting dispatch by supervisor”)
-- [ ] After **DS-01** sets the TO to **`Dispatched`**, the driver sees the TO as **ready to start execution** and enabled actions per AC-2
+- [x] TOs in **`Ready for Dispatch`** appear in the driver list/detail as **awaiting supervisor dispatch** — execution transition controls are **disabled** with clear messaging (e.g. “Awaiting dispatch by supervisor”)
+- [x] After **DS-01** sets the TO to **`Dispatched`**, the driver sees the TO as **ready to start execution** and enabled actions per AC-2
 - [ ] Detail shows: TO reference, **flow lane** (FG outbound / FG inbound / RM inbound), current status + sub-state (TLS-01), pickup POI, drop POI, product type, quantity, urgency, special instructions (**from TO**)
 
 ### AC-2: Execution status transitions (post-Dispatch, TLS-01, lane-aware)
-- [ ] Driver **cannot** trigger TLS-01 transitions while status is **`Ready for Dispatch`**; attempts return a stable error referencing the dispatch gate
+- [x] Driver **cannot** trigger TLS-01 transitions while status is **`Ready for Dispatch`**; attempts return a stable error referencing the dispatch gate
 - [ ] Driver **can** trigger **only** TLS-01 transitions where the actor is **Driver** and the TO is **`Dispatched`** or later, per **flow lane** (reconciled in TLS-01):
   - **FG outbound**: full source leg then destination leg — **In Transit – Source** → **At Source** → **Loaded / Pickup Completed** → **In Transit – Destination** → **At Destination** → **Delivered / Unloaded**
   - **FG inbound**: destination leg only — **In Transit – Destination** → **At Destination** → **Delivered / Unloaded** (no driver transitions through source-side states)
   - **RM inbound** (raw materials): same as FG inbound for driver — after **Dispatched**, driver may advance directly to **In Transit – Destination** and onward; **In Transit – Source**, **At Source**, and **Loaded / Pickup Completed** are **not** offered and **reject** if attempted
-- [ ] Each driver action invokes TLS-01 (event ingest / transition API) — app displays PRD status names; UI shows only statuses valid for the TO’s lane
-- [ ] Invalid transitions fail with stable error (wrong order, wrong lane, wrong actor, yard-owned step already set, etc.)
-- [ ] First driver transition after **Dispatched** runs **§6.8.1.7** (lane-specific first step: source leg for FG outbound, **In Transit – Destination** for RM/FG inbound); failure returns stable error (vehicle unavailable, driver on leave, vehicle under maintenance, etc.)
-- [ ] Prefer **gate/scale/yard/QC** as source of truth for yard-bound and QC steps when integrated — driver does not duplicate transitions when TLS-01 marks them system/yard-owned (notably **At Destination** sub-states and unloading on **RM inbound**)
+- [x] Each driver action invokes TLS-01 (event ingest / transition API) — app displays PRD status names; UI shows only statuses valid for the TO’s lane
+- [x] Invalid transitions fail with stable error (wrong order, wrong lane, wrong actor, yard-owned step already set, etc.)
+- [x] First driver transition after **Dispatched** runs **§6.8.1.7** (lane-specific first step: source leg for FG outbound, **In Transit – Destination** for RM/FG inbound); failure returns stable error (vehicle unavailable, driver on leave, vehicle under maintenance, etc.)
+- [x] Prefer **gate/scale/yard/QC** as source of truth for yard-bound and QC steps when integrated — driver does not duplicate transitions when TLS-01 marks them system/yard-owned (notably **At Destination** sub-states and unloading on **RM inbound**)
 
 ### AC-3: POD capture (at Completed)
-- [ ] POD upload is **enabled only** when TO status is **`Completed`**; disabled with clear messaging for earlier statuses
-- [ ] Driver may attach **up to three** POD files per TO: **JPEG**, **PNG**, or **PDF** (at least one required to submit; validate MIME/extension and max size per tech design)
-- [ ] POD records are **linked to the TO** with `submitted_by`, `submitted_at`; optional signature remains product-optional unless POD-01 mandates it
-- [ ] Image uploads (JPEG/PNG) use auto-compress before storage; PDF stored as-is within size limits
+- [x] POD upload is **enabled only** when TO status is **`Completed`**; disabled with clear messaging for earlier statuses
+- [x] Driver may attach **up to three** POD files per TO: **JPEG**, **PNG**, or **PDF** (at least one required to submit; validate MIME/extension and max size per tech design)
+- [x] POD records are **linked to the TO** with `submitted_by`, `submitted_at`; optional signature remains product-optional unless POD-01 mandates it
+- [x] Image uploads (JPEG/PNG) use auto-compress before storage; PDF stored as-is within size limits
 
 ### AC-4: Technical NFRs (Sprint 4)
-- [ ] Photo auto-compress before upload (JPEG/PNG only)
-- [ ] No map deep links, no continuous/background GPS in Sprint 4 deliverables
+- [x] Photo auto-compress before upload (JPEG/PNG only)
+- [x] No map deep links, no continuous/background GPS in Sprint 4 deliverables
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| DM-01-1 | `ProofOfDelivery` + `ProofOfDeliveryFile` models + migration — FK to TO; up to **3** files per submission (JPEG/PNG/PDF); optional signature; `submitted_by`, `submitted_at` | DFS-053-1 | Pending |
-| DM-01-2 | Driver transition integration — call TLS-01 transition/event ingest for driver-allowed states (post-**Dispatched**); no parallel ad-hoc status enum in driver app | DFS-053-2 | Pending |
-| DM-01-3 | `ProofOfDeliveryAdmin` — read-only `list_display` (TO ref, driver, submitted_at), file previews in change form; for support/debug | DFS-053-3 | Pending |
-| DM-01-4 | Driver TO list API — `GET /api/v1/driver/transport-orders` scoped to authenticated driver; statuses **Ready for Dispatch** through **Closed**; flag `can_execute` / `awaiting_supervisor_dispatch` per row | DFS-053-4 | Pending |
-| DM-01-5 | Driver TO detail API — `GET /api/v1/driver/transport-orders/{to_id}` (`flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` lane-filtered) | DFS-053-5 | Pending |
-| DM-01-6 | Driver status transition API — `POST /api/v1/driver/transport-orders/{to_id}/transitions` (target status/sub-state per TLS-01) + §6.8.1.7 on first post-Dispatch action | DFS-053-6 | Pending |
-| DM-01-7 | POD upload API — `POST /api/v1/driver/transport-orders/{to_id}/pod` (multipart, 1–3 files, JPEG/PNG/PDF) + media storage; reject if status ≠ **Completed** | DFS-053-7 | Pending |
-| DM-01-8 | §6.8.1.7 fleet availability validation — invoked on first driver transition after **Dispatched** (coordinate with TLS-01-9) | DFS-053-8 | Pending |
-| DM-01-9 | Photo compression utility — auto-compress JPEG/PNG before storage (max dimension + file size) | DFS-053-9 | Pending |
-| DM-01-10 | Mobile/responsive UI — TO list (tabs/filters: awaiting dispatch vs in progress vs completed), detail, transition actions, POD upload (3 slots) | DFS-053-10 | Pending |
-| DM-01-11 | Audit logging on driver transitions and POD submissions | DFS-053-11 | Pending |
+| DM-01-1 | `ProofOfDelivery` + `ProofOfDeliveryFile` models + migration — FK to TO; up to **3** files per submission (JPEG/PNG/PDF); optional signature; `submitted_by`, `submitted_at` | DFS-053-1 | Done |
+| DM-01-2 | Driver transition integration — call TLS-01 transition/event ingest for driver-allowed states (post-**Dispatched**); no parallel ad-hoc status enum in driver app | DFS-053-2 | Partial |
+| DM-01-3 | `ProofOfDeliveryAdmin` — read-only `list_display` (TO ref, driver, submitted_at), file previews in change form; for support/debug | DFS-053-3 | Done |
+| DM-01-4 | Driver TO list API — `GET /api/v1/driver/transport-orders` scoped to authenticated driver; statuses **Ready for Dispatch** through **Closed**; flag `can_execute` / `awaiting_supervisor_dispatch` per row | DFS-053-4 | Partial |
+| DM-01-5 | Driver TO detail API — `GET /api/v1/driver/transport-orders/{to_id}` (`flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` lane-filtered) | DFS-053-5 | Partial |
+| DM-01-6 | Driver status transition API — `POST /api/v1/driver/transport-orders/{to_id}/transitions` (target status/sub-state per TLS-01) + §6.8.1.7 on first post-Dispatch action | DFS-053-6 | Partial |
+| DM-01-7 | POD upload API — `POST /api/v1/driver/transport-orders/{to_id}/pod` (multipart, 1–3 files, JPEG/PNG/PDF) + media storage; reject if status ≠ **Completed** | DFS-053-7 | Done |
+| DM-01-8 | §6.8.1.7 fleet availability validation — invoked on first driver transition after **Dispatched** (coordinate with TLS-01-9) | DFS-053-8 | Partial |
+| DM-01-9 | Photo compression utility — auto-compress JPEG/PNG before storage (max dimension + file size) | DFS-053-9 | Done |
+| DM-01-10 | Mobile/responsive UI — TO list (tabs/filters: awaiting dispatch vs in progress vs completed), detail, transition actions, POD upload (3 slots) | DFS-053-10 | Done |
+| DM-01-11 | Audit logging on driver transitions and POD submissions | DFS-053-11 | Done |
 
 ## API Endpoints
 
@@ -134,16 +134,16 @@ GET    /api/v1/driver/transport-orders/{to_id}/pod              # Retrieve POD d
 
 ## Definition of Done
 
-- [ ] **POD models**: `ProofOfDelivery` + file attachments store up to **3** files (JPEG/PNG/PDF), optional signature, FK to TO, `submitted_by`, `submitted_at` — migration applied cleanly
-- [ ] **Dispatch gate**: driver list shows **Ready for Dispatch** TOs; transition API returns stable error until TO is **Dispatched** via DS-01
+- [x] **POD models**: `ProofOfDelivery` + file attachments store up to **3** files (JPEG/PNG/PDF), optional signature, FK to TO, `submitted_by`, `submitted_at` — migration applied cleanly
+- [x] **Dispatch gate**: driver list shows **Ready for Dispatch** TOs; transition API returns stable error until TO is **Dispatched** via DS-01
 - [ ] **Driver transitions**: POST transitions call TLS-01; only valid post-**Dispatched** driver transitions succeed; PRD status names shown in API/UI
 - [ ] **Driver TO list API**: returns only TOs assigned to authenticated driver from **Ready for Dispatch** through **Closed**; 404 for non-owned TOs
 - [ ] **TO detail API**: returns TO reference, `flow_lane`, TLS-01 status/sub-state, pickup/drop POI, product type, quantity, urgency, special instructions, `allowed_next_transitions` (lane-filtered; RM inbound excludes source-leg statuses)
-- [ ] **§6.8.1.7 validation**: first driver transition after **Dispatched** rejects with descriptive error when fleet unavailable
-- [ ] **POD upload**: accepts 1–3 files (JPEG/PNG/PDF); rejects when status ≠ **Completed**; images compressed; PDF within size limit
-- [ ] **Admin read-only views**: POD admin shows list + file previews for support/debug
+- [x] **§6.8.1.7 validation**: first driver transition after **Dispatched** rejects with descriptive error when fleet unavailable
+- [x] **POD upload**: accepts 1–3 files (JPEG/PNG/PDF); rejects when status ≠ **Completed**; images compressed; PDF within size limit
+- [x] **Admin read-only views**: POD admin shows list + file previews for support/debug
 - [ ] **Security**: driver cannot access other drivers' TOs — API returns 404 for non-owned TOs; verified by automated tests
-- [ ] **No GPS/map**: no map deep links, no continuous/background GPS in Sprint 4 deliverables
-- [ ] **Audit trail**: every driver transition and POD submission logged with user, timestamp, TO reference
+- [x] **No GPS/map**: no map deep links, no continuous/background GPS in Sprint 4 deliverables
+- [x] **Audit trail**: every driver transition and POD submission logged with user, timestamp, TO reference
 - [ ] **Unit tests**: authorization, dispatch gate, lane-specific transition matrix (FG outbound full path; RM inbound **Dispatched** → **In Transit – Destination** without source leg; reject source-leg transitions on RM), §6.8.1.7, POD status gate + file type/count limits, photo compression
 - [ ] **UAT**: (1) FG outbound: Ready for Dispatch → Dispatched → full source + destination chain → Completed → POD; (2) RM inbound: Ready for Dispatch → Dispatched → **In Transit – Destination** (no source-leg steps) → … → Completed → POD (up to 3 files)

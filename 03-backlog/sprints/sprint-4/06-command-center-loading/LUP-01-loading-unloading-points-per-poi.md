@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 story_id: LUP-01
 title: Loading & Unloading Points — Create & Maintain per POI
 epic: Command Center
-status: Pending
+status: In Progress
 story_points: 5
 assignee: Farhan Tanvir(farhanT23)
 prd_refs:
@@ -39,7 +39,7 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 ### AC-2: Point definition
 - [x] User creates a point with: **name/label** (required), **short code** (unique per POI), **operation type** = `LOAD` | `UNLOAD` (required explicit choice — no combined “both” type)
 - [x] Optional: display order, optional notes, **active/inactive** flag
-- [ ] Inactive points: not assignable for **new** queue rows; historical assignments remain readable
+- [x] Inactive points: not assignable for **new** queue rows; historical assignments remain readable
 
 ### AC-3: RBAC & audit
 - [x] Create/update/deactivate is restricted to roles aligned with **master data** / **Tenant Admin** (same class as POI management per §6.3.1)
@@ -88,7 +88,7 @@ PATCH  /api/v1/loading-unloading-points/{id}                             # Updat
 - [x] LoadingUnloadingPoint model created with migration passing `makemigrations --check`
 - [x] Each point is owned by exactly one POI; only active POIs allow new active points (AC-1)
 - [x] Point definition includes name, short code (unique per POI), operation type (LOAD or UNLOAD), active/inactive flag (AC-2)
-- [ ] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
+- [x] Inactive points are excluded from assignment dropdowns in CC-01; historical assignments remain readable
 - [x] Create/update/deactivate restricted to Tenant Admin and Master Data Manager roles (AC-3)
 - [ ] Audit log records who/when/what on every create, update, and deactivate action (AC-3)
 - [ ] List-by-POI API returns points filterable by operation type and active status (AC-4)

@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 story_id: SC-01
 title: Scaling — Scale-In, P.C. Code Capture & Scale-Out
 epic: Scaling / Weighing
-status: Pending
+status: In Progress
 story_points: 8
 assignee: Farhan Tanvir(farhanT23)
 prd_refs:
@@ -35,16 +35,16 @@ Supports outbound and inbound TO visits by `yard_leg` (FG outbound source + dest
 - [ ] Requires vehicle number; must follow completed **gate-in** for same visit session
 - [ ] **P.C. code** — optional text field on scale-in; when provided: trimmed; max length per spec; **unique at POI** among active queue tokens (`waiting` / `assigned`)
 - [ ] Captures: weight ID, material name/code, challan number, scale-in datetime, operator ID, timestamp
-- [ ] Records **empty vehicle weight** if vehicle arrives empty, or **loaded vehicle weight** if vehicle arrives loaded
+- [x] Records **empty vehicle weight** if vehicle arrives empty, or **loaded vehicle weight** if vehicle arrives loaded
 - [ ] Optional discrepancy flags (wrong quantity / driver mismatch) per PRD
 
 ### AC-2: Command Center notification
-- [ ] On scale-in completion, Command Center queue receives new entry (linked to `pc_code` when provided); operator refreshes the queue manually (no websocket / polling auto-refresh in MVP)
+- [x] On scale-in completion, Command Center queue receives new entry (linked to `pc_code` when provided); operator refreshes the queue manually (no websocket / polling auto-refresh in MVP)
 
 ### AC-3: P.C. code (waiting code) — operator input, not system-generated
-- [ ] Operator **enters** P.C. code on scale-in; system validates and persists on `ScaleIn` and `QueueToken`
-- [ ] **No** auto-generated `PC-{POI}-{date}-{seq}` or similar serial logic
-- [ ] Printable slip after scale-in (browser print CSS acceptable for MVP) **reprints** the entered code plus visit summary
+- [x] Operator **enters** P.C. code on scale-in; system validates and persists on `ScaleIn` and `QueueToken`
+- [x] **No** auto-generated `PC-{POI}-{date}-{seq}` or similar serial logic
+- [x] Printable slip after scale-in (browser print CSS acceptable for MVP) **reprints** the entered code plus visit summary
 - [ ] Slip / CC queue entry SHALL include: **Vehicle Number**, **Product Type** (RM or FG), **P.C. code** (as entered)
 - [ ] Each queue entry SHALL display:
   - Vehicle Number
@@ -54,38 +54,38 @@ Supports outbound and inbound TO visits by `yard_leg` (FG outbound source + dest
   - Loaded Vehicle Weight (scale-in gross)
   - Empty Vehicle Weight (scale-out tare, when available)
   - TO / Challan Reference
-- [ ] Queue updates on manual reload or navigation (no automatic refresh in MVP)
+- [x] Queue updates on manual reload or navigation (no automatic refresh in MVP)
 
 ### AC-4: Scale-out
-- [ ] Records the remaining weight: **loaded vehicle weight** if vehicle was empty at scale-in, or **empty vehicle weight** if vehicle was loaded at scale-in
-- [ ] System auto-calculates **net weight** = loaded vehicle weight − empty vehicle weight once both weights are available
-- [ ] Generates **printable gate pass** including vehicle number, item name, net weight, **P.C. code** (from scale-in)
-- [ ] After scale-out, scale-in row **locked** from edits (including P.C. code)
+- [x] Records the remaining weight: **loaded vehicle weight** if vehicle was empty at scale-in, or **empty vehicle weight** if vehicle was loaded at scale-in
+- [x] System auto-calculates **net weight** = loaded vehicle weight − empty vehicle weight once both weights are available
+- [x] Generates **printable gate pass** including vehicle number, item name, net weight, **P.C. code** (from scale-in)
+- [x] After scale-out, scale-in row **locked** from edits (including P.C. code)
 
 ### AC-5: TO linkage
-- [ ] Weighing session linked to **TO** and POI (`yard_leg` = source vs destination visit)
+- [x] Weighing session linked to **TO** and POI (`yard_leg` = source vs destination visit)
 
 ### AC-6: Operator site and command center handoff (YARD-01)
-- [ ] Scaling operator only sees vehicles at **their assigned site**; if unassigned, sees an empty list and guidance to contact admin
-- [ ] When scale-in completes, the vehicle **always** appears on the command center queue at that site in the same action — if scale-in fails, the vehicle does not appear on the queue
+- [x] Scaling operator only sees vehicles at **their assigned site**; if unassigned, sees an empty list and guidance to contact admin
+- [x] When scale-in completes, the vehicle **always** appears on the command center queue at that site in the same action — if scale-in fails, the vehicle does not appear on the queue
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| SC-01-1 | WeighingSession + ScaleIn (`pc_code`) + ScaleOut + QueueToken models + migration | DFS-055-1 | Pending |
-| SC-01-2 | Scale-in screen — P.C. code field, vehicle lookup limited to operator’s site; `validate_pc_code` in service | DFS-055-2 | Pending |
-| SC-01-3 | ScaleOutAdmin — net weight auto-calculation, immutability via `get_readonly_fields` | DFS-055-3 | Pending |
-| SC-01-4 | QueueToken created in `ScaleInService` with operator `pc_code` (read-only QueueTokenAdmin + print) | DFS-055-4 | Pending |
-| SC-01-5 | Scale-in REST API (POST) — body includes `pc_code`; gate-in + leg eligibility; returns queue token | DFS-055-5 | Pending |
-| SC-01-6 | Scale-in list/detail REST API (GET with filters: date, vehicle, TO number, pc_code, status) | DFS-055-6 | Pending |
-| SC-01-7 | Scale-out REST API (POST) — record remaining weight, auto-calculate net weight, lock records | DFS-055-7 | Pending |
-| SC-01-8 | Scale-out detail REST API (GET) — includes net weight, gate pass data | DFS-055-8 | Pending |
-| SC-01-9 | Queue token print template — entered P.C. code, vehicle, product type, weights, TO reference | DFS-055-9 | Pending |
-| SC-01-10 | Gate pass print template — vehicle, item name, net weight, P.C. code from scale-in | DFS-055-10 | Pending |
-| SC-01-11 | Command center queue updated in the same step as scale-in (no separate background step that can fail silently) | DFS-055-11 | Pending |
-| SC-01-12 | Scaling operator UI — scale-in form (with P.C. code), scale-out form, session list with status indicators | DFS-055-12 | Pending |
-| SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` with leg-specific sub-states | DFS-055-13 | Pending |
+| SC-01-1 | WeighingSession + ScaleIn (`pc_code`) + ScaleOut + QueueToken models + migration | DFS-055-1 | Done |
+| SC-01-2 | Scale-in screen — P.C. code field, vehicle lookup limited to operator’s site; `validate_pc_code` in service | DFS-055-2 | Done |
+| SC-01-3 | ScaleOutAdmin — net weight auto-calculation, immutability via `get_readonly_fields` | DFS-055-3 | Done |
+| SC-01-4 | QueueToken created in `ScaleInService` with operator `pc_code` (read-only QueueTokenAdmin + print) | DFS-055-4 | Done |
+| SC-01-5 | Scale-in REST API (POST) — body includes `pc_code`; gate-in + leg eligibility; returns queue token | DFS-055-5 | Partial |
+| SC-01-6 | Scale-in list/detail REST API (GET with filters: date, vehicle, TO number, pc_code, status) | DFS-055-6 | Not done |
+| SC-01-7 | Scale-out REST API (POST) — record remaining weight, auto-calculate net weight, lock records | DFS-055-7 | Done |
+| SC-01-8 | Scale-out detail REST API (GET) — includes net weight, gate pass data | DFS-055-8 | Partial |
+| SC-01-9 | Queue token print template — entered P.C. code, vehicle, product type, weights, TO reference | DFS-055-9 | Partial |
+| SC-01-10 | Gate pass print template — vehicle, item name, net weight, P.C. code from scale-in | DFS-055-10 | Done |
+| SC-01-11 | Command center queue updated in the same step as scale-in (no separate background step that can fail silently) | DFS-055-11 | Done |
+| SC-01-12 | Scaling operator UI — scale-in form (with P.C. code), scale-out form, session list with status indicators | DFS-055-12 | Done |
+| SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` with leg-specific sub-states | DFS-055-13 | Partial |
 
 ## API Endpoints
 
@@ -124,17 +124,17 @@ GET    /api/v1/scaling/scale-out/{scale_out_id}/gate-pass        # Printable gat
 
 ## Definition of Done
 
-- [ ] WeighingSession, ScaleIn (`pc_code`), and ScaleOut models created with all PRD fields; migration applied cleanly
+- [x] WeighingSession, ScaleIn (`pc_code`), and ScaleOut models created with all PRD fields; migration applied cleanly
 - [ ] ScaleInAdmin accepts optional `pc_code` on create; when provided, rejects duplicate active P.C. code at same POI
-- [ ] ScaleOutAdmin save_model auto-calculates net weight (loaded − empty) and locks all fields via `get_readonly_fields` after scale-out
-- [ ] QueueToken created on scale-in with operator-entered `pc_code` (not auto-generated)
-- [ ] Queue slip printable via browser print CSS; shows entered P.C. code
-- [ ] Gate pass printable after scale-out with vehicle number, item name, net weight, and P.C. code from scale-in
-- [ ] Command center queue updated together with scale-in; failure on either step rolls back both (AC-6)
-- [ ] Scaling operator without site assignment sees no vehicles from other depots (AC-6)
+- [x] ScaleOutAdmin save_model auto-calculates net weight (loaded − empty) and locks all fields via `get_readonly_fields` after scale-out
+- [x] QueueToken created on scale-in with operator-entered `pc_code` (not auto-generated)
+- [x] Queue slip printable via browser print CSS; shows entered P.C. code
+- [x] Gate pass printable after scale-out with vehicle number, item name, net weight, and P.C. code from scale-in
+- [x] Command center queue updated together with scale-in; failure on either step rolls back both (AC-6)
+- [x] Scaling operator without site assignment sees no vehicles from other depots (AC-6)
 - [ ] Scale-in and scale-out REST APIs enforce gate-in prerequisite and return correct HTTP status codes (409 on duplicate P.C. code at POI)
 - [ ] Weight records and P.C. code immutable after scale-out; PATCH/PUT returns 403 on locked sessions
 - [ ] `SCALE_IN` / `SCALE_OUT` timeline events emitted to TLS-01 with timestamps and `yard_leg`
-- [ ] Weighing session linked to TO and POI (`yard_leg` on visit)
+- [x] Weighing session linked to TO and POI (`yard_leg` on visit)
 - [ ] UAT: scale-in with entered P.C. code → slip printed → CC sees vehicle in queue → scale-out → net weight correct → records locked → gate pass printed
 - [ ] Unit tests cover P.C. code validation (optional; duplicate at POI when provided), immutability after scale-out, and gate-in prerequisite validation

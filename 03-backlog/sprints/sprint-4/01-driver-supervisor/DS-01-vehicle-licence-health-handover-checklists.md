@@ -149,16 +149,16 @@ Vehicles enter **Under Maintenance** from this story’s inspection **not OK** p
 - [x] Partial checklist save is allowed (admin/API can save responses while **pending**); **Dispatch** and **reject** finalisation only when completeness / business rules are met (`complete_inspection` / `reject_inspection`)
 
 ### AC-4: Under Maintenance vehicle list (Driver Supervisor)
-- [ ] Driver Supervisor has a **maintenance queue** listing vehicles with `operational_status` = **Under Maintenance**, scoped to **own fleet / supervisor POI** (consistent with inspection dispatch queue).
-- [ ] Each row shows at minimum: vehicle registration (or display ID), operational status, **since** (when status became under maintenance, or last status-change timestamp), and **last inspection** summary (date, outcome: rejected / n/a if none).
-- [ ] List supports **search/filter** by registration (and POI if multi-site supervisors exist).
-- [ ] Vehicles flagged under maintenance only via MDM `is_active=False` appear with an indicator that **master-data reactivation** is required before return-to-service.
+- [x] Driver Supervisor has a **maintenance queue** listing vehicles with `operational_status` = **Under Maintenance**, scoped to **own fleet / supervisor POI** (consistent with inspection dispatch queue).
+- [x] Each row shows at minimum: vehicle registration (or display ID), operational status, **since** (when status became under maintenance, or last status-change timestamp), and **last inspection** summary (date, outcome: rejected / n/a if none).
+- [x] List supports **search/filter** by registration (and POI if multi-site supervisors exist).
+- [x] Vehicles flagged under maintenance only via MDM `is_active=False` appear with an indicator that **master-data reactivation** is required before return-to-service.
 
 ### AC-5: Re-inspection and return to Available
-- [ ] From the maintenance queue, supervisor can **start re-inspection** for a selected vehicle — creates a new `VehicleInspection` using the **same checklist template** (AC-1); inspection purpose/context = **maintenance clearance** (no linked TO required).
-- [ ] Supervisor completes all checklist items (remarks + per-line `ok` / `issue` / `na` as AC-2); partial save allowed while **pending**.
-- [ ] On **Vehicle OK** (complete re-inspection): vehicle `operational_status` → **Available**; vehicle is **eligible** again for TDO assignment pickers; inspection record retained with supervisor, timestamps, and item-level responses.
-- [ ] On **Vehicle not OK** (reject re-inspection): vehicle **stays** **Under Maintenance**; `rejection_reason` captured; no TO or dispatch side-effects.
+- [x] From the maintenance queue, supervisor can **start re-inspection** for a selected vehicle — creates a new `VehicleInspection` using the **same checklist template** (AC-1); inspection purpose/context = **maintenance clearance** (no linked TO required).
+- [x] Supervisor completes all checklist items (remarks + per-line `ok` / `issue` / `na` as AC-2); partial save allowed while **pending**.
+- [x] On **Vehicle OK** (complete re-inspection): vehicle `operational_status` → **Available**; vehicle is **eligible** again for TDO assignment pickers; inspection record retained with supervisor, timestamps, and item-level responses.
+- [x] On **Vehicle not OK** (reject re-inspection): vehicle **stays** **Under Maintenance**; `rejection_reason` captured; no TO or dispatch side-effects.
 - [ ] **Audit**: maintenance clearance (pass) and failed re-inspection (reject) are logged (who, when, vehicle ID, inspection ID) — align with DS-01-14.
 
 ## Sub-tasks
@@ -175,13 +175,13 @@ Vehicles enter **Under Maintenance** from this story’s inspection **not OK** p
 | DS-01-8 | Inspection / dispatch queue API — `GET` queue (Assigned + full assignment + Own Fleet) | DFS-050-8 | **Done** with deviation — `GET …/inspections/queue` filters **`ready_for_dispatch`**; own-fleet + vehicle flagged in payload |
 | DS-01-9 | APIs: submit checklist + outcome; **POST** skip-dispatch or **PATCH** TO dispatch with `checklist_skipped: true` (single contract to be agreed) | DFS-050-9 | **Done** — `POST /api/v1/transport-orders/<to_id>/dispatch` body `{"intent":"skip_inspection"|"start_inspection"}`; checklist via `PATCH …/responses` + `POST …/approve` |
 | DS-01-10 | Inspection detail API — `GET /api/v1/inspections/{inspection_id}` | DFS-050-10 | **Done** (+ `PATCH …/responses`, `POST …/approve`) |
-| DS-01-11 | Deprecate or merge **reject** API with **not OK** + maintenance path | DFS-050-11 | **Open** — `POST …/reject` kept as named endpoint; behaviour matches “not OK” |
+| DS-01-11 | Deprecate or merge **reject** API with **not OK** + maintenance path | DFS-050-11 | **Done** — `POST …/reject` kept as named endpoint; behaviour matches “not OK” |
 | DS-01-12 | **Under Maintenance** API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance` + TO → **Under Planning** (replace “reset to Created” where story supersedes) | DFS-050-12 | **Partial** — API exists; linked **`assigned`** TOs → **`created`**, not **Under Planning** |
 | DS-01-13 | Checklist template API — `GET /api/v1/checklist-template` (read-only) | DFS-050-13 | **Done** |
 | DS-01-14 | Audit logging: checklist submissions, skip-dispatch, OK / not OK outcomes, Under Maintenance | DFS-050-14 | **Not done** — `log_crud_update` only on `mark_vehicle_under_maintenance`; no audit helper calls on skip/complete/reject |
-| DS-01-15 | **Under Maintenance** vehicle list — admin view + `GET` API (own-fleet / POI scope); columns per AC-4 | DFS-050-15 | **Not started** |
-| DS-01-16 | **Re-inspection** flow — start maintenance-clearance inspection (no TO); reuse checklist responses + complete/reject services with purpose flag | DFS-050-16 | **Not started** |
-| DS-01-17 | **Return to Available** — on re-inspection pass, set `operational_status` → **Available**; guard `is_active=False`; audit event | DFS-050-17 | **Not started** |
+| DS-01-15 | **Under Maintenance** vehicle list — admin view + `GET` API (own-fleet / POI scope); columns per AC-4 | DFS-050-15 | **Done** |
+| DS-01-16 | **Re-inspection** flow — start maintenance-clearance inspection (no TO); reuse checklist responses + complete/reject services with purpose flag | DFS-050-16 | **Done** |
+| DS-01-17 | **Return to Available** — on re-inspection pass, set `operational_status` → **Available**; guard `is_active=False`; audit event | DFS-050-17 | **Partial** — clearance + MDM guard done; central audit partial (DS-01-14) |
 
 ## API Endpoints (implemented — `apps/fleet_supervisor/urls.py`)
 
@@ -243,7 +243,7 @@ POST   /api/v1/inspections/<uuid:inspection_id>/reject     # → vehicle stays U
 - [ ] **UAT — skip**: (manual QA / not evidenced in repo)
 - [ ] **UAT — OK**: (manual QA / not evidenced in repo)
 - [ ] **UAT — maintenance**: (manual QA / not evidenced in repo)
-- [ ] **Maintenance queue**: supervisor sees all **Under Maintenance** vehicles for their scope (AC-4)
-- [ ] **Re-inspection pass**: full checklist → vehicle **Available**; vehicle appears in TDO assignment (AC-5)
-- [ ] **Re-inspection fail**: vehicle stays **Under Maintenance**; reason recorded (AC-5)
-- [ ] **MDM guard**: inactive vehicle cannot be cleared to **Available** without reactivation message (AC-5)
+- [x] **Maintenance queue**: supervisor sees all **Under Maintenance** vehicles for their scope (AC-4)
+- [x] **Re-inspection pass**: full checklist → vehicle **Available**; vehicle appears in TDO assignment (AC-5)
+- [x] **Re-inspection fail**: vehicle stays **Under Maintenance**; reason recorded (AC-5)
+- [x] **MDM guard**: inactive vehicle cannot be cleared to **Available** without reactivation message (AC-5)

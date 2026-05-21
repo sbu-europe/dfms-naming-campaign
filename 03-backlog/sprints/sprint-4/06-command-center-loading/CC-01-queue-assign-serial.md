@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 story_id: CC-01
 title: Command Center — Queue, Bay Assignment & Waiting Serial
 epic: Command Center
-status: Pending
+status: In Progress
 story_points: 8
 assignee: Farhan Tanvir(farhanT23)
 prd_refs:
@@ -45,10 +45,10 @@ prd_refs:
   - FG inbound / RM inbound → assign to unloading point
 
 ### AC-4: Waiting serial
-- [ ] Unique **waiting serial per loading point** per vehicle; immutable after issue; issuer + timestamp audit
+- [x] Unique **waiting serial per loading point** per vehicle; immutable after issue; issuer + timestamp audit
 
 ### AC-5: TLS integration
-- [ ] Assignment updates **TO** sub-state (e.g. Assigned to Loading Point) per §6.8.5 naming alignment
+- [x] Assignment updates **TO** sub-state (e.g. Assigned to Loading Point) per §6.8.5 naming alignment
 
 ### AC-6: Raw-material QC checkpoint trigger
 - [ ] For **raw-material** TOs, Command Center updates TO sub-state to make it visible to QC Supervisor (per TLS-01 lifecycle; e.g. `QC Started`)
@@ -57,25 +57,25 @@ prd_refs:
 - [ ] For **finished-goods inbound unloading** assignments, system records unload path states without mandatory QC checkpoint in Sprint 4
 
 ### AC-7: Command center at one site (YARD-01)
-- [ ] Officer queue and assignment screens show only vehicles at **their assigned site**
-- [ ] For raw-material trips, queue shows whether **QC has passed** so bay assignment stays blocked until pass
-- [ ] Waiting serial can be issued as soon as bay is assigned without data-entry dead ends
+- [x] Officer queue and assignment screens show only vehicles at **their assigned site**
+- [x] For raw-material trips, queue shows whether **QC has passed** so bay assignment stays blocked until pass
+- [x] Waiting serial can be issued as soon as bay is assigned without data-entry dead ends
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| CC-01-1 | Queue, bay assignment, and waiting serial records — including QC-passed flag for raw material (**YARD-01**) | DFS-056-1 | Pending |
-| CC-01-2 | Command center queue screen — vehicles at officer’s site only; fed from scale-in | DFS-056-2 | Pending |
-| CC-01-3 | Bay assignment screen — loading/unloading points at same site only (**LUP-01**); updates TO yard step | DFS-056-3 | Pending |
-| CC-01-4 | WaitingSerialAdmin — read-only after issue, issuer + timestamp audit fields | DFS-056-4 | Pending |
-| CC-01-5 | Queue list API (GET with filters: product type, urgency, status) | DFS-056-5 | Pending |
-| CC-01-6 | Bay assignment API (POST — assign vehicle to L/U point) | DFS-056-6 | Pending |
-| CC-01-7 | Waiting serial issuance API (POST — generate immutable serial per loading point) | DFS-056-7 | Pending |
-| CC-01-8 | "My bay" read API for loading personnel (GET — current assignments for a given L/U point) | DFS-056-8 | Pending |
-| CC-01-9 | Command Center UI — queue view, assignment form, serial issuance | DFS-056-9 | Pending |
-| CC-01-10 | RM QC trigger service — update TO sub-state for QC visibility on raw-material TOs (AC-6 handoff) | DFS-056-10 | Pending |
-| CC-01-11 | TLS-01 event emission — emit sub-state transitions on assignment + serial issuance | DFS-056-11 | Pending |
+| CC-01-1 | Queue, bay assignment, and waiting serial records — including QC-passed flag for raw material (**YARD-01**) | DFS-056-1 | Done |
+| CC-01-2 | Command center queue screen — vehicles at officer’s site only; fed from scale-in | DFS-056-2 | Done |
+| CC-01-3 | Bay assignment screen — loading/unloading points at same site only (**LUP-01**); updates TO yard step | DFS-056-3 | Done |
+| CC-01-4 | WaitingSerialAdmin — read-only after issue, issuer + timestamp audit fields | DFS-056-4 | Done |
+| CC-01-5 | Queue list API (GET with filters: product type, urgency, status) | DFS-056-5 | Not done |
+| CC-01-6 | Bay assignment API (POST — assign vehicle to L/U point) | DFS-056-6 | Not done |
+| CC-01-7 | Waiting serial issuance API (POST — generate immutable serial per loading point) | DFS-056-7 | Partial |
+| CC-01-8 | "My bay" read API for loading personnel (GET — current assignments for a given L/U point) | DFS-056-8 | Not done |
+| CC-01-9 | Command Center UI — queue view, assignment form, serial issuance | DFS-056-9 | Partial |
+| CC-01-10 | RM QC trigger service — update TO sub-state for QC visibility on raw-material TOs (AC-6 handoff) | DFS-056-10 | Partial |
+| CC-01-11 | TLS-01 event emission — emit sub-state transitions on assignment + serial issuance | DFS-056-11 | Done |
 
 ## API Endpoints
 
@@ -103,16 +103,16 @@ GET    /api/v1/command-center/my-bay?loading_point_id=                    # Load
 
 ## Definition of Done
 
-- [ ] QueueEntry, BayAssignment, and WaitingSerial models created with migrations passing `makemigrations --check`
+- [x] QueueEntry, BayAssignment, and WaitingSerial models created with migrations passing `makemigrations --check`
 - [ ] Queue list shows only vehicles with completed scale-in and no active assignment (AC-1)
 - [ ] Queue card displays vehicle number, P.C. code, item, scale-in datetime, product type, weight, TO ref, urgency (AC-2)
 - [ ] Bay assignment validates product type / vehicle type against L/U point and shows warning on mismatch (AC-3)
 - [ ] Assignment is immediately visible on the "my bay" view for loading/unloading personnel
-- [ ] Waiting serial is unique per loading point, immutable after issue, with issuer + timestamp audit (AC-4)
-- [ ] Assignment emits TLS-01 sub-state transition (e.g. `Assigned to Loading Point`) on the TO (AC-5)
+- [x] Waiting serial is unique per loading point, immutable after issue, with issuer + timestamp audit (AC-4)
+- [x] Assignment emits TLS-01 sub-state transition (e.g. `Assigned to Loading Point`) on the TO (AC-5)
 - [ ] RM TOs: Command Center updates TO sub-state for QC visibility; does NOT assign unloading point (AC-6)
-- [ ] FG inbound TOs: unload path states recorded without mandatory QC checkpoint
-- [ ] Audit log entry created on every assignment and serial issuance
-- [ ] Officer sees only their site’s queue; other depots’ vehicles never listed (AC-7)
-- [ ] Raw-material bay assignment blocked until QC pass is reflected on the queue (AC-7)
+- [x] FG inbound TOs: unload path states recorded without mandatory QC checkpoint
+- [x] Audit log entry created on every assignment and serial issuance
+- [x] Officer sees only their site’s queue; other depots’ vehicles never listed (AC-7)
+- [x] Raw-material bay assignment blocked until QC pass is reflected on the queue (AC-7)
 - [ ] UAT: assign vehicle → loading screen shows assignment without email/push

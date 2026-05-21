@@ -6,7 +6,7 @@ jira_sprint: "Sprint 4"
 story_id: LD-01
 title: Loading & Unloading — Start/End Timestamps (E2E)
 epic: Command Center
-status: Pending
+status: In Progress
 story_points: 5
 assignee: Farhan Tanvir(farhanT23)
 prd_refs:
@@ -35,41 +35,41 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 ## Acceptance Criteria
 
 ### AC-1: Loading
-- [ ] Operator selects vehicle assigned for loading at a bay
-- [ ] Enter **load start** datetime
-- [ ] Enter **load end** datetime with: number of bags loaded, weight, seal number
-- [ ] Validate end ≥ start; link to **TO**
+- [x] Operator selects vehicle assigned for loading at a bay
+- [x] Enter **load start** datetime
+- [x] Enter **load end** datetime with: number of bags loaded, weight, seal number
+- [x] Validate end ≥ start; link to **TO**
 
 ### AC-2: Unloading
-- [ ] Enter **unload start** and **unload end** with bags unloaded + weight
-- [ ] Chronological validation; link to **TO**
-- [ ] Applies to both FG inbound and RM inbound lanes; QC handoff remains RM-specific in Sprint 4
+- [x] Enter **unload start** and **unload end** with bags unloaded + weight
+- [x] Chronological validation; link to **TO**
+- [x] Applies to both FG inbound and RM inbound lanes; QC handoff remains RM-specific in Sprint 4
 
 ### AC-3: QC handoff context (raw-material path)
-- [ ] After unload event capture, TO has enough context for **QC-01** to run sampling + QC decision
-- [ ] Handoff reference (TO/unload event id) is persisted and auditable
+- [x] After unload event capture, TO has enough context for **QC-01** to run sampling + QC decision
+- [x] Handoff reference (TO/unload event id) is persisted and auditable
 
 ### AC-4: TLS / gate integration
-- [ ] Events feed TLS-01 sub-states (Loading Started/Completed; Unloading Started/Completed)
+- [x] Events feed TLS-01 sub-states (Loading Started/Completed; Unloading Started/Completed)
 
 ### AC-5: Loading vs unloading by site and trip leg (YARD-01)
-- [ ] **Loading** personnel only see outbound trips at **source** site with an assigned loading bay
-- [ ] **Unloading** personnel only see inbound trips at **destination** site; raw-material trips without QC pass cannot start unload
-- [ ] Loading and unloading are separate menus/roles
-- [ ] If QC orders resample or fail during unload, the active unload assignment is cancelled and shown clearly
+- [x] **Loading** personnel only see outbound trips at **source** site with an assigned loading bay
+- [x] **Unloading** personnel only see inbound trips at **destination** site; raw-material trips without QC pass cannot start unload
+- [x] Loading and unloading are separate menus/roles
+- [x] If QC orders resample or fail during unload, the active unload assignment is cancelled and shown clearly
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| LD-01-1 | Load and unload event records — including flag when unload cancelled for QC resample (**YARD-01**) | DFS-057-1 | Pending |
-| LD-01-2 | Loading screen — source-site outbound only, assigned bay required | DFS-057-2 | Pending |
-| LD-01-3 | Unloading screen — destination-site inbound only; QC and resample messaging | DFS-057-3 | Pending |
-| LD-01-4 | Load start/end API (POST — create load event linked to TO and bay assignment) | DFS-057-4 | Pending |
-| LD-01-5 | Unload start/end API (POST — create unload event linked to TO and bay assignment) | DFS-057-5 | Pending |
-| LD-01-6 | QC handoff reference API (GET — retrieve unload event context for QC-01 consumption) | DFS-057-6 | Pending |
-| LD-01-7 | Operator UI — web form for load/unload event capture (mobile deferred) | DFS-057-7 | Pending |
-| LD-01-8 | TLS-01 sub-state emission service — emit Loading Started/Completed, Unloading Started/Completed transitions | DFS-057-8 | Pending |
+| LD-01-1 | Load and unload event records — including flag when unload cancelled for QC resample (**YARD-01**) | DFS-057-1 | Done |
+| LD-01-2 | Loading screen — source-site outbound only, assigned bay required | DFS-057-2 | Done |
+| LD-01-3 | Unloading screen — destination-site inbound only; QC and resample messaging | DFS-057-3 | Done |
+| LD-01-4 | Load start/end API (POST — create load event linked to TO and bay assignment) | DFS-057-4 | Done |
+| LD-01-5 | Unload start/end API (POST — create unload event linked to TO and bay assignment) | DFS-057-5 | Done |
+| LD-01-6 | QC handoff reference API (GET — retrieve unload event context for QC-01 consumption) | DFS-057-6 | Done |
+| LD-01-7 | Operator UI — web form for load/unload event capture (mobile deferred) | DFS-057-7 | Done |
+| LD-01-8 | TLS-01 sub-state emission service — emit Loading Started/Completed, Unloading Started/Completed transitions | DFS-057-8 | Done |
 
 ## API Endpoints
 
@@ -100,12 +100,12 @@ GET    /api/v1/unload-events/{id}/qc-handoff                   # QC handoff cont
 ## Definition of Done
 
 - [ ] LoadEvent and UnloadEvent models created with migrations passing `makemigrations --check`
-- [ ] Load event captures start datetime, end datetime, bags loaded, weight, and seal number linked to TO (AC-1)
-- [ ] Unload event captures start datetime, end datetime, bags unloaded, and weight linked to TO (AC-2)
-- [ ] End datetime ≥ start datetime validation enforced on both load and unload events
-- [ ] QC handoff reference (TO + unload event ID) persisted and retrievable for RM TOs (AC-3)
-- [ ] TLS-01 sub-state transitions emitted: Loading Started, Loading Completed, Unloading Started, Unloading Completed (AC-4)
-- [ ] Load/unload events visible on TO timeline via TLS-01
+- [x] Load event captures start datetime, end datetime, bags loaded, weight, and seal number linked to TO (AC-1)
+- [x] Unload event captures start datetime, end datetime, bags unloaded, and weight linked to TO (AC-2)
+- [x] End datetime ≥ start datetime validation enforced on both load and unload events
+- [x] QC handoff reference (TO + unload event ID) persisted and retrievable for RM TOs (AC-3)
+- [x] TLS-01 sub-state transitions emitted: Loading Started, Loading Completed, Unloading Started, Unloading Completed (AC-4)
+- [x] Load/unload events visible on TO timeline via TLS-01
 - [ ] Audit log entry created on every load and unload event
-- [ ] Loading only at source for outbound FG; unloading only at destination for inbound lanes (AC-5)
+- [x] Loading only at source for outbound FG; unloading only at destination for inbound lanes (AC-5)
 - [ ] UAT: load start/end captured at source POI; unload start/end at destination POI for full E2E flow
