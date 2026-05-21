@@ -8,7 +8,7 @@ title: TO Closure — POD & Gate-Out Linkage
 epic: Lifecycle
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.8.7 Trip Closure & Proof of Delivery (POD) (Phase 1)"
   - "§6.15.4.1 QC Pass/Fail/Auto-Pass Tracking (Phase 1)"

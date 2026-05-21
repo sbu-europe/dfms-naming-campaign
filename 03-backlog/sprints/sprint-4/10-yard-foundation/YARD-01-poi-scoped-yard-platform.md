@@ -8,7 +8,7 @@ title: Yard Foundation — Operator Site Assignment & Shared Yard Rules
 epic: Yard Foundation
 status: Pending
 story_points: 8
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.5.1 Point Of Interest (POI) Setup (Phase 1)"
   - "§6.12.1 Queue Monitoring – View Waiting Vehicles (Phase 1)"

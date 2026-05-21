@@ -8,7 +8,7 @@ title: Loading & Unloading — Start/End Timestamps (E2E)
 epic: Command Center
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.13.1 Loading Monitoring – Load Start/End Date & Time Entry (Phase 1)"
   - "§6.14.1 Unload Monitoring – Unload Start/End Date & Time Entry (Phase 1)"

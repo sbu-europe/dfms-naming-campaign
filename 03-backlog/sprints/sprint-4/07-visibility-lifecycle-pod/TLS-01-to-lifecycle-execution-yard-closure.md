@@ -8,7 +8,7 @@ title: TO Lifecycle — Execution, Yard Step & Timeline Audit
 epic: Lifecycle
 status: Pending
 story_points: 13
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.8.5 TO Lifecycle Management (Phase 1)"
   - "§6.8.7 Trip Closure & Proof of Delivery (POD) (Phase 1 — closure hooks only; rules in POD-01)"

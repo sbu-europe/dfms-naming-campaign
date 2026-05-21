@@ -8,7 +8,7 @@ title: Gate — Gate-In, Gate-Out & Remarks (TO-Linked + Document Categories)
 epic: Gate Operations
 status: Pending
 story_points: 8
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.10.1 Gate-In Entry (Phase 1)"
   - "§6.10.3 Gate-Out Entry (Phase 1)"

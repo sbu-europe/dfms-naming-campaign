@@ -8,7 +8,7 @@ title: Raw-Material QC — Sampling & Pass/Fail Decision
 epic: Lifecycle
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.14.2 QC Trigger on Unloading – Notify QC Department (Phase 3 notification deferred; in-app trigger retained)"
   - "§6.15.1.2 Sample Creation (Phase 1)"

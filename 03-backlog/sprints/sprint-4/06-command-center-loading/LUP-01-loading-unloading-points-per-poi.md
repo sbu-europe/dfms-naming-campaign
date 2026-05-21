@@ -8,7 +8,7 @@ title: Loading & Unloading Points — Create & Maintain per POI
 epic: Command Center
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.5.1 Point Of Interest (POI) Setup — operational sites for gate, command center, QC (Phase 1)"
   - "§6.12.2 Loading/Unloading Assignments — assign to specific loading or unloading point / line / bay (Phase 1)"

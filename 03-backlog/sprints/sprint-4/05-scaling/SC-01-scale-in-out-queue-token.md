@@ -8,7 +8,7 @@ title: Scaling — Scale-In, P.C. Code Capture & Scale-Out
 epic: Scaling / Weighing
 status: Pending
 story_points: 8
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.11.1 Scale-In (Weight Entry) (Phase 1)"
   - "§6.11.2 Queue / Waiting Code (Phase 1)"

@@ -8,7 +8,7 @@ title: Driver Supervisor — Driver State, Attendance & Leave
 epic: Driver Supervisor & Crew
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.6.3.3 Driver State Tracking (Phase 1)"
   - "§6.6.3.4 Driver Availability Status Tracking (Phase 1)"

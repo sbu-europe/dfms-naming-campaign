@@ -8,7 +8,7 @@ title: Driver Supervisor — Vehicle Licence, Health & Handover Checklists
 epic: Driver Supervisor & Crew
 status: Pending
 story_points: 5
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.6.1.2 Vehicle License and Health Management (Phase 1)"
 ---

@@ -8,7 +8,7 @@ title: Driver Mobile — TO List, Execution Milestones & POD
 epic: Driver Mobile
 status: Pending
 story_points: 8
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.16.1.1 Trip Management (Trip Assignment & Navigation) (Phase 1)"
   - "§6.8.7 Trip Closure & Proof of Delivery (POD) — driver confirms delivery in app"

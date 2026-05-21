@@ -8,7 +8,7 @@ title: Gate — On-Demand Transport Order (TO) Creation (Dealer DO & Supplier PO
 epic: Gate Operations
 status: Pending
 story_points: 8
-assignee: ~
+assignee: Farhan Tanvir(farhanT23)
 prd_refs:
   - "§6.10.2.1 On Demand Third Party TO Creation against DO copy for Dealer Entry (Phase 1)"
   - "§6.10.2.2 On Demand Third Party TO Creation against PO copy for Supplier Entry (Phase 1)"
