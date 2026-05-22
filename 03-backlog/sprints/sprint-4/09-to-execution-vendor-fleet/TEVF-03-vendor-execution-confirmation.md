@@ -25,23 +25,41 @@ last_updated: 2026-05-12
 
 Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)** (vehicle, driver, helper, documents, invoice gating). This TEVF is the **feature umbrella**; VM-07 remains the sprint backlog **source of truth** for fields and APIs.
 
-## Acceptance criteria (product-aligned)
+## Acceptance Criteria
 
-- [ ] **Vendor receives TO notification** — *product note:* comprehensive notification channels are **Phase 3**; Phase 1 uses **in-app / email** as per [08-vendor-management/README.md](../08-vendor-management/README.md) until the notification program lands.
-- [ ] **Vendor assigns** for execution. Required vs optional fields:
+### AC-1: Vendor TO Notification (Assigned / Awarded)
+
+- [ ] Assigned or winning vendor receives **TO / bid requirement** notification
+- [ ] Phase 1: **in-app** (+ email where wired) per [08-vendor-management/README.md](../08-vendor-management/README.md)
+- [ ] Comprehensive multi-channel notifications deferred to **Phase 3** (notification program)
+
+### AC-2: Vehicle and Driver Assignment (Execution Confirmation — VM-07)
+
+- [ ] Vendor can confirm execution by assigning vehicle and driver details:
   - **Mandatory:**
     - **Vehicle number**
     - **Driver name** and **driver phone number**
   - **Optional:**
-    - **Driver NID/License** *(optional)*
-    - **Helper details with NID** *(optional)*
-  - Full field contract (validations, vehicle type/capacity match, update-with-reason) is owned by **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)**.
-- [ ] **Vendor uploads — all gated to "after trip/TO Completed":**
-  - **POD** (vendor copy) — **only after** trip/TO `COMPLETED`
-  - **GRN copy** — **only after** trip/TO `COMPLETED`
-  - **Invoice** — **only after** trip/TO `COMPLETED`
-  - Server **MUST** reject uploads of any of these three doc types before the TO reaches `COMPLETED` (per VM-07).
-  - **Driver-side POD** (DM-01 / POD-01) is a separate artifact captured by the driver inside their own app at closure; it gates **TO closure**. The vendor's POD upload here is a **record-copy** that happens **after** the TO is already Completed.
+    - **Driver NID/License**
+    - **Helper details with NID**
+- [ ] Full field contract (validations, vehicle type/capacity match, update-with-reason, trip-start gate) is owned by **[VM-07](../08-vendor-management/VM-07-vehicle-driver-submission.md)**
+
+### AC-3: Post-Completion Document Upload (POD, GRN, Invoice — VM-07)
+
+- [ ] Vendor can upload the following **only after** trip/TO reaches `COMPLETED`:
+  - **POD** (vendor record-copy)
+  - **GRN copy**
+  - **Invoice**
+- [ ] Server **MUST** reject uploads of any of these three document types before the TO reaches `COMPLETED`
+- [ ] **Driver-side POD** (DM-01 / POD-01) is a separate artifact captured by the driver at closure and gates **TO closure**; vendor POD here is a **record-copy after** the TO is already `COMPLETED`
+
+### AC-4: TO Status Visibility (VM-08)
+
+- [ ] Vendor can see TO status updates (e.g. Assigned / Completed / Closed) via vendor portal list and realtime/polling path (VM-08)
+
+### AC-5: Contractual Rate Not Exposed on Execution Surfaces (TEVF-01)
+
+- [ ] Vendor assignment and execution UI **does not** expose resolved contractual rate on the contractual path (TEVF-01 + VM-03)
 
 ## Functional requirements
 

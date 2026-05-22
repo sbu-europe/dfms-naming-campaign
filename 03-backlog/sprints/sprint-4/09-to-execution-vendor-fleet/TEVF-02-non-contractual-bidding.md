@@ -26,20 +26,52 @@ last_updated: 2026-05-12
 
 Non-contractual vendors (**VM-02** membership type) participate via a **published bidding session** ([VM-04](../08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md)), submit structured bids ([VM-05](../08-vendor-management/VM-05-bid-submission.md)), and are selected by TDO ([VM-06](../08-vendor-management/VM-06-bid-evaluation.md)).
 
-## Acceptance criteria (product-aligned)
+## Acceptance Criteria
 
-- [ ] **TDO publishes** bidding requirements including: **required number of vehicles**, **vehicle type**, and **optional reference rate** (guidance only) for bidding.
-- [ ] **Vendors receive** bid notification on the **vendor portal** (full multi-channel notifications per product roadmap; **Phase 3** for notification subsystem depth — see [TEVF-03](TEVF-03-vendor-execution-confirmation.md)).
-- [ ] **TDO can select winner(s)** — including **multiple winning vendors** when the TO / capacity model requires split award (VM-06 implements selection rules).
-- [ ] **TDO assigns TOs** (or capacity slices) **to winning vendors** after decision.
-- [ ] **TDO collects** vendor **offered rate** and **number of vehicles offered** after vendors submit bids.
-- [ ] **TDO can close** an open bid with controlled **open and close time** and controlled vendor selection workflow.
-- [ ] **TDO can view** submitted **price** and **vehicle count** per vendor bid.
-- [ ] **System records bid timestamp** on each submission (immutable record).
-- [ ] **Bidding window is configurable** (within policy min/max — see VM-04).
-- [ ] **TDO can only update the bidding window timeline** (open and/or close **date + time**) during an active bidding session. **All other published parameters are immutable post-publish** — `required_vehicle_count`, `required_vehicle_type`, `required_capacity`, `reference_rate`, eligibility filters. Any other change requires **cancel-and-republish** (see VM-04).
-- [ ] **Bids cannot be edited after submission** (corrections = withdraw-if-policy + resubmit before close, or new bid version disallowed — **default Phase 1: no PATCH after submit**; see VM-05).
-- [ ] **Vendor selection is final once approved** (award approval locks selection; audit log).
+### AC-1: Publish Bidding Requirements (TDO — VM-04)
+
+- [ ] TDO can publish bidding requirements for a TO, including:
+  - **Required number of vehicles**
+  - **Vehicle type**
+  - **Optional reference rate** (guidance only — not binding)
+- [ ] Bidding window open and close **date + time** are set at publish (configurable within policy min/max — VM-04)
+
+### AC-2: Vendor Bid Notification
+
+- [ ] Eligible **non-contractual** vendors receive bid notification on the **vendor portal** (Phase 1: in-app / email per VM-04; full multi-channel deferred to Phase 3 — see [TEVF-03](TEVF-03-vendor-execution-confirmation.md))
+
+### AC-3: Vendor Bid Submission (Rate + Vehicle Count — VM-05)
+
+- [ ] Vendor **SHALL** submit **offered rate** and **number of vehicles offered** (`offered_vehicle_count`) per bid
+- [ ] System records **bid timestamp** on each submission (immutable record)
+- [ ] **Bids cannot be edited after submission** (default Phase 1: no PATCH after submit; corrections = withdraw-if-policy + resubmit before close — VM-05)
+
+### AC-4: TDO Bid Review and Window Control
+
+- [ ] TDO can view submitted **price** and **vehicle count** per vendor bid
+- [ ] TDO can **close** an open bid session with controlled open/close workflow
+- [ ] During an active session, TDO can **only** update the bidding window timeline (open and/or close **date + time**)
+
+### AC-5: Post-Publish Parameter Immutability (VM-04)
+
+- [ ] After publish, these parameters are **immutable** unless TDO **cancels and republishes**:
+  - `required_vehicle_count`
+  - `required_vehicle_type`
+  - `required_capacity`
+  - `reference_rate`
+  - Eligibility filters
+- [ ] Any change to immutable parameters requires **cancel-and-republish** (not in-place PATCH)
+
+### AC-6: Winner Selection and TO Assignment (VM-06)
+
+- [ ] TDO can select **winning vendor(s)** — including **multiple winners** when the TO / capacity model requires split award
+- [ ] TDO assigns TOs (or capacity slices) **to winning vendors** after award decision
+- [ ] **Vendor selection is final once approved** — award approval locks selection; full audit log
+
+### AC-7: Bidding Audit Trail
+
+- [ ] Publish, window change, bid submit, award, and reject-all events are logged for audit
+- [ ] Bid timestamp evidence chain is retained for each submission
 
 ## Functional requirements
 
