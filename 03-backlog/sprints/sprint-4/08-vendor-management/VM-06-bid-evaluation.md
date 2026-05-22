@@ -36,15 +36,15 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 - [ ] System provides basic bid statistics (min/avg/max)
 
 ### AC-2: Winner Selection (single or multiple vendors)
-- [ ] System supports awarding **one or more winning vendors** for a TO when the transport model requires split capacity (e.g. sum of awarded vehicles covers `required_vehicle_count` from VM-04)
-- [ ] TDO can assign **per-vendor awarded vehicle count** (≤ vendor’s offered count; totals must satisfy business rules)
-- [ ] Once an award decision is **approved/finalized**, it is persisted and visible in audit/winning log; **no further vendor changes** without controlled amendment flow (future hook if needed)
-- [ ] Approving an award transitions:
+- [x] System supports awarding **one or more winning vendors** for a TO when the transport model requires split capacity (e.g. sum of awarded vehicles covers `required_vehicle_count` from VM-04)
+- [x] TDO can assign **per-vendor awarded vehicle count** (≤ vendor’s offered count; totals must satisfy business rules)
+- [x] Once an award decision is **approved/finalized**, it is persisted and visible in audit/winning log; **no further vendor changes** without controlled amendment flow (future hook if needed)
+- [x] Approving an award transitions:
   - winning bid(s) → `ACCEPTED`
   - non-selected bids → `REJECTED` (or `CLOSED` if product prefers softer terminal state)
 
 ### AC-3: Winning Log
-- [ ] System tracks bid winning log with:
+- [x] System tracks bid winning log with:
   - Selected vendor(s)
   - Selected bid(s) + **awarded vehicle counts**
   - TDO user
@@ -58,21 +58,21 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 
 ## Functional Requirements (from PRD)
 
-- [ ] **[Critical]** System SHALL support **winner selection** for a TO, including **multiple winning vendors** when required.
-- [ ] **[High]** System SHALL track bid winning log with user and timestamp.
+- [x] **[Critical]** System SHALL support **winner selection** for a TO, including **multiple winning vendors** when required.
+- [x] **[High]** System SHALL track bid winning log with user and timestamp.
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-06-1 | `GET /api/v1/tdo/transport-orders/{to_id}/bids` — joined bid + vendor metadata; sort by cost, offered count, rating, time | ~ | Pending |
-| VM-06-2 | Comparison aggregates — min/avg/max rate; highlight lowest bid | ~ | Pending |
-| VM-06-3 | Award validation — Σ `awarded_vehicle_count` ≤ `required_vehicle_count`; per line ≤ vendor `offered_vehicle_count`; session still awardable | ~ | Pending |
-| VM-06-4 | `POST .../award` — persist allocation; winning bids → `ACCEPTED`; others → `REJECTED`/`CLOSED`; **finalize** lock + winning log (TDO user, timestamp, bid ids, counts) | ~ | Pending |
-| VM-06-5 | TO / trip state transitions after award — handoff flag for **VM-07** vehicle–driver confirmation | ~ | Pending |
-| VM-06-6 | `POST .../reject-all` — mandatory reason; close session; notify all bidders | ~ | Pending |
-| VM-06-7 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | Pending |
-| VM-06-8 | Audit — award decision payload; reject-all reason | ~ | Pending |
+| VM-06-1 | `GET /api/v1/tdo/transport-orders/{to_id}/bids` — joined bid + vendor metadata; sort by cost, offered count, rating, time | ~ | **Partial** |
+| VM-06-2 | Comparison aggregates — min/avg/max rate; highlight lowest bid | ~ | **Partial** |
+| VM-06-3 | Award validation — Σ `awarded_vehicle_count` ≤ `required_vehicle_count`; per line ≤ vendor `offered_vehicle_count`; session still awardable | ~ | **Partial** |
+| VM-06-4 | `POST .../award` — persist allocation; winning bids → `ACCEPTED`; others → `REJECTED`/`CLOSED`; **finalize** lock + winning log (TDO user, timestamp, bid ids, counts) | ~ | **Done** |
+| VM-06-5 | TO / trip state transitions after award — handoff flag for **VM-07** vehicle–driver confirmation | ~ | **Done** |
+| VM-06-6 | `POST .../reject-all` — mandatory reason; close session; notify all bidders | ~ | **Partial** |
+| VM-06-7 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | **Done** |
+| VM-06-8 | Audit — award decision payload; reject-all reason | ~ | **Partial** |
 
 ## API Endpoints (suggested)
 
@@ -97,7 +97,7 @@ Body: { reason }
 ## Definition of Done
 
 - [ ] TDO can compare bids and award **one or more** winners for a TO with auditable vehicle allocations
-- [ ] Winning log stored with user + timestamp
-- [ ] Award triggers vendor next-step requirement (vehicle/driver submission)
+- [x] Winning log stored with user + timestamp
+- [x] Award triggers vendor next-step requirement (vehicle/driver submission)
 - [ ] TDO can reject all bids with reason; session closes; bidders notified
 

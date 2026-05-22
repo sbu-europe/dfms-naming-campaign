@@ -25,7 +25,7 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 ## Acceptance Criteria
 
 ### AC-0: Tenant Join Gating
-- [ ] Vendor can submit bids only for tenants the vendor has **joined and been approved** for
+- [x] Vendor can submit bids only for tenants the vendor has **joined and been approved** for
 
 ### AC-1: Bid Publication Data Visible to Vendor
 - [ ] When bids are published, vendor sees bid details including:
@@ -47,16 +47,16 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 - [ ] System records bid status: `SUBMITTED`, `WITHDRAWN`, `ACCEPTED`, `REJECTED`
 
 ### AC-3: Bid Window Enforcement
-- [ ] System supports configurable bid submission windows (`bid_open_date`, `bid_close_date`)
-- [ ] System prevents bid submission after window closure (hard block); the **effective** `bid_close_date` at the moment the submit reaches the server is authoritative — TDO may have shifted it (see VM-04 AC-6)
-- [ ] If TDO updates the bidding window timeline mid-session (per VM-04 AC-6), the **next** vendor-side bid-list refresh reflects the new `bid_open_date` / `bid_close_date`; **already-submitted bids remain valid** regardless of timeline shifts
+- [x] System supports configurable bid submission windows (`bid_open_date`, `bid_close_date`)
+- [x] System prevents bid submission after window closure (hard block); the **effective** `bid_close_date` at the moment the submit reaches the server is authoritative — TDO may have shifted it (see VM-04 AC-6)
+- [x] If TDO updates the bidding window timeline mid-session (per VM-04 AC-6), the **next** vendor-side bid-list refresh reflects the new `bid_open_date` / `bid_close_date`; **already-submitted bids remain valid** regardless of timeline shifts
 
 ### AC-4: Bid Timestamp + Rate Validity Recording
 - [ ] System records bid timestamp
 - [ ] System records rate validity according to the bid window rules
 
 ### AC-5: Manual Close/Cancel
-- [ ] Bids may be manually closed or cancelled without awarding
+- [x] Bids may be manually closed or cancelled without awarding
 
 ### AC-6: Withdraw Before Deadline (optional policy)
 - [ ] If enabled by tenant policy: vendor can **withdraw** their bid before the deadline (no field edits after submit)
@@ -71,23 +71,23 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 
 - [ ] **[Critical]** System SHALL support bidding for non-contractual vendors (rate + vehicle count).
 - [ ] **[Critical]** Vendor SHALL submit **price** and **offered vehicle count**; bids SHALL be **immutable after submit** (no PATCH).
-- [ ] **[Critical]** System SHALL provide support configurable bid submission windows.
-- [ ] **[High]** System SHALL prevent bid submission after window closure.
-- [ ] **[High]** Bids MAY be manually closed or cancelled without awarding.
+- [x] **[Critical]** System SHALL provide support configurable bid submission windows.
+- [x] **[High]** System SHALL prevent bid submission after window closure.
+- [x] **[High]** Bids MAY be manually closed or cancelled without awarding.
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | `Bid` model — FK session + vendor; `proposed_cost`, `offered_vehicle_count`, `remarks`, `status`, immutable after `SUBMITTED` | ~ | Pending |
-| VM-05-2 | `POST .../bids` — membership + **NON_CONTRACTUAL** guard; **one bid per vendor per session**; numeric validations; cap `offered_vehicle_count` vs TO demand | ~ | Pending |
-| VM-05-3 | Window enforcement — compare server time to **effective** `bid_close_date` / `bid_open_date` (post VM-04 window shifts) | ~ | Pending |
-| VM-05-4 | Record `submitted_at` + snapshot of validity window / session times for audit | ~ | Pending |
-| VM-05-5 | `GET .../bids/{bid_id}` — vendor read own bid; TDO list/detail in VM-06 | ~ | Pending |
-| VM-05-6 | `DELETE .../bids/{bid_id}` (withdraw) — tenant policy flag; before close only; status `WITHDRAWN`; no field mutation | ~ | Pending |
-| VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | Pending |
-| VM-05-8 | Notifications — vendor confirmation; **TDO new bid** (in-app + optional email) per AC-7 | ~ | Pending |
-| VM-05-9 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | Pending |
+| VM-05-1 | `Bid` model — FK session + vendor; `proposed_cost`, `offered_vehicle_count`, `remarks`, `status`, immutable after `SUBMITTED` | ~ | **Partial** |
+| VM-05-2 | `POST .../bids` — membership + **NON_CONTRACTUAL** guard; **one bid per vendor per session**; numeric validations; cap `offered_vehicle_count` vs TO demand | ~ | **Partial** |
+| VM-05-3 | Window enforcement — compare server time to **effective** `bid_close_date` / `bid_open_date` (post VM-04 window shifts) | ~ | **Done** |
+| VM-05-4 | Record `submitted_at` + snapshot of validity window / session times for audit | ~ | **Partial** |
+| VM-05-5 | `GET .../bids/{bid_id}` — vendor read own bid; TDO list/detail in VM-06 | ~ | **Not done** |
+| VM-05-6 | `DELETE .../bids/{bid_id}` (withdraw) — tenant policy flag; before close only; status `WITHDRAWN`; no field mutation | ~ | **Partial** |
+| VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | **Partial** |
+| VM-05-8 | Notifications — vendor confirmation; **TDO new bid** (in-app + optional email) per AC-7 | ~ | **Not done** |
+| VM-05-9 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | **Done** |
 
 ## API Endpoints (suggested)
 
@@ -115,5 +115,5 @@ GET    /api/v1/vendor/bidding-sessions/{session_id}/bids/{bid_id}
 - [ ] Vendor can submit bid within window; submissions blocked after closure
 - [ ] Bid is stored with timestamp and rate validity metadata
 - [ ] Vendor cannot edit bid after submit; withdraw-before-deadline only if policy enabled; actions audited
-- [ ] Admin/TDO can close/cancel bid without awarding
+- [x] Admin/TDO can close/cancel bid without awarding
 

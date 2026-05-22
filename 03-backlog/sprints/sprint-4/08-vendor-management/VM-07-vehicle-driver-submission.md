@@ -53,9 +53,9 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 > **Driver-side POD (DM-01 / POD-01) is a separate artifact** captured by the driver inside their own mobile app at closure — that flow gates TO closure. This AC governs the **vendor's** record-copy upload from the Vendor Mobile app, which happens after the TO is already Completed.
 
 ### AC-3: Update/Change with Reason + Audit Trail
-- [ ] Vendor can update vehicle and driver details with **audit trail**
-- [ ] Vendor can edit vehicle/driver information in case of accidents or uncertain conditions against the same TO
-- [ ] Updates require a **reason** and are logged (who/when/what changed)
+- [x] Vendor can update vehicle and driver details with **audit trail**
+- [x] Vendor can edit vehicle/driver information in case of accidents or uncertain conditions against the same TO
+- [x] Updates require a **reason** and are logged (who/when/what changed)
 
 ### AC-4: Substitution Visibility
 - [ ] Vendor substitution requires **Transport Department visibility** (at least an internal event/log/notification)
@@ -63,22 +63,22 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 ## Functional Requirements (from PRD)
 
 - [ ] **[Critical]** System SHALL surface TO/bid-aligned requirement context to the vendor for the awarded/assigned TO and SHALL require **confirmed** vehicle/driver/helper capture after award/assignment and before trip start.
-- [ ] **[Critical]** System SHALL allow update with reasoning of driver and vehicle information with audit trails.
-- [ ] **[Critical]** System SHALL allow vendor uploads of **POD, GRN copy, and Invoice only when the trip/TO has reached `COMPLETED`** (or equivalent terminal state). Uploads of any of these MUST be rejected before that state regardless of TO/tenant policy.
+- [x] **[Critical]** System SHALL allow update with reasoning of driver and vehicle information with audit trails.
+- [x] **[Critical]** System SHALL allow vendor uploads of **POD, GRN copy, and Invoice only when the trip/TO has reached `COMPLETED`** (or equivalent terminal state). Uploads of any of these MUST be rejected before that state regardless of TO/tenant policy.
 - [ ] **[High]** System SHALL still apply per-document tenant-policy rules (e.g. whether POD/GRN are required versus optional artifacts) on top of the Completed gate.
 
 ## Sub-tasks
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-07-1 | `GET` requirement context for TO — merge TO + publish params (VM-04) visible to assigned/winner vendor only | ~ | Pending |
-| VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver **confirmation** record exists | ~ | Pending |
-| VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | Pending |
-| VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | Pending |
-| VM-07-5 | Internal event/notification — **substitution** visible to Transport (per AC-4) | ~ | Pending |
-| VM-07-6 | `POST .../documents` — multipart `doc_type`: `POD` \| `GRN_COPY` \| `INVOICE`; **409 if TO status ≠ `COMPLETED`** for all three types | ~ | Pending |
-| VM-07-7 | Tenant policy hooks — after Completed gate, enforce required-vs-optional per doc type | ~ | Pending |
-| VM-07-8 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | Pending |
+| VM-07-1 | `GET` requirement context for TO — merge TO + publish params (VM-04) visible to assigned/winner vendor only | ~ | **Partial** |
+| VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver **confirmation** record exists | ~ | **Partial** |
+| VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | **Partial** |
+| VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | **Done** |
+| VM-07-5 | Internal event/notification — **substitution** visible to Transport (per AC-4) | ~ | **Not done** |
+| VM-07-6 | `POST .../documents` — multipart `doc_type`: `POD` \| `GRN_COPY` \| `INVOICE`; **409 if TO status ≠ `COMPLETED`** for all three types | ~ | **Done** |
+| VM-07-7 | Tenant policy hooks — after Completed gate, enforce required-vs-optional per doc type | ~ | **Not done** |
+| VM-07-8 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | **Done** |
 
 ## API Endpoints (suggested)
 
@@ -99,6 +99,6 @@ POST  /api/v1/vendor/transport-orders/{to_id}/documents        Body: multipart; 
 ## Definition of Done
 
 - [ ] Winning vendor cannot start trip until requirement context is available and vehicle/driver/helper **confirmation** is recorded
-- [ ] Updates require reason and produce audit logs
-- [ ] **POD, GRN copy, and Invoice uploads are all blocked until the trip/TO reaches `COMPLETED`** (server-enforced for all three doc types); once Completed, each can be uploaded independently subject to tenant-policy requirements
+- [x] Updates require reason and produce audit logs
+- [x] **POD, GRN copy, and Invoice uploads are all blocked until the trip/TO reaches `COMPLETED`** (server-enforced for all three doc types); once Completed, each can be uploaded independently subject to tenant-policy requirements
 

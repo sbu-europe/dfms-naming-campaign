@@ -55,22 +55,22 @@ Onboarding scope boundaries:
 
 ### AC-2: Mandatory Compliance Document Upload
 
-- [ ] Vendor must upload all mandatory documents before submission:
+- [x] Vendor must upload all mandatory documents before submission:
   - Trade License
   - BIN
   - TIN
-- [ ] Submission is blocked until all mandatory documents are provided
+- [x] Submission is blocked until all mandatory documents are provided
 
 ### AC-3: Reference/Testimonial Capture
 
-- [ ] Vendor can provide a testimonial/reference from Truck Association as part of the registration profile
+- [x] Vendor can provide a testimonial/reference from Truck Association as part of the registration profile
 
 ### AC-4: Vendor Is Not Tenant-Active Until Join Approved (type set by tenant — VM-02)
 
-- [ ] After **successful platform registration** (including mandatory documents), vendor can see a list of **active tenants**
-- [ ] Vendor can submit a **join request** to one or more tenants
-- [ ] Vendor cannot see bids/trips for a tenant until the tenant approves the join request
-- [ ] **Tenant-scoped** vendor type (Contractual vs Non-Contractual) is assigned **only** when the tenant approves the join — not by the vendor at registration (VM-02)
+- [x] After **successful platform registration** (including mandatory documents), vendor can see a list of **active tenants**
+- [x] Vendor can submit a **join request** to one or more tenants
+- [x] Vendor cannot see bids/trips for a tenant until the tenant approves the join request
+- [x] **Tenant-scoped** vendor type (Contractual vs Non-Contractual) is assigned **only** when the tenant approves the join — not by the vendor at registration (VM-02)
 
 ### AC-5: Resubmission-Friendly Data Model
 
@@ -86,10 +86,10 @@ Onboarding scope boundaries:
 
 ## Functional Requirements (from PRD)
 
-- [ ] **[Critical]** System SHALL provide a vendor self-registration flow in the **Vendor Mobile** app (web deferred).
+- [x] **[Critical]** System SHALL provide a vendor self-registration flow in the **Vendor Mobile** app (web deferred).
 - [ ] **[Critical]** System SHALL require document uploads (trade license, BIN, TIN) before submission.
-- [ ] **[Critical]** System SHALL NOT provide a platform-admin "create vendor" or "invite vendor" path in Phase 1. Vendor onboarding is **self-service via the Vendor Mobile app only**.
-- [ ] **[High]** Vendor registration SHALL capture company profile and compliance data **only** (no vehicle or driver master registration in this story).
+- [x] **[Critical]** System SHALL NOT provide a platform-admin "create vendor" or "invite vendor" path in Phase 1. Vendor onboarding is **self-service via the Vendor Mobile app only**.
+- [x] **[High]** Vendor registration SHALL capture company profile and compliance data **only** (no vehicle or driver master registration in this story).
 - [ ] **[High]** System SHALL allow vendors to update registration documents/profile with full audit trail (no platform-admin reject loop in current scope).
 - [ ] **[High]** All vendor registration attempts SHALL be logged for audit.
 
@@ -121,14 +121,14 @@ PATCH  /api/v1/vendors/registrations/{id}
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-01-1 | Vendor identity / pre-user model + auth hook for self-registration | ~ | Pending |
-| VM-01-2 | `POST/GET /api/v1/vendors/registrations` — create + retrieve registration; server validation mirrors mobile required fields | ~ | Pending |
-| VM-01-3 | Registration payload **excludes** `vendor_type` (tenant assigns on join — VM-02) | ~ | Pending |
-| VM-01-4 | `POST /api/v1/vendors/registrations/{id}/documents` — Trade License, BIN, TIN mandatory before first complete submit; storage + MIME/size policy | ~ | Pending |
-| VM-01-5 | `PATCH /api/v1/vendors/registrations/{id}` — company + contacts + testimonial; resubmission-friendly versioning / history | ~ | Pending |
-| VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | Pending |
-| VM-01-7 | Audit: registration attempts (who/when/outcome) + structured audit for document/profile mutations | ~ | Pending |
-| VM-01-8 | Post-registration: vendor **platform-active** state; surface **active tenants** + join-request entry (handoff to VM-02) | ~ | Pending |
+| VM-01-1 | Vendor identity / pre-user model + auth hook for self-registration | ~ | **Done** |
+| VM-01-2 | `POST/GET /api/v1/vendors/registrations` — create + retrieve registration; server validation mirrors mobile required fields | ~ | **Partial** |
+| VM-01-3 | Registration payload **excludes** `vendor_type` (tenant assigns on join — VM-02) | ~ | **Done** |
+| VM-01-4 | `POST /api/v1/vendors/registrations/{id}/documents` — Trade License, BIN, TIN mandatory before first complete submit; storage + MIME/size policy | ~ | **Done** |
+| VM-01-5 | `PATCH /api/v1/vendors/registrations/{id}` — company + contacts + testimonial; resubmission-friendly versioning / history | ~ | **Partial** |
+| VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | **Partial** |
+| VM-01-7 | Audit: registration attempts (who/when/outcome) + structured audit for document/profile mutations | ~ | **Partial** |
+| VM-01-8 | Post-registration: vendor **platform-active** state; surface **active tenants** + join-request entry (handoff to VM-02) | ~ | **Done** |
 
 ## Dependencies
 
@@ -138,11 +138,11 @@ PATCH  /api/v1/vendors/registrations/{id}
 
 ## Definition of Done
 
-- [ ] Vendor can submit registration from **Vendor Mobile** and receives a confirmation response
+- [x] Vendor can submit registration from **Vendor Mobile** and receives a confirmation response
 - [ ] Registration submission blocked without required docs
-- [ ] Record is tenant-isolated; vendor platform state becomes **`ACTIVE`** when registration + mandatory docs path is satisfied (no platform-admin approval step)
-- [ ] **No** platform-admin onboarding/invite endpoints are exposed; self-registration via Vendor Mobile is the sole onboarding path
-- [ ] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-07 for execution-time capture)
-- [ ] Vendor cannot access **tenant** bids/TO details until tenant join is approved (VM-02)
+- [x] Record is tenant-isolated; vendor platform state becomes **`ACTIVE`** when registration + mandatory docs path is satisfied (no platform-admin approval step)
+- [x] **No** platform-admin onboarding/invite endpoints are exposed; self-registration via Vendor Mobile is the sole onboarding path
+- [x] Registration payloads do **not** require or persist vendor-managed vehicle/driver master data (aligned with VM-07 for execution-time capture)
+- [x] Vendor cannot access **tenant** bids/TO details until tenant join is approved (VM-02)
 - [ ] All mutations produce audit log entries (registration, documents/profile updates/resubmissions)
 
