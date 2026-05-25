@@ -1,7 +1,15 @@
-# Sprint 4 — Demo feedback
+# Sprint 4 — Demo Feedback
 
-Log client / stakeholder feedback for Sprint 4 stories here (append rows to the table or add dated sections).
+Client / stakeholder feedback captured from Sprint 4 demo review. Items below are written as actionable BA notes and mapped to existing stories where possible.
 
-| Date | Story | Feedback | Owner | Status |
-|------|-------|----------|-------|--------|
-| — | — | — | — | — |
+| Date | Story / Backlog fit | Demo feedback | Owner | Status |
+|------|----------------------|---------------|-------|--------|
+| 2026-05-21 | LD-01 / GT-02 | Loading and unloading product entry must be captured **product line item wise**. Operators should not enter only one aggregate product/quantity when a TO contains multiple line items. Align with `LD-01-9` and the line-item structure coming from on-demand TO creation. | Product + Command Center / Loading | Pending backlog item |
+| 2026-05-21 | TLS-01 / DM-01 / LD-01 | TO details page must show a timestamp history for every lifecycle status and yard sub-state, including at source, loading started, loading completed, unloading started, unloading completed, QC events, and related movement states. This maps to the TO timeline / timeline API and admin inline gaps in TLS-01. | Product + Lifecycle | Pending / partial |
+| 2026-05-21 | DM-01 | Replace driver-facing **In Transit Source / Destination** action buttons with a single **Trip Start** button. The button should move the TO into the correct lane-aware driving status based on the TO flow lane. Maps to `DM-01-12`. | Product + Driver Mobile | Pending backlog item |
+| 2026-05-21 | TO lifecycle / DS-01 / DM-01 / TLS-01 | Confirm and align TO status sequence as: **Created** → **Assigned** when TDO assigns vehicle and driver; visible to Driver Supervisor and Driver but driver has no action; **Ready for Dispatch** when Driver Supervisor completes inspection / dispatch release; then driver can start trip, moving to the correct **Driving toward source / destination** state. This needs reconciliation with current DS-01 / DM-01 wording where `ready_for_dispatch` appears before supervisor dispatch and `dispatched` is used as the driver action gate. | Product + Transport Lifecycle | Needs alignment |
+| 2026-05-21 | CC-01 / LUP-01 | A loading or unloading point can serve multiple vehicles. Each vehicle must receive a unique serial per loading/unloading point, and serial numbers reset every day at 12:00 AM. Current CC-01 serial behavior should be tightened to include unloading points and the daily reset rule. | Product + Command Center | Pending clarification |
+| 2026-05-21 | QC-01 / CC-01 / GT-02 | QC trigger must depend on the **Product QC Required** flag at the TO product line item level. The system should not rely only on broad raw-material TO classification when line items carry their own QC requirement. Maps to `QC-01-13`; CC-01 trigger logic must consume the same flag. | Product + QC / Command Center | Pending backlog item |
+| 2026-05-21 | GT-02 | On-demand TO creation must support adding multiple product line items, including product, quantity, and QC-required metadata needed by downstream loading/unloading and QC workflows. Maps to `GT-02-12`. | Product + Gate | Pending backlog item |
+| 2026-05-21 | DS-02 | For Driver Supervisor, **Attendance** and **Leave Management** must appear as separate menu items instead of being buried under one combined area. Maps to `DS-02-18`. | Product + Driver Supervisor | Pending backlog item |
+| 2026-05-21 | DS-01 | When a vehicle moves from **Under Maintenance** to **Available**, the related maintenance-clearance inspection record should show status **Maintenance Completed** in the inspection record list. This should be visible from the Driver Supervisor inspection / maintenance queue history. | Product + Driver Supervisor | Pending clarification |
