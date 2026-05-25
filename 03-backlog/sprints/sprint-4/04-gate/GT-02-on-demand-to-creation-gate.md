@@ -68,20 +68,17 @@ FG inbound (e.g., Port Consignment transfer from planner-created TO per PRD §6.
 | GT-02-3 | OnDemandTOAdmin — Supplier PO form: `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND`, sets QC linkage flag, links to gate session | DFS-062-3 | Done |
 | GT-02-4 | Dealer TO creation REST API (POST) — validates DO number, dealer, product, quantity; returns created TO with session linkage | DFS-062-4 | Done |
 | GT-02-5 | Supplier TO creation REST API (POST) — validates PO number, supplier, product, expected quantity; returns created TO | DFS-062-5 | Done |
-| GT-02-6 | On-demand TO list/detail REST API (GET with filters: source=GATE, transfer_type, date, search) | DFS-062-6 | Partial |
 | GT-02-7 | Gate session ↔ TO linkage service — associates GateVisitSession with newly created TO; updates gate-in context | DFS-062-7 | Done |
 | GT-02-8 | TLS-01 event emission — emit `TO_CREATED` lifecycle event on gate-originated TO creation | DFS-062-8 | Done |
-| GT-02-9 | Inventory/QC hooks — feature-flagged stock check stub for Dealer path; QC linkage flag for Supplier path (stubs if downstream modules incomplete) | DFS-062-9 | Partial |
 | GT-02-10 | Gateman wizard UI — Dealer vs Supplier path selection, form fields per path, validation messages, success confirmation with TO number | DFS-062-10 | Done |
 | GT-02-11 | GateOnDemandActivityLog — audit logging on TO creation, linkage, and validation overrides (user, POI, timestamp, action) | DFS-062-11 | Done |
+| GT-02-12 | On-demand TO creation supports adding product line items | DFS-062-12 | Pending |
 
 ## API Endpoints
 
 ```
 POST   /api/v1/gate/on-demand-to/dealer                        # Create FG TO from Dealer DO
 POST   /api/v1/gate/on-demand-to/supplier                      # Create RM TO from Supplier PO
-GET    /api/v1/gate/on-demand-to?source=GATE&transfer_type=&date=&search=
-GET    /api/v1/gate/on-demand-to/{to_id}
 ```
 
 ## Access & Permissions

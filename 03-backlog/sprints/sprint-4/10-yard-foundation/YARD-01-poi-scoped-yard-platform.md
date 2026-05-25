@@ -78,7 +78,6 @@ Gate (`gateman`) already works in practice, but site assignment for the other ro
 | YARD-01-5 | Shared yard screen rules (from gate pattern); gate regression check | DFS-065-5 | Done |
 | YARD-01-6 | Single policy: allowed actions by lane and by source vs destination visit | DFS-065-6 | Done |
 | YARD-01-7 | Command center / unloading / QC data fields agreed in AC-6 | DFS-065-7 | Done |
-| YARD-01-8 | UAT: gateman (or other POI-scoped role) at Site A cannot see Site B queue or visits | DFS-065-8 | Not done |
 
 ## Access & Permissions
 
@@ -101,4 +100,3 @@ Gate (`gateman`) already works in practice, but site assignment for the other ro
 - [ ] Transport order shows current yard step; yard screens filter on it
 - [x] gateman, scaling_operator, command_center_officer, loading_personnel, unloading_personnel, and qc_inspector_physical follow the same site-scoping pattern
 - [x] Raw-material QC pass/fail visible to command_center_officer queue; resample cancels unload as designed
-- [ ] UAT: two depots — gateman (or other POI-scoped role) at Depot A never sees Depot B work in yard screens

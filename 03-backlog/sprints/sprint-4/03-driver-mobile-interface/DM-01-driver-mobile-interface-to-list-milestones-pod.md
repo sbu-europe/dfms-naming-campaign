@@ -91,16 +91,17 @@ The driver app does **not** invent statuses; each driver action maps to an **all
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | DM-01-1 | `ProofOfDelivery` + `ProofOfDeliveryFile` models + migration — FK to TO; up to **3** files per submission (JPEG/PNG/PDF); optional signature; `submitted_by`, `submitted_at` | DFS-053-1 | Done |
-| DM-01-2 | Driver transition integration — call TLS-01 transition/event ingest for driver-allowed states (post-**Dispatched**); no parallel ad-hoc status enum in driver app | DFS-053-2 | Partial |
+| DM-01-2 | Driver transition integration — call TLS-01 transition/event ingest for driver-allowed states (post-**Dispatched**); no parallel ad-hoc status enum in driver app | DFS-053-2 | Done |
 | DM-01-3 | `ProofOfDeliveryAdmin` — read-only `list_display` (TO ref, driver, submitted_at), file previews in change form; for support/debug | DFS-053-3 | Done |
-| DM-01-4 | Driver TO list API — `GET /api/v1/driver/transport-orders` scoped to authenticated driver; statuses **Ready for Dispatch** through **Closed**; flag `can_execute` / `awaiting_supervisor_dispatch` per row | DFS-053-4 | Partial |
+| DM-01-4 | Driver TO list API — `GET /api/v1/driver/transport-orders` scoped to authenticated driver; statuses **Ready for Dispatch** through **Closed**; flag `can_execute` / `awaiting_supervisor_dispatch` per row | DFS-053-4 | Done |
 | DM-01-5 | Driver TO detail API — `GET /api/v1/driver/transport-orders/{to_id}` (`flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` lane-filtered) | DFS-053-5 | Partial |
-| DM-01-6 | Driver status transition API — `POST /api/v1/driver/transport-orders/{to_id}/transitions` (target status/sub-state per TLS-01) + §6.8.1.7 on first post-Dispatch action | DFS-053-6 | Partial |
+| DM-01-6 | Driver status transition API — `POST /api/v1/driver/transport-orders/{to_id}/transitions` (target status/sub-state per TLS-01) + §6.8.1.7 on first post-Dispatch action | DFS-053-6 | Done |
 | DM-01-7 | POD upload API — `POST /api/v1/driver/transport-orders/{to_id}/pod` (multipart, 1–3 files, JPEG/PNG/PDF) + media storage; reject if status ≠ **Completed** | DFS-053-7 | Done |
-| DM-01-8 | §6.8.1.7 fleet availability validation — invoked on first driver transition after **Dispatched** (coordinate with TLS-01-9) | DFS-053-8 | Partial |
+| DM-01-8 | §6.8.1.7 fleet availability validation — invoked on first driver transition after **Dispatched** (coordinate with TLS-01-9) | DFS-053-8 | Done |
 | DM-01-9 | Photo compression utility — auto-compress JPEG/PNG before storage (max dimension + file size) | DFS-053-9 | Done |
 | DM-01-10 | Mobile/responsive UI — TO list (tabs/filters: awaiting dispatch vs in progress vs completed), detail, transition actions, POD upload (3 slots) | DFS-053-10 | Done |
 | DM-01-11 | Audit logging on driver transitions and POD submissions | DFS-053-11 | Done |
+| DM-01-12 | Trip start button for state transition of TO while starting trip | DFS-053-12 | Pending |
 
 ## API Endpoints
 

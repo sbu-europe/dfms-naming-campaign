@@ -93,11 +93,9 @@ Sprint 4 keeps the model simple:
 | QC-01-5 | Override-to-failed custom admin action — sets decision to Fail, cancels active CC-01 unloading assignment, blocks CC from re-assigning until new QC Pass | DFS-064-5 | Partial |
 | QC-01-6 | QC sample creation API (POST) — create sample linked to TO with physical analysis + remarks | DFS-064-6 | Partial |
 | QC-01-7 | QC decision API (POST) — record Pass/Fail; on Pass mark TO as qc_passed=True (CC then assigns unloading point) | DFS-064-7 | Done |
-| QC-01-8 | Resample API (POST) — reset QC state, cancel active CC-01 unloading assignment | DFS-064-8 | Partial |
-| QC-01-9 | Override API (POST) — change decision to failed, cancel active CC-01 unloading assignment | DFS-064-9 | Partial |
-| QC-01-10 | QC capture UI (web/responsive) — sample creation, Pass/Fail decision, resample/override actions | DFS-064-10 | Partial |
 | QC-01-11 | CC-01 unloading cancellation integration service — callable from resample and override flows | DFS-064-11 | Done |
 | QC-01-12 | TLS-01 event emission + POD-01 closure gate integration — emit timeline events on all QC actions, expose latest decision for POD-01 | DFS-064-12 | Partial |
+| QC-01-13 | Depending on the product QC status, TO status will be flagged for QC | DFS-064-13 | Pending |
 
 ## API Endpoints
 

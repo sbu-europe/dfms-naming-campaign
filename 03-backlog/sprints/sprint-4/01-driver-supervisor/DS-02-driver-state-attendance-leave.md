@@ -56,7 +56,6 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 | DS-02-4 | `DriverStateLog` audit model + migration — driver FK, from_state, to_state, changed_by, timestamp, trigger (manual / auto) | DFS-051-4 | Done |
 | DS-02-5 | Working hours config — `TenantSetting` or `WorkingHoursConfig` model for max daily hours (default 12h) | DFS-051-5 | Done |
 | DS-02-6 | `DriverStateAdmin` — `list_display` with `state_badge` method, `list_filter` (state, POI), search by driver name; read-only for non-supervisor roles via `get_readonly_fields` | DFS-051-6 | Partial |
-| DS-02-7 | `DriverAttendanceAdmin` — list + change form; `save_model` validates date/driver uniqueness, calculates working hours, warns when exceeding configured max | DFS-051-7 | Partial |
 | DS-02-8 | `DriverLeaveAdmin` — leave form with date range picker; `save_model` validates no overlap, transitions driver state to On Leave | DFS-051-8 | Done |
 | DS-02-9 | Driver state machine service — transition rules, validation, `DriverStateLog` audit entries on every transition | DFS-051-9 | Done |
 | DS-02-10 | TLS-01 hooks — auto-update driver state on TO assignment (`Available` → `Assigned`), execution start (`Assigned` → `On Execution`), TO completion (`On Execution` → `Available`) | DFS-051-10 | Partial |
@@ -67,8 +66,9 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 | DS-02-15 | Working hours guardrail — warning response when daily attendance hours exceed configured max | DFS-051-15 | Done |
 | DS-02-16 | Supervisor UI (Sprint 4 = Django Admin only) — see note below | DFS-051-16 | Done |
 | DS-02-17 | Audit logging on all state transitions, attendance entries, and leave records | DFS-051-17 | Partial |
+| DS-02-18 | Separate menu management for driver leave and attendance | DFS-051-18 | Pending |
 
-**Sprint 4 UI delivery (DS-02-16)** — aligns with [Sprint 4 Implementation Overview](../../../../05-modules/SPRINT-4-IMPLEMENTATION-OVERVIEW.md) **Django Admin first**. “Attendance grid”, “leave calendar”, and “driver state board” mean **operational views built with `ModelAdmin` changelists** (columns, `list_filter`, `date_hierarchy` / date-scoped navigation, search, ordering, badges on list rows) plus standard add/change forms — **not** a separate SPA, full-page calendar widget, or custom grid component unless product opens a follow-up story. DS-02-7, DS-02-8, and DS-02-6 (or equivalent read-only state list) satisfy DS-02-16 when exposed in portal nav to the right URLs.
+**Sprint 4 UI delivery (DS-02-16)** — aligns with [Sprint 4 Implementation Overview](../../../../05-modules/SPRINT-4-IMPLEMENTATION-OVERVIEW.md) **Django Admin first**. “Attendance grid”, “leave calendar”, and “driver state board” mean **operational views built with `ModelAdmin` changelists** (columns, `list_filter`, `date_hierarchy` / date-scoped navigation, search, ordering, badges on list rows) plus standard add/change forms — **not** a separate SPA, full-page calendar widget, or custom grid component unless product opens a follow-up story. DS-02-18, DS-02-8, and DS-02-6 (or equivalent read-only state list) satisfy DS-02-16 when exposed in portal nav to the right URLs.
 
 ## API Endpoints
 

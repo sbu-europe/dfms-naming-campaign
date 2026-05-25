@@ -81,11 +81,11 @@ Supports outbound and inbound TO visits by `yard_leg` (FG outbound source + dest
 | SC-01-6 | Scale-in list/detail REST API (GET with filters: date, vehicle, TO number, pc_code, status) | DFS-055-6 | Not done |
 | SC-01-7 | Scale-out REST API (POST) — record remaining weight, auto-calculate net weight, lock records | DFS-055-7 | Done |
 | SC-01-8 | Scale-out detail REST API (GET) — includes net weight, gate pass data | DFS-055-8 | Partial |
-| SC-01-9 | Queue token print template — entered P.C. code, vehicle, product type, weights, TO reference | DFS-055-9 | Partial |
+| SC-01-9 | Queue token print template — entered P.C. code, vehicle, product type, weights, TO reference | DFS-055-9 | Pending |
 | SC-01-10 | Gate pass print template — vehicle, item name, net weight, P.C. code from scale-in | DFS-055-10 | Done |
 | SC-01-11 | Command center queue updated in the same step as scale-in (no separate background step that can fail silently) | DFS-055-11 | Done |
 | SC-01-12 | Scaling operator UI — scale-in form (with P.C. code), scale-out form, session list with status indicators | DFS-055-12 | Done |
-| SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` with leg-specific sub-states | DFS-055-13 | Partial |
+| SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` with leg-specific sub-states | DFS-055-13 | Done |
 
 ## API Endpoints
 
