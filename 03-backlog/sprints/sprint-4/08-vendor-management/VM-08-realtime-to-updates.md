@@ -49,6 +49,7 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 | VM-08-2 | `GET /api/v1/vendor/transport-orders` + `GET .../{to_id}` — include status (`Assigned` / `Completed` / `Closed` per product enum) | ~ | **Done** |
 | VM-08-3 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | ~ | **Partial** |
 | VM-08-4 | TO lifecycle events — emit/consume status transitions so portal lifecycle views (VM-03-9) stay in sync | ~ | **Pending** |
+| VM-08-5 | E2E test coverage — validate vendor-scoped TO updates, delta refresh / polling, lifecycle event propagation, and closed-trip visibility in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

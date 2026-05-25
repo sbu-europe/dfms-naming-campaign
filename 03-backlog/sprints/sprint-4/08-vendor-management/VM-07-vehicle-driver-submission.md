@@ -76,6 +76,7 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 | VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | **Partial** |
 | VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | **Done** |
 | VM-07-5 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | **Done** |
+| VM-07-6 | E2E test coverage — validate vehicle-driver confirmation, trip-start gate, substitution with reason, post-completion uploads, and vendor-only access in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

@@ -61,6 +61,7 @@ PRD scope states Command Center assigns vehicles to **loading/unloading points**
 | LUP-01-6 | Update API (PATCH — update point details, activate/deactivate) | DFS-063-6 | Not done |
 | LUP-01-7 | Audit logging on create / update / deactivate (who, when, what changed) | DFS-063-7 | Not done |
 | LUP-01-8 | Seed data — at least two POIs with multiple L/U points for UAT | DFS-063-8 | Not done |
+| LUP-01-9 | E2E test coverage — validate POI-scoped L/U point creation, activation, list consumption by CC / LD, and audit expectations in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

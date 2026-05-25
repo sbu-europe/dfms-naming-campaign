@@ -70,6 +70,7 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 | VM-03-8 | Integration tests — vendor **A** `NON_CONTRACTUAL`@T1 + **CONTRACTUAL**@T2 sees correct independent surfaces | ~ | **Pending** |
 | VM-03-9 | TO lifecycle management in Vendor Portal — vendor-facing TO states (e.g. assigned / in progress / completed / closed), detail screens, and allowed actions per state | ~ | **Pending** |
 | VM-03-10 | App auto refresh on tab change — when user switches Active Bids / Active Trips / Completed Trips tabs, lists refresh from server | ~ | **Pending** |
+| VM-03-11 | E2E test coverage — validate active bids, active trips, completed trips, tenant-scoped visibility, lifecycle views, and tab refresh in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

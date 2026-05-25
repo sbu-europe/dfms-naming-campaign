@@ -78,6 +78,7 @@ Gate (`gateman`) already works in practice, but site assignment for the other ro
 | YARD-01-5 | Shared yard screen rules (from gate pattern); gate regression check | DFS-065-5 | Done |
 | YARD-01-6 | Single policy: allowed actions by lane and by source vs destination visit | DFS-065-6 | Done |
 | YARD-01-7 | Command center / unloading / QC data fields agreed in AC-6 | DFS-065-7 | Done |
+| YARD-01-8 | E2E test coverage — validate POI-scoped yard access, source / destination visit handling, shared yard rules, and yard-step filtering in next sprint | ~ | **Pending** |
 
 ## Access & Permissions
 

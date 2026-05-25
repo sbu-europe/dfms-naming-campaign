@@ -71,6 +71,7 @@ Sampling/QC decision capture is intentionally kept in a separate story.
 | LD-01-7 | Operator UI — web form for load/unload event capture (mobile deferred) | DFS-057-7 | Done |
 | LD-01-8 | TLS-01 sub-state emission service — emit Loading Started/Completed, Unloading Started/Completed transitions | DFS-057-8 | Done |
 | LD-01-9 | Loading or unloading input captured against product line item input | DFS-057-9 | Pending |
+| LD-01-10 | E2E test coverage — validate load / unload start-end capture, assigned bay dependency, product-line quantities, and TLS sub-state events in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

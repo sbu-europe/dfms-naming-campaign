@@ -76,6 +76,7 @@ Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-
 | TEVF-03-2 | **VM-08** — vendor TO list + delta / `since` polling or push; statuses Assigned / Completed / Closed | ~ | **Done** |
 | TEVF-03-3 | **Contractual path** — ensure vendor assignment UI never exposes resolved contractual rate (TEVF-01 + VM-03) | ~ | Pending |
 | TEVF-03-4 | **Vendor portal TO lifecycle** — lifecycle screens + tab-change refresh (VM-03-9, VM-03-10, VM-08-4) | ~ | Pending |
+| TEVF-03-5 | E2E test coverage — validate vendor execution confirmation, contractual / non-contractual handoffs, lifecycle refresh, and completed-trip visibility in next sprint | ~ | **Pending** |
 
 ## Traceability
 

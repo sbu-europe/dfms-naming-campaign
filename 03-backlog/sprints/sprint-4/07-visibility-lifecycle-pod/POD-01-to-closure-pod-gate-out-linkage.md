@@ -72,6 +72,7 @@ All closure rules apply to the **TO** only (no separate Trip id).
 | POD-01-8 | Closure status API (GET) — return checklist state and blocking reasons for a TO | DFS-060-8 | Not done |
 | POD-01-9 | Planner closure UI — closure dashboard with checklist progress, manual close button, exceptions list | DFS-060-9 | Not done |
 | POD-01-10 | Audit logging on closure attempts — log success and blocked attempts with actor, timestamp, blocking reasons | DFS-060-10 | Partial |
+| POD-01-11 | E2E test coverage — validate POD upload, gate-out / scale-out prerequisites, closure blocking reasons, auto-close trigger, and audit trail in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

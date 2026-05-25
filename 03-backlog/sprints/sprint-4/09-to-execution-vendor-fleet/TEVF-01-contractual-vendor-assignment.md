@@ -72,6 +72,7 @@ last_updated: 2026-05-25
 | TEVF-01-5 | Vendor portal + mobile — assigned TO detail **omits** rate fields; show operational context only (extends VM-03 visibility) | ~ | **Done** |
 | TEVF-01-6 | TO status transitions + audit — assign/reassign actor, timestamp, vendors, quantities | ~ | **Done** |
 | TEVF-01-7 | Handoff to execution — trigger VM-07 confirmation requirement + VM-08 status stream for assigned vendor | ~ | **Done** |
+| TEVF-01-8 | E2E test coverage — validate contractual vendor assignment, rate hiding, execution handoff, and vendor TO visibility in next sprint | ~ | **Pending** |
 
 ## Implementation traceability
 

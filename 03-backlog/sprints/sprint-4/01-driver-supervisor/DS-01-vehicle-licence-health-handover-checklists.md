@@ -183,6 +183,7 @@ Vehicles enter **Under Maintenance** from this story’s inspection **not OK** p
 | DS-01-16 | **Re-inspection** flow — start maintenance-clearance inspection (no TO); reuse checklist responses + complete/reject services with purpose flag | DFS-050-16 | **Done** | - |
 | DS-01-17 | **Return to Available** — guard `is_active=False`; audit event | DFS-050-17 | **Pending** | MDM guard done; central audit remains pending (DS-01-14) |
 | DS-01-18 | Vehicle status update from **Under Maintenance** to **Available** on passed maintenance-clearance re-inspection | DFS-050-18 | **Done** | Applies only after completed checklist; no TO or dispatch side-effects |
+| DS-01-19 | E2E test coverage — validate pre-dispatch checklist skip / approval / rejection, maintenance rollback, and return-to-service paths in next sprint | ~ | **Pending** | Carry to Sprint 5 |
 
 ## API Endpoints (implemented — `apps/fleet_supervisor/urls.py`)
 

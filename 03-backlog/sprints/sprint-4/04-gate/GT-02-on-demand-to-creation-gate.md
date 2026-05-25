@@ -73,6 +73,7 @@ FG inbound (e.g., Port Consignment transfer from planner-created TO per PRD §6.
 | GT-02-10 | Gateman wizard UI — Dealer vs Supplier path selection, form fields per path, validation messages, success confirmation with TO number | DFS-062-10 | Done |
 | GT-02-11 | GateOnDemandActivityLog — audit logging on TO creation, linkage, and validation overrides (user, POI, timestamp, action) | DFS-062-11 | Done |
 | GT-02-12 | On-demand TO creation supports adding product line items | DFS-062-12 | Pending |
+| GT-02-13 | E2E test coverage — validate Dealer DO and Supplier PO on-demand TO creation, product line items, RBAC, and gate linkage in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

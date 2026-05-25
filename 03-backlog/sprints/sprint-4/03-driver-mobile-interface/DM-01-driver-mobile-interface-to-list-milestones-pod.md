@@ -102,6 +102,7 @@ The driver app does **not** invent statuses; each driver action maps to an **all
 | DM-01-10 | Mobile/responsive UI — TO list (tabs/filters: awaiting dispatch vs in progress vs completed), detail, transition actions, POD upload (3 slots) | DFS-053-10 | Done |
 | DM-01-11 | Audit logging on driver transitions and POD submissions | DFS-053-11 | Done |
 | DM-01-12 | Trip start button for state transition of TO while starting trip | DFS-053-12 | Pending |
+| DM-01-13 | E2E test coverage — validate driver TO list / detail, single Trip Start, milestone transitions, POD upload, and access guards in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

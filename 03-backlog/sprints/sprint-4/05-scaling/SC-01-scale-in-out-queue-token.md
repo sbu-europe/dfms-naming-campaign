@@ -86,6 +86,7 @@ Supports outbound and inbound TO visits by `yard_leg` (FG outbound source + dest
 | SC-01-11 | Command center queue updated in the same step as scale-in (no separate background step that can fail silently) | DFS-055-11 | Done |
 | SC-01-12 | Scaling operator UI — scale-in form (with P.C. code), scale-out form, session list with status indicators | DFS-055-12 | Done |
 | SC-01-13 | TLS-01 event emission — emit `SCALE_IN` / `SCALE_OUT` with leg-specific sub-states | DFS-055-13 | Done |
+| SC-01-14 | E2E test coverage — validate scale-in, P.C. code capture, queue token handoff, scale-out, print data, and TLS events in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

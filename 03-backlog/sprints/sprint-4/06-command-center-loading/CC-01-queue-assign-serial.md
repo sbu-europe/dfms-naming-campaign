@@ -76,6 +76,7 @@ prd_refs:
 | CC-01-9 | Command Center UI — queue view, assignment form, serial issuance | DFS-056-9 | Pending |
 | CC-01-10 | RM QC trigger service — update TO sub-state for QC visibility on raw-material TOs (AC-6 handoff) | DFS-056-10 | Done |
 | CC-01-11 | TLS-01 event emission — emit sub-state transitions on assignment + serial issuance | DFS-056-11 | Done |
+| CC-01-12 | E2E test coverage — validate queue filtering, bay assignment, waiting serial issuance, QC handoff, and "my bay" visibility in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

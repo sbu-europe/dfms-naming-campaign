@@ -135,7 +135,36 @@ Reference context: [Vendor management context index](08-vendor-management/README
 | Timeline / status APIs, transition validation, sub-state clearing, admin inline, and automated lifecycle tests | [TLS-01](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | DFS-059-2 / 4 / 7 / 8 / 10 | High |
 | Auto-close trigger, closure APIs, closure dashboard / exceptions list, and closure audit trail | [POD-01](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | DFS-060-6 / 7 / 8 / 9 / 10 | High |
 | QC entry condition, resample / override completeness, all-event timeline audit, and product-line QC flag trigger | [QC-01](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md) | DFS-064-4 / 5 / 6 / 12 / 13 | High |
-| E2E QA story still needs definition for the full TO-centric yard chain | Cross-epic | — | Medium |
+| Story-level E2E test carry-over added for every Sprint 4 story; see Sprint 5 E2E Testing Carry-over below | Cross-epic | Story-level E2E subtasks | Medium |
+
+### Sprint 5 E2E Testing Carry-over
+
+| Story | Pending E2E Sub-task | Sprint 5 E2E Focus | Status |
+|-------|----------------------|---------------------|--------|
+| [DS-01](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01-19 | Pre-dispatch checklist skip / approval / rejection, maintenance rollback, return-to-service | Pending |
+| [DS-02](01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DS-02-19 | Attendance, leave, state board, conflict guard, TLS-driven driver-state changes | Pending |
+| [DM-01](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) | DM-01-13 | Driver TO list / detail, single Trip Start, milestone transitions, POD upload, access guards | Pending |
+| [YARD-01](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | YARD-01-8 | POI-scoped yard access, source / destination visit handling, shared rules, yard-step filtering | Pending |
+| [GT-01](04-gate/GT-01-gate-in-out-remarks.md) | GT-01-14 | Source / destination gate-in, gate-out guards, discrepancy remarks, TLS timeline events | Pending |
+| [GT-02](04-gate/GT-02-on-demand-to-creation-gate.md) | GT-02-13 | Dealer DO and Supplier PO on-demand TO creation, product line items, RBAC, gate linkage | Pending |
+| [SC-01](05-scaling/SC-01-scale-in-out-queue-token.md) | SC-01-14 | Scale-in, P.C. code capture, queue token handoff, scale-out, print data, TLS events | Pending |
+| [LUP-01](06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md) | LUP-01-9 | POI-scoped L/U point setup, activation, CC / LD consumption, audit expectations | Pending |
+| [CC-01](06-command-center-loading/CC-01-queue-assign-serial.md) | CC-01-12 | Queue filtering, bay assignment, waiting serial issuance, QC handoff, "my bay" visibility | Pending |
+| [LD-01](06-command-center-loading/LD-01-load-unload-timestamps.md) | LD-01-10 | Load / unload start-end capture, assigned bay dependency, product-line quantities, TLS sub-state events | Pending |
+| [TLS-01](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01-11 | TO lifecycle transitions, yard sub-state audit timeline, invalid-transition guards, status / timeline APIs | Pending |
+| [POD-01](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | POD-01-11 | POD upload, gate-out / scale-out prerequisites, closure blocking reasons, auto-close trigger, audit trail | Pending |
+| [QC-01](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md) | QC-01-14 | Raw-material QC sample, pass / fail / resample decisions, unloading cancellation, POD closure gate | Pending |
+| [VM-01](08-vendor-management/VM-01-vendor-mobile-onbiorading.md) | VM-01-12 | Vendor registration, mandatory document gating, tenant join handoff, OTP / password recovery, delete account | Pending |
+| [VM-02](08-vendor-management/VM-02-vendor-tenant-join-and-approval.md) | VM-02-9 | Tenant directory, join request, approve / reject decisions, vendor-type scoping, access gates | Pending |
+| [VM-03](08-vendor-management/VM-03-vendor-portal-views.md) | VM-03-11 | Active bids, active trips, completed trips, tenant-scoped visibility, lifecycle views, tab refresh | Pending |
+| [VM-04](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md) | VM-04-13 | Publish pre-checks, bidding window edits, cancel / republish, one-vehicle rule, bid requirement handoff | Pending |
+| [VM-05](08-vendor-management/VM-05-bid-submission.md) | VM-05-11 | Bid submission, one-bid-per-vendor guard, window enforcement, withdraw policy, winner visibility, one-vehicle cap | Pending |
+| [VM-06](08-vendor-management/VM-06-bid-evaluation.md) | VM-06-10 | Bid comparison, award math, reject-all, winning log, single-winner default, execution handoff | Pending |
+| [VM-07](08-vendor-management/VM-07-vehicle-driver-submission.md) | VM-07-6 | Vehicle-driver confirmation, trip-start gate, substitution with reason, post-completion uploads, vendor-only access | Pending |
+| [VM-08](08-vendor-management/VM-08-realtime-to-updates.md) | VM-08-5 | Vendor-scoped TO updates, delta refresh / polling, lifecycle event propagation, closed-trip visibility | Pending |
+| [TEVF-01](09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md) | TEVF-01-8 | Contractual vendor assignment, rate hiding, execution handoff, vendor TO visibility | Pending |
+| [TEVF-02](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) | TEVF-02-6 | Publish to N bids to window update to award / reject-all scripted journey | Pending |
+| [TEVF-03](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) | TEVF-03-5 | Vendor execution confirmation, contractual / non-contractual handoffs, lifecycle refresh, completed-trip visibility | Pending |
 
 ### From Demo Feedback (new / clarified scope — queued for Sprint 4 hardening or Sprint 5 refinement)
 

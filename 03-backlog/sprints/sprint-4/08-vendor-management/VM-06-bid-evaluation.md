@@ -74,6 +74,7 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 | VM-06-7 | Audit — award decision payload; reject-all reason | ~ | **Partial** |
 | VM-06-8 | TDO bid evaluation UX — side-by-side **winner** indication, UX writing, bidding **window** timeline display and help text | ~ | **Pending** |
 | VM-06-9 | Single-winner default when `required_vehicle_count = 1` — simplify award UI/validation (align VM-04-10) | ~ | **Pending** |
+| VM-06-10 | E2E test coverage — validate bid comparison, award math, reject-all, winning log, single-winner default, and execution handoff in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

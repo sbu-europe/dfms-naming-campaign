@@ -67,6 +67,7 @@ PRD §6.6.3.3–§6.6.3.4 (Phase 1). **Not in scope**: §6.6.3.5 Driver Performa
 | DS-02-16 | Supervisor UI (Sprint 4 = Django Admin only) — see note below | DFS-051-16 | Done |
 | DS-02-17 | Audit logging on all state transitions, attendance entries, and leave records | DFS-051-17 | Partial |
 | DS-02-18 | Separate menu management for driver leave and attendance | DFS-051-18 | Pending |
+| DS-02-19 | E2E test coverage — validate attendance, leave, state board, conflict guard, and TLS-driven driver-state changes in next sprint | ~ | **Pending** |
 
 **Sprint 4 UI delivery (DS-02-16)** — aligns with [Sprint 4 Implementation Overview](../../../../05-modules/SPRINT-4-IMPLEMENTATION-OVERVIEW.md) **Django Admin first**. “Attendance grid”, “leave calendar”, and “driver state board” mean **operational views built with `ModelAdmin` changelists** (columns, `list_filter`, `date_hierarchy` / date-scoped navigation, search, ordering, badges on list rows) plus standard add/change forms — **not** a separate SPA, full-page calendar widget, or custom grid component unless product opens a follow-up story. DS-02-18, DS-02-8, and DS-02-6 (or equivalent read-only state list) satisfy DS-02-16 when exposed in portal nav to the right URLs.
 

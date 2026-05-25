@@ -89,6 +89,7 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 | VM-05-8 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | **Done** |
 | VM-05-9 | Bid view UX — TDO/publish context on bid detail, **winner** state when session awarded, bidding **window** labels and copy (Vendor Mobile) | ~ | **Pending** |
 | VM-05-10 | Cap `offered_vehicle_count` to **1** when TO publish enforces single-vehicle model (align VM-04-10) | ~ | **Pending** |
+| VM-05-11 | E2E test coverage — validate bid submission, one-bid-per-vendor guard, window enforcement, withdraw policy, winner visibility, and one-vehicle cap in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

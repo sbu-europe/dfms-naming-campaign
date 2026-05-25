@@ -96,6 +96,7 @@ Sprint 4 keeps the model simple:
 | QC-01-11 | CC-01 unloading cancellation integration service — callable from resample and override flows | DFS-064-11 | Done |
 | QC-01-12 | TLS-01 event emission + POD-01 closure gate integration — emit timeline events on all QC actions, expose latest decision for POD-01 | DFS-064-12 | Partial |
 | QC-01-13 | Depending on the product QC status, TO status will be flagged for QC | DFS-064-13 | Pending |
+| QC-01-14 | E2E test coverage — validate raw-material QC sample creation, pass / fail / resample decisions, unloading cancellation, and POD closure gate in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

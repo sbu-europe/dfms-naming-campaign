@@ -132,6 +132,7 @@ PATCH  /api/v1/vendors/registrations/{id}
 | VM-01-9 | Vendor OTP verification — send/verify OTP on registration or sensitive account actions (mobile + backend) | ~ | **Pending** |
 | VM-01-10 | Forgot password + password reset — request link/OTP, reset token expiry, set new password (Vendor Mobile + auth API) | ~ | **Pending** |
 | VM-01-11 | Delete account — Profile section flow; confirmation, soft-delete or deactivation policy, audit trail | ~ | **Pending** |
+| VM-01-12 | E2E test coverage — validate vendor registration, mandatory document gating, tenant join handoff, OTP / password recovery, and delete-account flows in next sprint | ~ | **Pending** |
 
 ## Dependencies
 

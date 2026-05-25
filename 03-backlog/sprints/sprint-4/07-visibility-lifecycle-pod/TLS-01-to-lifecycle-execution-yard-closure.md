@@ -142,6 +142,7 @@ Sprint 3 / TO-02 delivers assignment through **`ready_for_dispatch`** and **`dis
 | TLS-01-8 | Status REST API (`GET …/status`) — returns `status`, `sub_state`, `flow_lane` | DFS-059-8 | Not done |
 | TLS-01-9 | §6.8.1.7 Fleet Availability Validation on first driver execution action | DFS-059-9 | Done |
 | TLS-01-10 | `apply_to_status_transition()` for admin/break-glass POST; `POST …/transitions` validates against `TO_STATUS_TRANSITIONS` (not used by yard modules) | DFS-059-10 | Partial |
+| TLS-01-11 | E2E test coverage — validate TO lifecycle transitions, yard sub-state audit timeline, invalid-transition guards, and status / timeline APIs in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

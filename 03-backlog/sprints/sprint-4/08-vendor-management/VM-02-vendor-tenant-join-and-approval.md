@@ -65,6 +65,7 @@ Tenant Admin cannot invite vendors or see the global vendor directory; tenant-si
 | VM-02-6 | `POST .../reject` — remarks/reason required; transition to `REJECTED`; vendor loses tenant data access | ~ | **Done** |
 | VM-02-7 | Query guards — bids / trips / TOs / bidding sessions return **only** `APPROVED` memberships; per-tenant `vendor_type` exposed to portal layer | ~ | **Done** |
 | VM-02-8 | Tenant Admin approve UI + API — enforce **exactly one** `vendor_type` per approval (`CONTRACTUAL` **or** `NON_CONTRACTUAL`; reject both selected / ambiguous payload) | ~ | **Pending** |
+| VM-02-9 | E2E test coverage — validate tenant directory, join request, approve / reject decisions, vendor-type scoping, and tenant data access gates in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

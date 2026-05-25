@@ -79,6 +79,7 @@ PRD §6.10.1 captures document categories (Supplier PO, Internal TO/Challan, Dea
 | GT-01-11 | Gateman UI — gate-out form with guard status indicators | DFS-054-11 | Partial |
 | GT-01-12 | GateActivityLog model + audit logging on gate-in, gate-out, and remarks (user, POI, timestamp, action) | DFS-054-12 | Done |
 | GT-01-13 | Source vs destination on gate-in; gateman site from formal assignment (**YARD-01**) | DFS-054-13 | Done |
+| GT-01-14 | E2E test coverage — validate source / destination gate-in, gate-out guards, discrepancy remarks, and TLS timeline events in next sprint | ~ | **Pending** |
 
 ## API Endpoints
 

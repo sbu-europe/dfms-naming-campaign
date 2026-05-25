@@ -95,6 +95,7 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 | VM-04-10 | **One vehicle per TO** — enforce `required_vehicle_count = 1` at publish (server + TDO UI); reject publish when TO capacity model allows >1 vehicle | ~ | **Pending** |
 | VM-04-11 | Bid requirement form **before** TO creation — TDO captures transport need / bidding parameters first; TO created or linked when requirements are ready to publish | ~ | **Pending** |
 | VM-04-12 | **Single TR → multiple TOs in one bid** — from one TR, create multiple TOs linked to one bidding session; publish for **non-contractual** vendor eligibility and award (TEVF-02-8) | ~ | **Pending** |
+| VM-04-13 | E2E test coverage — validate publish pre-checks, bidding window edits, cancel / republish, one-vehicle rule, and bid requirement handoff in next sprint | ~ | **Pending** |
 
 ## Suggested API Endpoints
 
