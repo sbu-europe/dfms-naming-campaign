@@ -86,16 +86,15 @@ Non-contractual vendors (**VM-02** membership type) participate via a **publishe
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TEVF-02-1 | **Publish** — VM-04: session create, TO → open bidding, immutable non-timeline params, deadline policy, eligibility (join + non-contractual) | ~ | Pending |
-| TEVF-02-2 | **Window lifecycle** — VM-04: `PATCH` timeline-only rules, shrink/extend limits, auto-close scheduler, cancel + republish path | ~ | Pending |
-| TEVF-02-3 | **Vendor bid** — VM-05: structured payload (rate + `offered_vehicle_count`), immutability, window enforcement, optional withdraw, TDO notifications | ~ | Pending |
-| TEVF-02-4 | **Evaluation & award** — VM-06: compare/sort, multi-vendor award math, winning log, reject-all, terminal bid states | ~ | Pending |
-| TEVF-02-5 | **Notifications & audit** — publish/close/award/reject-all events; bid timestamp evidence chain | ~ | Pending |
-| TEVF-02-6 | **Execution handoff** — post-award vendor sees outcome + enters VM-07 / VM-08 tracks (TEVF-03 umbrella) | ~ | Pending |
-| TEVF-02-7 | **E2E validation** — scripted journey publish → N bids → window update → award/reject-all; align with [TESTING-FLOW.md](TESTING-FLOW.md) | ~ | Pending |
-| TEVF-02-8 | **One vehicle per TO** — publish and bid flows enforce `required_vehicle_count = 1` and `offered_vehicle_count ≤ 1` (VM-04-12, VM-05-11) | ~ | Pending |
-| TEVF-02-9 | **Single TR → multiple TOs in one bid** — from one TR, create multiple TOs under a **single bidding session**; publish and award to **non-contractual** vendors (align VM-04-13, VM-04-14) | ~ | Pending |
-| TEVF-02-10 | **Bid view UX** — vendor + TDO surfaces show winner, window copy, and TDO context (VM-05-10, VM-06-9) | ~ | Pending |
+| TEVF-02-1 | **Publish** — VM-04: session create, TO → open bidding, immutable non-timeline params, deadline policy, eligibility (join + non-contractual) | ~ | **Done** |
+| TEVF-02-2 | **Window lifecycle** — VM-04: `PATCH` timeline-only rules, shrink/extend limits, auto-close scheduler, cancel + republish path | ~ | **Done** |
+| TEVF-02-3 | **Vendor bid** — VM-05: structured payload (rate + `offered_vehicle_count`), immutability, window enforcement, optional withdraw, TDO notifications | ~ | **Done** |
+| TEVF-02-4 | **Evaluation & award** — VM-06: compare/sort, multi-vendor award math, winning log, reject-all, terminal bid states | ~ | **Done** |
+| TEVF-02-5 | **Execution handoff** — post-award vendor sees outcome + enters VM-07 / VM-08 tracks (TEVF-03 umbrella) | ~ | Pending |
+| TEVF-02-6 | **E2E validation** — scripted journey publish → N bids → window update → award/reject-all; align with [TESTING-FLOW.md](TESTING-FLOW.md) | ~ | Pending |
+| TEVF-02-7 | **One vehicle per TO** — publish and bid flows enforce `required_vehicle_count = 1` and `offered_vehicle_count ≤ 1` (VM-04-10, VM-05-10) | ~ | Pending |
+| TEVF-02-8 | **Single TR → multiple TOs in one bid** — from one TR, create multiple TOs under a **single bidding session**; publish and award to **non-contractual** vendors (align VM-04-11, VM-04-12) | ~ | Pending |
+| TEVF-02-9 | **Bid view UX** — vendor + TDO surfaces show winner, window copy, and TDO context (VM-05-9, VM-06-8) | ~ | Pending |
 
 ## Traceability to VM stories
 

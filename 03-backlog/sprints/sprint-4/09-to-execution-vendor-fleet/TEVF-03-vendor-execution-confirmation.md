@@ -72,13 +72,10 @@ Execution handoff for **vendor-assigned** TOs is implemented in **[VM-07](../08-
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TEVF-03-1 | **Phase 1 notifications** — in-app (+ email where wired) when vendor is assigned or award is finalized; defer full multi-channel to roadmap | ~ | Pending |
-| TEVF-03-2 | **VM-07** — requirement surface + `POST` / `PATCH` vehicle–driver confirmation; trip-start gate; substitution visibility | ~ | Pending |
-| TEVF-03-3 | **VM-07** — `POST .../documents` for POD / GRN / INVOICE with **Completed-only** gate + tenant policy on top | ~ | Pending |
-| TEVF-03-4 | **VM-08** — vendor TO list + delta / `since` polling or push; statuses Assigned / Completed / Closed | ~ | Pending |
-| TEVF-03-5 | **Cross-flow docs** — distinguish driver POD (DM-01 / POD-01, closure gate) vs vendor record-copy POD after Completed | ~ | Pending |
-| TEVF-03-6 | **Contractual path** — ensure vendor assignment UI never exposes resolved contractual rate (TEVF-01 + VM-03) | ~ | Pending |
-| TEVF-03-7 | **Vendor portal TO lifecycle** — lifecycle screens + tab-change refresh (VM-03-9, VM-03-10, VM-08-8) | ~ | Pending |
+| TEVF-03-1 | **VM-07** — requirement surface + `POST` / `PATCH` vehicle–driver confirmation; trip-start gate; substitution visibility | ~ | **Done** |
+| TEVF-03-2 | **VM-08** — vendor TO list + delta / `since` polling or push; statuses Assigned / Completed / Closed | ~ | **Done** |
+| TEVF-03-3 | **Contractual path** — ensure vendor assignment UI never exposes resolved contractual rate (TEVF-01 + VM-03) | ~ | Pending |
+| TEVF-03-4 | **Vendor portal TO lifecycle** — lifecycle screens + tab-change refresh (VM-03-9, VM-03-10, VM-08-4) | ~ | Pending |
 
 ## Traceability
 

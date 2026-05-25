@@ -47,12 +47,8 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 |---|----------|------|--------|
 | VM-08-1 | Vendor-scoped TO queryset — only TOs assigned/allotted to vendor via contractual path or bid award (VM-02/VM-06/TEVF-01) | ~ | **Done** |
 | VM-08-2 | `GET /api/v1/vendor/transport-orders` + `GET .../{to_id}` — include status (`Assigned` / `Completed` / `Closed` per product enum) | ~ | **Done** |
-| VM-08-3 | `GET .../updates?since=` — cursor / timestamp delta for **near-real-time** polling client | ~ | **Partial** |
-| VM-08-4 | Optional **WebSocket/SSE** channel — push TO status change events to Vendor Mobile | ~ | **Not done** |
-| VM-08-5 | Emit domain events on TO lifecycle transitions consumed by vendor channel | ~ | **Not done** |
-| VM-08-6 | Authorisation — vendor **read-only** on status; reject mutating verbs on vendor TO status | ~ | **Not done** |
-| VM-08-7 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | ~ | **Partial** |
-| VM-08-8 | TO lifecycle events — emit/consume status transitions so portal lifecycle views (VM-03-9) stay in sync | ~ | **Pending** |
+| VM-08-3 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | ~ | **Partial** |
+| VM-08-4 | TO lifecycle events — emit/consume status transitions so portal lifecycle views (VM-03-9) stay in sync | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

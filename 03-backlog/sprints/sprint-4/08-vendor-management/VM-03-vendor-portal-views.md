@@ -61,13 +61,13 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | VM-03-1 | Vendor portal access guard — completed onboarding (VM-01) + **≥1** `APPROVED` membership (VM-02) | ~ | **Done** |
-| VM-03-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — active tenant directory (reuse VM-02-2 contract) | ~ | **Partial** |
-| VM-03-3 | `GET /api/v1/vendor/tenants/joined` — per-tenant `join_status` + `vendor_type` for gating | ~ | **Partial** |
-| VM-03-4 | `GET /api/v1/vendor/bids?status=ACTIVE` — **NON_CONTRACTUAL** + `APPROVED` tenant + published/open sessions (VM-04) | ~ | **Partial** |
-| VM-03-5 | `GET /api/v1/vendor/trips?status=ACTIVE` — scoped to `APPROVED` tenants; **CONTRACTUAL** sees assigned/execution TOs; **NON_CONTRACTUAL** post-award trips | ~ | **Partial** |
-| VM-03-6 | `GET /api/v1/vendor/trips?status=COMPLETED` — same tenant + type rules as active trips | ~ | **Partial** |
-| VM-03-7 | Vendor Mobile — tab/list UX for Active Bids / Active Trips / Completed Trips + empty states when gated out | ~ | **Partial** |
-| VM-03-8 | Integration tests — vendor **A** `NON_CONTRACTUAL`@T1 + **CONTRACTUAL**@T2 sees correct independent surfaces | ~ | **Not done** |
+| VM-03-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — active tenant directory (reuse VM-02-2 contract) | ~ | **Done** |
+| VM-03-3 | `GET /api/v1/vendor/tenants/joined` — per-tenant `join_status` + `vendor_type` for gating | ~ | **Done** |
+| VM-03-4 | `GET /api/v1/vendor/bids?status=ACTIVE` — **NON_CONTRACTUAL** + `APPROVED` tenant + published/open sessions (VM-04) | ~ | **Done** |
+| VM-03-5 | `GET /api/v1/vendor/trips?status=ACTIVE` — scoped to `APPROVED` tenants; **CONTRACTUAL** sees assigned/execution TOs; **NON_CONTRACTUAL** post-award trips | ~ | **Done** |
+| VM-03-6 | `GET /api/v1/vendor/trips?status=COMPLETED` — same tenant + type rules as active trips | ~ | **Done** |
+| VM-03-7 | Vendor Mobile — tab/list UX for Active Bids / Active Trips / Completed Trips + empty states when gated out | ~ | **Done** |
+| VM-03-8 | Integration tests — vendor **A** `NON_CONTRACTUAL`@T1 + **CONTRACTUAL**@T2 sees correct independent surfaces | ~ | **Pending** |
 | VM-03-9 | TO lifecycle management in Vendor Portal — vendor-facing TO states (e.g. assigned / in progress / completed / closed), detail screens, and allowed actions per state | ~ | **Pending** |
 | VM-03-10 | App auto refresh on tab change — when user switches Active Bids / Active Trips / Completed Trips tabs, lists refresh from server | ~ | **Pending** |
 

@@ -79,17 +79,16 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| VM-05-1 | `Bid` model — FK session + vendor; `proposed_cost`, `offered_vehicle_count`, `remarks`, `status`, immutable after `SUBMITTED` | ~ | **Partial** |
-| VM-05-2 | `POST .../bids` — membership + **NON_CONTRACTUAL** guard; **one bid per vendor per session**; numeric validations; cap `offered_vehicle_count` vs TO demand | ~ | **Partial** |
+| VM-05-1 | `Bid` model — FK session + vendor; `proposed_cost`, `offered_vehicle_count`, `remarks`, `status`, immutable after `SUBMITTED` | ~ | **Done** |
+| VM-05-2 | `POST .../bids` — membership + **NON_CONTRACTUAL** guard; **one bid per vendor per session**; numeric validations; cap `offered_vehicle_count` vs TO demand | ~ | **Done** |
 | VM-05-3 | Window enforcement — compare server time to **effective** `bid_close_date` / `bid_open_date` (post VM-04 window shifts) | ~ | **Done** |
-| VM-05-4 | Record `submitted_at` + snapshot of validity window / session times for audit | ~ | **Partial** |
-| VM-05-5 | `GET .../bids/{bid_id}` — vendor read own bid; TDO list/detail in VM-06 | ~ | **Not done** |
-| VM-05-6 | `DELETE .../bids/{bid_id}` (withdraw) — tenant policy flag; before close only; status `WITHDRAWN`; no field mutation | ~ | **Partial** |
-| VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | **Partial** |
-| VM-05-8 | Notifications — vendor confirmation; **TDO new bid** (in-app + optional email) per AC-7 | ~ | **Not done** |
-| VM-05-9 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | **Done** |
-| VM-05-10 | Bid view UX — TDO/publish context on bid detail, **winner** state when session awarded, bidding **window** labels and copy (Vendor Mobile) | ~ | **Pending** |
-| VM-05-11 | Cap `offered_vehicle_count` to **1** when TO publish enforces single-vehicle model (align VM-04-12) | ~ | **Pending** |
+| VM-05-4 | Record `submitted_at` + snapshot of validity window / session times for audit | ~ | **Done** |
+| VM-05-5 | `GET .../bids/{bid_id}` — vendor read own bid; TDO list/detail in VM-06 | ~ | **Pending** |
+| VM-05-6 | `DELETE .../bids/{bid_id}` (withdraw) — tenant policy flag; before close only; status `WITHDRAWN`; no field mutation | ~ | **Pending** |
+| VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | **Pending** |
+| VM-05-8 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | **Done** |
+| VM-05-9 | Bid view UX — TDO/publish context on bid detail, **winner** state when session awarded, bidding **window** labels and copy (Vendor Mobile) | ~ | **Pending** |
+| VM-05-10 | Cap `offered_vehicle_count` to **1** when TO publish enforces single-vehicle model (align VM-04-10) | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

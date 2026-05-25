@@ -65,13 +65,13 @@ last_updated: 2026-05-25
 
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
-| TEVF-01-1 | Product rules — TO flag / filter for **contractual-eligible** TOs in TDO – Vendor Fleet UI (align tenant policy) | ~ | **Partial** |
-| TEVF-01-2 | Assignment persistence — TO↔vendor link(s) with **capacity split** / multi-vendor rows; FK integrity vs `required_vehicle_count` | ~ | **Not done** |
-| TEVF-01-3 | Contractual **rate resolution** service — read-only to vendor; source = rate tables / contract backend (no vendor edit endpoint) | ~ | **Partial** |
-| TEVF-01-4 | TDO assign API — e.g. `POST /api/v1/tdo/transport-orders/{to_id}/contractual-assignments` with vendor allocation payload; guard **membership `vendor_type=CONTRACTUAL`** (VM-02) | ~ | **Partial** |
+| TEVF-01-1 | Product rules — TO flag / filter for **contractual-eligible** TOs in TDO – Vendor Fleet UI (align tenant policy) | ~ | **Done** |
+| TEVF-01-2 | Assignment persistence — TO↔vendor link(s) with **capacity split** / multi-vendor rows; FK integrity vs `required_vehicle_count` | ~ | **Pending** |
+| TEVF-01-3 | Contractual **rate resolution** service — read-only to vendor; source = rate tables / contract backend (no vendor edit endpoint) | ~ | **Done** |
+| TEVF-01-4 | TDO assign API — e.g. `POST /api/v1/tdo/transport-orders/{to_id}/contractual-assignments` with vendor allocation payload; guard **membership `vendor_type=CONTRACTUAL`** (VM-02) | ~ | **Done** |
 | TEVF-01-5 | Vendor portal + mobile — assigned TO detail **omits** rate fields; show operational context only (extends VM-03 visibility) | ~ | **Done** |
-| TEVF-01-6 | TO status transitions + audit — assign/reassign actor, timestamp, vendors, quantities | ~ | **Partial** |
-| TEVF-01-7 | Handoff to execution — trigger VM-07 confirmation requirement + VM-08 status stream for assigned vendor | ~ | **Partial** |
+| TEVF-01-6 | TO status transitions + audit — assign/reassign actor, timestamp, vendors, quantities | ~ | **Done** |
+| TEVF-01-7 | Handoff to execution — trigger VM-07 confirmation requirement + VM-08 status stream for assigned vendor | ~ | **Done** |
 
 ## Implementation traceability
 

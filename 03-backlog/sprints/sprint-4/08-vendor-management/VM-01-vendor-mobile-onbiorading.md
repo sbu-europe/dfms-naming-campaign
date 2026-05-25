@@ -122,11 +122,11 @@ PATCH  /api/v1/vendors/registrations/{id}
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | VM-01-1 | Vendor identity / pre-user model + auth hook for self-registration | ~ | **Done** |
-| VM-01-2 | `POST/GET /api/v1/vendors/registrations` — create + retrieve registration; server validation mirrors mobile required fields | ~ | **Partial** |
+| VM-01-2 | `POST/GET /api/v1/vendors/registrations` — create + retrieve registration; server validation mirrors mobile required fields | ~ | **Done** |
 | VM-01-3 | Registration payload **excludes** `vendor_type` (tenant assigns on join — VM-02) | ~ | **Done** |
 | VM-01-4 | `POST /api/v1/vendors/registrations/{id}/documents` — Trade License, BIN, TIN mandatory before first complete submit; storage + MIME/size policy | ~ | **Done** |
-| VM-01-5 | `PATCH /api/v1/vendors/registrations/{id}` — company + contacts + testimonial; resubmission-friendly versioning / history | ~ | **Partial** |
-| VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | **Partial** |
+| VM-01-5 | `PATCH /api/v1/vendors/registrations/{id}` — company + contacts + testimonial; resubmission-friendly versioning / history | ~ | **Done** |
+| VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | **Done** |
 | VM-01-7 | Audit: registration attempts (who/when/outcome) + structured audit for document/profile mutations | ~ | **Partial** |
 | VM-01-8 | Post-registration: vendor **platform-active** state; surface **active tenants** + join-request entry (handoff to VM-02) | ~ | **Done** |
 | VM-01-9 | Vendor OTP verification — send/verify OTP on registration or sensitive account actions (mobile + backend) | ~ | **Pending** |

@@ -70,11 +70,10 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 | VM-06-3 | Award validation — Σ `awarded_vehicle_count` ≤ `required_vehicle_count`; per line ≤ vendor `offered_vehicle_count`; session still awardable | ~ | **Partial** |
 | VM-06-4 | `POST .../award` — persist allocation; winning bids → `ACCEPTED`; others → `REJECTED`/`CLOSED`; **finalize** lock + winning log (TDO user, timestamp, bid ids, counts) | ~ | **Done** |
 | VM-06-5 | TO / trip state transitions after award — handoff flag for **VM-07** vehicle–driver confirmation | ~ | **Done** |
-| VM-06-6 | `POST .../reject-all` — mandatory reason; close session; notify all bidders | ~ | **Partial** |
-| VM-06-7 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | **Done** |
-| VM-06-8 | Audit — award decision payload; reject-all reason | ~ | **Partial** |
-| VM-06-9 | TDO bid evaluation UX — side-by-side **winner** indication, UX writing, bidding **window** timeline display and help text | ~ | **Pending** |
-| VM-06-10 | Single-winner default when `required_vehicle_count = 1` — simplify award UI/validation (align VM-04-12) | ~ | **Pending** |
+| VM-06-6 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | **Done** |
+| VM-06-7 | Audit — award decision payload; reject-all reason | ~ | **Partial** |
+| VM-06-8 | TDO bid evaluation UX — side-by-side **winner** indication, UX writing, bidding **window** timeline display and help text | ~ | **Pending** |
+| VM-06-9 | Single-winner default when `required_vehicle_count = 1` — simplify award UI/validation (align VM-04-10) | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

@@ -58,14 +58,13 @@ Tenant Admin cannot invite vendors or see the global vendor directory; tenant-si
 | # | Sub-task | Jira | Status |
 |---|----------|------|--------|
 | VM-02-1 | Membership model — `(vendor, tenant)`, `status`, `vendor_type` (nullable until `APPROVED`), timestamps | ~ | **Done** |
-| VM-02-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — directory of tenants vendor may request to join | ~ | **Partial** |
+| VM-02-2 | `GET /api/v1/vendor/tenants?status=ACTIVE` — directory of tenants vendor may request to join | ~ | **Done** |
 | VM-02-3 | `POST /api/v1/vendor/tenants/{tenant_id}/join-requests` — idempotent rules, `PENDING` visibility to vendor | ~ | **Done** |
 | VM-02-4 | `GET /api/v1/tenant/vendors/join-requests` — tenant queue + filters (`PENDING` / history) | ~ | **Done** |
 | VM-02-5 | `POST .../approve` — mandatory body `vendor_type` (`CONTRACTUAL` \| `NON_CONTRACTUAL`); transition to `APPROVED` | ~ | **Done** |
 | VM-02-6 | `POST .../reject` — remarks/reason required; transition to `REJECTED`; vendor loses tenant data access | ~ | **Done** |
 | VM-02-7 | Query guards — bids / trips / TOs / bidding sessions return **only** `APPROVED` memberships; per-tenant `vendor_type` exposed to portal layer | ~ | **Done** |
-| VM-02-8 | Notifications (vendor: approved/rejected; optional in-app + email) + audit (approve includes `vendor_type`) | ~ | **Partial** |
-| VM-02-9 | Tenant Admin approve UI + API — enforce **exactly one** `vendor_type` per approval (`CONTRACTUAL` **or** `NON_CONTRACTUAL`; reject both selected / ambiguous payload) | ~ | **Pending** |
+| VM-02-8 | Tenant Admin approve UI + API — enforce **exactly one** `vendor_type` per approval (`CONTRACTUAL` **or** `NON_CONTRACTUAL`; reject both selected / ambiguous payload) | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

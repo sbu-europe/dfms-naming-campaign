@@ -75,10 +75,7 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 | VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver **confirmation** record exists | ~ | **Partial** |
 | VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | **Partial** |
 | VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | **Done** |
-| VM-07-5 | Internal event/notification — **substitution** visible to Transport (per AC-4) | ~ | **Not done** |
-| VM-07-6 | `POST .../documents` — multipart `doc_type`: `POD` \| `GRN_COPY` \| `INVOICE`; **409 if TO status ≠ `COMPLETED`** for all three types | ~ | **Done** |
-| VM-07-7 | Tenant policy hooks — after Completed gate, enforce required-vs-optional per doc type | ~ | **Not done** |
-| VM-07-8 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | **Done** |
+| VM-07-5 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | **Done** |
 
 ## API Endpoints (suggested)
 
