@@ -1,428 +1,166 @@
----
-sprint: Sprint 4
-title: Own-Fleet TO Execution - Supervisor, Driver, Yard (Gate & Scale), Command Center, POD
-phase: phase-1
-start_date: ~
-end_date: ~
-total_story_points: 91
-status: Planned
-jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
----
-
 # Sprint 4 — Own-Fleet Yard & Field Execution (TO-Centric)
 
-> Full sprint backlog with stories, sub-tasks, and PRD traceability.  
-> **Primary delivery thread** for Sprint 4 remains **own-fleet** FG / Port yard execution (driver, gate, scale, command center, TLS, POD). **Vendor fleet TO execution** (contractual assignment, non-contractual bidding, vendor execution handoff) is documented as **planning + traceability context** in [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md), aligned to [`08-vendor-management/`](08-vendor-management/README.md). **Own-fleet availability validation** (PRD §6.8.1.7) is specified inline in this README — see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817).  
-> Source story specs: [`03-backlog/stories/`](../../stories/)
-
-## Sprint boundary (contract with Sprint 3)
-
-
-| Sprint 3 **ends with**                                                                                    | Sprint 4 **starts from**                                                                                                                                                                                              |
-| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| TO created; **vehicle, driver, helper, ETA** assigned (TO-02); TDO may set TO to `**Ready for Dispatch`** | **Pre-movement compliance** (supervisor), **driver TO list & execution milestones**, **yard chain** (gate → scale → queue → load/unload), **§6.8.5 execution + yard + closure substates** (TLS-01), **POD / closure** |
-
-
-**Do not re-implement** PRD §6.8.1.4 *TO Execution – Own Fleet (TDO assignment)* — that is TO-02.
-
-**No separate Trip record in Sprint 4:** all operational events, yard steps, driver actions, and POD attach to the **Transport Order (TO)** created in Sprint 3. When TDO sets `**Ready for Dispatch`**, the TO becomes **visible to the assigned driver** for execution (DM-01). **§6.8.1.7** (fleet availability validation) is enforced on **first driver execution action** (e.g. marking execution started) unless an earlier hook is agreed in technical design.
-
-**Out of Sprint 4 backlog (deferred):** live **map / GPS / location** features (PRD §6.8.2 map layer & related); **§6.8.8 trip costing** — add in a later backlog tranche. **QA/E2E ticket** for this sprint is **removed** until stories are finalized.
-
-## PRD Phase 1 spine (this sprint)
-
-
-| Theme                                                     | PRD refs                                                                                                                                                                                                                                                                                                                  |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Driver Supervisor / crew                                  | §6.6.1.2; §6.6.3.3–§6.6.3.4 *(supervisor-led operational data — not master-data duplication of §6.6.3.1 / §6.6.3.6 or TDO assignment §6.6.3.2 / §6.6.3.7)*                                                                                                                                                                |
-| TO lifecycle & execution                                  | §6.8.1.7 own-fleet availability validation (see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817)); §6.8.5 (**execution + yard + closure substates** — Sprint 4 scope); §6.8.7; §7.1.9 *(tracking against TO; no separate trip entity in implementation)*                                                                                                                                                           |
-| Driver mobile                                             | §6.16.1.1 + **Mobile Interface Requirements** → Driver Mobile (**map, navigation, background GPS deferred** out of Sprint 4; offline-safe read + POD capture in scope per DM-01)                                                                                                                                          |
-| Gate                                                      | §6.10.1; §6.10.3; §6.10.4; **§6.10.2.1–§6.10.2.2** (on-demand TO at gate)                                                                                                                                                                                                                                                 |
-| Scaling                                                   | §6.11.1–§6.11.3                                                                                                                                                                                                                                                                                                           |
-| Command Center + load / unload ops                        | §6.5.1 (POI as site for CC/LU context); §6.12.1; §6.12.2; §6.12.4; §6.13.1; §6.14.1; §6.14.2                                                                                                                                                                                                                              |
-| Raw-material sampling & QC decision (Sprint 4 simplified) | §6.15.1.2 (sample creation); §6.15.4.1 (QC Pass/Fail/Auto-Pass tracking) — implemented as **yes/no QC outcome only** in Sprint 4 (no physical/lab branch workflow)                                                                                                                                                        |
-| Vendor fleet TO execution (context)                       | **TO Execution – Vendor Fleet** (TDO – Vendor Fleet): contractual assignment (TEVF-01); non-contractual bidding (TEVF-02); vendor execution & confirmation (TEVF-03) — see [`09-to-execution-vendor-fleet/`](09-to-execution-vendor-fleet/README.md) + VM-01…VM-09 |
-| Explicitly **not** core yard thread in Sprint 4           | §6.8.2 live map dashboard; §6.8.8 costing; §6.6.1.3 (fleet health dashboard — P2); §6.6.2.x fuel (P2); §6.6.3.5 driver performance (P3); §6.8.3 calendar dispatch (P2); §6.8.4 TR conjoinment (P2); §6.8.6 incident / re-delivery (P2); §6.12.3 / §6.13.2 **push** notifications (P3 — use **in-app** visibility instead) |
-
-
-## Development flow (recommended build order)
-
-Stories are **numbered for dependency flow**, not menu order.
-
-```
-Wave A — Crew & compliance (parallel with early TLS stub)
-  DS-01 → DS-02
-
-Wave B — TLS-01 state machine (§6.8.5 extensions) + TO Ready for Dispatch → driver eligibility
-  TLS-01   (execution + yard + closure substates; event ingest from yard + driver)
-
-Wave B.5 — Yard foundation (blocks scale, command center, loading, unloading, QC screens)
-  YARD-01  (operator site assignment, source vs destination visit, current yard step on TO, shared site rules)
-
-Wave C — Driver field channel (no map / GPS in Sprint 4)
-  DM-01   (§6.16.1.1 — TO list when Ready for Dispatch; milestones; POD)
-
-Wave D — Yard chain (outbound + inbound)
-  LUP-01 (loading/unloading **points** per POI — can start once POI exists; before first CC assignment)
-  YARD-01 → GT-02 (on-demand TO when no planner TO) → GT-01 → SC-01 → CC-01 → LD-01
-  Finished-goods inbound path (e.g., Port Consignment TO from planner): after **CC-01 unloading-point assignment** and unload capture (LD-01), proceed to closure gate in POD-01 (QC optional per policy)
-  Raw-material path: after **CC-01 unloading-point assignment** and unload capture (LD-01), run **QC-01** (sampling + QC yes/no), then proceed to closure gate in POD-01
-  (planner TO path: skip GT-02)
-
-Wave E — Closure
-  POD-01  (depends on DM-01 + TLS-01 + destination unload path + GT-01 gate-out)
-```
+| | |
+|---|---|
+| **Sprint Dates** | ~ → ~ |
+| **Total Story Points** | 91 SP |
+| **Done** | 0 SP |
+| **Remaining** | 91 SP *(81 SP in progress, 10 SP pending)* |
+| **Overall Completion** | 0% by story status |
 
 ---
 
 ## Epic: Driver Supervisor & Crew Operations
 
-> **Fleet → TO readiness**: licence / health / handover checklists; driver **state** and **manual attendance**; **On Leave** maintenance. Does **not** replace MDM driver/vehicle records (Sprint 2) or TDO assignment (Sprint 3).
+> Goal: Driver Supervisor can validate vehicle readiness, manage handover checklists, and maintain driver state / attendance before TO execution.
 
-
-| #   | Story                                                                                                                     | Task ID | Jira    | SP  | Status  |
-| --- | ------------------------------------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DS-01   | DFS-050 | 5   | Pending |
-| 2   | [Driver state, attendance & leave (supervisor)](01-driver-supervisor/DS-02-driver-state-attendance-leave.md)              | DS-02   | DFS-051 | 5   | Pending |
-
-
-**Sub-total**: 10 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DFS-050 | Pending | 5 |
+| [Driver state, attendance & leave](01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DFS-051 | Pending | 5 |
+| **Subtotal** | | | **10** |
 
 ---
 
-## Epic: Driver Mobile (Phase 1 — no map / location)
+## Epic: Driver Mobile *(Phase 1 — no map / location)*
 
-> Responsive web **or** dedicated mobile shell — single driver identity; **assigned TOs only**. **Map, turn-by-turn navigation, and background GPS are not in Sprint 4.**
+> Goal: Assigned drivers can see their ready TOs, progress execution milestones, and capture POD without introducing live map, GPS, or navigation scope.
 
-
-| #   | Story                                                                                                         | Task ID | Jira    | SP  | Status  |
-| --- | ------------------------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [TO list, execution milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) | DM-01   | DFS-053 | 8   | Pending |
-
-
-**Sub-total**: 8 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [TO list, execution milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) | DFS-053 | In Progress | 8 |
+| **Subtotal** | | | **8** |
 
 ---
 
 ## Epic: Yard Foundation
 
-> Shared rules so each yard role only sees their depot’s work. **Must complete before** scaling, command center, loading/unloading, and QC screens ship.
+> Goal: POI-scoped yard roles resolve their working site, source/destination visit, and current yard step through one shared rule set.
 
-
-| #   | Story                                                                                          | Task ID | Jira    | SP  | Status  |
-| --- | ---------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [Yard foundation — operator site assignment & shared rules](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | YARD-01 | DFS-065 | 8   | Pending |
-
-
-**Sub-total**: 8 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [Yard foundation — operator site assignment & shared yard rules](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | DFS-065 | In Progress | 8 |
+| **Subtotal** | | | **8** |
 
 ---
 
 ## Epic: Gate Operations
 
-> Gate-in / gate-out / remarks for **TO-linked internal transfer** (and other document categories per PRD); supports **source and destination** POIs. **On-demand TO** for dealer DO and supplier PO per **§6.10.2.1–§6.10.2.2**. Uses **YARD-01** for operator site and source vs destination on each visit.
+> Goal: Gate users can record source and destination gate-in / gate-out events, discrepancy remarks, and on-demand TO creation where planner TO does not exist.
 
-
-| #   | Story                                                                                          | Task ID | Jira    | SP  | Status  |
-| --- | ---------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md)                | GT-01   | DFS-054 | 8   | Pending |
-| 2   | [On-demand TO creation — Dealer DO & Supplier PO](04-gate/GT-02-on-demand-to-creation-gate.md) | GT-02   | DFS-062 | 8   | Pending |
-
-
-**Sub-total**: 16 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md) | DFS-054 | In Progress | 8 |
+| [On-demand TO creation — Dealer DO & Supplier PO](04-gate/GT-02-on-demand-to-creation-gate.md) | DFS-062 | In Progress | 8 |
+| **Subtotal** | | | **16** |
 
 ---
 
 ## Epic: Scaling / Weighing
 
+> Goal: Weighbridge operators can capture scale-in / scale-out weights and queue tokens against the same TO execution chain.
 
-| #   | Story                                                                                         | Task ID | Jira    | SP  | Status  |
-| --- | --------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [Scale-in, queue token (P.C. code) & scale-out](05-scaling/SC-01-scale-in-out-queue-token.md) | SC-01   | DFS-055 | 8   | Pending |
-
-
-**Sub-total**: 8 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [Scale-in, P.C. code capture & scale-out](05-scaling/SC-01-scale-in-out-queue-token.md) | DFS-055 | In Progress | 8 |
+| **Subtotal** | | | **8** |
 
 ---
 
 ## Epic: Command Center & Loading / Unloading
 
-> **§6.12.3** push notifications → **out of scope**; Command Center and bay crews see assignments via **live queue UI** and **TO** context. **Loading/unloading points** are sub-locations **under a POI** (PRD §6.12.2); they are defined in **LUP-01** and referenced through assignment and LD-01 timestamps.
+> Goal: Command Center can assign vehicles to POI loading / unloading points, manage waiting serials, and capture load / unload start-end events.
 
-
-| #   | Story                                                                                                                          | Task ID | Jira    | SP  | Status  |
-| --- | ------------------------------------------------------------------------------------------------------------------------------ | ------- | ------- | --- | ------- |
-| 1   | [Loading & unloading points — create & maintain per POI](06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md) | LUP-01  | DFS-063 | 5   | Pending |
-| 2   | [Queue monitoring, bay assignment & waiting serial](06-command-center-loading/CC-01-queue-assign-serial.md)                    | CC-01   | DFS-056 | 8   | Pending |
-| 3   | [Load / unload start–end capture (E2E)](06-command-center-loading/LD-01-load-unload-timestamps.md)                             | LD-01   | DFS-057 | 5   | Pending |
-
-
-**Sub-total**: 18 SP
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [Loading & unloading points — create & maintain per POI](06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md) | DFS-063 | In Progress | 5 |
+| [Queue monitoring, bay assignment & waiting serial](06-command-center-loading/CC-01-queue-assign-serial.md) | DFS-056 | In Progress | 8 |
+| [Load / unload start-end capture](06-command-center-loading/LD-01-load-unload-timestamps.md) | DFS-057 | In Progress | 5 |
+| **Subtotal** | | | **18** |
 
 ---
 
-## Epic: Lifecycle & POD
+## Epic: Lifecycle, POD & QC
 
+> Goal: The Transport Order carries execution, yard, closure, POD, and raw-material QC checkpoints without creating a separate Trip record.
 
-| #   | Story                                                                                                                                     | Task ID | Jira    | SP  | Status  |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------- | --- | ------- |
-| 1   | [TO lifecycle — execution, yard & closure substates (+ audit)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | TLS-01  | DFS-059 | 13  | Pending |
-| 2   | [TO closure — POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md)                              | POD-01  | DFS-060 | 5   | Pending |
-| 3   | [Raw-material QC — sampling & pass/fail decision](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md)                 | QC-01   | DFS-064 | 5   | Pending |
-
-
-**Sub-total**: 23 SP
-
----
-
-## Epic: Vendor Management (Planning Context)
-
-> Adds Sprint 4 backlog context for vendor onboarding, tenant join, portal, bidding, and post-award submission. This does **not** change the own-fleet yard execution delivery scope above; it provides vendor-management backlog context in the same sprint folder for planning and sequencing. **Vendor-fleet TO execution** is summarized and traced in [`09-to-execution-vendor-fleet/README.md`](09-to-execution-vendor-fleet/README.md) (TEVF-01…03). **Own-fleet availability validation (§6.8.1.7)** is specified inline above — see [Own-fleet availability (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817).
-
-**Vendor mobile app context (from Sprint 4)**:
-
-- `[08-vendor-management/VENDOR-MOBILE-CONTEXT.md](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)`
-
-
-| #   | Story / Context                                                                                                                   | Task ID | Jira | SP  | Status  |
-| --- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | ---- | --- | ------- |
-| 1   | [Vendor Mobile Onboarding (Self-registration/invite + compliance docs + profile)](08-vendor-management/VM-01-vendor-mobile-onbiorading.md) | VM-01/02 | ~   | ~   | Pending |
-| 3   | [Vendor ↔ Tenant Join Requests + Tenant Approval](08-vendor-management/VM-02-vendor-tenant-join-and-approval.md)                  | VM-02   | ~    | ~   | Pending |
-| 4   | [Vendor Portal Views + Visibility Rules](08-vendor-management/VM-03-vendor-portal-views.md)                                       | VM-03   | ~    | ~   | Pending |
-| 5   | [TDO Publish TO to Bidding Portal (deadline + eligibility + notify)](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md) | VM-04   | ~    | ~   | Pending |
-| 6   | [Bid Submission (windows + immutable bid + late-bid prevention)](08-vendor-management/VM-05-bid-submission.md)                    | VM-05   | ~    | ~   | Pending |
-| 7   | [TDO Bid Evaluation (compare + award/reject-all + winning log)](08-vendor-management/VM-06-bid-evaluation.md)                     | VM-06   | ~    | ~   | Pending |
-| 8   | [Bid/TO requirements + vehicle–driver confirmation (post-award)](08-vendor-management/VM-07-vehicle-driver-submission.md)                  | VM-07   | ~    | ~   | Pending |
-| 9   | [Real-time TO Updates in Vendor Portal](08-vendor-management/VM-08-realtime-to-updates.md)                                        | VM-08   | ~    | ~   | Pending |
-
+| Story | Jira | Status | SP |
+|-------|------|--------|----|
+| [TO lifecycle — execution, yard step & timeline audit](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) | DFS-059 | In Progress | 13 |
+| [TO closure — POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md) | DFS-060 | In Progress | 5 |
+| [Raw-material QC — sampling & pass/fail decision](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md) | DFS-064 | In Progress | 5 |
+| **Subtotal** | | | **23** |
 
 ---
 
-## Epic: TO Execution — Vendor Fleet (context)
+## Epic: Vendor Management *(planning context — not counted in 91 SP own-fleet total)*
 
-> **Feature context** (not a separate implementation epic from VM-01…VM-09): maps **TDO – Vendor Fleet** (contractual + non-contractual paths) and **vendor execution** handoff to backlog files. Use this when tracing contractual vs non-contractual paths.
+> Goal: Keep vendor onboarding, bidding, tenant join, and vendor-fleet TO execution traceability visible while Sprint 4 delivery remains focused on own-fleet yard execution.
 
-| # | Context doc | Theme | Notes |
-|---|-------------|-------|--------|
-| 1 | [TEVF-01 — Contractual vendor assignment](09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md) | Contractual assignment | Direct assignment; hide rates from vendor; VM-03 type gate |
-| 2 | [TEVF-02 — Non-contractual bidding](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) | Non-contractual bidding | VM-05 → VM-06 → VM-07; rate + vehicle count; multi-winner |
-| 3 | [TEVF-03 — Vendor execution & confirmation](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) | Vendor execution | VM-08 / VM-09; notifications Phase 3 depth |
-
-**Index:** [`09-to-execution-vendor-fleet/README.md`](09-to-execution-vendor-fleet/README.md)
-
-> **Own-fleet availability validation** is specified inline in the next section — it is **not** vendor-fleet scope.
+| Story / Context | Jira | Status | SP |
+|-----------------|------|--------|----|
+| [Vendor management context index](08-vendor-management/README.md) | ~ | Draft | ~ |
+| [Bid submission windows + structured bid payload](08-vendor-management/VM-05-bid-submission.md) | ~ | Pending | 6 |
+| [TO execution — vendor fleet context](09-to-execution-vendor-fleet/README.md) | ~ | In Progress | 9 |
 
 ---
 
-## Own-fleet availability — vehicle eligibility (§6.8.1.7)
+## Pending Items
 
-> **Scope:** real-time vehicle status check for **own (tenant-managed) fleet** at TO assignment / first execution action. **Not** applicable to vendor fleet (vendors capture vehicle at confirmation — VM-07 / TEVF-03; do not conflate vendor `offered_vehicle_count` in bidding with own-fleet MDM status).
+### Scope Carry-overs (original sprint scope, not yet done)
 
-### User story
+| Item | Story | Jira Sub-task | Priority |
+|------|-------|---------------|----------|
+| Driver Supervisor checklist release / maintenance-clearance flow still pending at story level | [DS-01](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) | DFS-050 | High |
+| Driver state, attendance, and leave management still pending at story level | [DS-02](01-driver-supervisor/DS-02-driver-state-attendance-leave.md) | DFS-051 | High |
+| Existing yard invite / historical visit backfill remains open within Yard Foundation | [YARD-01](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | DFS-065-1 / DFS-065-3 | Medium |
+| Command Center, QC, and loading screens must filter waiting work by current yard step | [YARD-01](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md) | DFS-065-4 | High |
+| QA / E2E backlog item not yet defined for the TO-centric yard chain | Cross-epic | — | Medium |
 
-**As a** Transport Planner  
-**I want** the system to **validate fleet availability**  
-**So that** only **eligible** vehicles are assigned to TOs.
+### Deferred Scope (explicitly not Sprint 4 delivery)
 
-### Vehicle status eligibility (system checks)
-
-The system SHALL evaluate vehicle operational status including at least:
-
-| Status | Assignable for new TO? (target) |
-|--------|----------------------------------|
-| **Available** | Yes |
-| **Active – On the Way (Laden / Empty)** | No |
-| **Active – Waiting to Load** | No |
-| **Active – Waiting to Unload** | No |
-| **Idle** | No (unless product defines Idle as assignable — **default: no**) |
-| **Scheduled / Parked** | No |
-| **Under Maintenance** | No |
-
-- **Only vehicles in an assignable state (default: Available)** appear in **assignment** pickers for own fleet.
-- Status transitions feed from **supervisor / yard / driver / TLS** work packages — see aligned stories below.
-
-### Functional requirements
-
-| Priority | Requirement |
-|----------|-------------|
-| **Critical** | System **SHALL** enforce availability rules so **ineligible** vehicles are **not** assignable to TOs (own fleet). |
-
-### Aligned stories
-
-- [DS-01 — Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md)
-- [DS-02 — Driver state, attendance & leave (supervisor)](01-driver-supervisor/DS-02-driver-state-attendance-leave.md)
-- [DM-01 — Driver mobile interface, TO list, milestones, POD](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md)
-- [TLS-01 — TO lifecycle (execution + yard + closure substates)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md)
-
-### Notes
-
-- Exact **status enum** mapping to database fields is an implementation task; this section captures **business-visible states** from the product definition for own-fleet availability.
-- The hook fires on **assignment** or, by default, on **first driver execution action** (e.g. marking execution started) — see [Sprint boundary](#sprint-boundary-contract-with-sprint-3) — unless an earlier hook is agreed in technical design.
+| Item | Affects | Target |
+|------|---------|--------|
+| Live map, GPS, background location, and navigation | Driver mobile / visibility | Later sprint |
+| Trip costing (§6.8.8) | Transport execution / finance | Later sprint |
+| Incident, halt, re-delivery workflow (§6.8.6) | TO lifecycle | Phase 2 |
+| Detailed physical / lab QC sub-workflows beyond yes-no QC decision | QC | Later sprint |
+| Vendor billing, claims, rating, and advanced bid probability | Vendor management | Phase 2 / Phase 3 |
 
 ---
 
-## QA & Testing
+## Demo Feedback (Sprint 4)
 
-> No QA / E2E backlog item is defined in Sprint 4 yet. Add Playwright (or project-standard) coverage **after** stories are finalized. When added, reference: TO-centric execution (no Trip record), yard chain (GT → SC → CC → LD), TLS-01 §6.8.5 substates, and POD-01 closure — **without** map/GPS or §6.8.8 costing unless those are pulled into scope in a later sprint.
+> Source: Sprint 4 demo feedback log.
 
-## End-to-End flow this sprint delivers (Own Fleet, TO from Sprint 3)
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  SUPERVISOR / COMPLIANCE (Sprint 4)                                          │
-│  Handover checklist (§6.6.1.2) + driver attendance / leave (§6.6.3.3–4)     │
-└───────────────────────────────┬───────────────────────────────────────────┘
-                                ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  TDO / SPRINT 3 HANDOFF                                                      │
-│  TO **Ready for Dispatch** → same TO visible to assigned driver (DM-01);      │
-│  §6.8.5 substates progressed via TLS-01 (+ §6.8.1.7 on first driver action)     │
-└───────────────────────────────┬───────────────────────────────────────────┘
-                                ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  DRIVER APP (§6.16.1.1 — no map/GPS backlog in Sprint 4)                    │
-│  My **TOs** → execution milestones; POD capture linked to **TO**              │
-└───────────────────────────────┬───────────────────────────────────────────┘
-                                ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  YARD: [GT-02 on-demand TO if needed] Gate (§6.10) → Scale-in (§6.11.1) → …   │
-│  **L/U points (LUP-01)** → Command Center assign point + serial (§6.12) →     │
-│  FG outbound: load path; FG inbound (Port/internal): unload path; RM inbound:  │
-│  unload + QC-01 sampling + QC yes/no (§6.14.2 + §6.15.4.1 simplified)         │
-│  → Scale-out → Gate-out                                                         │
-└───────────────────────────────┬───────────────────────────────────────────┘
-                                ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  CLOSE                                                                       │
-│  TLS-01 timeline + KPIs (§6.8.5); POD + gate-out (+ QC checkpoint for RM flow)│
-│  (§6.8.7 / §6.14.2 / §6.15.4.1 simplified) — **no §6.8.8** costing in Sprint 4│
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+| # | Feedback | Source | Affects | Priority | Status | Feedback File |
+|---|----------|--------|---------|----------|--------|---------------|
+| — | No demo feedback recorded yet | — | — | — | — | [feedback.md](feedback.md) |
 
 ---
 
-## Dependency map
+## Technical Highlights
 
-```
-Sprint 3: TO-01, TO-02 (assigned; TDO may set Ready for Dispatch)
-    │
-    ├──► DS-01, DS-02 (can start early; optional gate on driver execution per policy)
-    │
-    ├──► TLS-01 (§6.8.5 execution + yard + closure substates)
-    │         └──► DM-01 (driver TO list & milestones)
-    │         └──► yard + POD-01
-    │
-    ├──► YARD-01 (operator site, source vs destination visit, yard step on TO)
-    │         └──► GT-01, SC-01, CC-01, LD-01, QC-01
-    │
-    ├──► GT-02 (gate-created TO) → TDO assignment as needed — gate path when no planner TO
-    │
-    ├──► LUP-01 → YARD-01 → GT-01 → SC-01 → CC-01 → LD-01
-    │         ├──► FG outbound / FG inbound closure path (POD-01 rules)
-    │         └──► QC-01 (raw-material checkpoint) → POD-01
-    │
-    └──► POD-01 (after DM-01 + TLS-01 + LD/GT path as applicable)
-
-Vendor Onboarding (VM-01/02)                    ──→  Tenant Join (VM-03)
-Tenant Join (VM-03)                      ──→  Contractual (TEVF-01): direct TO assign → VM-08/09
-                                        ──→  Non-contractual (TEVF-02): Vendor Portal + publish + bids (VM-04/05/06)
-Bid Award / multi-winner (VM-07)         ──→  Vehicle/Driver Submission (VM-08)
-Transport Order status changes            ──→  Vendor Portal TO Updates (VM-09)
-Own-fleet assignment / execution        ──→  §6.8.1.7 availability (see "Own-fleet availability" section) → DS / DM / TLS
-```
-
-**Prerequisites from earlier sprints**: MDM POI / vehicle / driver / helper / route (Sprint 2); TR → TO → assignment (Sprint 3). **LUP-01** extends each POI with operational load/unload **points** used by Sprint 4 yard apps.
-
-## Menu structure & role access (Sprint 4 additions)
-
-
-| Area                                                                                  | Roles                                  | Purpose                                                                                      |
-| ------------------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **Fleet / Driver Supervisor** *(exact menu TBD — may live under Fleet or Operations)* | `driver_supervisor`                    | Checklists, attendance, leave, vehicle Under Maintenance from handover                       |
-| **Transport**                                                                         | Planner, TDO, Driver                   | TDO sets **Ready for Dispatch**; driver **my TOs**                                           |
-| **Gate**                                                                              | `gateman`                              | Gate-in / gate-out / remarks; **on-demand TO** (Dealer DO / Supplier PO)                     |
-| **Scaling / Weighbridge**                                                             | `scaling_operator`                     | Scale-in, token, scale-out                                                                   |
-| **Command Center**                                                                    | `command_center_officer`               | Post-scale queue, **assignment to POI loading/unloading point** (see LUP-01), waiting serial |
-| **Loading / Unloading**                                                               | Loading / unloading personnel          | Start–end timestamps at **assigned point**, bags, weight, seal (load)                        |
-| **Master / POI**                                                                      | `tenant_admin` (or same as POI master) | **LUP-01**: create/load/edit **L/U points** under each POI                                   |
-
-
-> Portal keys and permission codes to be added in implementation (`portal_navigation.py`, `constants_rbac.py`) when stories are pulled into development.
-
-## Demo feedback
-
-> No demo feedback recorded for Sprint 4 yet. Log: `[feedback.md](feedback.md)`
+- Sprint 4 is **TO-centric**: operational events, yard steps, driver milestones, POD, and QC attach to the Transport Order created in Sprint 3.
+- Sprint 3 handoff remains: TDO assignment / Ready for Dispatch makes the TO visible to the assigned driver.
+- Yard execution chain is aligned as Gate → Scale → Command Center → Loading / Unloading → QC where applicable → POD / Gate-out closure.
+- POI-scoped role access is central to yard screens: gate, scale, command center, loading, unloading, and QC should only see work for their assigned site.
+- Own-fleet availability (§6.8.1.7) is enforced for tenant-managed fleet and must not be mixed with vendor offered vehicle counts.
+- Vendor-fleet execution is retained as planning context through the vendor management and TEVF documents, not as the primary own-fleet delivery thread.
 
 ---
 
-## Notes
+## Modules / Context Packs
 
-- **Incident / halt / re-delivery** (§6.8.6) is **Phase 2** — do not scope into TLS-01 beyond documenting a future hook.  
-- **§6.8.8 Trip costing** is **not** in Sprint 4 backlog — track for a later sprint.  
-- **Unloading personnel** fields in §6.8.7 overlap **LD-01** at destination; **POD-01** ties driver app POD + **TO** closure rules.
-- `QC-01` owns Sprint 4 raw-material QC gate after unloading assignment/capture: sampling event + `QC Passed` yes/no only. Detailed physical/lab sub-workflows from §6.15 remain for a later sprint.
+The following Sprint 4 folders provide supporting context beyond the main story tables:
+
+- [Dispatch note — Trip removed from Sprint 4 backlog](02-dispatch-trip/README.md)
+- [Vendor management context](08-vendor-management/README.md)
+- [Vendor mobile context](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
+- [TO execution — vendor fleet context](09-to-execution-vendor-fleet/README.md)
 
 ---
 
-## Sprint 4 folder index (all docs in this sprint)
-
-Use this as the canonical entry point for everything under `03-backlog/sprints/sprint-4/`.
-
-### Core sprint docs
-
-- [Sprint 4 README (this file)](README.md)
-- [Demo feedback log](feedback.md)
-
-### Story packs (by folder)
-
-- **Driver supervisor**
-  - [DS-01 — Vehicle licence, health & handover checklists](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md)
-  - [DS-02 — Driver state, attendance & leave](01-driver-supervisor/DS-02-driver-state-attendance-leave.md)
-
-- **Dispatch / Trip (removed)**
-  - [Dispatch note (why removed; TO-centric handoff)](02-dispatch-trip/README.md)
-
-- **Driver mobile**
-  - [DM-01 — Driver TO list, milestones & POD capture](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md)
-
-- **Yard foundation**
-  - [YARD-01 — Yard foundation (operator site & shared rules)](10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)
-
-- **Gate**
-  - [GT-01 — Gate-in, gate-out & discrepancy remarks](04-gate/GT-01-gate-in-out-remarks.md)
-  - [GT-02 — On-demand TO creation (Dealer DO / Supplier PO)](04-gate/GT-02-on-demand-to-creation-gate.md)
-
-- **Scaling**
-  - [SC-01 — Scale-in, queue token & scale-out](05-scaling/SC-01-scale-in-out-queue-token.md)
-
-- **Command center & loading/unloading**
-  - [LUP-01 — Loading/unloading points per POI](06-command-center-loading/LUP-01-loading-unloading-points-per-poi.md)
-  - [CC-01 — Queue monitoring, bay assignment & waiting serial](06-command-center-loading/CC-01-queue-assign-serial.md)
-  - [LD-01 — Load/unload timestamps](06-command-center-loading/LD-01-load-unload-timestamps.md)
-
-- **Lifecycle & POD**
-  - [TLS-01 — Execution + yard + closure substates (+ audit)](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md)
-  - [POD-01 — Closure, POD & gate-out linkage](07-visibility-lifecycle-pod/POD-01-to-closure-pod-gate-out-linkage.md)
-  - [QC-01 — Raw-material sampling & pass/fail decision](07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md)
-
-- **Vendor management (planning context)**
-  - [Vendor management index](08-vendor-management/README.md)
-  - [Vendor mobile context](08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
-  - [VM-01/02 — Vendor mobile onboarding](08-vendor-management/VM-01-vendor-mobile-onbiorading.md)
-  - [VM-02 — Vendor ↔ tenant join & approval](08-vendor-management/VM-02-vendor-tenant-join-and-approval.md)
-  - [VM-03 — Vendor portal views](08-vendor-management/VM-03-vendor-portal-views.md)
-  - [VM-04 — TDO publish TO to bidding portal](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md)
-  - [VM-05 — Bid submission](08-vendor-management/VM-05-bid-submission.md)
-  - [VM-06 — Bid evaluation](08-vendor-management/VM-06-bid-evaluation.md)
-  - [VM-07 — Bid/TO requirements + vehicle–driver confirmation](08-vendor-management/VM-07-vehicle-driver-submission.md)
-  - [VM-08 — Realtime TO updates](08-vendor-management/VM-08-realtime-to-updates.md)
-
-- **TO execution — vendor fleet (TEVF-01…03)**
-  - [09 — Folder index](09-to-execution-vendor-fleet/README.md)
-  - [TEVF-01 — Contractual vendor assignment](09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md)
-  - [TEVF-02 — Non-contractual bidding](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
-  - [TEVF-03 — Vendor execution & confirmation](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md)
-
-- **Own-fleet availability (inline in this README)**
-  - [Own-fleet availability — vehicle eligibility (§6.8.1.7)](#own-fleet-availability--vehicle-eligibility-6817)
-
+**Sprint Lead**: ~  
+**Last Updated**: 2026-05-25  
+**Next**: Sprint 5 (TBD)
