@@ -1,14 +1,14 @@
 ---
 area: to-execution-vendor-fleet
 sprint: Sprint 4
-status: Draft
+status: In Progress
 feature_themes:
   - "TO Execution – Vendor Fleet (TDO – Vendor Fleet)"
   - "Contractual Vendor Assignment"
   - "Non-Contractual Vendor (Bidding Workflow)"
   - "Vendor Execution & Confirmation"
 related_vendor_stories: VM-01 … VM-09
-last_updated: 2026-05-13
+last_updated: 2026-05-25
 ---
 
 # Sprint 4 — TO Execution: Vendor Fleet

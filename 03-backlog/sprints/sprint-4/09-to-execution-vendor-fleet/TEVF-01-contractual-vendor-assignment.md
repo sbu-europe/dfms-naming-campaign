@@ -6,13 +6,13 @@ title: "Contractual Vendor Assignment (TDO – Vendor Fleet)"
 story_points: 3
 version: "1.0"
 phase: "Phase 1"
-status: Draft
+status: In Progress
 aligned_stories:
   - ../08-vendor-management/VM-02-vendor-tenant-join-and-approval.md
   - ../08-vendor-management/VM-03-vendor-portal-views.md
   - ../08-vendor-management/VM-07-vehicle-driver-submission.md
   - ../08-vendor-management/VM-08-realtime-to-updates.md
-last_updated: 2026-05-22
+last_updated: 2026-05-25
 ---
 
 # TEVF-01 — Contractual Vendor Assignment
