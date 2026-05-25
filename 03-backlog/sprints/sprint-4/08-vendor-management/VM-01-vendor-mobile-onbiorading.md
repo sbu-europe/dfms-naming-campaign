@@ -129,6 +129,9 @@ PATCH  /api/v1/vendors/registrations/{id}
 | VM-01-6 | Vendor Mobile — registration wizard (company, contacts, Truck Association testimonial) + blocked submit until mandatory docs | ~ | **Partial** |
 | VM-01-7 | Audit: registration attempts (who/when/outcome) + structured audit for document/profile mutations | ~ | **Partial** |
 | VM-01-8 | Post-registration: vendor **platform-active** state; surface **active tenants** + join-request entry (handoff to VM-02) | ~ | **Done** |
+| VM-01-9 | Vendor OTP verification — send/verify OTP on registration or sensitive account actions (mobile + backend) | ~ | **Pending** |
+| VM-01-10 | Forgot password + password reset — request link/OTP, reset token expiry, set new password (Vendor Mobile + auth API) | ~ | **Pending** |
+| VM-01-11 | Delete account — Profile section flow; confirmation, soft-delete or deactivation policy, audit trail | ~ | **Pending** |
 
 ## Dependencies
 

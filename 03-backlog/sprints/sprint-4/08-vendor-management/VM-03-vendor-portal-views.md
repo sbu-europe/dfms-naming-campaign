@@ -68,6 +68,8 @@ The vendor portal is the operational surface for vendors. Visibility must respec
 | VM-03-6 | `GET /api/v1/vendor/trips?status=COMPLETED` — same tenant + type rules as active trips | ~ | **Partial** |
 | VM-03-7 | Vendor Mobile — tab/list UX for Active Bids / Active Trips / Completed Trips + empty states when gated out | ~ | **Partial** |
 | VM-03-8 | Integration tests — vendor **A** `NON_CONTRACTUAL`@T1 + **CONTRACTUAL**@T2 sees correct independent surfaces | ~ | **Not done** |
+| VM-03-9 | TO lifecycle management in Vendor Portal — vendor-facing TO states (e.g. assigned / in progress / completed / closed), detail screens, and allowed actions per state | ~ | **Pending** |
+| VM-03-10 | App auto refresh on tab change — when user switches Active Bids / Active Trips / Completed Trips tabs, lists refresh from server | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

@@ -94,6 +94,9 @@ This story is the missing “entry point” for the bidding workflow: **a TO mus
 | VM-04-9 | Notifications — publish blast to eligible vendors; 1h reminder; wire **TDO new bid** event (VM-05) | ~ | **Not done** |
 | VM-04-10 | Audit — publish payload; each window update with **before/after** open/close; cancel reason; `BIDDING_WINDOW_UPDATED` event | ~ | **Partial** |
 | VM-04-11 | TDO UI — publish form + active session dashboard (bid counts) + window editor + cancel | ~ | **Done** |
+| VM-04-12 | **One vehicle per TO** — enforce `required_vehicle_count = 1` at publish (server + TDO UI); reject publish when TO capacity model allows >1 vehicle | ~ | **Pending** |
+| VM-04-13 | Bid requirement form **before** TO creation — TDO captures transport need / bidding parameters first; TO created or linked when requirements are ready to publish | ~ | **Pending** |
+| VM-04-14 | **Single TR → multiple TOs in one bid** — from one TR, create multiple TOs linked to one bidding session; publish for **non-contractual** vendor eligibility and award (TEVF-02-9) | ~ | **Pending** |
 
 ## Suggested API Endpoints
 

@@ -52,6 +52,7 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 | VM-08-5 | Emit domain events on TO lifecycle transitions consumed by vendor channel | ~ | **Not done** |
 | VM-08-6 | Authorisation — vendor **read-only** on status; reject mutating verbs on vendor TO status | ~ | **Not done** |
 | VM-08-7 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | ~ | **Partial** |
+| VM-08-8 | TO lifecycle events — emit/consume status transitions so portal lifecycle views (VM-03-9) stay in sync | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

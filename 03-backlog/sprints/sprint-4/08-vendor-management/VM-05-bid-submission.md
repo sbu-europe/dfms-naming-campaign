@@ -88,6 +88,8 @@ TDO publishes TOs to the bidding portal (VM-04) with defined windows and require
 | VM-05-7 | TDO manual close/cancel bidding (without award) — align session + bid terminal states | ~ | **Partial** |
 | VM-05-8 | Notifications — vendor confirmation; **TDO new bid** (in-app + optional email) per AC-7 | ~ | **Not done** |
 | VM-05-9 | Vendor Mobile — bid detail + submit form (rate, vehicle count, remarks) + post-submit read-only UX | ~ | **Done** |
+| VM-05-10 | Bid view UX — TDO/publish context on bid detail, **winner** state when session awarded, bidding **window** labels and copy (Vendor Mobile) | ~ | **Pending** |
+| VM-05-11 | Cap `offered_vehicle_count` to **1** when TO publish enforces single-vehicle model (align VM-04-12) | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 

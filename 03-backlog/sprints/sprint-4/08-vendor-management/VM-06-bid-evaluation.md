@@ -73,6 +73,8 @@ Bid evaluation is the selection layer between bid submission and trip execution.
 | VM-06-6 | `POST .../reject-all` — mandatory reason; close session; notify all bidders | ~ | **Partial** |
 | VM-06-7 | TDO UI — side-by-side table + award dialog (multi-row allocation) + reject-all | ~ | **Done** |
 | VM-06-8 | Audit — award decision payload; reject-all reason | ~ | **Partial** |
+| VM-06-9 | TDO bid evaluation UX — side-by-side **winner** indication, UX writing, bidding **window** timeline display and help text | ~ | **Pending** |
+| VM-06-10 | Single-winner default when `required_vehicle_count = 1` — simplify award UI/validation (align VM-04-12) | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 
