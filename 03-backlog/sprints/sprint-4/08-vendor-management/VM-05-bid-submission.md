@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Bid Submission Windows + Structured Bid Payload + Late-Bid Prevention
 epic: Vendor Portal & Operations
-status: Pending
+status: In progress
 story_points: 6
 assignee: ~
 ---

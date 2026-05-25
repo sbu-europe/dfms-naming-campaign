@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Real-time TO Updates in Vendor Portal (Assigned/Completed/Closed)
 epic: Vendor Portal & Operations
-status: Pending
+status: In progress
 story_points: 5
 assignee: ~
 ---

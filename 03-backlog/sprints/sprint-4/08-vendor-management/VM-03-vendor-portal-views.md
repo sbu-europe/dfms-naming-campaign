@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Vendor Portal Views (Active Bids/Active Trips/Completed Trips) + Visibility Rules
 epic: Vendor Portal & Operations
-status: Pending
+status: In progress
 story_points: 5
 assignee: ~
 ---

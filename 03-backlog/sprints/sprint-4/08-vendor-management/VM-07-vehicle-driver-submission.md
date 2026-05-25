@@ -7,7 +7,7 @@ title: Bid/TO requirement visibility + vehicle–driver confirmation (+ updates,
 prd_context:
   - ../../09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md
 epic: Vendor Portal & Operations
-status: Pending
+status: In progress
 story_points: 8
 assignee: ~
 ---

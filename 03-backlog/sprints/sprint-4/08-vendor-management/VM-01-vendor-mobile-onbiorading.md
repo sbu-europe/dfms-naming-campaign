@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Vendor Mobile Onboarding — Self-Registration, Tenant Isolation, Compliance Docs & Company Profile
 epic: Vendor Onboarding & Verification
-status: Pending
+status: In progress
 story_points: 8
 assignee: ~
 ---

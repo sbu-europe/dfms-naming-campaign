@@ -50,7 +50,7 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor Mobile Onboarding (Self-registration + compliance docs + company profile)](VM-01-vendor-mobile-onbiorading.md) | VM-01 | ~ | ~ | Pending |
+| 1 | [Vendor Mobile Onboarding (Self-registration + compliance docs + company profile)](VM-01-vendor-mobile-onbiorading.md) | VM-01 | ~ | ~ | In progress |
 
 ---
 
@@ -60,11 +60,11 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-02-vendor-tenant-join-and-approval.md) | VM-02 | ~ | ~ | Pending |
-| 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-03-vendor-portal-views.md) | VM-03 | ~ | ~ | Pending |
-| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-05-bid-submission.md) | VM-05 | ~ | ~ | Pending |
-| 4 | [Bid/TO requirements + vehicle–driver confirmation (post-award, + audit)](VM-07-vehicle-driver-submission.md) | VM-07 | ~ | ~ | Pending |
-| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-08-realtime-to-updates.md) | VM-08 | ~ | ~ | Pending |
+| 1 | [Vendor ↔ Tenant Join + approval + tenant-assigned vendor type + visibility](VM-02-vendor-tenant-join-and-approval.md) | VM-02 | ~ | ~ | In progress |
+| 2 | [Vendor Portal — Tenants list + Active Bids/Trips/Completed Trips views + visibility rules](VM-03-vendor-portal-views.md) | VM-03 | ~ | ~ | In progress |
+| 3 | [Bid Submission — windowing + structured bid payload + late-bid prevention](VM-05-bid-submission.md) | VM-05 | ~ | ~ | In progress |
+| 4 | [Bid/TO requirements + vehicle–driver confirmation (post-award, + audit)](VM-07-vehicle-driver-submission.md) | VM-07 | ~ | ~ | In progress |
+| 5 | [Real-time TO status updates in vendor portal (Assigned/Completed/Closed)](VM-08-realtime-to-updates.md) | VM-08 | ~ | ~ | In progress |
 
 ---
 
@@ -74,8 +74,8 @@ Deliver the **Phase 1 baseline** of Vendor Management so vendors can onboard, co
 
 | # | Story | Task ID | Jira | SP | Status |
 |---|-------|---------|------|----|--------|
-| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-04-tdo-publish-to-bidding-portal.md) | VM-04 | ~ | ~ | Pending |
-| 2 | [Bid Comparison + select winner(s) + reject-all + winning log](VM-06-bid-evaluation.md) | VM-06 | ~ | ~ | Pending |
+| 1 | [Publish TO to Bidding Portal (deadline + eligibility + notify)](VM-04-tdo-publish-to-bidding-portal.md) | VM-04 | ~ | ~ | In progress |
+| 2 | [Bid Comparison + select winner(s) + reject-all + winning log](VM-06-bid-evaluation.md) | VM-06 | ~ | ~ | In progress |
 
 ---
 

@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Bid Evaluation (TDO) — Side-by-side Compare + Select Winner(s) + Winning Log
 epic: TDO Bid Evaluation
-status: Pending
+status: In progress
 story_points: 8
 assignee: ~
 ---

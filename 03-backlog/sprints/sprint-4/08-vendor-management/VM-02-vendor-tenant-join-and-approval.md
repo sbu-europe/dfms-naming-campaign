@@ -5,7 +5,7 @@ jira_epic: ~
 jira_sprint: "Sprint 4"
 title: Vendor ↔ Tenant Join + Approval + Tenant-Assigned Vendor Type + Visibility Scoping
 epic: Vendor Portal & Operations
-status: Pending
+status: In progress
 story_points: 5
 assignee: ~
 ---
