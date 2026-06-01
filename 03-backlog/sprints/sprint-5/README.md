@@ -5,7 +5,7 @@ phase: Phase 1
 dates: "2026-06-02 → 2026-06-16"
 status: Planning
 carry_from: Sprint 4
-total_story_points_estimated: "~91 SP (carry-over + feedback-driven scope)"
+total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS-01 new scope)"
 ---
 
 # Sprint 5 — Own-Fleet Hardening, Vendor Management Completion & E2E Coverage
@@ -28,6 +28,7 @@ total_story_points_estimated: "~91 SP (carry-over + feedback-driven scope)"
 3. **Complete full API surface** — timeline, status, closure, CC queue, LUP, and TLS-01 read endpoints that were Not Done in Sprint 4.
 4. **Cross-story E2E coverage** — all 4 scripted journeys in `11-e2e-cross-story/` pass without cross-story regression.
 5. **Story-level E2E sub-tasks** — all 23 E2E sub-tasks (DS-01-19 through TEVF-03-5) pass within their owning stories.
+6. **GPS Maps Dashboard (GPS-01 — new scope)** — deliver Phase 1 map-based transport dashboard with live GPS vehicle tracking, POI geofence engine, dwell time monitoring, and role-restricted access (Tenant Admin, Transport Planner, TDO). See [`12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md`](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md).
 
 ---
 
@@ -45,6 +46,7 @@ total_story_points_estimated: "~91 SP (carry-over + feedback-driven scope)"
 | 09 | TO Execution — Vendor Fleet | TEVF-01, TEVF-02, TEVF-03 | Vendor-context | FB-013, FB-016, FB-018 | Carry-over |
 | 10 | Yard Foundation | YARD-01 | 8 SP | — | Carry-over |
 | 11 | Cross-Story E2E | E2E-01 → E2E-04 | — | — | New sprint-5 scope |
+| 12 | GPS & Maps Dashboard | GPS-01 | 21 SP | — | New sprint-5 scope |
 
 ---
 
@@ -191,18 +193,40 @@ total_story_points_estimated: "~91 SP (carry-over + feedback-driven scope)"
 | YARD-01-4 | YARD-01 | Current yard step on TO; CC/QC/loading screens filter by yard step | High |
 | YARD-01-8 | YARD-01 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 
+### Epic 12: GPS & Maps Dashboard (New Sprint 5 Scope)
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| GPS-01-1 | GPS-01 | GPS/VTS provider adapter — pluggable REST polling Celery task; writes `VehicleGPSSnapshot` | High |
+| GPS-01-2 | GPS-01 | `VehicleGPSSnapshot` model + read-only admin | High |
+| GPS-01-3 | GPS-01 | Geofence engine — haversine detection, entry/exit events, Redis presence state | High |
+| GPS-01-4 | GPS-01 | `GeofenceEvent` model + admin | High |
+| GPS-01-5 | GPS-01 | Dwell time calculation on departure + periodic threshold alert task | High |
+| GPS-01-6 | GPS-01 | `GET /api/v1/maps/dashboard` — vehicles, POIs, KPI widgets | High |
+| GPS-01-7 | GPS-01 | `GET /api/v1/maps/vehicles/{id}/panel` — vehicle context side panel | High |
+| GPS-01-8 | GPS-01 | `GET /api/v1/maps/transport-orders/{id}/route` — TO-centric map view | Medium |
+| GPS-01-9 | GPS-01 | `GET /api/v1/maps/transport-orders/{id}/geofence-events` — geofence event history | Medium |
+| GPS-01-10 | GPS-01 | RBAC enforcement — `MapsDashboardPermission`; unit tests for all roles | High |
+| GPS-01-11 | GPS-01 | TLS-01 timeline integration — GPS events emitted atomically to TO timeline | High |
+| GPS-01-12 | GPS-01 | Admin: POI geofence radius + dwell threshold config with audit log | Medium |
+| GPS-01-13 | GPS-01 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
+
 ---
 
 ## Deferred Scope (not Sprint 5)
 
 | Item | Target |
 |------|--------|
-| Live map, GPS, background location, navigation | Later sprint |
+| Driver mobile background location / in-app navigation | Later sprint |
+| GPS-based vehicle maintenance tracking (§6.5.10) | Phase 2 |
+| Trip route playback / historical GPS track replay | Later sprint |
 | Trip costing (§6.8.8) | Later sprint |
 | Incident, halt, re-delivery workflow (§6.8.6) | Phase 2 |
 | Detailed physical / lab QC sub-workflows | Later sprint |
 | Push notifications for CC assignment / loading alerts | Phase 3 |
 | Vendor billing, claims, rating, advanced bid probability | Phase 2 / Phase 3 |
+
+> **Note**: Live map dashboard and GPS tracking core (§6.5.4–6.5.9, §6.8.2) are **moved into Sprint 5** as GPS-01 (21 SP). See [`12-gps-maps-dashboard/`](12-gps-maps-dashboard/).
 
 ---
 
@@ -212,9 +236,10 @@ total_story_points_estimated: "~91 SP (carry-over + feedback-driven scope)"
 - [Sprint 4 Completion Report](../sprint-4/completion-report.md) — gap analysis per story
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
 - [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
+- [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — new Sprint 5 scope; 21 SP
 
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-01
+**Last Updated**: 2026-06-01 (GPS-01 added)
 **Previous**: [Sprint 4](../sprint-4/README.md)
