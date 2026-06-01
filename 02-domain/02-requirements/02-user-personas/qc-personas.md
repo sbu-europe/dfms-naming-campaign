@@ -45,7 +45,7 @@ tags: [user-personas, qc, personas]
 - Capture photos/videos of defects
 - Create lab test requests
 - Record QC results (Pass/Fail/Auto-Pass)
-- Assign vehicles to unloading points after QC Pass
+- Record QC Pass/Fail (Sprint 4: **Command Center** assigns unloading point after Pass — not QC)
 - Initiate recheck/resampling if needed
 
 **Primary Goals**:

@@ -4385,7 +4385,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="E_eMJLJoERmDSiy5V2Iq-3" connectable="0" parent="E_eMJLJoERmDSiy5V2Iq-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="QC Supervisor Assigns Unloading Bay / Unit to the vehicle" vertex="1">
+        <mxCell id="E_eMJLJoERmDSiy5V2Iq-3" connectable="0" parent="E_eMJLJoERmDSiy5V2Iq-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Command Center Assigns Unloading Bay / Unit (after QC Pass)" vertex="1">
           <mxGeometry relative="1" x="-0.3588" y="-2" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>

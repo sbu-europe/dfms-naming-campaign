@@ -1,12 +1,14 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-13
 ---
 
 # Vendor Mobile — Trips: Active Trip Tracking
 
+> **Applies to:** Both Contractual and Non-Contractual vendors. The trip lifecycle does not branch on `assignment_type` — once a TO is in execution, status updates are identical. See [`12-vendor-type-flows.md`](12-vendor-type-flows.md).
+
 ## Active trip tracking
 
-**Purpose:** Enable vendors to monitor trip progress in real-time for operational visibility.
+**Purpose:** Enable vendors to monitor trip progress in real-time for operational visibility. Vendor is **read-only** on trip / TO status (VM-08).
 
 ### Trip tracking view (example data model)
 
