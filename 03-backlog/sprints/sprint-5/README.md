@@ -5,7 +5,7 @@ phase: Phase 1
 dates: "2026-06-02 → 2026-06-16"
 status: Planning
 carry_from: Sprint 4
-total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS-01 new scope)"
+total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS-01 + STK-01 new scope)"
 ---
 
 # Sprint 5 — Own-Fleet Hardening, Vendor Management Completion & E2E Coverage
@@ -29,6 +29,7 @@ total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS
 4. **Cross-story E2E coverage** — all 4 scripted journeys in `11-e2e-cross-story/` pass without cross-story regression.
 5. **Story-level E2E sub-tasks** — all 23 E2E sub-tasks (DS-01-19 through TEVF-03-5) pass within their owning stories.
 6. **GPS Maps Dashboard (GPS-01 — new scope)** — deliver Phase 1 map-based transport dashboard with live GPS vehicle tracking, POI geofence engine, dwell time monitoring, and role-restricted access (Tenant Admin, Transport Planner, TDO). See [`12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md`](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md).
+7. **Source & Destination Stock Validation (STK-01 — new scope)** — deliver event-driven POI stock accounting: source reservation on TR approval, stock deduction on scale-out (SC-01), destination stock credit on QC pass (QC-01), capacity guards, and role-scoped stock snapshot API. See [`13-stock-validation-update/STK-01-source-destination-stock-validation.md`](13-stock-validation-update/STK-01-source-destination-stock-validation.md).
 
 ---
 
@@ -47,6 +48,7 @@ total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS
 | 10 | Yard Foundation | YARD-01 | 8 SP | — | Carry-over |
 | 11 | Cross-Story E2E | E2E-01 → E2E-04 | — | — | New sprint-5 scope |
 | 12 | GPS & Maps Dashboard | GPS-01 | 21 SP | — | New sprint-5 scope |
+| 13 | Stock & Capacity Management | STK-01 | 13 SP | — | New sprint-5 scope |
 
 ---
 
@@ -193,6 +195,22 @@ total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS
 | YARD-01-4 | YARD-01 | Current yard step on TO; CC/QC/loading screens filter by yard step | High |
 | YARD-01-8 | YARD-01 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 
+### Epic 13: Stock & Capacity Management (New Sprint 5 Scope)
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| STK-01-1 | STK-01 | `POIStock` model (one-to-one with POI); stock fields + computed `free_capacity_mt`; seed migration | High |
+| STK-01-2 | STK-01 | Source stock reservation on TR approval; release on TR rejection / cancellation | High |
+| STK-01-3 | STK-01 | Scale-out deduction — SC-01 integration; `apply_scale_out_stock_deduction()` + movement log | High |
+| STK-01-4 | STK-01 | Destination stock update — QC-01 integration; QC pass credits, QC fail rejects; movement log | High |
+| STK-01-5 | STK-01 | Source availability guard — CC-01 bay assignment returns 409 on insufficient stock | High |
+| STK-01-6 | STK-01 | Destination capacity guard — TR/TO approval warning + DM override with mandatory remarks | High |
+| STK-01-7 | STK-01 | `GET /api/v1/pois/{poi_id}/stock-snapshot` API with RBAC per role matrix | High |
+| STK-01-8 | STK-01 | `POIStockMovementLog` append-only model + Tenant Admin read-only admin view | Medium |
+| STK-01-9 | STK-01 | `capacity_threshold_pct` per POI + tenant default; threshold badge in snapshot response | Medium |
+| STK-01-10 | STK-01 | In-transit stock tracking on TO dispatch → `in_transit_source` TLS-01 hook | Medium |
+| STK-01-11 | STK-01 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
+
 ### Epic 12: GPS & Maps Dashboard (New Sprint 5 Scope)
 
 | Sub-task | Story | Description | Priority |
@@ -237,9 +255,10 @@ total_story_points_estimated: "~112 SP (carry-over + feedback-driven scope + GPS
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
 - [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
 - [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — new Sprint 5 scope; 21 SP
+- [STK-01 — Source & Destination Stock Validation](13-stock-validation-update/STK-01-source-destination-stock-validation.md) — new Sprint 5 scope; 13 SP
 
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-01 (GPS-01 added)
+**Last Updated**: 2026-06-01 (GPS-01 + STK-01 added)
 **Previous**: [Sprint 4](../sprint-4/README.md)
