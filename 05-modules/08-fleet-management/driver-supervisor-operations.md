@@ -2,10 +2,10 @@
 
 ## module: 08-fleet-management
 specification: Driver Supervisor Operations
-version: 2.3
+version: 2.4
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-15
+last_updated: 2026-06-02
 related_stories: DFS-050 (DS-01), DFS-051 (DS-02)
 jira_epic: DFS-070
 
@@ -494,6 +494,13 @@ Closes the loop from §3.5: vehicles flagged **Under Maintenance** re-enter assi
 - Vehicle → **`available`**; **does not** call `dispatch_to_after_ready`
 - Optional: store `vehicle.maintenance_cleared_at` only if product adds a field — **not required for MVP**; use `inspection_completed_at` on the clearance inspection as the audit timestamp
 
+**FB-009 implementation gap (verified in current code):**
+
+- After maintenance-clearance pass, the persisted inspection status is still `completed` (same enum as pre-dispatch flow).
+- Driver Supervisor inspection history currently renders this as **Completed** (admin status badge map and maintenance queue "Last inspection" badge).
+- Story expectation is a distinct history label **Maintenance Completed** for `inspection_purpose = maintenance_clearance`.
+- **Implementation plan update:** keep DB enum unchanged (`pending/completed/rejected`) and implement a **purpose-aware presentation label** in admin/API serializers for history surfaces.
+
 **`reject_maintenance_clearance` effects:**
 
 - Inspection → **rejected** + reason; vehicle **stays** `under_maintenance`
@@ -734,6 +741,7 @@ class VehicleInspectionAdmin(FleetSupervisorAdminBase):
   - **Maintenance clearance:** “Complete clearance & set Available” (`_submit_clearance` → `complete_maintenance_clearance`)
 - When `transport_order` is null, hide TO fieldset links in templates; reject flow unchanged (reason required).
 - Changelist: add `inspection_purpose` to `list_display` / `list_filter` once the field exists.
+- **FB-009 labeling task:** update `status_badge` rendering so `status == "completed"` + `inspection_purpose == "maintenance_clearance"` shows **Maintenance Completed**; keep pre-dispatch completed as **Completed**.
 
 ### 5.9 Maintenance queue admin (planned — DS-01-15)
 
@@ -752,6 +760,7 @@ def maintenance_queue_view(self, request):
 - **Template:** `templates/admin/fleet_supervisor/maintenance_queue.html` (same layout tokens as `dispatch_queue.html`)
 - **Portal:** register `fleet_maintenance_queue` in `PORTAL_NAV_SECTIONS` (§0.1) after implementation
 - **Columns (AC-4):** registration, operational status badge, under-maintenance **since** (`vehicle.updated_at` or dedicated status log if added later), last inspection date + outcome, `is_active` warning flag, action button
+- **FB-009 labeling task:** in `maintenance_queue.html` "Last inspection" badge, map `completed + maintenance_clearance` to **Maintenance Completed** (not generic Completed).
 
 ### 5.4 VehicleAdmin — Under Maintenance action (DS-01-7)
 
@@ -1156,6 +1165,12 @@ Existing endpoints **remain** the contract; behaviour branches on `VehicleInspec
 
 `GET …/inspections/<id>` — add `inspection_purpose` and nullable `transport_order` / `transport_order_number` to `VehicleInspectionDetailSerializer`.
 
+For FB-009, include a presentation field in inspection-history payloads (e.g., `status_label`) so clients can show:
+
+- `completed + pre_dispatch` → **Completed**
+- `completed + maintenance_clearance` → **Maintenance Completed**
+- `pending` / `rejected` unchanged
+
 Register routes in `apps/fleet_supervisor/urls.py` alongside existing DS-01 paths.
 
 ### 7.9 Driver attendance (DS-02-11)
@@ -1254,6 +1269,7 @@ python manage.py seed_dfms_rbac --reset
 - **Maintenance clearance:** completion requires vehicle **`under_maintenance`**, full checklist, and `vehicle.is_active is True`; rejection requires non-empty reason; **must not** invoke `dispatch_to_after_ready` or change any TO
 - At most one **pending** `maintenance_clearance` inspection per vehicle
 - `approve` / `reject` on wrong purpose must not apply the other flow’s side-effects (enforce in service layer, not only in views)
+- **FB-009:** inspection history surfaces (admin list, maintenance queue last-inspection, API history payloads) must render `completed + maintenance_clearance` as **Maintenance Completed**.
 
 ### 10.2 Attendance
 
@@ -1356,5 +1372,5 @@ python manage.py seed_dfms_rbac --reset
 
 ---
 
-**Last Updated**: 2026-05-15 (v2.3 — DS-01 maintenance queue & return-to-service plan)
+**Last Updated**: 2026-06-02 (v2.4 — FB-009 maintenance-clearance status-label alignment)
 **Related Modules**: [05-transport](../05-transport/README.md), [03-users](../03-users/README.md) (Driver Interface), [02-master-data](../02-master-data/README.md)
