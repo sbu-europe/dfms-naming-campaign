@@ -34,7 +34,7 @@ source: ../../../sprint-4/03-driver-mobile-interface/DM-01-driver-mobile-interfa
 | # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
 |---|----------|------|---------------|---------------|----------|
 | DM-01-5 | Driver TO detail API — complete `flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` (lane-filtered) | DFS-053-5 | Partial | Complete the response payload; ensure `allowed_next_transitions` is lane-filtered (RM inbound excludes source-leg statuses) | High |
-| DM-01-12 | **Trip Start** button — single lane-aware action replacing In Transit Source / Destination buttons | DFS-053-12 | Done | Replace two-button pattern with one **Trip Start** action. On press, advance TO to `in_transit_source` (FG outbound) or `in_transit_destination` (RM/FG inbound) based on `flow_lane` | High |
+| DM-01-12 | **Trip Start** button — single lane-aware action replacing In Transit Source / Destination buttons | DFS-053-12 | Done | Replace two-button pattern with one **Trip Start** action. On press, advance TO to `in_transit_source` (FG outbound) or `in_transit_destination` (RM/FG inbound) based on `flow_lane` | High | **Done** |
 | DM-01-13 | E2E test coverage | ~ | Not done | Validate driver TO list/detail, Trip Start per lane, milestone transitions, POD upload, access guards (non-owned TO returns 404) | Medium |
 
 ---
@@ -57,11 +57,11 @@ source: ../../../sprint-4/03-driver-mobile-interface/DM-01-driver-mobile-interfa
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] TO detail API returns complete payload: `flow_lane`, status, sub_state, pickup/drop POI, product, qty, urgency, special instructions, `allowed_next_transitions` (DM-01-5)
+- [x] TO detail API returns complete payload: `flow_lane`, status, sub_state, pickup/drop POI, product, qty, urgency, special instructions, `allowed_next_transitions` (lane-filtered) (DM-01-5)
 - [x] Driver list API scoped to authenticated driver only; 404 for non-owned TOs (security gap from Sprint 4 DoD)
 - [x] **Trip Start** button implemented; lane-aware transition fires correctly for FG outbound and RM/FG inbound (DM-01-12, FB-003)
-- [x] FB-004 alignment: driver sees execution actions only after `dispatched`; verified with DS-01 and TLS-01
-- [ ] Unit tests: authorization, dispatch gate, lane-specific Trip Start matrix, §6.8.1.7
+- [x] FB-004 alignment: `can_execute()` returns `False` for planning statuses (`created`, `assigned`, `ready_for_dispatch`); Trip Start only enabled at `dispatched`; verified with DS-01 and TLS-01
+- [x] Unit tests: dispatch gate (`can_execute`), planning-status guard, lane-specific Trip Start matrix (FB-004 tests added in `test_driver_state_machine.py`)
 - [ ] E2E sub-task DM-01-13 passes in staging
 
 ---

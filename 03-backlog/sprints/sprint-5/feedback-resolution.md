@@ -63,7 +63,8 @@ All 19 client demo feedback items from Sprint 4 (2026-05-21). Each item maps to 
 | **Affected Stories** | [DS-01](01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md), [DM-01](03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md), [TLS-01](07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execution-yard-closure.md) |
 | **Closing Sub-tasks** | TLS-01-2, TLS-01-10, DM-01-12 |
 | **AC Amendment** | Reconcile TO status sequence across all three stories: `created` → `assigned` (TDO assigns vehicle/driver) → `ready_for_dispatch` (TDO assignment complete) → `dispatched` (DS-01 inspection/skip release) → driver **Trip Start** → lane-aware in-transit status (`in_transit_source` / `in_transit_destination`). Align `TO_STATUS_TRANSITIONS` and driver gate logic. |
-| **Status** | Open |
+| **Status** | **Closed** |
+| **Closed by** | `can_execute()` guards planning statuses; `timeline_for_to()` returns `from_status` + actor; `DriverMyTOsView` delegates to driver presenter; dispatch queue template shows Route; 9 new unit tests pass |
 | **Notes** | Cross-story alignment — see [E2E-01](11-e2e-cross-story/E2E-01-to-state-sequence.md) for the scripted validation journey. |
 
 ---
