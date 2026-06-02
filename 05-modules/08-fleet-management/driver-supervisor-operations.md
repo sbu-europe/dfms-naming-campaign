@@ -768,12 +768,13 @@ def mark_under_maintenance(self, request, queryset):
         total_reset += len(reset_ids)
     msg = f"{queryset.count()} vehicle(s) marked Under Maintenance."
     if total_reset:
-        msg += f" {total_reset} linked Transport Order(s) reset to Created."
+        msg += f" {total_reset} linked Transport Order(s) moved to Under Planning."
     self.message_user(request, msg)
 ```
 
 - Sets `Vehicle.operational_status = OperationalStatus.UNDER_MAINTENANCE`
-- Resets any linked **`assigned`** TOs → **`created`** (vehicle and driver unlinked)
+- DS-01-7 Sprint-5 alignment: linked **`assigned`** TOs → **`under_planning`** (vehicle and driver unlinked)
+- DS-01-7 Sprint-5 alignment: transitioned-off drivers should be moved to **`available`** (best-effort via `DriverStateMachine`, invalid transitions ignored)
 
 ### 5.5 DriverStateLog Admin / Driver State Board (DS-02-6)
 
@@ -914,7 +915,7 @@ if driver.current_state == DriverCurrentState.ON_LEAVE:
     raise BusinessRuleError("Driver is On Leave. Cannot assign to TO.")
 ```
 
-### 6.2 Under Maintenance → TO Reset Guard (DS-01-7)
+### 6.2 Under Maintenance → TO Replan Guard (DS-01-7)
 
 ```python
 # apps/fleet_supervisor/services.py
@@ -927,17 +928,30 @@ def mark_vehicle_under_maintenance(vehicle_id, performed_by):
     vehicle.operational_status = OperationalStatus.UNDER_MAINTENANCE
     vehicle.save(update_fields=["operational_status", "updated_at"])
 
-    # Reset any linked Assigned TOs to Created
+    # DS-01-7 Sprint-5: move linked Assigned TOs to Under Planning
     assigned_tos = TransportOrder.objects.filter(
         vehicle=vehicle,
         status=TOStatus.ASSIGNED,
     )
     reset_to_ids = []
     for to in assigned_tos:
-        to.status = TOStatus.CREATED
+        driver = to.driver
+        to.status = TOStatus.UNDER_PLANNING
         to.vehicle = None
         to.driver = None
         to.save(update_fields=["status", "vehicle", "driver", "updated_at"])
+        if driver:
+            try:
+                from apps.users.models import DriverCurrentState
+                DriverStateMachine().transition(
+                    driver,
+                    DriverCurrentState.AVAILABLE,
+                    changed_by=performed_by,
+                    trigger="manual",
+                    notes=f"Vehicle moved to under maintenance for TO {to.to_number}.",
+                )
+            except InvalidStatusTransitionError:
+                pass
         reset_to_ids.append(str(to.id))
 
     # Audit log
@@ -1209,7 +1223,7 @@ python manage.py seed_dfms_rbac --reset
 - Queue + dispatch intents operate only on TOs in **`ready_for_dispatch`**
 - **`complete_inspection`** / admin submit → **`dispatch_to_after_ready`** → TO **`dispatched`** (own fleet trip dispatch)
 - **`reject_inspection`** → inspection rejected, vehicle under maintenance, TO **`under_planning`**, crew cleared (see §3.5)
-- **`mark_vehicle_under_maintenance`** (vehicle admin / API) → resets linked **`assigned`** TOs to **`created`**
+- **`mark_vehicle_under_maintenance`** (vehicle admin / API): current code resets linked **`assigned`** TOs to **`created`**; DS-01-7 target is **`under_planning`** plus driver release to **`available`**
 - **Return to service (planned)** — `complete_maintenance_clearance` → vehicle **`available`**; TDO assignment guard in §6.1 unblocks; **no** automatic TO replan or crew reassignment
 
 **TLS-01 driver automation** — see §6.5: **Assigned** transition on own-fleet assignment is wired; **On Execution** / back to **Available** are **not** wired from transport in the current tree.
