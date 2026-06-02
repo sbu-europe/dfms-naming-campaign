@@ -6,7 +6,7 @@ carry_from: "Sprint 4"
 story_id: DS-02
 title: Driver Supervisor — Driver State, Attendance & Leave
 epic: Driver Supervisor & Crew
-status: Carry-over
+status: In Progress
 story_points: 5
 assignee: Farhan Tanvir(farhanT23)
 carry_subtasks:
@@ -34,10 +34,10 @@ source: ../../../sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-lea
 | # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
 |---|----------|------|---------------|---------------|----------|
 | DS-02-6 | `DriverStateAdmin` list view — state badges, POI filter, read-only for non-supervisor via `get_readonly_fields` | DFS-051-6 | Complete | Implemented `state_badge` list display, POI + state filters, and read-only field enforcement in admin | High |
-| DS-02-10 | TLS-01 hooks — auto-update driver state on TO assignment, execution start, TO completion | DFS-051-10 | Partial | Wire hooks: `Available → Assigned` on TO assignment; `Assigned → On Execution` on execution start; `On Execution → Available` on TO completion; verify with integration test | High |
-| DS-02-17 | Audit trail complete for state transitions, attendance, and leave records | DFS-051-17 | Partial | Ensure every state transition, attendance create/edit, and leave create/cancel writes audit log with user, timestamp, before/after state | High |
-| DS-02-18 | Separate **Attendance** and **Leave Management** as distinct menu items | DFS-051-18 | Pending | Expose **Driver Attendance** and **Driver Leave Management** as separate nav items in Driver Supervisor portal; not nested under one section (FB-008) | Medium |
-| DS-02-19 | E2E test coverage | ~ | Pending | Validate attendance record, leave block on assignment, state board, auto state from TLS-01, conflict guard | Medium |
+| DS-02-10 | TLS-01 hooks — auto-update driver state on TO assignment, execution start, TO completion | DFS-051-10 | Partial | Hooks wired in transport layer; **missing** integration test proving assignment → Assigned, execution start → On Execution, completion → Available | High |
+| DS-02-17 | Audit trail complete for state transitions, attendance, and leave records | DFS-051-17 | Partial | Service-layer tenant audit + `DriverStateLog` on transitions; auto hooks may pass `changed_by=None`; audit helpers are best-effort (swallowed failures) | High |
+| DS-02-18 | Separate **Attendance** and **Leave Management** as distinct menu items | DFS-051-18 | Done | `portal_navigation.py`: separate sections **Driver Attendance** (`fleet_attendance`) and **Driver Leave Management** (`fleet_leave`), not under Fleet operations or a combined Driver State parent | Medium |
+| DS-02-19 | E2E test coverage | ~ | Not done | No DS-02 E2E module tests found under `tests/` | Medium |
 
 ---
 
@@ -54,7 +54,7 @@ source: ../../../sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-lea
 - [x] `DriverStateAdmin` list shows state badges; filterable by state and POI; non-supervisor roles get read-only fields (DS-02-6)
 - [ ] TLS-01 hooks wired and verified by integration test: assignment → Assigned; execution start → On Execution; completion → Available (DS-02-10)
 - [ ] Audit trail complete: every state transition, attendance entry, and leave record logged (DS-02-17)
-- [ ] **Driver Attendance** and **Driver Leave Management** appear as separate portal menu items (DS-02-18, FB-008)
+- [x] **Driver Attendance** and **Driver Leave Management** appear as separate portal menu items (DS-02-18, FB-008)
 - [ ] E2E sub-task DS-02-19 passes in staging
 
 ---
