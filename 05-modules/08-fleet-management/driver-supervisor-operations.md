@@ -2,11 +2,11 @@
 
 ## module: 08-fleet-management
 specification: Driver Supervisor Operations
-version: 2.4
+version: 2.5
 phase: Phase 1
-sprint: Sprint 4
+sprint: Sprint 4–5
 last_updated: 2026-06-02
-related_stories: DFS-050 (DS-01), DFS-051 (DS-02)
+related_stories: DFS-050 (DS-01), DFS-051 (DS-02), DS-02-18 (FB-008)
 jira_epic: DFS-070
 
 # Driver Supervisor Operations Specification
@@ -63,17 +63,49 @@ Tenant portal navigation is **not** a nested tree in the API. It is defined in `
 | `fleet_dispatch_queue` | Dispatch queue | `/admin/fleet_supervisor/vehicleinspection/dispatch-queue/` | `FLEET_DS_INSPECTION_VIEW_QUEUE`, `FLEET_DS_INSPECTION_SUBMIT` | `driver_supervisor`, `tdo_own_fleet` |
 | `fleet_inspection_queue` | Inspection records | `/admin/fleet_supervisor/vehicleinspection/` | same as above | `driver_supervisor`, `tdo_own_fleet` |
 | `fleet_attendance` | Driver Attendance | `/admin/fleet_supervisor/driverattendance/` | `FLEET_DS_ATTENDANCE_WRITE`, `FLEET_DS_ATTENDANCE_READ` | `driver_supervisor` |
-| `fleet_leave` | Driver Leave | `/admin/fleet_supervisor/driverleave/` | `FLEET_DS_LEAVE_WRITE`, `FLEET_DS_LEAVE_READ` | `driver_supervisor` |
-| `fleet_working_hours_config` | Working Hours Config | `/admin/fleet_supervisor/workinghoursconfig/` | `FLEET_DS_ATTENDANCE_WRITE` | `driver_supervisor` |
-| `fleet_maintenance_queue` *(planned DS-01-15)* | Under Maintenance vehicles | `/admin/fleet_supervisor/vehicleinspection/maintenance-queue/` | `FLEET_DS_INSPECTION_VIEW_QUEUE`, `FLEET_DS_INSPECTION_SUBMIT` | `driver_supervisor` |
+| `fleet_leave` | Driver Leave Management | `/admin/fleet_supervisor/driverleave/` | `FLEET_DS_LEAVE_WRITE`, `FLEET_DS_LEAVE_READ` | `driver_supervisor` |
+| `fleet_maintenance_queue` | Under Maintenance vehicles | `/admin/fleet_supervisor/vehicleinspection/maintenance-queue/` | `FLEET_DS_INSPECTION_VIEW_QUEUE`, `FLEET_DS_INSPECTION_SUBMIT` | `driver_supervisor` |
 
-**Not linked from the portal today** (models are registered in `apps/fleet_supervisor/admin.py`; open by URL or app index): **Checklist Sections / Items** (`/admin/fleet_supervisor/checklistsection/`), **Driver State Logs** (`/admin/fleet_supervisor/driverstatelog/`).
+**Working Hours Config** (`WorkingHoursConfigAdmin` at `/admin/fleet_supervisor/workinghoursconfig/`) is **not** a portal sidebar item in code today. Supervisors reach it via the Django admin app index or direct URL. It is **not** part of DS-02-18 / FB-008 (attendance vs leave separation only).
+
+**Not linked from the portal today** (models are registered in `apps/fleet_supervisor/admin.py`; open by URL or app index): **Checklist Sections / Items** (`/admin/fleet_supervisor/checklistsection/`), **Driver State Logs** (`/admin/fleet_supervisor/driverstatelog/`). Keeping the state log **out** of the portal satisfies FB-008: attendance and leave must not sit under a combined “Driver State” or “Driver Management” parent item.
+
+### 0.1.1 DS-02-18 / FB-008 — separate Attendance and Leave nav
+
+**Story / feedback**: [DS-02 Sprint 5 carry-over](../../../03-backlog/sprints/sprint-5/01-driver-supervisor/DS-02-driver-state-attendance-leave.md) sub-task **DS-02-18**; [FB-008](../../../03-backlog/sprints/sprint-5/feedback-resolution.md#fb-008--attendance-and-leave-management-as-separate-driver-supervisor-menu-items).
+
+**Product rule**
+
+- Portal exposes **two distinct top-level links** under **Fleet operations** (sibling to dispatch / inspection items):
+  1. **Driver Attendance** → `DriverAttendanceAdmin` changelist
+  2. **Driver Leave Management** → `DriverLeaveAdmin` changelist
+- Neither link is nested under a combined **Driver State**, **Driver Management**, or single “workforce” folder row in `PORTAL_NAV_SECTIONS`.
+- Attendance and leave remain **separate** `ModelAdmin` registrations and URLs; no in-page tab that merges both flows.
+
+**Implementation (close DS-02-18)**
+
+| Step | Location | Action |
+| --- | --- | --- |
+| 1 | `apps/core/portal_navigation.py` — `PORTAL_NAV_SECTIONS` → **Fleet operations** | Confirm `fleet_attendance` and `fleet_leave` are **two separate** `items` entries (not one item with children). **Already true** in current tree. |
+| 2 | Same — `fleet_leave` | `label` = **`Driver Leave Management`** (FB-008). **Done.** |
+| 3 | Same — `fleet_attendance` | Keep `label` **`Driver Attendance`**; `url` `/admin/fleet_supervisor/driverattendance/`. |
+| 4 | Same — permissions | Leave `permission_any` / `role_any` unchanged: attendance uses `FLEET_DS_ATTENDANCE_*`; leave uses `FLEET_DS_LEAVE_*`. TDO read-only roles keep read codes only — they do **not** get write menu items they cannot use. |
+| 5 | — | Do **not** add a portal item that groups attendance + leave + state log under one heading. State board stays API + `DriverStateLogAdmin` URL only unless a future story adds it. |
+| 6 | UAT / E2E (DS-02-19) | Log in as `driver_supervisor`: sidebar shows **Driver Attendance** and **Driver Leave Management** as separate rows; each opens the correct changelist. |
+
+**Status vs code (2026-06-02)**
+
+- **Structure**: separate sibling nav items — **done**.
+- **Label**: **`Driver Leave Management`** on `fleet_leave` — **done**.
+- **Anti-pattern to avoid**: a single nav label such as “Driver workforce” with attendance/leave as sub-routes or tabs; reintroducing that would fail FB-008 even if two admins exist behind one link.
 
 Re-seed RBAC (`python manage.py seed_dfms_rbac`) after permission catalog changes so roles receive new permission rows; users may need to **log out and back in** (permission cache TTL ~5 minutes).
 
 ### 0.2 Fleet operations — information architecture vs portal (as implemented)
 
-The tree below remains useful **product language**; the **tenant portal** currently exposes only the items in §0.1 (dispatch queue, inspection records, attendance, leave, working hours). **Maintenance queue** (DS-01-15) is specified below and will be added as a portal sibling to dispatch queue when implemented. **Checklist reference** and **driver state log** admins exist but are reached via Django admin URLs, not sidebar links.
+The tree below remains useful **product language**; the **tenant portal** currently exposes only the items in §0.1 (dispatch queue, inspection records, attendance, leave, working hours). **Maintenance queue** (DS-01-15) is implemented as a portal sibling (`fleet_maintenance_queue`). **Checklist reference** and **driver state log** admins exist but are reached via Django admin URLs, not sidebar links.
+
+**DS-02-18 / FB-008**: Attendance and leave are **two portal siblings** under Fleet operations (see §0.1.1). They are not nested under driver state.
 
 **Sprint 4 binding**: Attendance “grid”, leave “calendar”, and the state audit trail are **Django Admin** changelists (`DriverAttendanceAdmin`, `DriverLeaveAdmin`, `DriverStateLogAdmin`) — not standalone SPAs.
 
@@ -84,8 +116,9 @@ Fleet operations (portal + admin)
 ├── Inspection records (portal)     — VehicleInspection changelist + change form + submit / reject
 ├── Checklist reference (admin URL) — ChecklistSection / ChecklistItem read-only
 ├── Driver state log (admin URL)    — DriverStateLog read-only audit ("state board" data shape)
-├── Driver Attendance (portal)
-└── Driver Leave + Working Hours Config (portal)
+├── Driver Attendance (portal)              — DS-02-18 / FB-008
+└── Driver Leave Management (portal)        — DS-02-18 / FB-008 (distinct from attendance; not under “Driver State”)
+    Working Hours Config (admin URL only)   — optional future portal item; not required for DS-02-18
 ```
 
 ### Role → menu mapping
@@ -131,9 +164,11 @@ Fleet operations → Driver State Log (admin)
 Fleet operations → Driver Attendance (portal)
   └── Same as prior spec: changelist + same-day edit/delete + CSV export action
 
-Fleet operations → Driver Leave (portal)
+Fleet operations → Driver Leave Management (portal)   # label per FB-008; id fleet_leave in portal_navigation.py
   └── Changelist + overlap guard on save + admin action Cancel selected leave(s)
 ```
+
+**DS-02-18**: Attendance and leave flows use the two portal entries above — not a shared parent nav item.
 ---
 
 ## 1. Roles & Access
@@ -824,6 +859,8 @@ def state_badge(self, obj):
 
 ### 5.6 DriverAttendanceAdmin (DS-02-7)
 
+**Portal (DS-02-18)**: Exposed as sidebar item **`Driver Attendance`** (`fleet_attendance` → `/admin/fleet_supervisor/driverattendance/`). See §0.1.1.
+
 ```python
 @admin.register(DriverAttendance)
 class DriverAttendanceAdmin(FleetSupervisorAdminBase):
@@ -852,6 +889,8 @@ class DriverAttendanceAdmin(FleetSupervisorAdminBase):
 **Bulk Actions**: Export attendance report (CSV via `HttpResponse`)
 
 ### 5.7 DriverLeaveAdmin (DS-02-8)
+
+**Portal (DS-02-18 / FB-008)**: Exposed as a **separate** sidebar item from attendance — target label **`Driver Leave Management`** (`fleet_leave` → `/admin/fleet_supervisor/driverleave/`). See §0.1.1.
 
 ```python
 @admin.register(DriverLeave)
@@ -1221,7 +1260,7 @@ Fleet supervisor permission codes are **defined** on `PermissionCodes` (inspecti
 
 ### 8.2 Portal navigation (`apps/core/portal_navigation.py`)
 
-See §0.1 for the live **Fleet operations** menu. Sidebar entries intentionally omit checklist reference and driver state log; users with the right codes can still open those model admins via direct URL or the Django admin app index.
+See §0.1 and §0.1.1 for the live **Fleet operations** menu and **DS-02-18 / FB-008** (separate **Driver Attendance** and **Driver Leave Management** items). Sidebar entries intentionally omit checklist reference and driver state log; users with the right codes can still open those model admins via direct URL or the Django admin app index.
 
 ### 8.3 Re-seeding RBAC
 
@@ -1352,6 +1391,7 @@ python manage.py seed_dfms_rbac --reset
 | DS-02-15 | Working hours guardrail — warning on threshold exceeded                                                | DFS-051-15 |
 | DS-02-16 | Supervisor UI — **Django Admin only (Sprint 4)**: attendance “grid” = `DriverAttendanceAdmin` changelist; leave “calendar” = `DriverLeaveAdmin` changelist + `date_hierarchy` / filters; state “board” = `DriverStateLogAdmin` (or equivalent) changelist with badges — no custom SPA for DS-02-16 | DFS-051-16 |
 | DS-02-17 | Audit logging — state transitions, attendance, leave records                                           | DFS-051-17 |
+| DS-02-18 | **Portal nav — separate Attendance and Leave Management** (FB-008): sibling items in `PORTAL_NAV_SECTIONS`; rename leave label to **Driver Leave Management**; no combined Driver State / Driver Management parent | DFS-051-18 |
 
 
 ---
@@ -1362,7 +1402,7 @@ python manage.py seed_dfms_rbac --reset
 | Story     | Scope                                                      | Implementation Focus                                                                                                                                                                                                                                   |
 | --------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **DS-01** | Vehicle inspection (predefined checklist) + supervisor dispatch + **maintenance return-to-service** | **Done:** models + `0002_seed_checklist` + dispatch queue + `complete_inspection` / `reject_inspection` / `supervisor_dispatch_intent` + APIs §7.1–7.8 + `VehicleAdmin.mark_under_maintenance`. **Planned:** maintenance queue §3.7, §5.9, §6.7, APIs §7.13–7.15, sub-tasks DS-01-15–17 |
-| **DS-02** | Driver state, attendance & leave                                 | `DriverCurrentState` includes `ON_EXECUTION` + `DriverStateMachine` + models/admin + attendance/leave APIs + **partial** TLS-01 wiring (see §6.5) + `role_seed_data` fleet rows |
+| **DS-02** | Driver state, attendance & leave                                 | `DriverCurrentState` includes `ON_EXECUTION` + `DriverStateMachine` + models/admin + attendance/leave APIs + **partial** TLS-01 wiring (see §6.5) + `role_seed_data` fleet rows. **Sprint 5:** DS-02-18 (§0.1.1) — separate portal items for attendance and leave; rename leave nav label to match FB-008 |
 
 
 ---
@@ -1383,5 +1423,5 @@ python manage.py seed_dfms_rbac --reset
 
 ---
 
-**Last Updated**: 2026-06-02 (v2.4 — FB-009 maintenance-clearance status-label alignment)
+**Last Updated**: 2026-06-02 (v2.5 — DS-02-18 / FB-008 separate Attendance and Leave Management portal nav)
 **Related Modules**: [05-transport](../05-transport/README.md), [03-users](../03-users/README.md) (Driver Interface), [02-master-data](../02-master-data/README.md)
