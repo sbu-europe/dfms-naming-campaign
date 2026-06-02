@@ -4,7 +4,7 @@ specification: Gate Operations (Sprint 4 — TO-Centric)
 version: 2.0
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-19
+last_updated: 2026-06-02
 changelog: "v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
@@ -353,7 +353,7 @@ Feature flag check wraps the gate-in service: if the resolved flow is not `to_li
 
 ### 4.0 TO eligibility for gate-in entry (flow lane × `TransportOrder.status`)
 
-Gate-in for **planner-created / TO-linked** visits is allowed only when the TO is in the **lane-specific in-transit status** that follows driver execution start (DM-01 §6.8.1.7). This is the yard counterpart to the driver’s first post-dispatch transition (`Dispatched` → in transit).
+Gate-in for **planner-created / TO-linked** visits is allowed only when the TO is in the **lane-specific in-transit status** that follows driver **Trip Start** (DM-01 / FB-004). **`ready_for_dispatch` and `dispatched` are not gate-in eligible** — the driver must complete `dispatched` → `in_transit_source` or `in_transit_destination` first (§6.8.1.7).
 
 | Flow lane (`TransportOrder.flow_lane`) | Gate POI must match | Required `TransportOrder.status` before gate-in | After successful gate-in (`TO.status` →) |
 |----------------------------------------|---------------------|--------------------------------------------------|------------------------------------------|
@@ -406,8 +406,8 @@ def validate_to_eligible_for_gate_in(
 **Typical sequence (FG outbound at source)**
 
 ```
-Ready for Dispatch → (supervisor dispatch) → Dispatched
-  → (driver: execution started) → in_transit_source
+assigned → ready_for_dispatch (TDO) → dispatched (supervisor)
+  → Trip Start (driver) → in_transit_source
     → (gateman: gate-in at origin POI) → at_source → scale-in → …
 ```
 

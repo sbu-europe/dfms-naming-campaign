@@ -17,7 +17,7 @@ The **Driver Interface** provides field drivers with a **mobile-responsive Djang
 
 **Sprint 4 scope explicitly excludes**: map, turn-by-turn navigation, background GPS tracking — deferred to a later sprint.
 
-The driver sees **only TOs assigned to them** that are in **Ready for Dispatch** status or any downstream TLS-01 execution state through **Closed**. Execution transition controls are **disabled** until the Driver Supervisor completes **DS-01** dispatch (TO moves to `Dispatched`). At **Dispatched**, the driver sees one action — **Trip Start** (FB-003 / DM-01-12) — which advances the TO to the lane-appropriate in-transit status without exposing raw TLS status names on the button. The TO is the single execution container — **no separate Trip entity in Sprint 4**.
+The driver sees **only TOs assigned to them** from **`ready_for_dispatch`** through **Closed** (tab filters in `DRIVER_TAB_STATUSES`). **FB-004 sequence:** TDO sets `ready_for_dispatch` → Driver Supervisor sets `dispatched` → driver **Trip Start** → lane in-transit. Execution transition controls are **disabled** while status is `ready_for_dispatch` (dispatch gate banner). At **`dispatched`**, the driver sees one action — **Trip Start** (FB-003 / DM-01-12) — which advances the TO to `in_transit_source` (FG outbound) or `in_transit_destination` (FG/RM inbound) without exposing raw TLS status names on the button. Validate handoffs in [E2E-01](../../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md). The TO is the single execution container — **no separate Trip entity in Sprint 4**.
 
 **Technology**: Django Admin responsive web application (mobile-first CSS). No custom SPA or separate frontend framework.
 
@@ -50,7 +50,7 @@ Driver operations (portal)
 ├── My Transport Orders (portal)    — driver's own TO list; tabs via changelist filter
 │     └── [row click] ──► TO Detail (custom admin change view, read + action buttons)
 │           ├── Header: TO Number, Status badge, Flow lane, Route
-│           ├── Dispatch gate banner: "Awaiting dispatch by supervisor" (if Ready for Dispatch)
+│           ├── Dispatch gate banner: "Awaiting dispatch by supervisor" (if status = ready_for_dispatch)
 │           ├── TLS-01 Status: current status + allowed next transitions (lane-filtered)
 │           ├── Execution actions: **[Trip Start]** when Dispatched (lane-aware; disabled until Dispatched)
 │           ├── Milestones timeline: completed steps ✓, current step ●, pending grayed

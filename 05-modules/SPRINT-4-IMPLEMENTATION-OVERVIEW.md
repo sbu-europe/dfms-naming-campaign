@@ -1,8 +1,8 @@
 ---
 title: Sprint 4 Implementation Overview — Own-Fleet TO Execution
-version: 3.1
-sprint: Sprint 4
-last_updated: 2026-05-13
+version: 3.2
+sprint: Sprint 4 (Sprint 5 — FB-004 TO state sequence alignment)
+last_updated: 2026-06-02
 status: Implementation Ready
 ---
 
@@ -114,7 +114,7 @@ When adding or changing admin for Sprint 4, confirm:
 
 **Admin Flows**:
 - Predefined daily inspection checklist (7 sections, 60+ items — Engine, Clutch, Gear Box, Container, Electric, Chassis, Cabin)
-- `VehicleInspectionAdmin` — **dispatch queue** (TOs in **`ready_for_dispatch`** — implemented), checklist inline, complete → TO **Dispatched** / reject → vehicle **Under Maintenance** + TO **Under Planning**
+- `VehicleInspectionAdmin` — **dispatch queue** (TOs in **`ready_for_dispatch`** only — TDO promotes `assigned` → `ready_for_dispatch` upstream in `TDOAssignmentService`), checklist inline, complete/skip → TO **`dispatched`** / reject → vehicle **Under Maintenance** + TO **Under Planning** (FB-004 / [E2E-01](../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md))
 - **Maintenance queue** *(planned DS-01-15)* — vehicles **Under Maintenance**; re-inspection → vehicle **Available** on pass (no TO dispatch)
 - Reject action with mandatory reason; `VehicleAdmin.mark_under_maintenance` resets linked **`assigned`** TOs to **`created`**
 - `DriverAttendanceAdmin` — date/driver uniqueness, working hours warning (configurable max, default 12h)
@@ -149,17 +149,17 @@ When adding or changing admin for Sprint 4, confirm:
 - `ProofOfDelivery` (FK to TO, photo ImageField, optional signature, submitted_by, submitted_at)
 
 **Web UI (Mobile-First)**:
-- My Transport Orders (tabs: Ready / In Progress / Completed)
-- TO Detail (timeline, milestones, POD capture form)
-- Milestone recording (tap → modal → timestamp + photo + notes)
+- My Transport Orders (tabs per `DRIVER_TAB_STATUSES`: **Awaiting dispatch** = `ready_for_dispatch`, **In progress** = `dispatched` through pre-completion execution, **Completed** / **Closed**)
+- TO Detail (timeline, dispatch-gate banner at `ready_for_dispatch`, **Trip Start** at `dispatched`, POD capture form)
+- **Trip Start** (FB-003 / DM-01-12): single lane-aware driver action (`dispatched` → `in_transit_source` or `in_transit_destination`); disabled until DS-01 dispatch (FB-004)
 - POD submission (photo required, signature optional)
 - Camera access via HTML5 APIs (no native app required)
 - Photo auto-compression before upload (max dimension + file size)
 
 **Key APIs**:
-- `GET /api/v1/driver/transport-orders` — driver's assigned TOs
-- `GET /api/v1/driver/transport-orders/{to_id}` — TO detail
-- `PATCH /api/v1/driver/transport-orders/{to_id}/milestones` — record milestone + §6.8.1.7 validation
+- `GET /api/v1/driver/transport-orders` — driver's assigned TOs (tab filters)
+- `GET /api/v1/driver/transport-orders/{to_id}` — TO detail (`flow_lane`, `allowed_next_transitions` lane-filtered)
+- `POST /api/v1/driver/transport-orders/{to_id}/transitions` — driver TLS-01 transition (**Trip Start**; blocked until `dispatched`)
 - `POST /api/v1/driver/transport-orders/{to_id}/pod` — submit POD
 
 **Admin Views**: Read-only `ProofOfDeliveryAdmin` and `ExecutionMilestoneAdmin` for support/debug
@@ -299,9 +299,11 @@ When adding or changing admin for Sprint 4, confirm:
 - Closure Rule Engine: `evaluate_closure_conditions()` — flow-specific closure matrices
 - QC Service: Sample creation → Decision (Pass/Fail) → Resample/Override during unloading
 
-**TO Lifecycle States (per PRD §6.8.5)**:
-- Draft → Planned → Assigned → Dispatched (Sprint 3)
-- In Transit – Source → At Source → Loaded/Pickup Completed → In Transit – Destination → At Destination → Delivered/Unloaded → Completed → Closed (Sprint 4)
+**TO Lifecycle States (canonical `TransportOrder.status` — FB-004)**:
+- **Planning / dispatch gate (Sprint 3 + DS-01):** `created` → `assigned` (TDO) → `ready_for_dispatch` (TDO assignment complete) → `dispatched` (Driver Supervisor inspection or skip)
+- **Driver execution (DM-01 / TLS-01):** `dispatched` → lane-specific in-transit (`in_transit_source` FG outbound, `in_transit_destination` FG/RM inbound) via **Trip Start** + §6.8.1.7
+- **Yard execution (Sprint 4):** At Source → Loaded/Pickup Completed → In Transit – Destination → At Destination → Delivered/Unloaded → Completed → Closed
+- `under_planning` / `cancelled` — replan and terminal branches on same `TO_STATUS_TRANSITIONS` graph
 - Halted sub-state reserved (§6.8.6 Phase 2 — no trigger in Sprint 4)
 
 **QC Workflow (Sprint 4 Simplified)**:
@@ -412,10 +414,11 @@ sequenceDiagram
     participant Timeline as Timeline Service (TLS-01)
     participant Closure as Closure Engine (POD-01)
     
-    TDO->>Timeline: TO → Assigned (vehicle + driver set)
-    Supervisor->>Timeline: Checklist completed → TO → Ready for Dispatch
+    TDO->>Timeline: TO → assigned (vehicle + driver set)
+    TDO->>Timeline: TO → ready_for_dispatch (assignment complete)
+    Supervisor->>Timeline: Checklist or skip → TO → dispatched
     Supervisor->>Timeline: Driver state: Available → Assigned
-    Driver->>Timeline: Mark Execution Started (§6.8.1.7 validation)
+    Driver->>Timeline: Trip Start → in_transit_* (§6.8.1.7 validation)
     Driver->>Gate: Arrive at source gate
     Gate->>Timeline: Record Gate-In Source
     Gate->>Scale: Release to scale queue
@@ -499,9 +502,9 @@ sequenceDiagram
 **Decision**: Extend `TransportOrder` with full §6.8.5 lifecycle using `TOStatus` + `TOSubState` enums, tracked via `TOStatusTransitionLog`.
 
 **Rationale**:
-- Sprint 3 `status` field has coarse states (`created`, `assigned`, `ready_for_dispatch`)
-- Sprint 4 needs the full PRD state chain with sub-states per state
-- Forward-only transition rules enforced per flow lane
+- Sprint 3 ends at `ready_for_dispatch` (TDO assignment); DS-01 adds `dispatched`; Sprint 4 adds execution statuses and yard sub-states
+- Single forward-only graph: `TO_STATUS_TRANSITIONS` in `apps/transport/constants.py` + driver rules in `state_machine.py` (FB-004)
+- Gate-in requires lane-specific **in-transit** status — not `ready_for_dispatch` or `dispatched` (GT-01 §4.0)
 
 **Implications**:
 - Migration extends existing Sprint 3 statuses to new expanded set
@@ -692,6 +695,24 @@ Menu.MasterData.OperationPoints.View
 
 ---
 
+## Sprint 5 — FB-004 TO state sequence (cross-story alignment)
+
+**Feedback:** [FB-004](../03-backlog/sprints/sprint-5/feedback-resolution.md) · **Validation journey:** [E2E-01](../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md)
+
+| Step | Actor | Canonical status | Owner module spec |
+|------|-------|------------------|-------------------|
+| 1 | TDO creates / assigns resources | `created` → `assigned` | Sprint 3 transport assignment |
+| 2 | TDO completes assignment (vehicle, driver, helpers, ETA per fleet rules) | `assigned` → `ready_for_dispatch` | `apps/transport/services.py` (`TDOAssignmentService`) |
+| 3 | Driver Supervisor inspects or skips | `ready_for_dispatch` → `dispatched` | [driver-supervisor-operations.md](./08-fleet-management/driver-supervisor-operations.md) |
+| 4 | Driver **Trip Start** (lane-aware) | `dispatched` → `in_transit_source` or `in_transit_destination` | [driver-interface-sprint4.md](./03-users/driver-interface-sprint4.md), [transport-lifecycle-pod-sprint4.md](./05-transport/transport-lifecycle-pod-sprint4.md) §1.5 |
+| 5+ | Yard / closure | `at_source` … `closed` | Gate, scale, CC, LD, POD specs |
+
+**Closing sub-tasks:** TLS-01-2 (`TO_STATUS_TRANSITIONS`), TLS-01-10 (`apply_to_status_transition`), DM-01-12 (Trip Start + dispatch gate).
+
+**Negative gates (must fail with stable errors):** Trip Start while `ready_for_dispatch`; supervisor dispatch when not `ready_for_dispatch`; gate-in while `dispatched` without in-transit; wrong-lane driver transition on RM inbound.
+
+---
+
 ## Testing Strategy
 
 ### Unit Tests
@@ -710,12 +731,12 @@ Menu.MasterData.OperationPoints.View
 
 **Key flows to test** (end-to-end):
 
-1. **FG Outbound Happy Path**:
-   - TDO → Assigned → Supervisor checklist → Ready for Dispatch → Driver Start (§6.8.1.7) → Gate-In → Scale-In → Bay Assignment → Loading → Scale-Out → Gate-Out → POD → Closed
-   - Assertions: All timeline events recorded, closure gates passed, TO state = `closed`
+1. **FG Outbound Happy Path** (FB-004 / E2E-01):
+   - TDO → `assigned` → `ready_for_dispatch` → Supervisor → `dispatched` → Driver **Trip Start** → `in_transit_source` (§6.8.1.7) → Gate-In → Scale-In → Bay Assignment → Loading → Scale-Out → Gate-Out → POD → Closed
+   - Assertions: Timeline includes `created` → `assigned` → `ready_for_dispatch` → `dispatched` → `in_transit_source` with correct actors; closure gates passed; TO state = `closed`
 
-2. **RM Inbound with QC Pass**:
-   - TDO → Ready for Dispatch → Gate-In Dest → Scale-In → CC flags for QC → QC Sample → QC Pass → **CC Officer assigns unloading point** → Unloading → Scale-Out → Gate-Out → POD → Closed
+2. **RM Inbound with QC Pass** (FB-004):
+   - TDO → `ready_for_dispatch` → Supervisor → `dispatched` → Trip Start → `in_transit_destination` → Gate-In Dest → Scale-In → CC flags for QC → QC Sample → QC Pass → **CC Officer assigns unloading point** → Unloading → Scale-Out → Gate-Out → POD → Closed
    - Assertions: QC checkpoint created, QC pass recorded, unloading point assigned by CC (after Pass), closure gates passed
 
 3. **RM Inbound with QC Fail** (blocked closure):
@@ -746,7 +767,7 @@ Menu.MasterData.OperationPoints.View
 
 **Admin workflows**:
 - Predefined checklist completion (all 7 sections, remarks per item)
-- Checklist → TO status transition (Assigned → Ready for Dispatch)
+- TDO assignment → `assigned` → `ready_for_dispatch`; supervisor checklist/skip → `dispatched`; driver Trip Start → lane in-transit (FB-004)
 - Vehicle rejection with mandatory reason
 - Under Maintenance action + TO reset
 - Attendance entry (punch in/out, working hours warning)
@@ -821,9 +842,10 @@ Menu.MasterData.OperationPoints.View
 - Loading/Unloading Points (at least 2 per POI: one LOAD, one UNLOAD)
 - Weighbridges (optional — can use manual entry in Sprint 4)
 
-**Test data**:
-- 5–10 TOs in `ready_for_dispatch` state (assigned vehicle/driver from Sprint 3)
-- 3 TOs per flow type (FG outbound, FG inbound, RM inbound)
+**Test data** (FB-004 / E2E-01):
+- 5–10 TOs in `ready_for_dispatch` (supervisor queue — TDO assignment complete)
+- 3+ TOs in `dispatched` (driver Trip Start enabled)
+- 1 TO per flow lane post–Trip Start (`in_transit_source` or `in_transit_destination`)
 
 ---
 

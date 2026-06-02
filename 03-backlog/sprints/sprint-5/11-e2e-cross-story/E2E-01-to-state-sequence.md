@@ -18,8 +18,9 @@ status: Pending
 
 FB-004 requires reconciling the TO state sequence across DS-01 (supervisor dispatch gate), DM-01 (driver Trip Start), and TLS-01 (canonical transition rules). Each story implements its slice correctly in isolation, but the **handoff between the three** is where the gap lives:
 
-- DS-01 releases the TO via inspection or skip → TLS-01 must write `ready_for_dispatch`
-- DM-01 must show the driver the TO only after `dispatched`
+- TDO promotes the TO to `ready_for_dispatch` when assignment is complete (vehicle, driver, helpers, ETA per fleet rules)
+- DS-01 releases the TO via inspection or skip → TLS-01 must write `dispatched` (supervisor dispatch gate)
+- DM-01 lists the TO while `ready_for_dispatch` but execution actions (Trip Start) only when `dispatched`
 - Driver's Trip Start button must advance the TO to the correct lane-aware in-transit status via TLS-01
 
 This journey validates the full chain without breakage at any handoff.

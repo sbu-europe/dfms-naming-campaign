@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
-version: 3.1
+version: 3.2
 phase: Phase 1
-sprint: Sprint 4
-last_updated: 2026-05-20
-changelog: "v3.1 — POD-01: Transport Planner triggers closed status after verifying TO details; prerequisite refresh on yard/POD events (no system auto-close). v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
+sprint: Sprint 4 (Sprint 5 — FB-004 pre-execution handoff)
+last_updated: 2026-06-02
+changelog: "v3.2 — FB-004: document TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start; gate-in requires in-transit only. v3.1 — POD-01: Transport Planner triggers closed status after verifying TO details; prerequisite refresh on yard/POD events (no system auto-close). v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
 related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
@@ -94,6 +94,17 @@ Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.
 **Sprint 3 planning statuses** (unchanged keys on the same `status` column):
 
 `created` → `assigned` → `ready_for_dispatch` → `dispatched` → … → `completed` / `closed` / `cancelled` / `under_planning`
+
+**Pre-execution handoff (FB-004 — cross-story; validate via [E2E-01](../../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md)):**
+
+| Status | Set by | Module |
+|--------|--------|--------|
+| `assigned` | TDO links vehicle/driver (and helpers/ETA for own fleet) | `apps/transport/services.py` |
+| `ready_for_dispatch` | TDO completes assignment | Same — **not** DS-01 |
+| `dispatched` | Driver Supervisor inspection complete or skip | `apps/fleet_supervisor/services.py` (`dispatch_to_after_ready`) |
+| `in_transit_source` / `in_transit_destination` | Driver **Trip Start** (lane from `FIRST_DRIVER_TRANSITION`) | `apps/transport/driver_transition_service.py` + `state_machine.py` |
+
+Gate-in (GT-01) requires **in-transit** status per lane — not `ready_for_dispatch` or `dispatched`.
 
 **Sprint 4 execution statuses** (append to `TOStatus` in `apps/transport/constants.py`):
 
@@ -366,13 +377,13 @@ See [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-imp
 | TLS-01-1 | `TOStatus` + `TOSubState` in `constants.py` | Partial — enums in code |
 | TLS-01-2 | `TOStatusTransitionLog` + `sub_state` column on log | Partial |
 | TLS-01-3 | `TransportOrder.sub_state` migration (YARD-01 Step 1) | Partial |
-| TLS-01-4 | `TO_STATUS_TRANSITIONS` + driver rules in `state_machine.py` | Partial |
+| TLS-01-4 | `TO_STATUS_TRANSITIONS` + driver rules in `state_machine.py` | Partial — FB-004: enforce planning chain through `dispatched` and driver-only in-transit from `dispatched` |
 | TLS-01-5 | `apply_to_status_transition()` + `record_yard_sub_state()` | Partial |
 | TLS-01-6 | Yard integration matrix (§1.6) wired in GT/SC/CC/LD/QC services | In progress |
 | TLS-01-7 | Fleet availability validation | Per DM-01 / GT-01 |
 | TLS-01-8 | Timeline / status API endpoints | Planned |
 | TLS-01-9 | Django Admin for `TOStatusTransitionLog` | Planned |
-| TLS-01-10 | `maybe_clear_sub_state_on_status` on all canonical bumps; closure refresh hook | In progress |
+| TLS-01-10 | `apply_to_status_transition()`; `maybe_clear_sub_state_on_status` on canonical bumps; admin/break-glass POST validates `TO_STATUS_TRANSITIONS` | Partial — FB-004: yard modules must not bypass graph |
 
 ---
 
@@ -636,9 +647,11 @@ See §1.6 integration matrix. Authoritative per-module specs:
 - CC-01 / LD-01: [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md)
 - QC-01: [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
-### 6.3 Driver Supervisor (DS-01, DS-02)
+### 6.3 Driver Supervisor (DS-01, DS-02) — FB-004
 
-Fleet availability on first execution action; dispatch gate at `ready_for_dispatch`.
+- **TDO** sets `ready_for_dispatch` when assignment is complete.
+- **DS-01** dispatch queue lists only `ready_for_dispatch`; inspection/skip → `dispatched` via `dispatch_to_after_ready`.
+- **DM-01** Trip Start blocked until `dispatched`; §6.8.1.7 fleet availability runs on first driver transition after `dispatched`.
 
 ### 6.4 Command Center ↔ QC
 

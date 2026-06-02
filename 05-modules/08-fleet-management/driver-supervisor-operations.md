@@ -6,7 +6,7 @@ version: 2.5
 phase: Phase 1
 sprint: Sprint 4–5
 last_updated: 2026-06-02
-related_stories: DFS-050 (DS-01), DFS-051 (DS-02), DS-02-18 (FB-008)
+related_stories: DFS-050 (DS-01), DFS-051 (DS-02), DS-02-18 (FB-008), FB-004 (TO state sequence)
 jira_epic: DFS-070
 
 # Driver Supervisor Operations Specification
@@ -135,10 +135,12 @@ Fleet operations (portal + admin)
 
 **Sprint 4:** Primary supervisor vehicle flow uses **Django Admin** custom views + templates under `templates/admin/fleet_supervisor/`.
 
+**FB-004 / E2E-01:** TDO promotes `assigned` → `ready_for_dispatch` in transport assignment (`TDOAssignmentService`). This module **does not** set `ready_for_dispatch`; it only consumes that queue and writes `dispatched`.
+
 ```
 Fleet operations → Supervisor dispatch queue
-  └── TOs in Ready for Dispatch
-        ├── [Skip inspection] ──► TO Dispatched (Trip dispatched own fleet)
+  └── TOs in Ready for Dispatch (status = ready_for_dispatch)
+        ├── [Skip inspection] ──► TO Dispatched (status = dispatched; trip dispatched own fleet)
         └── [Start inspection] ──► Pending VehicleInspection + checklist inline
               ├── [Save] ──► persist checklist lines only
               ├── [Complete inspection & dispatch] (POST _submit_inspection)
