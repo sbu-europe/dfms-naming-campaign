@@ -987,6 +987,17 @@ def mark_vehicle_under_maintenance(vehicle_id, performed_by):
 - Requires non-empty reason; inspection **pending**; TO **`ready_for_dispatch`**
 - Sets inspection **rejected** + `rejection_reason`; vehicle → **under maintenance**; TO → **`under_planning`** with vehicle/driver cleared and helpers cleared; attempts driver → **available** via `DriverStateMachine` (invalid transitions ignored)
 
+**DS-01-14 audit implementation (tenant admin + API reuse):**
+
+- Reuse existing tenant audit service in `apps.audit.services` — **do not** create a new audit table or pipeline.
+- Add a small internal helper in `apps/fleet_supervisor/services.py` (best-effort `try/except`) that wraps `log_crud_update(...)` so all dispatch/inspection decisions emit consistent payload shape.
+- Emit audits from service layer (not view/admin layer) so both Django admin and API paths are covered by the same code.
+- Target actions for DS-01-14:
+  - `Inspection.SkipDispatch` from `supervisor_dispatch_intent(..., intent="skip_inspection")`
+  - `Inspection.ChecklistCompleted` from `complete_inspection(...)`
+  - `Inspection.Rejected` from `reject_inspection(...)`
+- Keep DS-01-17 aligned with the same mechanism (`log_crud_update`, action `Vehicle.MaintenanceCleared` in `complete_maintenance_clearance`).
+
 ### 6.7 Maintenance clearance completion & rejection (planned — DS-01-16 / DS-01-17)
 
 Add to `apps/fleet_supervisor/services.py` (names illustrative; keep in same module as existing inspection services):
@@ -1313,7 +1324,7 @@ python manage.py seed_dfms_rbac --reset
 | DS-01-11 | Inspection reject API — `POST /api/v1/inspections/{inspection_id}/reject`                         | DFS-050-11 |
 | DS-01-12 | Under Maintenance API — `POST /api/v1/vehicles/{vehicle_id}/under-maintenance`                    | DFS-050-12 |
 | DS-01-13 | Checklist template API — `GET /api/v1/checklist-template`                                         | DFS-050-13 |
-| DS-01-14 | Audit logging — inspections, rejections, Under Maintenance decisions                              | DFS-050-14 |
+| DS-01-14 | Audit logging (reuse `apps.audit.services.log_crud_update`) — `Inspection.SkipDispatch`, `Inspection.ChecklistCompleted`, `Inspection.Rejected`, plus Under Maintenance decisions | DFS-050-14 |
 | DS-01-15 | **Under Maintenance** vehicle list — `maintenance_queue_view` + `GET /api/v1/vehicles/under-maintenance` + portal nav item | DFS-050-15 |
 | DS-01-16 | **Re-inspection** — `inspection_purpose` + nullable `transport_order`; `start_maintenance_clearance_inspection`; branch `approve`/`reject` + admin `_submit_clearance` | DFS-050-16 |
 | DS-01-17 | **Return to Available** — `complete_maintenance_clearance`; MDM `is_active` guard; audit `Vehicle.MaintenanceCleared` | DFS-050-17 |
