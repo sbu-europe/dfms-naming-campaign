@@ -5,7 +5,7 @@ version: 2.0
 phase: Phase 1
 sprint: Sprint 4
 last_updated: 2026-06-02
-changelog: "v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
+changelog: "v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
 jira_epic: DFS-072
 ---
@@ -106,9 +106,9 @@ Operations → Gate → Vehicle Exit (Gate-Out)
 
 Operations → Gate → On-Demand TO Wizard (GT-02)
   └─► Triggered from Entry Form when TO not found
-        ├── Step 1: Path Type
-        │     ├── Dealer DO Outbound (FG delivery to dealer)
-        │     └── Supplier PO Inbound (RM receipt from supplier)
+        ├── Step 1: Product (user-facing path selector)
+        │     ├── Finished Goods → Dealer DO outbound (FG delivery to dealer)
+        │     └── Raw Material → Supplier PO inbound (RM receipt from supplier)
         │
         ├── Step 2: Document & Party Details
         │     ├── Document Number (DO# or PO#)
@@ -456,12 +456,12 @@ Gateman opens Gate-In form
 ```
 Gateman clicks [Create On-Demand TO] from Gate-In form
   └─► GT-02 Wizard opens
-        ├─► Step 1: Path Type selection
-        │     ├─► Dealer DO Outbound (FG delivery to dealer)
-        │     └─► Supplier PO Inbound (RM receipt from supplier)
+        ├─► Step 1: Product selection (dropdown)
+        │     ├─► **Finished Goods** → Dealer DO outbound path (FG delivery to dealer)
+        │     └─► **Raw Material** → Supplier PO inbound path (RM receipt from supplier)
         │
         ├─► Step 2: Document & Party Details
-        │     ├─► Dealer DO path:
+        │     ├─► Finished Goods (Dealer DO) path:
         │     │     ├─► DO Number (required)
         │     │     ├─► Dealer Name (dropdown from MDM)
         │     │     ├─► FG Product (item code lookup)
@@ -469,7 +469,7 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
         │     │     ├─► Driver Name, Driver Contact
         │     │     └─► Remarks (optional)
         │     │
-        │     └─► Supplier PO path:
+        │     └─► Raw Material (Supplier PO) path:
         │           ├─► PO Number (required)
         │           ├─► Supplier Name (dropdown from MDM)
         │           ├─► RM Product (item code lookup)
@@ -477,7 +477,7 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
         │           ├─► Driver Name, Driver Contact
         │           └─► Remarks (optional)
         │
-        ├─► Step 3: Routing (auto-derived from path type)
+        ├─► Step 3: Routing (auto-derived from product selection)
         │     ├─► Dealer DO:
         │     │     ├─► Source POI: current gate POI (depot/factory)
         │     │     └─► Destination POI: Dealer site (FK from party)
@@ -833,15 +833,22 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 
 ### 6.4 On-Demand TO — Django admin (`GateOnDemandTORequestAdmin`, GT-02)
 
-**Implementation:** `apps/operations/gate/admin.py` — `GateOnDemandTORequestAdmin` with `GateOnDemandTOAdminForm`. One add form; `path_type` selects Dealer DO vs Supplier PO (GT-02-2 / GT-02-3 behaviour in a single admin).
+**Implementation:** `apps/operations/gate/admin.py` — `GateOnDemandTORequestAdmin` with `GateOnDemandTOAdminForm`. One add form; **`product_type`** dropdown (Finished Goods / Raw Material — MDM `ProductType` labels) selects the wizard path; backend maps to `path_type` (`dealer_do` / `supplier_po`) for routing and persistence (GT-02-2 / GT-02-3 behaviour unchanged).
 
 Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the wizard payload and links to created `TransportOrder` + `GateVisitSession` (read-only on change).
+
+**Product → path mapping (UI only; stored `path_type` unchanged):**
+
+| Product (gateman dropdown) | Internal `path_type` | Party field | Document |
+|----------------------------|----------------------|-------------|----------|
+| Finished Goods | `dealer_do` | `dealer` (required) | DO# |
+| Raw Material | `supplier_po` | `supplier` (required) | PO# |
 
 **Add form fieldsets (gateman input only):**
 
 | Fieldset | Fields |
 |----------|--------|
-| Path type | `path_type` (`dealer_do` / `supplier_po`) |
+| Product | `product_type` (`FinishedGoods` / `RawMaterial` — labels **Finished Goods** / **Raw Material**) |
 | Document & party | `document_number`, `dealer` *or* `supplier`, `product`, `quantity_mt`, `driver_name`, `driver_contact`, `remarks` |
 | Vehicle | `vehicle_registration` (free text; format validated, no MDM lookup) |
 
@@ -1307,7 +1314,7 @@ Menu.Gate.OnDemandTO.View
 | GT-02-7 | Session ↔ TO linkage service | Associates GateVisitSession with newly created TO |
 | GT-02-8 | TLS-01 event emission | Emit `TO_CREATED` lifecycle event on gate-originated TO |
 | GT-02-9 | Inventory/QC hooks | Feature-flagged stock check stub (Dealer); QC linkage flag (Supplier) |
-| GT-02-10 | Gateman wizard UI | Dealer vs Supplier path selection, form fields, validation |
+| GT-02-10 | Gateman wizard UI | Product dropdown (Finished Goods / Raw Material) → dealer vs supplier path, form fields, validation |
 | GT-02-11 | GateOnDemandActivityLog | Audit logging on TO creation, linkage, validation overrides |
 
 ---
