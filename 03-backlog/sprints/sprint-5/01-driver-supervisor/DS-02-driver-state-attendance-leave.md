@@ -33,7 +33,7 @@ source: ../../../sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-lea
 
 | # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
 |---|----------|------|---------------|---------------|----------|
-| DS-02-6 | `DriverStateAdmin` list view — state badges, POI filter, read-only for non-supervisor via `get_readonly_fields` | DFS-051-6 | Partial | Complete admin `list_display` with `state_badge` method; add `list_filter` by state and POI; enforce `get_readonly_fields` for non-supervisor roles | High |
+| DS-02-6 | `DriverStateAdmin` list view — state badges, POI filter, read-only for non-supervisor via `get_readonly_fields` | DFS-051-6 | Complete | Implemented `state_badge` list display, POI + state filters, and read-only field enforcement in admin | High |
 | DS-02-10 | TLS-01 hooks — auto-update driver state on TO assignment, execution start, TO completion | DFS-051-10 | Partial | Wire hooks: `Available → Assigned` on TO assignment; `Assigned → On Execution` on execution start; `On Execution → Available` on TO completion; verify with integration test | High |
 | DS-02-17 | Audit trail complete for state transitions, attendance, and leave records | DFS-051-17 | Partial | Ensure every state transition, attendance create/edit, and leave create/cancel writes audit log with user, timestamp, before/after state | High |
 | DS-02-18 | Separate **Attendance** and **Leave Management** as distinct menu items | DFS-051-18 | Pending | Expose **Driver Attendance** and **Driver Leave Management** as separate nav items in Driver Supervisor portal; not nested under one section (FB-008) | Medium |
@@ -51,7 +51,7 @@ source: ../../../sprint-4/01-driver-supervisor/DS-02-driver-state-attendance-lea
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] `DriverStateAdmin` list shows state badges; filterable by state and POI; non-supervisor roles get read-only fields (DS-02-6)
+- [x] `DriverStateAdmin` list shows state badges; filterable by state and POI; non-supervisor roles get read-only fields (DS-02-6)
 - [ ] TLS-01 hooks wired and verified by integration test: assignment → Assigned; execution start → On Execution; completion → Available (DS-02-10)
 - [ ] Audit trail complete: every state transition, attendance entry, and leave record logged (DS-02-17)
 - [ ] **Driver Attendance** and **Driver Leave Management** appear as separate portal menu items (DS-02-18, FB-008)
