@@ -6,7 +6,7 @@ carry_from: "Sprint 4"
 story_id: DS-01
 title: Driver Supervisor — Vehicle Licence, Health & Handover Checklists
 epic: Driver Supervisor & Crew
-status: Carry-over
+status: In Progress
 story_points: 5
 assignee: Farhan Tanvir(farhanT23)
 carry_subtasks:
@@ -31,13 +31,13 @@ source: ../../../sprint-4/01-driver-supervisor/DS-01-vehicle-licence-health-hand
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
-|---|----------|------|---------------|---------------|----------|
-| DS-01-7 | Align `mark_vehicle_under_maintenance` — linked TOs must transition to `under_planning` (currently resets to `created`) | DFS-050-7 | Pending | Fix `VehicleAdmin.mark_vehicle_under_maintenance` service so TOs in `assigned` state → `under_planning`, not `created` | High |
-| DS-01-12 | `POST …/vehicles/{id}/under-maintenance` — linked TOs must go to `under_planning` (not `created`) | DFS-050-12 | Pending | Align API behaviour to match `reject_inspection` path which correctly writes `under_planning` | High |
-| DS-01-14 | Central audit logging — skip-dispatch, checklist complete, reject inspection actions | DFS-050-14 | Pending | Implement audit helper calls in `fleet_supervisor` services for all three paths; align with DS-01-17 return-to-service audit | High |
-| DS-01-17 | Return-to-service audit event on vehicle → `Available` transition | DFS-050-17 | Pending | Add audit log entry on `complete_inspection` (maintenance-clearance path): who, when, vehicle ID, inspection ID | Medium |
-| DS-01-19 | E2E test coverage | ~ | Pending | Validate pre-dispatch checklist skip / approval / rejection, maintenance rollback (`under_planning`), and return-to-service paths | Medium |
+| # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority | Status |
+|---|----------|------|---------------|---------------|----------|--------|
+| DS-01-7 | Align `mark_vehicle_under_maintenance` — linked TOs must transition to `under_planning` (currently resets to `created`) | DFS-050-7 | Pending | Fix `VehicleAdmin.mark_vehicle_under_maintenance` service so TOs in `assigned` state → `under_planning`, not `created` | High | Done |
+| DS-01-12 | `POST …/vehicles/{id}/under-maintenance` — linked TOs must go to `under_planning` (not `created`) | DFS-050-12 | Pending | Align API behaviour to match `reject_inspection` path which correctly writes `under_planning` | High | Done |
+| DS-01-14 | Central audit logging — skip-dispatch, checklist complete, reject inspection actions | DFS-050-14 | Pending | Implement audit helper calls in `fleet_supervisor` services for all three paths; align with DS-01-17 return-to-service audit | High | Done |
+| DS-01-17 | Return-to-service audit event on vehicle → `Available` transition | DFS-050-17 | Pending | Add audit log entry on `complete_inspection` (maintenance-clearance path): who, when, vehicle ID, inspection ID | Medium | Done |
+| DS-01-19 | E2E test coverage | ~ | Pending | Validate pre-dispatch checklist skip / approval / rejection, maintenance rollback (`under_planning`), and return-to-service paths | Medium | Not done |
 
 ---
 
@@ -53,10 +53,10 @@ source: ../../../sprint-4/01-driver-supervisor/DS-01-vehicle-licence-health-hand
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] `mark_vehicle_under_maintenance` transitions linked TOs → `under_planning` (DS-01-7, DS-01-12)
-- [ ] Audit trail complete: skip, checklist-complete, and reject all emit audit log entries (DS-01-14)
-- [ ] Return-to-service audit event recorded on `Available` transition (DS-01-17)
-- [ ] Maintenance-clearance inspection record shows **Maintenance Completed** label in history (FB-009)
+- [x] `mark_vehicle_under_maintenance` transitions linked TOs → `under_planning` (DS-01-7, DS-01-12)
+- [x] Audit trail complete: skip, checklist-complete, and reject all emit audit log entries (DS-01-14)
+- [x] Return-to-service audit event recorded on `Available` transition (DS-01-17)
+- [x] Maintenance-clearance inspection record shows **Maintenance Completed** label in history (FB-009)
 - [ ] E2E sub-task DS-01-19 passes in staging
 
 ---
