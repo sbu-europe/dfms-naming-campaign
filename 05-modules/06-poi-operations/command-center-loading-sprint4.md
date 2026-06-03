@@ -1,12 +1,13 @@
 ---
 module: 06-poi-operations
 specification: Command Center, Loading/Unloading & QC Operations (Sprint 4 — TO-Centric)
-version: 1.1
+version: 1.3
 phase: Phase 1
-sprint: Sprint 4 (QC trigger alignment — Sprint 5 / FB-006)
+sprint: Sprint 4 (baseline) + Sprint 5 carry-over (FB-005, FB-006, CC-01 APIs)
 last_updated: 2026-06-03
-changelog: "v1.1 — QC-01-13 / FB-006: QueueEntry.requires_qc from product lines (any line Product.requires_qc); RM inbound auto-flagged_for_qc at scale-in when required; CC assigns unloading only after QC Pass; manual Flag for QC removed from happy path"
+changelog: "v1.3 — LD-01 admin start UX: LUP dropdown → serial-ordered clickable queue table → bay_assignment (admin only; LUP not persisted on events). v1.2 — FB-005 bay concurrency + UTC serials. v1.1 — product-line QC at scale-in."
 related_stories: DFS-056 (CC-01), DFS-057 (LD-01), DFS-058 (QC-01)
+feedback_items: FB-005 (bay concurrency + serials), FB-006 (product-line QC)
 jira_epic: DFS-072
 ---
 
@@ -16,8 +17,8 @@ jira_epic: DFS-072
 
 This specification covers three tightly coupled modules in the yard chain:
 
-- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
-- **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
+- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. A loading/unloading point may serve **multiple vehicles concurrently** (FB-005); each assignment gets a **daily UTC waiting serial** for that point. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
+- **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. **Admin start flow (Sprint 5)**: personnel pick **loading/unloading point** → see **serial-ordered queue** at that point → click row to select TO → start event (`bay_assignment` only persisted). Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
 - **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
 **Module paths**: `apps/operations/command_center/`, `apps/operations/loading/`, `apps/quality/checkpoint/`  
@@ -29,9 +30,9 @@ This specification covers three tightly coupled modules in the yard chain:
 | Path | Exists | Notes |
 |------|--------|-------|
 | `apps/operations/command_center/views.py` | ✓ | `CommandCenterDashboardView` (legacy counts), `ActiveTripsView` — no Sprint 4 models |
-| `apps/operations/command_center/models.py` | ✗ | Must be created for `QueueEntry`, `BayAssignment`, `WaitingSerial` |
+| `apps/operations/command_center/models.py` | ✓ | `QueueEntry`, `BayAssignment`, `WaitingSerial` — add `WaitingSerialSequence` (FB-005) |
 | `apps/operations/loading/models.py` | ✓ | Legacy `LoadingOperation` linked to `GateEntry` — **do not extend** |
-| `apps/operations/loading/admin.py` | ✗ | Must be created for `LoadEventAdmin`, `UnloadEventAdmin` |
+| `apps/operations/loading/admin.py` | ✓ | `LoadEventAdmin`, `UnloadEventAdmin` — **v1.3**: point-first queue table on add form |
 | `apps/quality/checkpoint/` | ✗ | Directory does not exist; `QCSample` and `QCDecision` go here |
 
 All new Sprint 4 models use **separate migration files** so legacy `LoadingOperation` and `GateEntry`-linked models are untouched.
@@ -111,7 +112,9 @@ BayAssignment(TenantAwareModel) {
     assigned_by: FK → User (CC Officer)
     assigned_at: DateTime
 
-    # Status mirrors QueueEntry: created by CC, closed by LD-01
+    # FB-005: is_active = THIS vehicle's assignment is open (not "LUP exclusively occupied").
+    # Multiple rows may be is_active=True on the same loading_unloading_point.
+    # Closed by LD-01 complete (mark_completed) or QC cancel (resample / override-fail).
     is_active: boolean (default True)
     cancelled_at: DateTime (nullable)
     cancelled_by: FK → User (nullable)
@@ -121,9 +124,16 @@ BayAssignment(TenantAwareModel) {
 
 ### 1.3 WaitingSerial (new model — extends `TenantAwareModel`)
 
-Unique serial number per loading/unloading point assignment. Immutable after issue.
+One immutable waiting serial per `BayAssignment`. Issued **atomically inside** `CCService.assign_bay()` (not a separate manual step).
 
 **YARD-01 §7.3 fix**: `WaitingSerial` owns the FK to `BayAssignment` (not the reverse). The previous design had a FK on both sides, creating a circular create-order deadlock. Access the serial from `assignment.waiting_serial` via the reverse `OneToOne` relation.
+
+**FB-005 serial rules**:
+
+- Format: `{POINT_CODE}-{YYYYMMDD}-{seq:03d}` (e.g. `BAY-01-20260603-002`).
+- `{YYYYMMDD}` = **UTC calendar date** at issue time (`timezone.now().astimezone(UTC).date()`).
+- `{seq}` = daily sequence **per LoadingUnloadingPoint**; resets to `001` at **00:00 UTC** (new date key).
+- `serial_number` is **globally unique** in DB (existing `uq_waiting_serial_number`); historical rows are never rewritten.
 
 ```python
 WaitingSerial(TenantAwareModel) {
@@ -131,11 +141,36 @@ WaitingSerial(TenantAwareModel) {
 
     # WaitingSerial holds the FK — BayAssignment has no waiting_serial FK
     bay_assignment: FK → BayAssignment (OneToOne, related_name='waiting_serial')
-    serial_number: string (unique per LoadingUnloadingPoint per day — format: '{POINT_CODE}-{YYYYMMDD}-{seq:03d}')
+    serial_number: string (unique globally — format above)
     issued_at: DateTime
     issued_by: FK → User
 }
 ```
+
+### 1.3.1 WaitingSerialSequence (FB-005 — extends `TenantAwareModel`)
+
+Concurrency-safe daily counter per L/U point. Incremented inside `assign_bay` with `select_for_update()` in the same transaction as `WaitingSerial` creation.
+
+```python
+WaitingSerialSequence(TenantAwareModel) {
+    id: UUID (PK)
+
+    loading_unloading_point: FK → LoadingUnloadingPoint (PROTECT)
+    serial_date: DateField   # UTC date (not local POI time)
+    last_seq: PositiveIntegerField (default 0)
+
+    # UniqueConstraint(loading_unloading_point, serial_date)
+}
+```
+
+**Allocator** (`CCService._next_serial_number` or dedicated helper):
+
+1. Resolve `serial_date` in UTC.
+2. `get_or_create` sequence row for `(lup, serial_date)` with row lock.
+3. `last_seq += 1`; persist.
+4. Return `f"{lup.short_code}-{serial_date:%Y%m%d}-{last_seq:03d}"`.
+
+Replaces the Sprint 4 `count() + 1` prefix scan (racy under concurrent assigns).
 
 ### 1.4 LoadEvent (new model — extends `TenantAwareModel`)
 
@@ -290,13 +325,14 @@ CC Officer opens Command Center → Queue
 ```
 CC Officer clicks [Assign Bay] for FG outbound QueueEntry
   └─► Modal / inline form:
-        ├─► Loading Point: dropdown from LoadingUnloadingPoint.objects.filter(
-        │     poi=poi, operation_type=LOAD, is_active=True
-        │   ).exclude(active_bay_assignments)
+        ├─► Loading Point: dropdown — active LOAD points at POI (FB-005: **includes points
+        │     that already have other active assignments**; optional read-only panel lists
+        │     current vehicles at selected LUP ordered by waiting_serial.serial_number)
         └─► [Assign]
               └─► CCService.assign_bay(queue_entry, loading_point, assigned_by):
-                    ├─► Create BayAssignment
-                    ├─► Auto-issue WaitingSerial (serial_number auto-gen)
+                    ├─► Validate eligibility (QC, lane/op_type, POI) — **no LUP exclusivity**
+                    ├─► Create BayAssignment (is_active=True)
+                    ├─► Auto-issue WaitingSerial (UTC daily seq via WaitingSerialSequence)
                     ├─► QueueEntry.status = 'assigned'
                     ├─► Emit BAY_ASSIGNED event → TLS-01 (sub: assigned_loading_point)
                     └─► Success: serial number displayed
@@ -349,55 +385,85 @@ QCService.record_decision(decision='pass')
 
 If QC fails or is pending, gate-out and bay assignment remain blocked (see §8, GT-01 guard matrix).
 
+### 3.5 FB-005 — Multiple vehicles per L/U point (summary)
+
+| Topic | Rule |
+|-------|------|
+| Concurrent vehicles per LUP | **No cap** — many `BayAssignment(is_active=True)` on the same point |
+| Per visit | Still **one** `BayAssignment` per `QueueEntry` (OneToOne) |
+| Serial | One per assignment; issued in `assign_bay`; immutable |
+| Daily reset | Sequence restarts at **00:00 UTC** per LUP |
+| Crew display order | **Ascending `waiting_serial.serial_number`** (my-bay API, assignment lists) |
+| Completing one vehicle | `mark_completed` sets **that** assignment `is_active=False` only — does not free the LUP for others |
+| LD start (admin) | LUP dropdown → serial queue table → `bay_assignment` — **§4.0**, **§11.9** |
+
+Full implementation plan: **§11**.
+
 ---
 
 ## 4. Loading/Unloading Flow (LD-01)
 
-### 4.1 Loading (FG outbound)
+### 4.0 LD start UX — locked decisions (Sprint 5, admin only)
+
+| Topic | Decision |
+|-------|----------|
+| Surface | **Django admin only** (LoadEvent / UnloadEvent add forms); REST/mobile two-step deferred |
+| Step 1 | Dropdown: **all active** `LoadingUnloadingPoint` at operator's POI (`is_active=True`) |
+| Step 1 scope | **Load** admin → `operation_type=LOAD`; **Unload** admin → `operation_type=UNLOAD` (include empty bays) |
+| Step 2 | **Read-only table** at selected LUP; **click row** selects assignment/TO |
+| Row columns (order) | **Waiting serial** → **TO number** → **Vehicle** (optional: sub-state badge for RM) |
+| Row sort | `waiting_serial__serial_number` ascending (FB-005) |
+| Row eligibility | Active `BayAssignment` at LUP, lane/leg rules per screen, **no open** `LoadEvent`/`UnloadEvent` on that assignment |
+| Persistence | **`bay_assignment` only** on `LoadEvent`/`UnloadEvent` — LUP is form navigation, **not** a model field |
+| Deep link | `?bay_assignment=<uuid>` → infer LUP, pre-select dropdown, highlight row |
+| Change form (complete) | Unchanged: readonly `bay_assignment`, end datetime + captures |
+
+Implementation detail: §6.3, §6.4, §11.9.
+
+### 4.1 Loading (FG outbound) — start (admin)
 
 ```
-Loading Personnel opens Load Event form
-  └─► Selects BayAssignment (autocomplete — shows assigned, not completed)
-        └─► Display: TO Number, Loading Point, Vehicle, Waiting Serial
-              ├─► Enter: Start Datetime (required, default=now)
-              └─► [Save Start]
-                    └─► Create LoadEvent (end_datetime=null)
-                          └─► Emit LOADING_STARTED → TLS-01 (sub: loading_started)
+Loading Personnel opens Load Event → Add
+  └─► Step 1: Select Loading Point (dropdown — all active LOAD points at POI)
+  └─► Step 2: Queue at this point (read-only table, serial-ordered)
+        ├─► Rows: serial | TO number | vehicle
+        ├─► Click row → sets hidden bay_assignment + refreshes TO details panel
+        └─► Empty LUP → "No vehicles assigned at this point."
+  └─► Step 3: Start Datetime (default=now) + TO details panel (lines, weight context)
+  └─► [Save Start]
+        └─► LDService.start_loading(bay_assignment, start_datetime)
+              ├─► Create LoadEvent (end_datetime=null)
+              └─► Emit LOADING_STARTED → TLS-01 (sub: loading_started)
 
-  [Later] Loading Personnel updates LoadEvent:
-  └─► Enter: End Datetime (required ≥ start)
-  └─► Enter: Bags Loaded (nullable), Weight Loaded MT (nullable), Seal Number (nullable)
-  └─► [Save End]
-        └─► LDService.complete_loading(load_event):
-              ├─► Set end_datetime
-              ├─► QueueEntry.status = 'completed'
-              ├─► Emit LOADING_COMPLETED → TLS-01 (sub: loading_completed)
-              └─► Gate for SC-01: scale-out now allowed for FG outbound
+  [Later] Loading Personnel opens existing LoadEvent (change):
+  └─► bay_assignment readonly; enter End Datetime, bags, weight, seal
+  └─► LDService.complete_loading → LOADING_COMPLETED; QueueEntry completed; scale-out gate
 ```
 
-### 4.2 Unloading (FG inbound and RM inbound)
+### 4.2 Unloading (FG inbound and RM inbound) — start (admin)
+
+Same **three-step** pattern as §4.1 with **Unloading Point** dropdown (`operation_type=UNLOAD`) and unload-eligible `BayAssignment` queryset (FG inbound, RM inbound, FG outbound destination leg per existing rules).
 
 ```
-Unloading Personnel opens Unload Event form
-  └─► Selects BayAssignment (autocomplete — active, assigned)
-        └─► Display: TO Number, Unloading Point, Vehicle, Waiting Serial, QC Status (RM badge)
-              ├─► Enter: Start Datetime (required, default=now)
-              └─► [Save Start]
-                    └─► Create UnloadEvent (end_datetime=null)
-                          └─► Emit UNLOADING_STARTED → TLS-01 (sub: unloading_started)
+Unload Event → Add
+  └─► Unloading Point (dropdown — all active UNLOAD @ POI)
+  └─► Queue table → click row → bay_assignment
+  └─► Start Datetime + TO details (+ RM QC context in panel where applicable)
+  └─► LDService.start_unloading → UNLOADING_STARTED
 
-  [Later] Unloading Personnel updates UnloadEvent:
-  └─► Enter: End Datetime (≥ start), Bags Unloaded, Weight Unloaded MT
-  └─► [Save End]
-        └─► LDService.complete_unloading(unload_event):
-              ├─► Set end_datetime
-              ├─► QueueEntry.status = 'completed'
-              ├─► Emit UNLOADING_COMPLETED → TLS-01 (sub: unloading_completed)
-              └─► Gate for SC-01: scale-out now allowed for FG inbound
-                  (for RM inbound: scale-out requires QCDecision.decision='pass' also)
+  [Later] complete unload → UNLOADING_COMPLETED (+ RM scale-out needs QC pass)
 ```
+
+### 4.3 Relationship to CC / FB-005
+
+| Layer | Role |
+|-------|------|
+| CC `assign_bay` | Creates `BayAssignment` + `WaitingSerial` at LUP |
+| LD admin queue table | **Consumes** assignments at chosen LUP; does not create assignments |
+| `GET my-bay` (CC-01-8, later) | Same list contract as step-2 table; admin proves UX before API |
 
 ---
+
 
 ## 5. QC Checkpoint Flow — RM Inbound Only (QC-01)
 
@@ -587,33 +653,49 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
         poi_id = self._scope_poi_id(request)  # from YardAdminBase
         queue_entry_id = request.GET.get("queue_entry")
         op_type = infer_operation_type(queue_entry_id)  # LOAD or UNLOAD from flow_lane
-        qs = (
-            LoadingUnloadingPoint.objects.filter(
-                operation_type=op_type, is_active=True
-            )
-            .exclude(bay_assignments__is_active=True)
+        qs = LoadingUnloadingPoint.objects.filter(
+            operation_type=op_type, is_active=True
         )
+        # FB-005: do NOT exclude LUPs with other active assignments
         if poi_id:
             qs = qs.filter(poi_id=poi_id)
         kwargs["queryset"] = qs
     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 ```
 
-- `save_model` → `CCService.assign_bay(...)`: creates BayAssignment, auto-issues WaitingSerial, updates QueueEntry status, emits TLS-01 event
+- Optional UX (FB-005): on add form, readonly panel **Current at {LUP}** — active assignments at selected point, ordered by `waiting_serial__serial_number` (vehicle, TO, serial).
+- `save_model` → `CCService.assign_bay(...)`: creates BayAssignment, auto-issues WaitingSerial (UTC sequence), updates QueueEntry status, emits TLS-01 event
 
 ### 6.3 LoadEventAdmin (LD-01-2)
 
 Uses `LoadEventAdminBase` (→ `YardAdminBase`). **FG outbound only**.
 
-**Change Form**:
-- `bay_assignment`: autocomplete, filtered to active FG outbound BayAssignments at operator's POI
-- `start_datetime`: required, default = `timezone.now()`
-- `end_datetime`: nullable; `clean()` enforces `end_datetime >= start_datetime`
-- `bags_loaded`, `weight_loaded_mt`, `seal_number`: nullable — entered when loading completes
-- `save_model`:
-  - On initial create (end_datetime is null): `LDService.start_loading(bay_assignment, start_datetime)` → emits LOADING_STARTED
-  - On update with end_datetime set: `LDService.complete_loading(load_event)` → emits LOADING_COMPLETED, updates QueueEntry, gates SC-01 scale-out
-- `get_readonly_fields`: `bay_assignment`, `start_datetime` become read-only once `end_datetime` is set (immutable after completion)
+**Add form (v1.3 — point-first queue)** — see §4.0:
+
+| Field / widget | Behaviour |
+|----------------|-----------|
+| `loading_point` | **Non-model** `ModelChoiceField` → all active `LOAD` LUPs at `_scope_poi_id(request)` |
+| `queue_at_point` | Readonly admin widget: HTML table built from `CCService.assignments_startable_at_lup(lup, event_model=LoadEvent)` |
+| Row click (JS) | Sets hidden/posted `bay_assignment`; highlights row; triggers panel refresh (GET reload or inline) |
+| `bay_assignment` | **Hidden** on add (not POI-wide autocomplete); required in `clean()` before save |
+| `to_details_panel` | Existing readonly panel; driven by selected `bay_assignment` |
+| `start_datetime` | Required; default `timezone.now()` |
+
+**Queue row queryset** (same rules as legacy `_bay_assignment_details_qs`):
+
+- `BayAssignment`: `is_active=True`, `flow_lane=FG_OUTBOUND`, LUP `operation_type=LOAD`, `yard_leg=SOURCE`
+- Exclude assignments with open `LoadEvent` (`end_datetime` null)
+- Filter `loading_unloading_point_id = selected LUP`
+- `order_by("waiting_serial__serial_number")`
+
+**LUP change**: clearing selected `bay_assignment` and table selection when dropdown changes.
+
+**Change form (complete loading)** — unchanged from Sprint 4:
+
+- `bay_assignment`, `start_datetime` readonly after `end_datetime` set
+- `save_model`: create → `LDService.start_loading`; update with end → `LDService.complete_loading`
+
+**Templates / static**: `templates/admin/operations/loadevent/change_form.html` (or shared LD partial) for queue table + row-select JS; reuse `dfms-badge` / `grp-table` styles.
 
 **List View**:
 - Columns: TO Number, Vehicle, Loading Point, Start Time, End Time (nullable), Bags, Weight MT, Seal, Status (In Progress / Completed), Created By
@@ -623,16 +705,11 @@ Uses `LoadEventAdminBase` (→ `YardAdminBase`). **FG outbound only**.
 
 Uses `UnloadEventAdminBase` (→ `YardAdminBase`). **FG inbound + RM inbound**.
 
-**Change Form**:
-- `bay_assignment`: autocomplete, filtered to active inbound BayAssignments at operator's POI
-- Same start/end pattern as LoadEventAdmin
-- For RM inbound: `qc_sample_taken` checkbox (informational; actual QC is in QCAdmin)
-- `save_model`:
-  - Initial create: `LDService.start_unloading(bay_assignment, start_datetime)` → emits UNLOADING_STARTED
-  - Update with end_datetime: `LDService.complete_unloading(unload_event)` → emits UNLOADING_COMPLETED
-- `get_readonly_fields`: `bay_assignment`, `start_datetime` read-only after `end_datetime` set
+**Add form**: same pattern as §6.3 with **Unloading Point** (`operation_type=UNLOAD`) and unload-eligible `BayAssignment` queryset (FG inbound, RM inbound, FG outbound destination leg — mirror current `_bay_assignment_details_qs`).
 
-**Cancellation**: if `QCService.trigger_resample()` is called, the active `UnloadEvent` is cleared (end_datetime remains null) and a `cancelled_by_resample` flag is set. `UnloadEventAdmin` shows this as a warning banner.
+**Change form**: `qc_sample_taken` checkbox (informational); complete via `LDService.complete_unloading`.
+
+**Cancellation**: resample / override-to-fail banner when `cancelled_by_resample` (unchanged).
 
 ### 6.5 QCSampleAdmin (QC-01-2)
 
@@ -709,16 +786,27 @@ GET    /api/v1/command-center/queue?poi=&requires_qc=&status=
 
 POST   /api/v1/command-center/assignments
        → Body: { queue_entry_id, loading_unloading_point_id }
-       → Validations: flow lane match, point active + not in use, requires_qc=False
-       → Side effects: BayAssignment, WaitingSerial, QueueEntry status=assigned, TLS-01 event
-       → Response: { assignment_id, waiting_serial, assigned_at }
+       → Validations: flow lane + op_type, point active, queue eligible (QC when required)
+       → FB-005: LUP may already have other active assignments (no "point in use" rejection)
+       → Side effects: BayAssignment, WaitingSerial (UTC daily seq), QueueEntry status=assigned, TLS-01
+       → Response: { assignment_id, waiting_serial, serial_number, assigned_at }
+
+GET    /api/v1/command-center/assignments?loading_point_id=&status=active
+       → Active assignments for LUP; order by waiting_serial__serial_number (FB-005)
+
+GET    /api/v1/command-center/waiting-serials?loading_point_id=
+       → Serials for point (filter by active assignment); order by serial_number
+
+# Serial issuance is part of POST /assignments (assign_bay). No separate POST required for FB-005
+# unless a future recovery/re-issue endpoint is added.
 
 # POST /api/v1/command-center/flag-qc — REMOVED from target design (v1.1).
 # QC flag is applied inside ScaleInService.record_scale_in → CCService.create_queue_entry
 # when to_requires_qc_from_lines(to) is True.
 
-GET    /api/v1/command-center/my-bay?poi=
-       → Active BayAssignments for the loading/unloading personnel at this POI
+GET    /api/v1/command-center/my-bay?loading_point_id=
+       → Active BayAssignments at LUP for loading/unloading personnel
+       → Order: waiting_serial.serial_number ascending (FB-005)
 ```
 
 ### 7.2 Loading/Unloading Events (LD-01)
@@ -773,15 +861,21 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 ## 8. Validation Rules
 
 ### CC-01
-- Cannot assign bay when `requires_qc=True` and no active `QCDecision(decision='pass')` for the TO
+- Cannot assign bay when `requires_qc=True` and `qc_passed is not True` on the queue entry
 - Loading/unloading point must match `operation_type` for the flow lane (LOAD for FG outbound, UNLOAD for others)
 - Inactive loading/unloading points excluded from assignment dropdowns
-- Duplicate BayAssignment for same QueueEntry → reject
+- Duplicate BayAssignment for same QueueEntry → reject (OneToOne on `queue_entry`)
+- **FB-005 removed (Sprint 4)**: reject when another `BayAssignment(is_active=True)` exists on the same LUP
+- **FB-005**: multiple active assignments per LUP allowed; no capacity field on `LoadingUnloadingPoint`
+- **FB-005**: `serial_number` unique globally; daily seq per LUP resets at 00:00 UTC; historical serials immutable
 
 ### LD-01
 - `end_datetime >= start_datetime` (form `clean()` + service validation)
 - `end_datetime` not settable if BayAssignment is cancelled (resample/override-to-fail)
 - LoadEvent only for FG outbound; UnloadEvent only for FG inbound / RM inbound (enforced by queryset scoping)
+- **Add form (v1.3)**: `bay_assignment` required when saving start; must belong to selected LUP; must appear in startable queue for that LUP
+- **Add form**: changing LUP clears `bay_assignment` selection
+- **No** `loading_unloading_point` FK on `LoadEvent` / `UnloadEvent` — point selection is UI-only
 
 ### QC-01
 - Sample creation only when TO `requires_qc` (product-line aggregate) and `sub_state` in `flagged_for_qc`, `sampling_started`, or `resampling` (QC-01-13)
@@ -799,8 +893,9 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — sets `requires_qc` from product lines and writes `flagged_for_qc` or `waiting_cc` (YARD-01) |
 | GT-01 (Gate-Out) | Downstream | LoadEvent/UnloadEvent completion + QCDecision.decision='pass' are gate-out guard conditions |
 | SC-01 (Scale-Out) | Downstream gate | LoadEvent/UnloadEvent completion (+ QC pass for RM) unlocks scale-out |
-| LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK for bay assignment; queryset filtered by poi + operation_type + is_active |
+| LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK; filtered by poi + operation_type + is_active (FB-005: not filtered by “bay occupied”) |
 | TLS-01 (Lifecycle) | Timeline | All events: BAY_ASSIGNED, `flagged_for_qc` (auto at scale-in when product QC required), LOADING_STARTED/COMPLETED, UNLOADING_STARTED/COMPLETED, QC_PASSED/FAILED, RESAMPLING_TRIGGERED, QC_OVERRIDDEN_FAIL |
+| LD-01 (Loading/Unloading) | Downstream | Admin start picks `bay_assignment` from LUP queue (§4.0); `LDService` unchanged |
 | GT-02 (Gate TO lines) | Upstream data | `TransportOrder.requires_qc` + `TOLineItem` product FKs feed `to_requires_qc_from_lines` at queue creation |
 
 ---
@@ -811,11 +906,12 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
-| CC-01-1 | Models + migration | QueueEntry (with `qc_passed` field), BayAssignment (no `waiting_serial` FK), WaitingSerial (owns FK → BayAssignment) |
+| CC-01-1 | Models + migration | QueueEntry, BayAssignment, WaitingSerial; **FB-005 add** `WaitingSerialSequence` |
 | CC-01-2 | QueueEntryAdmin | Queue dashboard (`status=waiting`); Assign Bay when eligible; Awaiting QC display for `requires_qc` pending; `CCAdminBase` → `YardAdminBase` |
-| CC-01-3 | BayAssignmentAdmin | `_scope_poi_id` for formfield_for_foreignkey; CCService in save_model |
+| CC-01-3 | BayAssignmentAdmin | `_scope_poi_id` for formfield_for_foreignkey; CCService in save_model; FB-005 LUP queryset (no exclusivity exclude) |
 | CC-01-4 | CC queue REST API (GET) | Filter by status/requires_qc/poi |
-| CC-01-5 | Bay assignment REST API (POST) | Flow lane + op_type validation; BayAssignment + WaitingSerial |
+| CC-01-5 | Bay assignment REST API (POST) | Flow lane + op_type validation; BayAssignment + WaitingSerial (FB-005 UTC seq, multi-vehicle per LUP) |
+| CC-01-7 | Waiting serial / my-bay APIs (Sprint 5) | GET serials + my-bay ordered by serial; issuance via POST assignments (FB-005) |
 | CC-01-6 | QC auto-flag at scale-in (replaces manual flag API) | `create_queue_entry` + TLS-01 `flagged_for_qc` when `to_requires_qc_from_lines`; align with QC-01-13 / FB-006 |
 
 ### LD-01 — Loading/Unloading
@@ -823,8 +919,9 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
 | LD-01-1 | Models + migration | LoadEvent, UnloadEvent (with `cancelled_by_resample` field) |
-| LD-01-2 | LoadEventAdmin | FG outbound only; start/end datetime; LDService in save_model; get_readonly_fields |
-| LD-01-3 | UnloadEventAdmin | FG inbound + RM inbound; qc_sample_taken checkbox; cancel on resample |
+| LD-01-2 | LoadEventAdmin | FG outbound; **v1.3** LUP dropdown + serial queue table on add; LDService on save |
+| LD-01-3 | UnloadEventAdmin | FG inbound + RM inbound; same point-first add UX; qc_sample_taken; resample banner |
+| LD-01-6 | LD admin start UX (FB-005) | Shared helper `assignments_startable_at_lup`; queue widget + JS; templates — §11.9 |
 | LD-01-4 | Load events REST API | POST (start) + PATCH (complete) |
 | LD-01-5 | Unload events REST API | POST (start) + PATCH (complete) + GET qc-handoff |
 
@@ -843,7 +940,146 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 ---
 
-| CC-01-7 | YARD-01 integration | `CCAdminBase` (`command_center_officer`) + `LoadEventAdminBase` (`loading_personnel`) + `UnloadEventAdminBase` (`unloading_personnel`) → `YardAdminBase`; `QueueEntry.qc_passed`; `WaitingSerial` FK direction; `UnloadEvent.cancelled_by_resample`; `create_queue_entry` called atomically from `ScaleInService` |
+| CC-01-YARD | YARD-01 integration | `CCAdminBase`, LD admin bases → `YardAdminBase`; `QueueEntry.qc_passed`; `WaitingSerial` FK direction; `create_queue_entry` from `ScaleInService` |
+
+### FB-005 — Sprint 5 (client feedback)
+
+| Work item | Scope | Status |
+|-----------|-------|--------|
+| FB-005-1 | Migration `WaitingSerialSequence`; remove LUP exclusivity in `CCService._validate_for_assignment` | Planned |
+| FB-005-2 | UTC serial allocator with `select_for_update` in `assign_bay` | Planned |
+| FB-005-3 | Admin: LUP dropdown without `exclude(bay_assignments__is_active=True)`; optional current-at-bay panel | Planned |
+| FB-005-4 | Unit tests: multi-assign same LUP, UTC day rollover, concurrent serial safety | Planned |
+| FB-005-5 | REST: `POST/GET assignments`, `GET my-bay`, `GET waiting-serials` per §7.1 | Planned (CC-01-5–8) |
+| FB-005-6 / LD-01-6 | LD admin: LUP dropdown + serial queue table (click row → `bay_assignment`) | Planned (§11.9) |
+
+Source: [feedback-resolution.md](../../03-backlog/sprints/sprint-5/feedback-resolution.md) § FB-005.
+
+---
+
+## 11. FB-005 — Implementation plan (Sprint 5)
+
+**Feedback**: [FB-005](../../03-backlog/sprints/sprint-5/feedback-resolution.md) — multiple vehicles per L/U point; daily waiting-serial reset.
+
+**Locked product decisions**
+
+| Topic | Decision |
+|-------|----------|
+| Daily reset boundary | **UTC** (`YYYYMMDD` in serial = UTC date at issue) |
+| Max concurrent vehicles per LUP | **None** (no capacity field) |
+| Loading/unloading crew sort order | **`waiting_serial.serial_number` ascending** |
+| When serial is issued | **Same transaction as** `CCService.assign_bay()` (admin + `POST /assignments`) |
+| LD start UX surface | **Admin only** — LUP → queue table → `bay_assignment` (§4.0, §11.9) |
+
+### 11.1 Semantic model (no change to OneToOne rules)
+
+| Concept | Meaning |
+|---------|---------|
+| `BayAssignment.is_active` | This **vehicle's** assignment is open — **not** exclusive LUP lock |
+| `QueueEntry.status=assigned` | Visit has a bay; leaves CC waiting list (unchanged) |
+| `WaitingSerial` | Daily queue ticket for that assignment on that LUP; immutable after issue |
+
+`mark_completed()`, QC cancellation, and LD-01 `is_active` checks remain **per assignment**.
+
+### 11.2 Service layer (`apps/operations/command_center/services.py`)
+
+1. **Delete** LUP exclusivity block in `_validate_for_assignment()` (reject when another active assignment on same LUP).
+2. **Replace** `_next_serial_number()` with `WaitingSerialSequence` + UTC `serial_date` + row lock inside existing `@transaction.atomic` on `assign_bay`.
+3. **Add** `CCService.active_assignments_for_lup(lup)` → active assignments at LUP, serial order (CC optional panel, my-bay API).
+4. **Add** `CCService.assignments_startable_at_lup(lup, *, event_model)` → active assignments at LUP **without** open `LoadEvent`/`UnloadEvent`; same order — **LD queue table**.
+
+### 11.3 Admin (`command_center/admin.py`)
+
+- Remove `.exclude(bay_assignments__is_active=True)` from LUP `formfield_for_foreignkey`.
+- Optional: readonly “current at bay” list ordered by serial on Bay Assignment add form.
+
+### 11.4 REST APIs (CC-01 Sprint 5 — §7.1)
+
+| Endpoint | FB-005 notes |
+|----------|----------------|
+| `POST …/assignments` | Calls `assign_bay`; returns `serial_number` |
+| `GET …/assignments?loading_point_id=` | Active rows; order by serial |
+| `GET …/my-bay?loading_point_id=` | Personnel view; order by serial |
+| `GET …/waiting-serials?loading_point_id=` | List/filter by point |
+
+Serial issuance is **not** a separate POST in target design (satisfied by assignment POST).
+
+### 11.5 Out of scope for FB-005
+
+- `LoadingUnloadingPoint.capacity`
+- Product-type / vehicle-type mismatch warnings (CC-01-6 warn path)
+- FB-006 product-line QC (separate)
+- CC-01-9 full CC queue UI (may consume same APIs)
+- **LD two-step UX on REST/mobile** (admin-only in this slice; my-bay API is list-only precursor)
+
+### 11.6 Tests (definition of done)
+
+**CC / serials**
+
+1. Two `assign_bay` to same LUP, same UTC day → `…-001`, `…-002`; no ValidationError.
+2. Mock next UTC day → next serial `…-001` for new date prefix.
+3. `mark_completed` on first assignment; second remains active; third assign still allowed.
+4. Concurrent assigns → distinct `serial_number` (no duplicate key).
+
+**LD admin (manual or light integration)**
+
+5. Two assignments at same LUP → queue table shows two rows, serial order.
+6. Save start without row selected → form error on `bay_assignment`.
+7. `?bay_assignment=` deep link pre-fills LUP + selection.
+
+### 11.7 Suggested PR order
+
+1. Migration + `CCService` serial allocator + remove exclusivity + `assignments_startable_at_lup`  
+2. Unit tests (CC serial + startable queryset)  
+3. CC admin LUP queryset (+ optional current-at-bay panel)  
+4. **LD admin**: shared queue widget + Load/Unload add forms (FB-005-6 / LD-01-6)  
+5. REST endpoints + URL wiring (my-bay mirrors step-2 queryset)  
+6. Update [feedback-resolution.md](../../03-backlog/sprints/sprint-5/feedback-resolution.md) FB-005 status when closed  
+
+### 11.9 LD admin start UX (`apps/operations/loading/admin.py`)
+
+**Scope**: Admin-only; no model migration. Implements §4.0.
+
+**Shared module** (e.g. `apps/operations/loading/admin_queue.py` or methods on admin base):
+
+| Helper | Purpose |
+|--------|---------|
+| `get_loading_points_for_poi(poi_id)` | Active LOAD LUPs at POI |
+| `get_unloading_points_for_poi(poi_id)` | Active UNLOAD LUPs at POI |
+| `render_queue_table(assignments)` | HTML table: serial, TO number, vehicle; row `data-bay-assignment-id` |
+| `LoadEventAdminForm` / `UnloadEventAdminForm` | Extra `loading_point` / `unloading_point` field + `clean()` cross-check |
+
+**Add form fieldsets (Load and Unload)**
+
+```text
+("Your bay", { fields: ["loading_point" | "unloading_point", "queue_at_point"] }),
+("Start", { fields: ["bay_assignment", "start_datetime", "to_details_panel"] }),
+("Completion (fill on end)", { ... end fields blank on add ... }),
+```
+
+**JavaScript (minimal)**
+
+- On LUP change: POST/GET reload with `?loading_point_id=` or client-side filter if assignments embedded in page context.
+- On row click: set `#id_bay_assignment`, add `.selected` class, optionally reload for `to_details_panel`.
+- Preserve `?bay_assignment=` on first paint: set LUP from `assignment.loading_unloading_point_id`, select matching row.
+
+**Remove on add**: POI-wide `bay_assignment` autocomplete (`formfield_for_foreignkey` wide queryset + visible select).
+
+**Service contract**: `assignments_startable_at_lup` delegates lane filters to existing `_bay_assignment_details_qs` logic per admin class — avoid duplicating FG outbound vs inbound rules.
+
+**Files to touch**
+
+- `apps/operations/command_center/services.py` — serial + startable helpers  
+- `apps/operations/loading/admin.py` — forms, fieldsets, readonly `queue_at_point`  
+- `templates/admin/operations/loadevent/change_form.html`  
+- `templates/admin/operations/unloadevent/change_form.html` (or one shared `ld_start_queue.html`)  
+- Optional: small `static/admin/js/ld_queue_select.js`
+
+### 11.8 Supersedes Sprint 4 limitation
+
+Sprint 4 shipped **single active vehicle per LUP** via `is_active` exclusivity validation. FB-005 **supersedes** that behaviour; [SPRINT-4-IMPLEMENTATION-OVERVIEW.md](../SPRINT-4-IMPLEMENTATION-OVERVIEW.md) “No multi-vehicle bays” note applies only to pre–FB-005 code.
+
+---
 
 **Last Updated**: 2026-06-03  
 **Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)
