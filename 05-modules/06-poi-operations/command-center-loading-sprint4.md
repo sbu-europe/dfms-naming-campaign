@@ -1,10 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Command Center, Loading/Unloading & QC Operations (Sprint 4 — TO-Centric)
-version: 1.0
+version: 1.1
 phase: Phase 1
-sprint: Sprint 4
-last_updated: 2026-05-19
+sprint: Sprint 4 (QC trigger alignment — Sprint 5 / FB-006)
+last_updated: 2026-06-03
+changelog: "v1.1 — QC-01-13 / FB-006: QueueEntry.requires_qc from product lines (any line Product.requires_qc); RM inbound auto-flagged_for_qc at scale-in when required; CC assigns unloading only after QC Pass; manual Flag for QC removed from happy path"
 related_stories: DFS-056 (CC-01), DFS-057 (LD-01), DFS-058 (QC-01)
 jira_epic: DFS-072
 ---
@@ -15,7 +16,7 @@ jira_epic: DFS-072
 
 This specification covers three tightly coupled modules in the yard chain:
 
-- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. For RM inbound, CC flags the TO for QC visibility; after QC Pass, CC assigns the unloading point (not QC Supervisor).
+- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
 - **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
 - **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
@@ -44,8 +45,12 @@ Understanding which module acts at each step per lane removes ambiguity for admi
 | Step | FG outbound | FG inbound | RM inbound |
 |------|------------|-----------|-----------|
 | After gate-in | `at_source` | `at_destination` | `at_destination` |
-| Scale-in (SC-01) | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` |
-| CC queue visible | ✓ | ✓ | ✓ (CC flags for QC; does NOT assign unloading point) |
+| Scale-in (SC-01) | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` | sub: `scale_in` → `waiting_cc` **or** `flagged_for_qc` (see below) |
+| CC queue visible | ✓ | ✓ | ✓ |
+| QC required? (product lines) | — | — | `to_requires_qc_from_lines(to)` — **not** all RM inbound by lane |
+| Post scale-in (RM, QC required) | — | — | `CCService.create_queue_entry` sets `requires_qc=True`; TLS-01 sub: `flagged_for_qc` (auto; no CC action) |
+| Post scale-in (RM, QC not required) | — | — | `requires_qc=False`; sub: `waiting_cc`; CC may assign unloading immediately |
+| CC assigns unloading (RM) | — | — | Only after QC Pass (`qc_passed=True` on queue entry + TO) |
 | **CC assigns loading point** | ✓ → sub: `assigned_loading_point` | — | — |
 | **QC: sample + pass** (QC-01) | — | — | sub: `qc_passed`; TO returns to CC queue |
 | **CC assigns unloading point** | — | ✓ → sub: `assigned_unloading_point` | ✓ → sub: `assigned_unloading_point` (CC does this after QC Pass) |
@@ -76,7 +81,8 @@ QueueEntry(TenantAwareModel) {
     # completed → LoadEvent/UnloadEvent completed
 
     requires_qc: boolean (default False)
-    # True for RM inbound TOs — set automatically from TO.flow_lane on creation
+    # True when to_requires_qc_from_lines(transport_order) at create_queue_entry
+    # (any TOLineItem → Product.requires_qc). NOT lane-wide RM_INBOUND default.
 
     # YARD-01 AC-6: QC pass flag for RM inbound
     qc_passed: boolean (null=True, blank=True)
@@ -240,7 +246,8 @@ CC-01 does not advance the top-level `TO.status` — it writes sub-state events 
 |-----------|--------|-------------------|
 | FG outbound | CC assigns loading point | `assigned_loading_point` |
 | FG inbound | CC assigns unloading point | `assigned_unloading_point` |
-| RM inbound | CC flags for QC | `flagged_for_qc` (no unloading point assigned) |
+| RM inbound | Scale-in + queue creation (QC required) | `flagged_for_qc` (auto; no unloading point assigned) |
+| RM inbound | Scale-in + queue creation (QC not required) | `waiting_cc` (CC may assign unloading point) |
 
 ### 2.2 LD-01 TO status (load/unload events)
 
@@ -274,7 +281,8 @@ CC Officer opens Command Center → Queue
   └─► List of QueueEntry rows where status='waiting', poi=officer's POI
         ├─► Columns: Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since
         ├─► Filter: requires_qc (All / Yes / No), flow_lane
-        └─► [Assign Bay] button on each row (disabled if requires_qc=True and QC not passed)
+        ├─► RM + requires_qc + qc_passed unset: row shows **Awaiting QC** (no Assign Bay)
+        └─► [Assign Bay] when requires_qc=False OR qc_passed=True
 ```
 
 ### 3.2 Bay assignment — FG outbound
@@ -305,20 +313,41 @@ CCService.assign_bay(queue_entry, unloading_point, assigned_by):
     └─► Emit BAY_ASSIGNED → TLS-01 (sub: assigned_unloading_point)
 ```
 
-### 3.4 RM inbound — flag for QC (no bay assignment)
+### 3.4 RM inbound — product-line QC trigger and auto-flag (no bay assignment until QC Pass)
+
+**QC required when:** `to_requires_qc_from_lines(transport_order)` is True — i.e. **any** `TOLineItem` resolves to a product with `Product.requires_qc=True` (gate lines: `line.product`; planner lines: `tr_line_item → pr_line_item → product`). See `apps/transport/services.py` and [gate-operations-sprint4.md](./gate-operations-sprint4.md) §2.6.
+
+**At scale-in (same `atomic()` as `ScaleInService.record_scale_in`):**
 
 ```
-CC Officer sees RM inbound QueueEntry (requires_qc=True)
-  └─► [Flag for QC] button (no loading point selection)
-        └─► CCService.flag_for_qc(queue_entry, flagged_by):
-              ├─► QueueEntry.status stays 'waiting' (no BayAssignment yet)
-              ├─► Emit QC_FLAGGED → TLS-01 (sub: flagged_for_qc)
-              └─► TO becomes visible in QC Supervisor's queue (QC-01)
+ScaleInService.record_scale_in(...)
+  └─► CCService.create_queue_entry(weighing_session, queue_token, actor):
+        ├─► requires_qc = to_requires_qc_from_lines(transport_order)
+        ├─► Sync TransportOrder.requires_qc if derived value differs (denormalized aggregate)
+        ├─► QueueEntry created: status='waiting', requires_qc, qc_passed=null
+        └─► TLS-01 terminal sub-state after leg-specific scale_in_*:
+              ├─► If requires_qc: record_yard_sub_state(..., flagged_for_qc, source_module scaling|command_center)
+              │     └─► TO visible in QC Supervisor queue (QC-01); CC does NOT assign unloading point
+              └─► Else: record_yard_sub_state(..., waiting_cc)
+                    └─► CC may assign unloading point immediately (E2E-03 negative case)
 ```
 
-Note: CC **cannot** assign an unloading point for RM inbound TOs until QC has passed. The `[Assign Bay]` button is hidden/disabled when `requires_qc=True` and no active `QCDecision(decision='pass')` exists for the TO.
+**CC Officer queue behaviour (no manual flag step):**
 
-After QC Pass, the **CC Officer assigns the unloading point** using the normal `[Assign Bay]` flow (§3.3), filtered to `operation_type=UNLOAD` points. A new `BayAssignment` entry then appears in the RM inbound TO's session.
+- Rows with `requires_qc=True` and `qc_passed is null`: display **Awaiting QC** — no `[Flag for QC]` on the happy path (Sprint 4 manual flag deprecated; optional break-glass admin only if retained in code).
+- CC **cannot** assign an unloading point until QC Pass: `eligible_for_bay_assignment` requires `qc_passed is True` when `requires_qc=True`.
+
+**After QC Pass:**
+
+```
+QCService.record_decision(decision='pass')
+  ├─► TransportOrder.qc_passed = True
+  ├─► CCService.requeue_after_qc(queue_entry, qc_passed=True)  # status stays waiting
+  ├─► TLS-01 sub: qc_passed
+  └─► CC Officer uses [Assign Bay] (§3.3, UNLOAD points) → assigned_unloading_point
+```
+
+If QC fails or is pending, gate-out and bay assignment remain blocked (see §8, GT-01 guard matrix).
 
 ---
 
@@ -501,7 +530,7 @@ class UnloadEventAdminBase(YardAdminBase):
 
 **POI resolution**: all `formfield_for_foreignkey` overrides use `self._scope_poi_id(request)` (inherited from `YardAdminBase`) instead of a bespoke `get_poi_for_operator(request)` call. This ensures consistency and the fail-closed empty-queryset behaviour for unassigned operators.
 
-**`get_queryset`**: `YardAdminBase.get_queryset` filters by `poi_id=self._scope_poi_id(request)` for operator roles. CC/LD admin querysets **additionally** filter by `TransportOrder.sub_state` to show only relevant work items (e.g. `sub_state=TOSubState.WAITING_CC` for the CC queue).
+**`get_queryset`**: `YardAdminBase.get_queryset` filters by `poi_id=self._scope_poi_id(request)` for operator roles. CC queue lists `QueueEntry` with `status=waiting` at the officer's POI (includes RM rows **Awaiting QC** with `sub_state=flagged_for_qc` and rows ready for bay assignment with `waiting_cc` or `qc_passed`).
 
 ### 6.1 QueueEntryAdmin (CC-01-2)
 
@@ -531,29 +560,25 @@ def assign_bay(self, request, queryset):
         self.message_user(request, "Select exactly one queue entry.", level=messages.ERROR)
         return
     entry = queryset.first()
-    if entry.requires_qc:
-        self.message_user(request, "RM inbound — use 'Flag for QC' instead.", level=messages.WARNING)
+    if not CCService.eligible_for_bay_assignment(entry):
+        self.message_user(
+            request,
+            "Bay assignment blocked while QC is required and not passed.",
+            level=messages.WARNING,
+        )
         return
     # Redirect to BayAssignmentAdmin add view with queue_entry pre-filled
     return redirect(f"..../bayassignment/add/?queue_entry={entry.pk}")
 ```
 
-**Custom admin action: Flag for QC (RM inbound)**:
-
-```python
-@admin.action(description="Flag for QC (RM inbound)")
-def flag_for_qc(self, request, queryset):
-    for entry in queryset.filter(requires_qc=True, status="waiting"):
-        CCService.flag_for_qc(entry, flagged_by=request.user)
-    self.message_user(request, f"{queryset.count()} TO(s) flagged for QC.")
-```
+**Changelist actions (RM inbound):** No **Flag for QC** bulk action on the happy path — QC flagging occurs automatically at scale-in when `requires_qc=True`. Optional break-glass `CCService.flag_for_qc` may remain for recovery only.
 
 ### 6.2 BayAssignmentAdmin (CC-01-3)
 
 Uses `CCAdminBase` (→ `YardAdminBase`).
 
 **Change Form**:
-- `queue_entry`: autocomplete (filtered to status='waiting', poi=officer's POI, requires_qc=False)
+- `queue_entry`: autocomplete (filtered to status='waiting', poi=officer's POI, eligible for bay: `requires_qc=False` OR `qc_passed=True`)
 - `loading_unloading_point`: **queryset restriction** — `formfield_for_foreignkey`:
 
 ```python
@@ -688,11 +713,9 @@ POST   /api/v1/command-center/assignments
        → Side effects: BayAssignment, WaitingSerial, QueueEntry status=assigned, TLS-01 event
        → Response: { assignment_id, waiting_serial, assigned_at }
 
-POST   /api/v1/command-center/flag-qc
-       → Body: { queue_entry_id }
-       → Validations: requires_qc=True, status=waiting
-       → Side effects: sub_state = flagged_for_qc, TLS-01 event
-       → Response: { queue_entry_id, sub_state }
+# POST /api/v1/command-center/flag-qc — REMOVED from target design (v1.1).
+# QC flag is applied inside ScaleInService.record_scale_in → CCService.create_queue_entry
+# when to_requires_qc_from_lines(to) is True.
 
 GET    /api/v1/command-center/my-bay?poi=
        → Active BayAssignments for the loading/unloading personnel at this POI
@@ -761,6 +784,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 - LoadEvent only for FG outbound; UnloadEvent only for FG inbound / RM inbound (enforced by queryset scoping)
 
 ### QC-01
+- Sample creation only when TO `requires_qc` (product-line aggregate) and `sub_state` in `flagged_for_qc`, `sampling_started`, or `resampling` (QC-01-13)
 - No `unloading_point` in QC decision — CC Officer assigns unloading point after QC Pass via CC-01
 - `remarks` required when `decision = 'fail'` or `override-fail`
 - Resample only when `QCDecision.is_active = True` (there must be a current decision to supersede)
@@ -772,11 +796,12 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Module | Direction | How |
 |--------|-----------|-----|
-| SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — no signal (YARD-01) |
+| SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — sets `requires_qc` from product lines and writes `flagged_for_qc` or `waiting_cc` (YARD-01) |
 | GT-01 (Gate-Out) | Downstream | LoadEvent/UnloadEvent completion + QCDecision.decision='pass' are gate-out guard conditions |
 | SC-01 (Scale-Out) | Downstream gate | LoadEvent/UnloadEvent completion (+ QC pass for RM) unlocks scale-out |
 | LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK for bay assignment; queryset filtered by poi + operation_type + is_active |
-| TLS-01 (Lifecycle) | Timeline | All events: BAY_ASSIGNED, QC_FLAGGED, LOADING_STARTED/COMPLETED, UNLOADING_STARTED/COMPLETED, QC_PASSED/FAILED, RESAMPLING_TRIGGERED, QC_OVERRIDDEN_FAIL |
+| TLS-01 (Lifecycle) | Timeline | All events: BAY_ASSIGNED, `flagged_for_qc` (auto at scale-in when product QC required), LOADING_STARTED/COMPLETED, UNLOADING_STARTED/COMPLETED, QC_PASSED/FAILED, RESAMPLING_TRIGGERED, QC_OVERRIDDEN_FAIL |
+| GT-02 (Gate TO lines) | Upstream data | `TransportOrder.requires_qc` + `TOLineItem` product FKs feed `to_requires_qc_from_lines` at queue creation |
 
 ---
 
@@ -787,11 +812,11 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
 | CC-01-1 | Models + migration | QueueEntry (with `qc_passed` field), BayAssignment (no `waiting_serial` FK), WaitingSerial (owns FK → BayAssignment) |
-| CC-01-2 | QueueEntryAdmin | Queue dashboard filtered by `sub_state=WAITING_CC`; Assign Bay + Flag for QC actions; `CCAdminBase` → `YardAdminBase` |
+| CC-01-2 | QueueEntryAdmin | Queue dashboard (`status=waiting`); Assign Bay when eligible; Awaiting QC display for `requires_qc` pending; `CCAdminBase` → `YardAdminBase` |
 | CC-01-3 | BayAssignmentAdmin | `_scope_poi_id` for formfield_for_foreignkey; CCService in save_model |
 | CC-01-4 | CC queue REST API (GET) | Filter by status/requires_qc/poi |
 | CC-01-5 | Bay assignment REST API (POST) | Flow lane + op_type validation; BayAssignment + WaitingSerial |
-| CC-01-6 | Flag for QC REST API (POST) | RM inbound only; TLS-01 sub_state |
+| CC-01-6 | QC auto-flag at scale-in (replaces manual flag API) | `create_queue_entry` + TLS-01 `flagged_for_qc` when `to_requires_qc_from_lines`; align with QC-01-13 / FB-006 |
 
 ### LD-01 — Loading/Unloading
 
@@ -820,5 +845,5 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | CC-01-7 | YARD-01 integration | `CCAdminBase` (`command_center_officer`) + `LoadEventAdminBase` (`loading_personnel`) + `UnloadEventAdminBase` (`unloading_personnel`) → `YardAdminBase`; `QueueEntry.qc_passed`; `WaitingSerial` FK direction; `UnloadEvent.cancelled_by_resample`; `create_queue_entry` called atomically from `ScaleInService` |
 
-**Last Updated**: 2026-05-19  
+**Last Updated**: 2026-06-03  
 **Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)

@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Gate Operations (Sprint 4 — TO-Centric)
-version: 2.7
+version: 2.8
 phase: Phase 1
 sprint: Sprint 4 (GT-02-12 carried in Sprint 5)
-last_updated: 2026-06-02
-changelog: "v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
+last_updated: 2026-06-03
+changelog: "v2.8 — FB-006 / QC-01-13: post scale-in auto flagged_for_qc when any product line requires_qc; CC unloading assignment only after QC Pass (see command-center-loading v1.1); v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02), DFS-062-12 (GT-02-12)
 jira_epic: DFS-072
 ---
@@ -620,8 +620,8 @@ The table below is the authoritative per-lane TO status progression for the **ya
 | Pre-gate-in (driver started) | `in_transit_source` | `in_transit_destination` | `in_transit_destination` |
 | **Gate-in recorded** (GT-01) | → `at_source` | → `at_destination` | → `at_destination` |
 | Scale-in completed (SC-01) | `at_source` (sub: scale_in) | `at_destination` (sub: scale_in) | `at_destination` (sub: scale_in) |
-| **Scale-in → CC queue release** | sub: waiting_cc | sub: waiting_cc | sub: waiting_cc → **CC flags for QC** |
-| **QC: sample + pass** (RM only) | — | — | sub: `qc_passed` (QC records Pass/Fail only) |
+| **Scale-in → yard sub-state** | sub: `waiting_cc` | sub: `waiting_cc` | If `to_requires_qc_from_lines(to)`: sub: **`flagged_for_qc`** (auto at scale-in). Else: sub: `waiting_cc` |
+| **QC: sample + pass** (RM only, when QC required) | — | — | sub: `sampling_started` → `qc_passed` or `qc_failed` (QC-01) |
 | CC assigns L/U point (CC-01) | `at_source` (sub: `assigned_loading_point`) | `at_destination` (sub: `assigned_unloading_point`) | `at_destination` (sub: `assigned_unloading_point`; **after QC Pass**) |
 | Loading completed (LD-01) | sub: loading_completed | — | — |
 | Unloading completed (LD-01) | — | sub: unloading_completed | sub: unloading_completed |
@@ -634,7 +634,7 @@ The table below is the authoritative per-lane TO status progression for the **ya
 - **GT-02 on-demand entry**: Dealer DO and Supplier PO paths create the TO at `created` and gate-in in one transaction; the TO is already at **`at_source`** (FG outbound) or **`at_destination`** (RM inbound) before scale-in — see §4.3. They skip the “Pre-gate-in (driver started)” row in the table above.
 - **FG outbound**: After scale-out at the source POI the TO advances to `in_transit_destination`. The vehicle leaves the source gate and will arrive at destination (where it is an **FG inbound** visit). The gate-out at source records `gate_out_source` sub-state.
 - **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state.
-- **RM inbound QC**: Command Center flags the TO for QC visibility *before* assigning an unloading point. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If QC fails, gate-out is blocked (see §9.4).
+- **RM inbound QC (FB-006 / QC-01-13)**: QC is required when **any** product line has `Product.requires_qc=True` (`to_requires_qc_from_lines`), not for all RM inbound TOs. After scale-in, the system **automatically** sets `flagged_for_qc` when QC is required — CC does not manually flag. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If all lines have `requires_qc=False`, skip QC: sub-state `waiting_cc` and immediate bay assignment (E2E-03 negative case). If QC fails, gate-out is blocked (see §9.4).
 - Sub-states above are carried in `TOStatusTransitionLog.to_sub_state` (TLS-01 schema) and are not exposed as top-level `TO.status` values.
 
 ---
@@ -1277,16 +1277,19 @@ Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document cate
 ### 9.3 With Command Center (CC-01)
 
 **Post-scale queue visibility**:
-- After scale-in, visit appears in Command Center queue (CC-01)
-- CC assigns bay (BayAssignment → gate_visit_session FK)
-- **GT-02-12 / QC-01-13:** `QueueEntry.requires_qc` must be set from `to_requires_qc_from_lines(to)` at queue creation (see `command-center-loading-sprint4.md`), not from `flow_lane == RM_INBOUND` alone.
+- After scale-in, visit appears in Command Center queue (CC-01) via `CCService.create_queue_entry` in the same transaction as scale-in.
+- **GT-02-12 / QC-01-13:** `QueueEntry.requires_qc` = `to_requires_qc_from_lines(to)` at queue creation — **not** `flow_lane == RM_INBOUND` alone (see [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) v1.1 §3.4).
+- **When `requires_qc=True`:** TLS-01 sub-state `flagged_for_qc` is written automatically; CC row shows **Awaiting QC**; CC **cannot** assign unloading until `qc_passed=True` after QC-01 Pass.
+- **When `requires_qc=False`:** sub-state `waiting_cc`; CC may assign unloading point immediately (same as FG inbound pattern).
+- After QC Pass, CC assigns bay (`BayAssignment`); unloading proceeds under LD-01.
 
 ### 9.4 With QC (QC-01)
 
 **QC requirement (GT-02-12, QC-01-13)**:
 - Per-line QC flag: `Product.requires_qc` on each `TOLineItem` (direct `product` FK for gate TOs; planner lines via `tr_line_item → pr_line_item → product`).
-- TO-level `requires_qc` on `TransportOrder` is a denormalized aggregate for CC/gate-out compatibility.
-- Gate-out guard matrix (RM inbound when `requires_qc` is True): checks QC pass / not failed
+- TO-level `requires_qc` on `TransportOrder` is a denormalized aggregate (`to_requires_qc_from_lines`); re-sync at scale-in if line data changed.
+- **Trigger:** After RM inbound destination scale-in, if aggregate `requires_qc` is True → auto `flagged_for_qc` → QC Supervisor queue. No CC manual "Flag for QC" on happy path.
+- Gate-out guard matrix (when `requires_qc` is True): checks QC pass / not failed
 - If QC failed or pending, gate-out blocked: "QC decision pending or failed. Cannot exit."
 - Mixed-product RM TO: QC runs when **any** line’s product has `requires_qc=True`; skip QC when **all** lines have `requires_qc=False` (E2E-03 negative case).
 
