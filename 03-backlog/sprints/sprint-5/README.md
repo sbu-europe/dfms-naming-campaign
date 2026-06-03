@@ -47,7 +47,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | 09 | TO Execution — Vendor Fleet | TEVF-01, TEVF-02, TEVF-03 | Vendor-context | FB-013, FB-016, FB-018 | Carry-over |
 | 10 | Yard Foundation | YARD-01 | 8 SP | — | Carry-over |
 | 11 | Cross-Story E2E | E2E-01 → E2E-04 | — | — | New sprint-5 scope |
-| 12 | GPS & Maps Dashboard | GPS-01 | 21 SP | — | New sprint-5 scope |
+| 12 | GPS & Maps Dashboard | GPS-01 | 8 SP (demo) / ~21 SP Phase 1 | — | **MVP done** — [completion](12-gps-maps-dashboard/GPS-01-implementation-completion.md) |
 | 13 | Stock & Capacity Management | STK-01 | 13 SP | — | New sprint-5 scope |
 
 ---
@@ -254,11 +254,13 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 - [Sprint 4 Completion Report](../sprint-4/completion-report.md) — gap analysis per story
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
 - [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
-- [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — new Sprint 5 scope; 21 SP
+- [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — Sprint 5 demo MVP implemented
+- [GPS-01 implementation completion](12-gps-maps-dashboard/GPS-01-implementation-completion.md) — AC checklist vs code
+- [Module 09 — Live GPS implementation spec](../../05-modules/09-tracking/live-gps-sprint5-implementation.md)
 - [STK-01 — Source & Destination Stock Validation](13-stock-validation-update/STK-01-source-destination-stock-validation.md) — new Sprint 5 scope; 13 SP
 
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-01 (GPS-01 + STK-01 added)
+**Last Updated**: 2026-06-02 (GPS-01 MVP documented)
 **Previous**: [Sprint 4](../sprint-4/README.md)

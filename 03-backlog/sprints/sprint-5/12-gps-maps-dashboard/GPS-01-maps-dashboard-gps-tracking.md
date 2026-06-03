@@ -5,7 +5,10 @@ jira_sprint: "Sprint 5"
 story_id: GPS-01
 title: Maps Dashboard & GPS Tracking — Sprint 5 R&D & Demo Map Integration
 epic: GPS & Maps Dashboard
-status: Sprint 5 — R&D & Demo Scope
+status: MVP implemented (Sprint 5 demo scope)
+implementation_docs:
+  - DFMS-product-context/05-modules/09-tracking/live-gps-sprint5-implementation.md
+  - DFMS-product-context/03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-implementation-completion.md
 story_points: 8
 assignee: ~
 prd_refs:
@@ -36,6 +39,16 @@ Sprint 5 does **not** commit to the full Phase 1 maps dashboard and geofence eng
 | **Demo map integration** | Prove map UX inside DFMS with **demo API consumption** | Working demo surface in DFMS that calls a demo/mock GPS (and optionally map) API and renders POIs + vehicle positions for stakeholder review |
 
 **Phase 1 production delivery** (live polling, geofence engine, dwell alerts, full `/api/v1/maps/**` surface, TLS-01 hooks) remains the **target state** and is scheduled **after** Sprint 5 R&D/demo sign-off. See [Phase 1 target state](#phase-1-target-state-deferred-beyond-sprint-5).
+
+### Implementation (as built)
+
+| Artifact | Path |
+|----------|------|
+| Module specification | [live-gps-sprint5-implementation.md](../../../05-modules/09-tracking/live-gps-sprint5-implementation.md) |
+| AC / delivery checklist | [GPS-01-implementation-completion.md](GPS-01-implementation-completion.md) |
+| Developer quick-start | [apps/tracking/LIVE_GPS.md](../../../../apps/tracking/LIVE_GPS.md) |
+
+**Delivered in code:** tenant admin **Live GPS** (`/admin/tracking/live-gps/`), `GET /api/v1/tracking/live-map/`, `GPSTracking` + GT06 ingest/sync, demo seed command. **Not yet:** POI layer on map, full `/api/v1/maps/**`, geofence engine.
 
 ---
 
@@ -154,11 +167,12 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 
 ## Definition of done — Sprint 5
 
-- [ ] R&D findings document published and reviewed (AC-S5-1, AC-S5-2)
-- [ ] Demo GPS client successfully calls demo/mock API and maps to internal DTO (AC-S5-1, AC-S5-4)
-- [ ] Demo map page live in DFMS with POI + vehicle markers from API-fed data (AC-S5-3)
+- [x] Map SDK selected and documented — Leaflet + OpenStreetMap (AC-S5-2) — see module spec
+- [x] Demo GPS pipeline — GT06 ingest + Redis sync + `GPSTracking` (AC-S5-1, AC-S5-4 partial)
+- [x] Demo map page live in DFMS with **vehicle** markers from API (AC-S5-3 partial — POI layer deferred)
+- [x] Pilot RBAC enforced — `Menu.LiveGps.View` + tenant admin bypass (AC-S5-5)
+- [ ] R&D findings document published and reviewed (AC-S5-1 formal write-up optional)
 - [ ] Degraded mode behaviour verified on API failure (AC-S5-4)
-- [ ] Pilot RBAC enforced (AC-S5-5)
 - [ ] UAT demo script executed once in staging; limitations list shared with PO (AC-S5-6)
 
 ---
