@@ -1,12 +1,12 @@
 ---
 module: 06-poi-operations
 specification: Gate Operations (Sprint 4 — TO-Centric)
-version: 2.0
+version: 2.7
 phase: Phase 1
-sprint: Sprint 4
+sprint: Sprint 4 (GT-02-12 carried in Sprint 5)
 last_updated: 2026-06-02
-changelog: "v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
-related_stories: DFS-054 (GT-01), DFS-062 (GT-02)
+changelog: "v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
+related_stories: DFS-054 (GT-01), DFS-062 (GT-02), DFS-062-12 (GT-02-12)
 jira_epic: DFS-072
 ---
 
@@ -19,8 +19,8 @@ The **Gate Operations** specification covers vehicle entry/exit control at POI g
 Sprint 4 gate operations are **TO-centric** — every vehicle visit is anchored to a Transport Order, either assigned by TDO (Sprint 3) or created on-demand at the gate (GT-02). The gate visit becomes the **session container** for the full yard chain (gate → scale → queue → load/unload → scale out → gate out).
 
 **Module path**: `apps/operations/gate/` (extends existing gate app)  
-**Dependencies**: `05-transport` (TransportOrder), `02-master-data` (POI, Vehicle, Driver), `01-foundation` (RBAC)  
-**Enables**: Scale-in (SC-01), Command Center queue (CC-01), TO lifecycle progression (TLS-01)
+**Dependencies**: `05-transport` (TransportOrder, TOLineItem), `02-master-data` (POI, Vehicle, Driver, Product, Dealer, Supplier), `01-foundation` (RBAC)  
+**Enables**: Scale-in (SC-01), Command Center queue (CC-01), loading/unloading per-line capture (LD-01-9), QC trigger from product MDM (QC-01-13), TO lifecycle progression (TLS-01)
 
 ---
 
@@ -113,10 +113,13 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
         ├── Step 2: Document & Party Details
         │     ├── Document Number (DO# or PO#)
         │     ├── Party: Dealer (dropdown) or Supplier (dropdown)
-        │     ├── Product: item code lookup (MDM-01)
-        │     ├── Expected Quantity (MT)
         │     ├── Driver Name, Driver Contact (manual entry)
         │     └── Remarks
+        │
+        ├── Step 2b: Product lines (GT-02-12 — 1..N required)
+        │     ├── Per line: Product (MDM lookup), Quantity (MT)
+        │     ├── QC required: read-only from `Product.requires_qc` (not entered at gate)
+        │     └── [Add another line] — at least one line before submit
         │
         ├── Step 3: Routing (auto-derived — not entered on admin/API)
         │     ├── Source POI:
@@ -129,9 +132,11 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
         │
         └── [Create TO & Gate-In]
               └─► Backend:
-                    ├─► Create TransportOrder:
+                    ├─► Create TransportOrder + TOLineItem rows (§2.6):
                     │     ├─► source = 'GATE'
                     │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' (Dealer) or 'RM_SUPPLIER_INBOUND' (Supplier)
+                    │     ├─► allocated_quantity = sum(line quantities)
+                    │     ├─► requires_qc = any(line.product.requires_qc) — not lane-wide default
                     │     ├─► status = 'created' (initial; see §4.3 for post gate-in status)
                     │     └─► Emit TO_CREATED event to TLS-01
                     │
@@ -312,8 +317,81 @@ TransportOrder {
         'RM_SUPPLIER_INBOUND',      # Supplier PO → raw material inbound
     ] (nullable)
     # Only set for gate-originated TOs; planner TOs use existing flow_type
+
+    requires_qc: boolean (default False)
+    # GT-02-12: set from TO line items at gate create — True when any linked
+    # Product.requires_qc is True (MDM). Not captured per line on the TO.
 }
 ```
+
+### 2.6 `TOLineItem` extensions for gate-originated TOs (GT-02-12)
+
+Planner TOs already use `apps/transport.models.TOLineItem` with a required `tr_line_item` FK. Gate-created TOs have **no TR**; GT-02-12 extends the same table so yard modules (LD-01-9, QC-01-13, CC-01-10) read one `transport_order.line_items` structure.
+
+```python
+TOLineItem(TenantAwareModel) {
+    # ... existing fields ...
+
+    to: FK → TransportOrder
+    line_number: PositiveSmallIntegerField   # 1..N; unique per TO
+
+    # Planner path (unchanged)
+    tr_line_item: FK → TRLineItem | null=True, blank=True
+
+    # Gate path (GT-02-12) — QC is NOT stored here
+    product: FK → Product | null=True, blank=True
+
+    allocated_quantity: Decimal
+}
+```
+
+**Constraints**
+
+- Per row: exactly one product identity — `(tr_line_item IS NOT NULL) XOR (product IS NOT NULL)`.
+- `UniqueConstraint(fields=['to', 'line_number'])`.
+- Optional `UniqueConstraint(fields=['to', 'product'])` when `product` is set (no duplicate SKU on the same TO).
+- Gate on-demand create: **≥ 1** line item; reject save with zero lines.
+
+**QC source of truth**
+
+- MDM field: `Product.requires_qc` (`apps/master_data/models.py`).
+- Gateman selects products only; admin may show a **read-only** “QC required” hint from MDM when a product is picked — not a separate boolean on the wizard or API request.
+- Downstream reads QC per line via the product FK (planner lines: `tr_line_item → pr_line_item → product`).
+
+**Service helpers** (`apps/operations/gate/gate_services.py` or `apps/transport/services.py`):
+
+```python
+def line_requires_qc(line: TOLineItem) -> bool:
+    if line.tr_line_item_id:
+        return bool(line.tr_line_item.pr_line_item.product.requires_qc)
+    if line.product_id:
+        return bool(line.product.requires_qc)
+    return False
+
+def to_requires_qc_from_lines(to: TransportOrder) -> bool:
+    return any(
+        line_requires_qc(li)
+        for li in to.line_items.select_related(
+            "product", "tr_line_item__pr_line_item__product"
+        )
+    )
+```
+
+On `create_on_demand_to_and_gate_in`: bulk-create lines, set `TransportOrder.allocated_quantity` to the sum of line quantities, set `TransportOrder.requires_qc = to_requires_qc_from_lines(to)`.
+
+**`GateOnDemandTORequest` (staging)**
+
+- Sprint 4: single `product` + `quantity_mt` on the wizard model.
+- GT-02-12: remove those fields from gateman input after migration; persist cargo on `TransportOrder.line_items`. Keep the request row as audit header (document, party, vehicle, links). Optional `line_items` array in `GateActivityLog.details` (with resolved `requires_qc` per product) for audit only.
+
+**Gate-in / visit summary formatting**
+
+- `_product_details_from_to()` and `build_gate_in_prefill_payload()` must include lines where `product_id` is set (not only `tr_line_item` paths), so gate-created TOs show multi-product context on the visit summary card (§6.1.1).
+
+**Data migration**
+
+1. Schema migration on `to_line_items`.
+2. Backfill: for each existing gate on-demand TO with wizard `product` + `quantity_mt`, insert one `TOLineItem`; set `TO.requires_qc` from that product’s `requires_qc` (replace lane-wide “all RM ⇒ QC” default where applicable).
 
 ---
 
@@ -464,18 +542,19 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
         │     ├─► Finished Goods (Dealer DO) path:
         │     │     ├─► DO Number (required)
         │     │     ├─► Dealer Name (dropdown from MDM)
-        │     │     ├─► FG Product (item code lookup)
-        │     │     ├─► Planned Quantity (MT)
         │     │     ├─► Driver Name, Driver Contact
         │     │     └─► Remarks (optional)
         │     │
         │     └─► Raw Material (Supplier PO) path:
         │           ├─► PO Number (required)
         │           ├─► Supplier Name (dropdown from MDM)
-        │           ├─► RM Product (item code lookup)
-        │           ├─► Expected Quantity (MT)
         │           ├─► Driver Name, Driver Contact
         │           └─► Remarks (optional)
+        │
+        ├─► Step 2b: Product lines (GT-02-12 — both paths)
+        │     ├─► Tabular inline: Product (MDM), Quantity (MT) — minimum 1 line
+        │     ├─► Read-only QC indicator per row from `Product.requires_qc`
+        │     └─► Validation: product type matches path (FG vs RM); no duplicate product on same TO
         │
         ├─► Step 3: Routing (auto-derived from product selection)
         │     ├─► Dealer DO:
@@ -487,15 +566,15 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
         │
         └─► [Create TO & Gate-In]
               └─► Backend:
-                    ├─► Create TransportOrder:
+                    ├─► Create TransportOrder + TOLineItem rows (§2.6):
                     │     ├─► to_number = auto-generate ('TO-YYYYMMDD-XXXX')
                     │     ├─► source = 'GATE'
                     │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' or 'RM_SUPPLIER_INBOUND'
                     │     ├─► fleet_type = 'own' (default)
                     │     ├─► status = 'created'
                     │     ├─► origin_poi, destination_poi from resolve_on_demand_routing
-                    │     ├─► allocated_quantity_mt = expected_quantity_mt
-                    │     ├─► QC linkage flag set (Supplier PO path)
+                    │     ├─► allocated_quantity = sum(line quantities)
+                    │     ├─► requires_qc = to_requires_qc_from_lines(to)  # Product.requires_qc per line
                     │     └─► No TR link, no TDO assignment required
                     │
                     ├─► Emit TO_CREATED lifecycle event (TLS-01)
@@ -509,8 +588,16 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
                     │           ├─► Dealer DO (FG outbound): `created` → **`at_source`**
                     │           └─► Supplier PO (RM inbound): `created` → **`at_destination`**
                     │
-                    └─► Log GateActivityLog(action='on_demand_to_created')
+                    └─► Log GateActivityLog(action='on_demand_to_created', details include line_items + requires_qc per product)
                           └─► Success: redirect to Active Visits (TO already at yard execution status above)
+```
+
+**`create_on_demand_to_and_gate_in` input (GT-02-12)**
+
+```python
+line_items: list[dict]  # min length 1
+# Each: { "product_id": UUID, "quantity_mt": Decimal }
+# No qc flag in payload — QC resolved from Product.requires_qc after product FK is set
 ```
 
 **GT-02 TO.status after create & gate-in (authoritative)**
@@ -736,8 +823,8 @@ Gate-In **add** uses a read-only **entity summary card** so the gateman sees all
 |---------|-------------------|--------|
 | `gate-summary-poi` | Gate POI | `resolve_gate_poi_for_to(to)` → `{code} — {name}` |
 | `gate-summary-vehicle` | Vehicle | `vehicle` FK or `vendor_vehicle_registration` |
-| `gate-summary-product` | Product | TO line items |
-| `gate-summary-quantity` | Quantity | `allocated_quantity` / line sum + UOM |
+| `gate-summary-product` | Product | TO line items (planner: TR lines; gate on-demand: `TOLineItem.product` — §2.6) |
+| `gate-summary-quantity` | Quantity | `allocated_quantity` / sum of line `allocated_quantity` + UOM |
 | `gate-summary-driver` | Driver | Assigned driver or vendor driver name |
 | `gate-summary-contact` | Driver contact | Driver / vendor phone |
 | `gate-summary-origin` | Project / From (source) | `origin_poi` → `{code} — {name}` |
@@ -849,8 +936,18 @@ Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the w
 | Fieldset | Fields |
 |----------|--------|
 | Product | `product_type` (`FinishedGoods` / `RawMaterial` — labels **Finished Goods** / **Raw Material**) |
-| Document & party | `document_number`, `dealer` *or* `supplier`, `product`, `quantity_mt`, `driver_name`, `driver_contact`, `remarks` |
+| Document & party | `document_number`, `dealer` *or* `supplier`, `driver_name`, `driver_contact`, `remarks` |
+| Product lines (GT-02-12) | Tabular inline on add: `product`, `quantity_mt` (min 1 row; “Add another line”) |
 | Vehicle | `vehicle_registration` (free text; format validated, no MDM lookup) |
+
+**Product lines inline (GT-02-12)**
+
+- Implementation: `GateOnDemandTOLineInline` on `GateOnDemandTORequestAdmin` add view, or nested formset passed into `create_on_demand_to_and_gate_in` from `save_model`.
+- Per row: `product` (autocomplete/filtered by `product_type`), `quantity_mt` > 0.
+- **Read-only column or help text:** “QC required” from `Product.requires_qc` when product is selected (MDM; not editable at gate).
+- **Change view:** read-only table of `transport_order.line_items` (product code, qty, MDM `requires_qc`).
+
+**Removed from gateman input (GT-02-12):** single `product` and `quantity_mt` on `GateOnDemandTORequest` after migration (§2.6).
 
 **Not on the form (derived in `GateOnDemandTOAdminForm.clean` / `save_model` via `gate_services.resolve_on_demand_routing`):**
 
@@ -864,7 +961,7 @@ Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the w
 
 **Master Data prerequisite:** Dealer and Supplier records must have **`site_poi`** set (`master_data.Dealer` / `Supplier.site_poi` FK). Otherwise validation fails with a clear message to configure Site POI in MDM.
 
-**`save_model`:** calls `gate_services.create_on_demand_to_and_gate_in` (FG `transfer_type=FG_DEALER_OUTBOUND` or RM `RM_SUPPLIER_INBOUND`, gate-in in same transaction, `GateActivityLog` `on_demand_to_created`). On success the linked `TransportOrder.status` is **`at_source`** (Dealer DO) or **`at_destination`** (Supplier PO) — not `created` (see §4.3).
+**`save_model`:** validates ≥1 product line, then calls `gate_services.create_on_demand_to_and_gate_in(..., line_items=[...])` (FG `transfer_type=FG_DEALER_OUTBOUND` or RM `RM_SUPPLIER_INBOUND`, `TOLineItem` rows + derived `requires_qc`, gate-in in same transaction, `GateActivityLog` `on_demand_to_created`). On success the linked `TransportOrder.status` is **`at_source`** (Dealer DO) or **`at_destination`** (Supplier PO) — not `created` (see §4.3).
 
 ### 6.5 GateActivityLog Admin (GT-01-12)
 
@@ -980,7 +1077,9 @@ GET    /api/v1/gate/visit-sessions/{session_id}
          }
 ```
 
-### 7.4 On-Demand TO Creation (GT-02-4, GT-02-5, GT-02-6)
+### 7.4 On-Demand TO Creation (GT-02-4, GT-02-5, GT-02-6, GT-02-12)
+
+**Breaking change (GT-02-12):** scalar `product_id` + single quantity fields are replaced by `line_items[]` (minimum one entry). QC is not accepted on the request; it is returned from MDM on each line.
 
 ```http
 POST   /api/v1/gate/on-demand-to/dealer
@@ -988,23 +1087,36 @@ POST   /api/v1/gate/on-demand-to/dealer
        → Body: {
            do_number: "DO-2026-1234",
            dealer_id: UUID,
-           product_id: UUID,
-           planned_quantity_mt: 50.0,
+           line_items: [
+             { "product_id": UUID, "quantity_mt": 50.0 },
+             { "product_id": UUID, "quantity_mt": 25.0 }
+           ],
            driver_name: "John Doe",
            driver_contact: "+8801712345678",
            vehicle_registration: "DHK-1234",
            gate_poi_id: UUID (optional — session/default gate),
            remarks: "Urgent delivery" (nullable)
          }
+       → Validations:
+           - line_items.length >= 1
+           - Each quantity_mt > 0; product exists and matches Finished Goods path
+           - No duplicate product_id on the same request
        → Routing: source_poi = gate_poi; destination_poi = dealer.site_poi (not in body)
        → Side effects:
            - Create TransportOrder (source='GATE', transfer_type='FG_DEALER_OUTBOUND', initial status='created')
+           - Bulk-create TOLineItem rows (§2.6); allocated_quantity = sum(lines); requires_qc from Product.requires_qc
            - Create GateVisitSession + GateIn; advance TO.status → **at_source** (GATE_IN_SUCCESS_TO_STATUS)
            - Feature-flagged stock check (AC-3): stub with manual confirm if inventory module not ready
            - Emit TO_CREATED event to TLS-01
            - Create GateActivityLog(action='on_demand_to_created')
        → Response: {
-           transport_order: {to_id, to_number, transfer_type: "FG_DEALER_OUTBOUND", status: "at_source"},
+           transport_order: {
+             to_id, to_number, transfer_type: "FG_DEALER_OUTBOUND", status: "at_source",
+             requires_qc: false,
+             line_items: [
+               { line_number: 1, product_id, product_code, quantity_mt, requires_qc: false }
+             ]
+           },
            gate_visit_session_id,
            gate_in_at,
            message: "Dealer TO created and gate-in recorded."
@@ -1015,23 +1127,33 @@ POST   /api/v1/gate/on-demand-to/supplier
        → Body: {
            po_number: "PO-2026-5678",
            supplier_id: UUID,
-           product_id: UUID,
-           expected_quantity_mt: 25.0,
+           line_items: [
+             { "product_id": UUID, "quantity_mt": 25.0 },
+             { "product_id": UUID, "quantity_mt": 10.0 }
+           ],
            driver_name: "Jane Doe",
            driver_contact: "+8801798765432",
            vehicle_registration: "DHK-5678",
            gate_poi_id: UUID (optional),
            remarks: "Scheduled delivery" (nullable)
          }
+       → Validations: same line_items rules; products must match Raw Material path
        → Routing: source_poi = supplier.site_poi; destination_poi = gate_poi (not in body)
        → Side effects:
            - Create TransportOrder (source='GATE', transfer_type='RM_SUPPLIER_INBOUND', initial status='created')
-           - Set QC linkage flag for inbound workflow
+           - TOLineItem rows + requires_qc = any(product.requires_qc) — not “all RM inbound ⇒ true”
            - Create GateVisitSession + GateIn; advance TO.status → **at_destination** (GATE_IN_SUCCESS_TO_STATUS)
            - Emit TO_CREATED event to TLS-01
            - Create GateActivityLog(action='on_demand_to_created')
        → Response: {
-           transport_order: {to_id, to_number, transfer_type: "RM_SUPPLIER_INBOUND", status: "at_destination"},
+           transport_order: {
+             to_id, to_number, transfer_type: "RM_SUPPLIER_INBOUND", status: "at_destination",
+             requires_qc: true,
+             line_items: [
+               { line_number: 1, product_id, product_code, quantity_mt, requires_qc: true },
+               { line_number: 2, product_id, product_code, quantity_mt, requires_qc: false }
+             ]
+           },
            gate_visit_session_id,
            gate_in_at,
            message: "Supplier TO created and gate-in recorded."
@@ -1042,7 +1164,7 @@ GET    /api/v1/gate/on-demand-to?source=GATE&transfer_type=&date=&search=
        → Filters: source (default GATE), transfer_type (FG_DEALER_OUTBOUND / RM_SUPPLIER_INBOUND), date, search
 
 GET    /api/v1/gate/on-demand-to/{to_id}
-       → On-demand TO detail
+       → On-demand TO detail (include line_items with requires_qc from Product MDM)
 ```
 
 ---
@@ -1099,6 +1221,7 @@ Clearance check on gate-out:
 - `destination_poi = dealer.site_poi` (Master Data FK on `Dealer`; required)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_source'`
+- **Product lines (GT-02-12):** ≥1 `TOLineItem` with `product` FK; `allocated_quantity` on TO = sum of lines; `requires_qc` from `to_requires_qc_from_lines(to)`
 - No TR link, no TDO assignment required
 - Feature-flagged stock check: validate FG inventory availability when stock service exists; otherwise stub with manual confirm + audit
 
@@ -1109,7 +1232,8 @@ Clearance check on gate-out:
 - `destination_poi = current_gate_poi` (factory/depot)
 - `fleet_type = 'own'` (default)
 - `status = 'created'`, `execution_state = 'gate_in_destination'`
-- QC linkage flag set for inbound workflow
+- **Product lines (GT-02-12):** ≥1 `TOLineItem` with `product` FK + `allocated_quantity`; `allocated_quantity` on TO = sum of lines
+- **`requires_qc`:** `to_requires_qc_from_lines(to)` — True when **any** line’s `Product.requires_qc` is True (MDM). Do not set True for all RM supplier paths by default.
 - No TR link, no TDO assignment required
 
 ### 8.4 Duplicate Visit Prevention
@@ -1155,12 +1279,16 @@ Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document cate
 **Post-scale queue visibility**:
 - After scale-in, visit appears in Command Center queue (CC-01)
 - CC assigns bay (BayAssignment → gate_visit_session FK)
+- **GT-02-12 / QC-01-13:** `QueueEntry.requires_qc` must be set from `to_requires_qc_from_lines(to)` at queue creation (see `command-center-loading-sprint4.md`), not from `flow_lane == RM_INBOUND` alone.
 
 ### 9.4 With QC (QC-01)
 
-**QC requirement enforcement (RM inbound only)**:
-- Gate-out guard matrix checks `TOQCCheckpoint.qc_passed != False`
+**QC requirement (GT-02-12, QC-01-13)**:
+- Per-line QC flag: `Product.requires_qc` on each `TOLineItem` (direct `product` FK for gate TOs; planner lines via `tr_line_item → pr_line_item → product`).
+- TO-level `requires_qc` on `TransportOrder` is a denormalized aggregate for CC/gate-out compatibility.
+- Gate-out guard matrix (RM inbound when `requires_qc` is True): checks QC pass / not failed
 - If QC failed or pending, gate-out blocked: "QC decision pending or failed. Cannot exit."
+- Mixed-product RM TO: QC runs when **any** line’s product has `requires_qc=True`; skip QC when **all** lines have `requires_qc=False` (E2E-03 negative case).
 
 ### 9.5 With Driver Mobile (DM-01)
 
@@ -1240,14 +1368,17 @@ Menu.Gate.OnDemandTO.View
 - Loading/unloading must be done (per flow type)
 - QC must not have failed (RM inbound only)
 
-### 11.3 On-Demand TO (GT-02)
+### 11.3 On-Demand TO (GT-02, GT-02-12)
 
 - Reference number required (DO# or PO#, unique per tenant per path type)
-- Party (Dealer/Supplier) must exist in MDM
-- Product must exist (MDM-01)
-- Expected quantity > 0
+- Party (Dealer/Supplier) must exist in MDM with `site_poi` configured
+- **Line items:** `line_items.length >= 1` (admin inline or API array)
+- Each line: `product_id` valid and active; `quantity_mt` > 0; product `product_type` matches wizard path (FG vs RM)
+- No duplicate `product_id` on the same TO create request
 - Driver name required (max 100 chars)
 - Driver contact required (valid phone format)
+- Vehicle registration required (normalized format)
+- **QC:** not validated as user input; `TransportOrder.requires_qc` set server-side from `Product.requires_qc` on lines (§2.6)
 
 ---
 
@@ -1270,13 +1401,14 @@ Menu.Gate.OnDemandTO.View
 ## 13. Dependencies
 
 ### Upstream
-- `05-transport`: TransportOrder model
-- `02-master-data`: POI, Vehicle, Driver, Dealer, Supplier, Product
+- `05-transport`: TransportOrder, TOLineItem (§2.6 gate extensions)
+- `02-master-data`: POI, Vehicle, Driver, Dealer, Supplier, Product (`Product.requires_qc` for QC derivation)
 
 ### Downstream
 - `06-poi-operations/scaling`: Scale-in (SC-01)
-- `06-poi-operations/command-center`: Queue visibility (CC-01)
-- `06-poi-operations/qc`: QC checkpoint enforcement (QC-01)
+- `06-poi-operations/command-center`: Queue visibility (CC-01); `QueueEntry.requires_qc` from TO lines (GT-02-12)
+- `06-poi-operations/loading`: Per-line load/unload capture (LD-01-9) uses `transport_order.line_items`
+- `06-poi-operations/qc`: QC checkpoint enforcement (QC-01-13 reads `Product.requires_qc` via lines)
 - `05-transport/lifecycle`: Timeline events (TLS-01), closure (POD-01)
 
 ---
@@ -1307,17 +1439,19 @@ Menu.Gate.OnDemandTO.View
 |----------|-------|----------------------|
 | GT-02-1 | Model extensions | `source=GATE` field, `transfer_type` enum on TO + migration |
 | GT-02-2 | OnDemandTOAdmin (Dealer) | `save_model` creates FG TO with `transfer_type=FG_DEALER_OUTBOUND` |
-| GT-02-3 | OnDemandTOAdmin (Supplier) | `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND` + QC flag |
-| GT-02-4 | Dealer TO REST API (POST) | Validates DO number, dealer, product, quantity |
-| GT-02-5 | Supplier TO REST API (POST) | Validates PO number, supplier, product, expected quantity |
+| GT-02-3 | OnDemandTOAdmin (Supplier) | `save_model` creates RM TO with `transfer_type=RM_SUPPLIER_INBOUND`; `requires_qc` from lines (GT-02-12) |
+| GT-02-4 | Dealer TO REST API (POST) | Validates DO number, dealer, `line_items[]` (GT-02-12) |
+| GT-02-5 | Supplier TO REST API (POST) | Validates PO number, supplier, `line_items[]` (GT-02-12) |
 | GT-02-6 | On-demand TO list/detail API (GET) | Filters: source=GATE, transfer_type, date, search |
 | GT-02-7 | Session ↔ TO linkage service | Associates GateVisitSession with newly created TO |
 | GT-02-8 | TLS-01 event emission | Emit `TO_CREATED` lifecycle event on gate-originated TO |
-| GT-02-9 | Inventory/QC hooks | Feature-flagged stock check stub (Dealer); QC linkage flag (Supplier) |
+| GT-02-9 | Inventory/QC hooks | Feature-flagged stock check stub (Dealer); derive `requires_qc` from `Product.requires_qc` on lines (not lane-wide RM default) |
 | GT-02-10 | Gateman wizard UI | Product dropdown (Finished Goods / Raw Material) → dealer vs supplier path, form fields, validation |
 | GT-02-11 | GateOnDemandActivityLog | Audit logging on TO creation, linkage, validation overrides |
+| GT-02-12 | Multi product lines (Sprint 5) | Extend `TOLineItem` for gate TOs; wizard inline + API `line_items[]`; derive `TO.requires_qc`; generalize gate-in product/quantity formatters; migrate legacy single-product gate TOs |
+| GT-02-13 | E2E tests (Sprint 5) | Dealer/supplier multi-line create, MDM `requires_qc` mix, RBAC, gate linkage, downstream CC/QC/LD compatibility |
 
 ---
 
-**Last Updated**: 2026-05-16  
+**Last Updated**: 2026-06-02  
 **Related Modules**: [05-transport](../05-transport/README.md), [06-poi-operations](./README.md), [03-users/driver-interface](../03-users/driver-interface-sprint4.md)
