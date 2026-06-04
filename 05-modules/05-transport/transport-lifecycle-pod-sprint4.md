@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
-version: 3.2
+version: 3.3
 phase: Phase 1
 sprint: Sprint 4 (Sprint 5 — FB-004 pre-execution handoff)
-last_updated: 2026-06-02
-changelog: "v3.2 — FB-004: document TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start; gate-in requires in-transit only. v3.1 — POD-01: Transport Planner triggers closed status after verifying TO details; prerequisite refresh on yard/POD events (no system auto-close). v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
+last_updated: 2026-06-04
+changelog: "v3.3 — §2.7 backend alignment: gate-out then POD → completed → TP close; can_submit_pod; checklist refresh hooks; fleet release on completed/closed (code gap documented). v3.2 — FB-004: TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start. v3.1 — POD-01: TP-triggered close; prerequisite refresh (no auto-close). v3.0 — YARD-01 + yard TLS matrix; closure reads yard records"
 related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
@@ -33,7 +33,7 @@ The closure engine evaluates flow-specific gates before any close attempt. **`cl
 
 - `apps/transport/lifecycle/` — timeline + canonical status transitions + driver rules
 - `apps/transport/closure/` — closure rule engine (POD-01)
-- `apps/transport/pod/` — POD model + capture (DM-01)
+- `apps/transport/pod_service.py` — POD capture (DM-01); models on `TransportOrder`
 - QC models/services/admin: `apps/quality/checkpoint/` — see [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
 **Dependencies**:
@@ -389,19 +389,24 @@ See [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-imp
 
 ## 2. POD-01: TO Closure & POD Linkage
 
-### 2.1 ProofOfDelivery
+### 2.1 ProofOfDelivery (DM-01)
 
-Defined in DM-01 (`ProofOfDelivery` / driver POD API). On submit:
+Defined in DM-01 (`ProofOfDelivery` / `apps/transport/pod_service.py` + driver POD API).
 
-1. Create POD record
-2. Advance TO to `completed` when lane rules allow
-3. Call `refresh_closure_checklist()` (recompute prerequisite flags only — **does not** transition to `closed`)
+**When the driver may submit:** TO is **`delivered_unloaded`**, destination **gate-out** is recorded (`GateOut.poi_id == destination_poi_id`), and lane yard prerequisites for POD are satisfied (see `can_submit_pod` in §2.7). Gate-out does **not** change canonical `status` (stays `delivered_unloaded`; sub_state `gate_out_destination`).
 
-**Who closes:** Transport Planner reviews the TO (timeline, checklist, POD, yard/QC domain rows) and **triggers** `closed` via admin action or `POST .../close` when all lane gates pass.
+**On submit (atomic):**
+
+1. Validate `can_submit_pod(to)` — stable errors: `pod_status_gate`, `pod_prerequisites_not_met`
+2. Create POD record + files (1–3; JPEG/PNG/PDF per DM-01)
+3. **`apply_to_status_transition(to, completed, actor=driver, source_module="driver")`** — must not raw-assign `to.status`
+4. Call `refresh_closure_checklist()` (recompute flags only — **does not** transition to `closed`)
+
+**Who closes:** Transport Planner reviews the TO (timeline, checklist, POD, yard/QC domain rows) and **triggers** `closed` via admin action or `POST .../close` when all lane gates pass and TO is already **`completed`**.
 
 ### 2.2 ClosureRuleEngine (`apps/transport/closure/closure_engine.py`)
 
-**Current code (May 2026):** minimal path — auto-close `completed` → `closed` when POD exists (to be replaced). **Target (this spec):** full lane matrices; **TP-triggered close only** (no system auto-close).
+**Implementation:** `closure_engine.py` + `pod_eligibility.py` + `pod_service.py` (§2.7). **TP-triggered close only** — no system auto-close to `closed`.
 
 Lane-aware evaluation keyed on `transport_order.flow_lane`:
 
@@ -486,6 +491,111 @@ delivered_unloaded → (driver POD) → completed → (TP verifies all details +
 | POD-01-8 | Exceptions admin changelist |
 | POD-01-9 | Manual + force close admin actions |
 | POD-01-10 | Closure API endpoints |
+| POD-01-4b | Wire §2.7 backend alignment (DM-01 POD gate + `completed` transition + prerequisite refresh hooks) | Done |
+
+### 2.7 Backend implementation alignment (DM-01 + POD-01)
+
+Authoritative **code** plan for closing gaps in §2.2 / §2.1. Implements existing stories **DFS-053 (DM-01)** and **DFS-060 (POD-01)** — no new Jira story.
+
+#### 2.7.1 Target lifecycle at destination
+
+| Step | Actor | `TransportOrder.status` after step | `sub_state` (yard) |
+|------|--------|-----------------------------------|---------------------|
+| Unload complete | LD-01 | Until scale-out: typically `at_destination` | `unloading_completed` |
+| Scale-out (destination) | SC-01 | `delivered_unloaded` | scale-out sub-state |
+| Gate-out (destination) | GT-01 | **`delivered_unloaded`** (unchanged) | `gate_out_destination` |
+| POD upload | Driver (DM-01) | **`completed`** | — |
+| Close TO | Transport Planner (POD-01) | **`closed`** | cleared on close |
+
+```text
+delivered_unloaded → (destination gate-out) → (driver POD) → completed → (TP close) → closed
+```
+
+**Gate-out then POD** matches GT-01 guards (exit requires unload + scale-out). Closure requires **both** gate-out and POD before TP close; order between those two at upload time is gate-out first for `can_submit_pod`.
+
+**Out of scope for this alignment:** system auto-close to `closed` (POD-01-6 deferred); new unit test module; closure REST APIs (POD-01-7/8) — admin close exists.
+
+#### 2.7.2 `can_submit_pod(to) -> (bool, reason)`
+
+Implement in `apps/transport/closure/` (e.g. `pod_eligibility.py` or helpers on `closure_engine.py`).
+
+| Rule | Source |
+|------|--------|
+| `to.status == delivered_unloaded` | §2.4 status path |
+| No existing `ProofOfDelivery` | DM-01 |
+| Destination `GateOut` exists (`GateOut.poi_id == to.destination_poi_id`) | Gate-out-then-POD |
+| Lane yard gates (reuse checklist flags, exclude `pod_uploaded`): | §2.3 |
+| FG inbound | `unloading_complete`, `scale_out_done` |
+| RM inbound | + `sampling_done`, `qc_passed` |
+| FG outbound | `loading_complete` (source) + destination scale-out + **destination** gate-out (not source-only exit) |
+
+Driver API / admin: expose `pod_enabled` and `pod_block_reason` from this helper (`admin_driver.py`, `driver_presenter.py`).
+
+#### 2.7.3 `submit_pod()` changes (`apps/transport/pod_service.py`)
+
+Replace `status == completed` guard with `can_submit_pod(to)`. After POD files persisted, call `apply_to_status_transition(..., COMPLETED)` then `refresh_closure_checklist(to)`.
+
+#### 2.7.4 Checklist refresh hooks (POD-01-4)
+
+Call `refresh_closure_checklist(to)` only (no status change) after:
+
+| Event | Module / function |
+|-------|-------------------|
+| Destination gate-out | `gate_services.create_gate_out()` |
+| Scale-out | `ScaleOutService.record_scale_out()` |
+| Unload complete | `LDService.complete_unloading()` |
+| QC decision (RM) | QC decision save path |
+
+Already required on POD submit (§2.1).
+
+#### 2.7.5 Fleet availability after `completed` / `closed`
+
+| Resource | Mechanism | When available for reassignment |
+|----------|-----------|-------------------------------|
+| **Vehicle** | `apps/transport/assignment_availability.TERMINAL_TO_STATUSES` includes `completed`, `closed` | From **`completed`** onward |
+| **Driver** | `try_transition_driver_available_on_to_completion()` in `apply_to_status_transition` when target is **`completed`** (DS-02-10) | **`on_execution` → `available`** on POD submit (normal path) |
+
+**Requirement:** POD submit must use `apply_to_status_transition`, not a direct status assignment.
+
+**Safety net:** On transition to **`closed`**, if driver is still `on_execution`, release to `available` (covers `force_close_transport_order` without a prior `completed` step). Implement in `apply_to_status_transition` or closure service.
+
+#### 2.7.6 File touch list (backend)
+
+```
+apps/transport/closure/pod_eligibility.py   # or extend closure_engine.py
+apps/transport/closure/__init__.py
+apps/transport/pod_service.py
+apps/transport/driver_exceptions.py
+apps/transport/driver_presenter.py
+apps/transport/admin_driver.py
+apps/transport/lifecycle/transition_service.py   # driver release on closed (safety net)
+apps/operations/gate/gate_services.py
+apps/operations/scaling/services.py
+apps/operations/loading/services.py
+apps/quality/...                                # QC decision hook
+apps/core/role_seed_data.py                     # Transport.TO.Close for transport_planner
+```
+
+No migrations planned.
+
+#### 2.7.7 Implementation order
+
+1. `can_submit_pod` + `submit_pod()` + `apply_to_status_transition` → `completed`
+2. Driver presenter / admin / API errors
+3. Yard + QC `refresh_closure_checklist` hooks
+4. Driver release safety net on `closed`
+5. `transport_planner` + `Transport.TO.Close` in role seed
+
+**Manual verification:** destination gate-out → POD → `completed` → driver `available` → vehicle assignable → TP admin close → `closed`.
+
+#### 2.7.8 Implementation status (backend)
+
+| Item | Status |
+|------|--------|
+| `can_submit_pod` + `submit_pod` → `completed` | Implemented |
+| Checklist refresh on GT / SC / LD / QC + POD | Implemented |
+| Driver release on `completed`; safety net on `closed` | Implemented |
+| `Transport.TO.Close` on `transport_planner` role seed | Implemented |
 
 ---
 
