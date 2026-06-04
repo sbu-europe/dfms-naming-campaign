@@ -6,7 +6,7 @@ carry_from: "Sprint 4"
 story_id: GT-02
 title: Gate — On-Demand TO Creation (Dealer DO & Supplier PO)
 epic: Gate Operations
-status: Carry-over
+status: In Progress
 story_points: 8
 assignee: Farhan Tanvir(farhanT23)
 carry_subtasks:
@@ -29,10 +29,10 @@ source: ../../../sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
-|---|----------|------|---------------|---------------|----------|
-| GT-02-12 | On-demand TO creation supports adding **multiple product line items** | DFS-062-12 | Pending | Both Dealer DO (FG outbound) and Supplier PO (RM inbound) paths must allow the gateman to add N product line items per TO. Each item: product, quantity, and `qc_required` flag. Model changes + admin form + API payload update. Closes FB-001, FB-006 (product-line QC flag), FB-007. | High |
-| GT-02-13 | E2E test coverage | ~ | Pending | Validate Dealer DO and Supplier PO on-demand TO creation with multiple product line items, RBAC enforcement, gate linkage, and downstream compatibility with LD-01 and QC-01 | Medium |
+| # | Sub-task | Jira | Status | Sprint 5 Work | Priority |
+|---|----------|------|--------|---------------|----------|
+| GT-02-12 | On-demand TO creation supports adding **multiple product line items** | DFS-062-12 | Done | Both Dealer DO (FG outbound) and Supplier PO (RM inbound) paths must allow the gateman to add N product line items per TO. Each item: product, quantity, and `qc_required` flag. Model changes + admin form + API payload update. Closes FB-001, FB-006 (product-line QC flag), FB-007. | High |
+| GT-02-13 | E2E test coverage | ~ | Not done | Validate Dealer DO and Supplier PO on-demand TO creation with multiple product line items, RBAC enforcement, gate linkage, and downstream compatibility with LD-01 and QC-01 | Medium |
 
 ---
 
@@ -61,9 +61,9 @@ source: ../../../sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] Multiple product line items supported on both Dealer DO and Supplier PO on-demand TO creation (GT-02-12, FB-007)
-- [ ] Each product line item carries `qc_required` flag (connects to QC-01-13 and LD-01-9)
-- [ ] RBAC enforced: Gate role only for creation; Transport Planner read-only (AC-4)
+- [x] Multiple product line items supported on both Dealer DO and Supplier PO on-demand TO creation (GT-02-12, FB-007)
+- [x] Each product line item carries `qc_required` flag (connects to QC-01-13 and LD-01-9)
+- [x] RBAC enforced: Gate role only for creation; Transport Planner read-only (AC-4)
 - [ ] E2E sub-task GT-02-13 passes in staging; covers product line items and RBAC
 
 ---
