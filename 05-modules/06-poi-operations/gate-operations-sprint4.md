@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Gate Operations (Sprint 4 — TO-Centric)
-version: 2.8
+version: 2.9
 phase: Phase 1
 sprint: Sprint 4 (GT-02-12 carried in Sprint 5)
-last_updated: 2026-06-03
-changelog: "v2.8 — FB-006 / QC-01-13: post scale-in auto flagged_for_qc when any product line requires_qc; CC unloading assignment only after QC Pass (see command-center-loading v1.1); v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
+last_updated: 2026-06-05
+changelog: "v2.9 — FG outbound source gate-out owns `in_transit_destination` advance (scale-out sub-state only); §4.5 chain, §5.1 eligibility, §5.2 flow aligned with SC-01 v1.3 + logistics-flow-diagrams. v2.8 — FB-006 / QC-01-13: post scale-in auto flagged_for_qc when any product line requires_qc; CC unloading assignment only after QC Pass (see command-center-loading v1.1); v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02), DFS-062-12 (GT-02-12)
 jira_epic: DFS-072
 ---
@@ -625,15 +625,15 @@ The table below is the authoritative per-lane TO status progression for the **ya
 | CC assigns L/U point (CC-01) | `at_source` (sub: `assigned_loading_point`) | `at_destination` (sub: `assigned_unloading_point`) | `at_destination` (sub: `assigned_unloading_point`; **after QC Pass**) |
 | Loading completed (LD-01) | sub: loading_completed | — | — |
 | Unloading completed (LD-01) | — | sub: unloading_completed | sub: unloading_completed |
-| Scale-out completed (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
-| **Gate-out recorded** (GT-01) | sub: gate_out_source (FG outbound origin gate exit → vehicle now **in_transit_destination**) | sub: gate_out_destination | sub: gate_out_destination |
+| Scale-out completed (SC-01) | `at_source` (sub: `scale_out_source`) — **status unchanged** | → `delivered_unloaded` | → `delivered_unloaded` |
+| **Gate-out recorded** (GT-01) | → `in_transit_destination` + sub: `gate_out_source` (origin POI exit) | sub: `gate_out_destination` | sub: `gate_out_destination` |
 | POD submitted + closure (POD-01) | → `completed` → `closed` | → `completed` → `closed` | → `completed` → `closed` |
 
 **Key notes:**
 
 - **GT-02 on-demand entry**: Dealer DO and Supplier PO paths create the TO at `created` and gate-in in one transaction; the TO is already at **`at_source`** (FG outbound) or **`at_destination`** (RM inbound) before scale-in — see §4.3. They skip the “Pre-gate-in (driver started)” row in the table above.
-- **FG outbound**: After scale-out at the source POI the TO advances to `in_transit_destination`. The vehicle leaves the source gate and will arrive at destination (where it is an **FG inbound** visit). The gate-out at source records `gate_out_source` sub-state.
-- **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state.
+- **FG outbound (source leg)**: Scale-out at the source POI records net weight and `sub_state = scale_out_source` while the TO stays **`at_source`**. **Gate-out at the origin POI** is the only step that advances the TO to `in_transit_destination` — the vehicle has physically left the yard. `GateOut.gate_out_at` on the source visit is the authoritative departure timestamp (STK-01 in-transit stock hooks use this event). The vehicle then travels to destination (where it is an **FG inbound** visit).
+- **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state only (canonical status unchanged).
 - **RM inbound QC (FB-006 / QC-01-13)**: QC is required when **any** product line has `Product.requires_qc=True` (`to_requires_qc_from_lines`), not for all RM inbound TOs. After scale-in, the system **automatically** sets `flagged_for_qc` when QC is required — CC does not manually flag. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If all lines have `requires_qc=False`, skip QC: sub-state `waiting_cc` and immediate bay assignment (E2E-03 negative case). If QC fails, gate-out is blocked (see §9.4).
 - Sub-states above are carried in `TOStatusTransitionLog.to_sub_state` (TLS-01 schema) and are not exposed as top-level `TO.status` values.
 
@@ -651,11 +651,13 @@ The table below is the authoritative per-lane TO status progression for the **ya
 
 **TO.status required for gate-out lookup (GateOutAdmin queryset filter)**:
 
-| Flow Lane | Gate-out available when `TO.status` is |
-|-----------|----------------------------------------|
-| FG outbound (at origin) | `in_transit_destination` (scale-out at source has already advanced the status) |
-| FG inbound (at destination) | `delivered_unloaded` |
-| RM inbound (at destination) | `delivered_unloaded` |
+| Flow Lane | Gate-out available when `TO.status` is | Additional guards |
+|-----------|----------------------------------------|-------------------|
+| FG outbound (at origin) | `at_source` or `loaded_pickup_completed` | `WeighingSession.scale_out_completed = True` + `LoadEvent.end_datetime not null` |
+| FG inbound (at destination) | `delivered_unloaded` | Scale-out + unloading complete |
+| RM inbound (at destination) | `delivered_unloaded` | Scale-out + unloading complete + QC not failed |
+
+> **FG outbound source**: Gate-out is blocked while the TO is already `in_transit_destination` (prevents duplicate transit advance). Scale-out completion is validated via `WeighingSession.scale_out_completed`, not via TO status.
 
 ### 5.2 Exit Validation & Clearance Checks
 
@@ -692,8 +694,9 @@ Gateman opens Gate-Out form
                                 └─► GateVisitSession.status = 'closed'
                                       └─► GateOutService.record_gate_out(to, poi):
                                             ├─► FG outbound at origin POI:
-                                            │     └─► Emit GATE_OUT_SOURCE event (TLS-01)
-                                            │           (TO already at in_transit_destination from scale-out step)
+                                            │     ├─► Emit GATE_OUT_SOURCE event (TLS-01)
+                                            │     ├─► apply_to_status_transition(to, in_transit_destination)
+                                            │     └─► maybe_clear_sub_state_on_status (departure resets yard sub_state)
                                             └─► FG inbound / RM inbound at destination POI:
                                                   └─► Emit GATE_OUT_DESTINATION event (TLS-01)
                                                         └─► Log GateActivityLog(action='gate_out')
@@ -1039,10 +1042,11 @@ POST   /api/v1/gate/gate-out
            - FG inbound: scale-out completed + unloading completed
            - RM inbound: scale-out completed + unloading completed + QC not failed
        → Side effects:
-           - Create GateOut record
+           - Create GateOut record (`gate_out_at` = authoritative departure timestamp on source leg)
            - Update GateVisitSession.status = 'closed'
-           - Update TO.execution_state
-           - Emit GATE_OUT event to TLS-01
+           - FG outbound at origin: advance `TO.status` → `in_transit_destination` via `record_gate_out_status`
+           - FG/RM inbound at destination: `TO.status` unchanged (`delivered_unloaded`)
+           - Emit GATE_OUT event to TLS-01 (`gate_out_source` or `gate_out_destination` sub-state)
            - Create GateActivityLog entry
        → Response: {
            gate_out_id,

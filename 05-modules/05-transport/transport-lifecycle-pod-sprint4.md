@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
-version: 3.3
+version: 3.4
 phase: Phase 1
 sprint: Sprint 4 (Sprint 5 — FB-004 pre-execution handoff)
-last_updated: 2026-06-04
-changelog: "v3.3 — §2.7 backend alignment: gate-out then POD → completed → TP close; can_submit_pod; checklist refresh hooks; fleet release on completed/closed (code gap documented). v3.2 — FB-004: TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start. v3.1 — POD-01: TP-triggered close; prerequisite refresh (no auto-close). v3.0 — YARD-01 + yard TLS matrix; closure reads yard records"
+last_updated: 2026-06-05
+changelog: "v3.4 — FG outbound source leg: scale-out sub-state only (`scale_out_source`); gate-out at origin advances `in_transit_destination` (aligns logistics-flow-diagrams + STK-01 gate-departure). v3.3 — §2.7 backend alignment: gate-out then POD → completed → TP close; can_submit_pod; checklist refresh hooks; fleet release on completed/closed (code gap documented). v3.2 — FB-004: TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start. v3.1 — POD-01: TP-triggered close; prerequisite refresh (no auto-close). v3.0 — YARD-01 + yard TLS matrix; closure reads yard records"
 related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
@@ -86,7 +86,7 @@ Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.
 
 | Field | Purpose | Written by |
 |-------|---------|------------|
-| `TransportOrder.status` | Coarse lifecycle (`TOStatus`) | Driver (in-transit only), gate (gate-in status bump), scale-out, dispatch, closure, admin |
+| `TransportOrder.status` | Coarse lifecycle (`TOStatus`) | Driver (in-transit only), gate (gate-in + **FG outbound source gate-out → in-transit**), scale-out (destination/inbound legs only), dispatch, closure, admin |
 | `TransportOrder.sub_state` | Yard workflow step (`TOSubState`) | Gate (gate-out markers), scale, CC, LD, QC services |
 
 **Alias**: `TransportOrder.tls_status` property returns `status` for API compatibility.
@@ -184,14 +184,16 @@ Authoritative yard progression is in [gate-operations-sprint4.md §4.5](../06-po
 | CC queue / QC flag | `sub_state`: bay assign or `flagged_for_qc` | bay assign | CC flags QC; QC sample/decision |
 | QC Pass (RM only) | — | — | `sub_state`: `qc_passed`; CC assigns unload bay |
 | Load / unload (LD-01) | load sub-states | unload sub-states | unload sub-states |
-| Scale-out (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
-| Gate-out (GT-01) | `sub_state`: `gate_out_source` or `gate_out_destination` | same | same |
+| Scale-out (SC-01) | `at_source` (sub: `scale_out_source`) — **status unchanged** | → `delivered_unloaded` | → `delivered_unloaded` |
+| Gate-out (GT-01) | → `in_transit_destination` (source leg) + sub: `gate_out_source`; dest leg: sub: `gate_out_destination` only | sub: `gate_out_destination` | sub: `gate_out_destination` |
 | Driver POD (DM-01) | → `completed` (when business rules met) | same | same |
 | Closure (POD-01) | → `closed` (**TP triggers** after verification) | same | same (RM: TP verifies QC Pass) |
 
 **GT-02 on-demand:** Dealer DO → `at_source`; Supplier PO → `at_destination` in the same transaction as gate-in (skips driver in-transit steps).
 
-**Important:** Most yard steps change **`sub_state` only** while `status` stays at `at_source` / `at_destination`. Canonical `status` advances on gate-in, scale-out, driver milestones, POD, and closure — not on every bay assign or load start.
+**FG outbound source leg (authoritative):** Scale-out records loaded weight and sets `sub_state = scale_out_source` while the vehicle remains **`at_source`** inside the yard. **Only gate-out at the origin POI** may advance the TO to `in_transit_destination` (physical departure). Skipping gate-out must not show the TO as en route. Authoritative departure timestamp: `GateOut.gate_out_at` on the source visit (STK-01 in-transit stock hooks use this event, not scale-out).
+
+**Important:** Most yard steps change **`sub_state` only** while `status` stays at `at_source` / `at_destination`. Canonical `status` advances on gate-in, gate-out (FG outbound source), scale-out (destination/inbound legs), driver milestones, POD, and closure — not on every bay assign or load start.
 
 ### 1.3 Data model
 
@@ -312,6 +314,8 @@ Drivers may **only** set in-transit statuses from `Dispatched`:
 
 All other execution statuses are written by yard services or lifecycle/closure. Forward-only table: `TO_STATUS_TRANSITIONS` in `apps/transport/constants.py`.
 
+**FG outbound source gate-out edge:** `at_source` (or `loaded_pickup_completed`) → `in_transit_destination` is permitted **only** via GT-01 `record_gate_out_status` at `origin_poi` after source scale-out. SC-01 must not write this transition.
+
 Fleet availability (§6.8.1.7): validate vehicle not under maintenance and driver not on leave on first driver execution action (DM-01) and optionally at gate-in (GT-01).
 
 ### 1.6 Yard-module TLS integration matrix
@@ -321,9 +325,9 @@ Yard modules call timeline helpers **in the same `atomic()` block** as their dom
 | Module | Service action | `status` change | `sub_state` change | `source_module` |
 |--------|----------------|-----------------|-------------------|-----------------|
 | **GT-01** gate-in | `record_gate_in_status` | → `at_source` / `at_destination` per lane | — | `gate` |
-| **GT-01** gate-out | `record_gate_out_status` | — | `gate_out_source` or `gate_out_destination` | `gate` |
+| **GT-01** gate-out | `record_gate_out_status` | FG outbound at origin: → `in_transit_destination`; inbound/dest legs: — | `gate_out_source` or `gate_out_destination` | `gate` |
 | **SC-01** scale-in | `ScaleInService.record_scale_in` | — | leg `scale_in_*` → `waiting_cc` | `scaling` |
-| **SC-01** scale-out | `ScaleOutService.record_scale_out` | → per `SCALE_OUT_RESULT_TO_STATUS` | leg `scale_out_*`; then clear sub_state | `scaling` |
+| **SC-01** scale-out | `ScaleOutService.record_scale_out` | → per `SCALE_OUT_RESULT_TO_STATUS` (`None` = sub-state only, FG outbound source) | leg `scale_out_*`; clear sub_state when status crosses `SUB_STATE_RESET_ON_STATUS` | `scaling` |
 | **CC-01** flag QC | `CCService.flag_for_qc` | — | `flagged_for_qc` | `command_center` |
 | **CC-01** assign bay | `CCService.assign_bay` | — | `assigned_loading_point` or `assigned_unloading_point` | `command_center` |
 | **LD-01** load start/complete | `LDService.start/complete_loading` | — | `loading_started` / `loading_completed` | `loading` |

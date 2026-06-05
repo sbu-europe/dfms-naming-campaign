@@ -1,10 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Scaling Operations (Sprint 4 — TO-Centric)
-version: 1.2
+version: 1.3
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-05-19
+last_updated: 2026-06-05
+changelog: "v1.3 — FG outbound source scale-out: sub-state only (`scale_out_source`); canonical status stays `at_source`; gate-out (GT-01) owns `in_transit_destination` advance"
 related_stories: DFS-055 (SC-01)
 jira_epic: DFS-072
 ---
@@ -159,7 +160,7 @@ QueueToken(TenantAwareModel) {
 
 ## 2. TO Status Progression (SC-01)
 
-Scale-in and scale-out advance `TO.status` via the TLS-01 event ingest service. Sub-states are recorded in `TOStatusTransitionLog`.
+Scale-in and scale-out may advance `TO.status` via the TLS-01 event ingest service when `SCALE_OUT_RESULT_TO_STATUS[(flow_lane, yard_leg)]` is non-null. **FG outbound source scale-out is sub-state only** — canonical status stays `at_source` until GT-01 gate-out at origin. Sub-states are recorded in `TOStatusTransitionLog`.
 
 **Leg key**: Eligibility and yard-step sub-states are keyed by **`(flow_lane, yard_leg)`** on the active `GateVisitSession` (set at gate-in — see GT-01 / YARD-01). `flow_lane` alone is insufficient for FG outbound, which has **two** weigh cycles on one TO (source leg + destination leg). Policy table: `apps/operations/yard_context.py` → `OPERATIONS_BY_LEG_AND_LANE`.
 
@@ -210,12 +211,12 @@ Scale-out can only be recorded after the **yard work for that leg** is complete 
 
 | Flow lane | `yard_leg` | Required pre-conditions before scale-out | `TO.status` after scale-out |
 |-----------|------------|------------------------------------------|-----------------------------|
-| FG outbound | `source` | `LoadEvent.end_datetime not null` (loading complete) | → `in_transit_destination` |
+| FG outbound | `source` | `LoadEvent.end_datetime not null` (loading complete) | **`at_source` unchanged** (sub: `scale_out_source`) |
 | FG outbound | `destination` | `UnloadEvent.end_datetime not null` (unloading complete) | → `delivered_unloaded` |
 | FG inbound | `destination` | `UnloadEvent.end_datetime not null` (unloading complete) | → `delivered_unloaded` |
 | RM inbound | `destination` | `UnloadEvent.end_datetime not null` + `QCDecision.decision = 'pass'` | → `delivered_unloaded` |
 
-> **FG finished goods (full trip)**: source leg scale-out advances the TO to `in_transit_destination` (vehicle en route to destination). After gate-in at destination (`yard_leg=destination`, `at_destination`), a **new** `GateVisitSession` + `WeighingSession` runs the destination scale-in → unload → scale-out → `delivered_unloaded` chain.
+> **FG finished goods (full trip)**: source leg scale-out records net weight and `sub_state = scale_out_source` while the vehicle remains **`at_source`** inside the yard. **GT-01 gate-out at origin** advances the TO to `in_transit_destination` (physical departure; `GateOut.gate_out_at` is the authoritative exit timestamp). After gate-in at destination (`yard_leg=destination`, `at_destination`), a **new** `GateVisitSession` + `WeighingSession` runs the destination scale-in → unload → scale-out → `delivered_unloaded` chain.
 
 **Service-layer validation** (`ScaleOutService`):
 
@@ -236,8 +237,8 @@ def validate_eligible_for_scale_out(
 **On successful scale-out**:
 1. Create `ScaleOut`, auto-calculate `net_weight_mt = gross_weight_mt − tare_weight_mt`
 2. Set `WeighingSession.scale_out_completed = True`
-3. Emit `SCALE_OUT` / `SCALE_OUT_SOURCE` or `SCALE_OUT_DEST` to TLS-01 (§2.3); advance `TO.status` via `SCALE_OUT_RESULT_TO_STATUS[(flow_lane, yard_leg)]`
-4. `record_yard_sub_state(to, scale_out_sub_state_for_session(session), …)` then close token
+3. `record_yard_sub_state(to, scale_out_sub_state_for_session(session), …)` — emit SCALE_OUT to TLS-01 (§2.3)
+4. If `SCALE_OUT_RESULT_TO_STATUS[(flow_lane, yard_leg)]` is non-null: `apply_to_status_transition(to, target_status, …)` and `maybe_clear_sub_state_on_status` when target ∈ `SUB_STATE_RESET_ON_STATUS`. **FG outbound source: mapping is `None` — skip status bump.**
 5. Close `QueueToken.status = 'closed'`
 6. Issue `GatePass` (printable; linked to WeighingSession)
 
@@ -252,9 +253,9 @@ SCALE_IN_ELIGIBLE_TO_STATUSES: dict[tuple[str, str], str] = {
     (FlowLane.RM_INBOUND, YardLeg.DESTINATION): TOStatus.AT_DESTINATION,
 }
 
-# (flow_lane, yard_leg) → TO.status after successful scale-out
-SCALE_OUT_RESULT_TO_STATUS: dict[tuple[str, str], str] = {
-    (FlowLane.FG_OUTBOUND, YardLeg.SOURCE): TOStatus.IN_TRANSIT_DESTINATION,
+# (flow_lane, yard_leg) → TO.status after successful scale-out (None = sub-state only)
+SCALE_OUT_RESULT_TO_STATUS: dict[tuple[str, str], str | None] = {
+    (FlowLane.FG_OUTBOUND, YardLeg.SOURCE): None,  # gate-out owns in_transit_destination
     (FlowLane.FG_OUTBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
     (FlowLane.FG_INBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
     (FlowLane.RM_INBOUND, YardLeg.DESTINATION): TOStatus.DELIVERED_UNLOADED,
@@ -343,7 +344,8 @@ Scaling Operator opens Scale-Out form
                                 ├─► Create ScaleOut (net_weight auto-set)
                                 ├─► WeighingSession.scale_out_completed = True
                                 ├─► QueueToken.status = 'closed'
-                                ├─► Emit SCALE_OUT → TLS-01 (sub: scale_out_source | scale_out_dest); advance TO.status per (lane, yard_leg)
+                                ├─► Emit SCALE_OUT → TLS-01 (sub: scale_out_source | scale_out_dest)
+                                ├─► Advance TO.status only when SCALE_OUT_RESULT_TO_STATUS[(lane, yard_leg)] is non-null (FG outbound source: stays at_source)
                                 └─► Success: show net weight + [Print Gate Pass] button
 ```
 
@@ -482,7 +484,7 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 - `net_weight_mt`: `readonly_field` — auto-calculated display (`gross_weight_mt − tare_weight_mt`)
 - `save_model`:
   1. `ScaleOutService.validate_eligible_for_scale_out(session)`
-  2. `ScaleOutService.record_scale_out(...)` — creates ScaleOut, advances TO status, emits TLS-01 event, closes token
+  2. `ScaleOutService.record_scale_out(...)` — creates ScaleOut, emits TLS-01 event, closes token; advances TO status when mapping is non-null
   3. After save: `self.message_user(request, f"Scale-out recorded. Net Weight: {net_wt} MT. Gate Pass issued.")`
 - `get_readonly_fields`: all fields read-only once record is saved (immutable by design)
 
@@ -536,7 +538,7 @@ POST   /api/v1/scaling/scale-in
 POST   /api/v1/scaling/scale-out
        → Body: { weighing_session_id, tare_weight_mt }
        → Validations: pre-conditions per flow lane (§2.2), no duplicate scale-out
-       → Side effects: Create ScaleOut (net_weight auto), advance TO.status, close token, emit SCALE_OUT to TLS-01
+       → Side effects: Create ScaleOut (net_weight auto), close token, emit SCALE_OUT to TLS-01; advance TO.status per SCALE_OUT_RESULT_TO_STATUS (FG outbound source: sub-state only)
        → Response: { scale_out_id, net_weight_mt, scale_out_at, gate_pass_url }
 
 GET    /api/v1/scaling/queue-tokens?status=waiting&poi=&date=
