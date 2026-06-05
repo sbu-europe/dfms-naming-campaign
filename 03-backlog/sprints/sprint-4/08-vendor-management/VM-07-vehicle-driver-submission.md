@@ -28,13 +28,15 @@ After a vendor **wins a bid** (non-contractual) or **receives assignment** (cont
 
 In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead, after award/assignment the vendor **confirms** execution resources as a **one-off capture** against the specific TO, aligned to visible TO/bid requirements. This confirmed data is what Transport/TDO uses for dispatch readiness.
 
+**Out of scope (Phase 1):** vendor post-completion document uploads (POD, GRN copy, Invoice) from the Vendor Mobile app — deferred to a later phase.
+
 ## Acceptance Criteria
 
 ### AC-1: Requirements visible + confirmation required (before trip start)
 - [ ] Vendor can view **TO/bid-aligned requirement details** for the awarded/assigned TO (at minimum: data needed to know what they are confirming against—vehicle type/capacity expectations, route/slot context as available from publish/TO)
 - [ ] System requires a **confirmed** vehicle/driver/helper capture after award/assignment and **before** trip start (no trip start without it)
 
-### AC-2: Fields & documents (vendor)
+### AC-2: Confirmation fields (vendor)
 - [ ] **On confirmation (before trip start),** vendor provides the following fields. Mandatory vs optional is enforced server-side:
   - **Mandatory:**
     - Vehicle number
@@ -45,12 +47,6 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
   - **Optional:**
     - **Driver NID/License** *(optional — may be left blank at confirmation; can be added later via the update flow in AC-3)*
     - **Helper details with NID** *(optional — zero or more helpers; each helper, if provided, captures name + NID)*
-- [ ] **All three vendor-uploaded artifacts (POD, GRN copy, Invoice) are gated to "after trip/TO is Completed"**. Server **MUST block** uploads of all three before the TO reaches the `COMPLETED` (or product-defined terminal "completed") state. Each is uploadable independently after that.
-  - [ ] **POD** — Proof of Delivery (vendor copy): vendor uploads POD artifact (file/image; formats/limits TBD) **only after** trip/TO is **Completed**. Required when TO/tenant policy mandates a POD upload from the vendor (presence/absence is a tenant-policy concern; gating is unconditional).
-  - [ ] **GRN copy** — Goods Receipt Note copy: vendor uploads GRN document (file/image) **only after** trip/TO is **Completed**. Required when applicable to the delivery flow.
-  - [ ] **Invoice** — vendor uploads invoice **only after** trip/TO is **Completed**.
-
-> **Driver-side POD (DM-01 / POD-01) is a separate artifact** captured by the driver inside their own mobile app at closure — that flow gates TO closure. This AC governs the **vendor's** record-copy upload from the Vendor Mobile app, which happens after the TO is already Completed.
 
 ### AC-3: Update/Change with Reason + Audit Trail
 - [x] Vendor can update vehicle and driver details with **audit trail**
@@ -64,8 +60,6 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 
 - [ ] **[Critical]** System SHALL surface TO/bid-aligned requirement context to the vendor for the awarded/assigned TO and SHALL require **confirmed** vehicle/driver/helper capture after award/assignment and before trip start.
 - [x] **[Critical]** System SHALL allow update with reasoning of driver and vehicle information with audit trails.
-- [x] **[Critical]** System SHALL allow vendor uploads of **POD, GRN copy, and Invoice only when the trip/TO has reached `COMPLETED`** (or equivalent terminal state). Uploads of any of these MUST be rejected before that state regardless of TO/tenant policy.
-- [ ] **[High]** System SHALL still apply per-document tenant-policy rules (e.g. whether POD/GRN are required versus optional artifacts) on top of the Completed gate.
 
 ## Sub-tasks
 
@@ -75,28 +69,23 @@ In Phase 1, vendors do **not** pre-create vehicles/drivers in a profile. Instead
 | VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver **confirmation** record exists | ~ | **Partial** |
 | VM-07-3 | `POST .../vehicle-driver` — mandatory fields + **vehicle type match** + **capacity ≥ TO requirement**; optional helper list + optional driver NID | ~ | **Partial** |
 | VM-07-4 | `PATCH .../vehicle-driver` — reason required; field-level audit (who/when/old→new) | ~ | **Done** |
-| VM-07-5 | Vendor Mobile — confirmation form, update-with-reason flow, post-Completed uploads | ~ | **Done** |
-| VM-07-6 | E2E test coverage — validate vehicle-driver confirmation, trip-start gate, substitution with reason, post-completion uploads, and vendor-only access in next sprint | ~ | **Pending** |
+| VM-07-5 | Vendor Mobile — confirmation form, update-with-reason flow | ~ | **Done** |
+| VM-07-6 | E2E test coverage — validate vehicle-driver confirmation, trip-start gate, substitution with reason, and vendor-only access in next sprint | ~ | **Pending** |
 
 ## API Endpoints (suggested)
 
 ```
 POST  /api/v1/vendor/transport-orders/{to_id}/vehicle-driver
 PATCH /api/v1/vendor/transport-orders/{to_id}/vehicle-driver   Body: { ..., reason }
-
-// Vendor document uploads — ALL THREE doc types gated to to_status = COMPLETED server-side.
-POST  /api/v1/vendor/transport-orders/{to_id}/documents        Body: multipart; doc_type: POD | GRN_COPY | INVOICE
-  // Returns 409 if to_status != COMPLETED (or equivalent terminal "completed" state), regardless of doc_type.
 ```
 
 ## Dependencies
 
-- **Requires**: VM-06 award decision (or contractual assignment trigger), TO/bid publication data (**VM-04** / TO domain), transport order/trip entity, file storage for uploads, authoritative trip/TO status for invoice gating.
+- **Requires**: VM-06 award decision (or contractual assignment trigger), TO/bid publication data (**VM-04** / TO domain), transport order/trip entity.
 - **Enables**: Trip execution readiness; transport ops can proceed with dispatch/trip lifecycle.
 
 ## Definition of Done
 
 - [ ] Winning vendor cannot start trip until requirement context is available and vehicle/driver/helper **confirmation** is recorded
 - [x] Updates require reason and produce audit logs
-- [x] **POD, GRN copy, and Invoice uploads are all blocked until the trip/TO reaches `COMPLETED`** (server-enforced for all three doc types); once Completed, each can be uploaded independently subject to tenant-policy requirements
 
