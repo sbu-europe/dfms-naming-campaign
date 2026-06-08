@@ -1,5 +1,6 @@
 ---
-jira_key: DFS-070
+
+## jira_key: DFS-070
 jira_type: Story
 jira_sprint: "Sprint 5"
 story_id: GPS-01
@@ -7,8 +8,8 @@ title: Maps Dashboard & GPS Tracking — Sprint 5 R&D & Demo Map Integration
 epic: GPS & Maps Dashboard
 status: MVP implemented (Sprint 5 demo scope)
 implementation_docs:
-  - DFMS-product-context/05-modules/09-tracking/live-gps-sprint5-implementation.md
-  - DFMS-product-context/03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-implementation-completion.md
+  - DFMS-product-context/03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md
+  - DFMS-product-context/05-modules/09-tracking/gt06-server.md
 story_points: 8
 assignee: ~
 prd_refs:
@@ -25,30 +26,52 @@ phase: Phase 1
 integration_contracts:
   - DFMS-product-context/06-contracts/04-integration/gps-vts-integration.yaml
   - DFMS-product-context/06-contracts/04-integration/meeting-notes/2026-03-16-gpswox-integration.md
----
 
 # GPS-01 — Maps Dashboard & GPS Tracking
+
+## At a glance — Sprint 5 acceptance criteria
+
+Read the full AC wording in [Acceptance criteria — Sprint 5 (R&D & demo)](#acceptance-criteria--sprint-5-rd--demo) below.  
+Implementation detail: [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md).
+
+
+| AC          | Summary                                      | Status             | Notes                                                                                                                 |
+| ----------- | -------------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| **AC-S5-1** | GPS/VTS provider feasibility + adapter spike | **Partially done** | GT06 ingest + Redis + Celery sync shipped; GPSWOX REST poller deferred; formal `GPS-01-R&D-findings.md` not published |
+| **AC-S5-2** | Map display provider (SDK selection)         | **Done**           | Leaflet + OpenStreetMap; documented in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)               |
+| **AC-S5-3** | Demo map surface in DFMS                     | **Partially done** | Live GPS page + vehicle markers from API; POI layer / geofence circles not on map                                     |
+| **AC-S5-4** | Demo API consumption                         | **Partially done** | `GET /api/v1/tracking/live-map/` + GT06 pipeline (not GPSWOX demo URL); degraded-mode banner not fully verified       |
+| **AC-S5-5** | Demo RBAC (minimum)                          | **Done**           | `Menu.LiveGps.View`, tenant admin bypass, 403 for unauthorised users                                                  |
+| **AC-S5-6** | Stakeholder demo readiness (UAT)             | **Partially done** | Demo commands + five-truck mock documented; formal UAT sign-off with PO pending                                       |
+
+
+**Status legend:** **Done** = AC met for Sprint 5 as built · **Partially done** = core delivered, documented gaps remain · **Not done** = not started or not met · **Deferred** = explicitly post–Sprint 5 / Phase 1
+
+---
 
 ## Sprint 5 scope (this iteration)
 
 Sprint 5 does **not** commit to the full Phase 1 maps dashboard and geofence engine described in the PRD. Instead, this sprint delivers:
 
-| Track | Intent | Outcome |
-|-------|--------|---------|
-| **R&D** | De-risk GPS/VTS and map-provider integration before build-out | Written findings, provider/API feasibility, adapter spike, open questions for product/ops |
-| **Demo map integration** | Prove map UX inside DFMS with **demo API consumption** | Working demo surface in DFMS that calls a demo/mock GPS (and optionally map) API and renders POIs + vehicle positions for stakeholder review |
 
-**Phase 1 production delivery** (live polling, geofence engine, dwell alerts, full `/api/v1/maps/**` surface, TLS-01 hooks) remains the **target state** and is scheduled **after** Sprint 5 R&D/demo sign-off. See [Phase 1 target state](#phase-1-target-state-deferred-beyond-sprint-5).
+| Track                    | Intent                                                        | Outcome                                                                                                                                      |
+| ------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **R&D**                  | De-risk GPS/VTS and map-provider integration before build-out | Written findings, provider/API feasibility, adapter spike, open questions for product/ops                                                    |
+| **Demo map integration** | Prove map UX inside DFMS with **demo API consumption**        | Working demo surface in DFMS that calls a demo/mock GPS (and optionally map) API and renders POIs + vehicle positions for stakeholder review |
+
+
+**Phase 1 production delivery** (live polling, geofence engine, dwell alerts, full `/api/v1/maps/`** surface, TLS-01 hooks) remains the **target state** and is scheduled **after** Sprint 5 R&D/demo sign-off. See [Phase 1 target state](#phase-1-target-state-deferred-beyond-sprint-5).
 
 ### Implementation (as built)
 
-| Artifact | Path |
-|----------|------|
-| Module specification | [live-gps-sprint5-implementation.md](../../../05-modules/09-tracking/live-gps-sprint5-implementation.md) |
-| AC / delivery checklist | [GPS-01-implementation-completion.md](GPS-01-implementation-completion.md) |
-| Developer quick-start | [apps/tracking/LIVE_GPS.md](../../../../apps/tracking/LIVE_GPS.md) |
 
-**Delivered in code:** tenant admin **Live GPS** (`/admin/tracking/live-gps/`), `GET /api/v1/tracking/live-map/`, `GPSTracking` + GT06 ingest/sync, demo seed command. **Not yet:** POI layer on map, full `/api/v1/maps/**`, geofence engine.
+| Artifact               | Path                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| Implementation context | [This file](GPS-01-maps-dashboard-gps-tracking.md)                                      |
+| Backend architecture   | [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)                        |
+
+
+**Delivered in code:** tenant admin **Live GPS** (`/admin/tracking/live-gps/`), `GET /api/v1/tracking/live-map/`, `GPSTracking` + GT06 ingest/sync, demo seed command. **Not yet:** POI layer on map, full `/api/v1/maps/`**, geofence engine.
 
 ---
 
@@ -60,12 +83,14 @@ GPS and map-based transport visibility are Phase 1 capabilities (PRD §6.5.4–6
 
 **Role access (production target — unchanged):**
 
-| Role | Dashboard Access |
-|------|-----------------|
-| Tenant Admin | Full read access to Maps Dashboard |
-| Transport Planner (TP) | Default landing view — own-fleet vehicles, all POIs, all TOs |
-| Transport Distribution Officer — Own Fleet (TDO-OF) | Default landing view — own-fleet vehicles |
-| Transport Distribution Officer — Vendor Fleet (TDO-VF) | Default landing view — vendor-fleet TOs |
+
+| Role                                                   | Dashboard Access                                             |
+| ------------------------------------------------------ | ------------------------------------------------------------ |
+| Tenant Admin                                           | Full read access to Maps Dashboard                           |
+| Transport Planner (TP)                                 | Default landing view — own-fleet vehicles, all POIs, all TOs |
+| Transport Distribution Officer — Own Fleet (TDO-OF)    | Default landing view — own-fleet vehicles                    |
+| Transport Distribution Officer — Vendor Fleet (TDO-VF) | Default landing view — vendor-fleet TOs                      |
+
 
 Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant Admin + Transport Planner only) if RBAC for TDO is not yet wired; any deviation must be documented in the R&D deliverable.
 
@@ -82,11 +107,13 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 
 ## Business value (Sprint 5)
 
-| Stakeholder need | Sprint 5 answer |
-|------------------|-----------------|
-| “Can DFMS show our fleet on a map?” | Demo integration inside DFMS consuming demo GPS API data |
-| “Is GPSWOX integration viable on our timeline?” | R&D report: auth, rate limits, field mapping, fallback options |
-| “What do we build next?” | Clear go/no-go and backlog slice for post–Sprint 5 production story |
+
+| Stakeholder need                                | Sprint 5 answer                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------- |
+| “Can DFMS show our fleet on a map?”             | Demo integration inside DFMS consuming demo GPS API data            |
+| “Is GPSWOX integration viable on our timeline?” | R&D report: auth, rate limits, field mapping, fallback options      |
+| “What do we build next?”                        | Clear go/no-go and backlog slice for post–Sprint 5 production story |
+
 
 ---
 
@@ -123,7 +150,7 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 - Map renders:
   - **POI markers** from existing POI master data (`lat`/`lng`, name, optional geofence radius circle if map SDK supports it),
   - **Vehicle markers** from demo GPS API responses (not hard-coded lat/lng in templates only).
-- Vehicle marker **popup or side panel** shows at minimum: registration (or vehicle code), last known coordinates, `device_timestamp` / `ingested_at`, and **signal lost** styling if last update &gt; 5 minutes (demo threshold same as production target).
+- Vehicle marker **popup or side panel** shows at minimum: registration (or vehicle code), last known coordinates, `device_timestamp` / `ingested_at`, and **signal lost** styling if last update > 5 minutes (demo threshold same as production target).
 - Map refresh: manual refresh button and/or auto-refresh every **60 s** (configurable constant acceptable for demo).
 
 ### AC-S5-4 — Demo API consumption
@@ -145,47 +172,140 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 
 ---
 
+## Acceptance criteria — validation (implementation vs AC) by Dhrubajit
+
+*Added for Sprint 5 delivery tracking. Does not replace the AC text above.*
+
+### AC-S5-1 — R&D: GPS/VTS provider feasibility
+
+
+| Criterion (from AC)                                         | Status             | Evidence / gap                                                                                   |
+| ----------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------ |
+| Document GPSWOX API access vs integration contract          | **Deferred**       | Production GPSWOX credentials/endpoints still pending; see meeting notes + yaml contract         |
+| Spike read-only adapter (GPSWOX or mock → internal DTO)     | **Partially done** | **GT06 TCP ingest** + `Gt06RedisReader` + `LiveMapService` replace GPSWOX demo path for Sprint 5 |
+| Record blockers, fallback options, poll interval            | **Partially done** | GT06 ~10s ingest, live-map 10s poll, Postgres 10 min trail — documented in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) |
+| Deliverable: `GPS-01-R&D-findings.md` reviewed with TL + PO | **Not done**       | Optional formal write-up not published                                                           |
+
+
+### AC-S5-2 — R&D: Map display provider
+
+
+| Criterion (from AC)                                       | Status   | Evidence / gap                                                       |
+| --------------------------------------------------------- | -------- | -------------------------------------------------------------------- |
+| Evaluate Google Maps vs OSM/Leaflet (licensing, coverage) | **Done** | OSM tiles + Leaflet chosen for dev/demo                              |
+| One-page recommendation + embed approach                  | **Done** | SSR admin page `templates/admin/tracking/live_gps.html` (not iframe) |
+
+
+### AC-S5-3 — Demo map surface in DFMS
+
+
+| Criterion (from AC)                                       | Status             | Evidence / gap                                                   |
+| --------------------------------------------------------- | ------------------ | ---------------------------------------------------------------- |
+| Demo map page reachable in DFMS; path documented          | **Done**           | `/admin/tracking/live-gps/` — Overview → Live GPS                |
+| POI markers from master data                              | **Not done**       | POI layer deferred                                               |
+| Vehicle markers from demo GPS API (not hard-coded only)   | **Done**           | `GET /api/v1/tracking/live-map/` ← Redis / Postgres              |
+| Popup: registration, coordinates, timestamps, signal lost | **Done**           | Detail panel + popup; `connection_status` live/stale/signal_lost |
+| Signal lost if last update > 5 minutes                    | **Partially done** | Implemented at **10 minutes** (`SIGNAL_LOST_MINUTES`)            |
+| Refresh manual and/or auto every 60 s                     | **Partially done** | Auto-refresh every **10 s** (`LIVE_MAP_REFRESH_SECONDS`)         |
+
+
+**Beyond original AC (Sprint 5 enhancements):** history graph + activity cards, follow mini-maps, five-truck OSM mock fleet, movement status (moving / idle / parked), marker clustering — not required by AC-S5-3 but shipped.
+
+### AC-S5-4 — Demo API consumption
+
+
+| Criterion (from AC)                                                    | Status             | Evidence / gap                                                                |
+| ---------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| Server-side fetch from configured demo GPS base URL (`GPS_DEMO_API_*`) | **Partially done** | **GT06 → Redis** + Django `live-map` API; not GPSWOX/demo REST env vars       |
+| Debug logging only; no secrets in repo                                 | **Done**           | `GT06_REDIS_URL` via compose/env                                              |
+| 4xx/5xx/timeout → last positions + degraded banner                     | **Partially done** | API errors show failed status in UI; full degraded banner not UAT-verified    |
+| Demo data path documented (device id mapping)                          | **Done**           | Vehicle `gps_tracker_id` = IMEI; `seed_live_gps_demo` / `seed_live_gps_fleet` |
+
+
+### AC-S5-5 — Demo RBAC (minimum)
+
+
+| Criterion (from AC)                                    | Status   | Evidence / gap                                              |
+| ------------------------------------------------------ | -------- | ----------------------------------------------------------- |
+| Restricted to pilot roles (tenant_admin minimum)       | **Done** | `CanViewLiveGps` + `Menu.LiveGps.View`; tenant admin bypass |
+| Unauthenticated / unauthorised → 403 or login redirect | **Done** | API 403; SSR `PermissionDenied`                             |
+
+
+### AC-S5-6 — Stakeholder demo readiness
+
+
+| Criterion (from AC)             | Status             | Evidence / gap                                                       |
+| ------------------------------- | ------------------ | -------------------------------------------------------------------- |
+| UAT script 5–10 steps           | **Partially done** | Steps in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) § Verification; not formally signed off by PO |
+| See ≥1 POI and ≥1 vehicle       | **Partially done** | ≥1 vehicle verified; POI on map not implemented                      |
+| Refresh updates marker position | **Done**           | 10s poll + GT06/mock ingest                                          |
+| Known limitations list for demo | **Done**           | Deferred items in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) + story Phase 1 section |
+
+
+### Phase 1 items explicitly deferred (not Sprint 5 AC)
+
+
+| Area                                                          | Status       |
+| ------------------------------------------------------------- | ------------ |
+| Full `/api/v1/maps/`** dashboard                              | **Deferred** |
+| Geofence engine, dwell alerts, TLS-01 GPS events              | **Deferred** |
+| GPSWOX REST production poller                                 | **Deferred** |
+| POI markers / geofence circles on Live GPS                    | **Deferred** |
+| Platform admin Live GPS                                       | **Deferred** |
+| Driver mobile background GPS (`POST /location/`) wired to map | **Deferred** |
+
+
+*Last validation pass: 2026-06-07*
+
+---
+
 ## Sub-tasks — Sprint 5
 
-| # | Sub-task | Description | Priority | Status |
-|---|----------|-------------|----------|--------|
-| GPS-01-S5-1 | R&D: GPSWOX / demo API spike | Confirm or mock API; implement thin `DemoGPSClient`; document auth, fields, errors, rate limits | High | Not started |
-| GPS-01-S5-2 | R&D findings document | `GPS-01-R&D-findings.md` — go/no-go, risks, production backlog slice | High | Not started |
-| GPS-01-S5-3 | R&D: map SDK selection | Compare Google Maps vs OSM/Leaflet; licensing and embed recommendation | Medium | Not started |
-| GPS-01-S5-4 | Demo map UI in DFMS | Map page + POI/vehicle layers; marker popup with vehicle context | High | Not started |
-| GPS-01-S5-5 | Demo API wiring | Settings/env for demo base URL; server fetch + JSON endpoint for map frontend if needed | High | Not started |
-| GPS-01-S5-6 | Demo RBAC | Restrict demo route to pilot roles; smoke test 403 for gateman/driver | Medium | Not started |
-| GPS-01-S5-7 | UAT demo script | Short script + limitations list for stakeholder demo | Medium | Not started |
+
+| #           | Sub-task                     | Description                                                                                     | Priority | Status      |
+| ----------- | ---------------------------- | ----------------------------------------------------------------------------------------------- | -------- | ----------- |
+| GPS-01-S5-1 | R&D: GPSWOX / demo API spike | Confirm or mock API; implement thin `DemoGPSClient`; document auth, fields, errors, rate limits | High     | Not started |
+| GPS-01-S5-2 | R&D findings document        | `GPS-01-R&D-findings.md` — go/no-go, risks, production backlog slice                            | High     | Not started |
+| GPS-01-S5-3 | R&D: map SDK selection       | Compare Google Maps vs OSM/Leaflet; licensing and embed recommendation                          | Medium   | Not started |
+| GPS-01-S5-4 | Demo map UI in DFMS          | Map page + POI/vehicle layers; marker popup with vehicle context                                | High     | Not started |
+| GPS-01-S5-5 | Demo API wiring              | Settings/env for demo base URL; server fetch + JSON endpoint for map frontend if needed         | High     | Not started |
+| GPS-01-S5-6 | Demo RBAC                    | Restrict demo route to pilot roles; smoke test 403 for gateman/driver                           | Medium   | Not started |
+| GPS-01-S5-7 | UAT demo script              | Short script + limitations list for stakeholder demo                                            | Medium   | Not started |
+
 
 ### Sub-tasks — deferred (Phase 1 production — post Sprint 5)
 
-| # | Sub-task | Notes |
-|---|----------|-------|
+
+| #                    | Sub-task                | Notes                                                                                                                |
+| -------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | GPS-01-1 → GPS-01-13 | Full production backlog | See [Phase 1 target state](#phase-1-target-state-deferred-beyond-sprint-5); unchanged intent, not Sprint 5 committed |
+
 
 ---
 
 ## Definition of done — Sprint 5
 
-- [x] Map SDK selected and documented — Leaflet + OpenStreetMap (AC-S5-2) — see module spec
-- [x] Demo GPS pipeline — GT06 ingest + Redis sync + `GPSTracking` (AC-S5-1, AC-S5-4 partial)
-- [x] Demo map page live in DFMS with **vehicle** markers from API (AC-S5-3 partial — POI layer deferred)
-- [x] Pilot RBAC enforced — `Menu.LiveGps.View` + tenant admin bypass (AC-S5-5)
-- [ ] R&D findings document published and reviewed (AC-S5-1 formal write-up optional)
-- [ ] Degraded mode behaviour verified on API failure (AC-S5-4)
-- [ ] UAT demo script executed once in staging; limitations list shared with PO (AC-S5-6)
+- Map SDK selected and documented — Leaflet + OpenStreetMap (AC-S5-2) — see [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)
+- Demo GPS pipeline — GT06 ingest + Redis sync + `GPSTracking` (AC-S5-1, AC-S5-4 partial)
+- Demo map page live in DFMS with **vehicle** markers from API (AC-S5-3 partial — POI layer deferred)
+- Pilot RBAC enforced — `Menu.LiveGps.View` + tenant admin bypass (AC-S5-5)
+- R&D findings document published and reviewed (AC-S5-1 formal write-up optional)
+- Degraded mode behaviour verified on API failure (AC-S5-4)
+- UAT demo script executed once in staging; limitations list shared with PO (AC-S5-6)
 
 ---
 
 ## Dependencies (Sprint 5)
 
-| Dependency | Direction | Note |
-|------------|-----------|------|
-| POI Master Data | Demo reads | `lat`/`lng` (and optional `geofence_radius_m`) on active POIs — Sprint 4 |
-| Vehicle Master | Demo reads | `gps_device_id` or demo alias for API device mapping |
-| GPSWOX / demo API | External | Credentials or mock server; see integration contract |
-| Map SDK account / tiles | External | May need API key for Google; OSM may need tile usage policy review |
-| Env configuration | Ops | `GPS_DEMO_API_*` secrets in staging only |
+
+| Dependency              | Direction  | Note                                                                     |
+| ----------------------- | ---------- | ------------------------------------------------------------------------ |
+| POI Master Data         | Demo reads | `lat`/`lng` (and optional `geofence_radius_m`) on active POIs — Sprint 4 |
+| Vehicle Master          | Demo reads | `gps_device_id` or demo alias for API device mapping                     |
+| GPSWOX / demo API       | External   | Credentials or mock server; see integration contract                     |
+| Map SDK account / tiles | External   | May need API key for Google; OSM may need tile usage policy review       |
+| Env configuration       | Ops        | `GPS_DEMO_API_`* secrets in staging only                                 |
+
 
 ---
 

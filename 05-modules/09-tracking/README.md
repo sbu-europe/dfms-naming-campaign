@@ -16,17 +16,19 @@ GPS ingest, storage, and tenant-admin **Live GPS** map visibility for active tri
 
 | Document | Purpose |
 |----------|---------|
-| [live-gps-sprint5-implementation.md](live-gps-sprint5-implementation.md) | **Canonical implementation reference** — architecture, APIs, RBAC, data model, UI, local demo, limitations |
-| [../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Sprint 5 story, acceptance criteria, deferred production scope |
-| [../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-implementation-completion.md](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-implementation-completion.md) | What was delivered in code vs AC-S5 checklist |
-| [../../../apps/tracking/LIVE_GPS.md](../../../apps/tracking/LIVE_GPS.md) | Developer quick-start (commands, env) |
-| [../../06-contracts/04-integration/gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml) | External GPS/VTS contract (GPSWOX / GT06) |
+| [gt06-server.md](gt06-server.md) | **Backend architecture SSOT** — ingest, Redis, Postgres, APIs, map, RBAC, demo |
+| [GPS-01 story](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Product context, acceptance criteria, scope |
+| [LIVE_GPS.md](../../../apps/tracking/LIVE_GPS.md) | Developer command cheat sheet (repo) |
+| [gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml) | External GPS/VTS contract (GPSWOX) |
+
+*Superseded (do not update): `live-gps-sprint5-implementation.md`, `06-contracts/04-integration/gt06-ingest-server.md`*
 
 ## Sprint 5 delivered (MVP)
 
 - Tenant admin **Live GPS** page (Leaflet + OpenStreetMap)
-- **`GET /api/v1/tracking/live-map/`** read API
-- **`gps_tracking`** table + GT06 Redis → Postgres sync
+- **`GET /api/v1/tracking/live-map/`** — Redis live marker + Postgres trail
+- **`gps_tracking`** — Postgres trail (~10 min rows, averaged speed)
+- **Redis** — live position/speed per IMEI
 - **`gt06-ingest`** sidecar (TCP + optional HTTP API)
 - Demo seed command and local Docker workflow
 
