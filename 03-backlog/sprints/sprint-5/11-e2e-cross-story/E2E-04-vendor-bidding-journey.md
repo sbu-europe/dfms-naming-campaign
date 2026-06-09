@@ -66,30 +66,35 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 | Tenant Admin | Attempts to select both types | UI/API rejects; only one type allowed (FB-017) |
 | Tenant Admin | Selects `NON_CONTRACTUAL`; approves | Vendor approved; vendor type = `NON_CONTRACTUAL` for this tenant; vendor sees Active Bids tab in portal |
 
-### Step 4 — TDO captures bid requirement form and publishes TO
+### Step 4 — TDO creates TO(s) and publishes bid (TO-Bid Flow Revision)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| TDO | Opens bid requirement form before TO creation (FB-018) | Captures transport need, route, vehicle type, bidding window |
-| TDO | Attempts to add more than one route to the session | System rejects; single-route constraint enforced (FB-019) |
-| TDO | Creates/links TO; publishes with `required_vehicle_count = 1` (FB-016) | Bidding session created; TO published to bidding portal; non-contractual vendors notified in-app |
+| TDO | Opens create-from-TR; **Single TO** tab | One TO saved; no bundle created |
+| TDO | Opens create-from-TR; **Multiple TO** tab; adds 2–3 rows with different `planned_delivery_datetime` | N separate TO records created (same TR); no `TransportOrderBundle` |
+| TDO | Selects eligible TOs from TO list → **Create Bid** | Same-TR validation passes; mixed-TR selection rejected |
+| TDO | Sets bidding window + vehicle requirements; publishes | `BiddingSession` created with `bid_number` (Bid ID); member TOs → `OPEN_FOR_BIDDING` |
+| TDO | Attempts Create Bid with TOs from different TRs | API rejects; all member TOs must share one TR (FB-019 single-route per bid) |
 
-### Step 5 — Vendor submits bid
-
-| Actor | Action | Expected Outcome |
-|-------|--------|-----------------|
-| Vendor | Opens Active Bids tab; tab refreshes from server (FB-014) | Published TO visible with window labels and TDO context |
-| Vendor | Submits bid with `offered_vehicle_count = 1` | Bid accepted; one-bid-per-vendor guard active |
-| Vendor | Attempts to submit `offered_vehicle_count = 2` | API rejects; capped at 1 aligned with publish rule (FB-016) |
-
-### Step 6 — TDO evaluates and awards
+### Step 5 — Vendor submits bid (Bid ID + selective TO participation)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| TDO | Opens bid evaluation; views side-by-side comparison | Min/avg/max rates highlighted; lowest bid indicated |
-| TDO | Awards to winning vendor | Single-winner default applies (required = 1); award recorded in winning log |
-| Vendor | Checks bid detail | Winner indication visible on bid detail in Vendor Mobile (FB-015) |
-| TDO | Checks evaluation screen | Winner badge and window timeline display clear (FB-015) |
+| Vendor | Opens Bids tab; tab refreshes from server (FB-014) | One card per bid session; **Bid ID** (`bid_number`) shown; TO count + route summary |
+| Vendor | Opens multi-TO bid detail | TO checklist: vendor selects which trips they can execute |
+| Vendor | Submits one `proposed_cost` covering selected TOs with `participating_to_ids` + `offered_vehicle_count = len(selected)` | Bid accepted; one bid per vendor per session |
+| Vendor | Submits with `offered_vehicle_count = 2` on a single TO | API rejects; FB-016 — 1 vehicle per TO |
+| Vendor | Omits `participating_to_ids` on multi-TO bid | API rejects |
+
+### Step 6 — TDO evaluates and awards per TO
+
+| Actor | Action | Expected Outcome |
+|-------|--------|-----------------|
+| TDO | Opens vendor-fleet evaluation; expands each member TO | Participating vendors + rates from `VendorBidParticipation` |
+| TDO | Awards vendor X on TO-A and vendor Y on TO-B (same bid) | Per-TO award succeeds; session → `PARTIALLY_AWARDED` then `AWARDED` when all members awarded |
+| TDO | Views min/avg/max per TO | VM-06 aggregates per expanded TO row |
+| Vendor | Checks bid detail after partial award | Per-TO won / not awarded / not participated states (FB-015) |
+| TDO | Checks evaluation screen | Winner badge per TO; bid window timeline on session |
 
 ### Step 7 — Vendor confirms vehicle and driver
 

@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-06-09
 ---
 
 # Vendor Mobile — Bids: Bid Submission
@@ -18,26 +18,29 @@ The bid submit endpoint MUST reject (`403`) any request where the calling vendor
 ### Bid submission workflow
 
 ```
-1. Vendor taps a bid from Available Bids list (Non-Contractual only)
-2. App displays full TO details:
+1. Vendor taps a bid from Available Bids list (Non-Contractual only) — navigates by `bid_id`
+2. App displays bid header (Bid ID) and member TO checklist when `to_count > 1`
+3. App displays full TO details (lead TO summary):
    - Route (pickup → drop POI)
    - Product (name, quantity, category)
    - Vehicle requirements (type, capacity, required_vehicle_count)
    - Special instructions
    - Distance, estimated duration
    - Optional reference / guide rate (if provided at VM-04 publish — guidance only)
-3. Vendor taps "Submit Bid" button
-4. App displays bid submission form:
-   - Proposed cost / rate (mandatory, BDT, > 0)
-   - Offered vehicle count (mandatory integer ≥ 1; ≤ server-side max tied to TO demand)
+4. Vendor selects which member TOs they can execute (multi-TO bids only)
+5. Vendor taps "Submit Bid" button
+6. App displays bid submission form:
+   - Proposed cost / rate (mandatory, BDT, > 0) — **one rate covering all selected TOs**
+   - Offered vehicle count = number of selected TOs (1 per TO; FB-016)
    - Remarks (optional)
-5. Vendor confirms bid
-6. App validates client-side:
+7. Vendor confirms bid
+8. App validates client-side:
    - proposed_cost > 0
-   - offered_vehicle_count >= 1
+   - at least one TO selected on multi-TO bids
+   - offered_vehicle_count == len(participating_to_ids)
    - submitted_at < bid_close_date
-7. App submits bid via API (server re-validates window + caps)
-8. Confirmation screen: "Bid submitted." Outcome is observed by the vendor on the Bids tab (`vendor_bid_status` changes on refresh).
+9. App submits via `POST /vendor/tenants/{schema}/bids/{bid_id}/submissions/` with `participating_to_ids[]`
+10. Confirmation screen shows Bid ID + selected TO count. Outcome is observed on refresh (`vendor_bid_status` / per-TO award state).
 9. Bid is IMMUTABLE after submit (no field edit). Withdraw-before-deadline only if tenant policy allows.
 ```
 
@@ -54,7 +57,8 @@ interface VendorBidSubmission {
   // Bid Details (VM-05 contract)
   proposed_cost: number;             // mandatory > 0
   bid_currency: 'BDT';
-  offered_vehicle_count: number;     // mandatory integer >= 1
+  offered_vehicle_count: number;     // equals len(participating_to_ids); 1 per TO (FB-016)
+  participating_to_ids: string[];    // required for multi-TO bids
   remarks?: string;                  // optional
 
   // Submission Metadata
