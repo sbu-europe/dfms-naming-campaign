@@ -17,6 +17,20 @@ source: ../../../sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.m
 
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md`](../../../sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md)
+>
+> **Trip lifecycle & status model:**
+> [`VENDOR-TRIP-LIFECYCLE.md`](VENDOR-TRIP-LIFECYCLE.md)
+
+---
+
+## Trip management context (VM-07 gate)
+
+VM-07 sits **before** the vendor Start Trip action in the execution chain:
+
+1. Vendor confirms vehicle / driver / helper → TO reaches `ready_for_dispatch`
+2. **Trip-start gate (VM-07-2)**: `POST …/advance-status/` (Start Trip) is rejected until confirmation record exists
+3. After confirmation, vendor may Start Trip → lane-aware `driving_towards_source` or `driving_towards_destination`
+4. Vendor cannot complete until yard chain reaches `delivered_unloaded` (see TEVF-03 / VM-03)
 
 ---
 

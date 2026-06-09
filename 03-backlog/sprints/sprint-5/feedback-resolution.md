@@ -180,9 +180,9 @@ All 19 client demo feedback items from Sprint 4 (2026-05-21). Each item maps to 
 | **Source** | Client demo — 2026-05-21 |
 | **Affected Stories** | [VM-03](08-vendor-management/VM-03-vendor-portal-views.md), [VM-08](08-vendor-management/VM-08-realtime-to-updates.md), [TEVF-03](09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) |
 | **Closing Sub-tasks** | VM-03-9, VM-08-4, TEVF-03-4 |
-| **AC Amendment** | VM-03: add TO lifecycle management screens in Vendor Portal — vendor-facing TO states (assigned / in progress / completed / closed), detail screens, and allowed actions per state. VM-08-4: lifecycle events emitted so portal views stay in sync. |
+| **AC Amendment** | VM-03: TO lifecycle screens per [`VENDOR-TRIP-LIFECYCLE.md`](08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — lifecycle buckets (`assigned` / `in_progress` / `completed` / `closed`), TLS-01 execution chips (`status` + `sub_state`), 4-milestone timeline, **Start Trip** at `ready_for_dispatch` and **Complete Trip** at `delivered_unloaded` only. VM-08-4: all TLS-01 transitions (including yard sub_states) emitted so portal views stay in sync without vendor action on intermediate steps. |
 | **Status** | Open |
-| **Notes** | Closes across three stories. Cross-story E2E: [E2E-04](11-e2e-cross-story/E2E-04-vendor-bidding-journey.md). |
+| **Notes** | Closes across three stories. Canonical status model: TLS-01 on `TransportOrder.status` (not legacy `IN_PROGRESS`-only). Cross-story E2E: [E2E-04](11-e2e-cross-story/E2E-04-vendor-bidding-journey.md). |
 
 ---
 

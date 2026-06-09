@@ -152,7 +152,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | VM-01-12 | VM-01 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 | VM-02-8 | VM-02 | Enforce exactly one vendor type on approval UI + API (FB-017) | High |
 | VM-02-9 | VM-02 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
-| VM-03-9 | VM-03 | TO lifecycle management in Vendor Portal (FB-013) | High |
+| VM-03-9 | VM-03 | TO lifecycle management in Vendor Portal — TLS-01 execution, Start/Complete Trip, milestone timeline (FB-013); see [`VENDOR-TRIP-LIFECYCLE.md`](08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) | High |
 | VM-03-10 | VM-03 | App auto-refresh on tab change (FB-014) | Medium |
 | VM-03-11 | VM-03 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 | VM-04-10 | VM-04 | Enforce `required_vehicle_count = 1` at publish (FB-016) | High |
@@ -169,7 +169,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | VM-06-9 | VM-06 | Single-winner default when `required_vehicle_count = 1` | High |
 | VM-06-10 | VM-06 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 | VM-07-6 | VM-07 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
-| VM-08-4 | VM-08 | TO lifecycle events emitted to vendor portal lifecycle views | High |
+| VM-08-4 | VM-08 | TLS-01 lifecycle events (+ sub_state) emitted to vendor portal lifecycle views | High |
 | VM-08-5 | VM-08 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 
 ### Epic 09: TO Execution — Vendor Fleet
@@ -183,7 +183,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | TEVF-02-7 | TEVF-02 | One vehicle per TO enforcement at publish + bid (FB-016) | High |
 | TEVF-02-8 | TEVF-02 | Single TR → multiple TOs in one bidding session (FB-018) | Medium |
 | TEVF-02-9 | TEVF-02 | Bid view UX — winner, window copy, TDO context (FB-015) | Medium |
-| TEVF-03-4 | TEVF-03 | Vendor portal TO lifecycle screens + tab-change refresh (FB-013) | High |
+| TEVF-03-4 | TEVF-03 | Vendor portal TO lifecycle screens + Start/Complete Trip + tab-change refresh (FB-013) | High |
 | TEVF-03-5 | TEVF-03 | E2E test coverage (Sprint 5 E2E sub-task) | Medium |
 
 ### Epic 10: Yard Foundation
@@ -253,6 +253,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 - [Sprint 4 README](../sprint-4/README.md) — full story context, business rules, and implemented ACs
 - [Sprint 4 Completion Report](../sprint-4/completion-report.md) — gap analysis per story
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
+- [Vendor Trip Lifecycle & Status Model](08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow for vendor app (VM-03, VM-07, VM-08, TEVF-03)
 - [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
 - [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — new Sprint 5 scope; 21 SP
 - [STK-01 — Source & Destination Stock Validation](13-stock-validation-update/STK-01-source-destination-stock-validation.md) — new Sprint 5 scope; 13 SP
@@ -260,5 +261,5 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-01 (GPS-01 + STK-01 added)
+**Last Updated**: 2026-06-09 (vendor trip lifecycle aligned to TLS-01 execution model)
 **Previous**: [Sprint 4](../sprint-4/README.md)

@@ -18,6 +18,23 @@ source: ../../../sprint-4/08-vendor-management/VM-08-realtime-to-updates.md
 
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/08-vendor-management/VM-08-realtime-to-updates.md`](../../../sprint-4/08-vendor-management/VM-08-realtime-to-updates.md)
+>
+> **Trip lifecycle & status model:**
+> [`VENDOR-TRIP-LIFECYCLE.md`](VENDOR-TRIP-LIFECYCLE.md)
+
+---
+
+## Trip management context (VM-08)
+
+Vendor observes **TLS-01 execution status** changes in near-real-time; they do **not** drive yard/driver transitions.
+
+| Vendor can change status? | Action | API |
+|---------------------------|--------|-----|
+| Yes — trip start | `ready_for_dispatch` → `driving_towards_*` | `POST …/advance-status/` `{ "status": "in_progress" }` |
+| Yes — trip complete | `delivered_unloaded` → `completed` | `POST …/advance-status/` `{ "status": "completed" }` |
+| No — all other steps | Observe only | Poll / foreground refresh (VM-08-3); lifecycle events (VM-08-4) |
+
+VM-08-4 must emit/consume **every TLS-01 transition** (including `sub_state` changes) so lifecycle views reflect driver and yard progress without vendor action.
 
 ---
 

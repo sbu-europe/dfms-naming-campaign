@@ -95,15 +95,25 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Submits vehicle-driver confirmation | Confirmation record created; trip-start gate armed |
+| Vendor | Submits vehicle-driver confirmation (VM-07) | Confirmation record created; TO reaches `ready_for_dispatch`; trip-start gate armed |
 
-### Step 8 — Vendor portal TO lifecycle management
+### Step 8 — Vendor starts trip (TLS-01 execution)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Opens Active Trips tab; tab refreshes on switch (FB-014) | Assigned TO visible with lifecycle state |
-| Vendor | Views TO detail | Vendor-facing lifecycle states visible: assigned / in progress / completed / closed (FB-013) |
-| Vendor | TO progresses to completed | Tab switches to Completed Trips; lifecycle reflects closed state |
+| Vendor | Opens Active Trips → TO detail; taps **Start Trip** | `POST …/advance-status/` with `in_progress`; TO transitions lane-aware to `driving_towards_source` (FG outbound) or `driving_towards_destination` (FG/RM inbound) |
+| Vendor | Attempts Start Trip without VM-07 confirmation | API returns 409; trip-start gate enforced |
+| Vendor | Observes in-progress execution | Status chips reflect TLS-01 progress (`at_source`, loading sub_states, `driving_towards_destination`, `delivered_unloaded`, …) via polling/refresh — vendor does not set these |
+
+### Step 9 — Vendor portal TO lifecycle management
+
+| Actor | Action | Expected Outcome |
+|-------|--------|-----------------|
+| Vendor | Opens Active Trips tab; tab refreshes on switch (FB-014) | TO visible with `lifecycle_phase` = `assigned` or `in_progress` per [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) |
+| Vendor | Views TO detail during yard execution | 4-milestone timeline advances; raw `status` + `sub_state` shown; **Complete Trip** disabled until `delivered_unloaded` |
+| System | Yard chain completes unloading | `can_complete_vendor_trip` becomes `true`; **Complete Trip** enabled |
+| Vendor | Taps **Complete Trip** | `POST …/advance-status/` with `completed`; TO moves to Completed Trips tab |
+| Vendor | TO reaches `closed` (TDO/POD-01) | Completed Trips shows `lifecycle_phase` = `closed` (FB-013) |
 
 ---
 
@@ -124,7 +134,8 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Opens Vendor Portal | TO visible in Active Trips with lifecycle state; contractual rate not exposed |
+| Vendor | Opens Vendor Portal | TO visible in Active Trips with `lifecycle_phase`; contractual rate not exposed |
+| Vendor | Confirms vehicle/driver → Start Trip | Same TLS-01 flow as Sub-Path A Steps 7–9; lane-aware trip start after `ready_for_dispatch` |
 
 ---
 
@@ -136,19 +147,22 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 | Vendor attempts to submit bid after bidding window closes | API rejects with window-closed error |
 | Tenant Admin selects both vendor types on approval | UI/API rejects |
 | TDO publishes with `required_vehicle_count > 1` | API rejects with one-vehicle constraint error |
+| Vendor attempts Start Trip before VM-07 confirmation | API returns 409 |
+| Vendor attempts Complete Trip before `delivered_unloaded` | API returns 409; `can_complete_vendor_trip` is false |
+| Vendor attempts arbitrary status via advance-status (e.g. `at_source`) | API returns 409 unsupported transition |
 
 ---
 
 ## Definition of Done
 
-- [ ] Sub-Path A (non-contractual bidding) Steps 1–8 complete without error in staging
+- [ ] Sub-Path A (non-contractual bidding) Steps 1–9 complete without error in staging
 - [ ] Sub-Path B (contractual assignment) Steps 1–3 complete
 - [ ] OTP on registration verified (FB-010)
 - [ ] One vendor type per approval enforced (FB-017)
 - [ ] Bid requirement form before TO creation (FB-018)
 - [ ] One-vehicle rule enforced at publish and bid (FB-016)
 - [ ] Winner indication visible on bid surfaces (FB-015)
-- [ ] Vendor portal TO lifecycle management visible (FB-013)
+- [ ] Vendor portal TO lifecycle management visible — TLS-01 execution, Start/Complete Trip, milestone timeline (FB-013)
 - [ ] Tab auto-refresh verified (FB-014)
 - [ ] All negative cases return stable errors
 - [ ] No regression in VM-01-12, VM-02-9, VM-04-13, VM-05-11, VM-06-10, VM-07-6, VM-08-5, TEVF-01-8, TEVF-02-6, TEVF-03-5
