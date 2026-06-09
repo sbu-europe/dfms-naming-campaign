@@ -20,6 +20,8 @@ source: ../../../sprint-4/08-vendor-management/VM-06-bid-evaluation.md
 
 # VM-06 — Bid Evaluation (Sprint 5 Carry-over)
 
+> **Product flow revision (2026-06-09):** Evaluation is **TO-centric** — expand each TO to see participating vendors; **award per TO** independently. See [**TO-BID-FLOW-REVISION.md**](TO-BID-FLOW-REVISION.md).
+
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/08-vendor-management/VM-06-bid-evaluation.md`](../../../sprint-4/08-vendor-management/VM-06-bid-evaluation.md)
 

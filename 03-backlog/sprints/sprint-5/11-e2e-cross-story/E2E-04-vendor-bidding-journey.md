@@ -25,7 +25,7 @@ status: Pending
 
 ## Why This Journey Exists
 
-The vendor management module spans 9 stories from onboarding through to execution. FB-013 requires the vendor portal to show TO lifecycle management; FB-015 requires clear winner indication across bid surfaces; FB-016 enforces one vehicle per TO through the full publish-bid-award chain; FB-018 requires the bid requirement form before TO creation. No single story tests these feedback items together — they only manifest when the full journey runs.
+The vendor management module spans 9 stories from onboarding through to execution. FB-013 requires the vendor portal to show TO lifecycle management; FB-015 requires clear winner indication across bid surfaces; FB-016 enforces one vehicle per TO through the full publish-bid-award chain. **FB-018 is reframed (2026-06-09):** see [TO-BID-FLOW-REVISION.md](../08-vendor-management/TO-BID-FLOW-REVISION.md) — Multiple TO tab → Create Bid from TO list → vendor Bid ID + per-TO award. No single story tests these feedback items together — they only manifest when the full journey runs.
 
 Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (direct assignment)**.
 

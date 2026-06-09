@@ -254,6 +254,7 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 - [Sprint 4 Completion Report](../sprint-4/completion-report.md) — gap analysis per story
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
 - [Vendor Trip Lifecycle & Status Model](08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow for vendor app (VM-03, VM-07, VM-08, TEVF-03)
+- [**TO Creation & Vendor Bidding Flow Revision**](08-vendor-management/TO-BID-FLOW-REVISION.md) — **product flow change (2026-06-09):** separate TO creation (Single/Multiple tabs) from Bid bundling; Bid ID on vendor mobile; per-TO award. Supersedes FB-018 / VM-04-11 / VM-04-12 intent.
 - [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
 - [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — new Sprint 5 scope; 21 SP
 - [STK-01 — Source & Destination Stock Validation](13-stock-validation-update/STK-01-source-destination-stock-validation.md) — new Sprint 5 scope; 13 SP
@@ -261,5 +262,5 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-09 (vendor trip lifecycle aligned to TLS-01 execution model)
+**Last Updated**: 2026-06-09 (TO/bid flow revision documented; vendor trip lifecycle aligned to TLS-01)
 **Previous**: [Sprint 4](../sprint-4/README.md)

@@ -20,6 +20,8 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-b
 
 # TEVF-02 — Non-Contractual Bidding (Sprint 5 Carry-over)
 
+> **Product flow revision (2026-06-09):** Multi-TO bidding uses a **Bid bundle** (same TR) created from the TO list, not a bundle at TO creation. See [**TO-BID-FLOW-REVISION.md**](../08-vendor-management/TO-BID-FLOW-REVISION.md).
+
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md`](../../../sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
 

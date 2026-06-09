@@ -20,6 +20,8 @@ source: ../../../sprint-4/08-vendor-management/VM-04-tdo-publish-to-bidding-port
 
 # VM-04 — TDO Publish TO to Bidding Portal (Sprint 5 Carry-over)
 
+> **Product flow revision (2026-06-09):** TO creation and bid bundling are decoupled. See [**TO-BID-FLOW-REVISION.md**](TO-BID-FLOW-REVISION.md) — supersedes VM-04-11/12 intent; bidding moves to **Create Bid from TO list** + **Bids Management** menu.
+
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md`](../../../sprint-4/08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md)
 

@@ -244,10 +244,10 @@ All 19 client demo feedback items from Sprint 4 (2026-05-21). Each item maps to 
 |-------|-------|
 | **Source** | Client demo — 2026-05-21 |
 | **Affected Stories** | [VM-04](08-vendor-management/VM-04-tdo-publish-to-bidding-portal.md), [TEVF-02](09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md) |
-| **Closing Sub-tasks** | VM-04-11, TEVF-02-8 |
-| **AC Amendment** | VM-04: TDO captures transport need / bidding parameters in a bid requirement form first; TO is created or linked when requirements are ready to publish. TEVF-02: Single TR → multiple TOs in one bidding session must align with this requirement form flow. |
-| **Status** | Open |
-| **Notes** | Involves product design decision on whether TO is pre-created or created at publish time. Confirm with product. |
+| **Closing Sub-tasks** | VM-04-11 → **reframed** as VM-04-15/16; TEVF-02-8 → reframed in [TO-BID-FLOW-REVISION](08-vendor-management/TO-BID-FLOW-REVISION.md) |
+| **AC Amendment (revised 2026-06-09)** | **Superseded.** TOs are created first via create-from-TR (`Single TO` / `Multiple TO` tabs — separate records, no bundle). TDO later selects TOs from the TO list and **creates a Bid** that bundles them (same TR required; dates may differ). Bidding parameters captured at Bid creation, not before TO creation. See [TO-BID-FLOW-REVISION.md](08-vendor-management/TO-BID-FLOW-REVISION.md). |
+| **Status** | **Reframed** — resolve via flow revision doc + new sub-tasks VM-04-15/16 |
+| **Notes** | Original demo feedback assumed bid-before-TO. Product decision (2026-06-09): decouple TO creation from bid bundling. |
 
 ---
 
