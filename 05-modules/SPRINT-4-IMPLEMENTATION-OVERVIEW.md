@@ -114,7 +114,7 @@ When adding or changing admin for Sprint 4, confirm:
 
 **Admin Flows**:
 - Predefined daily inspection checklist (7 sections, 60+ items — Engine, Clutch, Gear Box, Container, Electric, Chassis, Cabin)
-- `VehicleInspectionAdmin` — **dispatch queue** (TOs in **`ready_for_dispatch`** only — TDO promotes `assigned` → `ready_for_dispatch` upstream in `TDOAssignmentService`), checklist inline, complete/skip → TO **`dispatched`** / reject → vehicle **Under Maintenance** + TO **Under Planning** (FB-004 / [E2E-01](../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md))
+- `VehicleInspectionAdmin` — **dispatch queue** (TOs in **`ready_for_dispatch`** only — TDO promotes `assigned` → `ready_for_dispatch` upstream in `TDOAssignmentService`), checklist inline, complete/skip → TO **`dispatched`** / reject → vehicle **Under Maintenance** + TO **Under Planning** (FB-004)
 - **Maintenance queue** *(planned DS-01-15)* — vehicles **Under Maintenance**; re-inspection → vehicle **Available** on pass (no TO dispatch)
 - Reject action with mandatory reason; `VehicleAdmin.mark_under_maintenance` resets linked **`assigned`** TOs to **`created`**
 - `DriverAttendanceAdmin` — date/driver uniqueness, working hours warning (configurable max, default 12h)
@@ -697,7 +697,7 @@ Menu.MasterData.OperationPoints.View
 
 ## Sprint 5 — FB-004 TO state sequence (cross-story alignment)
 
-**Feedback:** [FB-004](../03-backlog/sprints/sprint-5/feedback-resolution.md) · **Validation journey:** [E2E-01](../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md)
+**Feedback:** [FB-004](../03-backlog/sprints/sprint-5/feedback-resolution.md)
 
 | Step | Actor | Canonical status | Owner module spec |
 |------|-------|------------------|-------------------|
@@ -731,7 +731,7 @@ Menu.MasterData.OperationPoints.View
 
 **Key flows to test** (end-to-end):
 
-1. **FG Outbound Happy Path** (FB-004 / E2E-01):
+1. **FG Outbound Happy Path** (FB-004):
    - TDO → `assigned` → `ready_for_dispatch` → Supervisor → `dispatched` → Driver **Trip Start** → `in_transit_source` (§6.8.1.7) → Gate-In → Scale-In → Bay Assignment → Loading → Scale-Out → Gate-Out → POD → Closed
    - Assertions: Timeline includes `created` → `assigned` → `ready_for_dispatch` → `dispatched` → `in_transit_source` with correct actors; closure gates passed; TO state = `closed`
 
@@ -842,7 +842,7 @@ Menu.MasterData.OperationPoints.View
 - Loading/Unloading Points (at least 2 per POI: one LOAD, one UNLOAD)
 - Weighbridges (optional — can use manual entry in Sprint 4)
 
-**Test data** (FB-004 / E2E-01):
+**Test data** (FB-004):
 - 5–10 TOs in `ready_for_dispatch` (supervisor queue — TDO assignment complete)
 - 3+ TOs in `dispatched` (driver Trip Start enabled)
 - 1 TO per flow lane post–Trip Start (`in_transit_source` or `in_transit_destination`)

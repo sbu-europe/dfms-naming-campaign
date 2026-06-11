@@ -135,7 +135,7 @@ Fleet operations (portal + admin)
 
 **Sprint 4:** Primary supervisor vehicle flow uses **Django Admin** custom views + templates under `templates/admin/fleet_supervisor/`.
 
-**FB-004 / E2E-01:** TDO promotes `assigned` → `ready_for_dispatch` in transport assignment (`TDOAssignmentService`). This module **does not** set `ready_for_dispatch`; it only consumes that queue and writes `dispatched`.
+**FB-004:** TDO promotes `assigned` → `ready_for_dispatch` in transport assignment (`TDOAssignmentService`). This module **does not** set `ready_for_dispatch`; it only consumes that queue and writes `dispatched`.
 
 ```
 Fleet operations → Supervisor dispatch queue

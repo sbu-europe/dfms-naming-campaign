@@ -47,7 +47,7 @@ source: ../../../sprint-4/01-driver-supervisor/DS-01-vehicle-licence-health-hand
 
 **AC Amendment** (DS-01 AC-5): On `complete_inspection` for a maintenance-clearance inspection (purpose = return-to-service), the `VehicleInspection` record status label must be **Maintenance Completed**, distinct from a pre-dispatch **Vehicle OK** outcome. Visible on the inspection history list in Driver Supervisor admin.
 
-> **Status**: Pending clarification with product on exact label and column. Confirm before implementation.
+> **Status**: Done
 
 ---
 

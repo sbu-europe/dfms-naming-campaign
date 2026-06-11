@@ -52,7 +52,7 @@ source: ../../../sprint-4/07-visibility-lifecycle-pod/TLS-01-to-lifecycle-execut
 
 ### FB-004 — Align TO state sequence (cross-story)
 
-**Impact on TLS-01**: `TO_STATUS_TRANSITIONS` must cleanly support `created → assigned → ready_for_dispatch → dispatched → in_transit_*`. The transition graph must not allow driver actions before `dispatched`. Confirm alignment with DS-01 and DM-01. See cross-story journey [E2E-01](../11-e2e-cross-story/E2E-01-to-state-sequence.md).
+**Impact on TLS-01**: `TO_STATUS_TRANSITIONS` must cleanly support `created → assigned → ready_for_dispatch → dispatched → in_transit_*`. The transition graph must not allow driver actions before `dispatched`. Confirm alignment with DS-01 and DM-01 (FB-004).
 
 ---
 

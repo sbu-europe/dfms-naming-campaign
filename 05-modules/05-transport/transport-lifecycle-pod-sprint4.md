@@ -95,7 +95,7 @@ Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.
 
 `created` → `assigned` → `ready_for_dispatch` → `dispatched` → … → `completed` / `closed` / `cancelled` / `under_planning`
 
-**Pre-execution handoff (FB-004 — cross-story; validate via [E2E-01](../../03-backlog/sprints/sprint-5/11-e2e-cross-story/E2E-01-to-state-sequence.md)):**
+**Pre-execution handoff (FB-004 — cross-story alignment across DS-01, DM-01, TLS-01):**
 
 | Status | Set by | Module |
 |--------|--------|--------|

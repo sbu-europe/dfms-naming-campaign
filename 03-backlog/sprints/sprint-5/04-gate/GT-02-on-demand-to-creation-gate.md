@@ -42,20 +42,24 @@ source: ../../../sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md
 
 **AC Amendment** (GT-02 AC-1 / AC-2): Both Dealer DO and Supplier PO on-demand TO creation must support adding multiple product line items. Each line item carries: product reference, quantity, and `qc_required` boolean. A TO without at least one product line item must not be saveable.
 
+> **Status**: Done
+
 ### FB-001 — Product line items flow into loading/unloading
 
 **Impact on GT-02**: `qc_required` metadata on GT-02 product line items is consumed by QC-01 trigger logic (QC-01-13 / FB-006) and by LD-01 per-item capture (LD-01-9). GT-02-12 is the root enabler for both.
+
+> **Status**: Done
 
 ---
 
 ## Open DoD Items (from Sprint 4)
 
-- [ ] Gate-created TO appears in Transport Orders list with `source=GATE` filter
-- [ ] FG dealer path runs stock check stub (manual confirm + audit) when inventory module not ready
-- [ ] Only Gate role can create on-demand TOs; Transport Planner gets read-only access; unrelated role receives 403
+- [x] Gate-created TO appears in Transport Orders list with `source=GATE` filter
+- [x] FG dealer path runs stock check stub (manual confirm + audit) when inventory module not ready
+- [x] Only Gate role can create on-demand TOs; Transport Planner gets read-only access; unrelated role receives 403
 - [ ] UAT: dealer vehicle with DO → gate TO with product line items created → proceeds through scale/load/gate-out
 - [ ] UAT: supplier vehicle with PO → gate TO with product line items created → inbound flags + QC Required flag per item set
-- [ ] RBAC unit tests: gate role can create; unrelated role cannot
+- [x] RBAC unit tests: gate role can create; unrelated role cannot
 
 ---
 

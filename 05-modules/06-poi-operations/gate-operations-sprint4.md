@@ -634,7 +634,7 @@ The table below is the authoritative per-lane TO status progression for the **ya
 - **GT-02 on-demand entry**: Dealer DO and Supplier PO paths create the TO at `created` and gate-in in one transaction; the TO is already at **`at_source`** (FG outbound) or **`at_destination`** (RM inbound) before scale-in — see §4.3. They skip the “Pre-gate-in (driver started)” row in the table above.
 - **FG outbound (source leg)**: Scale-out at the source POI records net weight and `sub_state = scale_out_source` while the TO stays **`at_source`**. **Gate-out at the origin POI** is the only step that advances the TO to `in_transit_destination` — the vehicle has physically left the yard. `GateOut.gate_out_at` on the source visit is the authoritative departure timestamp (STK-01 in-transit stock hooks use this event). The vehicle then travels to destination (where it is an **FG inbound** visit).
 - **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state only (canonical status unchanged).
-- **RM inbound QC (FB-006 / QC-01-13)**: QC is required when **any** product line has `Product.requires_qc=True` (`to_requires_qc_from_lines`), not for all RM inbound TOs. After scale-in, the system **automatically** sets `flagged_for_qc` when QC is required — CC does not manually flag. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If all lines have `requires_qc=False`, skip QC: sub-state `waiting_cc` and immediate bay assignment (E2E-03 negative case). If QC fails, gate-out is blocked (see §9.4).
+- **RM inbound QC (FB-006 / QC-01-13)**: QC is required when **any** product line has `Product.requires_qc=True` (`to_requires_qc_from_lines`), not for all RM inbound TOs. After scale-in, the system **automatically** sets `flagged_for_qc` when QC is required — CC does not manually flag. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If all lines have `requires_qc=False`, skip QC: sub-state `waiting_cc` and immediate bay assignment. If QC fails, gate-out is blocked (see §9.4).
 - Sub-states above are carried in `TOStatusTransitionLog.to_sub_state` (TLS-01 schema) and are not exposed as top-level `TO.status` values.
 
 ---
@@ -1295,7 +1295,7 @@ Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document cate
 - **Trigger:** After RM inbound destination scale-in, if aggregate `requires_qc` is True → auto `flagged_for_qc` → QC Supervisor queue. No CC manual "Flag for QC" on happy path.
 - Gate-out guard matrix (when `requires_qc` is True): checks QC pass / not failed
 - If QC failed or pending, gate-out blocked: "QC decision pending or failed. Cannot exit."
-- Mixed-product RM TO: QC runs when **any** line’s product has `requires_qc=True`; skip QC when **all** lines have `requires_qc=False` (E2E-03 negative case).
+- Mixed-product RM TO: QC runs when **any** line’s product has `requires_qc=True`; skip QC when **all** lines have `requires_qc=False`.
 
 ### 9.5 With Driver Mobile (DM-01)
 

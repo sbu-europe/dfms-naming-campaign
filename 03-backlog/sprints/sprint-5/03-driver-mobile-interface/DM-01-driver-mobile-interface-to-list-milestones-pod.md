@@ -6,7 +6,7 @@ carry_from: "Sprint 4"
 story_id: DM-01
 title: Driver Mobile — TO List, Execution Milestones & POD
 epic: Driver Mobile
-status: Carry-over
+status: In Progress
 story_points: 8
 assignee: Farhan Tanvir(farhanT23)
 carry_subtasks:
@@ -31,11 +31,11 @@ source: ../../../sprint-4/03-driver-mobile-interface/DM-01-driver-mobile-interfa
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority |
-|---|----------|------|---------------|---------------|----------|
-| DM-01-5 | Driver TO detail API — complete `flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` (lane-filtered) | DFS-053-5 | Partial | Complete the response payload; ensure `allowed_next_transitions` is lane-filtered (RM inbound excludes source-leg statuses) | High |
-| DM-01-12 | **Trip Start** button — single lane-aware action replacing In Transit Source / Destination buttons | DFS-053-12 | Done | Replace two-button pattern with one **Trip Start** action. On press, advance TO to `in_transit_source` (FG outbound) or `in_transit_destination` (RM/FG inbound) based on `flow_lane` | High | **Done** |
-| DM-01-13 | E2E test coverage | ~ | Not done | Validate driver TO list/detail, Trip Start per lane, milestone transitions, POD upload, access guards (non-owned TO returns 404) | Medium |
+| # | Sub-task | Jira | Sprint 4 Exit | Sprint 5 Work | Priority | Status |
+|---|----------|------|---------------|---------------|----------|--------|
+| DM-01-5 | Driver TO detail API — complete `flow_lane`, status/sub-state, pickup/drop POI, product, qty, urgency, instructions, `allowed_next_transitions` (lane-filtered) | DFS-053-5 | Partial | Complete the response payload; ensure `allowed_next_transitions` is lane-filtered (RM inbound excludes source-leg statuses) | High | Done |
+| DM-01-12 | **Trip Start** button — single lane-aware action replacing In Transit Source / Destination buttons | DFS-053-12 | Done | Replace two-button pattern with one **Trip Start** action. On press, advance TO to `in_transit_source` (FG outbound) or `in_transit_destination` (RM/FG inbound) based on `flow_lane` | High | Done |
+| DM-01-13 | E2E test coverage | ~ | Not done | Validate driver TO list/detail, Trip Start per lane, milestone transitions, POD upload, access guards (non-owned TO returns 404) | Medium | Not done |
 
 ---
 
@@ -45,13 +45,19 @@ source: ../../../sprint-4/03-driver-mobile-interface/DM-01-driver-mobile-interfa
 
 **AC Amendment** (DM-01 AC-2): Remove separate "In Transit Source" and "In Transit Destination" driver action buttons. Replace with a single **Trip Start** action that advances the TO to the correct lane-aware status. UI must not expose the raw status name to the driver — use "Trip Start" as the label regardless of lane.
 
+> **Status**: Done
+
 ### FB-004 — Align TO state sequence (cross-story)
 
-**Impact on DM-01**: The driver must not see execution actions until TO is in `dispatched`. Trip Start button appears only when `can_execute = true`. See cross-story alignment in [E2E-01](../11-e2e-cross-story/E2E-01-to-state-sequence.md).
+**Impact on DM-01**: The driver must not see execution actions until TO is in `dispatched`. Trip Start button appears only when `can_execute = true`. Confirm cross-story alignment with DS-01 and TLS-01 (FB-004).
+
+> **Status**: Done
 
 ### FB-002 — Timestamp history visible on TO details page
 
 **Impact on DM-01**: Driver TO detail API must link to TLS-01 timeline (`GET …/timeline`). Full timestamp history (gate-in, loading, QC events) readable by driver on the TO detail screen. Closed by TLS-01-7 / TLS-01-8 — no new DM-01 sub-task required.
+
+> **Status**: Done
 
 ---
 

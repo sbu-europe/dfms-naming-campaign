@@ -15,7 +15,6 @@ affects_stories:
   - VM-03
   - TEVF-02
   - TEVF-03
-  - E2E-04
 admin_urls:
   to_create_from_tr: /admin/transport/transportorder/create-from-tr/{tr_id}/
   to_list: /admin/transport/transportorder/
@@ -334,7 +333,7 @@ Exact paths may align with existing `BiddingSession` model during implementation
 
 ---
 
-## 9. E2E journey impact (E2E-04)
+## 9. E2E journey impact
 
 Revise **Sub-Path A Step 4–6** when implementing:
 
@@ -363,7 +362,6 @@ Revise **Sub-Path A Step 4–6** when implementing:
 - [VM-05 — Bid Submission](VM-05-bid-submission.md)
 - [VM-06 — Bid Evaluation](VM-06-bid-evaluation.md)
 - [TEVF-02 — Non-Contractual Bidding](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
-- [E2E-04 — Vendor Bidding Journey](../11-e2e-cross-story/E2E-04-vendor-bidding-journey.md)
 - [Vendor Mobile — Bid Opportunities](../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md)
 - [Sprint 5 Feedback Resolution](../feedback-resolution.md)
 

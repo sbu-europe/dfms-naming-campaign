@@ -16,7 +16,6 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | **Carry-over from Sprint 4** | ~28 SP own-fleet + ~38 SP vendor-context |
 | **Feedback Items** | 19 open (FB-001 → FB-019) |
 | **E2E Story-Level Sub-tasks** | 23 pending |
-| **Cross-Story E2E Journeys** | 4 (see `11-e2e-cross-story/`) |
 | **Overall Sprint 4 Exit** | ~70% own-fleet / ~62% vendor-context |
 
 ---
@@ -26,10 +25,9 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 1. **Close all Sprint 4 carry-over subtasks** — every story marked open in `completion-report.md` exits Sprint 5 with Definition of Done satisfied.
 2. **Resolve all 19 demo feedback items** (FB-001–FB-019) — AC amendments applied, implementations verified. See [`feedback-resolution.md`](feedback-resolution.md).
 3. **Complete full API surface** — timeline, status, closure, CC queue, LUP, and TLS-01 read endpoints that were Not Done in Sprint 4.
-4. **Cross-story E2E coverage** — all 4 scripted journeys in `11-e2e-cross-story/` pass without cross-story regression.
-5. **Story-level E2E sub-tasks** — all 23 E2E sub-tasks (DS-01-19 through TEVF-03-5) pass within their owning stories.
-6. **GPS Maps Dashboard (GPS-01 — new scope)** — deliver Phase 1 map-based transport dashboard with live GPS vehicle tracking, POI geofence engine, dwell time monitoring, and role-restricted access (Tenant Admin, Transport Planner, TDO). See [`12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md`](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md).
-7. **Source & Destination Stock Validation (STK-01 — new scope)** — deliver event-driven POI stock accounting: source reservation on TR approval, stock deduction on scale-out (SC-01), destination stock credit on QC pass (QC-01), capacity guards, and role-scoped stock snapshot API. See [`13-stock-validation-update/STK-01-source-destination-stock-validation.md`](13-stock-validation-update/STK-01-source-destination-stock-validation.md).
+4. **Story-level E2E sub-tasks** — all 23 E2E sub-tasks (DS-01-19 through TEVF-03-5) pass within their owning stories.
+5. **GPS Maps Dashboard (GPS-01 — new scope)** — deliver Phase 1 map-based transport dashboard with live GPS vehicle tracking, POI geofence engine, dwell time monitoring, and role-restricted access (Tenant Admin, Transport Planner, TDO). See [`12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md`](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md).
+6. **Source & Destination Stock Validation (STK-01 — new scope)** — deliver event-driven POI stock accounting: source reservation on TR approval, stock deduction on scale-out (SC-01), destination stock credit on QC pass (QC-01), capacity guards, and role-scoped stock snapshot API. See [`13-stock-validation-update/STK-01-source-destination-stock-validation.md`](13-stock-validation-update/STK-01-source-destination-stock-validation.md).
 
 ---
 
@@ -46,7 +44,6 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 | 08 | Vendor Management | VM-01 → VM-08 | ~38 SP vendor-context | FB-010–FB-019 | Carry-over |
 | 09 | TO Execution — Vendor Fleet | TEVF-01, TEVF-02, TEVF-03 | Vendor-context | FB-013, FB-016, FB-018 | Carry-over |
 | 10 | Yard Foundation | YARD-01 | 8 SP | — | Carry-over |
-| 11 | Cross-Story E2E | E2E-01 → E2E-04 | — | — | New sprint-5 scope |
 | 12 | GPS & Maps Dashboard | GPS-01 | 8 SP (demo) / ~21 SP Phase 1 | — | **MVP done** — [completion](12-gps-maps-dashboard/GPS-01-implementation-completion.md) |
 | 13 | Stock & Capacity Management | STK-01 | 13 SP | — | New sprint-5 scope |
 
@@ -255,7 +252,6 @@ total_story_points_estimated: "~125 SP (carry-over + feedback-driven scope + GPS
 - [Sprint 5 Feedback Resolution](feedback-resolution.md) — FB-001..FB-019 tracker
 - [Vendor Trip Lifecycle & Status Model](08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow for vendor app (VM-03, VM-07, VM-08, TEVF-03)
 - [**TO Creation & Vendor Bidding Flow Revision**](08-vendor-management/TO-BID-FLOW-REVISION.md) — **product flow change (2026-06-09):** separate TO creation (Single/Multiple tabs) from Bid bundling; Bid ID on vendor mobile; per-TO award. Supersedes FB-018 / VM-04-11 / VM-04-12 intent.
-- [Cross-Story E2E Coverage](11-e2e-cross-story/README.md) — 4 scripted cross-epic journeys
 - [GPS-01 — Maps Dashboard & GPS Tracking](12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — Sprint 5 demo MVP implemented
 - [GPS-01 implementation completion](12-gps-maps-dashboard/GPS-01-implementation-completion.md) — AC checklist vs code
 - [Module 09 — Live GPS implementation spec](../../05-modules/09-tracking/live-gps-sprint5-implementation.md)

@@ -384,7 +384,7 @@ ScaleInService.record_scale_in(...)        # queue_token arrives with serial_num
               ├─► If requires_qc: record_yard_sub_state(..., flagged_for_qc, source_module scaling|command_center)
               │     └─► TO visible in QC Supervisor queue (QC-01); CC does NOT assign unloading point
               └─► Else: record_yard_sub_state(..., waiting_cc)
-                    └─► CC may assign unloading point immediately (E2E-03 negative case)
+                    └─► CC may assign unloading point immediately (no QC required)
 ```
 
 **CC Officer queue behaviour (no manual flag step):**

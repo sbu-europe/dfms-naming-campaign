@@ -150,7 +150,3 @@ From `TlsStatusMapper.mapToTripStatus()` (sub_state overrides when it contains `
 | Polling, lifecycle event sync | VM-08 |
 | Advance-status API + execution umbrella | TEVF-03 |
 | TLS-01 canonical status model | TLS-01 |
-
----
-
-*Cross-story E2E: [E2E-04 — Vendor Bidding Journey](../11-e2e-cross-story/E2E-04-vendor-bidding-journey.md)*

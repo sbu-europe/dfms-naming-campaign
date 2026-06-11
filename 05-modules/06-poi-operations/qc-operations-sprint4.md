@@ -51,7 +51,7 @@ Gate-In (GT-01)
         │                 ├─► PASS: TO qc_passed=True → CC assigns unloading (CC-01) → LD-01 → SC-01 → GT-01
         │                 └─► FAIL: unloading / scale-out / gate-out blocked until new Pass
         │
-        └─► [requires_qc = False] — E2E-03 negative case
+        └─► [requires_qc = False] — no QC required
               └─► sub_state → waiting_cc; CC assigns unloading immediately (QC module not used)
 ```
 
