@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-06-09
 ---
 
 # Vendor Mobile — Integration & Design Decisions
@@ -16,9 +16,11 @@ last_updated: 2026-05-13
 ### Upstream: TO assignment service *(Contractual path only)*
 - TDO direct-assignment events surface as new TOs on the **Assigned TOs** tab with `assignment_type=CONTRACTUAL`; rate fields stripped server-side before returning to vendor.
 
-### Downstream: Trip Management Module
-- Assigned TOs (both `assignment_type` values) convert to trips upon **VM-07** vehicle/driver/helper confirmation.
-- Real-time trip status updates (VM-08); vendor is read-only on TO status.
+### Downstream: Trip Management Module (TLS-01)
+- Assigned TOs (both `assignment_type` values) reach `ready_for_dispatch` after **VM-07** vehicle/driver/helper confirmation.
+- Vendor may **Start Trip** (`ready_for_dispatch` → lane-aware `driving_towards_*`) and **Complete Trip** (`delivered_unloaded` → `completed`) via `POST …/advance-status/`.
+- All other TLS-01 transitions (gate, scale, loading, QC, driving legs) are **read-only** for the vendor; observed via VM-08 polling/refresh.
+- See [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md).
 
 ## Key design decisions
 

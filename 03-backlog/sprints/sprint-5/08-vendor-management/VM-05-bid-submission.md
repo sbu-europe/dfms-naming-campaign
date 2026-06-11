@@ -20,6 +20,8 @@ source: ../../../sprint-4/08-vendor-management/VM-05-bid-submission.md
 
 # VM-05 — Bid Submission (Sprint 5 Carry-over)
 
+> **Product flow revision (2026-06-09):** Vendor submits against a **Bid** (Bid ID), selecting which TOs in the bundle they can execute via checkmarks. See [**TO-BID-FLOW-REVISION.md**](TO-BID-FLOW-REVISION.md).
+
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/08-vendor-management/VM-05-bid-submission.md`](../../../sprint-4/08-vendor-management/VM-05-bid-submission.md)
 

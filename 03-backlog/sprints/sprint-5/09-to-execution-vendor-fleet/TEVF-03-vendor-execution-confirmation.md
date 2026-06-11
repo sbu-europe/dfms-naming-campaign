@@ -18,6 +18,24 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-
 
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md`](../../../sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md)
+>
+> **Trip lifecycle & status model:**
+> [`../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md)
+
+---
+
+## Trip management context (TEVF-03)
+
+Vendor-fleet execution uses **TLS-01 on `TransportOrder.status`**, not the legacy 17-state `Trip` model on the vendor surface.
+
+**Advance-status API** (`POST …/advance-status/`):
+
+| Intent | From | To | Notes |
+|--------|------|-----|-------|
+| Trip start | `ready_for_dispatch` | `driving_towards_source` (FG outbound) or `driving_towards_destination` (FG/RM inbound) | Requires VM-07 confirmation; `in_progress` accepted as alias |
+| Trip complete | `delivered_unloaded` | `completed` | Yard chain must have finished; `can_complete_vendor_trip` flag on API |
+
+Intermediate statuses (`at_source`, `loaded_pickup_completed`, `at_destination`, yard `sub_state` values) are set by driver/yard modules — vendor portal displays them via VM-08 sync.
 
 ---
 
@@ -26,7 +44,7 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-
 | # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority | Feedback |
 |---|----------|---------------|---------------|----------|---------|
 | TEVF-03-3 | Contractual path — ensure vendor assignment UI never exposes resolved contractual rate | Pending | Confirm rate hiding is applied on all vendor-facing TO and assignment screens for contractual vendors | Medium | — |
-| TEVF-03-4 | Vendor portal TO lifecycle — lifecycle screens + tab-change refresh | Pending | Vendor portal shows TO lifecycle states (assigned / in progress / completed / closed); tabs refresh on switch. Aligns with VM-03-9 and VM-03-10. | High | FB-013 |
+| TEVF-03-4 | Vendor portal TO lifecycle — lifecycle screens + tab-change refresh | Pending | Per [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md): lifecycle buckets, TLS-01 execution chips, Start/Complete Trip actions, 4-milestone timeline; tabs refresh on switch. Aligns with VM-03-9 and VM-03-10. | High | FB-013 |
 | TEVF-03-5 | E2E test coverage | Pending | Validate vendor execution confirmation, contractual/non-contractual handoffs, lifecycle refresh, completed-trip visibility | Medium | — |
 
 ---

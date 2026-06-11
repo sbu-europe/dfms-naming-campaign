@@ -1,10 +1,11 @@
 ---
 module: 06-poi-operations
 specification: QC Operations — Raw-Material Sampling & Pass/Fail Decision (Sprint 4)
-version: 1.0
+version: 1.1
 phase: Phase 1
-sprint: Sprint 4
-last_updated: 2026-05-20
+sprint: Sprint 4 (QC trigger alignment — Sprint 5 / FB-006)
+last_updated: 2026-06-03
+changelog: "v1.1 — QC-01-13 / FB-006: QC required from product lines (to_requires_qc_from_lines); flagged_for_qc auto at scale-in (not CC manual flag); entry/resample sub_states aligned with command-center-loading v1.1"
 related_stories: DFS-064 (QC-01)
 jira_epic: DFS-072
 ---
@@ -13,7 +14,7 @@ jira_epic: DFS-072
 
 ## Overview
 
-The **QC Operations** specification covers the Sprint 4 raw-material quality checkpoint that sits between scale-in and unloading assignment for **RM inbound** Transport Orders.
+The **QC Operations** specification covers the Sprint 4 raw-material quality checkpoint that sits between scale-in and unloading assignment for **RM inbound** Transport Orders **when product lines require QC** (`to_requires_qc_from_lines` — any `TOLineItem` with `Product.requires_qc=True`). TOs with no QC-required products skip this module entirely (CC assigns unloading immediately after scale-in).
 
 **Scope boundary**: The POI-scoped yard role **`qc_inspector_physical`** (`QC Inspector – Physical`, `SEED_ROLES`) performs sampling and Pass/Fail decisions when granted write permissions (see §1.1). That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **`command_center_officer`** assigns the unloading point (CC-01). QC does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded.
 
@@ -21,7 +22,7 @@ There is **no** `qc_supervisor` role code in `apps/core/role_seed_data.py`. Supe
 
 **Module path**: `apps/quality/checkpoint/`  
 **Dependencies**: `apps/operations/command_center/` (QueueEntry, BayAssignment), `apps/operations/scaling/` (WeighingSession), `apps/transport/` (TransportOrder, FlowLane, TOStatus), `apps/master_data/` (POI), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
-**Enables**: CC-01 unloading point assignment (on Pass), scale-out gate (QC pass required for RM inbound), gate-out guard matrix (GT-01), TO closure (POD-01)
+**Enables**: CC-01 unloading point assignment (on Pass, when `requires_qc`), scale-out gate (QC pass when TO `requires_qc`), gate-out guard matrix (GT-01), TO closure (POD-01)
 
 ### Codebase baseline (May 2026)
 
@@ -39,15 +40,19 @@ Sprint 4 QC models (`QCSample`, `QCDecision`) live in `apps/quality/checkpoint/m
 
 ```
 Gate-In (GT-01)
-  └─► Scale-In (SC-01) — QueueEntry created, requires_qc=True
-        └─► CC flags for QC (CC-01) — no unloading point assigned yet
-              └─► QC Inspector – Physical: Create Sample (QC-01)
-                    └─► QC Inspector – Physical (+ write perm): Record Decision (QC-01)
-                          ├─► PASS: TO marked qc_passed=True → CC assigns unloading point (CC-01)
-                          │           └─► Unloading starts (LD-01) → Scale-Out (SC-01) → Gate-Out (GT-01)
-                          │
-                          └─► FAIL: All downstream blocked (unloading, scale-out, gate-out)
-                                    New sample + Pass required to unblock
+  └─► Scale-In (SC-01) — CCService.create_queue_entry in same transaction
+        ├─► requires_qc = to_requires_qc_from_lines(to)  # any line Product.requires_qc (GT-02-12 / FB-006)
+        │
+        ├─► [requires_qc = True]
+        │     ├─► TLS-01 sub_state → flagged_for_qc (auto; no CC manual flag)
+        │     ├─► No unloading point assigned yet
+        │     └─► QC Inspector – Physical: Create Sample (QC-01)
+        │           └─► QC Inspector – Physical (+ write perm): Record Decision (QC-01)
+        │                 ├─► PASS: TO qc_passed=True → CC assigns unloading (CC-01) → LD-01 → SC-01 → GT-01
+        │                 └─► FAIL: unloading / scale-out / gate-out blocked until new Pass
+        │
+        └─► [requires_qc = False] — E2E-03 negative case
+              └─► sub_state → waiting_cc; CC assigns unloading immediately (QC module not used)
 ```
 
 **During unloading** (after CC assigns point and LD-01 starts):
@@ -66,7 +71,7 @@ User with `Quality.QCCheckpoint.Decision.Write` (typically `qc_inspector_physica
 Sidebar (`qc_inspector_physical` — QC Inspector – Physical)
 └── Quality
       └── QC Checkpoint
-            ├── My Queue              — RM inbound TOs flagged for QC, awaiting sample / decision
+            ├── My Queue              — RM inbound TOs with requires_qc (auto flagged_for_qc at scale-in), awaiting sample / decision
             │     └── [row click] ──► QC Detail: TO context + sample history + current decision
             │
             ├── Samples               — all QC samples for this POI (searchable)
@@ -140,7 +145,9 @@ QCSample(TenantAwareModel) {
 **Constraints**:
 - `transport_order.flow_lane` must be `rm_inbound` — enforced in `QCService.create_sample()`
 - `transport_order.status` must be `at_destination` — enforced in service (scale-in must have occurred)
-- TO must have an active `QueueEntry` with `requires_qc=True` and `sub_state` in `['flagged_for_qc', 'sampling_started']`
+- `to_requires_qc_from_lines(transport_order)` must be True (QC-01-13 / FB-006) — not all RM inbound by lane
+- TO must have an active `QueueEntry` with `requires_qc=True` (set at queue creation from product lines)
+- `sub_state` in `['flagged_for_qc', 'sampling_started', 'resampling']` — `flagged_for_qc` is written automatically at scale-in when QC is required (see [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) v1.1 §3.4)
 
 ### 2.2 QCDecision (new model — extends `TenantAwareModel`)
 
@@ -200,8 +207,9 @@ def create_sample(
     Validates:
     - to.flow_lane == FlowLane.RM_INBOUND
     - to.status == TOStatus.AT_DESTINATION
+    - to_requires_qc_from_lines(to) is True
     - Active QueueEntry with requires_qc=True exists
-    - sub_state in ['flagged_for_qc', 'sampling_started']
+    - sub_state in ['flagged_for_qc', 'sampling_started', 'resampling']
     Creates:
     - QCSample with auto-generated sample_id
     Emits:
@@ -290,7 +298,8 @@ def override_to_failed(
 
 ```
 qc_inspector_physical opens QC Checkpoint → My Queue
-  └─► Sees list of TOs: sub_state in ['flagged_for_qc', 'sampling_started'], same POI
+  └─► Sees list of TOs: requires_qc=True, sub_state in ['flagged_for_qc', 'sampling_started', 'resampling'], same POI
+        (TOs appear after scale-in auto-flag — not after a CC officer action)
         └─► Clicks row → QC Detail view
               ├─► Read-only context panel: TO Number, Vehicle, Product, Origin POI, Gross Weight
               ├─► Sample History: prior samples + decisions (read-only table)
@@ -404,7 +413,7 @@ class QCAdminBase(YardAdminBase):
 
 **POI resolution**: `_scope_poi_id(request)` returns the inspector's assigned POI via `UserOperationalPOI` for `qc_inspector_physical`. The `get_qc_poi_for_request(request)` helper referenced in the `formfield_for_foreignkey` examples below is replaced by `self._scope_poi_id(request)` (consistent with other yard admins). A dedicated `qc_poi.py` is **not needed** — `yard_poi.get_working_poi_for_request` covers this.
 
-**`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED]` so that only actionable items appear.
+**`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED, TOSubState.RESAMPLING]` and `queue_entry__requires_qc=True` so that only actionable items appear.
 
 **`QueueEntry.qc_passed` update**: when `QCService.record_decision(decision='pass')` is called, it must also set `QueueEntry.qc_passed=True` for the TO's active queue entry. This unblocks the CC bay-assignment form.
 
@@ -427,6 +436,7 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
                 sub_state__in=[
                     TOSubState.FLAGGED_FOR_QC,
                     TOSubState.SAMPLING_STARTED,
+                    TOSubState.RESAMPLING,
                 ],
             )
             .filter(
@@ -614,13 +624,13 @@ _DECISION_BADGE = {
 
 ```http
 GET    /api/v1/qc/queue?poi=
-       → RM inbound TOs visible to QC: sub_state in [flagged_for_qc, sampling_started]
+       → RM inbound TOs visible to QC: requires_qc=True, sub_state in [flagged_for_qc, sampling_started, resampling]
        → Scoped to supervisor's assigned POI
        → Response: [{ to_id, to_number, vehicle, gross_weight_mt, sub_state, sample_count, has_active_decision }]
 
 POST   /api/v1/qc/samples
        → Body: { transport_order_id, physical_analysis, remarks (nullable) }
-       → Validations: flow_lane=RM_INBOUND, status=AT_DESTINATION, flagged_for_qc
+       → Validations: flow_lane=RM_INBOUND, status=AT_DESTINATION, to_requires_qc_from_lines, requires_qc QueueEntry, sub_state in [flagged_for_qc, sampling_started, resampling]
        → Side effects: QCSample created (sample_id auto-gen), SAMPLING_STARTED → TLS-01
        → Response: { sample_id, sampled_at, transport_order: { to_number, sub_state } }
 
@@ -657,7 +667,9 @@ POST   /api/v1/qc/decisions/{decision_id}/override-fail
 ## 7. Validation Rules
 
 ### Entry conditions
-- QC actions only available after CC-01 has flagged the TO (`sub_state='flagged_for_qc'`)
+- QC applies only when `to_requires_qc_from_lines(to)` is True (any product line with `Product.requires_qc=True` — QC-01-13 / FB-006)
+- After scale-in, SC-01 / CC-01 auto-set `sub_state='flagged_for_qc'` when QC is required (no CC manual flag on happy path)
+- Sample/decision actions require `sub_state` in `flagged_for_qc`, `sampling_started`, or `resampling` and active `QueueEntry.requires_qc=True`
 - TO must be RM inbound (`flow_lane='rm_inbound'`), at destination POI, status `at_destination`
 
 ### Sample creation
@@ -702,12 +714,12 @@ All events include `transport_order_id`, `poi_id`, `actor_id`, `timestamp`.
 
 | Module | Direction | How |
 |--------|-----------|-----|
-| CC-01 (flag for QC) | Upstream trigger | CC sets `QueueEntry.requires_qc=True` and `sub_state='flagged_for_qc'`; QC queue becomes visible |
-| CC-01 (assign unloading point) | Downstream unlock | QC Pass sets `QueueEntry.qc_passed=True`; CC's `[Assign Bay]` button unblocks for RM inbound TOs |
+| SC-01 + CC-01 (scale-in / queue) | Upstream trigger | `CCService.create_queue_entry` sets `requires_qc=to_requires_qc_from_lines(to)`; when True, auto `sub_state='flagged_for_qc'` — QC queue becomes visible (see [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) v1.1, [gate-operations-sprint4.md](./gate-operations-sprint4.md) v2.8 §9.4) |
+| CC-01 (assign unloading point) | Downstream unlock | QC Pass sets `QueueEntry.qc_passed=True`; CC's `[Assign Bay]` unblocks when `requires_qc=True` |
 | CC-01 (cancel assignment on resample/override) | Downstream cancellation | `QCService` calls `CCService.cancel_bay_assignment(assignment, reason)` |
 | LD-01 (UnloadEvent) | Downstream cancellation | Resample/override sets `UnloadEvent.cancelled_by_resample=True`; LD-01 cannot complete an event in this state |
-| SC-01 (gate for scale-out) | Downstream gate | Scale-out service checks `QCDecision` exists with `decision='pass'` and `is_active=True` before allowing scale-out for RM inbound |
-| GT-01 (gate-out guard) | Downstream gate | Gate-out guard matrix checks `QCDecision.decision='pass'` for RM inbound |
+| SC-01 (gate for scale-out) | Downstream gate | When TO `requires_qc`, scale-out checks active Pass decision (or `TO.qc_passed`) |
+| GT-01 (gate-out guard) | Downstream gate | When TO `requires_qc`, gate-out guard checks QC pass / not failed |
 | TLS-01 | Timeline | All 5 event types written via event ingest service |
 | POD-01 (closure) | Closure gate | `ClosureChecklist.qc_passed` reads latest active `QCDecision.decision == 'pass'` for RM inbound TOs |
 
@@ -767,7 +779,7 @@ Menu.QC.Checkpoint.Queue.View    # qc_inspector_physical
 | Sub-task | Scope | Implementation Focus |
 |----------|-------|----------------------|
 | QC-01-1 | Models + migration | `QCSample` + `QCDecision` under `apps/quality/checkpoint/`; legacy `apps/quality/models.py` unchanged |
-| QC-01-2 | `QCSampleAdmin` | `QCAdminBase`→`YardAdminBase`; `_scope_poi_id` replaces `get_qc_poi_for_request`; TO queryset uses `sub_state__in=[FLAGGED_FOR_QC, SAMPLING_STARTED]`; `has_change_permission=False` |
+| QC-01-2 | `QCSampleAdmin` | `QCAdminBase`→`YardAdminBase`; TO queryset: `requires_qc` + `sub_state__in=[FLAGGED_FOR_QC, SAMPLING_STARTED, RESAMPLING]`; `has_change_permission=False` |
 | QC-01-3 | `QCDecisionAdmin` | Same base; no unloading_point field; `clean()` enforces remarks on Fail; on Pass sets `QueueEntry.qc_passed=True`; `has_change_permission=False` |
 | QC-01-4 | `trigger_resample` admin action | Single-row only; calls `QCService.trigger_resample()`; user-facing success/error message |
 | QC-01-5 | `override_to_failed` admin action | Intermediate-form pattern to collect required remarks; calls `QCService.override_to_failed()` |
@@ -778,11 +790,11 @@ Menu.QC.Checkpoint.Queue.View    # qc_inspector_physical
 | QC-01-10 | Resample API (`POST`) | Supersede decision; cancel CC assignment; clear UnloadEvent |
 | QC-01-11 | Override-to-fail API (`POST`) | Mutate decision; cancel CC assignment; clear UnloadEvent |
 | QC-01-12 | TLS-01 event emission | 5 event types (§8); called from service, not admin |
-| QC-01-13 | CC-01 / LD-01 cancellation integration | `CCService.cancel_bay_assignment()` called from QCService; `UnloadEvent.cancelled_by_resample` flag set |
+| QC-01-13 | Product-line QC trigger + CC/LD integration | Entry when `to_requires_qc_from_lines`; auto `flagged_for_qc` at scale-in; `create_sample` enforces sub_state; resample/override cancel bay + `UnloadEvent.cancelled_by_resample` |
 | QC-01-14 | YARD-01 integration | `QCAdminBase`→`YardAdminBase`; `yard_poi.get_working_poi_for_request` (no dedicated `qc_poi.py`); `QueueEntry.qc_passed` set on Pass |
 | QC-01-15 | RBAC seed | Add QC checkpoint permissions to `qc_inspector_physical` in `role_seed_data.py`; register permission catalog entries; enable portal nav for `Menu.QC.Checkpoint.View` |
 
 ---
 
-**Last Updated**: 2026-05-20  
+**Last Updated**: 2026-06-03  
 **Related Modules**: [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md)

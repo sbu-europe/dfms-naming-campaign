@@ -20,6 +20,8 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-b
 
 # TEVF-02 — Non-Contractual Bidding (Sprint 5 Carry-over)
 
+> **Product flow revision (2026-06-09):** Multi-TO bidding uses a **Bid bundle** (same TR) created from the TO list, not a bundle at TO creation. See [**TO-BID-FLOW-REVISION.md**](../08-vendor-management/TO-BID-FLOW-REVISION.md).
+
 > **Full story context lives in Sprint 4:**
 > [`sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md`](../../../sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
 
@@ -29,7 +31,7 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-b
 
 | # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority | Feedback |
 |---|----------|---------------|---------------|----------|---------|
-| TEVF-02-5 | Execution handoff — post-award vendor sees outcome + enters VM-07 / VM-08 tracks | Pending | After award, vendor can access vehicle–driver confirmation (VM-07) and sees TO lifecycle in portal (VM-08); execution flow begins | High | — |
+| TEVF-02-5 | Execution handoff — post-award vendor sees outcome + enters VM-07 / VM-08 tracks | Pending | After award: VM-07 confirmation → `ready_for_dispatch` → vendor Start Trip (TLS-01) → observe yard progress (VM-08) → Complete Trip at `delivered_unloaded`. See [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) | High | — |
 | TEVF-02-6 | E2E test coverage | Pending | Validate scripted journey: publish → N bids → window update → award / reject-all; align with TESTING-FLOW.md | Medium | — |
 | TEVF-02-7 | One vehicle per TO — publish and bid flows enforce `required_vehicle_count = 1` and `offered_vehicle_count ≤ 1` | Pending | End-to-end enforcement: publish (VM-04-10) + bid (VM-05-10) + TEVF-02 journey all cap at 1 vehicle | High | FB-016 |
 | TEVF-02-8 | Single TR → multiple TOs in one bid session | Pending | From one TR, create multiple TOs under a single bidding session; publish and award to non-contractual vendors; aligns with VM-04-11, VM-04-12 | Medium | FB-018 |

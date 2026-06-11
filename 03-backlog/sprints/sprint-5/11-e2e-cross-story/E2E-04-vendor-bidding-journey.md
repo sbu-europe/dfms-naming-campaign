@@ -25,7 +25,7 @@ status: Pending
 
 ## Why This Journey Exists
 
-The vendor management module spans 9 stories from onboarding through to execution. FB-013 requires the vendor portal to show TO lifecycle management; FB-015 requires clear winner indication across bid surfaces; FB-016 enforces one vehicle per TO through the full publish-bid-award chain; FB-018 requires the bid requirement form before TO creation. No single story tests these feedback items together — they only manifest when the full journey runs.
+The vendor management module spans 9 stories from onboarding through to execution. FB-013 requires the vendor portal to show TO lifecycle management; FB-015 requires clear winner indication across bid surfaces; FB-016 enforces one vehicle per TO through the full publish-bid-award chain. **FB-018 is reframed (2026-06-09):** see [TO-BID-FLOW-REVISION.md](../08-vendor-management/TO-BID-FLOW-REVISION.md) — Multiple TO tab → Create Bid from TO list → vendor Bid ID + per-TO award. No single story tests these feedback items together — they only manifest when the full journey runs.
 
 Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (direct assignment)**.
 
@@ -66,44 +66,59 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 | Tenant Admin | Attempts to select both types | UI/API rejects; only one type allowed (FB-017) |
 | Tenant Admin | Selects `NON_CONTRACTUAL`; approves | Vendor approved; vendor type = `NON_CONTRACTUAL` for this tenant; vendor sees Active Bids tab in portal |
 
-### Step 4 — TDO captures bid requirement form and publishes TO
+### Step 4 — TDO creates TO(s) and publishes bid (TO-Bid Flow Revision)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| TDO | Opens bid requirement form before TO creation (FB-018) | Captures transport need, route, vehicle type, bidding window |
-| TDO | Attempts to add more than one route to the session | System rejects; single-route constraint enforced (FB-019) |
-| TDO | Creates/links TO; publishes with `required_vehicle_count = 1` (FB-016) | Bidding session created; TO published to bidding portal; non-contractual vendors notified in-app |
+| TDO | Opens create-from-TR; **Single TO** tab | One TO saved; no bundle created |
+| TDO | Opens create-from-TR; **Multiple TO** tab; adds 2–3 rows with different `planned_delivery_datetime` | N separate TO records created (same TR); no `TransportOrderBundle` |
+| TDO | Selects eligible TOs from TO list → **Create Bid** | Same-TR validation passes; mixed-TR selection rejected |
+| TDO | Sets bidding window + vehicle requirements; publishes | `BiddingSession` created with `bid_number` (Bid ID); member TOs → `OPEN_FOR_BIDDING` |
+| TDO | Attempts Create Bid with TOs from different TRs | API rejects; all member TOs must share one TR (FB-019 single-route per bid) |
 
-### Step 5 — Vendor submits bid
-
-| Actor | Action | Expected Outcome |
-|-------|--------|-----------------|
-| Vendor | Opens Active Bids tab; tab refreshes from server (FB-014) | Published TO visible with window labels and TDO context |
-| Vendor | Submits bid with `offered_vehicle_count = 1` | Bid accepted; one-bid-per-vendor guard active |
-| Vendor | Attempts to submit `offered_vehicle_count = 2` | API rejects; capped at 1 aligned with publish rule (FB-016) |
-
-### Step 6 — TDO evaluates and awards
+### Step 5 — Vendor submits bid (Bid ID + selective TO participation)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| TDO | Opens bid evaluation; views side-by-side comparison | Min/avg/max rates highlighted; lowest bid indicated |
-| TDO | Awards to winning vendor | Single-winner default applies (required = 1); award recorded in winning log |
-| Vendor | Checks bid detail | Winner indication visible on bid detail in Vendor Mobile (FB-015) |
-| TDO | Checks evaluation screen | Winner badge and window timeline display clear (FB-015) |
+| Vendor | Opens Bids tab; tab refreshes from server (FB-014) | One card per bid session; **Bid ID** (`bid_number`) shown; TO count + route summary |
+| Vendor | Opens multi-TO bid detail | TO checklist: vendor selects which trips they can execute |
+| Vendor | Submits one `proposed_cost` covering selected TOs with `participating_to_ids` + `offered_vehicle_count = len(selected)` | Bid accepted; one bid per vendor per session |
+| Vendor | Submits with `offered_vehicle_count = 2` on a single TO | API rejects; FB-016 — 1 vehicle per TO |
+| Vendor | Omits `participating_to_ids` on multi-TO bid | API rejects |
+
+### Step 6 — TDO evaluates and awards per TO
+
+| Actor | Action | Expected Outcome |
+|-------|--------|-----------------|
+| TDO | Opens vendor-fleet evaluation; expands each member TO | Participating vendors + rates from `VendorBidParticipation` |
+| TDO | Awards vendor X on TO-A and vendor Y on TO-B (same bid) | Per-TO award succeeds; session → `PARTIALLY_AWARDED` then `AWARDED` when all members awarded |
+| TDO | Views min/avg/max per TO | VM-06 aggregates per expanded TO row |
+| Vendor | Checks bid detail after partial award | Per-TO won / not awarded / not participated states (FB-015) |
+| TDO | Checks evaluation screen | Winner badge per TO; bid window timeline on session |
 
 ### Step 7 — Vendor confirms vehicle and driver
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Submits vehicle-driver confirmation | Confirmation record created; trip-start gate armed |
+| Vendor | Submits vehicle-driver confirmation (VM-07) | Confirmation record created; TO reaches `ready_for_dispatch`; trip-start gate armed |
 
-### Step 8 — Vendor portal TO lifecycle management
+### Step 8 — Vendor starts trip (TLS-01 execution)
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Opens Active Trips tab; tab refreshes on switch (FB-014) | Assigned TO visible with lifecycle state |
-| Vendor | Views TO detail | Vendor-facing lifecycle states visible: assigned / in progress / completed / closed (FB-013) |
-| Vendor | TO progresses to completed | Tab switches to Completed Trips; lifecycle reflects closed state |
+| Vendor | Opens Active Trips → TO detail; taps **Start Trip** | `POST …/advance-status/` with `in_progress`; TO transitions lane-aware to `driving_towards_source` (FG outbound) or `driving_towards_destination` (FG/RM inbound) |
+| Vendor | Attempts Start Trip without VM-07 confirmation | API returns 409; trip-start gate enforced |
+| Vendor | Observes in-progress execution | Status chips reflect TLS-01 progress (`at_source`, loading sub_states, `driving_towards_destination`, `delivered_unloaded`, …) via polling/refresh — vendor does not set these |
+
+### Step 9 — Vendor portal TO lifecycle management
+
+| Actor | Action | Expected Outcome |
+|-------|--------|-----------------|
+| Vendor | Opens Active Trips tab; tab refreshes on switch (FB-014) | TO visible with `lifecycle_phase` = `assigned` or `in_progress` per [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) |
+| Vendor | Views TO detail during yard execution | 4-milestone timeline advances; raw `status` + `sub_state` shown; **Complete Trip** disabled until `delivered_unloaded` |
+| System | Yard chain completes unloading | `can_complete_vendor_trip` becomes `true`; **Complete Trip** enabled |
+| Vendor | Taps **Complete Trip** | `POST …/advance-status/` with `completed`; TO moves to Completed Trips tab |
+| Vendor | TO reaches `closed` (TDO/POD-01) | Completed Trips shows `lifecycle_phase` = `closed` (FB-013) |
 
 ---
 
@@ -124,7 +139,8 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 
 | Actor | Action | Expected Outcome |
 |-------|--------|-----------------|
-| Vendor | Opens Vendor Portal | TO visible in Active Trips with lifecycle state; contractual rate not exposed |
+| Vendor | Opens Vendor Portal | TO visible in Active Trips with `lifecycle_phase`; contractual rate not exposed |
+| Vendor | Confirms vehicle/driver → Start Trip | Same TLS-01 flow as Sub-Path A Steps 7–9; lane-aware trip start after `ready_for_dispatch` |
 
 ---
 
@@ -136,19 +152,22 @@ Two sub-paths are scripted: **Non-Contractual (bidding)** and **Contractual (dir
 | Vendor attempts to submit bid after bidding window closes | API rejects with window-closed error |
 | Tenant Admin selects both vendor types on approval | UI/API rejects |
 | TDO publishes with `required_vehicle_count > 1` | API rejects with one-vehicle constraint error |
+| Vendor attempts Start Trip before VM-07 confirmation | API returns 409 |
+| Vendor attempts Complete Trip before `delivered_unloaded` | API returns 409; `can_complete_vendor_trip` is false |
+| Vendor attempts arbitrary status via advance-status (e.g. `at_source`) | API returns 409 unsupported transition |
 
 ---
 
 ## Definition of Done
 
-- [ ] Sub-Path A (non-contractual bidding) Steps 1–8 complete without error in staging
+- [ ] Sub-Path A (non-contractual bidding) Steps 1–9 complete without error in staging
 - [ ] Sub-Path B (contractual assignment) Steps 1–3 complete
 - [ ] OTP on registration verified (FB-010)
 - [ ] One vendor type per approval enforced (FB-017)
 - [ ] Bid requirement form before TO creation (FB-018)
 - [ ] One-vehicle rule enforced at publish and bid (FB-016)
 - [ ] Winner indication visible on bid surfaces (FB-015)
-- [ ] Vendor portal TO lifecycle management visible (FB-013)
+- [ ] Vendor portal TO lifecycle management visible — TLS-01 execution, Start/Complete Trip, milestone timeline (FB-013)
 - [ ] Tab auto-refresh verified (FB-014)
 - [ ] All negative cases return stable errors
 - [ ] No regression in VM-01-12, VM-02-9, VM-04-13, VM-05-11, VM-06-10, VM-07-6, VM-08-5, TEVF-01-8, TEVF-02-6, TEVF-03-5

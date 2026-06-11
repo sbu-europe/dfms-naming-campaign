@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-06-09
 ---
 
 # Vendor Mobile — Post-Award: Driver/Vehicle/Helper Submission
@@ -50,9 +50,11 @@ Once inside this screen, **the form is identical** for both types.
    - All mandatory fields filled: vehicle number + type + capacity, driver name + phone
    - Optional fields (driver NID/License, helpers) are accepted if blank/empty; if provided, each helper entry must have **both** name and NID
 6. Vendor confirms details
-7. System marks TO as READY_FOR_DISPATCH (or equivalent)
-8. Trip can be dispatched/started
-9. **After trip `COMPLETED`** the vendor can upload **POD, GRN copy, and Invoice** from the Completed Trip Details screen (`08-completed-trip-history.md`). Server hard-blocks all three doc-type uploads before Completed.
+7. System marks TO as `ready_for_dispatch`
+8. Vendor taps **Start Trip** on Active Trip detail → `POST …/advance-status/` → lane-aware `driving_towards_source` or `driving_towards_destination` (see [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md))
+9. Yard/driver chain advances TLS-01 through to `delivered_unloaded`; vendor observes via polling
+10. Vendor taps **Complete Trip** → `completed`
+11. **After `completed`** the vendor can upload **POD, GRN copy, and Invoice** from the Completed Trip Details screen (`08-completed-trip-history.md`). Server hard-blocks all three doc-type uploads before Completed.
 ```
 
 ## Update flow (post-confirmation)

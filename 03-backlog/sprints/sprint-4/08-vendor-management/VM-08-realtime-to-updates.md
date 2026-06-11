@@ -33,13 +33,14 @@ Vendor portal must reflect TO status changes to keep vendors aligned with operat
 ### AC-2: Real-time Delivery
 - [ ] System provides real-time TO updates to vendor portal (near-real-time acceptable if polling)
 
-### AC-3: Vendor Cannot Modify TO Status
-- [ ] Vendor SHALL not modify TO status directly
+### AC-3: Vendor Status Change Scope (TLS-01)
+- [ ] Vendor may only advance status via `POST …/advance-status/`: **Start Trip** (`ready_for_dispatch` → lane-aware `driving_towards_*`) and **Complete Trip** (`delivered_unloaded` → `completed`)
+- [ ] Vendor SHALL NOT set arbitrary TLS-01 statuses or yard sub-states (all intermediate steps are read-only; driven by driver/yard/system)
 
 ## Functional Requirements (from PRD)
 
 - [ ] **[Critical]** System SHALL provide real-time TO updates to vendor portal.
-- [ ] **[Critical]** Vendor SHALL not modify TO status directly.
+- [ ] **[Critical]** Vendor status changes limited to Start Trip and Complete Trip via advance-status API; all other TLS-01 transitions are read-only for vendor.
 
 ## Sub-tasks
 

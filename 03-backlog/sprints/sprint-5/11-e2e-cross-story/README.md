@@ -22,6 +22,8 @@ Story-level E2E sub-tasks (DS-01-19, TLS-01-11, etc.) remain **owned by each sto
 | E2E-03 — On-Demand TO QC Flow | [E2E-03-on-demand-to-qc-flow.md](E2E-03-on-demand-to-qc-flow.md) | GT-02 → LD-01 → QC-01 → CC-01 | FB-001, FB-006, FB-007 | Pending |
 | E2E-04 — Vendor Bidding Journey | [E2E-04-vendor-bidding-journey.md](E2E-04-vendor-bidding-journey.md) | VM-01 → VM-02 → VM-04 → VM-05 → VM-06 → VM-07 → TEVF-01/02/03 | FB-013, FB-015, FB-016, FB-018 | Pending |
 
+> **E2E-04 trip execution reference:** [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — TLS-01 status model, Start/Complete Trip gates, milestone timeline.
+
 ---
 
 ## What Is NOT in This Folder
@@ -42,4 +44,4 @@ A journey is **Done** when:
 
 ---
 
-*Owner: QA Lead | Sprint: 5 | Last Updated: 2026-06-01*
+*Owner: QA Lead | Sprint: 5 | Last Updated: 2026-06-09*
