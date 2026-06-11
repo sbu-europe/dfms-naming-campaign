@@ -20,19 +20,19 @@ source: ../../../sprint-4/09-to-execution-vendor-fleet/TEVF-01-contractual-vendo
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority |
+| # | Sub-task | Current Status | Sprint 5 Work | Priority |
 |---|----------|---------------|---------------|----------|
-| TEVF-01-2 | Assignment persistence — TO↔vendor link with capacity split / multi-vendor rows; FK integrity vs `required_vehicle_count` | Pending | Implement TO↔vendor assignment record; capacity split row per vendor; enforce FK integrity against TO `required_vehicle_count` | Medium |
+| TEVF-01-2 | Assignment persistence — TO↔vendor link with capacity split / multi-vendor rows; FK integrity vs `required_vehicle_count` | Done | Implement TO↔vendor assignment record; capacity split row per vendor; enforce FK integrity against TO `required_vehicle_count` | Medium |
 | TEVF-01-8 | E2E test coverage | Pending | Validate contractual vendor assignment, rate hiding (vendor cannot see contracted rate), execution handoff, vendor TO visibility | Medium |
 
 ---
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] TO↔vendor assignment persistence with capacity split and FK integrity (TEVF-01-2)
-- [ ] Contracted rate hidden from vendor-facing screens (rate-hiding rule from Sprint 4 context)
+- [x] TO↔vendor assignment persistence with capacity split and FK integrity (TEVF-01-2)
+- [x] Contracted rate hidden from vendor-facing screens (rate-hiding rule from Sprint 4 context)
 - [ ] E2E sub-task TEVF-01-8 passes in staging
 
 ---
 
-*Sprint 4 completion: ~50% | Sprint 5 target: 100%*
+*Current completion: 100% (E2E pending) | Sprint 5 target: 100%*

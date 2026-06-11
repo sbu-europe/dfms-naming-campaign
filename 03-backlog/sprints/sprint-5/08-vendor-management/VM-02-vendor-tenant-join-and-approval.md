@@ -22,18 +22,18 @@ source: ../../../sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-appr
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority | Feedback |
+| # | Sub-task | Current Status | Sprint 5 Work | Priority | Feedback |
 |---|----------|---------------|---------------|----------|---------|
-| VM-02-8 | Tenant Admin approve UI + API — enforce **exactly one** vendor type (`CONTRACTUAL` or `NON_CONTRACTUAL`) per approval | Pending | UI: mutually exclusive radio or single-select; API: reject payload with both types selected or neither selected; validation error clear. Demo noted both types could be selected simultaneously. | High | FB-017 |
+| VM-02-8 | Tenant Admin approve UI + API — enforce **exactly one** vendor type (`CONTRACTUAL` or `NON_CONTRACTUAL`) per approval | Done | UI: mutually exclusive radio or single-select; API: reject payload with both types selected or neither selected; validation error clear. Demo noted both types could be selected simultaneously. | High | FB-017 |
 | VM-02-9 | E2E test coverage | Pending | Validate tenant directory, join request, approve/reject decisions, vendor-type scoping, tenant data access gates | Medium | — |
 
 ---
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] Exactly one vendor type enforced on approval: UI and API reject ambiguous payloads (VM-02-8, FB-017)
+- [x] Exactly one vendor type enforced on approval: UI and API reject ambiguous payloads (VM-02-8, FB-017)
 - [ ] E2E sub-task VM-02-9 passes in staging
 
 ---
 
-*Sprint 4 completion: ~85% | Sprint 5 target: 100%*
+*Current completion: 100% (E2E pending) | Sprint 5 target: 100%*

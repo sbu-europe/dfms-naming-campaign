@@ -41,20 +41,20 @@ Intermediate statuses (`at_source`, `loaded_pickup_completed`, `at_destination`,
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority | Feedback |
+| # | Sub-task | Current Status | Sprint 5 Work | Priority | Feedback |
 |---|----------|---------------|---------------|----------|---------|
-| TEVF-03-3 | Contractual path — ensure vendor assignment UI never exposes resolved contractual rate | Pending | Confirm rate hiding is applied on all vendor-facing TO and assignment screens for contractual vendors | Medium | — |
-| TEVF-03-4 | Vendor portal TO lifecycle — lifecycle screens + tab-change refresh | Pending | Per [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md): lifecycle buckets, TLS-01 execution chips, Start/Complete Trip actions, 4-milestone timeline; tabs refresh on switch. Aligns with VM-03-9 and VM-03-10. | High | FB-013 |
+| TEVF-03-3 | Contractual path — ensure vendor assignment UI never exposes resolved contractual rate | Done | Confirm rate hiding is applied on all vendor-facing TO and assignment screens for contractual vendors | Medium | — |
+| TEVF-03-4 | Vendor portal TO lifecycle — lifecycle screens + tab-change refresh | Done | Per [`VENDOR-TRIP-LIFECYCLE.md`](../08-vendor-management/VENDOR-TRIP-LIFECYCLE.md): lifecycle buckets, TLS-01 execution chips, Start/Complete Trip actions, 4-milestone timeline; tabs refresh on switch. Aligns with VM-03-9 and VM-03-10. | High | FB-013 |
 | TEVF-03-5 | E2E test coverage | Pending | Validate vendor execution confirmation, contractual/non-contractual handoffs, lifecycle refresh, completed-trip visibility | Medium | — |
 
 ---
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] Contractual rate hidden from all vendor-facing screens (TEVF-03-3)
-- [ ] Vendor portal TO lifecycle screens with tab-change refresh (TEVF-03-4, FB-013)
+- [x] Contractual rate hidden from all vendor-facing screens (TEVF-03-3)
+- [x] Vendor portal TO lifecycle screens with tab-change refresh (TEVF-03-4, FB-013)
 - [ ] E2E sub-task TEVF-03-5 passes in staging
 
 ---
 
-*Sprint 4 completion: 0% | Sprint 5 target: 100%*
+*Current completion: 100% (E2E pending) | Sprint 5 target: 100%*

@@ -36,22 +36,22 @@ VM-07 sits **before** the vendor Start Trip action in the execution chain:
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority |
+| # | Sub-task | Current Status | Sprint 5 Work | Priority |
 |---|----------|---------------|---------------|----------|
-| VM-07-1 | `GET` requirement context for TO — merge TO + publish params (VM-04) visible to assigned/winner vendor only | Partial | Complete API: winner or assigned vendor can read TO requirement context; other vendors receive 403 | Medium |
-| VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver confirmation record exists | Partial | Ensure no trip-start transition is possible on vendor-fleet TOs without a confirmed vehicle–driver record | Medium |
-| VM-07-3 | `POST .../vehicle-driver` — mandatory fields + vehicle type match + capacity ≥ TO requirement + optional helper list + optional driver NID | Partial | Complete validation: vehicle type must match TO requirement; vehicle capacity ≥ required; helper list optional; driver NID optional | Medium |
+| VM-07-1 | `GET` requirement context for TO — merge TO + publish params (VM-04) visible to assigned/winner vendor only | Done | Complete API: winner or assigned vendor can read TO requirement context; other vendors receive 403 | Medium |
+| VM-07-2 | Trip-start gate — block dispatch/start until vehicle–driver confirmation record exists | Done | Ensure no trip-start transition is possible on vendor-fleet TOs without a confirmed vehicle–driver record | Medium |
+| VM-07-3 | `POST .../vehicle-driver` — mandatory fields + vehicle type match + capacity ≥ TO requirement + optional helper list + optional driver NID | Done | Complete validation: vehicle type must match TO requirement; vehicle capacity ≥ required; helper list optional; driver NID optional | Medium |
 | VM-07-6 | E2E test coverage | Pending | Validate vehicle–driver confirmation, trip-start gate, substitution with reason, post-completion uploads, vendor-only access | Medium |
 
 ---
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] Requirement context API returns TO + publish params to winner/assigned vendor only (VM-07-1)
-- [ ] Trip-start blocked without vehicle–driver confirmation record (VM-07-2)
-- [ ] Vehicle–driver POST validates vehicle type + capacity against TO requirement (VM-07-3)
+- [x] Requirement context API returns TO + publish params to winner/assigned vendor only (VM-07-1)
+- [x] Trip-start blocked without vehicle–driver confirmation record (VM-07-2)
+- [x] Vehicle–driver POST validates vehicle type + capacity against TO requirement (VM-07-3)
 - [ ] E2E sub-task VM-07-6 passes in staging
 
 ---
 
-*Sprint 4 completion: ~60% | Sprint 5 target: 100%*
+*Current completion: 100% (E2E pending) | Sprint 5 target: 100%*

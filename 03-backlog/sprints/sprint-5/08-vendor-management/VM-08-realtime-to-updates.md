@@ -40,20 +40,20 @@ VM-08-4 must emit/consume **every TLS-01 transition** (including `sub_state` cha
 
 ## Sprint 5 Scope — Open Sub-tasks
 
-| # | Sub-task | Sprint 4 Exit | Sprint 5 Work | Priority | Feedback |
+| # | Sub-task | Current Status | Sprint 5 Work | Priority | Feedback |
 |---|----------|---------------|---------------|----------|---------|
-| VM-08-3 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | Partial | Finalise and implement refresh strategy (polling or subscribe); in-app refresh when vendor brings app to foreground | Medium | — |
-| VM-08-4 | TO lifecycle events — emit/consume status transitions so Vendor Portal lifecycle views (VM-03-9) stay in sync | Pending | TO status transition events emitted from TLS-01 and consumed by vendor portal lifecycle views; closed-trip visibility also covered | High | FB-013 |
+| VM-08-3 | Vendor Mobile — subscribe or poll strategy + in-app refresh on foreground | Done | Finalise and implement refresh strategy (polling or subscribe); in-app refresh when vendor brings app to foreground | Medium | — |
+| VM-08-4 | TO lifecycle events — emit/consume status transitions so Vendor Portal lifecycle views (VM-03-9) stay in sync | Done | TO status transition events emitted from TLS-01 and consumed by vendor portal lifecycle views; closed-trip visibility also covered | High | FB-013 |
 | VM-08-5 | E2E test coverage | Pending | Validate vendor-scoped TO updates, delta refresh/polling, lifecycle event propagation, closed-trip visibility | Medium | — |
 
 ---
 
 ## Sprint 5 Definition of Done (remaining items only)
 
-- [ ] Refresh strategy implemented; in-app foreground refresh works (VM-08-3)
-- [ ] TO lifecycle events emitted and vendor portal lifecycle views stay in sync (VM-08-4, FB-013)
+- [x] Refresh strategy implemented; in-app foreground refresh works (VM-08-3)
+- [x] TO lifecycle events emitted and vendor portal lifecycle views stay in sync (VM-08-4, FB-013)
 - [ ] E2E sub-task VM-08-5 passes in staging
 
 ---
 
-*Sprint 4 completion: ~55% | Sprint 5 target: 100%*
+*Current completion: 100% (E2E pending) | Sprint 5 target: 100%*
