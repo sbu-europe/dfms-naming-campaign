@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Scaling Operations (Sprint 4 — TO-Centric)
-version: 1.3
+version: 1.4
 phase: Phase 1
 sprint: Sprint 4
-last_updated: 2026-06-05
-changelog: "v1.3 — FG outbound source scale-out: sub-state only (`scale_out_source`); canonical status stays `at_source`; gate-out (GT-01) owns `in_transit_destination` advance"
+last_updated: 2026-06-11
+changelog: "v1.4 — CC queue serial at scale-in: `QueueToken.serial_number` (`CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}`, per-POI UTC daily sequence via `QueueSerialSequence`); shown on token slip and CC queue. v1.3 — FG outbound source scale-out: sub-state only (`scale_out_source`); canonical status stays `at_source`; gate-out (GT-01) owns `in_transit_destination` advance"
 related_stories: DFS-055 (SC-01)
 jira_epic: DFS-072
 ---
@@ -15,6 +15,8 @@ jira_epic: DFS-072
 ## Overview
 
 The **Scaling Operations** specification covers weighbridge scale-in/out, **P.C. code capture** (operator-entered at scale-in — the system does **not** generate P.C. codes), net weight calculation, and printable gate pass. Every weighing operation is anchored to a `GateVisitSession` (and therefore to a `TransportOrder`). Scale-in is a **prerequisite** for Command Center queue entry; scale-out is a **prerequisite** for gate-out (GT-01 guard matrix).
+
+While P.C. codes stay operator-entered, the system **does** auto-generate a **CC queue serial** at scale-in (v1.4): `QueueToken.serial_number` in format `CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}`, a per-POI daily sequence (UTC midnight reset). The serial prints on the queue token slip and orders the Command Center queue (CC-01). Do not confuse it with the per-LUP `WaitingSerial` issued later at bay assignment.
 
 **Module path**: `apps/operations/scaling/`  
 **Dependencies**: `apps/operations/gate/` (`GateVisitSession`, `yard_leg`), `apps/operations/yard_context.py` (`OPERATIONS_BY_LEG_AND_LANE`), `apps/transport/` (TransportOrder, FlowLane, TOStatus), **`YARD-01`** (YardAdminBase, yard_poi, UserOperationalPOI, TOSubState)  
@@ -134,7 +136,7 @@ ScaleOut(TenantAwareModel) {
 
 ### 1.4 QueueToken (new model — extends `TenantAwareModel`)
 
-Created on successful scale-in for CC-01 queue linkage. The **P.C. code is not generated** — it is copied from the operator input on `ScaleIn.pc_code` at create time.
+Created on successful scale-in for CC-01 queue linkage. The **P.C. code is not generated** — it is copied from the operator input on `ScaleIn.pc_code` at create time. The **queue serial is generated** (v1.4): `serial_number` is auto-issued by `_next_queue_serial` inside the same `record_scale_in` transaction.
 
 ```python
 QueueToken(TenantAwareModel) {
@@ -143,6 +145,11 @@ QueueToken(TenantAwareModel) {
     weighing_session: FK → WeighingSession (OneToOne)
     poi: FK → POI                         # denormalised from session for uniqueness scope
     pc_code: string (max 50, required)    # same value as ScaleIn.pc_code (trimmed)
+
+    # CC queue serial (v1.4) — system-generated at scale-in, immutable.
+    # Format: CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}; daily sequence per POI, UTC reset.
+    # Blank ("") on tokens created before this feature shipped.
+    serial_number: string (max 40, blank, db_index)
 
     status: enum ['waiting', 'assigned', 'closed']
     # waiting → on CC queue
@@ -155,6 +162,31 @@ QueueToken(TenantAwareModel) {
 ```
 
 **Uniqueness**: `pc_code` must be unique among tokens at the same `poi` while `status in ('waiting', 'assigned')`. Closed tokens do not block reuse of the same physical code on a later day (business accepts yard re-issue). Enforce via `UniqueConstraint` + `ScaleInService.validate_pc_code()`.
+
+**Serial uniqueness**: `serial_number` is globally unique when set — partial `UniqueConstraint` `uq_queue_token_serial_number` with `condition=~Q(serial_number="")` (pre-feature blank tokens are exempt). Migration: `apps/operations/migrations/0014_queue_token_serial.py`.
+
+### 1.5 QueueSerialSequence (v1.4 — extends `TenantAwareModel`)
+
+Concurrency-safe daily counter **per POI** for CC queue serial issuance — same pattern as CC-01's per-LUP `WaitingSerialSequence` (FB-005). Incremented inside `record_scale_in` with `select_for_update()` in the same transaction as `QueueToken` creation.
+
+```python
+QueueSerialSequence(TenantAwareModel) {
+    id: UUID (PK)
+
+    poi: FK → POI (PROTECT)
+    serial_date: DateField   # UTC date (not local POI time)
+    last_seq: PositiveIntegerField (default 0)
+
+    # UniqueConstraint(poi, serial_date) — uq_queue_serial_seq_poi_date
+}
+```
+
+**Allocator** (`_next_queue_serial` in `apps/operations/scaling/services.py`):
+
+1. Resolve `serial_date` in UTC (`_utc_serial_date`).
+2. `get_or_create` sequence row for `(poi, serial_date)` with row lock (`select_for_update`).
+3. `last_seq += 1`; persist.
+4. Return `f"CC-{poi.poi_code}-{serial_date:%Y%m%d}-{last_seq:03d}"`.
 
 ---
 
@@ -201,7 +233,7 @@ def validate_pc_code(*, poi_id, pc_code: str) -> None:
 
 **On successful scale-in** (all within one `atomic()` block — if any step fails, all roll back):
 1. Create `WeighingSession` + `ScaleIn` record (copy `poi` + `transport_order` from session; persist operator `pc_code`)
-2. Create `QueueToken` (`pc_code` = `ScaleIn.pc_code`, `status = waiting`) — no serial generation
+2. Create `QueueToken` (`pc_code` = `ScaleIn.pc_code`, `status = waiting`, `serial_number` auto-issued via `_next_queue_serial` — per-POI UTC daily sequence, §1.5)
 3. **Create `QueueEntry`** in CC-01 directly via `CCService.create_queue_entry()` — **not** via signal or webhook. A failed signal would leave the vehicle invisible in Command Center.
 4. `sub = scale_in_sub_state_for_session(session)` — see §2.3 — then `record_yard_sub_state(to, sub, …)` and `record_yard_sub_state(to, TOSubState.WAITING_CC, …)` (YARD-01)
 
@@ -315,9 +347,10 @@ Scaling Operator opens Scale-In form
                           └─► ScaleInService.record_scale_in(session, pc_code, weight, flags):
                                 ├─► validate_pc_code(poi, pc_code) — required, trimmed, unique among active tokens at POI
                                 ├─► Create WeighingSession + ScaleIn (with pc_code)
-                                ├─► Create QueueToken (pc_code copied, status=waiting)
+                                ├─► Allocate queue serial: _next_queue_serial(poi, now) → CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}
+                                ├─► Create QueueToken (pc_code copied, serial_number set, status=waiting)
                                 ├─► Emit SCALE_IN → TLS-01 (sub: scale_in_source | scale_in_dest → waiting_cc)
-                                └─► Success: show P.C. code + [Print Token] button (reprints entered code + visit summary)
+                                └─► Success: show P.C. code + queue serial + [Print Token] button (slip shows entered code, queue serial, visit summary)
 ```
 
 ---
@@ -495,12 +528,12 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 
 ### 5.3 QueueTokenAdmin (SC-01-4)
 
-Read-oriented admin; tokens are created by `ScaleInService`, not manually. `pc_code` is **read-only** on this admin (captured on scale-in only).
+Read-oriented admin; tokens are created by `ScaleInService`, not manually. `pc_code` and `serial_number` are **read-only** on this admin (captured/issued on scale-in only).
 
 **List View**:
-- Columns: **P.C. Code**, TO Number, Vehicle, Flow Lane, Status badge, Issued At
+- Columns: **Serial**, **P.C. Code**, TO Number, Vehicle, Flow Lane, Status badge, Issued At
 - Filters: `status`, `poi`, `issued_at` (date range)
-- Search: P.C. code, TO number, Vehicle registration
+- Search: P.C. code, **queue serial**, TO number, Vehicle registration
 
 **Status badge colours**:
 ```python
@@ -512,7 +545,7 @@ _TOKEN_STATUS_BADGE = {
 ```
 
 **Actions**:
-- `[Print Token]` — custom action → `HttpResponse` with print CSS template (vehicle number, product type, **operator-entered P.C. code**, gross weight, TO reference, POI)
+- `[Print Token]` — custom action → `HttpResponse` with print CSS template (vehicle number, product type, **operator-entered P.C. code**, **queue serial** (— when blank), gross weight, TO reference, POI)
 
 **Detail View**: read-only all fields; link to WeighingSession + GateVisitSession
 
@@ -532,8 +565,10 @@ Gate pass is not a separate model — it is rendered on demand from `ScaleOut` +
 POST   /api/v1/scaling/scale-in
        → Body: { gate_visit_session_id, pc_code, gross_weight_mt, is_empty_vehicle, seal_intact, document_match, discrepancy_notes }
        → Validations: gate-in prerequisite, `(flow_lane, yard_leg)` / TO status, **pc_code required + unique at POI among active tokens**, no duplicate scale-in
-       → Side effects: Create WeighingSession + ScaleIn + QueueToken (pc_code from body), emit SCALE_IN to TLS-01
+       → Side effects: Create WeighingSession + ScaleIn + QueueToken (pc_code from body; serial_number auto-issued), emit SCALE_IN to TLS-01
        → Response: { scale_in_id, weighing_session_id, pc_code, queue_token: { id, pc_code, status }, scale_in_at }
+       → Pending: expose queue_token.serial_number in the response (serial is issued and persisted;
+         currently surfaced via admin and the printable token only — not yet in REST payloads)
 
 POST   /api/v1/scaling/scale-out
        → Body: { weighing_session_id, tare_weight_mt }
@@ -543,9 +578,10 @@ POST   /api/v1/scaling/scale-out
 
 GET    /api/v1/scaling/queue-tokens?status=waiting&poi=&date=
        → Active queue tokens (used by CC-01 queue feed)
+       → Pending: include serial_number per token (not yet in the list payload)
 
 GET    /api/v1/scaling/queue-tokens/{token_id}
-       → Token detail
+       → Token detail (Pending: include serial_number)
 
 GET    /api/v1/scaling/queue-tokens/{token_id}/print
        → Printable token (HTML with print CSS)
@@ -559,6 +595,7 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 ## 7. Validation Rules
 
 - **P.C. code**: required on scale-in; trimmed; max 50 chars; unique at POI among `QueueToken` with `status in (waiting, assigned)` → 409 Conflict on duplicate
+- **Queue serial**: system-generated only (never operator-entered); immutable after issue; globally unique when set (partial constraint exempts pre-feature blank tokens); per-POI daily sequence resets at 00:00 UTC
 - Gross weight > 0 (empty vehicle flag overrides quantity requirement, but weight is still measured)
 - Tare weight > 0 and < gross weight (service-level check)
 - Net weight auto-calculated; not editable
@@ -599,8 +636,9 @@ GET    /api/v1/scaling/scale-out/{id}/gate-pass
 | SC-01-9 | TLS-01 event emission | SCALE_IN / SCALE_OUT events with leg-specific sub-states + `yard_leg` in payload |
 | SC-01-10 | Constants | `SCALE_IN_ELIGIBLE_TO_STATUSES`, `SCALE_OUT_RESULT_TO_STATUS` keyed by `(flow_lane, yard_leg)`; extend `TOSubState` with `scale_in_source`, `scale_in_dest`, `scale_out_source`, `scale_out_dest` |
 | SC-01-11 | YARD-01 integration | `ScaleAdminBase` → `YardAdminBase`; `create_queue_entry` in `ScaleInService` (atomic); `record_yard_sub_state(scale_in_* → WAITING_CC)` per §2.3 |
+| SC-01-12 | Queue serial at scale-in (v1.4) | `QueueToken.serial_number` + `QueueSerialSequence` (per-POI UTC daily, §1.5); `_next_queue_serial` in `record_scale_in`; serial on token slip + admin columns; migration `0014_queue_token_serial` |
 
 ---
 
-**Last Updated**: 2026-05-19  
+**Last Updated**: 2026-06-11  
 **Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)

@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Command Center, Loading/Unloading & QC Operations (Sprint 4 — TO-Centric)
-version: 1.4
+version: 1.5
 phase: Phase 1
 sprint: Sprint 4 (baseline) + Sprint 5 carry-over (FB-005, FB-006, CC-01 APIs)
-last_updated: 2026-06-09
-changelog: "v1.4 — CC bay-assignment LUP traffic panel: implementation plan §11.10; FB-005 status reconciled with codebase (service + LD done; CC panel + REST pending). v1.3 — LD-01 admin start UX: LUP dropdown → serial-ordered clickable queue table → bay_assignment (admin only; LUP not persisted on events). v1.2 — FB-005 bay concurrency + UTC serials. v1.1 — product-line QC at scale-in."
+last_updated: 2026-06-11
+changelog: "v1.5 — CC queue serial (issued at scale-in, SC-01 v1.4): `queue_token.serial_number` (`CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}`, per-POI UTC daily) shown as first sortable column on the CC queue and in the bay-assignment TO dropdown; per-LUP WaitingSerial unchanged. v1.4 — CC bay-assignment LUP traffic panel: implementation plan §11.10; FB-005 status reconciled with codebase (service + LD done; CC panel + REST pending). v1.3 — LD-01 admin start UX: LUP dropdown → serial-ordered clickable queue table → bay_assignment (admin only; LUP not persisted on events). v1.2 — FB-005 bay concurrency + UTC serials. v1.1 — product-line QC at scale-in."
 related_stories: DFS-056 (CC-01), DFS-057 (LD-01), DFS-058 (QC-01)
 feedback_items: FB-005 (bay concurrency + serials), FB-006 (product-line QC)
 jira_epic: DFS-072
@@ -17,7 +17,7 @@ jira_epic: DFS-072
 
 This specification covers three tightly coupled modules in the yard chain:
 
-- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. A loading/unloading point may serve **multiple vehicles concurrently** (FB-005); each assignment gets a **daily UTC waiting serial** for that point. On bay assignment, the CCO must see **traffic at the selected L/U point** (active assignments, serial order) — §6.2, §11.10. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
+- **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. Every scaled-in vehicle arrives on the queue already carrying a **CC queue serial** (`queue_token.serial_number`, per-POI UTC daily sequence issued by SC-01 at scale-in — v1.5) which orders the queue FIFO and is the CCO's handle for assigning loading/unloading points. A loading/unloading point may serve **multiple vehicles concurrently** (FB-005); each assignment gets a **daily UTC waiting serial** for that point. On bay assignment, the CCO must see **traffic at the selected L/U point** (active assignments, serial order) — §6.2, §11.10. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
 - **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. **Admin start flow (Sprint 5)**: personnel pick **loading/unloading point** → see **serial-ordered queue** at that point → click row to select TO → start event (`bay_assignment` only persisted). Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
 - **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
@@ -97,6 +97,18 @@ QueueEntry(TenantAwareModel) {
     created_at: DateTime
 }
 ```
+
+**Queue serial (v1.5)**: `QueueEntry` has **no serial field of its own** — the CC queue serial lives on the linked token and is read via `queue_entry.queue_token.serial_number` (see [scaling-operations-sprint4.md](./scaling-operations-sprint4.md) §1.4–1.5).
+
+**Two serials — do not conflate**:
+
+| | CC queue serial (v1.5) | Waiting serial (FB-005) |
+|---|---|---|
+| Issued at | Scale-in (`ScaleInService.record_scale_in`) | Bay assignment (`CCService.assign_bay`) |
+| Lives on | `QueueToken.serial_number` | `WaitingSerial.serial_number` |
+| Scope | Daily sequence **per POI** | Daily sequence **per LoadingUnloadingPoint** |
+| Format | `CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}` | `{POINT_CODE}-{YYYYMMDD}-{seq:03d}` |
+| Purpose | FIFO order of the CC queue; printed on token slip | Vehicle order at an assigned L/U point |
 
 ### 1.2 BayAssignment (new model — extends `TenantAwareModel`)
 
@@ -317,7 +329,7 @@ Loading/unloading completion is a **pre-condition gate for scale-out** (SC-01 §
 ```
 CC Officer opens Command Center → Queue
   └─► List of QueueEntry rows where status='waiting', poi=officer's POI
-        ├─► Columns: Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since
+        ├─► Columns: Serial (queue_token.serial_number — sortable, FIFO), Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since
         ├─► Filter: requires_qc (All / Yes / No), flow_lane
         ├─► RM + requires_qc + qc_passed unset: row shows **Awaiting QC** (no Assign Bay)
         └─► [Assign Bay] when requires_qc=False OR qc_passed=True
@@ -363,7 +375,7 @@ CCService.assign_bay(queue_entry, unloading_point, assigned_by):
 **At scale-in (same `atomic()` as `ScaleInService.record_scale_in`):**
 
 ```
-ScaleInService.record_scale_in(...)
+ScaleInService.record_scale_in(...)        # queue_token arrives with serial_number already issued (SC-01 v1.4)
   └─► CCService.create_queue_entry(weighing_session, queue_token, actor):
         ├─► requires_qc = to_requires_qc_from_lines(transport_order)
         ├─► Sync TransportOrder.requires_qc if derived value differs (denormalized aggregate)
@@ -611,9 +623,9 @@ class UnloadEventAdminBase(YardAdminBase):
 Uses `CCAdminBase` (→ `YardAdminBase`). **Primary working screen for CC Officer**.
 
 **List View (Queue Dashboard)**:
-- Columns: Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since, Status badge
+- Columns: **Serial** (first — `queue_token__serial_number`, sortable for FIFO working order; "—" on pre-feature entries), Token Number, TO Number, Vehicle, Flow Lane badge, Gross Weight, Requires QC badge, Waiting Since, Status badge
 - Filters: `status`, `requires_qc`, `poi`, `created_at` (date range)
-- Search: TO number, Vehicle registration, Token number
+- Search: TO number, Vehicle registration, Token number, **Queue serial** (`queue_token__serial_number`)
 
 **Status badge colours**:
 ```python
@@ -655,7 +667,7 @@ Uses `CCAdminBase` (→ `YardAdminBase`). Template: `templates/admin/operations/
 
 | Widget | Status | Behaviour |
 |--------|--------|-----------|
-| `queue_entry` | ✓ Shipped | Filtered to bay-assignable entries at officer POI; label shows TO + vehicle + token |
+| `queue_entry` | ✓ Shipped | Filtered to bay-assignable entries at officer POI; label shows TO + vehicle + token + **queue serial** (when set — v1.5) |
 | TO summary panel (`#cc-to-details-panel`) | ✓ Shipped | AJAX `GET …/queue-entry-details/<qe_id>/` — refreshes on TO change |
 | `loading_unloading_point` | ✓ Shipped | Scoped by flow lane + POI; AJAX `GET …/queue-entry-lups/<qe_id>/` refreshes options on TO change; **does not exclude occupied LUPs** (FB-005) |
 | **LUP traffic panel** (`#cc-lup-traffic-panel`) | **Pending** (§11.10) | Read-only table of **all** active assignments at selected LUP via `CCService.active_assignments_for_lup`; refreshes on LUP change |
@@ -805,6 +817,7 @@ def override_to_failed(self, request, queryset):
 ```http
 GET    /api/v1/command-center/queue?poi=&requires_qc=&status=
        → List QueueEntry rows (CC dashboard feed)
+       → Include queue_token.serial_number per row (v1.5) — order by serial ascending for FIFO
 
 POST   /api/v1/command-center/assignments
        → Body: { queue_entry_id, loading_unloading_point_id }
@@ -912,7 +925,7 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 
 | Module | Direction | How |
 |--------|-----------|-----|
-| SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — sets `requires_qc` from product lines and writes `flagged_for_qc` or `waiting_cc` (YARD-01) |
+| SC-01 (Scale-In) | Upstream | `ScaleInService` calls `CCService.create_queue_entry()` atomically — sets `requires_qc` from product lines and writes `flagged_for_qc` or `waiting_cc` (YARD-01); issues the **CC queue serial** on `QueueToken.serial_number` (per-POI UTC daily, v1.5) surfaced as the first CC queue column |
 | GT-01 (Gate-Out) | Downstream | LoadEvent/UnloadEvent completion + QCDecision.decision='pass' are gate-out guard conditions |
 | SC-01 (Scale-Out) | Downstream gate | LoadEvent/UnloadEvent completion (+ QC pass for RM) unlocks scale-out |
 | LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK; filtered by poi + operation_type + is_active (FB-005: not filtered by “bay occupied”) |
