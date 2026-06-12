@@ -5,7 +5,7 @@ phase: Phase 1
 dates: "2026-06-17 → 2026-07-01"
 status: Planning
 carry_from: Sprint 5
-total_story_points_estimated: "~57 SP (23 E2E carry-over sub-tasks + GPS-01 Phase 1 production + vendor app release/UX + Phase 1 readiness docs)"
+total_story_points_estimated: "~62 SP (23 E2E carry-over sub-tasks + GPS Phase 1 production + vendor app release/UX + Phase 1 readiness docs + tenant-wide audit trail)"
 ---
 
 # Sprint 6 — E2E Hardening, GPS Maps Dashboard Phase 1 Production, Vendor App Release & Phase 1 Readiness
@@ -28,6 +28,7 @@ total_story_points_estimated: "~57 SP (23 E2E carry-over sub-tasks + GPS-01 Phas
 4. **Vendor app design improvements (VAPP-02)** — UX/UI polish pass across vendor app surfaces: consistent design system, loading/empty/error states, bid and trip lifecycle screen refinements. See [`03-vendor-app/VAPP-02-design-improvements.md`](03-vendor-app/VAPP-02-design-improvements.md).
 5. **Phase 1 User Manual readiness (DOC-01)** — role-based user manual covering every Phase 1 module, reviewed and sign-off ready. See [`04-phase1-readiness-docs/DOC-01-phase1-user-manual.md`](04-phase1-readiness-docs/DOC-01-phase1-user-manual.md).
 6. **Phase 1 UAT documentation (UAT-01)** — complete UAT package: test plan, role-based scenario scripts traceable to PRD ACs, entry/exit criteria, defect log template, and sign-off sheets. See [`04-phase1-readiness-docs/UAT-01-phase1-uat-documentation.md`](04-phase1-readiness-docs/UAT-01-phase1-uat-documentation.md).
+7. **Tenant-wide audit trail (AUD-01)** — unify the per-story audit logging shipped across Sprints 3–5 into one tenant-wide standard with role-at-time-of-action capture, close coverage gaps (incl. auth events per PRD §6.2.7), and give Tenant Admin a single filtered, immutable, exportable audit viewer. See [`05-audit-logging/AUD-01-tenant-wide-audit-trail.md`](05-audit-logging/AUD-01-tenant-wide-audit-trail.md).
 
 ---
 
@@ -39,8 +40,9 @@ total_story_points_estimated: "~57 SP (23 E2E carry-over sub-tasks + GPS-01 Phas
 | 02 | GPS & Maps Dashboard | GPS-01 → GPS-05 (Phase 1 production) | ~13 SP | — | New production stories (supersede Sprint 5 demo backlog) |
 | 03 | Vendor Mobile App | VAPP-01, VAPP-02 | 8 + 5 SP | — | New Sprint 6 scope |
 | 04 | Phase 1 Readiness & Documentation | DOC-01, UAT-01 | 5 + 5 SP | — | New Sprint 6 scope |
+| 05 | Audit & Compliance | AUD-01 | 5 SP | — | New Sprint 6 scope |
 
-**Total estimated**: ~57 SP
+**Total estimated**: ~62 SP
 
 ---
 
@@ -157,6 +159,17 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 | UAT-01-5 | UAT-01 | Defect log template + severity/triage workflow agreed with PO | Medium |
 | UAT-01-6 | UAT-01 | Sign-off package — per-module sign-off sheets, overall Phase 1 acceptance record | High |
 
+### Epic 05: Audit & Compliance (AUD-01)
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| AUD-01-1 | AUD-01 | Unified audit event standard — schema, role-at-time-of-action, system-actor convention | High |
+| AUD-01-2 | AUD-01 | Coverage matrix per module + close all High gaps (incl. login/logout/lockout events) | High |
+| AUD-01-3 | AUD-01 | Map Sprint 4/5 module logs (DS, LUP, VM, POD, STK) onto the standard — no duplication | High |
+| AUD-01-4 | AUD-01 | Tenant Admin audit viewer — filters (date, user, role, module, entity, action), detail view, CSV export | High |
+| AUD-01-5 | AUD-01 | Access control — Tenant Admin-only RBAC, tenant isolation test, viewer access audited | High |
+| AUD-01-6 | AUD-01 | Integrity & retention — immutability guard, 2-year configurable retention, audit-failure monitoring | Medium |
+
 ---
 
 ## Deferred Scope (not Sprint 6)
@@ -172,6 +185,7 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 | Push notifications for CC assignment / loading alerts | Phase 3 |
 | Vendor billing, claims, rating, advanced bid probability | Phase 2 / Phase 3 |
 | Vendor app store publication / distribution rollout | Post-UAT (release readiness only this sprint) |
+| System Usage & Audit Reports suite (§6.19.5) | Phase 3 — AUD-01 delivers the Phase 1 audit trail + viewer only |
 
 ---
 
