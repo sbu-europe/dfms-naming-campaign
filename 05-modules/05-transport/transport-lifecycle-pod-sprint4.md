@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Lifecycle, POD & QC Integration (Sprint 4)
-version: 3.1
+version: 3.4
 phase: Phase 1
-sprint: Sprint 4
-last_updated: 2026-05-20
-changelog: "v3.1 — POD-01: Transport Planner triggers closed status after verifying TO details; prerequisite refresh on yard/POD events (no system auto-close). v3.0 — align with YARD-01 + POI yard ops: single TransportOrder.status + denormalized sub_state; yard-module TLS integration matrix; QC defers to qc-operations-sprint4.md; closure reads yard records"
+sprint: Sprint 4 (Sprint 5 — FB-004 pre-execution handoff)
+last_updated: 2026-06-05
+changelog: "v3.4 — FG outbound source leg: scale-out sub-state only (`scale_out_source`); gate-out at origin advances `in_transit_destination` (aligns logistics-flow-diagrams + STK-01 gate-departure). v3.3 — §2.7 backend alignment: gate-out then POD → completed → TP close; can_submit_pod; checklist refresh hooks; fleet release on completed/closed (code gap documented). v3.2 — FB-004: TDO → ready_for_dispatch → DS-01 dispatched → driver Trip Start. v3.1 — POD-01: TP-triggered close; prerequisite refresh (no auto-close). v3.0 — YARD-01 + yard TLS matrix; closure reads yard records"
 related_stories: DFS-059 (TLS-01), DFS-060 (POD-01), DFS-064 (QC-01), DFS-065 (YARD-01)
 jira_epic: DFS-075
 ---
@@ -33,7 +33,7 @@ The closure engine evaluates flow-specific gates before any close attempt. **`cl
 
 - `apps/transport/lifecycle/` — timeline + canonical status transitions + driver rules
 - `apps/transport/closure/` — closure rule engine (POD-01)
-- `apps/transport/pod/` — POD model + capture (DM-01)
+- `apps/transport/pod_service.py` — POD capture (DM-01); models on `TransportOrder`
 - QC models/services/admin: `apps/quality/checkpoint/` — see [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
 **Dependencies**:
@@ -86,7 +86,7 @@ Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.
 
 | Field | Purpose | Written by |
 |-------|---------|------------|
-| `TransportOrder.status` | Coarse lifecycle (`TOStatus`) | Driver (in-transit only), gate (gate-in status bump), scale-out, dispatch, closure, admin |
+| `TransportOrder.status` | Coarse lifecycle (`TOStatus`) | Driver (in-transit only), gate (gate-in + **FG outbound source gate-out → in-transit**), scale-out (destination/inbound legs only), dispatch, closure, admin |
 | `TransportOrder.sub_state` | Yard workflow step (`TOSubState`) | Gate (gate-out markers), scale, CC, LD, QC services |
 
 **Alias**: `TransportOrder.tls_status` property returns `status` for API compatibility.
@@ -94,6 +94,17 @@ Sprint 4 execution tracking uses **two fields on one aggregate**, not a PRD §6.
 **Sprint 3 planning statuses** (unchanged keys on the same `status` column):
 
 `created` → `assigned` → `ready_for_dispatch` → `dispatched` → … → `completed` / `closed` / `cancelled` / `under_planning`
+
+**Pre-execution handoff (FB-004 — cross-story alignment across DS-01, DM-01, TLS-01):**
+
+| Status | Set by | Module |
+|--------|--------|--------|
+| `assigned` | TDO links vehicle/driver (and helpers/ETA for own fleet) | `apps/transport/services.py` |
+| `ready_for_dispatch` | TDO completes assignment | Same — **not** DS-01 |
+| `dispatched` | Driver Supervisor inspection complete or skip | `apps/fleet_supervisor/services.py` (`dispatch_to_after_ready`) |
+| `in_transit_source` / `in_transit_destination` | Driver **Trip Start** (lane from `FIRST_DRIVER_TRANSITION`) | `apps/transport/driver_transition_service.py` + `state_machine.py` |
+
+Gate-in (GT-01) requires **in-transit** status per lane — not `ready_for_dispatch` or `dispatched`.
 
 **Sprint 4 execution statuses** (append to `TOStatus` in `apps/transport/constants.py`):
 
@@ -173,14 +184,16 @@ Authoritative yard progression is in [gate-operations-sprint4.md §4.5](../06-po
 | CC queue / QC flag | `sub_state`: bay assign or `flagged_for_qc` | bay assign | CC flags QC; QC sample/decision |
 | QC Pass (RM only) | — | — | `sub_state`: `qc_passed`; CC assigns unload bay |
 | Load / unload (LD-01) | load sub-states | unload sub-states | unload sub-states |
-| Scale-out (SC-01) | → `in_transit_destination` | → `delivered_unloaded` | → `delivered_unloaded` |
-| Gate-out (GT-01) | `sub_state`: `gate_out_source` or `gate_out_destination` | same | same |
+| Scale-out (SC-01) | `at_source` (sub: `scale_out_source`) — **status unchanged** | → `delivered_unloaded` | → `delivered_unloaded` |
+| Gate-out (GT-01) | → `in_transit_destination` (source leg) + sub: `gate_out_source`; dest leg: sub: `gate_out_destination` only | sub: `gate_out_destination` | sub: `gate_out_destination` |
 | Driver POD (DM-01) | → `completed` (when business rules met) | same | same |
 | Closure (POD-01) | → `closed` (**TP triggers** after verification) | same | same (RM: TP verifies QC Pass) |
 
 **GT-02 on-demand:** Dealer DO → `at_source`; Supplier PO → `at_destination` in the same transaction as gate-in (skips driver in-transit steps).
 
-**Important:** Most yard steps change **`sub_state` only** while `status` stays at `at_source` / `at_destination`. Canonical `status` advances on gate-in, scale-out, driver milestones, POD, and closure — not on every bay assign or load start.
+**FG outbound source leg (authoritative):** Scale-out records loaded weight and sets `sub_state = scale_out_source` while the vehicle remains **`at_source`** inside the yard. **Only gate-out at the origin POI** may advance the TO to `in_transit_destination` (physical departure). Skipping gate-out must not show the TO as en route. Authoritative departure timestamp: `GateOut.gate_out_at` on the source visit (STK-01 in-transit stock hooks use this event, not scale-out).
+
+**Important:** Most yard steps change **`sub_state` only** while `status` stays at `at_source` / `at_destination`. Canonical `status` advances on gate-in, gate-out (FG outbound source), scale-out (destination/inbound legs), driver milestones, POD, and closure — not on every bay assign or load start.
 
 ### 1.3 Data model
 
@@ -301,6 +314,8 @@ Drivers may **only** set in-transit statuses from `Dispatched`:
 
 All other execution statuses are written by yard services or lifecycle/closure. Forward-only table: `TO_STATUS_TRANSITIONS` in `apps/transport/constants.py`.
 
+**FG outbound source gate-out edge:** `at_source` (or `loaded_pickup_completed`) → `in_transit_destination` is permitted **only** via GT-01 `record_gate_out_status` at `origin_poi` after source scale-out. SC-01 must not write this transition.
+
 Fleet availability (§6.8.1.7): validate vehicle not under maintenance and driver not on leave on first driver execution action (DM-01) and optionally at gate-in (GT-01).
 
 ### 1.6 Yard-module TLS integration matrix
@@ -310,9 +325,9 @@ Yard modules call timeline helpers **in the same `atomic()` block** as their dom
 | Module | Service action | `status` change | `sub_state` change | `source_module` |
 |--------|----------------|-----------------|-------------------|-----------------|
 | **GT-01** gate-in | `record_gate_in_status` | → `at_source` / `at_destination` per lane | — | `gate` |
-| **GT-01** gate-out | `record_gate_out_status` | — | `gate_out_source` or `gate_out_destination` | `gate` |
+| **GT-01** gate-out | `record_gate_out_status` | FG outbound at origin: → `in_transit_destination`; inbound/dest legs: — | `gate_out_source` or `gate_out_destination` | `gate` |
 | **SC-01** scale-in | `ScaleInService.record_scale_in` | — | leg `scale_in_*` → `waiting_cc` | `scaling` |
-| **SC-01** scale-out | `ScaleOutService.record_scale_out` | → per `SCALE_OUT_RESULT_TO_STATUS` | leg `scale_out_*`; then clear sub_state | `scaling` |
+| **SC-01** scale-out | `ScaleOutService.record_scale_out` | → per `SCALE_OUT_RESULT_TO_STATUS` (`None` = sub-state only, FG outbound source) | leg `scale_out_*`; clear sub_state when status crosses `SUB_STATE_RESET_ON_STATUS` | `scaling` |
 | **CC-01** flag QC | `CCService.flag_for_qc` | — | `flagged_for_qc` | `command_center` |
 | **CC-01** assign bay | `CCService.assign_bay` | — | `assigned_loading_point` or `assigned_unloading_point` | `command_center` |
 | **LD-01** load start/complete | `LDService.start/complete_loading` | — | `loading_started` / `loading_completed` | `loading` |
@@ -366,31 +381,36 @@ See [yard-foundation-implementation.md](../06-poi-operations/yard-foundation-imp
 | TLS-01-1 | `TOStatus` + `TOSubState` in `constants.py` | Partial — enums in code |
 | TLS-01-2 | `TOStatusTransitionLog` + `sub_state` column on log | Partial |
 | TLS-01-3 | `TransportOrder.sub_state` migration (YARD-01 Step 1) | Partial |
-| TLS-01-4 | `TO_STATUS_TRANSITIONS` + driver rules in `state_machine.py` | Partial |
+| TLS-01-4 | `TO_STATUS_TRANSITIONS` + driver rules in `state_machine.py` | Partial — FB-004: enforce planning chain through `dispatched` and driver-only in-transit from `dispatched` |
 | TLS-01-5 | `apply_to_status_transition()` + `record_yard_sub_state()` | Partial |
 | TLS-01-6 | Yard integration matrix (§1.6) wired in GT/SC/CC/LD/QC services | In progress |
 | TLS-01-7 | Fleet availability validation | Per DM-01 / GT-01 |
 | TLS-01-8 | Timeline / status API endpoints | Planned |
 | TLS-01-9 | Django Admin for `TOStatusTransitionLog` | Planned |
-| TLS-01-10 | `maybe_clear_sub_state_on_status` on all canonical bumps; closure refresh hook | In progress |
+| TLS-01-10 | `apply_to_status_transition()`; `maybe_clear_sub_state_on_status` on canonical bumps; admin/break-glass POST validates `TO_STATUS_TRANSITIONS` | Partial — FB-004: yard modules must not bypass graph |
 
 ---
 
 ## 2. POD-01: TO Closure & POD Linkage
 
-### 2.1 ProofOfDelivery
+### 2.1 ProofOfDelivery (DM-01)
 
-Defined in DM-01 (`ProofOfDelivery` / driver POD API). On submit:
+Defined in DM-01 (`ProofOfDelivery` / `apps/transport/pod_service.py` + driver POD API).
 
-1. Create POD record
-2. Advance TO to `completed` when lane rules allow
-3. Call `refresh_closure_checklist()` (recompute prerequisite flags only — **does not** transition to `closed`)
+**When the driver may submit:** TO is **`delivered_unloaded`**, destination **gate-out** is recorded (`GateOut.poi_id == destination_poi_id`), and lane yard prerequisites for POD are satisfied (see `can_submit_pod` in §2.7). Gate-out does **not** change canonical `status` (stays `delivered_unloaded`; sub_state `gate_out_destination`).
 
-**Who closes:** Transport Planner reviews the TO (timeline, checklist, POD, yard/QC domain rows) and **triggers** `closed` via admin action or `POST .../close` when all lane gates pass.
+**On submit (atomic):**
+
+1. Validate `can_submit_pod(to)` — stable errors: `pod_status_gate`, `pod_prerequisites_not_met`
+2. Create POD record + files (1–3; JPEG/PNG/PDF per DM-01)
+3. **`apply_to_status_transition(to, completed, actor=driver, source_module="driver")`** — must not raw-assign `to.status`
+4. Call `refresh_closure_checklist()` (recompute flags only — **does not** transition to `closed`)
+
+**Who closes:** Transport Planner reviews the TO (timeline, checklist, POD, yard/QC domain rows) and **triggers** `closed` via admin action or `POST .../close` when all lane gates pass and TO is already **`completed`**.
 
 ### 2.2 ClosureRuleEngine (`apps/transport/closure/closure_engine.py`)
 
-**Current code (May 2026):** minimal path — auto-close `completed` → `closed` when POD exists (to be replaced). **Target (this spec):** full lane matrices; **TP-triggered close only** (no system auto-close).
+**Implementation:** `closure_engine.py` + `pod_eligibility.py` + `pod_service.py` (§2.7). **TP-triggered close only** — no system auto-close to `closed`.
 
 Lane-aware evaluation keyed on `transport_order.flow_lane`:
 
@@ -475,6 +495,111 @@ delivered_unloaded → (driver POD) → completed → (TP verifies all details +
 | POD-01-8 | Exceptions admin changelist |
 | POD-01-9 | Manual + force close admin actions |
 | POD-01-10 | Closure API endpoints |
+| POD-01-4b | Wire §2.7 backend alignment (DM-01 POD gate + `completed` transition + prerequisite refresh hooks) | Done |
+
+### 2.7 Backend implementation alignment (DM-01 + POD-01)
+
+Authoritative **code** plan for closing gaps in §2.2 / §2.1. Implements existing stories **DFS-053 (DM-01)** and **DFS-060 (POD-01)** — no new Jira story.
+
+#### 2.7.1 Target lifecycle at destination
+
+| Step | Actor | `TransportOrder.status` after step | `sub_state` (yard) |
+|------|--------|-----------------------------------|---------------------|
+| Unload complete | LD-01 | Until scale-out: typically `at_destination` | `unloading_completed` |
+| Scale-out (destination) | SC-01 | `delivered_unloaded` | scale-out sub-state |
+| Gate-out (destination) | GT-01 | **`delivered_unloaded`** (unchanged) | `gate_out_destination` |
+| POD upload | Driver (DM-01) | **`completed`** | — |
+| Close TO | Transport Planner (POD-01) | **`closed`** | cleared on close |
+
+```text
+delivered_unloaded → (destination gate-out) → (driver POD) → completed → (TP close) → closed
+```
+
+**Gate-out then POD** matches GT-01 guards (exit requires unload + scale-out). Closure requires **both** gate-out and POD before TP close; order between those two at upload time is gate-out first for `can_submit_pod`.
+
+**Out of scope for this alignment:** system auto-close to `closed` (POD-01-6 deferred); new unit test module; closure REST APIs (POD-01-7/8) — admin close exists.
+
+#### 2.7.2 `can_submit_pod(to) -> (bool, reason)`
+
+Implement in `apps/transport/closure/` (e.g. `pod_eligibility.py` or helpers on `closure_engine.py`).
+
+| Rule | Source |
+|------|--------|
+| `to.status == delivered_unloaded` | §2.4 status path |
+| No existing `ProofOfDelivery` | DM-01 |
+| Destination `GateOut` exists (`GateOut.poi_id == to.destination_poi_id`) | Gate-out-then-POD |
+| Lane yard gates (reuse checklist flags, exclude `pod_uploaded`): | §2.3 |
+| FG inbound | `unloading_complete`, `scale_out_done` |
+| RM inbound | + `sampling_done`, `qc_passed` |
+| FG outbound | `loading_complete` (source) + destination scale-out + **destination** gate-out (not source-only exit) |
+
+Driver API / admin: expose `pod_enabled` and `pod_block_reason` from this helper (`admin_driver.py`, `driver_presenter.py`).
+
+#### 2.7.3 `submit_pod()` changes (`apps/transport/pod_service.py`)
+
+Replace `status == completed` guard with `can_submit_pod(to)`. After POD files persisted, call `apply_to_status_transition(..., COMPLETED)` then `refresh_closure_checklist(to)`.
+
+#### 2.7.4 Checklist refresh hooks (POD-01-4)
+
+Call `refresh_closure_checklist(to)` only (no status change) after:
+
+| Event | Module / function |
+|-------|-------------------|
+| Destination gate-out | `gate_services.create_gate_out()` |
+| Scale-out | `ScaleOutService.record_scale_out()` |
+| Unload complete | `LDService.complete_unloading()` |
+| QC decision (RM) | QC decision save path |
+
+Already required on POD submit (§2.1).
+
+#### 2.7.5 Fleet availability after `completed` / `closed`
+
+| Resource | Mechanism | When available for reassignment |
+|----------|-----------|-------------------------------|
+| **Vehicle** | `apps/transport/assignment_availability.TERMINAL_TO_STATUSES` includes `completed`, `closed` | From **`completed`** onward |
+| **Driver** | `try_transition_driver_available_on_to_completion()` in `apply_to_status_transition` when target is **`completed`** (DS-02-10) | **`on_execution` → `available`** on POD submit (normal path) |
+
+**Requirement:** POD submit must use `apply_to_status_transition`, not a direct status assignment.
+
+**Safety net:** On transition to **`closed`**, if driver is still `on_execution`, release to `available` (covers `force_close_transport_order` without a prior `completed` step). Implement in `apply_to_status_transition` or closure service.
+
+#### 2.7.6 File touch list (backend)
+
+```
+apps/transport/closure/pod_eligibility.py   # or extend closure_engine.py
+apps/transport/closure/__init__.py
+apps/transport/pod_service.py
+apps/transport/driver_exceptions.py
+apps/transport/driver_presenter.py
+apps/transport/admin_driver.py
+apps/transport/lifecycle/transition_service.py   # driver release on closed (safety net)
+apps/operations/gate/gate_services.py
+apps/operations/scaling/services.py
+apps/operations/loading/services.py
+apps/quality/...                                # QC decision hook
+apps/core/role_seed_data.py                     # Transport.TO.Close for transport_planner
+```
+
+No migrations planned.
+
+#### 2.7.7 Implementation order
+
+1. `can_submit_pod` + `submit_pod()` + `apply_to_status_transition` → `completed`
+2. Driver presenter / admin / API errors
+3. Yard + QC `refresh_closure_checklist` hooks
+4. Driver release safety net on `closed`
+5. `transport_planner` + `Transport.TO.Close` in role seed
+
+**Manual verification:** destination gate-out → POD → `completed` → driver `available` → vehicle assignable → TP admin close → `closed`.
+
+#### 2.7.8 Implementation status (backend)
+
+| Item | Status |
+|------|--------|
+| `can_submit_pod` + `submit_pod` → `completed` | Implemented |
+| Checklist refresh on GT / SC / LD / QC + POD | Implemented |
+| Driver release on `completed`; safety net on `closed` | Implemented |
+| `Transport.TO.Close` on `transport_planner` role seed | Implemented |
 
 ---
 
@@ -636,9 +761,11 @@ See §1.6 integration matrix. Authoritative per-module specs:
 - CC-01 / LD-01: [command-center-loading-sprint4.md](../06-poi-operations/command-center-loading-sprint4.md)
 - QC-01: [qc-operations-sprint4.md](../06-poi-operations/qc-operations-sprint4.md)
 
-### 6.3 Driver Supervisor (DS-01, DS-02)
+### 6.3 Driver Supervisor (DS-01, DS-02) — FB-004
 
-Fleet availability on first execution action; dispatch gate at `ready_for_dispatch`.
+- **TDO** sets `ready_for_dispatch` when assignment is complete.
+- **DS-01** dispatch queue lists only `ready_for_dispatch`; inspection/skip → `dispatched` via `dispatch_to_after_ready`.
+- **DM-01** Trip Start blocked until `dispatched`; §6.8.1.7 fleet availability runs on first driver transition after `dispatched`.
 
 ### 6.4 Command Center ↔ QC
 

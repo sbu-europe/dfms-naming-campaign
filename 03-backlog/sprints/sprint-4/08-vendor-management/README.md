@@ -122,8 +122,10 @@ flowchart TD
   CA --> CONF[VM-07 vehicle/driver/helper confirmation<br/>before trip start<br/>updates require reason + audit]
   WIN --> CONF
   CONF --> RDY[TO -> READY_FOR_DISPATCH]
-  RDY --> RT[VM-08 real-time TO status<br/>Assigned -> Completed -> Closed<br/>vendor cannot modify status]
-  RT --> DONE{TO reached COMPLETED?}
+  RDY --> START[Vendor Start Trip<br/>ready_for_dispatch -> driving_towards_*]
+  START --> RT[VM-08 real-time TLS-01 status<br/>vendor observes yard/driver progress]
+  RT --> COMPLETE[Vendor Complete Trip<br/>delivered_unloaded -> completed]
+  COMPLETE --> DONE{TO reached COMPLETED?}
   DONE -- Yes --> DOC[Vendor uploads POD + GRN copy + Invoice<br/>all three gated to Completed<br/>uploaded from Completed Trip view]
 ```
 

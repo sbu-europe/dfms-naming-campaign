@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-06-09
 ---
 
 # Vendor Mobile — Bids: Bid Opportunities List
@@ -27,8 +27,18 @@ Any TO that does **not** meet all of (1)–(3) MUST NOT appear, even if the vend
 
 ```typescript
 interface BidOpportunity {
-  bid_id: string;
-  to_number: string;
+  bid_id: string;             // BiddingSession UUID
+  bid_number: string;         // human Bid ID, e.g. BID-20260609-0001 (list card primary reference)
+  to_number: string;          // lead TO number (summary)
+  to_count: number;           // member TO count when session is multi-TO
+  transport_orders?: {        // present on detail; checklist for selective participation
+    to_id: string;
+    to_number: string;
+    planned_delivery_datetime?: string;
+    product_name: string;
+    quantity: number;
+    unit: string;
+  }[];
   tenant_id: string;          // for tenant switcher + badge
 
   // Route Details
@@ -77,7 +87,8 @@ interface BidOpportunity {
 - **List View:** All open bids sorted by urgency then by bid close time.
 - **Tenant badge:** Each card shows the tenant the bid belongs to (since the vendor may be Non-Contractual for multiple tenants).
 - **Filter Buttons:** All Bids / Bids I've Submitted / Urgent Only.
-- **Search:** By TO number, pickup/drop POI, product name.
+- **Search:** By Bid ID (`bid_number`), TO number, pickup/drop POI, product name.
+- **Multi-TO bids:** Card shows Bid ID + TO count; detail navigates by `bid_id`, not `to_id`.
 - **Bid Card:** Tap → full TO details → go to submission (see `04-bid-submission.md`).
 
 ### Status badge on cards

@@ -1,10 +1,10 @@
 ---
 module: 03-users
 specification: Driver Interface (Sprint 4 — TO Execution, Responsive Web)
-version: 3.0
+version: 3.1
 phase: Phase 1
-sprint: Sprint 4
-last_updated: 2026-05-15
+sprint: Sprint 4 (Sprint 5 carry-over — DM-01-12 Trip Start display label)
+last_updated: 2026-06-02
 related_stories: DFS-053 (DM-01)
 jira_epic: DFS-071
 ---
@@ -17,7 +17,7 @@ The **Driver Interface** provides field drivers with a **mobile-responsive Djang
 
 **Sprint 4 scope explicitly excludes**: map, turn-by-turn navigation, background GPS tracking — deferred to a later sprint.
 
-The driver sees **only TOs assigned to them** that are in **Ready for Dispatch** status or any downstream TLS-01 execution state through **Closed**. Execution transition controls are **disabled** until the Driver Supervisor completes **DS-01** dispatch (TO moves to `Dispatched`). The TO is the single execution container — **no separate Trip entity in Sprint 4**.
+The driver sees **only TOs assigned to them** from **`ready_for_dispatch`** through **Closed** (tab filters in `DRIVER_TAB_STATUSES`). **FB-004 sequence:** TDO sets `ready_for_dispatch` → Driver Supervisor sets `dispatched` → driver **Trip Start** → lane in-transit. Execution transition controls are **disabled** while status is `ready_for_dispatch` (dispatch gate banner). At **`dispatched`**, the driver sees one action — **Trip Start** (FB-003 / DM-01-12) — which advances the TO to `in_transit_source` (FG outbound) or `in_transit_destination` (FG/RM inbound) without exposing raw TLS status names on the button. The TO is the single execution container — **no separate Trip entity in Sprint 4**.
 
 **Technology**: Django Admin responsive web application (mobile-first CSS). No custom SPA or separate frontend framework.
 
@@ -50,9 +50,9 @@ Driver operations (portal)
 ├── My Transport Orders (portal)    — driver's own TO list; tabs via changelist filter
 │     └── [row click] ──► TO Detail (custom admin change view, read + action buttons)
 │           ├── Header: TO Number, Status badge, Flow lane, Route
-│           ├── Dispatch gate banner: "Awaiting dispatch by supervisor" (if Ready for Dispatch)
+│           ├── Dispatch gate banner: "Awaiting dispatch by supervisor" (if status = ready_for_dispatch)
 │           ├── TLS-01 Status: current status + allowed next transitions (lane-filtered)
-│           ├── Execution actions: [Advance to <Next Status>] button (disabled until Dispatched)
+│           ├── Execution actions: **[Trip Start]** when Dispatched (lane-aware; disabled until Dispatched)
 │           ├── Milestones timeline: completed steps ✓, current step ●, pending grayed
 │           ├── POD Section (enabled only when status = Completed)
 │           │     └── File upload form (1–3 files: JPEG/PNG/PDF)
@@ -118,12 +118,15 @@ Custom change-view template (`templates/admin/transport/transportorder/driver_de
 ```
 All transition buttons are rendered but `disabled` with `aria-disabled="true"`.
 
-**Execution Transitions Section** (shown when status = `Dispatched` or later):
-- Current TLS-01 status
-- `allowed_next_transitions` (lane-filtered per TLS-01): rendered as action buttons
-  - Example (FG outbound, current = `Dispatched`): `[→ In Transit – Source]`
-  - Example (RM inbound, current = `Dispatched`): `[→ In Transit – Destination]` (source-leg buttons absent)
-- Each button POSTs to `driver-transition` action URL
+**Execution Transitions Section** (shown when status = `Dispatched`):
+- Current TLS-01 status (read-only badge — PRD/TLS-01 name)
+- **Trip Start** (FB-003 / DM-01-12): single driver action when `tls_status = Dispatched`. Button label is always **Trip Start** — never **In Transit – Source** or **In Transit – Destination**. POST `target_status` is lane-aware:
+  - FG outbound → `in_transit_source`
+  - FG inbound / RM inbound → `in_transit_destination` (source-leg statuses not offered)
+- After Trip Start, driver has no further TLS-01 transition buttons; yard and lifecycle actions advance the TO
+- Trip Start POSTs to `driver-transition` action URL (or `POST …/transitions` on the API)
+
+**Later execution states** (`In Transit – Source` onward): driver does not get multi-step transition buttons in Sprint 4/5 — yard/QC/lifecycle own subsequent statuses.
 
 **POD Section** (shown when status = `Completed`):
 - File upload (1–3 files, JPEG/PNG/PDF, HTML5 `<input type="file" multiple accept=...>`)
@@ -292,8 +295,12 @@ GET    /api/v1/driver/transport-orders/{to_id}
            flow_lane,
            can_execute: bool,
            awaiting_supervisor_dispatch: bool,
-           allowed_next_transitions: [                # Lane-filtered; empty if not Dispatched yet
-             {status_key, label, actor: "driver"}
+           allowed_next_transitions: [                # At most one entry when Dispatched; empty otherwise
+             {
+               status_key,                          # in_transit_source | in_transit_destination (lane-specific)
+               label: "Trip Start",                 # Driver-facing label (FB-003); never raw TLS status name
+               actor: "driver"
+             }
            ],
            product: {item_code, name, quantity_mt, bags},
            route: {source_poi, destination_poi},
@@ -327,7 +334,7 @@ GET    /api/v1/driver/transport-orders/{to_id}
 POST   /api/v1/driver/transport-orders/{to_id}/transitions
        → Driver triggers a TLS-01 transition
        → Body: {
-           target_status: "in_transit_source",        # Must be in allowed_next_transitions
+           target_status: "in_transit_source",        # Lane-specific key from allowed_next_transitions (UI label is always Trip Start)
            actual_timestamp: "2026-05-06T09:30:00Z",  # Optional, defaults to now
            notes: "...",                              # Optional
            photo: <multipart file>                    # Optional (JPEG/PNG, auto-compressed)
@@ -441,7 +448,7 @@ class DriverTransportOrderAdmin(TenantOnlyAdminMixin, DynamicPaginationMixin, ad
 **Custom change view** (`driver_detail.html`):
 - Extends `templates/admin/change_form.html`
 - Dispatch gate banner (when `tls_status = Ready for Dispatch`)
-- TLS-01 transition action buttons (lane-filtered, disabled when awaiting dispatch)
+- **Trip Start** action button when `Dispatched` (label fixed; `target_status` lane-aware; disabled when awaiting dispatch)
 - POD upload form section (enabled only when `tls_status = Completed`)
 - Milestone timeline read-only section
 - Uses `dfms-btn-*` CSS classes and Bootstrap Icons for all action buttons
@@ -530,19 +537,27 @@ def record_driver_transition(transport_order, target_status, driver, actual_time
     """
 ```
 
-**Lane-aware `allowed_next_transitions`**:
+**`get_allowed_driver_transitions`** (`apps/transport/lifecycle/state_machine.py`):
 
-| Flow lane | Ordered driver-allowed transitions after Dispatched |
-|-----------|-----------------------------------------------------|
-| `fg_outbound` | In Transit – Source → At Source → Loaded / Pickup Completed → In Transit – Destination → At Destination → Delivered / Unloaded |
-| `fg_inbound` | In Transit – Destination → At Destination → Delivered / Unloaded |
-| `rm_inbound` | In Transit – Destination → At Destination → Delivered / Unloaded |
+When `tls_status = Dispatched`, returns a single entry:
 
-RM inbound and FG inbound: **source-leg transitions are rejected** with `invalid_transition` error if attempted.
+```python
+DRIVER_TRIP_START_LABEL = "Trip Start"  # FB-003 — never use TOStatus.choices label in driver UI/API
 
-**First post-Dispatch transition** (§6.8.1.7):
-- FG outbound: first step = `In Transit – Source`
-- FG inbound / RM inbound: first step = `In Transit – Destination`
+[{"status_key": <lane_target>, "label": DRIVER_TRIP_START_LABEL, "actor": "driver"}]
+```
+
+Otherwise returns `[]` (driver does not get buttons for later TLS-01 steps — yard/lifecycle own those).
+
+| Flow lane | Trip Start `status_key` (internal) | Resulting TLS-01 status (PRD name) |
+|-----------|-----------------------------------|-----------------------------------|
+| `fg_outbound` | `in_transit_source` | In Transit – Source |
+| `fg_inbound` | `in_transit_destination` | In Transit – Destination |
+| `rm_inbound` | `in_transit_destination` | In Transit – Destination |
+
+RM inbound and FG inbound: **source-leg `status_key` values are rejected** with `invalid_transition` if posted.
+
+**Trip Start** runs **§6.8.1.7** fleet availability validation (first and only driver-initiated transition in this slice).
 
 ### 5.2 ProofOfDeliveryService (`apps/transport/services/pod_service.py`)
 
@@ -588,7 +603,7 @@ The Django Admin shell already includes Bootstrap Icons and the `dfms-*` CSS des
 - Responsive table: for the TO list changelist, override `change_list.html` with a card-stack layout on < 640px using `@media` queries
 - Touch targets: all action buttons min `44px` height (add `dfms-btn-touch-target` class or equivalent)
 - Status badges: use existing `dfms-status-badge` classes for TLS-01 status display — do not introduce new badge styles
-- Transition buttons: `dfms-btn-primary` style for the active next-transition button; `disabled` attribute + `dfms-btn-disabled` class when dispatch gate is active
+- **Trip Start** button: `dfms-btn-primary` + `dfms-btn-touch-target`; visible button text is **Trip Start** only (not `Advance to In Transit – …`); `disabled` + `dfms-btn-disabled` when dispatch gate is active
 
 **Templates to create**:
 - `templates/admin/transport/transportorder/driver_detail.html` — custom change view for driver TO detail
@@ -628,11 +643,11 @@ Both extend `templates/admin/change_form.html` / `change_list.html` respectively
 
 ### 7.2 Execution Transitions (TLS-01, Lane-Aware)
 
-- Driver can only trigger transitions where TLS-01 actor = Driver
-- Valid transitions per lane defined in §5.1
-- RM inbound and FG inbound: source-leg transitions (`In Transit – Source`, `At Source`, `Loaded / Pickup Completed`) are **never offered** and **rejected** if attempted
-- Each transition calls TLS-01 service (canonical status update) and creates an `ExecutionMilestone` as evidence
-- Invalid transition attempt (wrong order, wrong lane, wrong actor, yard-owned step): stable `invalid_transition` error
+- Driver UI exposes **one** action at **Dispatched**: **Trip Start** (`label` always `"Trip Start"` in API `allowed_next_transitions` and admin template)
+- Trip Start POSTs the lane-specific `status_key` (`in_transit_source` or `in_transit_destination`); backend maps to TLS-01 PRD status names
+- RM inbound and FG inbound: source-leg `status_key` values are **rejected** if attempted
+- Trip Start calls TLS-01 service (canonical status update) and may create an `ExecutionMilestone` as evidence; §6.8.1.7 runs on this transition
+- Invalid transition attempt (wrong `status_key`, not Dispatched, yard-owned step): stable `invalid_transition` error
 
 ### 7.3 POD Submission
 
@@ -716,9 +731,9 @@ Re-seed RBAC after permission changes: `python manage.py seed_dfms_rbac`. Users 
 
 1. Driver logs in → sees TO in "Awaiting Dispatch" tab (transition buttons disabled, banner shown)
 2. Supervisor completes DS-01 → TO moves to `Dispatched`
-3. Driver refreshes → "In Progress" tab; `[→ In Transit – Source]` button enabled
-4. Driver taps button → §6.8.1.7 passes → milestone created, TLS-01 advances
-5. Driver advances through: `At Source` → `Loaded / Pickup Completed` → `In Transit – Destination` → `At Destination` → `Delivered / Unloaded`
+3. Driver refreshes → "In Progress" tab; **[Trip Start]** button enabled
+4. Driver taps **Trip Start** → §6.8.1.7 passes → TLS-01 advances to `In Transit – Source`
+5. Yard/lifecycle advance through: `At Source` → `Loaded / Pickup Completed` → `In Transit – Destination` → `At Destination` → `Delivered / Unloaded` (no further driver transition buttons)
 6. TLS-01 / yard/QC advance TO to `Completed`
 7. Driver sees POD section enabled → uploads 1–3 files → [Submit POD]
 8. Closure engine evaluates → TO → `Closed`; appears in "Closed" tab
@@ -726,8 +741,8 @@ Re-seed RBAC after permission changes: `python manage.py seed_dfms_rbac`. Users 
 ### 10.2 Happy Path — RM Inbound
 
 1. Driver sees TO in "Awaiting Dispatch", transitions disabled
-2. After dispatch: `[→ In Transit – Destination]` button is the **first and only** option shown (source-leg absent)
-3. Driver advances: `In Transit – Destination` → `At Destination` → `Delivered / Unloaded`
+2. After dispatch: **[Trip Start]** is the only driver action (advances to `in_transit_destination`; source-leg never shown)
+3. Driver has no further buttons; yard/lifecycle advance: `In Transit – Destination` → `At Destination` → `Delivered / Unloaded`
 4. POD uploaded (up to 3 files) at `Completed`
 5. TO closes after closure engine evaluation (QC + unloading gates cleared)
 
@@ -782,6 +797,8 @@ Re-seed RBAC after permission changes: `python manage.py seed_dfms_rbac`. Users 
 | DM-01-9 | Photo compression utility | DFS-053-9 | `apps/transport/utils/image_compression.py` — JPEG/PNG only; max dimension + size |
 | DM-01-10 | Mobile/responsive admin UI | DFS-053-10 | `DriverTransportOrderAdmin` + custom templates — TO list tabs, detail with transition buttons, POD upload form; responsive ≥ 320px; touch targets 44px |
 | DM-01-11 | Audit logging | DFS-053-11 | Audit trail on every driver transition and POD submission (user, timestamp, TO ref, action) |
+| DM-01-12 | **Trip Start** display label + lane-aware transition | DFS-053-12 | Single driver action at **Dispatched**; UI/API `label` = `"Trip Start"`; `status_key` lane-filtered (FB-003) |
+| DM-01-13 | E2E test coverage | ~ | List/detail, Trip Start per lane, POD, 404 for non-owned TO |
 
 ---
 
@@ -819,6 +836,6 @@ Re-seed RBAC after permission changes: `python manage.py seed_dfms_rbac`. Users 
 
 ---
 
-**Last Updated**: 2026-05-15  
-**Implementation Note**: Driver interface is a **mobile-responsive Django Admin web application** — custom templates with mobile-first CSS. No native mobile app or separate SPA in Sprint 4.  
+**Last Updated**: 2026-06-02  
+**Implementation Note**: Driver interface is a **mobile-responsive Django Admin web application** — custom templates with mobile-first CSS. No native mobile app or separate SPA in Sprint 4. Driver-facing first execution action label is **Trip Start** (DM-01-12 / FB-003), not raw in-transit TLS status names.  
 **Related Modules**: [05-transport](../05-transport/README.md), [08-fleet-management](../08-fleet-management/README.md), [06-poi-operations](../06-poi-operations/README.md)
