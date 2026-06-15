@@ -20,7 +20,63 @@ source_docs:
 
 ## User Stories
 
-> **As a Vendor**, I want the app to work reliably against the live system — including poor network conditions — so that I can register, bid, and execute trips without depending on the DFMS team.
+**As a** Vendor (fleet owner or transport contractor)
+**I want** the DFMS vendor app to work reliably against the live system — including when my network connection is poor
+**So that** I can register, view bids, submit proposals, receive trip assignments, and complete deliveries without needing the DFMS support team to intervene on my behalf.
+
+**As a** TDO — Vendor Fleet
+**I want to** be confident that vendors are operating from a production-quality app connected to the live API
+**So that** bid submissions, vehicle-driver confirmations, and trip status updates are real-time and reliable — not delayed by a demo/mock setup.
+
+---
+
+## Business Context
+
+### Why release readiness is a Sprint 6 goal
+
+The vendor app was developed and demonstrated in Sprints 4/5 against a mock or locally-hosted API. Phase 1 UAT requires vendors to participate using a release build connected to the live DFMS API. If the app ships without:
+- **Environment configuration** — it will call development endpoints in production.
+- **Auth/session hardening** — expired tokens will crash the vendor's session during an active bid or trip.
+- **Failure-state handling** — a network blip during bid submission will leave the vendor unsure whether their bid was recorded.
+- **Signed release artifacts** — distribution to real vendors via app stores or direct APK is blocked.
+
+This story closes all four gaps and produces a `VAPP-01-smoke-record.md` — a written, dated, tester-signed record that every flow was verified on the release build against the staging and live environments.
+
+### Vendor roles and their API surface
+
+The vendor app serves two types of external users:
+
+| Vendor user type | What they do in the app |
+|-----------------|------------------------|
+| **Vendor Admin** | Registers the vendor company, manages the company profile, manages vendor's vehicles and driver assignments for trips |
+| **Vendor (operator)** | Discovers bids (`bid_number`), submits proposals with `participating_to_ids` and per-TO costs, monitors award status, confirms vehicle-driver assignment, starts and completes trips |
+
+The app must not expose **contracted rates** — these are set between the DFMS tenant and the vendor company but are never returned in any vendor-facing API response. This is a hard RBAC requirement (VM-06, Sprint 5) that must be verified in the smoke test.
+
+### The bid-to-trip flow the app must fully support
+
+The canonical vendor journey (per [TO-BID-FLOW-REVISION](../../sprint-5/08-vendor-management/TO-BID-FLOW-REVISION.md) and [VENDOR-TRIP-LIFECYCLE](../../sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md)):
+
+1. Vendor self-registers with OTP → password set → login.
+2. Vendor requests to join a tenant → Tenant Admin approves.
+3. TDO publishes a Bid bundle with `bid_number` (one or more TOs grouped).
+4. Vendor discovers the Bid by `bid_number` → reviews TOs → submits with `participating_to_ids` and per-TO `proposed_cost`.
+5. Vendor may withdraw and resubmit within the bidding window.
+6. TDO evaluates submissions, awards per-TO.
+7. Winning vendor submits vehicle + driver details for each awarded TO; validation feedback is shown in-app.
+8. Driver starts trip (`POST /start-trip`) at `ready_for_dispatch` — visible yard sub-states progress without vendor action.
+9. Driver completes trip (`POST /complete-trip`) at `delivered_unloaded`.
+10. Closure happens without POD for vendor-fleet (system rule from TEVF-03).
+
+Every step above must work on the release build against the live API.
+
+### Security baseline for a vendor-facing mobile app
+
+The vendor app handles authentication tokens and communicates with a multi-tenant backend. The security baseline for a production mobile release:
+- TLS enforced for all traffic — no cleartext.
+- Tokens in platform-secure storage (Keystore on Android, Keychain on iOS) — not plain shared preferences.
+- Debug logging and developer tooling stripped from release build.
+- PII (vendor names, phone numbers) must not appear in crash reports or analytics payloads beyond agreed fields.
 
 ---
 
@@ -71,6 +127,74 @@ Against the live API: Bid discovery by `bid_number` (per TO-BID-FLOW-REVISION), 
 
 ---
 
+## API Endpoints — Vendor App Calls (reference, not new endpoints)
+
+These are the **existing DFMS backend endpoints** the vendor app must connect to on the live API. No new endpoints are created by this story; the story validates that the existing contract is correctly called from the release build.
+
+```
+# Authentication
+POST  /api/v1/auth/vendor/register              # self-registration with OTP
+POST  /api/v1/auth/vendor/verify-otp
+POST  /api/v1/auth/vendor/login
+POST  /api/v1/auth/vendor/logout
+POST  /api/v1/auth/vendor/forgot-password
+POST  /api/v1/auth/vendor/reset-password
+POST  /api/v1/auth/token/refresh                # transparent token refresh (AC-4)
+
+# Tenant join
+POST  /api/v1/vendors/tenant-join              # vendor requests to join a tenant
+
+# Profile & account
+GET   /api/v1/vendors/me/profile
+PATCH /api/v1/vendors/me/profile
+DELETE /api/v1/vendors/me/account              # soft-delete with confirmation
+
+# Bid discovery and submission
+GET   /api/v1/bids/?bid_number={number}        # discover open bids
+GET   /api/v1/bids/{bid_id}/                   # bid detail with TOs
+POST  /api/v1/bids/{bid_id}/submit/            # { participating_to_ids, per_to_costs: [{to_id, proposed_cost}] }
+POST  /api/v1/bids/{bid_id}/withdraw/          # withdraw submission within window
+GET   /api/v1/bids/{bid_id}/my-submission/     # own submission status + award outcome
+
+# Vehicle-driver submission for awarded TO
+POST  /api/v1/transport-orders/{to_id}/vehicle-driver-submission/
+      # { vehicle_id, driver_id, vehicle_type, capacity, driver_phone }
+
+# Trip execution
+POST  /api/v1/trips/{trip_id}/start/           # Start Trip at ready_for_dispatch
+GET   /api/v1/trips/{trip_id}/status/          # yard sub-state visibility
+POST  /api/v1/trips/{trip_id}/complete/        # Complete Trip at delivered_unloaded
+```
+
+> **Rate fields are never returned** in any vendor-facing response — this must be asserted in the smoke test (AC-8). Any API response that includes `contracted_rate`, `rate`, or equivalent fields for a vendor session is a RBAC defect.
+
+---
+
+## Access & Permissions
+
+This story's permissions are scoped to the **external vendor-facing API**. All the following apply to authenticated vendor sessions only.
+
+| Action | Vendor role |
+|--------|-------------|
+| Self-register with OTP | Any vendor (unauthenticated) |
+| Login / logout / forgot password | Vendor (registered) |
+| Request to join a tenant | Vendor Admin |
+| View and update own profile | Vendor Admin, Vendor operator |
+| Delete own account | Vendor Admin |
+| Discover and view open bids | Vendor (tenant-joined) |
+| Submit a bid proposal | Vendor (tenant-joined and approved) |
+| Withdraw a bid submission (within window) | Same vendor who submitted |
+| View own bid submission status and award outcome | Vendor (bid submitter) |
+| Submit vehicle + driver for awarded TO | Vendor Admin |
+| Start Trip | Driver (linked to awarded TO — via driver-facing flow; vendor app shows status) |
+| Complete Trip | Driver (same as above) |
+| View trip yard sub-states (without action) | Vendor (tenant-joined, awarded TO) |
+| View contracted rate | **Nobody on vendor session** — 403 / field omitted always |
+
+> **Tenant Admin** controls vendor approval (join request acceptance) and bid publication — these are DFMS internal-user actions, not vendor app actions. The vendor app is exclusively an external-user surface.
+
+---
+
 ## Sub-tasks — Sprint 6
 
 | # | Sub-task | Description | Priority | Status |
@@ -93,6 +217,7 @@ Against the live API: Bid discovery by `bid_number` (per TO-BID-FLOW-REVISION), 
 - [ ] Auth and failure states verified — no crash/white-screen path found (AC-4, AC-5)
 - [ ] Security review items closed (AC-7)
 - [ ] `VAPP-01-smoke-record.md` published with sign-off from Release Owner
+- [ ] Contracted rate confirmed absent from all vendor-session API responses
 
 ---
 
@@ -107,4 +232,4 @@ Against the live API: Bid discovery by `bid_number` (per TO-BID-FLOW-REVISION), 
 
 ---
 
-*Epic: Vendor Mobile App | Phase: 1 | Sprint 6: 8 SP | Jira: DFS-073 | Last Updated: 2026-06-12*
+*Epic: Vendor Mobile App | Phase: 1 | Sprint 6: 8 SP | Jira: DFS-073 | Last Updated: 2026-06-15*

@@ -48,7 +48,45 @@ source: ../../sprint-5/completion-report.md
 
 ## User Stories
 
-> **As a Tech Lead**, I want every Sprint 3–5 story verified by an automated or scripted E2E pass so that Phase 1 UAT starts from a known-good baseline.
+**As a** Tech Lead
+**I want** every Sprint 3–5 story verified by an automated or scripted E2E pass
+**So that** Phase 1 UAT starts from a known-good baseline — without relying on manual developer spot-checks or demo sessions as the quality gate.
+
+**As a** Product Owner
+**I want** a published E2E coverage report before UAT begins
+**So that** I can confidently sign off that the system behaves end-to-end as specified in the PRD, and that any defects found in UAT are new regressions rather than known unfixed issues.
+
+---
+
+## Business Context
+
+### Why a dedicated E2E hardening sprint is needed
+
+DFMS Phase 1 spans 19+ stories delivered across Sprints 3–5: gate operations, scaling, command center, loading/unloading, QC, POD closure, vendor management (8 VM stories), vendor-fleet execution (3 TEVF stories), driver supervisor, stock management, and the role dashboard. Each story was shipped with unit tests and manual QA — but no cross-story automated journey tests exist yet.
+
+UAT will be run by customer stakeholders who expect the system to work end-to-end across the full operational flow: a product requisition raised in the office becoming a delivery recorded at the destination, with every intermediate step captured in the trip timeline and audit log. If E2E journeys are not verified before UAT, any cross-module integration bug discovered during UAT becomes a sprint-disrupting emergency fix that could delay Phase 1 acceptance.
+
+Sprint 6 front-loads this risk by dedicating the 23 deferred story-level sub-tasks and 9 new cross-module journey scenarios to a single harness, with a published coverage report before the UAT package is handed to the customer.
+
+### What "E2E" means in this context
+
+E2E tests in DFMS are **journey tests** — they simulate a real operational flow from the perspective of one or more roles, calling real API endpoints against a seeded staging environment (Docker Compose stack). They are not unit tests and not browser-based UI automation. They exercise:
+
+- **RBAC**: does each role see what it should? Does a vendor see contracted rates (they must not)?
+- **Status machine correctness**: can a TO only be dispatched after pre-conditions are met? Does a QC fail correctly block unloading?
+- **Cross-module integration**: does a stock reservation set in TR correctly reduce stock when the scale-out happens in a later step?
+- **Audit trail**: does the timeline contain every expected TLS-01 event in the right order?
+
+### Seed data strategy
+
+The E2E seed data pack (E2E-01-1) is designed to be **shared with UAT-01-4** — same tenants, same POIs, same vehicles, same vendor accounts. This means E2E and UAT testers work against the same known world, and a UAT scenario can reference the exact same setup steps as the E2E test.
+
+### Scope boundary
+
+E2E-01 does **not** include:
+- GPS E2E scenario — that runs on this harness but is owned by GPS-05-9.
+- UAT execution with the customer — that is a post-sprint activity (UAT-01).
+- New feature development — any defect found that requires >0.5 SP of fix goes to the owning story's backlog, not silent scope growth in E2E-01.
 
 ---
 
@@ -82,7 +120,7 @@ Gateman creates on-demand TO for Dealer DO and Supplier PO paths with **multiple
 ### AC-6 — Journey: Vendor Fleet (Non-Contractual + Contractual)
 
 - Non-contractual: vendor registration with OTP → forgot-password path → tenant join → tenant approval (exactly one vendor type) → TDO creates TOs → bundles into Bid (`bid_number`) → vendor lists Bids, submits with `participating_to_ids`, withdraws and re-submits → TDO evaluates and awards per-TO → vehicle-driver submission (validation rules) → Start Trip → yard progress visible in vendor portal without vendor action → Complete Trip at `delivered_unloaded` → closure **without POD** (vendor-fleet closure rule).
-- Contractual: direct assignment with capacity split → execution handoff → closure. Contracted rate never visible on any vendor-facing response.
+- Contractual: direct assignment with capacity split → execution handoff → closure. Contracted rate **never visible** on any vendor-facing response (RBAC assertion).
 
 ### AC-7 — Journey: Stock Lifecycle (STK-01)
 
@@ -95,6 +133,24 @@ For each operational role, DB-01 KPI card counts match the underlying work scree
 ### AC-9 — Coverage Report
 
 `E2E-01-coverage-report.md` published in this folder: per-story pass/fail matrix (all 23 carried sub-tasks + journeys), defects raised/fixed, known gaps with owner and target. Reviewed with Tech Lead + PO.
+
+---
+
+## Access & Permissions (test role matrix)
+
+E2E-01 is a **testing story** — it does not create new API endpoints. However, it must verify the following access rules for every journey:
+
+| Test assertion | Roles exercised |
+|----------------|-----------------|
+| FG outbound journey | Depot Officer, Distribution Manager, Transport Planner, TDO, Driver Supervisor, Driver, Gateman, Scaling Op, CC Officer, Loading Op |
+| RM inbound journey | Commercial Officer, TP, TDO, Gateman, Scaling Op, QC Inspector |
+| On-demand TO at gate | Gateman (only role that can create on-demand TO) |
+| Vendor non-contractual journey | TDO — Vendor Fleet, Vendor (external), Gate/Scale/CC/Unloading for yard steps |
+| Stock lifecycle | Distribution Manager (TR approval), Scaling Op (scale-out), TP (stock snapshot read) |
+| Dashboard verification | One user per operational role, plus site-scoped user |
+| RBAC negative assertions | Vendor cannot see contracted rate; Gateman cannot access maps dashboard; Vendor cannot access own-fleet operations |
+
+> The E2E harness must authenticate as each role using seeded test users. Secrets (test user credentials) are injected via environment variables — not hardcoded in test code.
 
 ---
 
@@ -145,4 +201,4 @@ For each operational role, DB-01 KPI card counts match the underlying work scree
 
 ---
 
-*Epic: E2E Hardening | Phase: 1 | Sprint 6: 21 SP | Jira: DFS-072 | Last Updated: 2026-06-12*
+*Epic: E2E Hardening | Phase: 1 | Sprint 6: 21 SP | Jira: DFS-072 | Last Updated: 2026-06-15*

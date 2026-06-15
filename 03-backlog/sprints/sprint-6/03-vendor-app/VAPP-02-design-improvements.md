@@ -18,9 +18,42 @@ source_docs:
 
 # VAPP-02 — Vendor App Design & UX Improvements
 
-## User Stories
+## User Story
 
-> **As a Vendor**, I want a clean, consistent app where the state of every bid and trip is obvious at a glance, so that I can act quickly and trust what I see.
+**As a** Vendor
+**I want** a clean, consistent app where the status of every bid and trip is obvious at a glance
+**So that** I can act quickly without confusion — a bid expiring in two hours should look urgent; a completed trip should look closed; a rejected bid should be visually distinct from a bid I withdrew.
+
+**As a** Vendor
+**I want** the app to gracefully handle slow connections and empty states
+**So that** I am never staring at a blank screen wondering whether the app crashed or my data just hasn't loaded yet.
+
+---
+
+## Business Context
+
+### Why UX quality matters for a vendor-facing release
+
+DFMS vendors are fleet owners and transport contractors — typically small to mid-sized operators unfamiliar with enterprise logistics software. Many will use the app on mid-range Android devices over mobile data connections in rural and peri-urban areas. A confusing UI or a white screen on slow network is not just a usability problem — it is a trust problem. A vendor who submits a bid, sees a blank screen, and doesn't know whether the submission was recorded will call the DFMS support desk or the DFMS tenant's operations team, creating operational overhead.
+
+Phase 1 UAT includes **vendor scenarios** — real vendors or customer UAT testers running through bid discovery, submission, and trip execution. If the app fails a PO walkthrough due to inconsistent design or missing states, it delays Phase 1 sign-off.
+
+This story delivers the UX polish pass needed to ship a vendor app that is professional, legible, and reliable-feeling — aligned with the release build produced in VAPP-01.
+
+### Design scope constraints
+
+VAPP-02 is a **UX-only story** — it must not change any API behaviour or business logic. The vendor app's data contracts (bid number, participating TOs, proposed cost, trip status vocabulary) were finalized in Sprint 5. Any screens that display these fields must do so accurately, but this story does not modify what data is fetched or how it is stored.
+
+Constraint: VAPP-02 changes must merge before the final VAPP-01 smoke record — or be explicitly excluded from this release with a documented reason. No design change that breaks a passing VAPP-01 test can ship unresolved.
+
+### Key screens requiring attention
+
+Based on Sprint 5 demo feedback and the bid-to-trip flow:
+
+1. **Bid list** — vendors see a list of open bids. Current design lacks a clear countdown to bid close, no visual hierarchy between bid reference and deadline.
+2. **Bid submission** — selecting participating TOs and entering per-TO costs is multi-step and currently not optimized for one-handed mobile use.
+3. **Trip lifecycle** — the milestone timeline (dispatched → gate-in → scale → loading → gate-out → in-transit → destination → complete) must be scannable at a glance; current implementation collapses yard sub-states in a way that makes it hard to tell whether the trip is progressing.
+4. **Forms** — registration and vehicle-driver submission show validation errors only on submit; inline validation reduces re-submission frustration.
 
 ---
 
@@ -62,6 +95,24 @@ source_docs:
 
 ---
 
+## Access & Permissions
+
+VAPP-02 is a frontend/UX story — it does not introduce any new API endpoints or backend RBAC changes. The access rules are identical to VAPP-01.
+
+| Screen / Feature | Who sees it |
+|-----------------|-------------|
+| All VAPP-02 screens | Authenticated vendor users (Vendor Admin, Vendor operator) only |
+| Bid list and bid detail | Tenant-joined, approved vendor only — same RBAC as VM-03 (Sprint 5) |
+| Bid submission form | Vendor with approved tenant status; within bid window |
+| Trip lifecycle timeline | Vendor with awarded TO |
+| Registration and OTP screens | Unauthenticated users (public screens) |
+| Vehicle-driver submission form | Vendor Admin (company-level action) |
+| Account deletion | Vendor Admin (own account) |
+
+> No design change in VAPP-02 may introduce a new API call that bypasses existing RBAC. All data fetched must use the same endpoints and role context verified in VAPP-01.
+
+---
+
 ## Sub-tasks — Sprint 6
 
 | # | Sub-task | Description | Priority | Status |
@@ -96,4 +147,4 @@ source_docs:
 
 ---
 
-*Epic: Vendor Mobile App | Phase: 1 | Sprint 6: 5 SP | Jira: DFS-074 | Last Updated: 2026-06-12*
+*Epic: Vendor Mobile App | Phase: 1 | Sprint 6: 5 SP | Jira: DFS-074 | Last Updated: 2026-06-15*

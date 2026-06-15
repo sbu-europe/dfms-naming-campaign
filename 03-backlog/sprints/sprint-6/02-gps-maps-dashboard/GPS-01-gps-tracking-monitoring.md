@@ -20,6 +20,48 @@ integration_contracts:
 
 # GPS-01 — GPS Tracking & Monitoring (Provider Adapter & Live Vehicle Feed)
 
+## User Story
+
+**As a** Transport Planner and Transport Distribution Officer (TDO)
+**I want to** view the real-time GPS location of all vehicles in my fleet
+**So that** I can monitor trip progress, respond to delays, and ensure route compliance without relying on phone calls or manual check-ins.
+
+**As a** Transport Planner
+**I want to** have GPS tracking automatically linked to a trip the moment it goes in-transit
+**So that** I can see where the vehicle is at every stage of the delivery lifecycle without any manual configuration.
+
+---
+
+## Business Context
+
+### Why this story matters
+
+DFMS transports finished goods (FG) and raw materials (RM) between depots, feed mills, and ports across geographically dispersed routes. Today, transport planners must phone drivers or rely on end-of-day check-ins to understand fleet status — leading to delayed response to breakdowns, missed ETAs, and disputed delivery claims.
+
+PRD §6.5.5 mandates real-time GPS visibility as a Phase 1 obligation. This story is the foundation layer of the entire GPS/Maps epic: it produces the **live vehicle feed** that every other GPS story (GPS-02 geofence engine, GPS-03 event detection, GPS-04 dwell tracking, GPS-05 dashboard) depends on.
+
+### How the GPS feed fits the operational flow
+
+1. **Trip dispatched** → Driver Supervisor releases TO to Dispatch (DS-01).
+2. **Driver starts trip** → Trip status transitions to `in_transit_*` (TLS-01 lifecycle hook).
+3. **GPS auto-link activates** → system associates live GPS snapshots to vehicle ID, TO ID, and Trip ID — no manual step.
+4. **Transport Planner and TDO monitor** → GPS-05 map dashboard shows the vehicle moving; GPS-03 fires ARRIVAL/DEPARTURE events when the vehicle crosses a POI geofence; GPS-04 accumulates dwell time.
+5. **Trip completes** → GPS association stops; retention policy holds historical snapshots for audit.
+
+### Provider context
+
+The Sprint 5 R&D investigation identified two provider paths:
+- **GPSWOX REST API** — cloud GPS fleet management platform; requires tenant credentials and API auth; polling via Celery; aligns with the [integration contract](../../../06-contracts/04-integration/gps-vts-integration.yaml).
+- **GT06 protocol ingest** — in-house IoT device protocol already running in the stack from Sprint 5; retained as dev/fallback path.
+
+If GPSWOX credentials remain blocked, the story ships on GT06 with the trade-off and recommended production path documented in the provider decision record (AC-6), accepted by PO and Tech Lead before sprint close.
+
+### What "read-only GPS" means for RBAC
+
+All GPS data is **read-only for every user**. No role may edit, delete, or manually set a vehicle's position. Writes happen only via the provider adapter (Celery task / GT06 ingest). This is a hard PRD §6.5.5 rule.
+
+---
+
 ## Acceptance Criteria
 
 ### AC-1 — Pluggable provider adapter
@@ -36,7 +78,7 @@ integration_contracts:
 
 ### AC-3 — Configurable refresh
 
-- GPS poll/refresh interval configurable at deployment/tenant level — **30 s / 60 s / 120 s** options (PRD: interval TBD — default recorded with PO) — replacing Sprint 5's hardcoded 10 s constants.
+- GPS poll/refresh interval configurable at deployment/tenant level — **30 s / 60 s / 120 s** options (PRD §6.5.5: interval TBD — default recorded with PO) — replacing Sprint 5's hardcoded 10 s constants.
 
 ### AC-4 — Trip association & lifecycle rules
 
@@ -52,6 +94,42 @@ integration_contracts:
 ### AC-6 — Provider decision record (Sprint 5 R&D closeout)
 
 - `GPS-R&D-findings.md` published in this folder: GPSWOX access status (credentials, auth, rate limits) vs the integration contract, GT06-vs-GPSWOX trade-off as built, recommended production poll interval, fallback strategy. Reviewed with Tech Lead + PO — closes the deliverable left unpublished by the Sprint 5 demo story.
+
+---
+
+## API Endpoints
+
+All GPS data endpoints are **read-only** (GET only). Write surfaces are internal (Celery task / GT06 ingest) and have no external API.
+
+```
+# Internal / Celery — no public endpoint; triggered by task schedule
+POST  (Celery task)  gps.tasks.poll_gpswox_provider          # GPSWOX REST poll on configured interval
+POST  (Celery task)  gps.tasks.ingest_gt06_frame             # GT06 protocol ingest (fallback/dev)
+
+# Vehicle GPS feed — consumed by GPS-05 dashboard and GPS-03 engine
+GET   /api/v1/gps/vehicles/{vehicle_id}/latest               # latest snapshot for one vehicle
+GET   /api/v1/gps/vehicles/live-feed                         # fleet-wide snapshot list (RBAC-scoped)
+
+# Signal-loss query
+GET   /api/v1/gps/vehicles/{vehicle_id}/signal-status        # last known position + signal_lost flag
+```
+
+> **GPS-03 and GPS-05** read directly from the `VehicleGPSSnapshot` table / Redis cache — they do not call these endpoints; the endpoints are for the frontend dashboard and any mobile consumers.
+
+---
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| View live vehicle positions (own-fleet vehicles) | Transport Planner (TP), TDO — Own Fleet, Tenant Admin |
+| View live vehicle positions (vendor-fleet TOs) | TDO — Vendor Fleet, Tenant Admin |
+| View signal-status / last known location | TP, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| View GPS snapshot history (read-only admin) | Tenant Admin, Super Admin |
+| Configure provider / poll interval (deployment config) | Platform Admin (env config only — no runtime UI) |
+| Write / mutate any GPS position data | **Nobody** — system-only via adapter task |
+
+> GPS data is **read-only for all roles**. No user-facing write endpoint exists. RBAC at the fleet-feed endpoint scopes own-fleet TPs/TDOs to their tenant's own-fleet vehicles only.
 
 ---
 
@@ -91,4 +169,4 @@ integration_contracts:
 
 ---
 
-*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 3 SP | PRD: §6.5.5, §9.1 | Jira: DFS-077 | Last Updated: 2026-06-12*
+*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 3 SP | PRD: §6.5.5, §9.1 | Jira: DFS-077 | Last Updated: 2026-06-15*

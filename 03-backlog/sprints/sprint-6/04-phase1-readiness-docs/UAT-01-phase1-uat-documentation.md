@@ -17,24 +17,48 @@ related_stories:
 
 ## User Stories
 
-> **As a Product Owner / customer stakeholder**, I want role-based UAT scripts traceable to the PRD so that I can verify the system does what was specified and formally accept Phase 1.
+**As a** Product Owner / customer stakeholder
+**I want** role-based UAT scripts traceable directly to PRD acceptance criteria
+**So that** I can formally verify that the system does what was specified, and sign off Phase 1 acceptance with documented evidence — not just a verbal "it works."
 
-> **As a UAT coordinator**, I want entry/exit criteria, a defect workflow, and a sign-off package agreed in advance so that UAT runs to schedule.
-
----
-
-## Context
-
-Phase 1 closes with customer-facing User Acceptance Testing across all modules delivered in Sprints 1–6. This story produces the **complete UAT package** — plan, role-based scenario scripts traceable to PRD acceptance criteria, environment/seed-data definition, defect workflow, and sign-off sheets — so that UAT execution (scheduled after Sprint 6) starts with zero documentation gaps.
-
-This story is the documentation and preparation; **UAT execution itself is a separate post-sprint activity** with the customer. The E2E-01 coverage report is the internal evidence gate before UAT begins.
+**As a** UAT coordinator
+**I want** agreed entry/exit criteria, a defect severity model, and triage cadence decided **before** UAT starts
+**So that** UAT runs to schedule without mid-session disputes about what counts as a blocking defect or whether a cosmetic issue should hold acceptance.
 
 ---
 
-## Business Value
+## Business Context
 
-- A traceable UAT package converts Phase 1 acceptance from opinion into evidence: every PRD AC maps to a scenario, every scenario to a result, every result to a sign-off.
-- Pre-agreed defect severity and triage rules prevent mid-UAT disputes about what blocks acceptance.
+### UAT as the formal customer acceptance gate for Phase 1
+
+DFMS Phase 1 will close with customer-facing User Acceptance Testing. Unlike internal sprint demos, UAT is run by the customer's own staff (or designated testers), following scripted scenarios, and producing a signed acceptance record. This is a contractual gate — UAT pass is the trigger for Phase 1 go-live.
+
+If UAT starts without:
+- A written test plan with entry/exit criteria → sessions run without a definition of "done."
+- Role-based scenario scripts → testers improvise, miss coverage, and raise inconsistent defects.
+- A traceability matrix → the customer cannot verify that every PRD acceptance criterion was tested.
+- An agreed defect workflow → mid-UAT disputes over severity block progress.
+
+This story produces the **complete UAT documentation package** before UAT execution begins (execution itself is post-sprint with the customer). It is the documentation-and-preparation story; E2E-01 is the internal evidence gate.
+
+### UAT and E2E are parallel quality layers
+
+E2E-01 (Sprint 6 internal testing) verifies that the system works end-to-end against a staging environment with automated/scripted tests. UAT-01 produces the scripts that customer testers will use against the same (or production) environment with live user sessions.
+
+The **seed data pack** is shared: UAT-01-4 derives its seed specification from E2E-01-1, so both layers test against the same known world. Scenario steps in UAT scripts will mirror E2E journey assertions — the difference is audience (customer tester following a script vs automated runner).
+
+### Scope boundary
+
+UAT execution — actual testing sessions with the customer, raising defects, retesting, sign-off — is a **post-sprint activity** not in Sprint 6 scope. UAT-01 delivers only the documentation and preparation. The E2E-01 coverage report is a UAT **entry criterion**: UAT does not begin until the coverage report shows all critical journeys passing.
+
+### Traceability: why it matters for acceptance
+
+A PRD with 50+ acceptance criteria spread across 20 modules must be systematically traced to UAT scenarios. Without a traceability matrix:
+- The customer cannot verify completeness ("was PR-module AC-3 actually tested?").
+- Deferred Phase 2 items may be inadvertently included in UAT scope, causing confusion when they "don't work."
+- Phase 1 acceptance scope is ambiguous.
+
+The UAT-01-3 traceability matrix explicitly lists: every Phase 1 PRD AC → the UAT scenario that covers it → the owning story. Deferred items (Phase 2/3) appear in the matrix with a deferral reference — no ambiguity.
 
 ---
 
@@ -68,6 +92,44 @@ This story is the documentation and preparation; **UAT execution itself is a sep
 ### AC-6 — Sign-off Package
 
 - Per-module sign-off sheet (scenarios run, pass/fail counts, open defects, signature block) plus an overall **Phase 1 Acceptance Record** template referencing the traceability matrix and E2E-01 coverage report.
+
+---
+
+## Access & Permissions
+
+UAT-01 is a **documentation story** — no new API endpoints or system RBAC changes. Access considerations are about who authors, reviews, and uses the UAT package.
+
+| Role | Involvement |
+|------|-------------|
+| Product Owner | Approves entry/exit criteria (AC-1), defect severity definitions (AC-5), and the sign-off package template (AC-6) |
+| UAT Coordinator (BA or Sprint Lead) | Authors the test plan (AC-1), scenario catalog (AC-2), traceability matrix (AC-3), and sign-off package (AC-6) |
+| Module-owning developers | Provide precondition setup steps and expected results for scenarios in their module |
+| Customer/stakeholder testers | Execute UAT scenarios during the post-sprint UAT sessions (not Sprint 6 scope) |
+| Tenant Admin (named UAT user) | Has full read access in the UAT environment including the audit viewer |
+| All other named UAT test users | Access scoped to their role (Gateman UAT user can only access gate screens; vendor UAT account only vendor screens) |
+
+### UAT environment RBAC (seeded test users)
+
+The seed data pack (UAT-01-4) must include named test users for each of the following roles. RBAC must be verified during UAT by logging in as each test user and confirming access scope:
+
+| UAT test user | Role | Access scope verified in UAT |
+|---------------|------|------------------------------|
+| `uat_depot_officer` | Depot/Feed Mill Officer | PR creation, stock view at their POI |
+| `uat_distribution_manager` | Distribution Manager | TR approval, capacity warnings |
+| `uat_transport_planner` | Transport Planner | TO/Trip creation, GPS dashboard, assignment |
+| `uat_tdo_own` | TDO — Own Fleet | Own-fleet vehicle assignment, bid creation |
+| `uat_tdo_vendor` | TDO — Vendor Fleet | Vendor-fleet Bid creation, evaluation, award |
+| `uat_gateman` | Gateman | Gate-in/out, on-demand TO; NO maps dashboard |
+| `uat_scaling` | Scaling Operator | Scale-in/out; NO TR approval |
+| `uat_cc_officer` | Command Center Officer | CC queue, bay assignment |
+| `uat_qc_inspector` | QC Inspector | QC sampling, pass/fail |
+| `uat_driver_supervisor` | Driver Supervisor | Checklist, maintenance queue |
+| `uat_driver` | Driver | Trip Start/Complete (driver mobile only) |
+| `uat_vendor_admin` | Vendor Admin | Registration, vehicle-driver submission |
+| `uat_vendor` | Vendor (operator) | Bid discovery, submission, withdrawal |
+| `uat_tenant_admin` | Tenant Admin | Full read + configuration + audit viewer |
+
+> **Negative access tests must be scripted**: the scenario catalog (AC-2) must include at least one scenario per role that verifies a forbidden action returns an appropriate error (e.g. Gateman attempts to open GPS dashboard → should see 403/no menu item; Vendor attempts to view contracted rate → should not appear in any screen or API response).
 
 ---
 
@@ -106,4 +168,4 @@ This story is the documentation and preparation; **UAT execution itself is a sep
 
 ---
 
-*Epic: Phase 1 Readiness & Documentation | Phase: 1 | Sprint 6: 5 SP | Jira: DFS-076 | Last Updated: 2026-06-12*
+*Epic: Phase 1 Readiness & Documentation | Phase: 1 | Sprint 6: 5 SP | Jira: DFS-076 | Last Updated: 2026-06-15*

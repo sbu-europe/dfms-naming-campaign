@@ -18,7 +18,51 @@ phase: Phase 1
 
 ## User Story
 
-> **As a Transport Planner and Transport Distribution Officer**, I want to track how long vehicles stay at POIs so that bottlenecks and inefficiencies can be identified. *(PRD §6.5.9)*
+**As a** Transport Planner and Transport Distribution Officer
+**I want to** see how long each vehicle stayed at its source POI (for loading) and destination POI (for unloading)
+**So that** I can identify which facilities are causing operational bottlenecks and escalate before a delay cascades into a missed delivery window.
+
+**As a** Transport Planner
+**I want the** system to flag vehicles that are still inside a POI geofence beyond the configured dwell time threshold
+**So that** I am proactively alerted to a loading or unloading delay — before the vehicle has even departed.
+
+*(PRD §6.5.9)*
+
+---
+
+## Business Context
+
+### Why dwell time is a key operational metric
+
+In the DFMS context, **dwell time** is the duration a vehicle spends inside a facility's geofence boundary between arrival and departure. Excessive dwell at a feed mill or depot typically indicates:
+- Loading crew shortage or equipment failure (at source).
+- Congestion or documentation hold (at destination).
+- Unauthorized driver stop (on-route POI visits).
+
+Without dwell measurement, transport planners have no data to support decisions like "increase the truck turn-around target at POI X" or "raise a case with the depot manager about slow loading." PRD §6.5.9 mandates automatic dwell calculation as a Phase 1 deliverable — it is part of the operational efficiency case for DFMS.
+
+### How dwell time flows
+
+1. **GPS-03 fires ARRIVAL** → a dwell record for this vehicle/POI/trip visit is opened with `arrival_timestamp`.
+2. **Vehicle remains inside** → a **Celery periodic task** checks in-progress stays against the POI's configured threshold (GPS-02 AC-4). If the threshold is exceeded **before departure**, an exception flag is raised and visible on the GPS-05 KPI bar and the trip timeline — the planner can act without waiting for the vehicle to leave.
+3. **GPS-03 fires DEPARTURE** → dwell record is closed: `dwell_seconds = departure_timestamp − arrival_timestamp`. If the completed stay exceeded the threshold, the dwell record is also marked as an exception.
+4. **Transport Planner views** → dwell time appears on the TO timeline (with the departure event) and the geofence-event history API (GPS-03 AC-4). Aggregated POI-level dwell metrics (avg/max, visit counts, exception counts) are available for reporting.
+
+### Multiple visits
+
+A single vehicle may visit the same POI more than once within a trip (e.g. a vehicle re-entering the source depot after a rejected load). Each visit produces a **separate dwell record** — the calculation is per ARRIVAL→DEPARTURE pair, not per trip.
+
+### Edge cases that must be handled explicitly
+
+| Edge case | Rule |
+|-----------|------|
+| Vehicle starts inside a geofence (no preceding ARRIVAL within this trip) | Dwell start = trip start timestamp; flagged as "estimated — no ARRIVAL event" |
+| Trip completed while vehicle still inside geofence | Dwell closed at trip-completion timestamp; flagged as "trip ended in fence" |
+| GPS signal lost during dwell | Last known position used; flag set on dwell record: "signal lost — dwell may be underestimated" |
+| Engine restart during an open dwell | Resume from Redis presence state; do not create a duplicate ARRIVAL |
+| Negative dwell (clock skew / out-of-order events) | Clamp to zero; log warning; never store negative values |
+
+All rules must be documented in code and referenced in the coverage report.
 
 ---
 
@@ -40,6 +84,47 @@ phase: Phase 1
 - A periodic task flags vehicles whose **in-progress** stay exceeds the POI's configured threshold (GPS-02 AC-4) — the flag must not wait for departure.
 - Completed stays exceeding the threshold are marked as exceptions on the dwell record.
 - Exceptions are flagged for reporting: queryable per POI/per trip, surfaced in the GPS-05 KPI bar, and visible on the trip timeline.
+
+---
+
+## API Endpoints
+
+```
+# Dwell summary per trip (embedded in geofence-event history — GPS-03 AC-4 endpoint)
+GET   /api/v1/maps/transport-orders/{to_id}/geofence-events
+      Response includes: dwell_seconds, is_exception, dwell_status (in_progress|completed|signal_lost|trip_ended_in_fence)
+
+# Per-POI dwell aggregation report (for Transport Planner / Tenant Admin visibility)
+GET   /api/v1/maps/pois/{poi_id}/dwell-report
+      ?from=ISO8601&to=ISO8601                             # date range
+      Response: { poi_id, poi_name, avg_dwell_seconds, max_dwell_seconds,
+                  visit_count, exception_count, visits: [...] }
+
+# Active dwell exceptions (in-progress stays exceeding threshold — feeds GPS-05 KPI bar)
+GET   /api/v1/maps/dwell-exceptions/active
+      Response: list of { vehicle_id, poi_id, poi_name, arrival_timestamp,
+                          dwell_seconds_so_far, threshold_seconds, trip_id, to_id }
+
+# Trip timeline — dwell appears on DEPARTURE event (existing TLS-01 endpoint, extended)
+GET   /api/v1/transport-orders/{to_id}/timeline
+```
+
+> There is no write endpoint for dwell data. Dwell records are created and closed by the engine (GPS-03 events + Celery task), never by a user action.
+
+---
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| View dwell time per trip (timeline + geofence-event history) | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| View per-POI dwell aggregation report | Transport Planner, Tenant Admin |
+| View active dwell threshold exceptions | Transport Planner, TDO — Own Fleet, Tenant Admin |
+| View dwell exception indicators on GPS-05 KPI bar | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| Configure dwell threshold per POI | Tenant Admin (via GPS-02) |
+| Write / close dwell records | **System only** — engine and Celery task; no user write surface |
+
+> Vendor-fleet TDOs can see dwell for TOs in their scope (vendor trips). Gate staff, scaling operators, and other yard roles do not have access to the dwell aggregation or exception APIs — they see their own queues via module-specific screens.
 
 ---
 
@@ -74,4 +159,4 @@ phase: Phase 1
 
 ---
 
-*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 2 SP | PRD: §6.5.9, §6.5.6 | Jira: DFS-080 | Last Updated: 2026-06-12*
+*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 2 SP | PRD: §6.5.9, §6.5.6 | Jira: DFS-080 | Last Updated: 2026-06-15*

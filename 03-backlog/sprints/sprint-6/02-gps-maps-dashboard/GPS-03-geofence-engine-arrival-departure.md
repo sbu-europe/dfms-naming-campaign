@@ -18,9 +18,43 @@ phase: Phase 1
 
 ## User Stories
 
-> **As a Transport Planner and TDO**, I want to track vehicle entry and exit at POIs so that dwell time and operational delays can be measured accurately. *(PRD §6.5.6)*
+**As a** Transport Planner and TDO
+**I want to** see whether a vehicle has arrived at or departed from a facility (depot, feed mill, port berth)
+**So that** I can track progress without calling the driver and identify delays before they escalate.
 
-> **As a Transport Planner and Transport Distribution Officer**, I want the system to automatically detect vehicle arrival at a POI so that gate-in and operational readiness can be tracked without manual input. *(PRD §6.5.8)*
+**As a** Transport Planner and Transport Distribution Officer
+**I want the** system to automatically detect vehicle arrival at a POI
+**So that** gate-in and operational readiness can be tracked without manual input from gate staff or drivers.
+
+*(PRD §6.5.6, §6.5.8)*
+
+---
+
+## Business Context
+
+### Why automated arrival/departure detection
+
+Today, gate staff manually log vehicle arrival in paper registers. There is no systematic link between the physical gate event and the Transport Order — delays go unnoticed until the delivery is already late, and the trip timeline is incomplete.
+
+GPS-03 closes this gap: every time a vehicle crosses a configured POI boundary (GPS-02 radius), the system automatically fires an **ARRIVAL** or **DEPARTURE** event. These events:
+
+1. **Feed the TO timeline** (TLS-01) — transport planners and TDOs can see "Vehicle arrived at source depot at 09:14" alongside all other trip milestones, without anyone needing to type it in.
+2. **Trigger dwell time accumulation** (GPS-04) — the clock starts at ARRIVAL and stops at DEPARTURE; the engine does not need to wait for a human to mark "loading completed."
+3. **Populate the maps dashboard** (GPS-05) — POI presence panel and vehicle side-panel reflect the current engine state in near real-time.
+
+### Detection approach (haversine + Redis state)
+
+Each incoming GPS snapshot (from GPS-01) is evaluated against **all active POI geofences**. The engine computes the haversine distance between the vehicle's current position and each POI center; if the distance is less than the configured radius (GPS-02), the vehicle is "inside."
+
+Per-vehicle presence state is held in **Redis** to support fast boundary evaluation without a DB read per snapshot. A **debounce/hysteresis** rule prevents false events when a vehicle hovers near a boundary: an ARRIVAL event is only fired after N consecutive "inside" readings (or M seconds of confirmed presence — rule documented by dev with PO). This prevents a vehicle crawling past the perimeter from generating repeated ARRIVAL/DEPARTURE flaps.
+
+### Source vs destination distinction
+
+A TO has both a **source POI** and a **destination POI**. The engine tags each event with which POI the vehicle is at and whether that POI is the source or destination of the active TO — so the timeline shows "Arrived at source (Depot A)" before loading and "Arrived at destination (Feed Mill B)" after transit, not just an uncontextualised coordinate event.
+
+### Off-trip events
+
+Vehicles crossing a POI geofence when **not on an active trip** (e.g. returning to the depot, maintenance run) still generate events recorded against the vehicle only — no TO linkage. These are retained for fleet visibility and audit, but do not appear on any TO timeline.
 
 ---
 
@@ -47,6 +81,43 @@ phase: Phase 1
 ### AC-4 — Event history API
 
 - `GET /api/v1/maps/transport-orders/{id}/geofence-events` returns the TO's geofence event history (event type, POI, vehicle, timestamps, dwell once GPS-04 lands); RBAC consistent with the GPS-05 dashboard permission.
+
+---
+
+## API Endpoints
+
+```
+# Geofence event history for a Transport Order
+GET   /api/v1/maps/transport-orders/{to_id}/geofence-events
+      ?event_type=ARRIVAL|DEPARTURE                       # optional filter
+      &poi_id={uuid}                                       # optional filter
+      Response: list of { event_type, poi_id, poi_name, poi_role (source|destination|other),
+                          vehicle_id, trip_id, to_id, timestamp, dwell_seconds (if departed) }
+
+# Vehicle-level geofence event history (admin / debug use)
+GET   /api/v1/gps/vehicles/{vehicle_id}/geofence-events
+      ?from=ISO8601&to=ISO8601                             # date range filter
+
+# Trip timeline — geofence events appear here automatically (existing TLS-01 endpoint)
+GET   /api/v1/transport-orders/{to_id}/timeline            # already exists; ARRIVAL/DEPARTURE events appended atomically
+```
+
+> The engine itself runs as a **Celery task / signal handler** triggered on each `VehicleGPSSnapshot` write — there is no inbound API for event creation. All write paths are internal.
+
+---
+
+## Access & Permissions
+
+| Action | Role |
+|--------|------|
+| View geofence event history for a TO | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| View geofence events on TO timeline | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin, Driver (own trip) |
+| View vehicle-level geofence event history | Tenant Admin, Super Admin |
+| View current POI presence state (via GPS-05 dashboard) | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| Write / create geofence events | **System only** — engine fires events; no user-facing write surface |
+| Edit or delete any geofence event | **Nobody** — append-only model; immutable |
+
+> Gate staff, Scaling Operators, and Command Center Officers do not have direct access to the geofence event history API — they see operationally relevant status through their own module screens. Tenant Admin can see all events for audit purposes.
 
 ---
 
@@ -84,4 +155,4 @@ phase: Phase 1
 
 ---
 
-*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 3 SP | PRD: §6.5.6, §6.5.8 | Jira: DFS-079 | Last Updated: 2026-06-12*
+*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 3 SP | PRD: §6.5.6, §6.5.8 | Jira: DFS-079 | Last Updated: 2026-06-15*
