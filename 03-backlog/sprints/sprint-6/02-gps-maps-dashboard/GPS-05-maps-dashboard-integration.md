@@ -24,7 +24,7 @@ supersedes: "Sprint 5 GPS-01 (DFS-070) demo gaps — POI map layer, degraded-mod
 **I want** an interactive map-based dashboard as my default landing view
 **So that** I can see where every active vehicle is relative to POIs and ongoing Transport Orders — in near real-time — without switching between multiple screens or making phone calls.
 
-**As a** Transport Planner
+**As a** Transport Planner and TDO
 **I want to** click on a vehicle or a POI on the map
 **So that** I can see the full operational context — driver, TO status, dwell time, geofence events — in a side panel without leaving the map.
 
