@@ -5,9 +5,9 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-04-09
+last_updated: 2026-06-18
 phase1_note: All users (including Driver, Helper) invited via email only. SMS/phone-based invitation removed from Phase 1 scope.
-related_stories: US-005, US-006, US-007, US-008, US-009
+related_stories: US-005, US-006, US-007, US-008, US-009, PAP-05, PAP-06, BUG-01
 scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
 
@@ -15,7 +15,7 @@ scope_note: US-005 now consolidates password reset functionality from US-008 (se
 
 ## Overview
 
-The DFMS platform implements comprehensive user and tenant lifecycle management designed for multi-tenant SaaS environments. This specification covers organization onboarding, tenant creation, user invitation and activation workflows, OTP verification, account management, and audit logging.
+The DFMS platform implements comprehensive user and tenant lifecycle management designed for multi-tenant SaaS environments. This specification covers organization onboarding, tenant creation and ongoing tenant management (view, edit, suspend), user invitation and activation workflows, OTP verification, account management, and audit logging.
 
 The system balances security requirements with usability considerations, particularly for users with varying levels of digital literacy, through features like admin-assisted password resets and multiple verification methods.
 
@@ -60,9 +60,9 @@ Tenant {
   subscription_tier: enum ['Basic', 'Starter', 'Growth', 'Enterprise']
   subscription_status: enum ['Trial', 'Active', 'Suspended', 'Cancelled']
   
-  // Contact
-  admin_email: string
-  admin_phone: string
+  // Contact (organisation — persisted on the Tenant record)
+  contact_email: string
+  contact_phone: string   // optional; E.164 when provided
   address: {
     street: string
     city: string
@@ -162,12 +162,22 @@ Step 6: Tenant Admin activates account and sets password
 - Industry Type (text field)
 - Subscription Plan (Basic / Starter / Growth / Enterprise)
 - Tenant Admin Email (unique, valid format)
-- Tenant Admin Phone (with country code)
-- Tenant Admin First Name
-- Tenant Admin Last Name
+- Tenant Admin Phone (international format with country code)
+- Tenant Admin Full Name (first and last name)
+- Contact Email (optional; auto-populated from Tenant Admin Email when left blank)
+- Contact Phone (optional; international format with country code)
 - Organization Address (full address fields)
 
-**Validation Rules**:
+**Validation Rules** (create form):
+
+| Field | Required | Rules |
+|-------|----------|-------|
+| Organization Name | Yes | 3–100 chars, unique, alphanumeric + `& . , ( ) -` |
+| Tenant Admin Email | Yes | Valid email, unique platform-wide |
+| Tenant Admin Phone | No | E.164 when provided (e.g. `+8801XXXXXXXXX`); normalised on save |
+| Contact Email | No | Valid email when provided |
+| Contact Phone | No | **Same E.164 rules as Tenant Admin Phone** when provided; normalised on save |
+
 ```typescript
 {
   organization_name: {
@@ -178,15 +188,21 @@ Step 6: Tenant Admin activates account and sets password
   },
   admin_email: {
     unique: true,
-    format: 'email',
-    verify_mx_record: true
+    format: 'email'
   },
   admin_phone: {
-    format: 'E.164',  // +8801XXXXXXXXX
-    unique: true
+    format: 'E.164'  // +8801XXXXXXXXX; optional
+  },
+  contact_email: {
+    format: 'email'  // optional; defaults to admin_email on create
+  },
+  contact_phone: {
+    format: 'E.164'  // +8801XXXXXXXXX; optional; same validator as admin_phone
   }
 }
 ```
+
+Invalid phone values (letters, special characters, wrong digit count, missing leading `+`) **must be rejected** with a clear field-level message before save.
 
 ### 2.4 Tenant Provisioning
 
@@ -205,6 +221,8 @@ async function provisionTenant(
     const tenant = await createTenant({
         tenant_id,
         organization_name: tenantData.organization_name,
+        contact_email: tenantData.contact_email ?? tenantData.admin_email,
+        contact_phone: tenantData.contact_phone,
         subscription_tier: tenantData.subscription_plan,
         max_users: getSubscriptionLimits(tenantData.subscription_plan).max_users,
         max_monthly_trips: getSubscriptionLimits(tenantData.subscription_plan).max_trips,
@@ -249,6 +267,53 @@ async function provisionTenant(
     return tenant;
 }
 ```
+
+### 2.4.1 Platform Admin Interface — Tenant Create & Edit (PAP-05, PAP-06)
+
+Super Admin manages tenants exclusively from the **platform admin** (`admin.dfms.com`). The `Tenant` and `Domain` models use `PlatformOnlyAdminMixin` — they are not visible in tenant-scoped admin sites.
+
+**List & search (PAP-06)**:
+- List all client tenants: organisation name, schema, subscription tier, status, modules, created date
+- Filter by status, tier, business category; search by name, schema, contact email
+- Bulk actions: activate, suspend, cancel, set trial, reinvite tenant admin
+
+**Create (PAP-05)** — add form includes Organisation, Tenant Admin, Contact, Address, Subscription, and Enabled Modules fieldsets. Extra create-only fields (`admin_full_name`, `admin_email`, `admin_phone`) provision the initial Tenant Admin user asynchronously after save.
+
+**Edit (PAP-06)** — change form includes Organisation, Contact, Address, Subscription, Enabled Modules, and Status & Domains. The Tenant Admin fieldset is **not** shown on edit (admin user is managed inside the tenant schema).
+
+**Editable on change**:
+- Organisation name, business category, industry type
+- Contact email, **contact phone**
+- Address fields
+- Subscription tier, status, limits, enabled modules, active flag
+
+**Contact Phone validation — create and edit (BUG-01)**:
+
+Contact Phone must be validated **identically** on tenant **create** and **edit**. A value that is rejected when adding a tenant must also be rejected when updating an existing tenant.
+
+| Rule | Create | Edit |
+|------|--------|------|
+| Blank Contact Phone allowed | Yes | Yes |
+| Valid E.164 accepted | Yes | Yes |
+| Invalid format rejected with field error | Yes | **Yes** (required — see BUG-01) |
+| Value normalised to E.164 on save | Yes | Yes |
+
+**Implementation (admin forms)**:
+- Shared base form applies `contact_phone` E.164 validation for both add and change views.
+- Create-only form extends the base form with Tenant Admin fields (`admin_phone` uses the same E.164 validator).
+- Do **not** rely on the default model form for the change view — it does not enforce phone rules.
+
+**User-visible error** (invalid Contact Phone):
+
+> Enter a valid international phone number starting with + (e.g. +8801XXXXXXXXX).
+
+**API update parity (recommended)**:
+
+When `contact_phone` is supplied on `PATCH /api/v1/tenants/{id}/`, apply the same E.164 validation before persisting. Reject invalid values with a 400 response and a clear validation message.
+
+**Audit**:
+
+Subscription, tier, module, and status changes on edit are written to `PlatformAuditLog` in the public schema.
 
 ### 2.5 User Creation (by Tenant Admin)
 
