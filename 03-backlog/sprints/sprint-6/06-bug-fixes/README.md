@@ -11,7 +11,8 @@ Defect tickets discovered during Sprint 6 hardening, UAT prep, or regression tes
 
 | ID | Title | Module | Severity | Status |
 |----|-------|--------|----------|--------|
-| [BUG-01](BUG-01-tenant-contact-phone-validation-on-update.md) | Contact Phone validation missing on tenant update | Tenant Management | Medium | Confirmed |
+| [BUG-01](BUG-01-tenant-contact-phone-validation-on-update.md) | Contact Phone validation missing on tenant update | Tenant Management | Medium | Done |
+| [BUG-02](BUG-02-tenant-admin-email-duplicate-not-rejected.md) | Duplicate Admin Email allowed when creating a tenant | Tenant Management | High | Open |
 
 ---
 

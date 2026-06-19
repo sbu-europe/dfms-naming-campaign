@@ -6,11 +6,12 @@ bug_id: BUG-01
 title: Contact Phone validation missing on tenant update
 module: Tenant Management
 severity: Medium
-status: Confirmed
+status: Done
 story_points: 1
-assignee: ~
+assignee: Farhan Tanvir (farhanT23)
 reported_date: 2026-06-18
 confirmed_date: 2026-06-18
+fixed_date: 2026-06-18
 related_stories:
   - PAP-05 (tenant onboarding — Sprint 1)
   - PAP-06 (tenant management — Sprint 1)
@@ -25,6 +26,8 @@ affected_surfaces:
 
 Contact Phone is validated when **creating** a tenant in Platform Admin, but **not** when **editing** an existing tenant. Invalid values (letters, special characters, wrong digit count) can be saved on update without a validation message.
 
+**Status: Done** — fixed 2026-06-18 by Farhan Tanvir (farhanT23).
+
 ---
 
 ## Steps to Reproduce
@@ -35,7 +38,7 @@ Contact Phone is validated when **creating** a tenant in Platform Admin, but **n
 4. Change **Contact Phone** to an invalid value (e.g. `abc123!!!`, `01812345678`, or `not-a-phone`).
 5. Click **Save**.
 
-### Actual result
+### Actual result (before fix)
 
 The tenant is updated successfully. The invalid Contact Phone is saved.
 
@@ -59,16 +62,18 @@ Validation for Contact Phone is applied when **adding** a new tenant but is **no
 
 ### Verification (2026-06-18)
 
-Confirmed in the development environment:
-
-| Flow | Invalid value `abc123!!!` | Outcome |
-|------|---------------------------|---------|
-| Create tenant | Rejected | Validation message shown: phone must be a valid international number starting with + (e.g. +8801XXXXXXXXX). |
+| Flow | Invalid value `abc123!!!` | Outcome (before fix) |
+|------|---------------------------|----------------------|
+| Create tenant | Rejected | Validation message shown. |
 | Edit tenant | **Accepted** | Save succeeds; invalid value is stored. |
 
-### Secondary gap
+### Resolution (2026-06-18)
 
-If tenant contact details are updated through the platform API (not only the admin edit screen), the same missing validation may allow invalid contact numbers there as well.
+| Flow | Invalid value `abc123!!!` | Outcome (after fix) |
+|------|---------------------------|---------------------|
+| Create tenant | Rejected | *Enter a valid phone number (e.g. +8801XXXXXXXXX).* |
+| Edit tenant | Rejected | Same validation message; record not updated. |
+| API update (`PATCH`) | Rejected | 400 with same validation message. |
 
 ---
 
@@ -76,17 +81,17 @@ If tenant contact details are updated through the platform API (not only the adm
 
 ### AC-1 — Edit screen validates Contact Phone
 
-- Editing a tenant and entering an invalid Contact Phone blocks save and shows the same validation message as on create.
-- Valid international phone numbers are accepted (including common formatted entry such as spaces or dashes).
-- Leaving Contact Phone blank remains allowed (field is optional).
+- [x] Editing a tenant and entering an invalid Contact Phone blocks save and shows the same validation message as on create.
+- [x] Valid phone numbers are accepted (including common formatted entry such as spaces or dashes).
+- [x] Leaving Contact Phone blank remains allowed (field is optional).
 
 ### AC-2 — Create behaviour unchanged
 
-- Creating a tenant still rejects invalid Contact Phone values as today.
+- [x] Creating a tenant still rejects invalid Contact Phone values as today.
 
 ### AC-3 — Consistent rules across update paths (recommended)
 
-- Any supported way to update tenant contact details applies the same Contact Phone rules as create.
+- [x] Tenant update API applies the same Contact Phone rules as create.
 
 ---
 
@@ -102,29 +107,29 @@ If tenant contact details are updated through the platform API (not only the adm
 
 | Sub-task | Description | Priority | Status |
 |----------|-------------|----------|--------|
-| BUG-01-1 | Enforce Contact Phone validation on tenant edit in Platform Admin | High | Not started |
-| BUG-01-2 | Verify create flow still validates Contact Phone correctly | High | Not started |
-| BUG-01-3 | Align tenant update API with the same Contact Phone rules (if in scope) | Medium | Not started |
-| BUG-01-4 | Record test evidence that edit rejects invalid numbers and accepts valid ones | Medium | Not started |
+| BUG-01-1 | Enforce Contact Phone validation on tenant edit in Platform Admin | High | Done |
+| BUG-01-2 | Verify create flow still validates Contact Phone correctly | High | Done |
+| BUG-01-3 | Align tenant update API with the same Contact Phone rules (if in scope) | Medium | Done |
+| BUG-01-4 | Record test evidence that edit rejects invalid numbers and accepts valid ones | Medium | Done |
 
 ---
 
 ## Test Plan
 
-- [ ] **Manual** — Create tenant with valid phone → edit → enter `abc123!!!` → Save → validation error on Contact Phone; record not updated.
-- [ ] **Manual** — Edit tenant → enter `+8801812345678` → Save → succeeds; number stored correctly.
-- [ ] **Manual** — Edit tenant → clear Contact Phone → Save → succeeds (optional field).
-- [ ] **Manual** — Create tenant with invalid phone → still rejected (no regression).
-- [ ] **API** (if AC-3 in scope) — Attempt to update contact phone with an invalid value → request rejected with a clear error.
+- [x] **Manual** — Create tenant with valid phone → edit → enter `abc123!!!` → Save → validation error on Contact Phone; record not updated.
+- [x] **Manual** — Edit tenant → enter `+8801812345678` → Save → succeeds; number stored correctly.
+- [x] **Manual** — Edit tenant → clear Contact Phone → Save → succeeds (optional field).
+- [x] **Manual** — Create tenant with invalid phone → still rejected (no regression).
+- [x] **API** — Attempt to update contact phone with an invalid value → request rejected with a clear error.
 
 ---
 
 ## Definition of Done
 
-- [ ] All acceptance criteria met.
-- [ ] Test plan completed and results recorded.
-- [ ] Create-flow validation unchanged.
-- [ ] Ticket status updated to **Fixed** when released.
+- [x] All acceptance criteria met.
+- [x] Test plan completed and results recorded.
+- [x] Create-flow validation unchanged.
+- [x] Ticket status updated to **Done**.
 
 ---
 
@@ -132,3 +137,4 @@ If tenant contact details are updated through the platform API (not only the adm
 
 - The field is labelled **Contact Phone** in Platform Admin (under Contact). Reports may refer to it as "Contact Number".
 - On create, the initial tenant admin phone is also validated; that section is not shown on edit. This ticket is about **Contact Phone** on the edit screen.
+- Validation message: *Enter a valid phone number (e.g. +8801XXXXXXXXX).*

@@ -7,7 +7,7 @@ source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
 last_updated: 2026-06-18
 phase1_note: All users (including Driver, Helper) invited via email only. SMS/phone-based invitation removed from Phase 1 scope.
-related_stories: US-005, US-006, US-007, US-008, US-009, PAP-05, PAP-06, BUG-01
+related_stories: US-005, US-006, US-007, US-008, US-009, PAP-05, PAP-06, BUG-01, BUG-02
 scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
 ---
 
@@ -204,6 +204,8 @@ Step 6: Tenant Admin activates account and sets password
 
 Invalid phone values (letters, special characters, wrong digit count, missing leading `+`) **must be rejected** with a clear field-level message before save.
 
+Duplicate Tenant Admin Email addresses (already assigned to another organisation's admin) **must be rejected** on create with a clear field-level message before save (see **BUG-02** in §2.4.1).
+
 ### 2.4 Tenant Provisioning
 
 ```typescript
@@ -310,6 +312,34 @@ Contact Phone must be validated **identically** on tenant **create** and **edit*
 **API update parity (recommended)**:
 
 When `contact_phone` is supplied on `PATCH /api/v1/tenants/{id}/`, apply the same E.164 validation before persisting. Reject invalid values with a 400 response and a clear validation message.
+
+**Admin Email uniqueness on create (BUG-02)**:
+
+Each organisation's initial **Admin Email** must be **unique platform-wide**. A Super Admin must not be able to create a new organisation using an address that is already the Tenant Admin email for another organisation.
+
+| Rule | Create |
+|------|--------|
+| New, unused Admin Email accepted | Yes |
+| Admin Email already used by another organisation's Tenant Admin | **Rejected** with field error (required — see BUG-02) |
+| Comparison case-insensitive | Yes (`Admin@Example.com` = `admin@example.com`) |
+| Edit screen (Tenant Admin fieldset absent) | Out of scope for this rule |
+
+**What counts as “already registered”**:
+
+An address is treated as a duplicate if it is already assigned as the **Tenant Admin** for any existing client organisation (checked across all organisation schemas), or is already stored as that organisation's **contact email** from onboarding when Contact Email was left blank.
+
+**Implementation (admin forms)**:
+- The create-only add form validates `admin_email` before save using a **shared platform-wide lookup** (same logic used everywhere tenant provisioning runs).
+- Normalise the submitted address to lowercase before comparing and before persisting.
+- Reject the save on the **Admin Email** field — do not create the organisation record or queue admin provisioning when a duplicate is detected.
+
+**User-visible error** (duplicate Admin Email):
+
+> Email already registered.
+
+**API create parity (recommended)**:
+
+When `admin_email` is supplied on `POST /api/v1/tenants/`, apply the same platform-wide uniqueness rules before provisioning. Reject duplicate values with a 400 response and the same validation message on `admin_email`.
 
 **Audit**:
 
