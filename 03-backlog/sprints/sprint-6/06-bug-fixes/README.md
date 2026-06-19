@@ -14,6 +14,7 @@ Defect tickets discovered during Sprint 6 hardening, UAT prep, or regression tes
 | [BUG-01](BUG-01-tenant-contact-phone-validation-on-update.md) | Contact Phone validation missing on tenant update | Tenant Management | Medium | Done |
 | [BUG-02](BUG-02-tenant-admin-email-duplicate-not-rejected.md) | Duplicate Admin Email allowed when creating a tenant | Tenant Management | High | Open |
 | [BUG-03](BUG-03-tenant-business-category-not-required-on-update.md) | Business Category can be cleared when editing a tenant | Tenant Management | Medium | Done |
+| [BUG-04](BUG-04-transport-request-approve-with-modification-not-saved.md) | Approve with Modifications does not save updated Transport Request details | Distribution Manager — Transport Request | High | Done |
 
 ---
 
