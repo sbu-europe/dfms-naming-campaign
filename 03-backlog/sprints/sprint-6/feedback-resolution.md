@@ -81,22 +81,22 @@ During vendor self-registration on the Vendor Mobile app, the vendor could compl
 | **Affected Stories** | [VM-07](../sprint-5/08-vendor-management/VM-07-vehicle-driver-submission.md), [VM-06](../sprint-5/08-vendor-management/VM-06-bid-evaluation.md), [VM-03](../sprint-5/08-vendor-management/VM-03-vendor-portal-views.md), [TEVF-03](../sprint-5/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md), [VAPP-01](03-vendor-app/VAPP-01-release-readiness-live-api.md) |
 | **Sprint 4 origin** | [`sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md`](../../sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md) — AC-1 / AC-2 / AC-3; [`sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md`](../../sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md) |
 | **Closing Sub-tasks** | VM-07-3, VM-07-4, VM-07-5, VM-07-6 (amend); VM-03-9 (ongoing-trip edit entry point); TEVF-03-3; VAPP-01-3 |
-| **AC Amendment** | VM-07 AC-1 / AC-2: after a vendor **wins a bid** (VM-06 award) or receives contractual assignment, the vendor **must** submit **driver and helper** execution details (`POST …/vehicle-driver`) before the TO can reach `ready_for_dispatch` / trip start. Helper capture is **mandatory** (at least one helper with name + NID), not optional. VM-07 AC-3 + VM-03: vendor may **edit** vehicle, driver, and helper details on an **ongoing** TO (lifecycle `in_progress`, before `completed`) via `PATCH …/vehicle-driver` with a required reason and audit trail — not only before first trip start. |
+| **AC Amendment** | VM-07 AC-1 / AC-2: after a vendor **wins a bid** (VM-06 award) or receives contractual assignment, the vendor **must** submit **driver** execution details (`POST …/vehicle-driver`) before the TO can reach `ready_for_dispatch` / trip start. **Helper** details may be included on the same confirmation (zero or more); per helper, **name** and **NID** are **optional**. VM-07 AC-3 + VM-03: vendor may **edit** vehicle, driver, and helper details on an **ongoing** TO (lifecycle `in_progress`, before `completed`) via `PATCH …/vehicle-driver` with a required reason and audit trail — not only before first trip start. |
 | **Status** | Open |
 | **Priority** | High |
-| **Notes** | VM-05 keeps bid submission rate-only (no fleet identity at bid time). FB-003 applies at **post-award confirmation** (VM-07), not at bid submit. Current VM-07-3 marks helper list optional; confirmation POST is gated to `assigned`/`created` only; ongoing-trip edit may be missing or hidden in Vendor Mobile Active Trips UI. |
+| **Notes** | VM-05 keeps bid submission rate-only (no fleet identity at bid time). FB-003 applies at **post-award confirmation** (VM-07), not at bid submit. Driver fields remain mandatory; helper list and per-helper name/NID stay optional (aligns with VM-07 AC-2). Confirmation POST is gated to `assigned`/`created` only; ongoing-trip edit may be missing or hidden in Vendor Mobile Active Trips UI. |
 
 ### Demo observation
 
-After a vendor's bid was awarded, the expected handoff is for the vendor to confirm **driver and helper** information before execution. During an **ongoing** trip, the vendor should still be able to update those details (e.g. substitution, accident) until the trip is **completed** — with reason and audit — without waiting until a post-completion state.
+After a vendor's bid was awarded, the expected handoff is for the vendor to confirm **driver** information (and optionally **helpers**) before execution. During an **ongoing** trip, the vendor should still be able to update vehicle, driver, and helper details (e.g. substitution, accident) until the trip is **completed** — with reason and audit — without waiting until a post-completion state.
 
 ### Current vs expected behaviour
 
 | Aspect | Current | Expected (FB-003) |
 |--------|---------|-------------------|
 | When details are captured | Post-award vehicle–driver confirmation (VM-07) | Same trigger — required immediately after award/assignment |
-| Helper fields | Optional (`helper_details` may be empty) | Mandatory — vendor must submit at least one helper (name + NID) on confirmation |
-| Trip-start gate | Blocked until VM-07 confirmation exists | Unchanged — still blocked until driver + helper confirmation recorded |
+| Helper fields | Optional list; per-helper name/NID optional when provided | Unchanged — helper list optional; **name** and **NID** per helper remain **optional** |
+| Trip-start gate | Blocked until VM-07 confirmation exists | Unchanged — still blocked until **driver** confirmation recorded (helpers not required for gate) |
 | Edit window | Update-with-reason exists (VM-07 AC-3 / PATCH) | Edit allowed on **ongoing** TO (`in_progress`) until `completed`; surfaced on Active Trips detail in Vendor Mobile |
 | Audit on edit | Reason + field-level audit (VM-07-4) | Unchanged — every edit requires reason and is logged |
 
