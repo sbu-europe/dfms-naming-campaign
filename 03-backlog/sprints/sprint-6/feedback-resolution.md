@@ -21,9 +21,9 @@ Client demo feedback from the Sprint 6 demo (2026-06-22). Each item maps to the 
 | Field | Value |
 |-------|-------|
 | **Source** | Sprint 6 demo — 2026-06-22 |
-| **Affected Stories** | [CC-02](07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md) (new), [CC-01](../sprint-5/06-command-center-loading/CC-01-queue-assign-serial.md), [LD-01](../sprint-5/06-command-center-loading/LD-01-load-unload-timestamps.md) |
+| **Affected Stories** | [CC-01](../sprint-5/06-command-center-loading/CC-01-queue-assign-serial.md), [LD-01](../sprint-5/06-command-center-loading/LD-01-load-unload-timestamps.md) |
 | **Sprint 4 origin** | [`sprint-4/06-command-center-loading/CC-01-queue-assign-serial.md`](../../sprint-4/06-command-center-loading/CC-01-queue-assign-serial.md), [`sprint-4/06-command-center-loading/LD-01-load-unload-timestamps.md`](../../sprint-4/06-command-center-loading/LD-01-load-unload-timestamps.md) |
-| **Closing Sub-tasks** | CC-02-1, CC-02-2, CC-02-3, CC-02-4, CC-02-5 |
+| **Closing Sub-tasks** | CC-01 / LD-01 amendments (FB-001 — sub-tasks TBD on those stories) |
 | **AC Amendment** | CC-01 AC-3 / LD-01 AC-1 / AC-2: Command Center must be able to assign **multiple** loading or unloading points to the same TO yard visit (not a single point). The TO advances to `loading_completed` or `unloading_completed` **only after all** assigned points for that leg have been started and completed. Intermediate sub-states (`loading_started`, `unloading_started`) may repeat per point; the terminal sub-state for the leg is emitted once when the last open assignment is closed. |
 | **Status** | Open |
 | **Priority** | High |
@@ -39,7 +39,7 @@ During the Sprint 6 demo, the Command Center Officer could assign a vehicle to *
 |--------|-------------------------|-------------------|
 | Assignments per visit | One `BayAssignment` per `QueueEntry` | One or more `BayAssignment` rows per `QueueEntry` / visit |
 | CC assign action | Assigning a point closes the vehicle's single assignment slot | CCO can add further points while earlier assignments are open or completed |
-| Queue visibility | Vehicle leaves CC waiting queue after first assignment | Vehicle remains trackable until all leg assignments are complete (or define re-queue rules — see CC-02) |
+| Queue visibility | Vehicle leaves CC waiting queue after first assignment | Vehicle remains trackable until all leg assignments are complete (re-queue rules to be defined in CC-01) |
 | `loading_completed` / `unloading_completed` | Emitted when **first** point completes (`LDService.complete_*` → `CCService.mark_completed`) | Emitted only when **all** open assignments for that leg are completed |
 | Gate / scale guards | Scale-out may unblock after one point | Scale-out and gate-out guards must respect all assignments complete |
 
