@@ -5,7 +5,7 @@ phase: Phase 1
 dates: "2026-06-17 → 2026-07-01"
 status: Planning
 carry_from: Sprint 5
-total_story_points_estimated: "~62 SP (23 E2E carry-over sub-tasks + GPS Phase 1 production + vendor app release/UX + Phase 1 readiness docs + tenant-wide audit trail)"
+total_story_points_estimated: "~67 SP (23 E2E carry-over sub-tasks + GPS Phase 1 production + vendor app release/UX + Phase 1 readiness docs + tenant-wide audit trail + CC-02 demo feedback)"
 ---
 
 # Sprint 6 — E2E Hardening, GPS Maps Dashboard Phase 1 Production, Vendor App Release & Phase 1 Readiness
@@ -14,7 +14,7 @@ total_story_points_estimated: "~62 SP (23 E2E carry-over sub-tasks + GPS Phase 1
 |---|---|
 | **Sprint Dates** | 2026-06-17 → 2026-07-01 |
 | **Carry-over from Sprint 5** | 23 E2E sub-tasks (all stories) + GPS Phase 1 production scope (~13 SP) |
-| **Feedback Items** | None — no demo feedback open for Sprint 6 |
+| **Feedback Items** | 1 open (FB-001) — see [`feedback-resolution.md`](feedback-resolution.md) |
 | **New Scope** | Vendor app release readiness (live API), vendor app design improvements, Phase 1 User Manual, Phase 1 UAT documentation |
 | **Sprint 5 Exit** | ~108/~125 SP delivered; all 19 feedback items closed; functional scope complete |
 
@@ -29,6 +29,7 @@ total_story_points_estimated: "~62 SP (23 E2E carry-over sub-tasks + GPS Phase 1
 5. **Phase 1 User Manual readiness (DOC-01)** — role-based user manual covering every Phase 1 module, reviewed and sign-off ready. See [`04-phase1-readiness-docs/DOC-01-phase1-user-manual.md`](04-phase1-readiness-docs/DOC-01-phase1-user-manual.md).
 6. **Phase 1 UAT documentation (UAT-01)** — complete UAT package: test plan, role-based scenario scripts traceable to PRD ACs, entry/exit criteria, defect log template, and sign-off sheets. See [`04-phase1-readiness-docs/UAT-01-phase1-uat-documentation.md`](04-phase1-readiness-docs/UAT-01-phase1-uat-documentation.md).
 7. **Tenant-wide audit trail (AUD-01)** — unify the per-story audit logging shipped across Sprints 3–5 into one tenant-wide standard with role-at-time-of-action capture, close coverage gaps (incl. auth events per PRD §6.2.7), and give Tenant Admin a single filtered, immutable, exportable audit viewer. See [`05-audit-logging/AUD-01-tenant-wide-audit-trail.md`](05-audit-logging/AUD-01-tenant-wide-audit-trail.md).
+8. **Command Center multi-point assignment (CC-02, FB-001)** — allow the CCO to assign multiple loading/unloading points per TO visit; advance to `loading_completed` / `unloading_completed` only after all assigned points are done. See [`07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md`](07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md).
 
 ---
 
@@ -41,8 +42,9 @@ total_story_points_estimated: "~62 SP (23 E2E carry-over sub-tasks + GPS Phase 1
 | 03 | Vendor Mobile App | VAPP-01, VAPP-02 | 8 + 5 SP | — | New Sprint 6 scope |
 | 04 | Phase 1 Readiness & Documentation | DOC-01, UAT-01 | 5 + 5 SP | — | New Sprint 6 scope |
 | 05 | Audit & Compliance | AUD-01 | 5 SP | — | New Sprint 6 scope |
+| 07 | Command Center (demo feedback) | CC-02 | 5 SP | FB-001 | Open — multi L/U point assignment per visit |
 
-**Total estimated**: ~62 SP
+**Total estimated**: ~67 SP (incl. CC-02 demo feedback)
 
 ---
 
@@ -159,6 +161,18 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 | UAT-01-5 | UAT-01 | Defect log template + severity/triage workflow agreed with PO | Medium |
 | UAT-01-6 | UAT-01 | Sign-off package — per-module sign-off sheets, overall Phase 1 acceptance record | High |
 
+### Epic 07: Command Center — Demo Feedback (CC-02)
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| CC-02-1 | CC-02 | Data model — multiple `BayAssignment` per `QueueEntry`; migration + admin | High |
+| CC-02-2 | CC-02 | Assign additional point API + CC UI progress indicator | High |
+| CC-02-3 | CC-02 | LD complete logic — terminal sub-state only when all assignments done | High |
+| CC-02-4 | CC-02 | Gate / scale / closure guards for multi-point completion | High |
+| CC-02-5 | CC-02 | E2E — two loading points → single `loading_completed` | Medium |
+
+> Full story: [`07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md`](07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md) | Tracker: [`feedback-resolution.md`](feedback-resolution.md)
+
 ### Epic 05: Audit & Compliance (AUD-01)
 
 | Sub-task | Story | Description | Priority |
@@ -203,5 +217,5 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-12 (initial Sprint 6 plan)
+**Last Updated**: 2026-06-22 (FB-001 demo feedback — CC-02)
 **Previous**: [Sprint 5](../sprint-5/README.md)
