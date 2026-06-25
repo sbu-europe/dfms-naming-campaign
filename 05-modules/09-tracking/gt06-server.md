@@ -2,12 +2,13 @@
 
 ## module: 09-tracking
 specification: GT06 ingest + Live GPS backend architecture
-version: 1.0
+version: 1.1
 phase: Phase 1
-sprint: Sprint 5
-last_updated: 2026-06-07
+sprint: Sprint 5 (+ post-Sprint geofence & TO-history)
+last_updated: 2026-06-25
 related_stories: GPS-01 (DFS-070)
-status: Implemented (MVP)
+status: Implemented (MVP + geofence + TO-centric history)
+doc_sync_note: Merged geofence and TO-centric history from apps/tracking/GEOFENCE_IMPLEMENTATION.md and TO_CENTRIC_HISTORY_PLAN.md
 code_root: apps/tracking
 service_root: services/gt06-ingest
 supersedes:
@@ -47,8 +48,10 @@ An engineer or AI agent should be able to:
 
 Sprint 5 delivers a **tenant-scoped Live GPS MVP**: a read-only map of vehicles on **active trips** with live position/speed from **Redis**, downsampled trail in **Postgres**, history modal, and follow panels. Location enters via **GT06 device ingest** (Concox sidecar) or **demo/mock seeding**; production GPSWOX REST polling remains deferred.
 
+**Post–Sprint 5 (Jun 2026):** circle-based **geofence engine** (entry/exit, dwell, map circles, trip auto-transitions) and **TO-centric vehicle history** (browse past transport orders per vehicle in a time window) are implemented.
 
-| Track                                        | Sprint 5 status |
+
+| Track                                        | Status          |
 | -------------------------------------------- | --------------- |
 | Live GPS admin page + APIs                   | **Done**        |
 | `GPSTracking` model + migration              | **Done**        |
@@ -57,8 +60,11 @@ Sprint 5 delivers a **tenant-scoped Live GPS MVP**: a read-only map of vehicles 
 | History graph + activity summary APIs        | **Done**        |
 | Five-truck OSM mock fleet                    | **Done**        |
 | Map SDK (Leaflet + OpenStreetMap)            | **Done**        |
-| Geofence engine / dwell / TLS timeline       | **Deferred**    |
+| Geofence engine (entry/exit, dwell, circles) | **Done**        |
+| TO-centric history (`vehicle-to-history`)    | **Done**        |
+| TLS-01 timeline hooks from GPS               | **Deferred**    |
 | Full `/api/v1/maps/`** dashboard             | **Deferred**    |
+| GPSWOX REST production poller                | **Deferred**    |
 
 
 ### Storage at a glance
@@ -133,12 +139,15 @@ Driver mobile app ──POST /api/v1/tracking/location/──► GPSTracking (Po
 | --- | ------------------- | ----------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ | ------------------------------------ |
 | A   | GT06 device / mock  | **TCP** `gt06-ingest:5023`                      | `tcp_server.py`                                                         | —                        | Redis `latest`, `history`, `devices` |
 | B   | Browser (10s poll)  | `GET /api/v1/tracking/live-map/`                | `LiveMapView` → `LiveMapService`                                        | Redis + Postgres         | —                                    |
-| C   | Browser (history)   | `GET /api/v1/tracking/vehicle-history/`         | `VehicleHistoryService`                                                 | Postgres + Redis history | —                                    |
-| D   | Browser (history)   | `GET /api/v1/tracking/vehicle-history-summary/` | `VehicleHistorySummaryService` → `**VehicleHistoryService` (internal)** | Same as C                | —                                    |
-| E   | Celery Beat (30s)   | `tracking.sync_gt06_all_tenants`                | `Gt06SyncService`                                                       | Redis                    | Postgres *(if ≥10 min gate)*         |
-| F   | Driver app (future) | `POST /api/v1/tracking/location/`               | `LocationUpdateView`                                                    | —                        | Postgres + `evaluate_geofence`       |
-| G   | Ops / curl          | `GET gt06-ingest:8080/...`                      | FastAPI                                                                 | Redis                    | —                                    |
-| H   | Browser (popup)     | `GET nominatim.openstreetmap.org/reverse`       | External                                                                | OSM                      | —                                    |
+| C   | Browser (history)   | `GET /api/v1/tracking/vehicle-to-history/`      | `VehicleToHistoryService`                                               | Trips + GPS aggregates   | —                                    |
+| D   | Browser (history)   | `GET /api/v1/tracking/vehicle-history/`         | `VehicleHistoryService`                                                 | Postgres + Redis history | —                                    |
+| E   | Browser (history)   | `GET /api/v1/tracking/vehicle-history-summary/` | `VehicleHistorySummaryService` → `VehicleHistoryService` (internal)     | Same as D                | —                                    |
+| F   | Browser (history)   | `GET /api/v1/tracking/geofence-events/`         | `GeofenceEventListView`                                                 | `GeofenceEvent`          | —                                    |
+| G   | Celery Beat (30s)   | `tracking.sync_gt06_all_tenants`                | `Gt06SyncService`                                                       | Redis                    | Postgres *(if ≥10 min gate)*         |
+| H   | Celery (async)      | `tracking.evaluate_geofence`                    | `GeofenceService`                                                       | POIs, Redis presence     | `GeofenceEvent`, trip status         |
+| I   | Driver app (future) | `POST /api/v1/tracking/location/`               | `LocationUpdateView`                                                    | —                        | Postgres + `evaluate_geofence`       |
+| J   | Ops / curl          | `GET gt06-ingest:8080/...`                      | FastAPI                                                                 | Redis                    | —                                    |
+| K   | Browser (popup)     | `GET nominatim.openstreetmap.org/reverse`       | External                                                                | OSM                      | —                                    |
 
 
 **Production Live GPS does not call gt06-ingest HTTP (`:8080`).** Django reads Redis via `Gt06RedisReader`.
@@ -244,9 +253,11 @@ flowchart TB
 | Redis reader     | `apps/tracking/gt06_store.py`                                    | `Gt06RedisReader`                                                                      |
 | Postgres sync    | `apps/tracking/sync_service.py`                                  | IMEI → `Vehicle` → `Trip` → `GPSTracking`                                              |
 | Live map payload | `apps/tracking/live_map_service.py`                              | Latest position, trail, movement status                                                |
-| History          | `apps/tracking/history_service.py`, `history_summary_service.py` | Chart + activity cards                                                                 |
+| History          | `apps/tracking/history_service.py`, `history_summary_service.py` | Chart + activity cards (per `trip_id`)                                                 |
+| TO history       | `apps/tracking/vehicle_to_history_service.py`                    | List TOs/trips for vehicle in time window                                              |
+| Geofence         | `apps/tracking/geofence_service.py`, `geofence_store.py`         | Haversine entry/exit, dwell, trip transitions, Redis presence                          |
 | Movement         | `apps/tracking/movement_status.py`                               | moving / idle / parked / offline                                                       |
-| REST API         | `apps/tracking/views.py`, `urls.py`, `permissions.py`            | `LiveMapView`, `VehicleHistoryView`, `VehicleHistorySummaryView`, `LocationUpdateView` |
+| REST API         | `apps/tracking/views.py`, `urls.py`, `permissions.py`            | Live map, history, geofence, location APIs                                             |
 | SSR page         | `apps/tracking/portal_views.py`                                  | `live_gps_page`                                                                        |
 | Map UI           | `templates/admin/tracking/live_gps.html`                         | Leaflet, polling, follow, history                                                      |
 | Celery           | `apps/tracking/tasks.py`                                         | `sync_gt06_`*, `evaluate_geofence`                                                     |
@@ -280,9 +291,12 @@ Auth: `IsTenantUser` + `CanViewLiveGps` (`Menu.LiveGps.View`; tenant/super admin
 
 | Method | Path                        | Service                          | Purpose                                            |
 | ------ | --------------------------- | -------------------------------- | -------------------------------------------------- |
-| `GET`  | `/live-map/`                | `LiveMapView` → `LiveMapService` | Fleet snapshot for map                             |
-| `GET`  | `/vehicle-history/`         | `VehicleHistoryService`          | Speed/position time series                         |
+| `GET`  | `/live-map/`                | `LiveMapView` → `LiveMapService` | Fleet snapshot + POI geofence circles              |
+| `GET`  | `/vehicle-to-history/`      | `VehicleToHistoryService`        | TO/trip list for vehicle in time window            |
+| `GET`  | `/vehicle-history/`         | `VehicleHistoryService`          | Speed/position time series (per `trip_id`)         |
 | `GET`  | `/vehicle-history-summary/` | `VehicleHistorySummaryService`   | Drive / stopped / parked cards                     |
+| `GET`  | `/geofence-events/`         | `GeofenceEventListView`          | Entry/exit event history                           |
+| `GET`  | `/geofence-check/`          | `GeofenceCheckView`              | Point-in-circle check                              |
 | `POST` | `/location/`                | `LocationUpdateView`             | Driver app GPS (not GT06; not used by Live GPS UI) |
 
 
@@ -352,6 +366,30 @@ Returns: `points[]` — merges Postgres + Redis for window.
 Query: `trip_id` + time window.  
 Returns: `events[]` — `trip_start`, `drive`, `stopped`, `parked`, `trip_end`. No fabricated events when GPS missing.
 
+#### `GET /api/v1/tracking/vehicle-to-history/`
+
+Query: `vehicle_id` + `from` + `to` (ISO 8601).  
+Returns: `transport_orders[]` — one row per **trip** labeled with `to_number`, origin/destination POIs, trip status, execution window (`window_from`/`window_to`), `point_count`, `has_gps`. Ordered by `window_from` ascending.
+
+**Trip window** (`resolve_trip_window`): start = `dispatched_at` → earliest GPS → `created_at`; end = `completed_at` → latest GPS → `now` (in-progress).  
+**Inclusion:** trip overlaps user range (`trip_start < user_to AND trip_end > user_from`).
+
+**History UX flow:** user picks vehicle + range → TO list → selects TO → existing `vehicle-history` / `vehicle-history-summary` / `geofence-events` called with selected `trip_id` and **effective window** = intersection of user range and trip execution window.
+
+#### `GET /api/v1/tracking/geofence-events/`
+
+Query: `trip_id` (required for history); optional `poi_id`, `transport_order_id`, `limit`.  
+Returns: entry/exit events with POI code, `dwell_minutes`, `dwell_threshold_breached`.
+
+#### `GET /api/v1/tracking/geofence-check/`
+
+Query: `poi_id`, `lat`, `lng`.  
+Returns: `inside`, `distance_m`, `effective_radius_m` (radius + buffer).
+
+#### `GET /api/v1/tracking/live-map/` — POI payload
+
+Response includes `pois[]` with `geofence_radius_meters`. Each vehicle may include `inside_pois` / `inside_geofence` for live map indicators (dock, fleet list, popup).
+
 #### `POST /api/v1/tracking/location/`
 
 Driver mobile stub: creates `GPSTracking`, queues `evaluate_geofence`. Permission: `IsTenantUser` only. **Not used by Sprint 5 Live GPS demo.**
@@ -409,7 +447,7 @@ Implementation: `services/gt06-ingest/gt06_server/protocol/`, `tcp_server.py`
 | -------------------------------------- | ---------------------------- |
 | `tracking.sync_gt06_all_tenants`       | Every 30s (beat)             |
 | `tracking.sync_gt06_locations(schema)` | Per tenant (queued by above) |
-| `tracking.evaluate_geofence`           | On `POST /location/`         |
+| `tracking.evaluate_geofence`           | Async after GT06 trail sync or `POST /location/` |
 
 
 **Management command:** `python manage.py sync_gt06_locations --schema=<tenant>`
@@ -601,7 +639,7 @@ docker compose exec web python manage.py run_live_gps_fleet_mock --schema=nouris
 Mock: `apps/tracking/mock/` — `LIVE_GPS_MOCK=1`, 2 min Postgres trail, `LIVE_GPS_MOCK_FLEET_ONLY=1` in compose.  
 `clear_mock_fleet_redis()` runs before each mock session.
 
-Developer cheat sheet: `[apps/tracking/LIVE_GPS.md](../../../apps/tracking/LIVE_GPS.md)`
+Developer cheat sheet: [docs/guides/live-gps-mock-simulation.md](../../../docs/guides/live-gps-mock-simulation.md)
 
 ---
 
@@ -624,6 +662,18 @@ Developer cheat sheet: `[apps/tracking/LIVE_GPS.md](../../../apps/tracking/LIVE_
 
 
 Migration: `apps/tracking/migrations/0001_initial_gpstracking.py` — `migrate_schemas` on all tenants.
+
+### `geofence_events` (tenant schema)
+
+| Column | Type | Notes |
+| ------ | ---- | ----- |
+| `trip_id`, `transport_order_id`, `vehicle_id`, `poi_id` | FK | Event context |
+| `event_type` | entry / exit | |
+| `event_at` | DateTime | GPS timestamp |
+| `dwell_minutes` | Decimal | Set on exit |
+| `dwell_threshold_breached` | Boolean | vs `GEOFENCE_DWELL_THRESHOLD_MINUTES` (default 120) |
+
+Migration: `apps/tracking/migrations/0002_geofenceevent.py`
 
 ### Related tables (other Django apps)
 
@@ -721,6 +771,20 @@ Mock: `LIVE_GPS_MOCK=1` → 2 min gate (`MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS=120
 
 ## 11. History and follow
 
+### TO-centric history (implemented 2026-06-24)
+
+Operators review **what a vehicle did per Transport Order** in a chosen time range. A vehicle may serve multiple TOs per day; history is browsed TO-by-TO, not tied to whichever trip is active on the live map.
+
+| Step | UI | API |
+| ---- | -- | --- |
+| 1 | Select vehicle + date/time range | — |
+| 2 | **Show history** → TO list | `GET /vehicle-to-history/` |
+| 3 | Click TO → activity + chart + map playback | `vehicle-history`, `vehicle-history-summary`, `geofence-events` with selected `trip_id` |
+
+**Map milestones** (TO detail): source/destination POI pins, trip start/end from first/last GPS, geofence entry/exit markers.
+
+**Frontend:** `static/tracking/js/live-gps-app.js` — `historyView` = `to_list` \| `to_detail`; config URL in `live_gps_config.py`.
+
 ### History write paths
 
 
@@ -734,20 +798,65 @@ Mock: `LIVE_GPS_MOCK=1` → 2 min gate (`MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS=120
 
 ### History read (modal)
 
-- **Chart:** `GET /vehicle-history/` → `VehicleHistoryService`
-- **Activity cards:** `GET /vehicle-history-summary/` → calls `VehicleHistoryService` **in-process** (not HTTP-to-HTTP)
-- **Playback:** client-side scrubber + `updateHistoryMapPlayback()`; read-only
+- **TO list:** `GET /vehicle-to-history/` → `VehicleToHistoryService`
+- **Chart:** `GET /vehicle-history/` → `VehicleHistoryService` (selected `trip_id` + effective window)
+- **Activity cards:** `GET /vehicle-history-summary/` → calls `VehicleHistoryService` **in-process**
+- **Geofence cards:** merged into activity list from `GET /geofence-events/`
+- **Playback:** client-side scrubber + `updateHistoryMapPlayback()`; milestone markers on map
 
 ### Follow feature
 
 Floating mini-map per vehicle (`#live-gps-follow-stack`): own Leaflet instance, same `live-map` poll via `updateFollowMaps()`, auto-centres on vehicle. No extra API.
 
 - Popup on follow map sets `openPopupSurface = 'follow'` (main map uses `'main'`) so only one surface shows an open vehicle popup at a time.
-- Implementation: `openFollowPanel()`, `updateFollowPanel()`, `createFollowMapForPanel()` in `live_gps.html`.
+- Implementation: `openFollowPanel()`, `updateFollowPanel()`, `createFollowMapForPanel()` in `live-gps-app.js`.
 
 ---
 
-## 12. RBAC
+## 12. Geofence engine (implemented 2026-06-18)
+
+Circle-based POI geofence evaluation on each GPS point (GT06 Celery sync or `POST /location/`).
+
+### What it does
+
+1. Haversine distance vs POI center + `geofence_radius_meters` + `GEOFENCE_DETECTION_BUFFER_METERS` (default 20 m).
+2. Redis-backed inside/outside state (`geofence_store.py`).
+3. `GeofenceEvent` rows on entry/exit; `dwell_minutes` on exit.
+4. Trip auto-transition on origin/destination **entry**: `ARRIVED_AT_SOURCE` / `ARRIVED_AT_DESTINATION`.
+5. Geofence circles on Live GPS map (`live-gps-app.js`); circles turn **green** when a vehicle is inside.
+
+### POIs evaluated per GPS tick
+
+1. Trip transport order **origin** and **destination**.
+2. Any POI the trip is currently **inside** (exit detection).
+3. Fallback: all **active geocoded POIs**.
+
+### Settings
+
+| Variable | Default | Meaning |
+| -------- | ------- | ------- |
+| `GEOFENCE_DETECTION_BUFFER_METERS` | 20 | Added to POI radius for inside test |
+| `GEOFENCE_DWELL_THRESHOLD_MINUTES` | 120 | Exit events flag breach when dwell ≥ this |
+
+### Live map visual indicators
+
+| Surface | Behaviour |
+| ------- | --------- |
+| Map circle | Blue → **green** when vehicle inside → brighter when selected vehicle inside |
+| Dock / fleet list / popup | **Geofence** row shows inside POI name(s) or “Outside geofence” |
+| History tab | Entry/exit cards in activity list |
+
+### PRD gaps (still deferred)
+
+Per-POI dwell threshold, TLS-01 timeline emission, `PUT /api/v1/pois/{id}/geofence`, driver arrival prompt, geofence config audit log, dwell **alert** notifications (flag only on exit).
+
+### Tests
+
+`pytest tests/unit/test_tracking/test_geofence_engine.py`
+
+---
+
+## 13. RBAC
 
 
 | Code                | Usage                               |
@@ -765,7 +874,7 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 
 ---
 
-## 13. Configuration reference
+## 14. Configuration reference
 
 
 | Constant / env                        | Default        | Meaning                                    |
@@ -779,11 +888,13 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 | `PARKED_MIN_MINUTES`                  | 10             | Idle vs parked                             |
 | `GT06_REDIS_URL`                      | redis://…/3    | Shared ingest + Django                     |
 | `LIVE_GPS_MOCK_FLEET_ONLY`            | `1` in compose | Map filters to mock fleet                  |
+| `GEOFENCE_DETECTION_BUFFER_METERS`    | 20             | Geofence inside-test buffer                |
+| `GEOFENCE_DWELL_THRESHOLD_MINUTES`    | 120            | Dwell breach flag threshold                |
 
 
 ---
 
-## 14. Tests
+## 15. Tests
 
 
 | File                              | Coverage                                      |
@@ -793,6 +904,8 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 | `test_movement_status.py`         | moving / idle / parked                        |
 | `test_vehicle_history.py`         | History merge                                 |
 | `test_vehicle_history_summary.py` | Activity segments                             |
+| `test_vehicle_to_history.py`      | TO list, overlap windows, effective clipping  |
+| `test_geofence_engine.py`         | Entry/exit, dwell, trip transitions, check API |
 | `test_mock_simulator.py`          | Fleet simulator ticks                         |
 | `test_mock_trail_interval.py`     | Mock trail interval env                       |
 | `test_mock_gt06_packets.py`       | Packet encoding                               |
@@ -801,39 +914,23 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 
 ---
 
-## 15. Known limitations (Sprint 5)
-
-
-| Limitation                  | Notes                                 |
-| --------------------------- | ------------------------------------- |
-| No POI markers on map       | POI master not layered                |
-| No geofence circles         | `geofence_radius_meters` not rendered |
-| No production GPSWOX client | GT06 + mock only                      |
-| Trip required               | No active trackable trip → hidden     |
-| `evaluate_geofence`         | Minimal — no TLS-01 events            |
-| Driver POST not on live map | Phone GPS → Postgres only, no Redis   |
-| Degraded-mode banner        | API failure UX not fully UAT-verified |
-| Platform admin              | Live GPS tenant-only                  |
-
-
----
-
 ## 16. File index
 
 
-| Area       | Paths                                                                                                                      |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Sidecar    | `services/gt06-ingest/`**                                                                                                  |
-| Models     | `apps/tracking/models.py`                                                                                                  |
-| Services   | `live_map_service.py`, `sync_service.py`, `gt06_store.py`, `history_*.py`, `movement_status.py`                            |
-| API        | `views.py`, `urls.py`, `permissions.py`                                                                                    |
-| SSR        | `portal_views.py`                                                                                                          |
-| UI         | `templates/admin/tracking/live_gps.html`                                                                                   |
-| Static     | `static/tracking/car_image_marker.png`                                                                                     |
-| Commands   | `seed_live_gps_demo`, `seed_live_gps_fleet`, `run_live_gps_fleet_mock`, `sync_gt06_locations`, `generate_mock_road_routes` |
-| Mock       | `apps/tracking/mock/**`                                                                                                    |
-| Config     | `config/urls.py`, `config/settings/base.py` (Celery beat), `docker-compose.yml`                                            |
-| RBAC / nav | `constants_rbac.py`, `portal_navigation.py`, `role_seed_data.py`                                                           |
+| Area | Paths |
+| ---- | ----- |
+| Sidecar | `services/gt06-ingest/**` |
+| Models | `apps/tracking/models.py` (`GPSTracking`, `GeofenceEvent`) |
+| Services | `live_map_service.py`, `sync_service.py`, `gt06_store.py`, `history_*.py`, `vehicle_to_history_service.py`, `geofence_service.py`, `geofence_store.py`, `movement_status.py` |
+| API | `views.py`, `urls.py`, `permissions.py` |
+| SSR | `portal_views.py` |
+| UI | `templates/admin/tracking/live_gps.html`, `partials/_live_gps_*.html` |
+| Frontend JS/CSS | `static/tracking/js/live-gps-app.js`, `static/tracking/css/live-gps-*.css` |
+| Static | `static/tracking/car_image_marker.png` |
+| Commands | `seed_live_gps_demo`, `sync_gt06_locations`; mock: `seed-fleet`, `run-fleet-mock` |
+| Mock | `apps/tracking/mock/**` |
+| Config | `live_gps_config.py`, `config/settings/base.py`, `docker-compose.yml` |
+| RBAC / nav | `constants_rbac.py`, `portal_navigation.py`, `role_seed_data.py` |
 
 
 ---
@@ -847,28 +944,32 @@ TCP carries IMEI only. Today: Celery sync per tenant schema; IMEI → vehicle wi
 
 ## 18. Deferred (Phase 1)
 
-- `GET /api/v1/maps/`** dashboard APIs
-- POI markers / geofence circles on Live GPS
-- Full geofence engine, dwell, TLS-01 GPS events
+- `GET /api/v1/maps/**` dashboard APIs + KPI widgets
+- TLS-01 timeline hooks from GPS / geofence events
 - GPSWOX REST production poller
 - Platform admin Live GPS
 - Driver mobile wired to Redis / live map
 - IMEI global registry
+- Per-POI dwell threshold in master data
+- Geofence config audit log
+- Driver mobile “Mark as arrived?” prompt
+- Dwell alert notifications (beyond breach flag)
 
 ---
 
 ## Related documents
 
 
-| Document                                                                                                      | Purpose                        |
-| ------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Document | Purpose |
+| -------- | ------- |
 | [GPS-01 story](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Product context, AC validation |
-| [LIVE_GPS.md](../../../apps/tracking/LIVE_GPS.md)                                                             | Developer command cheat sheet  |
-| [gt06-ingest README](../../../services/gt06-ingest/README.md)                                                 | Sidecar local run              |
-| [mock/README.md](../../../apps/tracking/mock/README.md)                                                       | Five-truck demo                |
-| [gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml)                        | External GPSWOX contract       |
+| [gt06-ingest README](../../../services/gt06-ingest/README.md) | Sidecar local run |
+| [mock/README.md](../../../apps/tracking/mock/README.md) | Fleet demo commands |
+| [gt06-device-integration.md](../../../docs/integrations/gt06-device-integration.md) | Protocol reference |
+| [gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml) | External GPSWOX contract |
 
+*Source plans merged into this file (2026-06-25): `apps/tracking/GEOFENCE_IMPLEMENTATION.md`, `apps/tracking/TO_CENTRIC_HISTORY_PLAN.md`*
 
 ---
 
-*GPS-01 Sprint 5 | DFS-070 | Backend architecture SSOT | Last updated: 2026-06-07*
+*GPS-01 | DFS-070 | Backend architecture SSOT | Last updated: 2026-06-25*
