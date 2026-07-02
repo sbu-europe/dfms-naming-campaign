@@ -1,12 +1,12 @@
 ---
 module: 06-poi-operations
 specification: Command Center — Multiple L/U Point Assignment per Visit (Sprint 6 — FB-001)
-version: 1.6
+version: 1.7
 phase: Phase 1
 sprint: Sprint 6 (FB-001)
-last_updated: 2026-06-24
-changelog: "v1.6 — §3.2 and §9.2 amended to match shipped implementation: multi-row LUP formset on BayAssignment add form, batch save via Save assignments, extended cc_queue_entry_details.js (add/remove rows, cross-row LUP exclusion, traffic on select); §15 TODOs reconciled with code. v1.5 — §15 Implementation TODOs added. v1.4 — §9.2.2 design consistency. v1.3 — §3/§9 repeatable form UX detail. v1.0 — Initial FB-001 plan."
-related_stories: CC-01 (amendment), LD-01 (minimal hook only), QC-01 (resample side effects)
+last_updated: 2026-07-02
+changelog: "v1.7 — Cross-reference Sprint 6 FB-005 (LD-01-9 per-line capture): out of FB-001 scope; §4.1/§9.3/§13/§14 updated; Sprint 5 vs Sprint 6 FB-005 disambiguation. v1.6 — §3.2 and §9.2 amended to match shipped implementation: multi-row LUP formset on BayAssignment add form, batch save via Save assignments, extended cc_queue_entry_details.js (add/remove rows, cross-row LUP exclusion, traffic on select); §15 TODOs reconciled with code. v1.5 — §15 Implementation TODOs added. v1.4 — §9.2.2 design consistency. v1.3 — §3/§9 repeatable form UX detail. v1.0 — Initial FB-001 plan."
+related_stories: CC-01 (amendment), LD-01 (minimal hook only; per-line capture is Sprint 6 FB-005 — see [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §12), QC-01 (resample side effects)
 feedback_items: FB-001
 supersedes: command-center-loading-sprint4.md §1.2 (BayAssignment OneToOne), §3.5 (one assignment per visit), §8 (duplicate assignment rule)
 baseline_spec: command-center-loading-sprint4.md
@@ -29,32 +29,35 @@ This document is the **Sprint 6 implementation plan** for [FB-001](../../03-back
 | In scope (FB-001) | Out of scope / unchanged |
 |-------------------|--------------------------|
 | CC can assign multiple L/U points per TO visit at the POI | Redesign of LD admin screens or start/complete UX |
-| Repeatable **Assign / Add point** on CC queue; **multi-row batch assign** on Bay Assignment add form | New load/unload fields, forms, or capture rules |
+| Repeatable **Assign / Add point** on CC queue; **multi-row batch assign** on Bay Assignment add form | New load/unload **capture rules** — Sprint 6 [FB-005 per-line capture](./command-center-loading-sprint4.md#12-sprint-6-fb-005--per-line-loadunload-quantity-capture-ld-01-9) (LD-01-9) |
 | `BayAssignment.queue_entry` OneToOne → ForeignKey + unique `(visit, LUP)` | Auto-split of weight/bags across points |
 | CC queue shows visit until all assigned points are done | REST/mobile LD two-step (still deferred) |
 | Minimal visit-level hooks so first point complete does **not** close the whole visit | Changing how crew pick LUP → queue table → `bay_assignment` |
 | Scale-out / gate-out guards aligned with “all points complete” | `LoadingUnloadingPoint.capacity` |
 
-### Loading / unloading completion flow — unchanged
+### Loading / unloading flow — start unchanged; complete capture is Sprint 6 FB-005
 
-The **current LD-01 per-assignment flow is not redesigned.** For each `BayAssignment` the crew already use ([command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §4.0, §11.9):
+The **LD-01 per-assignment start flow is not redesigned** by FB-001. For each `BayAssignment` the crew use ([command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §4.0, §11.9):
 
 1. **Start** — Load/Unload Event → Add: select LUP → serial-ordered queue table → click row → set `bay_assignment` → enter start datetime → Save → `LDService.start_loading` / `start_unloading`.
-2. **Complete** — open the same event on change form: enter end datetime, bags/weight/seal (load) or bags/weight (unload) → Save → `LDService.complete_loading` / `complete_unloading`.
+2. **Complete** — open the same event on change form: enter end datetime, **per-line quantities** (Sprint 6 FB-005 — one row per `TOLineItem`; see baseline §12), seal (load) or qc_sample_taken (unload) → Save → `LDService.complete_loading` / `complete_unloading`.
 
-That UX, fieldset layout, templates, and **per-assignment** service behaviour (validate times, create/update `LoadEvent` / `UnloadEvent`, emit `loading_started` / `unloading_started` on start) **stay as shipped in Sprint 4 / Sprint 5.**
+**Start** UX, templates, and queue JS **stay as shipped** (Sprint 4 / Sprint 5). **Complete** capture fields are amended by Sprint 6 FB-005 (not FB-001).
 
-FB-001 adds **no new LD steps** and **no new LD screens.** Crew simply see **more rows** at different LUPs when CC has assigned the same TO to multiple points.
+FB-001 adds **no new LD start steps** and **no new LD screens.** Crew simply see **more rows** at different LUPs when CC has assigned the same TO to multiple points.
 
 The **only** LD-touching code changes are **internal hooks** (see §4.2) so that completing one assignment does not incorrectly mark the entire visit complete while other CC assignments are still open. Those hooks do not change what the loading/unloading operator does in admin.
 
-### Distinction from FB-005
+### Distinction from FB-005 (two different feedback items)
 
-| | FB-005 (Sprint 5 — resolved) | FB-001 (Sprint 6 — this doc) |
-|---|---|---|
-| Cardinality | Many **vehicles** → **one** L/U point | **One vehicle** → many **L/U points** |
-| Primary module | CC + LD (serial/concurrency) | **CC-01** (multi-assign) |
-| LD flow | Unchanged | **Unchanged** (per assignment) |
+| | Sprint 5 FB-005 (resolved) | Sprint 6 FB-005 (LD-01-9 — separate work) | FB-001 (this doc) |
+|---|---|---|---|
+| Topic | Many **vehicles** → **one** L/U point | **Per-`TOLineItem`** quantity capture on complete | **One vehicle** → many **L/U points** |
+| Primary module | CC + LD (serials/concurrency) | **LD-01** ([§12](./command-center-loading-sprint4.md#12-sprint-6-fb-005--per-line-loadunload-quantity-capture-ld-01-9)) | **CC-01** (multi-assign) |
+| LD start flow | Unchanged | Unchanged | **Unchanged** |
+| LD complete flow | Aggregate bags/weight (legacy) | Per-line formset + `line_items[]` API | Will consume Sprint 6 FB-005 when landed |
+
+Sprint 5 and Sprint 6 both use the label **FB-005** in their respective [feedback-resolution](../../03-backlog/sprints/sprint-5/feedback-resolution.md) trackers — always qualify by sprint.
 
 ### Locked product decisions (2026-06-23)
 
@@ -79,8 +82,9 @@ Scale-In → QueueEntry                    [unchanged]
   └─► CC assign point(s)                 [FB-001: multi-row batch + repeat queue entry]
         └─► BayAssignment + WaitingSerial per distinct LUP
 
-LD start / complete per assignment       [unchanged UX & per-assignment flow]
-  └─► Same LUP → queue table → bay_assignment → start → complete
+LD start per assignment                    [unchanged UX — §4.0, §11.9]
+LD complete per assignment                 [per-line capture — Sprint 6 FB-005 §12; not FB-001]
+  └─► Same LUP → queue table → bay_assignment → start → complete (all TO lines per event)
 
 Visit leg complete / scale-out / gate-out  [minimal hook: all CC assignments done]
 ```
@@ -329,7 +333,7 @@ CCO may assign multiple points **in one Save assignments submit** (multi-row for
 | Vehicles per LUP | Many (FB-005) — unchanged |
 | LUPs per vehicle | **One or more** (FB-001) — distinct LUPs only |
 | Waiting serial | One per assignment — unchanged |
-| LD start/complete | **Per assignment — unchanged** |
+| LD start/complete | **Start** per assignment — unchanged; **complete** gains per-line rows (Sprint 6 FB-005) |
 
 ---
 
@@ -342,9 +346,9 @@ Reference: [command-center-loading-sprint4.md](./command-center-loading-sprint4.
 | Area | Status |
 |------|--------|
 | Load/Unload Event **add** form (LUP dropdown → queue table → row click) | **Unchanged** |
-| Load/Unload Event **change** form (complete: end datetime, bags, weight, seal) | **Unchanged** |
+| Load/Unload Event **change** form (complete) | **Start UX unchanged**; capture fields amended by Sprint 6 FB-005 (§12 of baseline) — not part of FB-001 |
 | `LDService.start_loading` / `start_unloading` per `bay_assignment` | **Unchanged** (see §4.2 for one additive validation) |
-| `LoadEvent` / `UnloadEvent` fields and constraints | **Unchanged** |
+| `LoadEvent` / `UnloadEvent` parent fields | **Unchanged** by FB-001; child line-item models added by Sprint 6 FB-005 |
 | Point-first templates, `ld_queue_select.js`, `render_queue_table_html` | **Unchanged** |
 | Crew workflow: one `bay_assignment` at a time at a chosen LUP | **Unchanged** |
 
@@ -587,7 +591,9 @@ Pattern follows gate on-demand product lines (`gate_on_demand_lines.js`): client
 
 ### 9.3 LoadEventAdmin / UnloadEventAdmin
 
-**No FB-001 changes required.** Existing point-first add/change forms and fieldsets remain as in [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §6.3–6.4.
+**No FB-001 changes required** for start flow or queue UX. Existing point-first add forms remain as in [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §6.3–6.4, §11.9.
+
+**Sprint 6 FB-005 (LD-01-9)** amends the **complete** change form only — per-line capture formset replaces aggregate bags/weight inputs. See baseline [§12](./command-center-loading-sprint4.md#12-sprint-6-fb-005--per-line-loadunload-quantity-capture-ld-01-9). FB-001 does not implement that work.
 
 ### 9.4 Design consistency requirements
 
@@ -641,7 +647,7 @@ Render as plain text (`"0/1 done"`, `"2/2 done"`) when in progress. When all don
 |----------|-------------|
 | `POST …/command-center/assignments` | Multiple calls per `queue_entry_id` (distinct LUPs) |
 | `GET …/assignments?queue_entry_id=` | List all assignments for visit |
-| Load/unload event APIs | **Unchanged** — still `{ bay_assignment_id, … }` |
+| Load/unload event APIs | Start: **unchanged** — `{ bay_assignment_id, … }`. Complete: gains `line_items[]` per Sprint 6 FB-005 (baseline §12) — not an FB-001 change |
 
 ---
 
@@ -683,11 +689,11 @@ Render as plain text (`"0/1 done"`, `"2/2 done"`) when in progress. When all don
 
 ## 13. Out of scope (FB-001)
 
-- Any redesign of LD loading/unloading start or complete admin flow.
-- New LD fields, forms, templates, or JS for multi-point.
+- Any redesign of LD loading/unloading **start** admin flow.
+- **Per-line quantity capture** (Sprint 6 FB-005 / LD-01-9) — separate story; see baseline §12.
 - Auto-split of quantity/weight across points.
 - Assignment push notifications.
-- REST LD API changes.
+- REST LD API changes beyond what Sprint 6 FB-005 adds to complete payloads.
 
 ---
 
@@ -697,13 +703,16 @@ Render as plain text (`"0/1 done"`, `"2/2 done"`) when in progress. When all don
 |------------------|---------------|
 | §1.2 BayAssignment OneToOne | **Superseded** — FK + unique (queue_entry, lup) |
 | §3.2–3.4 CC assign flow | **Amended** — multi-row batch assign + queue repeat entry; §3 of this doc |
-| §4.0–4.2 LD start/complete UX | **Unchanged** |
-| §6.3–6.4 LoadEventAdmin / UnloadEventAdmin | **Unchanged** |
+| §4.0–4.2 LD start/complete UX | **Start unchanged**; complete capture amended by Sprint 6 FB-005 (§12) — not FB-001 |
+| §6.3–6.4 LoadEventAdmin / UnloadEventAdmin | **Start unchanged**; complete formset per Sprint 6 FB-005 |
 | §11.9 LD admin queue widget | **Unchanged** |
+| §12 Sprint 6 FB-005 per-line capture | **Separate work** — LD-01-9; complements FB-001 multi-point visits |
 | LD `complete_*` → `mark_completed` | **Hook only** — §4.2A |
 | Scale-out / gate guards | **Aligned** — §7 |
 
-**Unchanged by FB-001:** CC queue serial, WaitingSerial / FB-005, LUP traffic panel, LD point-first UX, per-assignment Load/Unload events, product-line QC (FB-006), YARD-01 admin bases.
+**Unchanged by FB-001:** CC queue serial, WaitingSerial / Sprint 5 FB-005, LUP traffic panel, LD point-first start UX, per-assignment Load/Unload events, product-line QC (FB-006), YARD-01 admin bases.
+
+**Follow-on (not FB-001):** Sprint 6 FB-005 per-line quantity capture on LD complete — [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §12.
 
 ---
 

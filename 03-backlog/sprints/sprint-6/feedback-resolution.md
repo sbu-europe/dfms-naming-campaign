@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 4
+total_items: 6
 resolved: 0
 in_progress: 0
-open: 4
+open: 6
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -131,12 +131,73 @@ During vendor registration, the vendor must submit compliance documents. **Truck
 
 ---
 
+## FB-005 — Loading/unloading quantity capture per TO product line item
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client call — 2026-07-02 |
+| **Affected Stories** | [LD-01](../sprint-5/06-command-center-loading/LD-01-load-unload-timestamps.md) |
+| **Sprint 4 origin** | [`sprint-4/06-command-center-loading/LD-01-load-unload-timestamps.md`](../../sprint-4/06-command-center-loading/LD-01-load-unload-timestamps.md) — AC-1 / AC-2; LD-01-9 |
+| **Closing Sub-tasks** | LD-01-9 (amend), LD-01-10 |
+| **AC Amendment** | LD-01 AC-1 / AC-2: at each loading or unloading point, quantity capture is **per `TOLineItem`**, not one aggregate on the parent event. For every product line on the TO, the operator sees a **read-only expected amount** sourced from the TO line (`allocated_quantity` + UOM / bags as applicable) and enters the **actual amount** for that leg — **loaded** quantity at loading points, **received** quantity at unloading points. Load/unload APIs and admin forms accept an array keyed to `to_line_item_id` (or equivalent stable line reference), persisting one child record per line per event. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Related to [Sprint 5 FB-001](../sprint-5/feedback-resolution.md) (resolved): same per-line-item intent. Current LD-01 admin shows TO product lines as a **read-only summary panel** but captures **aggregate** `bags_loaded` / `weight_loaded_mt` (and unload equivalents) on `LoadEvent` / `UnloadEvent` only — no `LoadEventLineItem` / `UnloadEventLineItem` models or per-line POST payload yet. |
+
+### Client call observation
+
+On a client call (2026-07-02), operations clarified that loading/unloading personnel work **against each product line item on the TO**, not against a single total for the visit. For every line, the screen must show the **expected amount already on the TO** (not editable) so the operator can compare plan vs actual. The operator then records the **received amount** at unload (and the equivalent **loaded amount** at load) for that line before completing the event.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-005) |
+|--------|---------|-------------------|
+| Capture granularity | One bags + weight pair per `LoadEvent` / `UnloadEvent` | One quantity row per `TOLineItem` linked to the event |
+| Expected quantity | Shown in read-only TO summary panel (`allocated_quantity` per line) | Same TO line data, displayed **inline on each input row** as read-only expected |
+| Operator input | Aggregate fields on the event form | Editable **actual** quantity per line (loaded at source, received at destination) |
+| Data model | `LoadEvent` / `UnloadEvent` only | Child line-item records (e.g. `LoadEventLineItem` / `UnloadEventLineItem`) FK → `TOLineItem` |
+| API payload | `{ bags_loaded, weight_loaded_mt }` on event | `{ line_items: [{ to_line_item_id, bags?, weight_mt? }] }` aligned with LD-01-9 |
+
+---
+
+## FB-006 — TDO own-fleet planned milestone times (FG four / RM two; replace single ETA)
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client call / product clarification — 2026-07-02 |
+| **Affected Stories** | TO-02 (Sprint 3 — TDO assignment), [DS-01](../sprint-5/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) (fleet supervisor dispatch release), [GPS-05](02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md), [DM-01](../sprint-5/03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) (driver read-only plan) |
+| **Sprint 3 origin** | [`docs/planning/sprint-3-implementation.md`](../../../../docs/planning/sprint-3-implementation.md) — Phase 9 TO-02 (`PATCH …/eta`, `eta_datetime` on `TransportOrder`); PRD §6.8.1.4 TO Execution — Own Fleet; business rule **TAR-003** |
+| **Closing Sub-tasks** | TO-02 amendments (planned-milestone fields + lane-aware validation); DS-01 dispatch-gate amend; GPS-05 `planned_eta` contract amend; sub-tasks TBD on owning stories |
+| **AC Amendment** | TO-02 / TAR-003: when **TDO — Own Fleet** assigns vehicle, driver, and helper(s) to a TO, the system captures **planned milestone datetimes** (not a single ambiguous ETA). **Finished Goods** (`flow_lane = fg_outbound`, `TRType.FG`): require all four — **Planned Source Arrival**, **Planned Source Departure**, **Planned Destination Arrival**, **Planned Destination Departure** — with monotonic ordering `source_arrival < source_departure < dest_arrival < dest_departure`. **Raw Material** (`flow_lane = rm_inbound`, `TRType.PORT_CONSIGNMENT`): require **two only** — **Planned Destination Arrival** and **Planned Destination Departure** — with `dest_arrival < dest_departure`; source planned times are **not shown and not required** (no source yard leg). Supervisor dispatch release (`ASSIGNED` → `READY_FOR_DISPATCH`) is blocked until the lane-applicable set is complete. Legacy `eta_datetime` is migrated to `planned_destination_arrival_at` and deprecated. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Current implementation stores one `eta_datetime` on `TransportOrder` (admin “Own Fleet Assignment”, `PATCH /api/v1/transport-orders/{id}/eta`). `fleet_supervisor.services.dispatch_to_after_ready` gates on `eta_datetime` only. `Trip` already records **actual** source/destination timestamps but has no **planned** counterparts on the TO. GPS-05 exposes `planned_eta` as a single field. Distinct from TP `planned_delivery_datetime` (commercial delivery commitment at TO creation). |
+
+### Client call observation
+
+On a client call (2026-07-02), operations clarified that TDO (Own Fleet) should plan the trip as **milestone times along the yard chain**, not one “ETA” field. **Finished Goods** trips use the full source load → destination unload path and need **four** planned times. **Raw Material** (port consignment → mill) skips the source yard leg and needs **only destination arrival and departure** planned times.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-006) |
+|--------|---------|-------------------|
+| TDO timing input | Single `eta_datetime` (“ETA”) | Lane-aware planned milestone datetimes |
+| Finished Goods | One field (ambiguous which leg) | Four required: source arrival, source departure, destination arrival, destination departure |
+| Raw Material | Same single field | Two required: destination arrival, destination departure only |
+| Admin (TDO own fleet) | `eta_datetime` in “Own Fleet Assignment” fieldset | FG: four datetime inputs; RM: two destination inputs (source fields hidden) |
+| API | `PATCH …/eta` with `eta_datetime` | `PATCH …/planned-milestones` (or equivalent) with lane-required subset; suggestions pre-filled from `planned_delivery_datetime` + route duration |
+| Supervisor release gate | `eta_datetime` must be set | All lane-applicable planned fields must be set |
+| Planned vs actual | No planned legs on TO; GPS/dashboard uses single `planned_eta` | Compare each planned milestone to `Trip` actuals / GPS geofence events (GPS-03, GPS-05) |
+| Validation | None on ordering | FG: full chain ordering; RM: `dest_arrival < dest_departure`; optional warn if dest arrival after TP `planned_delivery_datetime` |
+
+---
+
 ## Resolution Summary
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
-| High | 2 | 0 | 2 |
+| High | 4 | 0 | 4 |
 | Medium | 2 | 0 | 2 |
-| **Total** | **4** | **0** | **4** |
+| **Total** | **6** | **0** | **6** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-06-22 — FB-002, FB-003, FB-004 vendor onboarding & execution feedback*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two)*
