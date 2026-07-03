@@ -1,11 +1,11 @@
 ---
 module: 05-transport
 specification: Transport Order Management — Transport Planner Own-Fleet Assignment (Sprint 6 — FB-008)
-version: 2.0
+version: 2.1
 phase: Phase 1
 sprint: Sprint 6 (FB-008)
 last_updated: 2026-07-03
-changelog: "v2.0 — FB-008 initial implementation plan: remove TDO (Own Fleet), merge own-fleet creation + assignment under Transport Planner, add vehicle type + optional Vehicle FK at creation (master data only — no free-text registration), add Planned Start Time to milestone set."
+changelog: "v2.1 — Remove TR planning-inputs gate: Create TO available when TR is Available for Transport Planning; vehicle type captured at TO creation (FB-008). v2.0 — FB-008 initial implementation plan."
 related_stories: TO-01 (transport-order-management), TO-02 (trip-management), FB-006 (planned milestone times — amended)
 feedback_items: FB-008
 supersedes: transport-order-management.md §1 (roles), §2 (model), §3 (status), §4 (creation); trip-management.md §1 (roles), §2.1 (assignment owner)
@@ -34,6 +34,31 @@ This document is the **Sprint 6 backend implementation plan** for [FB-008](../..
 **Cross-module touch paths:** `apps/requisitions/role_access.py`, `apps/core/role_seed_data.py`, `apps/fleet_supervisor/services.py`, `apps/users/admin.py`, `apps/fleet_supervisor/admin.py`, GPS/dashboard serializers (read-only contract amend)
 
 **Out of scope (separate feedback items):** FB-009 (Vehicle Type at vendor-fleet creation — TDO Vendor Fleet retained), FB-010/FB-011 (completion / dispatch gates), full removal of deprecated `eta_datetime` consumers, **E2E / Playwright tests** (unit + integration only for FB-008).
+
+---
+
+## 0.1 TR → TO workflow — planning inputs removed (v2.1)
+
+Sprint 3 originally required Transport Planner to submit **Planning Inputs** on the TR (`vehicles_required`, `vehicle_type`, `cf_clearance_approved`) before the TR advanced to **Under Planning** and **Create TO** was enabled.
+
+**Implemented change (v2.1):** That intermediate step is **removed**. Operations create transport orders as soon as the TR is **Available for Transport Planning** (after DM approval for FG, or immediately for Port Consignment).
+
+| Aspect | Sprint 3 baseline | v2.1 implementation |
+|--------|-------------------|----------------------|
+| TR admin **Planning Inputs** fieldset | Transport Planner edits `vehicle_type`, `vehicles_required`, C&F | **Removed** from TR change form for all roles |
+| **Create TO** button / admin entry | `UNDER_PLANNING` or `PARTIALLY_ALLOCATED` only | Also **`AVAILABLE_FOR_TRANSPORT_PLANNING`** |
+| `TransportOrderService.create` gate | `tr.status == UNDER_PLANNING` | `tr.status in TR_STATUSES_TO_CREATABLE` |
+| Vehicle type commitment | On TR (planning inputs) | On **TO** at creation (`vehicle_type` mandatory for own fleet — FB-008) |
+| TR status after first TO | `UNDER_PLANNING` → `PARTIALLY_ALLOCATED` / `FULLY_ALLOCATED` | Same allocation-driven transitions; may skip `UNDER_PLANNING` when first TO is created from **Available for Transport Planning** |
+| API `PATCH …/planning` (TRQ-01) | Submits planning inputs | **410 Gone** — deprecated; clients create TOs directly |
+| TR model fields `vehicles_required`, `vehicle_type`, `cf_clearance_approved` | Required for TO gate | **Retained on model** for legacy/reporting; optional pre-fill on create-from-TR when present |
+
+**Code anchors:**
+
+- `apps/requisitions/constants.py` — `TR_STATUSES_TO_CREATABLE`
+- `apps/requisitions/admin.py` — `TransportRequisitionAdmin.create_to_button`, Planning Inputs fieldset removed
+- `apps/transport/services.py` — `TransportOrderService.create`, `TOLineAllocationService.update_tr_status`
+- `apps/transport/admin.py` — `select_tr_view`, `create_from_tr_view`
 
 ---
 
@@ -91,7 +116,7 @@ This document is the **Sprint 6 backend implementation plan** for [FB-008](../..
 ```
 Sidebar
 └── Transport
-      ├── Transport requests          — unchanged (TRQ-01)
+      ├── Transport requests          — unchanged (view + Create TO when Available for Transport Planning)
       └── Transport orders (TO)
             ├── TO List               — all TOs (own + vendor)
             ├── Create from TR        — unchanged entry; + vehicle type fields (OWN)
@@ -155,7 +180,7 @@ planned_start_at = models.DateTimeField(null=True, blank=True)
 
 **Notes:**
 
-- `vehicle_type_required` existed on early TO migrations but was **removed** in `0006_to_sprint3.py`. FB-008 reintroduces requirement at TO level (decoupled from TR `vehicle_type` / planning inputs — TR value may pre-fill the dropdown default but TO stores the committed type).
+- `vehicle_type_required` existed on early TO migrations but was **removed** in `0006_to_sprint3.py`. FB-008 reintroduces requirement at TO level (vehicle type is set on the TO, not on a separate TR planning-inputs step).
 - When `vehicle` FK is set (at creation or assignment), validate `vehicle.vehicle_type == to.vehicle_type` (hard block on mismatch).
 - `vendor_vehicle_registration` on the vendor path is **unchanged** — that is vendor-supplied execution detail, not own-fleet MDM.
 - `eta_datetime` remains deprecated mirror of `planned_destination_arrival_at` (FB-006).
@@ -249,7 +274,7 @@ Extend `CreateTOForm`:
 | `vehicle_type` | `Select` (`VehicleType.choices`) | `fleet_type == OWN` |
 | `vehicle` | Autocomplete (`ModelChoiceField` → `Vehicle`) | Never (optional) |
 
-- Pre-fill `vehicle_type` initial from `tr.vehicle_type` (planning input).
+- Pre-fill `vehicle_type` initial from `tr.vehicle_type` when the TR already has a value (optional legacy data); TO stores the committed type.
 - Vehicle autocomplete queryset: `Vehicle` master data filtered by selected `vehicle_type`, excluding under-maintenance and double-booked (same rules as assignment form).
 - Pass `vehicle_type` and optional `vehicle_id` into `TransportOrder(...)` and `TransportOrderBatchCreateService.create_multiple`.
 - Template `create_from_tr.html`: show fields when Fleet type = Own (JS toggle or server-side section); vehicle dropdown disabled until vehicle type selected.
