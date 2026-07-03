@@ -39,19 +39,23 @@ This document is the **Sprint 6 backend implementation plan** for [FB-008](../..
 
 ## 0.1 TR → TO workflow — planning inputs removed (v2.1)
 
-Sprint 3 originally required Transport Planner to submit **Planning Inputs** on the TR (`vehicles_required`, `vehicle_type`, `cf_clearance_approved`) before the TR advanced to **Under Planning** and **Create TO** was enabled.
+Sprint 3 originally required Transport Planner to submit **Planning Inputs** on the TR before the TR advanced to **Under Planning** and **Create TO** was enabled.
 
-**Implemented change (v2.1):** That intermediate step is **removed**. Operations create transport orders as soon as the TR is **Available for Transport Planning** (after DM approval for FG, or immediately for Port Consignment).
+**Implemented change (v2.1):** That intermediate step is **removed** for **both Finished Goods and Port Consignment (RM)** TRs. Operations create transport orders as soon as the TR is **Available for Transport Planning**:
+
+- **FG:** after Distribution Manager approval
+- **Port Consignment (RM):** immediately when Procurement Officer creates the TR (no DM approval step)
 
 | Aspect | Sprint 3 baseline | v2.1 implementation |
 |--------|-------------------|----------------------|
 | TR admin **Planning Inputs** fieldset | Transport Planner edits `vehicle_type`, `vehicles_required`, C&F | **Removed** from TR change form for all roles |
-| **Create TO** button / admin entry | `UNDER_PLANNING` or `PARTIALLY_ALLOCATED` only | Also **`AVAILABLE_FOR_TRANSPORT_PLANNING`** |
+| **`vehicles_required` on TR** | Set at planning; shown in TR list / create-from-TR header | **Removed** from model, admin, and API |
+| **Create TO** button / admin entry | `UNDER_PLANNING` or `PARTIALLY_ALLOCATED` only | Also **`AVAILABLE_FOR_TRANSPORT_PLANNING`** (FG + Port) |
 | `TransportOrderService.create` gate | `tr.status == UNDER_PLANNING` | `tr.status in TR_STATUSES_TO_CREATABLE` |
 | Vehicle type commitment | On TR (planning inputs) | On **TO** at creation (`vehicle_type` mandatory for own fleet — FB-008) |
 | TR status after first TO | `UNDER_PLANNING` → `PARTIALLY_ALLOCATED` / `FULLY_ALLOCATED` | Same allocation-driven transitions; may skip `UNDER_PLANNING` when first TO is created from **Available for Transport Planning** |
 | API `PATCH …/planning` (TRQ-01) | Submits planning inputs | **410 Gone** — deprecated; clients create TOs directly |
-| TR model fields `vehicles_required`, `vehicle_type`, `cf_clearance_approved` | Required for TO gate | **Retained on model** for legacy/reporting; optional pre-fill on create-from-TR when present |
+| TR model fields `vehicle_type`, `cf_clearance_approved` | Part of planning inputs | **Optional legacy** on TR; not required for TO creation |
 
 **Code anchors:**
 
