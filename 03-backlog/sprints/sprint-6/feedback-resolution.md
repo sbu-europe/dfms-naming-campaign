@@ -3,9 +3,9 @@ title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
 total_items: 12
-resolved: 6
+resolved: 7
 in_progress: 0
-open: 6
+open: 5
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -198,10 +198,10 @@ On a client call (2026-07-02), operations clarified that TDO (Own Fleet) should 
 |-------|-------|
 | **Source** | Client feedback — 2026-07-03 |
 | **Affected Stories** | YARD-01 — POI-scoped yard platform ([sprint-4](../sprint-4/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md), [sprint-5](../sprint-5/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)); [BUG-06](06-bug-fixes/BUG-06-tenant-admin-poi-access-not-enforced.md) (POI-scoped yard queue access pattern) |
-| **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment |
-| **Closing Sub-tasks** | TBD — role/permission amendment on Depot Officer (`role_code=depot_officer`) and Feed Mill Officer (`role_code=feed_mill_officer`); yard-module menu grants for both |
+| **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment, [`product-requisition-management-v2.md`](../../../05-modules/04-requisitions/product-requisition-management-v2.md) (implementation plan) |
+| **Closing Sub-tasks** | FB-007-1 … FB-007-8 — see [product-requisition-management-v2.md](../../../05-modules/04-requisitions/product-requisition-management-v2.md) §12 |
 | **AC Amendment** | **Depot Officer** and **Feed Mill Officer** become **POI-scoped ("local") roles** — each restricted to their assigned depot/feed-mill POI, using the same POI-scoping pattern established by YARD-01 for Gate/Scale/Command Center/Loading/Unloading queues (fail-closed with no working-site selected; querysets/autocompletes/actions scoped to the assigned POI only). In addition to their existing Product Requisition creation and stock-view access at that POI, each role is granted menu and data access to **all yard operation modules** at their assigned site: Gate (Gate-In/Gate-Out), Scaling, Command Center, Loading, Unloading. No cross-POI access. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | Today `depot_officer` and `feed_mill_officer` are Requester-only role codes (PR creation, stock-snapshot view at their POI per `stock-operations-sprint5.md` §Roles) with no yard-operations menu grant. This amendment adds yard-module access on top of the existing requester scope for both roles — it does not remove or change the PR-creation responsibility. |
 
