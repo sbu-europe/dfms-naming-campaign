@@ -1,11 +1,11 @@
 ---
 module: 02-master-data
 specification: POI Management - E2E Scenario Plan
-version: 1.1
+version: 1.2
 phase: Phase 1
-related_stories: US-014
+related_stories: US-014, US-097, MDM-04-12
 source_spec: ../../05-modules/02-master-data/poi-management.md
-last_updated: 2026-04-28
+last_updated: 2026-06-19
 ---
 
 # POI Management - E2E Scenario Plan
@@ -21,6 +21,17 @@ last_updated: 2026-04-28
 | TC05 | Verify POI update flow from change form | Verify editing mutable fields (e.g., name, city) persists and updated values are visible on changelist/search. | P0 | Pass |
 | TC06 | Verify POI active to inactive toggle via change form | Verify updating `is_active` from checked to unchecked saves successfully and record appears only in inactive-filtered view. | P1 | Pass |
 
+## Map Picker Test Cases (`POIAdmin` — MDM-04-12)
+
+| Test Case ID | Test Scenario | Test Description | Priority | Status |
+|--------------|---------------|------------------|----------|--------|
+| TC11 | Verify Select from map opens modal | Verify **Select from map** button appears on add/change form and opens map modal with pin and geofence circle. | P0 | Planned |
+| TC12 | Verify Apply location fills coordinates | Verify dragging pin and clicking **Apply location** populates latitude/longitude fields; saving POI persists values. | P0 | Planned |
+| TC13 | Verify Cancel discards modal changes | Verify **Cancel**, backdrop click, or Escape closes modal without changing latitude/longitude/address on the form. | P0 | Planned |
+| TC14 | Verify reverse geocode fills address | Verify Apply with a mapped point populates Address (and City when Nominatim returns it); coordinates remain source of truth. | P1 | Planned |
+| TC15 | Verify geofence circle tracks radius field | Verify changing `geofence_radius_meters` on the form updates the circle radius in the open map modal. | P1 | Planned |
+| TC16 | Verify changelist stock columns unchanged | Regression: changelist still shows stock/capacity columns (`display_storage_capacity`, `display_current_stock`, etc.) after map picker is added. | P0 | Planned |
+
 ## Validation Path Test Cases (`POIAdmin` + `POI` model constraints)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
@@ -34,5 +45,6 @@ last_updated: 2026-04-28
 
 - Status is derived from implemented automation in:
   - `tests/e2e/modules/02-master-data/test_poi_master_data_e2e.py`
-- Test coverage is aligned with current POI admin registration in `apps/master_data/admin.py` (`POIAdmin` with list/search/filter support).
+- Test coverage is aligned with current POI admin registration in `apps/master_data/admin.py` (`POIAdmin` with list/search/filter support and stock/capacity changelist columns per STK-01).
+- Map picker scenarios (TC11–TC16) cover MDM-04-12; implementation must remain **additive** (see MDM-04 AC-1a — no `list_display` or fieldset regressions).
 - `poi-management.md` contains target-state geofencing/capacity behavior; current Phase 1 admin e2e coverage focuses on implemented admin CRUD/search/filter/auth and field-level validation currently enforceable in the Django admin/model layer.

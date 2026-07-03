@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: QC Operations — Raw-Material Sampling & Pass/Fail Decision (Sprint 4)
-version: 1.1
+version: 1.2
 phase: Phase 1
-sprint: Sprint 4 (QC trigger alignment — Sprint 5 / FB-006)
-last_updated: 2026-06-03
-changelog: "v1.1 — QC-01-13 / FB-006: QC required from product lines (to_requires_qc_from_lines); flagged_for_qc auto at scale-in (not CC manual flag); entry/resample sub_states aligned with command-center-loading v1.1"
+sprint: Sprint 4 (QC trigger alignment — Sprint 5 / FB-006; QC-01-16 reinspect — Sprint 6)
+last_updated: 2026-06-22
+changelog: "v1.2 — QC-01-16: Reinspect after initial QC Fail — inspector can restart sampling and record a new Pass; closes gap vs PRD §6.15 / qc-process.md §6.7. v1.1 — QC-01-13 / FB-006: product-line QC trigger; flagged_for_qc auto at scale-in."
 related_stories: DFS-064 (QC-01)
 jira_epic: DFS-072
 ---
@@ -16,7 +16,7 @@ jira_epic: DFS-072
 
 The **QC Operations** specification covers the Sprint 4 raw-material quality checkpoint that sits between scale-in and unloading assignment for **RM inbound** Transport Orders **when product lines require QC** (`to_requires_qc_from_lines` — any `TOLineItem` with `Product.requires_qc=True`). TOs with no QC-required products skip this module entirely (CC assigns unloading immediately after scale-in).
 
-**Scope boundary**: The POI-scoped yard role **`qc_inspector_physical`** (`QC Inspector – Physical`, `SEED_ROLES`) performs sampling and Pass/Fail decisions when granted write permissions (see §1.1). That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **`command_center_officer`** assigns the unloading point (CC-01). QC does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded.
+**Scope boundary**: The POI-scoped yard role **`qc_inspector_physical`** (`QC Inspector – Physical`, `SEED_ROLES`) performs sampling and Pass/Fail decisions when granted write permissions (see §1.1). That is the full extent of QC's responsibility. On **Pass**, the TO is marked `qc_passed=True` and the **`command_center_officer`** assigns the unloading point (CC-01). QC does **not** assign the unloading point. On **Fail** the TO is fully blocked until a new Pass is recorded — but the inspector **can** initiate a **reinspect** (new sample cycle) via §3.5 / §4.5; this is distinct from **resample during unloading** (§3.3 / §4.3), which applies only after Pass when unloading is already in progress.
 
 There is **no** `qc_supervisor` role code in `apps/core/role_seed_data.py`. Supervisor-style actions (decide, resample, override) are gated by `Quality.QCCheckpoint.*` write permissions on `QCAdminBase`, not by a second seeded role.
 
@@ -29,8 +29,8 @@ There is **no** `qc_supervisor` role code in `apps/core/role_seed_data.py`. Supe
 | Path | Exists | Notes |
 |------|--------|-------|
 | `apps/quality/models.py` | ✓ | Legacy `QCEvent`, `QCSample`, `QCInspection` linked to `GateEntry` (old 13-state machine). **Frozen — do not extend.** |
-| `apps/quality/admin.py` | ✗ | Does not exist |
-| `apps/quality/checkpoint/` | ✗ | Directory does not exist — must be created as a Django sub-package |
+| `apps/quality/checkpoint/` | ✓ | Sprint 4 checkpoint package (`models`, `services`, `admin`, `views`, `validation`, `eligibility`) |
+| **QC-01-16 gap (Jun 2026)** | ✗ | Initial Fail → reinspect not wired in admin/API; TO stuck at `sub_state=qc_failed` (see §3.5, §11 QC-01-16) |
 
 Sprint 4 QC models (`QCSample`, `QCDecision`) live in `apps/quality/checkpoint/models.py` to isolate them from the legacy `QCEvent`-based models. The legacy models remain in place and are **not modified**.
 
@@ -50,17 +50,29 @@ Gate-In (GT-01)
         │           └─► QC Inspector – Physical (+ write perm): Record Decision (QC-01)
         │                 ├─► PASS: TO qc_passed=True → CC assigns unloading (CC-01) → LD-01 → SC-01 → GT-01
         │                 └─► FAIL: unloading / scale-out / gate-out blocked until new Pass
+        │                       └─► [Reinspect after Fail — QC-01-16]
+        │                             Inspector triggers reinspect (mandatory remarks)
+        │                             → sub_state resampling → new sample → new Pass/Fail
         │
         └─► [requires_qc = False] — no QC required
               └─► sub_state → waiting_cc; CC assigns unloading immediately (QC module not used)
+```
+
+**After initial QC Fail** (before CC assigns unloading — QC-01-16):
+
+```
+User with `Quality.QCCheckpoint.Decision.Write` (qc_inspector_physical + write perm):
+  └─► Trigger Reinspect after Fail → supersedes active Fail decision; sub_state → resampling
+        → inspector creates new sample → records new Pass/Fail
+        (No BayAssignment to cancel — unloading was never assigned)
 ```
 
 **During unloading** (after CC assigns point and LD-01 starts):
 
 ```
 User with `Quality.QCCheckpoint.Decision.Write` (typically `qc_inspector_physical` + write perm, or `gate_supervisor`) can:
-  ├─► Trigger Resample → cancels active CC unloading assignment; TO returns to QC queue
-  └─► Override to Failed → cancels active CC unloading assignment; gate-out blocked
+  ├─► Trigger Resample → cancels active CC unloading assignment; TO returns to QC queue (Pass decision only)
+  └─► Override to Failed → cancels active CC unloading assignment; gate-out blocked; reinspect required (§4.5)
 ```
 
 ---
@@ -71,12 +83,12 @@ User with `Quality.QCCheckpoint.Decision.Write` (typically `qc_inspector_physica
 Sidebar (`qc_inspector_physical` — QC Inspector – Physical)
 └── Quality
       └── QC Checkpoint
-            ├── My Queue              — RM inbound TOs with requires_qc (auto flagged_for_qc at scale-in), awaiting sample / decision
+            ├── My Queue              — RM inbound TOs awaiting QC action (flagged / sampling / resampling / failed-awaiting-reinspect)
             │     └── [row click] ──► QC Detail: TO context + sample history + current decision
             │
             ├── Samples               — all QC samples for this POI (searchable)
             │
-            └── Decisions             — all QC decisions for this POI; resample + override actions
+            └── Decisions             — all QC decisions for this POI; reinspect + resample + override actions
 ```
 
 ### Role → menu mapping
@@ -85,7 +97,7 @@ Uses seeded role **codes** from `apps/core/role_seed_data.py` / `apps/users/yard
 
 | Role code | Display name | My Queue | Samples | Decisions |
 |-----------|--------------|:--------:|:-------:|:---------:|
-| `qc_inspector_physical` + `Quality.QCCheckpoint.Decision.Write` | QC Inspector – Physical (write) | ✓ create, decide, resample, override | ✓ | ✓ |
+| `qc_inspector_physical` + `Quality.QCCheckpoint.Decision.Write` | QC Inspector – Physical (write) | ✓ create, decide, reinspect, resample, override | ✓ | ✓ |
 | `qc_inspector_physical` (read only) | QC Inspector – Physical | ✓ create sample only | ✓ read-only | Read-only |
 | `gate_supervisor` | Gate Supervisor | Read-only audit | Read-only | Read-only (+ override via `supervisor_role_codes`) |
 | `command_center_officer` | Command Center Officer | — | — | Read-only (pass status for CC-01) |
@@ -108,7 +120,8 @@ Uses seeded role **codes** from `apps/core/role_seed_data.py` / `apps/users/yard
 | `Quality.QCCheckpoint.Sample.Create` | `qc_inspector_physical` |
 | `Quality.QCCheckpoint.Read` | `qc_inspector_physical`, `command_center_officer`, transport planner / TDO roles as needed |
 | `Quality.QCCheckpoint.Decision.Write` | `qc_inspector_physical` (senior inspectors) **or** rely on `gate_supervisor` via `QCAdminBase.supervisor_role_codes` |
-| `Quality.QCCheckpoint.Resample` | Same as Decision.Write |
+| `Quality.QCCheckpoint.Resample` | Same as Decision.Write — **during-unloading** resample only (§3.3) |
+| `Quality.QCCheckpoint.Reinspect` | Same as Decision.Write — **initial Fail** recovery (§3.5); may reuse `Resample` perm code if catalog stays minimal |
 | `Quality.QCCheckpoint.Override` | Same as Decision.Write |
 | `Menu.QC.Checkpoint.View` | `qc_inspector_physical` (replaces legacy `MENU_QC_VIEW` for yard checkpoint nav when portal block is enabled) |
 
@@ -229,9 +242,11 @@ def record_decision(
 ) -> QCDecision:
     """
     Validates:
-    - sample.transport_order has no other active QCDecision
     - remarks provided when decision='fail'
+    - when decision='pass' and sub_state='qc_failed' with active Fail decision:
+      reject — inspector must call trigger_reinspect_after_fail first (QC-01-16)
     Creates:
+    - Supersedes any existing active QCDecision for the TO (is_active=False)
     - QCDecision (is_active=True)
     On Pass:
     - Sets TO sub_state → 'qc_passed'
@@ -245,6 +260,8 @@ def record_decision(
 ```
 
 ### 3.3 `QCService.trigger_resample(to, triggered_by, remarks) → None`
+
+**Scope**: During active unloading only — supersedes an active **Pass** decision and cancels CC bay assignment.
 
 ```python
 def trigger_resample(
@@ -261,9 +278,11 @@ def trigger_resample(
     - QCDecision.is_active = False  (superseded, not deleted)
     - BayAssignment.is_active = False, cancelled_at=now, cancellation_reason='qc_resample'
     - If active UnloadEvent (end_datetime is null): mark as cancelled_by_resample=True
-    - QueueEntry.status = 'waiting', qc_passed=False  (back to CC queue, blocked)
+    - QueueEntry.status = 'waiting', qc_passed=None  (back to CC queue, blocked)
     - Emits RESAMPLING_TRIGGERED → TLS-01 (sub_state='resampling')
     - New QCSample + QCDecision cycle starts fresh (qc_inspector_physical must call create_sample again)
+
+    Note: For initial QC Fail (no BayAssignment), use trigger_reinspect_after_fail (§3.5).
     """
 ```
 
@@ -287,6 +306,40 @@ def override_to_failed(
     - QueueEntry.qc_passed=False  (CC blocked from re-assigning)
     - Emits QC_OVERRIDDEN_FAIL → TLS-01 (sub_state='qc_failed')
     Note: CC stays blocked until a NEW QCSample + QCDecision(pass) is created.
+    Inspector must call trigger_reinspect_after_fail (§3.5) before creating the new sample.
+    """
+```
+
+### 3.5 `QCService.trigger_reinspect_after_fail(to, triggered_by, remarks) → None` *(QC-01-16 — planned)*
+
+**Scope**: Initial QC Fail recovery — before CC has assigned unloading. Aligns with PRD §6.15 / `qc-process.md` §6.7 (recheck/resampling after Fail).
+
+```python
+def trigger_reinspect_after_fail(
+    to: TransportOrder,
+    *,
+    triggered_by: User,
+    remarks: str,
+) -> None:
+    """
+    Validates:
+    - to.flow_lane == FlowLane.RM_INBOUND, status == AT_DESTINATION
+    - to_requires_qc_from_lines(to) is True
+    - Active QCDecision exists with is_active=True and decision='fail'
+    - sub_state == 'qc_failed'
+    - No active BayAssignment (unloading not yet assigned / not in progress)
+    - remarks provided and non-blank (mandatory — QDR-003)
+    Actions:
+    - QCDecision.is_active = False; append '[Superseded by reinspect]' to remarks (audit)
+    - transport_order.qc_passed = None
+    - QueueEntry.qc_passed = None, status = 'waiting' (CC remains blocked)
+    - Emits REINSPECT_TRIGGERED → TLS-01 (sub_state='resampling')
+    - Inspector must call create_sample() then record_decision() for the new cycle
+
+    Does NOT:
+    - Mutate the prior Fail decision in place (contrast with override_to_failed on Pass)
+    - Allow Pass on the same sample without a new sample (no silent recheck shortcut)
+    - Cancel BayAssignment (none should exist; service raises if active assignment found)
     """
 ```
 
@@ -332,6 +385,7 @@ User with Decision.Write on QC Detail view (sample exists, no active decision)
                           ├─► QCDecision created (is_active=True)
                           ├─► Emit QC_FAILED → TLS-01
                           └─► Warning: "QC Failed. Unloading, scale-out, and gate-out are blocked."
+                          └─► TO remains in My Queue with [Reinspect after Fail] action (QC-01-16)
 ```
 
 ### 4.3 Resample (during active unloading)
@@ -363,8 +417,37 @@ User with Decision.Write on QC Detail view (decision='pass', unloading in progre
                           ├─► BayAssignment cancelled
                           ├─► UnloadEvent marked cancelled
                           ├─► QueueEntry.qc_passed = False
-                          └─► New sample + Pass required before CC can re-assign
+                          └─► New sample + Pass required before CC can re-assign (via §4.5 reinspect)
 ```
+
+### 4.5 Reinspect after initial QC Fail *(QC-01-16 — planned)*
+
+```
+User with Decision.Write on QC Detail / Decisions list
+  (active decision='fail', sub_state='qc_failed', no active BayAssignment)
+  └─► [Reinspect after Fail] button / admin action
+        ├─► Confirmation modal: "Start a new QC sample cycle? Prior Fail decision will be superseded."
+        └─► Remarks: reason for reinspect (required — QDR-003)
+              └─► [Confirm]
+                    └─► QCService.trigger_reinspect_after_fail(to, triggered_by, remarks)
+                          ├─► Prior Fail QCDecision.is_active = False
+                          ├─► QueueEntry.qc_passed = None (CC still blocked)
+                          ├─► Emit REINSPECT_TRIGGERED → TLS-01 (sub_state='resampling')
+                          └─► [Create Sample] enabled again
+                                └─► New sample → Record Decision (Pass/Fail)
+                                      ├─► PASS → CC unblocked (same as §4.2)
+                                      └─► FAIL → blocked again; reinspect repeatable
+```
+
+**Distinction from §4.3 resample**
+
+| | Reinspect after Fail (§4.5) | Resample during unloading (§4.3) |
+|--|------------------------------|----------------------------------|
+| Prior decision | `fail` | `pass` |
+| BayAssignment | None (pre-unload) | Active (unloading in progress) |
+| Cancels unloading | No | Yes |
+| Remarks | Required | Optional |
+| Entry sub_state | `qc_failed` | `qc_passed` (with active assignment) |
 
 ---
 
@@ -394,7 +477,7 @@ All QC inspector admin screens must match the **existing DFMS Django admin shell
 
 ### 5.1 Design principle
 
-Admin stays **thin**: validate → call service → message user. No business logic in `save_model`. The two custom actions (`trigger_resample`, `override_to_failed`) are the main admin-specific surfaces.
+Admin stays **thin**: validate → call service → message user. No business logic in `save_model`. Custom actions: `trigger_reinspect_after_fail` (QC-01-16), `trigger_resample`, `override_to_failed`.
 
 ### 5.0 YARD-01 integration: admin base and POI resolution
 
@@ -413,7 +496,7 @@ class QCAdminBase(YardAdminBase):
 
 **POI resolution**: `_scope_poi_id(request)` returns the inspector's assigned POI via `UserOperationalPOI` for `qc_inspector_physical`. The `get_qc_poi_for_request(request)` helper referenced in the `formfield_for_foreignkey` examples below is replaced by `self._scope_poi_id(request)` (consistent with other yard admins). A dedicated `qc_poi.py` is **not needed** — `yard_poi.get_working_poi_for_request` covers this.
 
-**`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED, TOSubState.RESAMPLING]` and `queue_entry__requires_qc=True` so that only actionable items appear.
+**`get_queryset`** automatically filters QC records to `poi_id=scope_poi_id`. Additionally, the QC queue changelist filters by `transport_order__sub_state__in=[TOSubState.FLAGGED_FOR_QC, TOSubState.SAMPLING_STARTED, TOSubState.RESAMPLING, TOSubState.QC_FAILED]` and `queue_entry__requires_qc=True` so that actionable items appear — including failed TOs awaiting reinspect (QC-01-16).
 
 **`QueueEntry.qc_passed` update**: when `QCService.record_decision(decision='pass')` is called, it must also set `QueueEntry.qc_passed=True` for the TO's active queue entry. This unblocks the CC bay-assignment form.
 
@@ -560,9 +643,23 @@ def save_model(self, request, obj, form, change):
 **Custom admin actions** (on active decisions only):
 
 ```python
+@admin.action(description="Reinspect after Fail — start new sample cycle")
+def trigger_reinspect_after_fail(self, request, queryset):
+    eligible = queryset.filter(is_active=True, decision="fail")
+    # Intermediate form collects required remarks (QDR-003)
+    # Validates no active BayAssignment on each TO before calling service
+    for decision in eligible.select_related("transport_order"):
+        QCService.trigger_reinspect_after_fail(
+            transport_order=decision.transport_order,
+            actor=request.user,
+            remarks=remarks_from_form,
+        )
+
+
 @admin.action(description="Trigger Resample — cancels active unloading assignment")
 def trigger_resample(self, request, queryset):
     eligible = queryset.filter(is_active=True, decision="pass")
+    # Requires active BayAssignment — service validates
     if queryset.count() != eligible.count():
         self.message_user(
             request,
@@ -624,9 +721,11 @@ _DECISION_BADGE = {
 
 ```http
 GET    /api/v1/qc/queue?poi=
-       → RM inbound TOs visible to QC: requires_qc=True, sub_state in [flagged_for_qc, sampling_started, resampling]
+       → RM inbound TOs visible to QC: requires_qc=True,
+         sub_state in [flagged_for_qc, sampling_started, resampling, qc_failed]
+       → qc_failed rows include has_active_decision=true, decision='fail' (reinspect eligible)
        → Scoped to supervisor's assigned POI
-       → Response: [{ to_id, to_number, vehicle, gross_weight_mt, sub_state, sample_count, has_active_decision }]
+       → Response: [{ to_id, to_number, vehicle, gross_weight_mt, sub_state, sample_count, has_active_decision, reinspect_eligible }]
 
 POST   /api/v1/qc/samples
        → Body: { transport_order_id, physical_analysis, remarks (nullable) }
@@ -639,13 +738,23 @@ GET    /api/v1/qc/samples?poi=&to_id=
 
 POST   /api/v1/qc/decisions
        → Body: { qc_sample_id, decision ("pass"|"fail"), remarks (required if fail) }
-       → Validations: sample exists, no active decision on TO, remarks on fail
+       → Validations: sample exists; TO sub_state in [sampling_started, resampling];
+         no active decision on TO unless prior cycle was superseded by reinspect/resample;
+         remarks on fail
        → Side effects (Pass): QCDecision created, qc_passed=True, QueueEntry unblocked, QC_PASSED → TLS-01
        → Side effects (Fail): QCDecision created, QC_FAILED → TLS-01, all downstream blocked
        → Response: { decision_id, decision, decided_at, sub_state }
 
 GET    /api/v1/qc/decisions?poi=&to_id=&is_active=
        → List decisions; is_active=true returns only the current live decision per TO
+
+POST   /api/v1/qc/decisions/{decision_id}/reinspect
+       → Body: { remarks (required) }
+       → Validations: decision.is_active=True, decision='fail', sub_state='qc_failed',
+         no active BayAssignment, remarks not blank
+       → Side effects: prior Fail decision superseded, QueueEntry.qc_passed=None,
+                       REINSPECT_TRIGGERED → TLS-01 (sub_state='resampling')
+       → Response: { status: "reinspect_started", transport_order: { to_number, sub_state: "resampling" } }
 
 POST   /api/v1/qc/decisions/{decision_id}/resample
        → Body: { remarks (nullable) }
@@ -670,6 +779,7 @@ POST   /api/v1/qc/decisions/{decision_id}/override-fail
 - QC applies only when `to_requires_qc_from_lines(to)` is True (any product line with `Product.requires_qc=True` — QC-01-13 / FB-006)
 - After scale-in, SC-01 / CC-01 auto-set `sub_state='flagged_for_qc'` when QC is required (no CC manual flag on happy path)
 - Sample/decision actions require `sub_state` in `flagged_for_qc`, `sampling_started`, or `resampling` and active `QueueEntry.requires_qc=True`
+- **Reinspect eligibility** (QC-01-16): `sub_state='qc_failed'` with active Fail decision and no active BayAssignment — reinspect action transitions to `resampling`; only then is `create_sample` allowed again
 - TO must be RM inbound (`flow_lane='rm_inbound'`), at destination POI, status `at_destination`
 
 ### Sample creation
@@ -681,9 +791,18 @@ POST   /api/v1/qc/decisions/{decision_id}/override-fail
 - A decision can only be recorded when at least one `QCSample` exists for the TO
 - At most one `is_active=True` decision per TO at any time
 - `remarks` required on Fail
-- Decisions are immutable after recording — changes happen via resample or override actions only
+- Decisions are immutable after recording — changes happen via reinspect, resample, or override actions only
+- **No silent Pass after Fail**: `record_decision(pass)` MUST reject when TO `sub_state='qc_failed'` and an active Fail decision exists — inspector must call `trigger_reinspect_after_fail` first (closes current API loophole)
 
-### Resample
+### Reinspect after initial Fail (QC-01-16)
+- Requires `QCDecision.is_active=True` and `decision='fail'`
+- Requires `sub_state='qc_failed'`
+- Requires **no** active `BayAssignment`
+- `remarks` mandatory (QDR-003)
+- Supersedes Fail decision (`is_active=False`); does not mutate decision field in place
+- Sets `sub_state='resampling'`; CC stays blocked until new Pass
+
+### Resample (during unloading)
 - Requires `QCDecision.is_active=True` and `decision='pass'`
 - Requires an active `BayAssignment` (unloading must have been assigned — meaning it was in progress)
 - Clears the pass state; CC cannot re-assign until a new QCSample + QCDecision(pass) is recorded
@@ -692,7 +811,7 @@ POST   /api/v1/qc/decisions/{decision_id}/override-fail
 - Requires `QCDecision.is_active=True` and `decision='pass'`
 - `remarks` always required
 - Does **not** create a new `QCDecision` — mutates the existing pass decision to fail (audited via `TOStatusTransitionLog`)
-- CC stays blocked until a brand-new sample + pass cycle completes
+- CC stays blocked until inspector completes §4.5 reinspect (new sample + pass)
 
 ---
 
@@ -703,7 +822,8 @@ POST   /api/v1/qc/decisions/{decision_id}/override-fail
 | Sample created | `SAMPLING_STARTED` | `sampling_started` | `{ sample_id, created_by }` |
 | Pass recorded | `QC_PASSED` | `qc_passed` | `{ decision_id, decided_by }` |
 | Fail recorded | `QC_FAILED` | `qc_failed` | `{ decision_id, decided_by, remarks }` |
-| Resample triggered | `RESAMPLING_TRIGGERED` | `resampling` | `{ prior_decision_id, triggered_by, remarks }` |
+| Reinspect after Fail | `REINSPECT_TRIGGERED` | `resampling` | `{ prior_decision_id, prior_decision: 'fail', triggered_by, remarks }` |
+| Resample triggered | `RESAMPLING_TRIGGERED` | `resampling` | `{ prior_decision_id, prior_decision: 'pass', triggered_by, remarks }` |
 | Override to failed | `QC_OVERRIDDEN_FAIL` | `qc_failed` | `{ decision_id, overridden_by, remarks, prior_decision: 'pass' }` |
 
 All events include `transport_order_id`, `poi_id`, `actor_id`, `timestamp`.
@@ -716,11 +836,12 @@ All events include `transport_order_id`, `poi_id`, `actor_id`, `timestamp`.
 |--------|-----------|-----|
 | SC-01 + CC-01 (scale-in / queue) | Upstream trigger | `CCService.create_queue_entry` sets `requires_qc=to_requires_qc_from_lines(to)`; when True, auto `sub_state='flagged_for_qc'` — QC queue becomes visible (see [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) v1.1, [gate-operations-sprint4.md](./gate-operations-sprint4.md) v2.8 §9.4) |
 | CC-01 (assign unloading point) | Downstream unlock | QC Pass sets `QueueEntry.qc_passed=True`; CC's `[Assign Bay]` unblocks when `requires_qc=True` |
-| CC-01 (cancel assignment on resample/override) | Downstream cancellation | `QCService` calls `CCService.cancel_bay_assignment(assignment, reason)` |
+| CC-01 (cancel assignment on resample/override) | Downstream cancellation | `QCService` calls bay cancellation on resample/override only (not on reinspect — no assignment exists) |
+| QC-01-16 reinspect | Self-contained | Supersedes Fail; no CC/LD side effects until new Pass |
 | LD-01 (UnloadEvent) | Downstream cancellation | Resample/override sets `UnloadEvent.cancelled_by_resample=True`; LD-01 cannot complete an event in this state |
 | SC-01 (gate for scale-out) | Downstream gate | When TO `requires_qc`, scale-out checks active Pass decision (or `TO.qc_passed`) |
 | GT-01 (gate-out guard) | Downstream gate | When TO `requires_qc`, gate-out guard checks QC pass / not failed |
-| TLS-01 | Timeline | All 5 event types written via event ingest service |
+| TLS-01 | Timeline | All 6 event types (§8) written via `record_yard_sub_state()` |
 | POD-01 (closure) | Closure gate | `ClosureChecklist.qc_passed` reads latest active `QCDecision.decision == 'pass'` for RM inbound TOs |
 
 ---
@@ -732,7 +853,8 @@ Permission codes (add to `apps/core/constants_rbac.py` as `PermissionCodes` cons
 ```python
 Quality.QCCheckpoint.Sample.Create    # qc_inspector_physical
 Quality.QCCheckpoint.Decision.Write   # qc_inspector_physical (+ write grant) or gate_supervisor
-Quality.QCCheckpoint.Resample         # same as Decision.Write
+Quality.QCCheckpoint.Resample         # same as Decision.Write — during-unloading resample (§3.3)
+Quality.QCCheckpoint.Reinspect        # same as Decision.Write — initial Fail recovery (§3.5); optional alias of Resample
 Quality.QCCheckpoint.Override         # same as Decision.Write
 Quality.QCCheckpoint.Read             # qc_inspector_physical, command_center_officer, TP, TDO
 ```
@@ -756,6 +878,7 @@ Quality.QCCheckpoint.Read             # qc_inspector_physical, command_center_of
         PermissionCodes.QUALITY_QC_CHECKPOINT_SAMPLE_CREATE,
         PermissionCodes.QUALITY_QC_CHECKPOINT_DECISION_WRITE,
         PermissionCodes.QUALITY_QC_CHECKPOINT_RESAMPLE,
+        PermissionCodes.QUALITY_QC_CHECKPOINT_REINSPECT,   # QC-01-16; may equal RESAMPLE if catalog kept minimal
         PermissionCodes.QUALITY_QC_CHECKPOINT_OVERRIDE,
     ],
 ),
@@ -793,8 +916,60 @@ Menu.QC.Checkpoint.Queue.View    # qc_inspector_physical
 | QC-01-13 | Product-line QC trigger + CC/LD integration | Entry when `to_requires_qc_from_lines`; auto `flagged_for_qc` at scale-in; `create_sample` enforces sub_state; resample/override cancel bay + `UnloadEvent.cancelled_by_resample` |
 | QC-01-14 | YARD-01 integration | `QCAdminBase`→`YardAdminBase`; `yard_poi.get_working_poi_for_request` (no dedicated `qc_poi.py`); `QueueEntry.qc_passed` set on Pass |
 | QC-01-15 | RBAC seed | Add QC checkpoint permissions to `qc_inspector_physical` in `role_seed_data.py`; register permission catalog entries; enable portal nav for `Menu.QC.Checkpoint.View` |
+| **QC-01-16** | **Reinspect after initial QC Fail** | **Planned — Sprint 6.** See §12 |
 
 ---
 
-**Last Updated**: 2026-06-03  
+## 12. QC-01-16 Implementation Plan — Reinspect after Initial QC Fail
+
+**Story**: Close gap between PRD §6.15 / `qc-process.md` §6.7 and Sprint 4 checkpoint implementation. After an **initial** Fail (no unloading assigned), `qc_inspector_physical` must be able to start a **new sample cycle** and record Pass.
+
+**Problem (current code, Jun 2026)**
+
+| Symptom | Root cause |
+|---------|------------|
+| TO stuck after Fail in admin | `sub_state=qc_failed` excluded from `QC_ACTIVE_QUEUE_SUB_STATES` (`eligibility.py`) |
+| Create Sample rejected | `validate_qc_sample_eligibility()` only allows `flagged_for_qc`, `sampling_started`, `resampling` |
+| Record Decision blocked | Admin sample FK excludes TOs with any active decision |
+| Resample action unavailable | Admin/API filter `decision='pass'` only; resample requires active BayAssignment |
+| Undocumented API bypass | Raw `POST /decisions/` with Pass supersedes Fail without audit trail |
+
+**Implementation steps** (ordered)
+
+| Step | File(s) | Change |
+|------|---------|--------|
+| 1 | `apps/quality/checkpoint/services.py` | Add `QCService.trigger_reinspect_after_fail()` per §3.5 |
+| 2 | `apps/quality/checkpoint/services.py` | In `record_decision()`: reject Pass when `sub_state=qc_failed` and active Fail exists (force reinspect first) |
+| 3 | `apps/quality/checkpoint/services.py` | In `trigger_resample()`: enforce `decision='pass'` + active BayAssignment (align service with spec) |
+| 4 | `apps/quality/checkpoint/eligibility.py` | Add `qc_failed_reinspect_queryset()` — TOs with active Fail, no BayAssignment, `requires_qc=True` |
+| 5 | `apps/quality/checkpoint/validation.py` | No change to sample sub_states; reinspect transitions TO to `resampling` before sample creation |
+| 6 | `apps/quality/checkpoint/admin.py` | Add `trigger_reinspect_after_fail` admin action (Fail + required remarks intermediate form); extend queue changelist to include `qc_failed` reinspect-eligible rows |
+| 7 | `apps/quality/checkpoint/views.py` | Add `POST .../decisions/{id}/reinspect/`; extend queue API with `reinspect_eligible`; tighten resample endpoint validation |
+| 8 | `apps/quality/checkpoint/urls.py` | Register reinspect route |
+| 9 | `apps/core/constants_rbac.py` | Register `Quality.QCCheckpoint.Reinspect` (or document reuse of `Resample`) |
+| 10 | `apps/core/dashboard_service.py` | Fix `failed_reinspect` widget: count `sub_state=qc_failed` with active Fail (not `resampling`) |
+| 11 | `apps/transport/closure/closure_engine.py` | No change — active Fail continues to block until superseded + new Pass |
+| 12 | Tests | Unit: service validations; integration: Fail → reinspect → sample → Pass unblocks CC; API rejects Pass-on-fail without reinspect |
+| 13 | E2E | E2E-01-3 branch: initial Fail → reinspect → Pass → unload → closure |
+
+**Acceptance criteria (QC-01-16)**
+
+- [ ] After initial QC Fail, TO appears in My Queue with reinspect action
+- [ ] Reinspect requires mandatory remarks (QDR-003)
+- [ ] Reinspect supersedes Fail decision and sets `sub_state=resampling`
+- [ ] Inspector can create new sample and record Pass; CC bay assignment unblocks
+- [ ] Reinspect repeatable if second Fail recorded
+- [ ] Resample (§3.3) unchanged — still Pass-only during active unloading
+- [ ] Override-to-fail (§3.4) followed by §4.5 reinspect path works
+- [ ] API cannot Pass-over-Fail without reinspect
+- [ ] TLS-01 emits `REINSPECT_TRIGGERED` with audit payload
+
+**Out of scope**
+
+- Recheck on **same sample without new sample** (product allows it in `qc-process.md` §6.7 option 1; Phase 1 checkpoint uses new-sample-only for audit clarity)
+- Legacy `QCEvent` / `GateEntry` re-inspect transition (`QC_FAILED → AWAITING_QC`) — checkpoint TO sub_state is canonical
+
+---
+
+**Last Updated**: 2026-06-22  
 **Related Modules**: [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md)

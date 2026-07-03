@@ -1,11 +1,11 @@
 ---
 module: 06-poi-operations
 specification: Gate Operations (Sprint 4 — TO-Centric)
-version: 2.9
+version: 2.10
 phase: Phase 1
 sprint: Sprint 4 (GT-02-12 carried in Sprint 5)
-last_updated: 2026-06-05
-changelog: "v2.9 — FG outbound source gate-out owns `in_transit_destination` advance (scale-out sub-state only); §4.5 chain, §5.1 eligibility, §5.2 flow aligned with SC-01 v1.3 + logistics-flow-diagrams. v2.8 — FB-006 / QC-01-13: post scale-in auto flagged_for_qc when any product line requires_qc; CC unloading assignment only after QC Pass (see command-center-loading v1.1); v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
+last_updated: 2026-06-22
+changelog: "v2.10 — GT-02 on-demand routing: gate POI only on TO (dealer source / supplier destination yard leg); no Dealer/Supplier site_poi prerequisite; project_from_info from party name; single-visit gate-out → completed; POD-01 closure without POD (Close TO when completed). v2.9 — FG outbound source gate-out owns `in_transit_destination` advance (scale-out sub-state only); §4.5 chain, §5.1 eligibility, §5.2 flow aligned with SC-01 v1.3 + logistics-flow-diagrams. v2.8 — FB-006 / QC-01-13: post scale-in auto flagged_for_qc when any product line requires_qc; CC unloading assignment only after QC Pass (see command-center-loading v1.1); v2.7 — GT-02-12: N product lines on on-demand TO (product + quantity); extend TOLineItem for gate TOs without TR; TO.requires_qc derived from Product.requires_qc (MDM), not gate-captured; wizard inline + API line_items[]; v2.6 — GT-02 on-demand wizard: Product dropdown (Finished Goods / Raw Material) replaces Path Type UI; maps to dealer DO / supplier PO paths unchanged; v2.5 — §6.1.1 visit summary uses shared `.to-tr-header` entity card (transport TR pattern); v2.4 — project_from_info + origin prefill; v2.3 — YARD-01; v2.2 — GT-02 TO.status; v2.1 — §4.5 chain, §5.1 guards"
 related_stories: DFS-054 (GT-01), DFS-062 (GT-02), DFS-062-12 (GT-02-12)
 jira_epic: DFS-072
 ---
@@ -122,12 +122,10 @@ Operations → Gate → On-Demand TO Wizard (GT-02)
         │     └── [Add another line] — at least one line before submit
         │
         ├── Step 3: Routing (auto-derived — not entered on admin/API)
-        │     ├── Source POI:
-        │     │     ├── Dealer DO: current gate POI (session)
-        │     │     └── Supplier PO: Supplier `site_poi` (Master Data)
-        │     ├── Destination POI:
-        │     │     ├── Dealer DO: Dealer `site_poi` (Master Data)
-        │     │     └── Supplier PO: current gate POI (session)
+        │     ├── Yard POI on TO: **gate POI only** — `origin_poi` and `destination_poi` both set to current gate (FK placeholder; external dealer/supplier premises are **not** modeled as POIs)
+        │     ├── Yard leg (`GateVisitSession.yard_leg`) — set from path type at gate-in (not from party `site_poi`):
+        │     │     ├── Dealer DO: **`source`** (FG load at gate)
+        │     │     └── Supplier PO: **`destination`** (RM unload at gate)
         │     └── Vehicle: registration at yard (admin wizard field / gate-in flow §4.2)
         │
         └── [Create TO & Gate-In]
@@ -179,9 +177,10 @@ GateVisitSession(TenantAwareModel) {
 
     # YARD-01: visit leg (set at gate-in time by gate_services.create_gate_in)
     yard_leg: CharField ['source', 'destination', '']
-    # 'source'      → session.poi == to.origin_poi  (FG outbound load path)
-    # 'destination' → session.poi == to.destination_poi  (FG/RM inbound unload path)
-    # ''            → blank for GT-02 on-demand where leg cannot be determined at creation
+    # 'source'      → FG outbound load path at gate (planner: session.poi == to.origin_poi)
+    # 'destination' → FG/RM inbound unload path at gate (planner: session.poi == to.destination_poi)
+    # GT-02 on-demand: set from transfer_type (dealer → source, supplier → destination) even when
+    #                   origin_poi == destination_poi == gate_poi on the TO
 
     # Metadata
     created_by: FK → User (Gateman)
@@ -322,6 +321,11 @@ TransportOrder {
     # GT-02-12: set from TO line items at gate create — True when any linked
     # Product.requires_qc is True (MDM). Not captured per line on the TO.
 }
+
+# Computed helper (apps/transport/models.py):
+# is_gate_on_demand_to → source == 'GATE' and transfer_type in (FG_DEALER_OUTBOUND, RM_SUPPLIER_INBOUND)
+# GT-02 TOs: origin_poi and destination_poi both reference the gate POI; external party identity
+# is on Dealer/Supplier FK + GateIn.party_name / project_from_info only.
 ```
 
 ### 2.6 `TOLineItem` extensions for gate-originated TOs (GT-02-12)
@@ -556,13 +560,14 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
         │     ├─► Read-only QC indicator per row from `Product.requires_qc`
         │     └─► Validation: product type matches path (FG vs RM); no duplicate product on same TO
         │
-        ├─► Step 3: Routing (auto-derived from product selection)
-        │     ├─► Dealer DO:
-        │     │     ├─► Source POI: current gate POI (depot/factory)
-        │     │     └─► Destination POI: Dealer site (FK from party)
-        │     └─► Supplier PO:
-        │           ├─► Source POI: Supplier site (FK from party)
-        │           └─► Destination POI: current gate POI (factory/depot)
+        ├─► Step 3: Routing (auto-derived — `gate_services.resolve_on_demand_routing`)
+        │     ├─► **Gate POI only on TO** — both `origin_poi` and `destination_poi` = current gate POI
+        │     ├─► **Dealer DO** (`fg_outbound`):
+        │     │     ├─► Yard leg: **`source`** (load at gate)
+        │     │     └─► External dealer delivery address: **not** stored as a POI on the TO
+        │     └─► **Supplier PO** (`rm_inbound`):
+        │           ├─► Yard leg: **`destination`** (unload at gate)
+        │           └─► External supplier ship-from address: **not** stored as a POI on the TO
         │
         └─► [Create TO & Gate-In]
               └─► Backend:
@@ -572,7 +577,8 @@ Gateman clicks [Create On-Demand TO] from Gate-In form
                     │     ├─► transfer_type = 'FG_DEALER_OUTBOUND' or 'RM_SUPPLIER_INBOUND'
                     │     ├─► fleet_type = 'own' (default)
                     │     ├─► status = 'created'
-                    │     ├─► origin_poi, destination_poi from resolve_on_demand_routing
+                    │     ├─► origin_poi, destination_poi = gate_poi (resolve_on_demand_routing)
+                    │     ├─► GateVisitSession.yard_leg from transfer_type (dealer → source, supplier → destination)
                     │     ├─► allocated_quantity = sum(line quantities)
                     │     ├─► requires_qc = to_requires_qc_from_lines(to)  # Product.requires_qc per line
                     │     └─► No TR link, no TDO assignment required
@@ -609,6 +615,30 @@ line_items: list[dict]  # min length 1
 
 Implementation: `gate_services.create_on_demand_to_and_gate_in` → `create_gate_in(..., skip_to_eligibility=True)` → `record_gate_in_status`. On-demand TOs **do not** pass through `in_transit_source` / `in_transit_destination` (planner/driver steps are skipped).
 
+**GT-02 routing & yard leg (authoritative)**
+
+| Path | `flow_lane` | `origin_poi` / `destination_poi` on TO | `yard_leg` at gate-in | Post gate-in `TO.status` |
+|------|-------------|----------------------------------------|----------------------|---------------------------|
+| Dealer DO | `fg_outbound` | Both = `gate_poi` | `source` | `at_source` |
+| Supplier PO | `rm_inbound` | Both = `gate_poi` | `destination` | `at_destination` |
+
+- **No `site_poi` on Dealer/Supplier** is required for GT-02 create — party FK is for identity/audit only; vehicles may come from or go to any external location.
+- **`project_from_info` on `GateIn`:** dealer or supplier **name** (not `site_poi` label).
+- **`resolve_on_demand_routing`:** returns `(gate_poi, gate_poi)`; yard semantics come from `transfer_type` + explicit `yard_leg`, not distinct POI endpoints.
+
+**GT-02 terminal lifecycle (single yard visit — POD-01)**
+
+Gate-originated dealer/supplier TOs complete in **one** gate visit (`is_single_visit_gate_to` / `is_gate_on_demand_to`). After gate-out clearance, `TO.status` advances directly to **`completed`** (not `in_transit_destination` / second-leg planner flow).
+
+| Step | GT-02 dealer DO | GT-02 supplier PO |
+|------|-----------------|-------------------|
+| Gate-out recorded | → **`completed`** | → **`completed`** |
+| Driver POD (POD-01) | **Not required** | **Not required** |
+| Transport Planner **Close TO** | Enabled when `status == completed` | Enabled when `status == completed` |
+| After TP close | → **`closed`** | → **`closed`** |
+
+Closure engine (`apps/transport/closure/closure_engine.py`): `pod_uploaded` is excluded from the lane matrix for `is_gate_on_demand_to`; at `completed`, closure is eligible without POD. RM supplier TOs with `requires_qc=False` also skip `sampling_done` / `qc_passed` at close.
+
 ---
 
 ## 4.5 Full TO status chain per lane (gate-in → gate-out)
@@ -628,10 +658,13 @@ The table below is the authoritative per-lane TO status progression for the **ya
 | Scale-out completed (SC-01) | `at_source` (sub: `scale_out_source`) — **status unchanged** | → `delivered_unloaded` | → `delivered_unloaded` |
 | **Gate-out recorded** (GT-01) | → `in_transit_destination` + sub: `gate_out_source` (origin POI exit) | sub: `gate_out_destination` | sub: `gate_out_destination` |
 | POD submitted + closure (POD-01) | → `completed` → `closed` | → `completed` → `closed` | → `completed` → `closed` |
+| **GT-02 gate-out (single visit)** | → **`completed`** (terminal at gate) | — | → **`completed`** (terminal at gate) |
+| **GT-02 TP Close TO (POD-01)** | **`completed` → `closed`** (no POD) | — | **`completed` → `closed`** (no POD) |
 
 **Key notes:**
 
 - **GT-02 on-demand entry**: Dealer DO and Supplier PO paths create the TO at `created` and gate-in in one transaction; the TO is already at **`at_source`** (FG outbound) or **`at_destination`** (RM inbound) before scale-in — see §4.3. They skip the “Pre-gate-in (driver started)” row in the table above.
+- **GT-02 single-visit terminal**: Dealer DO and Supplier PO TOs advance to **`completed`** on gate-out at the gate POI (no second gate-in leg, no `in_transit_destination` transit). Transport Planner may **Close TO** when status is `completed`; **POD is not a closure prerequisite** (see §4.3, §8.3).
 - **FG outbound (source leg)**: Scale-out at the source POI records net weight and `sub_state = scale_out_source` while the TO stays **`at_source`**. **Gate-out at the origin POI** is the only step that advances the TO to `in_transit_destination` — the vehicle has physically left the yard. `GateOut.gate_out_at` on the source visit is the authoritative departure timestamp (STK-01 in-transit stock hooks use this event). The vehicle then travels to destination (where it is an **FG inbound** visit).
 - **RM inbound / FG inbound**: After scale-out the TO advances to `delivered_unloaded`. Gate-out at destination records `gate_out_destination` sub-state only (canonical status unchanged).
 - **RM inbound QC (FB-006 / QC-01-13)**: QC is required when **any** product line has `Product.requires_qc=True` (`to_requires_qc_from_lines`), not for all RM inbound TOs. After scale-in, the system **automatically** sets `flagged_for_qc` when QC is required — CC does not manually flag. QC Supervisor records Pass/Fail; on Pass the **CC Officer** assigns the unloading point (CC-01). If all lines have `requires_qc=False`, skip QC: sub-state `waiting_cc` and immediate bay assignment. If QC fails, gate-out is blocked (see §9.4).
@@ -758,7 +791,7 @@ Uses `GateAdminBase` (→ `YardAdminBase`). **Business rules live in `GateInServ
   - Gate supervisor: unscoped eligible TOs across tenant POIs.
   - Excludes TOs with an active `GateVisitSession`.
 - **Live pre-fill** — `GET …/gatein/to-prefill/<to_id>/` → `build_gate_in_prefill_payload(to)`; `static/admin/js/gatein_to_prefill.js` refreshes the visit summary card and writes `#id_project_from_info` when the TO changes (see §6.1.1).
-- **Project / From Info (TO-linked)** — required on submit. Default = display label of `TransportOrder.origin_poi` (`{poi_code} — {name}`). Also set server-side in `GateInAdminForm.clean()` via `extract_gate_in_context_from_to` when the client omits it. Gateman may override the text field before submit. GT-02 on-demand: Dealer DO → current gate POI label; Supplier PO → `supplier.site_poi` label (the shipment origin).
+- **Project / From Info (TO-linked)** — required on submit. Default = display label of `TransportOrder.origin_poi` (`{poi_code} — {name}`). Also set server-side in `GateInAdminForm.clean()` via `extract_gate_in_context_from_to` when the client omits it. Gateman may override the text field before submit. **GT-02 on-demand:** `project_from_info` = dealer or supplier **name** (party FK); external premises are not modeled as POIs.
 
 ```python
 # apps/operations/gate/gate_services.py
@@ -768,7 +801,8 @@ def build_gate_in_prefill_payload(to: TransportOrder) -> dict: ...  # §6.1.1
 def extract_gate_in_context_from_to(to: TransportOrder) -> GateInTOContext: ...
 # GateInTOContext includes project_from_info (origin_poi label) after v2.4
 # YARD-01: set yard_leg inside create_gate_in() atomic block
-# yard_leg = YardLeg.SOURCE if to.origin_poi_id == poi.pk else YardLeg.DESTINATION
+# GT-02 on-demand: yard_leg from transfer_type (dealer → SOURCE, supplier → DESTINATION)
+# Planner TO-linked: yard_leg = SOURCE if poi == origin else DESTINATION if poi == destination
 ```
 
 - **Detail view**: optional `flow_lane_badge`, `to_status_badge` on change form
@@ -957,12 +991,12 @@ Uses `TenantOnlyAdminMixin`. Staging model `GateOnDemandTORequest` records the w
 | Derived | Rule |
 |---------|------|
 | `gate_poi` | Current gate from session (`get_gate_poi_for_request`) |
-| `source_poi` | Dealer DO → `gate_poi`; Supplier PO → `supplier.site_poi` |
-| `destination_poi` | Dealer DO → `dealer.site_poi`; Supplier PO → `gate_poi` |
+| `source_poi` / `destination_poi` on TO | Both = `gate_poi` (`resolve_on_demand_routing`) |
+| `yard_leg` on visit | Dealer DO → `source`; Supplier PO → `destination` (from `transfer_type` at gate-in) |
 | `vehicle` / visit reg | Stored on `TransportOrder.vendor_vehicle_registration` and gate visit records; optional `Vehicle` FK only for TO-linked gate-in |
-| `project_from_info` on `GateIn` | Dealer DO → gate POI label; Supplier PO → `supplier.site_poi` label (same `{code} — {name}` format) |
+| `project_from_info` on `GateIn` | Dealer or supplier **name** (party FK label) |
 
-**Master Data prerequisite:** Dealer and Supplier records must have **`site_poi`** set (`master_data.Dealer` / `Supplier.site_poi` FK). Otherwise validation fails with a clear message to configure Site POI in MDM.
+**Master Data:** Dealer and Supplier records must exist for party selection. **`site_poi` is not required** for GT-02 on-demand TO creation — external party locations are not stored as POIs on the transport order.
 
 **`save_model`:** validates ≥1 product line, then calls `gate_services.create_on_demand_to_and_gate_in(..., line_items=[...])` (FG `transfer_type=FG_DEALER_OUTBOUND` or RM `RM_SUPPLIER_INBOUND`, `TOLineItem` rows + derived `requires_qc`, gate-in in same transaction, `GateActivityLog` `on_demand_to_created`). On success the linked `TransportOrder.status` is **`at_source`** (Dealer DO) or **`at_destination`** (Supplier PO) — not `created` (see §4.3).
 
@@ -1105,7 +1139,7 @@ POST   /api/v1/gate/on-demand-to/dealer
            - line_items.length >= 1
            - Each quantity_mt > 0; product exists and matches Finished Goods path
            - No duplicate product_id on the same request
-       → Routing: source_poi = gate_poi; destination_poi = dealer.site_poi (not in body)
+       → Routing: `origin_poi` = `destination_poi` = `gate_poi` (not in body); `yard_leg` = `source`
        → Side effects:
            - Create TransportOrder (source='GATE', transfer_type='FG_DEALER_OUTBOUND', initial status='created')
            - Bulk-create TOLineItem rows (§2.6); allocated_quantity = sum(lines); requires_qc from Product.requires_qc
@@ -1142,7 +1176,7 @@ POST   /api/v1/gate/on-demand-to/supplier
            remarks: "Scheduled delivery" (nullable)
          }
        → Validations: same line_items rules; products must match Raw Material path
-       → Routing: source_poi = supplier.site_poi; destination_poi = gate_poi (not in body)
+       → Routing: `origin_poi` = `destination_poi` = `gate_poi` (not in body); `yard_leg` = `destination`
        → Side effects:
            - Create TransportOrder (source='GATE', transfer_type='RM_SUPPLIER_INBOUND', initial status='created')
            - TOLineItem rows + requires_qc = any(product.requires_qc) — not “all RM inbound ⇒ true”
@@ -1201,7 +1235,7 @@ GET    /api/v1/gate/on-demand-to/{to_id}
 | Driver Name | ✓ | Max 100 chars |
 | Driver Contact | ✓ | Valid phone format |
 | Party Name | — | Supplier/dealer/distributor name |
-| Project / From Info | ✓ (TO-linked) | Default `TransportOrder.origin_poi` label (`{poi_code} — {name}`); shown on visit summary card; editable text field; GT-02 defaults per §4.2 routing |
+| Project / From Info | ✓ (TO-linked) | Default `TransportOrder.origin_poi` label (`{poi_code} — {name}`); shown on visit summary card; editable text field; **GT-02:** dealer/supplier name (§4.3, §8.3) |
 | Remarks | — | Discrepancies, visual inspection notes |
 
 ### 8.2 Gate-Out Guard Matrix (GT-01 AC-3)
@@ -1221,24 +1255,26 @@ Clearance check on gate-out:
 **Dealer DO path** (AC-1 — `transfer_type=FG_DEALER_OUTBOUND`):
 - `source = 'GATE'`
 - `transfer_type = 'FG_DEALER_OUTBOUND'`
-- `origin_poi = current_gate_poi` (depot/factory)
-- `destination_poi = dealer.site_poi` (Master Data FK on `Dealer`; required)
+- `origin_poi = destination_poi = current_gate_poi` (yard POI only; dealer premises not on TO)
+- `GateVisitSession.yard_leg = 'source'`
 - `fleet_type = 'own'` (default)
-- `status = 'created'`, `execution_state = 'gate_in_source'`
+- `status = 'created'` → `at_source` after gate-in; → **`completed`** after single-visit gate-out
 - **Product lines (GT-02-12):** ≥1 `TOLineItem` with `product` FK; `allocated_quantity` on TO = sum of lines; `requires_qc` from `to_requires_qc_from_lines(to)`
 - No TR link, no TDO assignment required
 - Feature-flagged stock check: validate FG inventory availability when stock service exists; otherwise stub with manual confirm + audit
+- **Closure (POD-01):** POD **not** required; Transport Planner **Close TO** available when `status == completed`
 
 **Supplier PO path** (AC-2 — `transfer_type=RM_SUPPLIER_INBOUND`):
 - `source = 'GATE'`
 - `transfer_type = 'RM_SUPPLIER_INBOUND'`
-- `origin_poi = supplier.site_poi` (Master Data FK on `Supplier`; required)
-- `destination_poi = current_gate_poi` (factory/depot)
+- `origin_poi = destination_poi = current_gate_poi` (yard POI only; supplier premises not on TO)
+- `GateVisitSession.yard_leg = 'destination'`
 - `fleet_type = 'own'` (default)
-- `status = 'created'`, `execution_state = 'gate_in_destination'`
+- `status = 'created'` → `at_destination` after gate-in; → **`completed`** after single-visit gate-out
 - **Product lines (GT-02-12):** ≥1 `TOLineItem` with `product` FK + `allocated_quantity`; `allocated_quantity` on TO = sum of lines
 - **`requires_qc`:** `to_requires_qc_from_lines(to)` — True when **any** line’s `Product.requires_qc` is True (MDM). Do not set True for all RM supplier paths by default.
 - No TR link, no TDO assignment required
+- **Closure (POD-01):** POD **not** required; Transport Planner **Close TO** available when `status == completed`; when `requires_qc=False`, closure matrix skips QC sampling/pass gates
 
 ### 8.4 Duplicate Visit Prevention
 
@@ -1268,6 +1304,17 @@ Sprint 4 E2E prioritises **Internal Transfer (TO/Challan)**. Other document cate
 - Gate-in: Emit `GATE_IN` lifecycle event with timestamp and actor (GT-01-9)
 - Gate-out: Emit `GATE_OUT` lifecycle event with timestamp and actor (GT-01-9)
 - On-demand TO creation: Emit `TO_CREATED` lifecycle event (GT-02-8)
+- **GT-02 single-visit gate-out:** `TO.status` → `completed` (terminal yard chain; see §4.3)
+
+### 9.1.1 With TO closure (POD-01)
+
+**Planner TOs:** `completed` → `closed` requires lane closure matrix including driver POD (own fleet) unless vendor fleet.
+
+**GT-02 on-demand TOs (`is_gate_on_demand_to`):**
+- Gate-out advances TO to **`completed`** after yard clearance (no POD step).
+- **POD is not a closure prerequisite** — same exemption pattern as vendor-fleet TOs for `pod_uploaded`.
+- Transport Planner **Close TO** control is enabled when `TO.status == completed` (closure panel on `TransportOrder` admin / Closure Exceptions worklist).
+- TP action transitions **`completed` → `closed`** via `close_transport_order` without requiring `ProofOfDelivery`.
 
 ### 9.2 With Scaling (SC-01)
 
@@ -1378,7 +1425,7 @@ Menu.Gate.OnDemandTO.View
 ### 11.3 On-Demand TO (GT-02, GT-02-12)
 
 - Reference number required (DO# or PO#, unique per tenant per path type)
-- Party (Dealer/Supplier) must exist in MDM with `site_poi` configured
+- Party (Dealer/Supplier) must exist in MDM — **`site_poi` not required** for GT-02 routing
 - **Line items:** `line_items.length >= 1` (admin inline or API array)
 - Each line: `product_id` valid and active; `quantity_mt` > 0; product `product_type` matches wizard path (FG vs RM)
 - No duplicate `product_id` on the same TO create request
@@ -1386,6 +1433,7 @@ Menu.Gate.OnDemandTO.View
 - Driver contact required (valid phone format)
 - Vehicle registration required (normalized format)
 - **QC:** not validated as user input; `TransportOrder.requires_qc` set server-side from `Product.requires_qc` on lines (§2.6)
+- **Closure:** POD not required; TP may close when `TO.status == completed` after gate-out (§4.3, §8.3, §9.1.1)
 
 ---
 
@@ -1460,5 +1508,5 @@ Menu.Gate.OnDemandTO.View
 
 ---
 
-**Last Updated**: 2026-06-02  
+**Last Updated**: 2026-06-22  
 **Related Modules**: [05-transport](../05-transport/README.md), [06-poi-operations](./README.md), [03-users/driver-interface](../03-users/driver-interface-sprint4.md)

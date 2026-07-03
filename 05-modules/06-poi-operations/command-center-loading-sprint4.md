@@ -1,13 +1,13 @@
 ---
 module: 06-poi-operations
 specification: Command Center, Loading/Unloading & QC Operations (Sprint 4 — TO-Centric)
-version: 1.5
+version: 1.6
 phase: Phase 1
-sprint: Sprint 4 (baseline) + Sprint 5 carry-over (FB-005, FB-006, CC-01 APIs)
-last_updated: 2026-06-11
-changelog: "v1.5 — CC queue serial (issued at scale-in, SC-01 v1.4): `queue_token.serial_number` (`CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}`, per-POI UTC daily) shown as first sortable column on the CC queue and in the bay-assignment TO dropdown; per-LUP WaitingSerial unchanged. v1.4 — CC bay-assignment LUP traffic panel: implementation plan §11.10; FB-005 status reconciled with codebase (service + LD done; CC panel + REST pending). v1.3 — LD-01 admin start UX: LUP dropdown → serial-ordered clickable queue table → bay_assignment (admin only; LUP not persisted on events). v1.2 — FB-005 bay concurrency + UTC serials. v1.1 — product-line QC at scale-in."
+sprint: Sprint 4 (baseline) + Sprint 5 carry-over (FB-005 serials, FB-006, CC-01 APIs) + Sprint 6 (LD-01-9 per-line capture)
+last_updated: 2026-07-02
+changelog: "v1.6 — Sprint 6 FB-005 (LD-01-9): per-`TOLineItem` load/unload quantity capture — child models, API `line_items[]`, admin formset, service validation (§12); codebase baseline reconciled (aggregate-only today). v1.5 — CC queue serial (issued at scale-in, SC-01 v1.4): `queue_token.serial_number` (`CC-{POI_CODE}-{YYYYMMDD}-{seq:03d}`, per-POI UTC daily) shown as first sortable column on the CC queue and in the bay-assignment TO dropdown; per-LUP WaitingSerial unchanged. v1.4 — CC bay-assignment LUP traffic panel: implementation plan §11.10; FB-005 status reconciled with codebase (service + LD done; CC panel + REST pending). v1.3 — LD-01 admin start UX: LUP dropdown → serial-ordered clickable queue table → bay_assignment (admin only; LUP not persisted on events). v1.2 — FB-005 bay concurrency + UTC serials. v1.1 — product-line QC at scale-in."
 related_stories: DFS-056 (CC-01), DFS-057 (LD-01), DFS-058 (QC-01)
-feedback_items: FB-005 (bay concurrency + serials), FB-006 (product-line QC)
+feedback_items: FB-005 (Sprint 5 — bay concurrency + serials), FB-006 (product-line QC), FB-005 (Sprint 6 — per-line load/unload capture; see §12)
 jira_epic: DFS-072
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-072
 This specification covers three tightly coupled modules in the yard chain:
 
 - **CC-01 (Command Center)**: Queue management from scale-in token, bay/line assignment, waiting serial issuance. Every scaled-in vehicle arrives on the queue already carrying a **CC queue serial** (`queue_token.serial_number`, per-POI UTC daily sequence issued by SC-01 at scale-in — v1.5) which orders the queue FIFO and is the CCO's handle for assigning loading/unloading points. A loading/unloading point may serve **multiple vehicles concurrently** (FB-005); each assignment gets a **daily UTC waiting serial** for that point. On bay assignment, the CCO must see **traffic at the selected L/U point** (active assignments, serial order) — §6.2, §11.10. For RM inbound when **any** product line requires QC (`Product.requires_qc` via `to_requires_qc_from_lines`), scale-in **automatically** sets `flagged_for_qc` — CC does not assign an unloading point until QC Pass; after Pass, **CC Officer** assigns the unloading point (not QC Supervisor).
-- **LD-01 (Loading/Unloading)**: Start/end timestamps, bags/weight/seal capture against an assigned bay. **Admin start flow (Sprint 5)**: personnel pick **loading/unloading point** → see **serial-ordered queue** at that point → click row to select TO → start event (`bay_assignment` only persisted). Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
+- **LD-01 (Loading/Unloading)**: Start/end timestamps, seal capture, and **per-`TOLineItem` quantity capture** against an assigned bay (Sprint 6 FB-005 / LD-01-9 — §12). **Admin start flow (Sprint 5)**: personnel pick **loading/unloading point** → see **serial-ordered queue** at that point → click row to select TO → start event (`bay_assignment` only persisted). **Complete flow (Sprint 6)**: one editable quantity row per TO product line (expected from `TOLineItem.allocated_quantity`, actual entered by operator). Loading events fire for FG outbound; unloading events fire for FG inbound and RM inbound.
 - **QC-01 (QC Checkpoint)**: RM inbound only. Sample creation → Pass/Fail decision only. On Pass the TO is marked `qc_passed=True` and CC is unblocked to assign the unloading point. Resample and override-to-failed cancel the active CC unloading assignment during unloading.
 
 **Module paths**: `apps/operations/command_center/`, `apps/operations/loading/`, `apps/quality/checkpoint/`  
@@ -34,8 +34,8 @@ This specification covers three tightly coupled modules in the yard chain:
 | `apps/operations/command_center/services.py` | ✓ | `active_assignments_for_lup`, `assignments_startable_at_lup`, UTC serial allocator; LUP exclusivity removed |
 | `apps/operations/command_center/admin.py` | ✓ | Queue + bay assignment admin; TO details AJAX on add form — **LUP traffic panel not wired** (§11.10) |
 | `apps/operations/loading/admin_queue.py` | ✓ | Shared `render_queue_table_html` — reused by LD-01; **to be reused by CC-01** traffic panel |
-| `apps/operations/loading/models.py` | ✓ | `LoadEvent`, `UnloadEvent`; legacy `LoadingOperation` linked to `GateEntry` — **do not extend** |
-| `apps/operations/loading/admin.py` | ✓ | `LoadEventAdmin`, `UnloadEventAdmin` — point-first queue table on add form (FB-005-6 / LD-01-6) |
+| `apps/operations/loading/models.py` | ✓ partial | `LoadEvent`, `UnloadEvent` with **aggregate** `bags_*` / `weight_*_mt` only — **no** `LoadEventLineItem` / `UnloadEventLineItem` yet (§12). Legacy `LoadingOperation` (GateEntry-linked) — **do not extend** |
+| `apps/operations/loading/admin.py` | ✓ partial | Point-first queue on add (LD-01-6); TO lines shown read-only in `to_details_panel`; **aggregate** capture on complete — per-line formset pending (§12) |
 | `apps/quality/checkpoint/` | ✓ | `QCSample`, `QCDecision`, QC admin + services |
 
 All new Sprint 4 models use **separate migration files** so legacy `LoadingOperation` and `GateEntry`-linked models are untouched.
@@ -201,8 +201,8 @@ LoadEvent(TenantAwareModel) {
     start_datetime: DateTime (required)
     end_datetime: DateTime (nullable — null until loading complete)
 
-    bags_loaded: PositiveInteger (nullable)
-    weight_loaded_mt: Decimal(10, 3) (nullable)
+    bags_loaded: PositiveInteger (nullable)       # Sprint 6: denormalized sum of line_items (§1.4.1)
+    weight_loaded_mt: Decimal(10, 3) (nullable)   # Sprint 6: denormalized sum of line_items (§1.4.1)
     seal_number: string (max 50, nullable)
 
     notes: text (nullable)
@@ -212,6 +212,26 @@ LoadEvent(TenantAwareModel) {
 ```
 
 **Constraint**: `end_datetime >= start_datetime` (form-level `clean()`)
+
+#### 1.4.1 LoadEventLineItem (Sprint 6 — LD-01-9 / FB-005)
+
+Per-product-line **actual** quantities captured at load complete. Expected quantity is **not** stored here — read from `TOLineItem.allocated_quantity` at display/API time.
+
+```python
+LoadEventLineItem(TenantAwareModel) {
+    id: UUID (PK)
+
+    load_event: FK → LoadEvent (related_name='line_items', CASCADE)
+    to_line_item: FK → TOLineItem (PROTECT, related_name='load_captures')
+
+    bags_loaded: PositiveInteger (nullable)
+    weight_loaded_mt: Decimal(10, 3) (nullable)
+
+    # UniqueConstraint(load_event, to_line_item)
+}
+```
+
+**Cardinality**: one row per `(load_event, to_line_item)`. A TO with *N* product lines requires *N* rows when the event is completed. With FB-001 multi-point visits, each `LoadEvent` (per `BayAssignment`) carries its own line-item set for that point.
 
 ### 1.5 UnloadEvent (new model — extends `TenantAwareModel`)
 
@@ -227,8 +247,8 @@ UnloadEvent(TenantAwareModel) {
     start_datetime: DateTime (required)
     end_datetime: DateTime (nullable)
 
-    bags_unloaded: PositiveInteger (nullable)
-    weight_unloaded_mt: Decimal(10, 3) (nullable)
+    bags_unloaded: PositiveInteger (nullable)       # Sprint 6: denormalized sum of line_items (§1.5.1)
+    weight_unloaded_mt: Decimal(10, 3) (nullable)   # Sprint 6: denormalized sum of line_items (§1.5.1)
 
     # QC context for RM TOs
     qc_sample_taken: boolean (default False)
@@ -243,6 +263,26 @@ UnloadEvent(TenantAwareModel) {
     updated_by: FK → User (nullable)
 }
 ```
+
+#### 1.5.1 UnloadEventLineItem (Sprint 6 — LD-01-9 / FB-005)
+
+Per-product-line **received** quantities captured at unload complete.
+
+```python
+UnloadEventLineItem(TenantAwareModel) {
+    id: UUID (PK)
+
+    unload_event: FK → UnloadEvent (related_name='line_items', CASCADE)
+    to_line_item: FK → TOLineItem (PROTECT, related_name='unload_captures')
+
+    bags_received: PositiveInteger (nullable)       # operator "received" qty at destination
+    weight_received_mt: Decimal(10, 3) (nullable)
+
+    # UniqueConstraint(unload_event, to_line_item)
+}
+```
+
+API field names use `bags` / `weight_mt` symmetrically on PATCH; unload semantics are implied by the parent `UnloadEvent`.
 
 ### 1.6 QCSample (new model — extends `TenantAwareModel`)
 
@@ -436,7 +476,7 @@ Full implementation plan: **§11**.
 | Row eligibility | Active `BayAssignment` at LUP, lane/leg rules per screen, **no open** `LoadEvent`/`UnloadEvent` on that assignment |
 | Persistence | **`bay_assignment` only** on `LoadEvent`/`UnloadEvent` — LUP is form navigation, **not** a model field |
 | Deep link | `?bay_assignment=<uuid>` → infer LUP, pre-select dropdown, highlight row |
-| Change form (complete) | Unchanged: readonly `bay_assignment`, end datetime + captures |
+| Change form (complete) | Per-line capture formset on change form (§12); `bay_assignment` readonly; seal/notes on parent |
 
 Implementation detail: §6.3, §6.4, §11.9.
 
@@ -456,8 +496,12 @@ Loading Personnel opens Load Event → Add
               └─► Emit LOADING_STARTED → TLS-01 (sub: loading_started)
 
   [Later] Loading Personnel opens existing LoadEvent (change):
-  └─► bay_assignment readonly; enter End Datetime, bags, weight, seal
-  └─► LDService.complete_loading → LOADING_COMPLETED; QueueEntry completed; scale-out gate
+  └─► bay_assignment readonly; enter End Datetime
+  └─► Per-line capture table (one row per TOLineItem):
+        ├─► Read-only: product, expected qty + UOM (from TOLineItem.allocated_quantity)
+        └─► Editable: actual bags and/or weight (MT) per line (§12)
+  └─► Seal number + notes on parent event
+  └─► LDService.complete_loading(line_items=[...]) → LOADING_COMPLETED; visit hook (FB-001); scale-out gate
 ```
 
 ### 4.2 Unloading (FG inbound and RM inbound) — start (admin)
@@ -471,7 +515,9 @@ Unload Event → Add
   └─► Start Datetime + TO details (+ RM QC context in panel where applicable)
   └─► LDService.start_unloading → UNLOADING_STARTED
 
-  [Later] complete unload → UNLOADING_COMPLETED (+ RM scale-out needs QC pass)
+  [Later] complete unload:
+  └─► End Datetime + per-line received quantities (same row pattern as §4.1)
+  └─► LDService.complete_unloading(line_items=[...]) → UNLOADING_COMPLETED (+ RM scale-out needs QC pass)
 ```
 
 ### 4.3 Relationship to CC / FB-005
@@ -724,10 +770,12 @@ Uses `LoadEventAdminBase` (→ `YardAdminBase`). **FG outbound only**.
 
 **LUP change**: clearing selected `bay_assignment` and table selection when dropdown changes.
 
-**Change form (complete loading)** — unchanged from Sprint 4:
+**Change form (complete loading)** — Sprint 6 per-line capture (§12):
 
 - `bay_assignment`, `start_datetime` readonly after `end_datetime` set
-- `save_model`: create → `LDService.start_loading`; update with end → `LDService.complete_loading`
+- **Captures fieldset**: per-line formset (replaces aggregate `bags_loaded` / `weight_loaded_mt` inputs); seal + notes remain on parent
+- `to_details_panel` may be slimmed once inline expected qty is on each row (optional)
+- `save_model`: create → `LDService.start_loading`; update with end → `LDService.complete_loading(line_items=...)`
 
 **Templates / static**: `templates/admin/operations/loadevent/change_form.html` (or shared LD partial) for queue table + row-select JS; reuse `dfms-badge` / `grp-table` styles.
 
@@ -741,7 +789,7 @@ Uses `UnloadEventAdminBase` (→ `YardAdminBase`). **FG inbound + RM inbound**.
 
 **Add form**: same pattern as §6.3 with **Unloading Point** (`operation_type=UNLOAD`) and unload-eligible `BayAssignment` queryset (FG inbound, RM inbound, FG outbound destination leg — mirror current `_bay_assignment_details_qs`).
 
-**Change form**: `qc_sample_taken` checkbox (informational); complete via `LDService.complete_unloading`.
+**Change form**: per-line received-quantity formset (§12); `qc_sample_taken` checkbox (informational); complete via `LDService.complete_unloading(line_items=...)`.
 
 **Cancellation**: resample / override-to-fail banner when `cancelled_by_resample` (unchanged).
 
@@ -852,20 +900,32 @@ POST   /api/v1/load-events
        → Side effects: LoadEvent created (end_datetime null), LOADING_STARTED → TLS-01
 
 PATCH  /api/v1/load-events/{id}
-       → Body: { end_datetime, bags_loaded, weight_loaded_mt, seal_number }
-       → Validations: end_datetime >= start_datetime
-       → Side effects: LOADING_COMPLETED → TLS-01; gates SC-01 scale-out
+       → Body: {
+            end_datetime,
+            line_items: [{ to_line_item_id, bags?, weight_mt? }],  # one per TO line; §12
+            seal_number, notes
+          }
+       → Validations: end_datetime >= start_datetime; all TO lines present; to_line_item ∈ event.transport_order; UOM-aware qty rules (§12.3)
+       → Side effects: LoadEventLineItem rows persisted; parent bags_loaded/weight_loaded_mt = sums; LOADING_COMPLETED → TLS-01
 
 POST   /api/v1/unload-events
        → Body: { bay_assignment_id, start_datetime }
        → Side effects: UnloadEvent created, UNLOADING_STARTED → TLS-01
 
 PATCH  /api/v1/unload-events/{id}
-       → Body: { end_datetime, bags_unloaded, weight_unloaded_mt }
-       → Side effects: UNLOADING_COMPLETED → TLS-01; gates SC-01 scale-out (+ QC pass for RM)
+       → Body: {
+            end_datetime,
+            line_items: [{ to_line_item_id, bags?, weight_mt? }],
+            qc_sample_taken, notes
+          }
+       → Side effects: UnloadEventLineItem rows persisted; parent aggregates = sums; UNLOADING_COMPLETED → TLS-01
+
+GET    /api/v1/load-events/{id}  /  GET …/unload-events/{id}
+       → Include line_items[] with expected (from TOLineItem) + actual fields; parent aggregates as denormalized sums
 
 GET    /api/v1/unload-events/{id}/qc-handoff
        → QC handoff context for RM inbound TO (for QC Supervisor view)
+       → Include line_items[] with per-line received quantities (§12.4)
 ```
 
 ### 7.3 QC Checkpoint (QC-01)
@@ -911,6 +971,10 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 - **Add form (v1.3)**: `bay_assignment` required when saving start; must belong to selected LUP; must appear in startable queue for that LUP
 - **Add form**: changing LUP clears `bay_assignment` selection
 - **No** `loading_unloading_point` FK on `LoadEvent` / `UnloadEvent` — point selection is UI-only
+- **Complete (Sprint 6 §12)**: `line_items` required when `end_datetime` set — exactly one entry per `TOLineItem` on the TO
+- **Complete**: each `to_line_item_id` must belong to `event.transport_order`; no duplicates in payload
+- **Complete**: UOM-aware quantity — `Bag` → `bags` required; `Ton`/`KG` → `weight_mt` required; at least one qty field non-null per line
+- **Complete**: parent `bags_*` / `weight_*_mt` recomputed as sums of child rows (read-only on API response)
 
 ### QC-01
 - Sample creation only when TO `requires_qc` (product-line aggregate) and `sub_state` in `flagged_for_qc`, `sampling_started`, or `resampling` (QC-01-13)
@@ -930,8 +994,8 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | SC-01 (Scale-Out) | Downstream gate | LoadEvent/UnloadEvent completion (+ QC pass for RM) unlocks scale-out |
 | LUP-01 (Master Data) | Lookup | LoadingUnloadingPoint FK; filtered by poi + operation_type + is_active (FB-005: not filtered by “bay occupied”) |
 | TLS-01 (Lifecycle) | Timeline | All events: BAY_ASSIGNED, `flagged_for_qc` (auto at scale-in when product QC required), LOADING_STARTED/COMPLETED, UNLOADING_STARTED/COMPLETED, QC_PASSED/FAILED, RESAMPLING_TRIGGERED, QC_OVERRIDDEN_FAIL |
-| LD-01 (Loading/Unloading) | Downstream | Admin start picks `bay_assignment` from LUP queue (§4.0); `LDService` unchanged |
-| GT-02 (Gate TO lines) | Upstream data | `TransportOrder.requires_qc` + `TOLineItem` product FKs feed `to_requires_qc_from_lines` at queue creation |
+| LD-01 (Loading/Unloading) | Downstream | Admin start picks `bay_assignment` from LUP queue (§4.0); complete captures per `TOLineItem` (§12); `LDService` |
+| GT-02 (Gate TO lines) | Upstream data | `TransportOrder.line_items` (`TOLineItem`) is the expected-qty source for LD-01-9 and `to_requires_qc_from_lines` at queue creation |
 
 ---
 
@@ -958,8 +1022,9 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | LD-01-2 | LoadEventAdmin | FG outbound; **v1.3** LUP dropdown + serial queue table on add; LDService on save |
 | LD-01-3 | UnloadEventAdmin | FG inbound + RM inbound; same point-first add UX; qc_sample_taken; resample banner |
 | LD-01-6 | LD admin start UX (FB-005) | Shared helper `assignments_startable_at_lup`; queue widget + JS; templates — §11.9 — **shipped** |
-| LD-01-4 | Load events REST API | POST (start) + PATCH (complete) |
-| LD-01-5 | Unload events REST API | POST (start) + PATCH (complete) + GET qc-handoff |
+| LD-01-4 | Load events REST API | POST (start) + PATCH (complete with `line_items[]`) |
+| LD-01-5 | Unload events REST API | POST (start) + PATCH (complete with `line_items[]`) + GET qc-handoff |
+| LD-01-9 | Per-line quantity capture (Sprint 6 FB-005) | `LoadEventLineItem` / `UnloadEventLineItem`; admin formset; `LDService` validation — **Pending** (§12) |
 
 ### QC-01 — QC Checkpoint (RM Inbound)
 
@@ -1188,5 +1253,145 @@ Return `{"id", "label", "active_count"}`; label suffix `(N vehicles)` when `acti
 
 ---
 
-**Last Updated**: 2026-06-09  
+## 12. Sprint 6 FB-005 — Per-line load/unload quantity capture (LD-01-9)
+
+**Feedback**: [Sprint 6 FB-005](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) — operators capture quantities **per `TOLineItem`**, not one aggregate per event.
+
+> **Naming**: Sprint 5 [FB-005](../../03-backlog/sprints/sprint-5/feedback-resolution.md#fb-005--waiting-serial-must-support-multiple-vehicles-per-lu-point--daily-reset-at-1200-am) = multiple vehicles per L/U point (§11). Sprint 6 FB-005 = per-line quantity capture (this section). Same label, different sprint trackers.
+
+**Codebase status (2026-07-02)**: `LoadEvent` / `UnloadEvent` store aggregate `bags_*` / `weight_*_mt` only. Admin `to_details_panel` shows TO lines read-only; capture fields are still aggregate. LD-01-9 marked Done in backlog story files but **not implemented** — this section is the authoritative plan.
+
+### 12.1 Problem and target behaviour
+
+| Aspect | Current (shipped) | Target (Sprint 6 FB-005) |
+|--------|-------------------|--------------------------|
+| Capture granularity | One bags + weight pair per event | One quantity row per `TOLineItem` per event |
+| Expected quantity | Read-only TO summary panel | Inline on each capture row (from `TOLineItem.allocated_quantity` + UOM) |
+| Operator input | Aggregate fields on event form | Editable actual per line (loaded at source, received at destination) |
+| Data model | Parent event only | `LoadEventLineItem` / `UnloadEventLineItem` FK → `TOLineItem` (§1.4.1, §1.5.1) |
+| API complete payload | `{ bags_loaded, weight_loaded_mt }` | `{ line_items: [{ to_line_item_id, bags?, weight_mt? }] }` |
+
+**Interaction with FB-001**: Per-line capture is **per `LoadEvent` / `UnloadEvent`** (per `BayAssignment`). When CC assigns multiple L/U points, each point completion captures all TO lines for that visit leg at that assignment — same row count each time, different parent events.
+
+### 12.2 Locked product decisions
+
+| Topic | Decision |
+|-------|----------|
+| Stable line key | `to_line_item_id` (not `product_id`) — works for planner and gate on-demand TOs |
+| Expected qty storage | **Not** duplicated on child rows — read from `TOLineItem` at render/API time |
+| Parent aggregates | Keep `bags_*` / `weight_*_mt` on parent as **denormalized sums** for list views and backward-compatible consumers |
+| Capture timing | Line items persisted on **complete** only (`end_datetime` set); start unchanged |
+| Completion coverage | **All** TO lines required in payload when completing (no partial-line complete in v1) |
+| Variance vs expected | Record only — no block/warn on mismatch in v1 |
+| UOM source | Planner lines: `tr_line_item.unit_of_measure`; gate lines: `product.unit_of_measure` (reuse `_line_product_label` pattern from `gate_services.py`) |
+
+### 12.3 Service layer (`apps/operations/loading/services.py`)
+
+Extend `LDService.complete_loading` / `complete_unloading`:
+
+```
+complete_*(event, *, actor, line_items: list[dict]):
+  ├─► [UNCHANGED] Validate end_datetime, assignment active, resample flags
+  ├─► [NEW] _validate_line_captures(event, line_items):
+  │         - len(line_items) == transport_order.line_items.count()
+  │         - each to_line_item_id ∈ TO; no duplicates
+  │         - UOM-aware: Bag → bags required; Ton/KG → weight_mt required
+  ├─► [NEW] bulk_create / update_or_create LoadEventLineItem | UnloadEventLineItem
+  ├─► [NEW] Roll up sums → event.bags_* / event.weight_*_mt
+  ├─► [UNCHANGED] FB-001 visit hook: mark_assignment_completed; terminal sub-state when all assignments done
+  └─► [UNCHANGED] refresh_closure_checklist (unload only)
+```
+
+`start_loading` / `start_unloading` — **no change**.
+
+**Downstream gates unchanged**: scale-out, closure, and CC completion still key off `end_datetime` / assignment completion — not per-line quantities.
+
+### 12.4 REST API (`apps/operations/loading/views.py`)
+
+| Method | Change |
+|--------|--------|
+| `PATCH …/load-events/{id}` | Accept `line_items[]`; reject or deprecate top-level-only aggregate writes |
+| `PATCH …/unload-events/{id}` | Same |
+| `GET` list/detail | Include `line_items[]` with `expected_quantity`, `expected_uom`, `product_label`, actual fields |
+| `GET …/qc-handoff` | Add `line_items[]` with received quantities per line |
+
+**Serializer sketch**:
+
+```python
+class LDLineCaptureSerializer(Serializer):
+    to_line_item_id = UUIDField()
+    bags = IntegerField(required=False, allow_null=True, min_value=0)
+    weight_mt = DecimalField(max_digits=10, decimal_places=3, required=False, allow_null=True)
+```
+
+### 12.5 Django admin (`apps/operations/loading/admin.py`)
+
+**Pattern**: custom formset (like `GateOnDemandLineFormSet` in `gate/forms.py`), not aggregate model fields on the parent form.
+
+| Column | Editable |
+|--------|----------|
+| Line # | No |
+| Product (code + name) | No |
+| Expected qty + UOM | No (`TOLineItem.allocated_quantity`) |
+| Actual bags | Yes (when line UOM is Bag) |
+| Actual weight (MT) | Yes (when line UOM is Ton/KG) |
+
+**Wiring**:
+
+1. On change form load: build formset from `event.transport_order.line_items.order_by('line_number')`.
+2. Replace **Captures** fieldset aggregate fields with formset; keep `seal_number` / `qc_sample_taken` / `notes` on parent.
+3. `save_model` (complete path): parse formset → `LDService.complete_*(line_items=...)`.
+4. List changelist: keep aggregate columns (denormalized sums).
+
+**Files to touch**:
+
+- `apps/operations/loading/models.py` — child models
+- `apps/operations/loading/services.py` — validation + persistence
+- `apps/operations/loading/views.py` — serializers + response helpers
+- `apps/operations/loading/admin.py` — formset + fieldsets
+- `apps/operations/loading/forms.py` (new) — `LoadLineCaptureForm` / `UnloadLineCaptureForm` + formset factories
+- Optional: `static/admin/js/ld_line_capture.js` — UOM-based field enable/disable per row
+
+### 12.6 Migration and backfill
+
+1. **Schema**: `ld_load_event_line_items`, `ld_unload_event_line_items` tables.
+2. **Optional data migration**: for existing completed events where TO has exactly **one** line item, copy parent aggregate into one child row. Multi-line historical events cannot be split — leave children empty.
+3. **No change** to `LoadingOperation` (legacy frozen).
+
+### 12.7 Tests (unit — not E2E)
+
+| # | Case |
+|---|------|
+| 1 | Complete with valid `line_items[]` for all TO lines → child rows + parent sums |
+| 2 | Missing line in payload → ValidationError |
+| 3 | `to_line_item_id` from another TO → ValidationError |
+| 4 | Duplicate `to_line_item_id` in payload → ValidationError |
+| 5 | Bag UOM line without `bags` → ValidationError |
+| 6 | Ton UOM line without `weight_mt` → ValidationError |
+| 7 | GET detail returns expected + actual per line |
+| 8 | QC handoff includes `line_items[]` |
+
+E2E coverage remains LD-01-10 (out of scope for this spec slice).
+
+### 12.8 Suggested PR order
+
+1. Models + migration + register in `operations/models.py` exports.
+2. `LDService` validation + persistence + parent rollup + unit tests.
+3. REST serializers/views + QC handoff extension.
+4. Admin formset (replace aggregate capture fields).
+5. Optional backfill migration for single-line historical events.
+
+### 12.9 Out of scope
+
+- Auto-split of expected qty across FB-001 multi-point assignments.
+- Variance tolerance / supervisor approval workflows.
+- STK-01 stock deduction per captured line (scale-out still uses TO-level allocation today).
+- REST/mobile LD two-step start UX (admin-only complete formset in this slice).
+- LD-01-10 Playwright E2E scenarios.
+
+Source: [Sprint 6 feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution.md) § FB-005; closes LD-01-9 (amend), enables LD-01-10.
+
+---
+
+**Last Updated**: 2026-07-02  
 **Related Modules**: [gate-operations-sprint4.md](./gate-operations-sprint4.md), [scaling-operations-sprint4.md](./scaling-operations-sprint4.md), [yard-foundation-implementation.md](./yard-foundation-implementation.md), [05-transport](../05-transport/README.md)

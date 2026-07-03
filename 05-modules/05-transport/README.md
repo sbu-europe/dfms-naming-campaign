@@ -23,6 +23,7 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
 | [transport-requisition-management.md](transport-requisition-management.md) | TR queue (FG + **Port Consignment** tabs), Transport Planner planning inputs (vehicle qty, vehicle type, C&F clearance), fleet availability counts, urgency/overdue flags, `UNDER_PLANNING` status gate for TO creation | Sprint 3 | DFS-038 (TRQ-01) |
 | [transport-order-management.md](transport-order-management.md) | TO creation against TRs (own fleet / vendor fleet), TR quantity allocation + overflow guard, multi-TO per TR, auto-routing to TDO queue by fleet type, `TO-YYYYMMDD-XXXX` numbering, TR status auto-updates | Sprint 3 | DFS-039 (TO-01) |
 | [trip-management.md](trip-management.md) | TDO Own Fleet assignment (vehicle, driver, helpers, ETA — conflict checks), TDO Vendor Fleet assignment (contractual vendor, auto-rate), TO status lifecycle (`CREATED → VEHICLE_ASSIGNED/VENDOR_ASSIGNED → CONFIRMED`), driver account assigned TO list, Trip 17-state machine (Sprint 4) | Sprint 3 (TDO assignment), Sprint 4 (Trip) | DFS-040 (TO-02) |
+| [own-fleet-vehicle-capacity-validation.md](own-fleet-vehicle-capacity-validation.md) | **Proposal** — Django admin capacity fit panel for TDO own-fleet assignment (warn-only; POI-stock / vendor-fleet visual parity) | Post Sprint 6 | TO-02 amend, TAR-004 |
 
 ---
 
