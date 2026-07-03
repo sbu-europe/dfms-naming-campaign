@@ -192,28 +192,28 @@ On a client call (2026-07-02), operations clarified that TDO (Own Fleet) should 
 
 ---
 
-## FB-007 — Depot Officer becomes a POI-scoped ("local") role with full yard operations access
+## FB-007 — Depot Officer & Feed Mill Officer become POI-scoped ("local") roles with full yard operations access
 
 | Field | Value |
 |-------|-------|
 | **Source** | Client feedback — 2026-07-03 |
 | **Affected Stories** | YARD-01 — POI-scoped yard platform ([sprint-4](../sprint-4/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md), [sprint-5](../sprint-5/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)); [BUG-06](06-bug-fixes/BUG-06-tenant-admin-poi-access-not-enforced.md) (POI-scoped yard queue access pattern) |
 | **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment |
-| **Closing Sub-tasks** | TBD — role/permission amendment on Depot Officer (`role_code=depot_officer`); yard-module menu grants |
-| **AC Amendment** | **Depot Officer** becomes a **POI-scoped ("local") role** — restricted to their assigned depot/POI, using the same POI-scoping pattern established by YARD-01 for Gate/Scale/Command Center/Loading/Unloading queues (fail-closed with no working-site selected; querysets/autocompletes/actions scoped to the assigned POI only). In addition to its existing Product Requisition creation and stock-view access at that POI, Depot Officer is granted menu and data access to **all yard operation modules** at their assigned depot: Gate (Gate-In/Gate-Out), Scaling, Command Center, Loading, Unloading. No cross-POI access. |
+| **Closing Sub-tasks** | TBD — role/permission amendment on Depot Officer (`role_code=depot_officer`) and Feed Mill Officer (`role_code=feed_mill_officer`); yard-module menu grants for both |
+| **AC Amendment** | **Depot Officer** and **Feed Mill Officer** become **POI-scoped ("local") roles** — each restricted to their assigned depot/feed-mill POI, using the same POI-scoping pattern established by YARD-01 for Gate/Scale/Command Center/Loading/Unloading queues (fail-closed with no working-site selected; querysets/autocompletes/actions scoped to the assigned POI only). In addition to their existing Product Requisition creation and stock-view access at that POI, each role is granted menu and data access to **all yard operation modules** at their assigned site: Gate (Gate-In/Gate-Out), Scaling, Command Center, Loading, Unloading. No cross-POI access. |
 | **Status** | Open |
 | **Priority** | Medium |
-| **Notes** | Today `depot_officer` is a Requester-only role code (PR creation, stock-snapshot view at their POI per `stock-operations-sprint5.md` §Roles) with no yard-operations menu grant. This amendment adds yard-module access on top of the existing requester scope — it does not remove or change the PR-creation responsibility. |
+| **Notes** | Today `depot_officer` and `feed_mill_officer` are Requester-only role codes (PR creation, stock-snapshot view at their POI per `stock-operations-sprint5.md` §Roles) with no yard-operations menu grant. This amendment adds yard-module access on top of the existing requester scope for both roles — it does not remove or change the PR-creation responsibility. |
 
 ### Client feedback observation
 
-Depot Officer needs to operate the yard (gate, scaling, command center, loading, unloading) at their own depot in addition to raising requisitions — today the role has no access to those modules at all.
+Depot Officer and Feed Mill Officer need to operate the yard (gate, scaling, command center, loading, unloading) at their own site in addition to raising requisitions — today neither role has access to those modules at all.
 
 ### Current vs expected behaviour
 
 | Aspect | Current | Expected (FB-007) |
 |--------|---------|--------------------|
-| Role scope | Requester role for PR creation + stock view | POI-scoped ("local") role, same scoping model as YARD-01 |
+| Roles affected | `depot_officer`, `feed_mill_officer` — Requester roles for PR creation + stock view | Both become POI-scoped ("local") roles, same scoping model as YARD-01 |
 | Yard module access | None (Gate/Scale/CC/Loading/Unloading not granted) | Full access to all five yard operation modules at assigned POI |
 | Cross-POI visibility | N/A | None — fails closed outside assigned POI, per YARD-01/BUG-06 pattern |
 | PR creation | Unchanged | Unchanged |
@@ -369,4 +369,4 @@ Stock at a POI should move based on what was actually loaded or unloaded (the op
 | Medium | 4 | 2 | 2 |
 | **Total** | **12** | **6** | **6** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer POI-scoped local role + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference*
