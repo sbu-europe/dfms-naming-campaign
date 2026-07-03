@@ -81,7 +81,13 @@ Without POI master data, none of the operational workflows can function. This is
   - **Status**: Active / Inactive (default Active)
 - [ ] System SHALL validate GPS coordinates within valid range
 - [ ] POI name SHALL be unique within tenant
-- [ ] System SHALL display the new POI on an interactive map with its geofence circle immediately after creation
+- [ ] Admin SHALL be able to set GPS coordinates via **Select from map** on the POI add/change form:
+  - Modal map with draggable pin (pin tip = stored coordinates)
+  - Geofence circle preview from `geofence_radius_meters`
+  - Reverse-geocoded address preview (Nominatim); **Apply location** fills latitude, longitude, and address (city when available)
+  - **Cancel / Close / Escape** SHALL NOT modify form fields until Apply
+  - Latitude/longitude are authoritative for geofencing; address text is supplementary
+- [ ] Map picker implementation SHALL NOT alter existing `POIAdmin` stock/capacity list columns, fieldsets, or inlines (see MDM-04 AC-1a)
 
 ### AC-2: POI CRUD Operations (per PRD 6.5.2)
 - [ ] **READ**: Paginated list view displaying: POI Name, Type, Address, Coordinates, Geofence Radius, Capacity, Status, Actions
@@ -145,7 +151,7 @@ Without POI master data, none of the operational workflows can function. This is
 - [Critical] Centralized POI Setup module, admin-only access (RBAC)
 - [Critical] POI creation with name, type, GPS coordinates, geofence radius, capacity, status
 - [Critical] GPS coordinate validation (-90/90, -180/180)
-- [Critical] Interactive map display with geofence circles
+- [Critical] Interactive map picker on POI add/change admin form with geofence circle preview (MDM-04-12); POI list map view remains separate (MDM-04-11)
 - [Critical] Active/Inactive status control enforced across all dependent workflows
 - [High] Bulk CSV upload for POIs
 - [High] Duplicate POI name detection within tenant
@@ -275,10 +281,16 @@ interface POIGeofenceEvent {
 │                                                  │
 │ GPS Coordinates: *                               │
 │ Latitude:  [23.8103  ]  Longitude: [90.4125  ]   │
+│ [ Select from map ]                              │
 │                                                  │
 │ Geofence Radius (m): *  [  200  ]  (50–1000m)    │
 │                                                  │
-│ [       Map Preview with geofence circle       ] │
+│ ┌─ Map picker modal (on button click) ─────────┐ │
+│ │  Draggable pin + geofence circle preview     │ │
+│ │  Selected coords: 23.8103000, 90.4125000     │ │
+│ │  Address preview (reverse geocode)           │ │
+│ │  [ Cancel ]              [ Apply location ]  │ │
+│ └──────────────────────────────────────────────┘ │
 │                                                  │
 │ Total Storage Capacity (tons): *                 │
 │ [  500  ]                                        │

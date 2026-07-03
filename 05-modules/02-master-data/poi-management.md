@@ -26,14 +26,31 @@ The following reflects the **current Django implementation** so this document ca
 | Area | Implemented now | Not in `POI` model / admin yet |
 |------|-------------------|--------------------------------|
 | Identity & location | `poi_code`, `name`, `poi_type` (**`POIType`** — poultry/logistics-specific enum), `address`, `city`, `country`, `latitude`/`longitude`, `geofence_radius_meters` | PRD TypeScript enum names in §1.1 differ from **`POIType`** labels — use DB choices as source of truth |
-| Capacity | `storage_capacity_mt` (configured limit), `number_of_gates`, `number_of_scales` | `current_stock_mt`, `in_transit_stock_mt`, computed **`free_capacity_mt`**, **`projected_capacity_mt`** |
+| Capacity (configured) | `storage_capacity_mt`, `capacity_threshold_pct`, `number_of_gates`, `number_of_scales` | — |
+| Capacity (computed / stock) | **`POIStock`** one-to-one; changelist columns via `display_*` methods; **`POIStockInline`** on change form; `get_queryset().select_related("stock")` | PR snapshot APIs in dependent workflows — partial (see STK-01) |
+| Admin layout | Fieldsets: main + collapsed **Geolocation** + **Capacity**; list/search/filter; LUP inline + stock inline on change | POI list map toggle (MDM-04-11); dependency-aware hard delete — roadmap |
+| Map location picker (MDM-04-12) | **Select from map** on add/change: Leaflet modal, draggable pin, geofence circle preview, Nominatim reverse geocode → address/city on Apply; Cancel discards | POI changelist map view showing all geofences |
 | Classification | — | **`operational_role`**, **`poi_category`** (source/destination/both) |
 | Contacts | `contact_person`, `contact_phone` | **`in_charge_name`** (use `contact_person` or extend model later) |
 | Status | `is_active` | Separate `status` enum — represented by **`is_active`** only |
 | Bulk CSV | — | **`POI`** is **not** in **`import_configs.IMPORT_REGISTRY`**; **`POIAdmin`** does not use **`BulkImportExportMixin`** |
-| Admin depth | List/search/filters on basic columns | Rich fieldsets, capacity dashboards, dependency-aware delete — roadmap |
 
-Sections **2–3** below remain the **intended** geofencing and capacity design; operational services may compute stock/in-transit before those fields are persisted on **`POI`**.
+Sections **2–3** below remain the **intended** geofencing and capacity design; stock fields live on **`POIStock`**, not on **`POI`** directly.
+
+### Django admin — POI map picker (MDM-04-12)
+
+**Scope:** Additive enhancement to **`POIAdmin`** add/change only. Does **not** replace manual lat/lng entry.
+
+| Item | Detail |
+|------|--------|
+| Entry point | **Select from map** button below longitude on the POI form |
+| Modal | Leaflet + OpenStreetMap; draggable pin (tip = coordinate); circle from form `geofence_radius_meters` |
+| Reverse geocode | Nominatim preview → fills **Address** (and **City** when available) on **Apply location** |
+| Apply | Writes `latitude`, `longitude`, optional `address`/`city`; user still clicks **Save** on the POI form |
+| Cancel | Close, backdrop click, or Escape — no form field changes |
+| Source of truth | **Latitude/longitude** for geofencing; address text is helper data |
+| Assets | `templates/admin/master_data/poi/change_form.html`, `static/admin/js/poi_map_picker.js`, `static/admin/css/poi_map_picker.css` |
+| Admin wiring | `change_form_template` + `class Media` only — **must not** alter `list_display`, fieldsets, or inlines (see [MDM-04 AC-1a](../../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-04-poi-management.md)) |
 
 ---
 
@@ -288,13 +305,15 @@ function validateDestinationCapacity(
 **Creation Workflow**:
 ```
 1. Admin enters POI details (name, type, address)
-2. Admin sets GPS coordinates (manual entry or map selection)
-3. Admin configures geofence radius
-4. Admin sets total capacity
+2. Admin sets GPS coordinates:
+   - Manual entry in latitude/longitude fields, OR
+   - **Select from map** → modal → drag pin to exact spot → preview geofence circle → Apply (optional reverse-geocoded address)
+3. Admin configures geofence radius (circle in map picker reflects this value)
+4. Admin sets total capacity and capacity threshold
 5. System validates uniqueness and coordinates
-6. System creates POI record with status 'Active'
-7. System initializes capacity counters (current_stock = 0)
-8. System registers geofence in GPS tracking system
+6. Admin saves POI form → record persisted with status Active
+7. System initializes POIStock row (current_stock = 0) via migration/seed
+8. Geofencing engine reads lat/lng + geofence_radius_meters on next poll (VTG-01)
 ```
 
 **Validation Rules**:

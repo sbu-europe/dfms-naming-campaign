@@ -39,7 +39,19 @@ A POI is any physical operational location in the DFMS network — Depot, Feed M
 - [ ] Fields: POI Name (unique within tenant), POI Type, Address/Area, GPS Coordinates (Lat/Lng), Geofence Radius (50–1000m, default 100m), In-Charge Person (optional), Contact Number (optional), Total Storage Capacity (metric tons), Status (Active/Inactive, default Active)
 - [ ] POI Types: Finished Feed Depot, Feed Mill, Feed Dealer, Silage Project, Raw Material Warehouse, Factory, Port, Others
 - [ ] GPS coordinate validation: Latitude (−90 to 90), Longitude (−180 to 180)
-- [ ] Map preview with geofence circle displayed immediately after creating / editing a POI
+- [ ] **Map location picker** on POI add/change form (Django admin): **Select from map** opens a modal with draggable pin, geofence circle preview from `geofence_radius_meters`, reverse-geocoded address preview; **Apply location** writes latitude/longitude (and address/city when available); **Cancel / Close / Escape** discards modal changes; user still saves the POI form separately
+- [ ] Latitude/longitude are the **source of truth** for geofencing; reverse-geocoded address is a helper and may differ from map labels
+
+### AC-1a: POIAdmin constraints (map picker is additive only)
+
+When implementing MDM-04-12, **do not change** existing Sprint 5 stock/capacity admin behaviour:
+
+- Keep `POIAdmin.list_display` stock/capacity columns (`display_storage_capacity`, `display_current_stock`, `display_reserved_stock`, `display_in_transit_outgoing`, `display_in_transit_incoming`, `display_free_capacity`, `display_projected_utilization`, `is_active`)
+- Keep fieldsets: main block + collapsed **Geolocation** + **Capacity** (includes `capacity_threshold_pct`)
+- Keep `get_inlines`: `LoadingUnloadingPointInline`, `POIStockInline` on change; `get_queryset().select_related("stock")`
+- Map picker wiring only: `change_form_template`, `Media` (CSS/JS), modal template — no fieldset or list_display rewrites
+
+See [poi-management.md](../../../../05-modules/02-master-data/poi-management.md) § Implementation status and § Django admin — POI map picker.
 
 ### AC-2: POI CRUD
 - [ ] Paginated list: POI Name, Type, Address, Coordinates, Geofence Radius, Capacity, Status — searchable, sortable, filterable by Type and Status
@@ -82,7 +94,7 @@ A POI is any physical operational location in the DFMS network — Depot, Feed M
 | MDM-04-9 | Hard delete dependency check (PR/TR/TO/Trip/Gate referential check) | DFS-020-9 | Pending |
 | MDM-04-10 | CSV bulk upload + downloadable template with row-level errors | DFS-020-10 | Pending |
 | MDM-04-11 | POI list UI with map view toggle, search, filter, pagination | DFS-020-11 | Pending |
-| MDM-04-12 | POI create/edit form with interactive map picker + geofence circle preview | DFS-020-12 | Pending |
+| MDM-04-12 | POI create/edit form with interactive map picker + geofence circle preview (Django admin modal; additive only — see AC-1a) | DFS-020-12 | In progress |
 
 ## API Endpoints
 
@@ -109,7 +121,8 @@ GET    /api/v1/pois/bulk-upload/template
 
 - [ ] POI CRUD fully functional (create, read, update, soft/hard delete)
 - [ ] GPS validation and geofence radius validation working
-- [ ] Map with geofence circles rendering in list and create/edit forms
+- [ ] Map picker on POI add/change admin form with geofence circle preview (MDM-04-12)
+- [ ] Map with all POI geofence circles on list view (MDM-04-11 — separate from admin map picker)
 - [ ] Capacity tracking (total, current, free, projected) accurate
 - [ ] Active/Inactive enforcement in all dependent workflow dropdowns
 - [ ] Hard delete restriction working
