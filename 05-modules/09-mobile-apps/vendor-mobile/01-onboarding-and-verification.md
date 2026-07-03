@@ -1,16 +1,22 @@
 ---
-last_updated: 2026-05-06
+last_updated: 2026-05-13
 ---
 
 # Vendor Mobile — Onboarding & Verification
 
-## Entry paths
+## Entry path (single)
 
-- **Self-registration**: Vendor signs up and submits required profile + documents for verification.
-- **Invite-based onboarding**: Platform admin creates vendor and sends an invite; vendor completes missing details + documents and submits for verification.
+- **Self-registration on Vendor Mobile** *(initial scope: Vendor Mobile only; web self-registration deferred)*: Vendor signs up and submits required profile + documents (Trade License, BIN, TIN, testimonial/reference). **Vendor type (Contractual vs Non-Contractual) is not collected here** — Tenant Admin sets it when approving a tenant join (**VM-02**).
 
-## Verification (access requirement)
+> **No platform-admin invite / create-vendor path in Phase 1.** Platform Admin does not onboard vendors. The only way a vendor enters DFMS is by self-registering through the Vendor Mobile app.
 
-- Vendor status remains **inactive** until verification is complete.
-- Unverified vendors cannot view tenant bids or tenant TO/trip details.
+## Access after registration (no Platform Admin verification)
 
+There is **no** Platform Admin approve/reject queue after sign-up.
+
+- After **registration is complete** (VM-01 + mandatory docs/profile), the vendor is **platform-active** for listing tenants and submitting **tenant join** requests.
+- **Tenant-scoped** access to bids, TOs, and trips requires **VM-02** join approval (and tenant-assigned vendor type on approve).
+
+## Verification (naming note)
+
+The word "verification" in older PRD text meant **platform admin document review**. That step is **not** in the current model; **completeness** of mandatory uploads is enforced at submission time (**VM-01**), and **tenants** gate operational access via join approval (**VM-02**).
