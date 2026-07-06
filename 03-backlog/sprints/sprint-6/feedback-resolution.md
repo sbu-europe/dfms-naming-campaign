@@ -3,9 +3,9 @@ title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
 total_items: 12
-resolved: 8
+resolved: 9
 in_progress: 0
-open: 4
+open: 3
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -229,7 +229,7 @@ Depot Officer and Feed Mill Officer need to operate the yard (gate, scaling, com
 | **Sprint 3 origin** | [`sprint-3/05-transport/02-transport-orders.md`](../../sprint-3/05-transport/02-transport-orders.md) (TO-01), [`sprint-3/05-transport/03-tdo-assignment.md`](../../sprint-3/05-transport/03-tdo-assignment.md) (TO-02) |
 | **Closing Sub-tasks** | TO-01/TO-02 amendments (role removal, creation-form fields, assignment ownership transfer); FB-006 sub-tasks amend (add Planned Start Time) |
 | **AC Amendment** | **TDO — Own Fleet** role is **removed** from the role model. Transport Planner absorbs all own-fleet TO creation and resource-assignment responsibilities previously owned by TDO (Own Fleet): **(1) TO creation (own fleet)** — existing multi-TO-per-TR creation flow is unchanged, plus two new fields captured at creation: **Vehicle Type** (dropdown, mandatory) and **Vehicle Registration Number** (optional — may be left blank and filled in at assignment). **(2) Assignment** (now a Transport Planner action, not TDO) — Vehicle, Driver, and **five** planned milestone datetimes: **Planned Start Time**, **Planned Source Arrival**, **Planned Source Departure**, **Planned Destination Arrival**, **Planned Destination Departure**. Planned Start Time is a new field **in addition to** FB-006's lane-aware set — Finished Goods (`flow_lane = fg_outbound`) requires all 5; Raw Material (`flow_lane = rm_inbound`) requires **3**: Planned Start Time + Planned Destination Arrival + Planned Destination Departure (source planned fields remain not-shown/not-required for RM per FB-006). **(3) Status** — `TO.status = created` on creation; `TO.status = assigned` once the Transport Planner has entered **both** Vehicle and Driver. All other TO status values and transitions are unchanged from the existing lifecycle (`ready_for_dispatch`, `dispatched`, `at_source`, `in_transit_destination`, `delivered_unloaded`, etc. — see FB-010/FB-011 for the changes that do apply). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Current spec (`trip-management.md`, `transport-order-management.md`) has TDO (Own Fleet) perform vehicle/driver/helper/ETA assignment in a dedicated Assignment Queue, separate from Transport Planner's TO-creation screen. This item merges TO creation and resource assignment under the Transport Planner persona and removes the TDO (Own Fleet) role/menu entirely. Helper assignment (currently part of TDO-Own scope) is not mentioned in the new feedback — **confirm whether helper assignment stays, moves to Transport Planner, or is dropped** during implementation planning. |
 
@@ -365,8 +365,8 @@ Stock at a POI should move based on what was actually loaded or unloaded (the op
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
-| High | 8 | 5 | 3 |
+| High | 8 | 6 | 2 |
 | Medium | 4 | 2 | 2 |
-| **Total** | **12** | **7** | **5** |
+| **Total** | **12** | **8** | **4** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-011 resolved*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved*
