@@ -3,9 +3,9 @@ title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
 total_items: 12
-resolved: 7
+resolved: 8
 in_progress: 0
-open: 5
+open: 4
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -313,7 +313,7 @@ Gate-out should just be a timestamp — it should not block a vehicle or driver 
 | **Affected Stories** | TO-02 ([trip-management](../../../05-modules/05-transport/trip-management.md) — vehicle/driver conflict checks), [DS-01](../sprint-5/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md) (handover checklist / inspect / dispatch release), [`transport-lifecycle-pod-sprint4.md`](../../../05-modules/05-transport/transport-lifecycle-pod-sprint4.md) (`dispatch_to_after_ready`) |
 | **Closing Sub-tasks** | TO-02 conflict-check amendment (scope multi-active-TO rule to "currently serving" only); DS-01 confirmation that inspect/skip-inspect target status aligns with Transport Planner-driven assignment (FB-008) |
 | **AC Amendment** | **(1)** A **Vehicle** may be **planned/assigned against multiple TOs concurrently** (e.g. queued future TOs); a Vehicle and its Driver may **actively serve only one TO at a time**. The existing multi-active-TO conflict check (409) is scoped to mean "currently in-transit / actively serving another TO", not "has any non-terminal TO assignment" — assignment to a further TO while another of its TOs is queued or completed remains allowed. **(2)** The **Driver Supervisor** selects a Vehicle for a given TO and performs **Inspect** or **Skip Inspect** (per the existing DS-01 vehicle/driver handover checklist). Completing inspection (or skipping it) advances the TO to **Ready for Dispatch**. **(3)** Once Ready for Dispatch, the **Driver** can see the TO in their assigned list and start the Trip. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | **Flag for implementation planning**: current spec has TDO set `ready_for_dispatch` (all resources assigned) and DS-01 inspect/skip advance the TO from `ready_for_dispatch` to **`dispatched`** (`dispatch_to_after_ready`, `transport-lifecycle-pod-sprint4.md` v3.2/v3.4). Since TDO (Own Fleet) is removed (FB-008) and the Transport Planner now performs full assignment (vehicle + driver + planned times) in one step, **confirm whether the Driver Supervisor's inspect/skip-inspect action should now set the existing `ready_for_dispatch` status directly** (folding the former TDO step into DS-01), **or** whether it continues to set `dispatched` and the client's "Ready for Dispatch" wording is describing that same post-inspection state informally. Vehicle conflict check today also blocks on "under maintenance" / "on trip" (`trip-management.md` §Testing) — this item only relaxes the **multi-active-TO** rule referenced by the client; maintenance/on-trip exclusions are unchanged. |
 
@@ -365,8 +365,8 @@ Stock at a POI should move based on what was actually loaded or unloaded (the op
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
-| High | 8 | 4 | 4 |
+| High | 8 | 5 | 3 |
 | Medium | 4 | 2 | 2 |
-| **Total** | **12** | **6** | **6** |
+| **Total** | **12** | **7** | **5** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-011 resolved*
