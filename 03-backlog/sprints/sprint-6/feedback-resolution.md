@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 12
+total_items: 13
 resolved: 9
 in_progress: 0
-open: 3
+open: 4
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -361,12 +361,51 @@ Stock at a POI should move based on what was actually loaded or unloaded (the op
 
 ---
 
+## FB-013 — QC Fail does not block unloading; capture expected failed bags and warn during unload
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-07 |
+| **Affected Stories** | [QC-01](../sprint-4/07-visibility-lifecycle-pod/QC-01-raw-material-sampling-qc-decision.md), [CC-01](../sprint-5/06-command-center-loading/CC-01-queue-assign-serial.md), [LD-01](../sprint-5/06-command-center-loading/LD-01-load-unload-timestamps.md); downstream: [STK-01](../sprint-5/13-stock-validation-update/STK-01-source-destination-stock-validation.md) ([FB-012](#fb-012--stock-movement-calculated-from-loadunload-data-not-scale-inscale-out-weighbridge-difference)), SC-01 scale-out guards, GT-01 gate-out clearance |
+| **Sprint 4 origin** | [`qc-operations-sprint4.md`](../../../05-modules/06-poi-operations/qc-operations-sprint4.md) §2.3 (QC Fail blocks unloading / scale-out / gate-out); [`command-center-loading-sprint4.md`](../../../05-modules/06-poi-operations/command-center-loading-sprint4.md) §3.4 (CC cannot assign unloading until QC Pass) |
+| **Closing Sub-tasks** | QC-01 amendment (fail decision + failed-bag capture); CC-01 amendment (bay assignment eligibility on fail); LD-01 amendment (unload warning + mid-unload edit); sub-tasks TBD on owning stories; E2E-01-3 fail branch amend |
+| **AC Amendment** | **QC-01 (RM inbound, `requires_qc=True` only):** When the QC Inspector records decision **Fail**, the system **requires** an integer **expected failed bag count** for the transport order (`0 < failed_bags ≤ total expected bags on the TO`). Fail **no longer blocks** Command Center unloading-point assignment or LD-01 unload start/complete. `TransportOrder.qc_passed` remains `False` on fail; pending QC (`qc_passed is null`) still blocks assignment until a decision exists. **CC-01:** After QC Fail with failed bags recorded, the CC Officer **may assign** an unloading point (same `assign_bay` flow as Pass). Queue row shows a **failed / caution** state with the failed-bag count — not "Awaiting QC". **LD-01:** Unloading admin and API surfaces a **non-blocking warning** to unloading personnel showing expected failed bags vs total expected bags on the TO (e.g. "QC failed: 12 of 500 bags expected rejected"). The failed-bag count **may be entered or updated during unloading** (before or while an unload event is in progress). Warning is informational only — it does not prevent start or complete. **Resample / override / reinspect** flows from QC-01 remain; mid-unload fail corrections continue to use resample / override-to-fail. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Current implementation (`QCService.record_decision` fail, `CCService.eligible_for_bay_assignment`, `ScaleOutService._require_qc_passed`, `clearance._optional_qc_clearance`) treats QC Fail as a **hard stop** before bay assignment. There is **no** `failed_bags` (or equivalent) field on `TransportOrder`, `QCCheckpointDecision`, or `UnloadEvent` today. Bag totals can be derived from `TOLineItem.allocated_quantity` where UOM is bag-based (`to_total_bags()` in `apps/transport/vehicle_capacity.py`). **Open for implementation planning (PO confirm before Phase 2):** (1) Does destination **scale-out** and **gate-out** still require full QC Pass, or proceed after unload when fail + failed bags are recorded? (2) Under [FB-012](#fb-012--stock-movement-calculated-from-loadunload-data-not-scale-inscale-out-weighbridge-difference), does destination stock credit **accepted bags/weight only** (`received − failed`)? (3) TO-level failed-bag count vs per-`TOLineItem` failed bags (FB-005 per-line unload capture). (4) TOs with **weight-only** lines (no bag UOM) — support failed quantity in MT or QC-fail bag capture applies only when the TO has bag-based lines. Distinct from QC-01 **resample** (cancels active unload after Pass) and **reinspect after Fail** (pre-unload recovery). |
+
+### Client feedback observation
+
+Operations clarified that a **QC Fail decision should not prevent unloading**. When QC fails, the inspector records **how many bags on the TO are expected to fail**. Unloading personnel see this as a **warning** while unloading. The failed-bag count can also be **entered or adjusted during unloading**, not only at the initial QC fail decision.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-013) |
+|--------|---------|-------------------|
+| QC Fail → CC bay assignment | Blocked until QC Pass (`qc_passed is True`) | **Allowed** once Fail is recorded with failed-bag count |
+| QC pending (`qc_passed is null`) | Blocked | Unchanged — still blocked until a decision exists |
+| Failed bag capture | Not supported | Required on Fail; editable during unloading |
+| Unload start / complete on failed TO | Impossible (no bay assignment) | Allowed; **warning banner** shows failed vs total expected bags |
+| QC admin message on Fail | "Unloading, scale-out, and gate-out are blocked." | Reflects fail + failed bags; unloading may proceed with warning |
+| Scale-out / gate-out on QC Fail | Blocked (`_require_qc_passed`, clearance) | **TBD** — confirm with PO (see Notes) |
+| Destination stock on QC Fail | No credit (scale-out never runs) | **TBD** — likely credit accepted quantity only under FB-012 |
+
+### Implementation phases (suggested)
+
+| Phase | Scope |
+|-------|--------|
+| **1** | Model `qc_failed_bags` on `TransportOrder`; QC fail requires count; CC eligibility invert (`null` blocks, `False` allows); LD warning panel + API handoff |
+| **2** | `update_failed_bags` during active unload (admin + REST) |
+| **3** | Scale-out / gate-out / closure / stock rules (after PO sign-off; coordinate with FB-012) |
+
+---
+
 ## Resolution Summary
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
-| High | 8 | 6 | 2 |
-| Medium | 4 | 2 | 2 |
-| **Total** | **12** | **8** | **4** |
+| High | 9 | 6 | 3 |
+| Medium | 4 | 3 | 1 |
+| **Total** | **13** | **9** | **4** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning*
