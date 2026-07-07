@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 13
+total_items: 14
 resolved: 9
 in_progress: 0
-open: 4
+open: 5
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -402,12 +402,52 @@ See full plan: [`qc-operations-v2.md`](../../../05-modules/06-poi-operations/qc-
 
 ---
 
+## FB-014 — POI-Admin role: POI-scoped yard operations super-user
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-07 |
+| **Affected Stories** | YARD-01 — POI-scoped yard platform ([sprint-4](../sprint-4/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md), [sprint-5](../sprint-5/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)); user & tenant management ([`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment); [`user-roles.md`](../../../01-source/03-sow/user-roles.md) |
+| **Reference docs** | [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment, [`docs/architecture/poi-scoped-roles.md`](../../../../docs/architecture/poi-scoped-roles.md); related: [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot/Feed Mill Officer yard access) |
+| **Closing Sub-tasks** | FB-014-1 … FB-014-7 — see [poi-admin-yard-operations-v2.md](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md) §8 |
+| **AC Amendment** | Introduce a new **POI-scoped role** named **POI-Admin** (seed code `poi_admin`). A POI-Admin user may perform **all yard operation modules** at their **single assigned POI** only — Gate (Gate-In/Gate-Out), Scaling, Command Center, Loading, Unloading, and QC Checkpoint when applicable at that site — using the same fail-closed POI-scoping pattern as YARD-01 (`UserOperationalPOI`, `yard_poi.get_working_poi_for_request`). **No cross-POI access.** When a Tenant Admin **invites** a user or **assigns** the POI-Admin role on an existing user, **POI selection is mandatory** — the admin must pick exactly one active POI for that assignment; invite/activation and user save are blocked without it (same enforcement pattern as other `POI_SCOPED_ROLE_CODES`). POI-Admin does **not** inherit Tenant Admin org-wide privileges (user/role management, master-data setup, etc.) — yard operations at the assigned site only. Distinct from Depot Officer / Feed Mill Officer ([FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access)): those roles keep Product Requisition requester duties; POI-Admin is a dedicated site yard-operations role with no PR-creation responsibility unless separately granted. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | No `poi_admin` role exists in `SEED_ROLES` or `POI_SCOPED_ROLE_CODES` today. Yard operators are single-function roles (`gateman`, `scaling_operator`, `command_center_officer`, `loading_personnel`, `unloading_personnel`, `qc_inspector_physical`). FB-007 grants yard-module access to `depot_officer` and `feed_mill_officer` at their POI but does not provide a unified site-admin persona. **Implementation plan:** [`poi-admin-yard-operations-v2.md`](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md). Stock snapshot: default **include** `OPERATIONS_STOCK_READ` (see plan §0.1). E2E out of scope. |
+
+### Client feedback observation
+
+Operations need a **site-level yard administrator** who can run every yard module at one POI without holding separate Gateman, Scaling Operator, Command Center Officer, Loading, Unloading, or QC Inspector hats. The role should be named **POI-Admin**. When provisioning users, the Tenant Admin must **select which POI** that POI-Admin is bound to — the assignment is not optional.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-014) |
+|--------|---------|-------------------|
+| Dedicated site yard-admin role | None — yard work split across single-function POI-scoped roles | New **POI-Admin** (`poi_admin`) role |
+| Yard module access | Per-role (one module each) or FB-007 depot/feed-mill officers (+ PR duties) | All yard operation modules at assigned POI |
+| POI binding on user create/invite | Required for existing `POI_SCOPED_ROLE_CODES` | **Mandatory POI pick** when assigning POI-Admin |
+| Cross-POI visibility | N/A for new role | None — fail-closed to assigned POI only |
+| Tenant Admin scope | Org-wide | Unchanged — POI-Admin is not a tenant-admin substitute |
+
+### Implementation plan
+
+See full plan: [`poi-admin-yard-operations-v2.md`](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md).
+
+| Phase | Scope |
+|-------|--------|
+| **1** | RBAC seed `poi_admin`; `POI_SCOPED_ROLE_CODES`; yard multi-module operator constant |
+| **2** | `extra_operator_role_codes` on yard admins + QC base; gate write roles |
+| **3** | Invitation allowlist (Operations dept); portal nav + dashboard widgets |
+| **4** | Docs; unit + integration tests (no E2E) |
+
+---
+
 ## Resolution Summary
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
 | High | 9 | 6 | 3 |
-| Medium | 4 | 3 | 1 |
-| **Total** | **13** | **9** | **4** |
+| Medium | 5 | 3 | 2 |
+| **Total** | **14** | **9** | **5** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment*
