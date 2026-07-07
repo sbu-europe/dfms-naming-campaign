@@ -2,8 +2,8 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 14
-resolved: 9
+total_items: 15
+resolved: 10
 in_progress: 0
 open: 5
 ---
@@ -442,12 +442,38 @@ See full plan: [`poi-admin-yard-operations-v2.md`](../../../05-modules/06-poi-op
 
 ---
 
+## FB-015 — Vendor Mobile proactive JWT refresh & session hardening
+| **Source** | Engineering hardening — Vendor Mobile release readiness (2026-07-07) |
+| **Affected Stories** | [VAPP-01](03-vendor-app/VAPP-01-release-readiness-live-api.md) — AC-4 (Auth & Session Hardening), sub-task VAPP-01-4; [VAPP-02](03-vendor-app/VAPP-02-design-improvements.md) (expired-session UX) |
+| **Reference docs** | [`vendor-mobile/10-security-and-access-control.md`](../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md) §Session management; [`authentication.yaml`](../../../06-contracts/01-apis/rest/authentication.yaml) `/auth/token/refresh` |
+| **Closing Sub-tasks** | VAPP-01-4 (auth/session hardening — token refresh, 401/403 handling) |
+| **AC Amendment** | VAPP-01 AC-4: token refresh on the Vendor Mobile app is **proactive and transparent**, not only reactive on 401. **(1) Proactive refresh** — the app decodes the stored access token (`JwtTokenUtils`) and exchanges the refresh token for a new access token when the access token is expired **or within a 5-minute skew window**, triggered on app **foreground resume** (`SessionRefreshBinding`) and during **splash/init** reconciliation (`SplashViewModel`). **(2) Reactive refresh** — any authenticated request that returns `401` (or a `403` normalised from `not_authenticated` / `authentication_failed`) forces a single refresh-and-retry via `ApiClient`. **(3) Endpoint** — refresh calls `POST /api/v1/vendor/token/refresh/` with `{ "refresh": <token> }` and receives `{ "access": <token> }`; vendor JWTs carry `sub="vendor"` + `vendor_portal_account_id` and are validated by `VendorJWTAuthentication` against `VendorPortalAccount` in the public schema (not `AUTH_USER_MODEL`). **(4) Expiry handling** — when the **refresh token is expired** (or refresh fails), the stored session is cleared and the vendor is routed to login with a clear message — never a crash or silent dead state. Access token lifetime is 24h (`JWT_ACCESS_TOKEN_LIFETIME`, default 1440 min); refresh token lifetime is 7 days (`JWT_REFRESH_TOKEN_LIFETIME`). |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | The vendor refresh endpoint (`refresh_vendor_access_token`) issues a **new access token only** — the vendor refresh token is **reused** (not rotated) until it expires, distinct from SimpleJWT's `ROTATE_REFRESH_TOKENS` behaviour on internal-user (`/api/v1/auth/token/refresh/`) tokens. The mobile refresher still persists a rotated `refresh` value if the response ever returns one (forward-compatible). Implemented in `nourish-vendor-app` commit `b4e80fe` (`JwtTokenUtils`, `VendorTokenRefresher`, `SessionRefreshBinding`, `ApiClient`/`AuthRepository` refresh integration). This closes the previously reactive-only gap; secure token storage (Keystore/Keychain) remains tracked under VAPP-01 AC-7. |
+
+### Observation
+
+The Vendor Mobile app previously only refreshed the access token **reactively**, after a request had already failed with `401`. Long-idle sessions (app backgrounded, then resumed) could hit an expired access token mid-action, and an expired refresh token could leave the session in an ambiguous state. Release readiness (VAPP-01 AC-4) requires refresh to be **transparent** — the vendor should never see a crash or a silent dead session because a token lapsed while the app was backgrounded.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-015) |
+|--------|--------|-----------------|
+| Refresh trigger | Reactive only — after a `401` on an authenticated call | Proactive on foreground resume + splash init (5-min skew), **plus** reactive `401`/`403` retry |
+| Expiry detection | Server-driven (request fails first) | Client-side JWT `exp` decode (`JwtTokenUtils`) with skew |
+| Refresh token expired | Ambiguous / possible dead session | Session cleared → login with clear message, no crash |
+| Refresh endpoint | `POST /api/v1/vendor/token/refresh/` → `{access}` | Unchanged endpoint; now driven by shared `VendorTokenRefresher` for manual + automatic paths |
+| Token rotation | Access re-issued on failure; refresh reused | Access re-issued proactively; refresh reused until 7-day expiry (forward-compatible with rotation) |
+
+---
+
 ## Resolution Summary
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
-| High | 9 | 6 | 3 |
+| High | 10 | 7 | 3 |
 | Medium | 5 | 3 | 2 |
-| **Total** | **14** | **9** | **5** |
+| **Total** | **15** | **10** | **5** |
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4)*
