@@ -2,8 +2,8 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 15
-resolved: 10
+total_items: 16
+resolved: 11
 in_progress: 0
 open: 5
 ---
@@ -407,7 +407,7 @@ See full plan: [`qc-operations-v2.md`](../../../05-modules/06-poi-operations/qc-
 
 | Field | Value |
 |-------|-------|
-| **Source** | Client feedback — 2026-07-07 |
+| **Source** | Client feedback — 2026-07-07; confirmed 2026-07-08 |
 | **Affected Stories** | YARD-01 — POI-scoped yard platform ([sprint-4](../sprint-4/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md), [sprint-5](../sprint-5/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)); user & tenant management ([`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment); [`user-roles.md`](../../../01-source/03-sow/user-roles.md) |
 | **Reference docs** | [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment, [`docs/architecture/poi-scoped-roles.md`](../../../../docs/architecture/poi-scoped-roles.md); related: [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot/Feed Mill Officer yard access) |
 | **Closing Sub-tasks** | FB-014-1 … FB-014-7 — see [poi-admin-yard-operations-v2.md](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md) §8 |
@@ -418,7 +418,7 @@ See full plan: [`qc-operations-v2.md`](../../../05-modules/06-poi-operations/qc-
 
 ### Client feedback observation
 
-Operations need a **site-level yard administrator** who can run every yard module at one POI without holding separate Gateman, Scaling Operator, Command Center Officer, Loading, Unloading, or QC Inspector hats. The role should be named **POI-Admin**. When provisioning users, the Tenant Admin must **select which POI** that POI-Admin is bound to — the assignment is not optional.
+Operations need a **site-level yard administrator** who can perform **yard-related tasks** at **one specific assigned POI** — running every yard module at that site without holding separate Gateman, Scaling Operator, Command Center Officer, Loading, Unloading, or QC Inspector hats. The role should be named **POI-Admin**. When provisioning users, the Tenant Admin must **select which POI** that POI-Admin is bound to — the assignment is not optional.
 
 ### Current vs expected behaviour
 
@@ -469,20 +469,55 @@ The Vendor Mobile app previously only refreshed the access token **reactively**,
 
 ---
 
+## FB-016 — Tenant Super Admin at provisioning; delegated Tenant Admin cannot mint admins
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-08 |
+| **Affected Stories** | US-005 (staff invitation), US-006 (user activation), US-007 (user management), PAP-05 / PAP-06 (tenant provisioning); role model ([`user-roles.md`](../../../01-source/03-sow/user-roles.md)) |
+| **Reference docs** | [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §2.1 / §2.3; [`tenant-user-management-v2.md`](../../../05-modules/03-users/tenant-user-management-v2.md) |
+| **Closing Sub-tasks** | FB-016-1 … FB-016-10 — see [tenant-user-management-v2.md](../../../05-modules/03-users/tenant-user-management-v2.md) §12 |
+| **AC Amendment** | Split today's single platform-provisioned **Tenant Admin** into two personas. **(1) Tenant Super Admin** (`tenant_super_admin`) — created **only** during **tenant invitation / provisioning** by the Platform Super Admin (same lifecycle as today's first tenant admin; not available via staff invite). **(2) Tenant Admin (delegate)** (`tenant_admin`) — the Tenant Super Admin may invite **one or more** delegates via the existing US-005 staff-invite flow. Delegates receive the **same org-wide permission catalog** as the Tenant Super Admin (master data, users, configuration, yard supervisor bypass, etc.) but **cannot** invite, assign, or elevate users to `tenant_admin` or `tenant_super_admin`. Tenant Admin delegates **may** invite operational users and POI-Admin ([FB-014](#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user)) — only the **mint-admin** action is restricted to Tenant Super Admin. Remove the hard-coded **one tenant admin per schema** rule. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Current implementation provisions exactly one `tenant_admin` per tenant (`UserAdminForm.clean()` enforces single admin; `InviteUserForm` blocks `tenant_admin` assignment). `is_tenant_admin=True` is the full-access bypass (~60 call sites). No `tenant_super_admin` role or `is_tenant_super_admin` flag exists today. **Implementation plan:** [`tenant-user-management-v2.md`](../../../05-modules/03-users/tenant-user-management-v2.md). Coordinate with FB-014 — both Tenant Super Admin and Tenant Admin delegates may invite POI-Admin with mandatory POI. E2E out of scope. |
+
+### Client feedback observation
+
+When a tenant is onboarded, the **first org-wide administrator** should be a **Tenant Super Admin**, created as part of tenant provisioning — not a delegate. That super admin can then create **multiple Tenant Admin** users for day-to-day org management. Those delegated Tenant Admins should have the same operational powers as the super admin **except** they must **not** be able to create additional Tenant Admins (or another Tenant Super Admin).
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-016) |
+|--------|---------|-------------------|
+| First admin at tenant provision | Single **Tenant Admin** (`tenant_admin`) | **Tenant Super Admin** (`tenant_super_admin`) |
+| Tenant admins per tenant | Exactly **one** (admin form enforcement) | **One super** + **N delegates** |
+| Invite `tenant_admin` | Blocked in staff invite / role assignment | **Allowed** when inviter is Tenant Super Admin only |
+| Invite `tenant_super_admin` | N/A | **Blocked** — platform provisioning only |
+| Tenant Admin delegate powers | N/A (only one admin exists) | Same org-wide catalog as super admin |
+| Delegate creates Tenant Admin | N/A | **Forbidden** — elevation restricted to Tenant Super Admin |
+| `is_tenant_admin` bypass | On provisioned admin | On **both** super and delegate |
+| Elevation flag | Does not exist | `is_tenant_super_admin=True` on provisioned user only |
+
+### Implementation plan
+
+See full plan: [`tenant-user-management-v2.md`](../../../05-modules/03-users/tenant-user-management-v2.md).
+
+| Phase | Scope |
+|-------|--------|
+| **1** | `tenant_super_admin` role seed; `is_tenant_super_admin` on `User`; provisioning targets super admin |
+| **2** | Remove single-admin constraint; invite/assign guards (super only may mint `tenant_admin`) |
+| **3** | Migration: existing provisioned admin → super admin |
+| **4** | Platform tenant list / activation sync; unit + integration tests (no E2E) |
+
+---
+
 ## Resolution Summary
 
-| Priority | Count | Closed | Open |
-|----------|-------|--------|------|
-<<<<<<< HEAD
-| High | 10 | 7 | 3 |
-| Medium | 5 | 3 | 2 |
-| **Total** | **15** | **10** | **5** |
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins*
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4)*
-=======
-| High | 9 | 6 | 3 |
+| Priority | Total | Resolved | Open |
+|----------|-------|----------|------|
+| High | 11 | 7 | 4 |
 | Medium | 5 | 4 | 1 |
-| **Total** | **14** | **10** | **4** |
-
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment; FB-009 resolved — vendor-fleet vehicle type at creation + planned-milestone handoff to TDO*
->>>>>>> 694e307 (docs(sprint-6): update feedback resolution and introduce Vehicle Planning View specification)
+| **Total** | **16** | **11** | **5** |

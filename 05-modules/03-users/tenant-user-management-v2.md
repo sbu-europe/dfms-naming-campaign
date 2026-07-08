@@ -7,7 +7,7 @@ sprint: Sprint 6
 last_updated: 2026-07-07
 changelog: "v2.0 — Split platform-provisioned Tenant Admin into Tenant Super Admin; introduce invitable Tenant Admin delegates with identical org-wide power except cannot mint Tenant Admin / Tenant Super Admin. Amends baseline user-tenant-management.md §2.1 hierarchy, §2.3 provisioning, US-005 invitation rules."
 related_stories: US-005, US-006, US-007, US-009, PAP-05, PAP-06
-feedback_items: FB-015 (proposed — tenant admin hierarchy)
+feedback_items: FB-016
 supersedes: user-tenant-management.md §2.1 (three-level hierarchy), §2.3 (single Tenant Admin), US-005 invitation never-assign tenant_admin
 baseline_spec: ../01-foundation/user-tenant-management.md
 feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md

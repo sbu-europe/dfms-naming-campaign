@@ -65,7 +65,7 @@ Tenant Admin / Tenant Super Admin
 
 | In scope (FB-014) | Out of scope / deferred |
 |-------------------|-------------------------|
-| `poi_admin` role seed + RBAC permissions | Tenant admin hierarchy (FB-015 / tenant-user-management-v2) |
+| `poi_admin` role seed + RBAC permissions | Tenant admin hierarchy (FB-016 / tenant-user-management-v2) |
 | `POI_SCOPED_ROLE_CODES` + invite POI gate | Per-POI permission tuning (all modules or subset) |
 | `extra_operator_role_codes` on all yard admins | GPS maps dashboard (not a yard queue module) |
 | Gate write-role tuple update | E2E tests |
