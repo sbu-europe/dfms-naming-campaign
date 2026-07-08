@@ -258,20 +258,21 @@ The client no longer wants a separate TDO (Own Fleet) role. The Transport Planne
 | **Source** | Client feedback — 2026-07-03 |
 | **Affected Stories** | TO-01 ([transport-order-management](../../../05-modules/05-transport/transport-order-management.md)), TO-02 ([trip-management](../../../05-modules/05-transport/trip-management.md)) |
 | **Closing Sub-tasks** | TO-01 creation-form amendment (Vehicle Type field on vendor-fleet path) |
-| **AC Amendment** | **TDO — Vendor Fleet** role **continues to exist unchanged**, retaining its current responsibilities (assign contractual vendor, vendor vehicle registration, per existing `trip-management.md` Assignment Queue flow). New: at **TO creation**, when the Transport Planner selects **Fleet Type = Vendor**, the Planner also inputs **Vehicle Type** (dropdown, mandatory) as a new field on the TO — alongside the existing multi-TO-per-TR creation flow. Vehicle Type is then visible to TDO (Vendor Fleet) as context in the Assignment Queue when assigning the contractual vendor and vehicle. |
-| **Status** | Open |
+| **AC Amendment** | **TDO — Vendor Fleet** role **continues to exist unchanged**, retaining its current responsibilities (assign contractual vendor, vendor vehicle registration, per existing `trip-management.md` Assignment Queue flow). New: at **TO creation**, when the Transport Planner selects **Fleet Type = Vendor**, the Planner also inputs **Vehicle Type** (dropdown, mandatory) as a new field on the TO — alongside the existing multi-TO-per-TR creation flow. Vehicle Type is then visible to TDO (Vendor Fleet) as context in the Assignment Queue when assigning the contractual vendor and vehicle. Transport Planner completes **planned milestones** on vendor-fleet TOs; the TO becomes visible to TDO (Vendor Fleet) only after those inputs are complete (`under_planning` → `created`). |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Distinct from FB-008 — TDO (Vendor Fleet) is **not** removed; only the Vehicle Type input moves earlier, to TO creation by the Transport Planner. No change to contractual-vendor auto-rate or vendor assignment logic. |
+| **Notes** | Distinct from FB-008 — TDO (Vendor Fleet) is **not** removed; only the Vehicle Type input moves earlier, to TO creation by the Transport Planner. No change to contractual-vendor auto-rate or vendor assignment logic. Transport Planner completes **planned milestones** on vendor-fleet TOs; the TO becomes visible to TDO (Vendor Fleet) only after those inputs are complete. |
 
 ### Client feedback observation
 
-For vendor-fleet TOs, the Transport Planner should specify the vehicle type up front at creation time, while the TDO (Vendor Fleet) role continues to handle contractual vendor and vehicle assignment as today.
+For vendor-fleet TOs, the Transport Planner should specify the vehicle type up front at creation time, complete planned milestone inputs, and only then should the TO appear in the TDO (Vendor Fleet) queue for contractual vendor and vehicle assignment.
 
 ### Current vs expected behaviour
 
 | Aspect | Current | Expected (FB-009) |
 |--------|---------|---------------------|
 | Vehicle Type field | Not captured on vendor-fleet TO | Mandatory dropdown at TO creation when Fleet Type = Vendor |
+| Planned milestones | Own-fleet only; vendor TO visible to TDO immediately on create | Transport Planner completes planned milestones on vendor-fleet TO; TO visible to TDO (Vendor Fleet) only after milestones are complete |
 | TDO — Vendor Fleet role | Assigns contractual vendor + vendor vehicle registration | Unchanged |
 | TO creation flow | Fleet type selection only | + Vehicle Type when Fleet Type = Vendor |
 
@@ -472,8 +473,16 @@ The Vendor Mobile app previously only refreshed the access token **reactively**,
 
 | Priority | Count | Closed | Open |
 |----------|-------|--------|------|
+<<<<<<< HEAD
 | High | 10 | 7 | 3 |
 | Medium | 5 | 3 | 2 |
 | **Total** | **15** | **10** | **5** |
 
 *Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4)*
+=======
+| High | 9 | 6 | 3 |
+| Medium | 5 | 4 | 1 |
+| **Total** | **14** | **10** | **4** |
+
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment; FB-009 resolved — vendor-fleet vehicle type at creation + planned-milestone handoff to TDO*
+>>>>>>> 694e307 (docs(sprint-6): update feedback resolution and introduce Vehicle Planning View specification)
