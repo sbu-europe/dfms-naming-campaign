@@ -1,11 +1,11 @@
 ---
 module: 02-master-data
 specification: Vehicle Master Data Management - E2E Scenario Plan
-version: 1.1
+version: 1.2
 phase: Phase 1
 related_stories: US-053
 source_spec: ../../05-modules/02-master-data/vehicle-master-data.md
-last_updated: 2026-04-28
+last_updated: 2026-07-06
 ---
 
 # Vehicle Master Data - E2E Scenario Plan
@@ -14,15 +14,16 @@ last_updated: 2026-04-28
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Verify vehicle creation with active status default | Verify that creating a vehicle from Django Admin add form with `is_active` checked persists the record and auto-sets `operational_status` to `Available` (validated from changelist status column). | P0 | Automated (Passing) |
+| TC01 | Verify vehicle creation with active status default | Verify that creating a vehicle from Django Admin add form with `is_active` checked persists the record and auto-sets `operational_status` to **No Active TO** (`no_active_to`, V2; was `available` in V1). | P0 | Automated (Passing) |
 | TC02 | Verify vehicle creation with inactive status behavior | Verify that creating a vehicle with `is_active` unchecked persists the record and forces `operational_status` to `Under_Maintenance` (validated from changelist status column). | P0 | Automated (Passing) |
 | TC03 | Verify add-form fieldset composition | Verify add form shows Basic Information, Vehicle Details, Documents & Compliance, and Status & Remarks sections; Assignments and Telematics are hidden. | P1 | Automated (Passing) |
 | TC04 | Verify change-form fieldset composition | Verify change form shows Assignments (`assigned_driver`, `assigned_poi`) and Tracking & Telematics sections in addition to add-form sections, with telematics collapsed. | P1 | Automated (Passing) |
 | TC05 | Verify change-form system field behavior | Verify `operational_status` is not editable on change form (not rendered as editable widget), and telematics fields remain non-editable/read-only in rendered admin UI variants. | P0 | Automated (Passing) |
-| TC06 | Verify status transition on reactivation | Verify that changing a vehicle from `is_active=false` to `is_active=true` resets `operational_status` to `Available` (validated from changelist status column). | P0 | Automated (Passing) |
+| TC06 | Verify status transition on reactivation | Verify that changing a vehicle from `is_active=false` to `is_active=true` resets `operational_status` to **No Active TO** (`no_active_to`, V2; was `available` in V1). | P0 | Automated (Passing) |
 | TC07 | Verify non-status edits preserve workflow-owned status | Verify editing regular vehicle fields does not allow arbitrary operational status transitions beyond admin transition rules. | P1 | Automated (Passing) |
 | TC08 | Verify changelist search by registration/chassis | Verify vehicle changelist supports search by `registration_number` and `chassis_number`. | P0 | Automated (Passing) |
 | TC09 | Verify changelist filters and ordering | Verify filters for `operational_status`, `vehicle_type`, `brand`, `assigned_poi`, and `is_active`, and validate ordering behavior. | P1 | Automated (Passing) |
+| TC10 | Verify operational_status reconciles with active TO | After deploy, run `reconcile_vehicle_operational_status --dry-run` then apply; vehicles on non-terminal TOs in execution must show `in_transit` (not `no_active_to`) in Live GPS fleet list. | P1 | Manual |
 | TC10 | Verify autocomplete FK behavior by form context | Verify `brand` autocomplete works on create form, and `assigned_driver`/`assigned_poi` autocomplete fields work on change form only; inactive brands are excluded in autocomplete context. | P1 | Automated (Passing) |
 | TC11 | Verify single-record soft delete | Verify deleting from vehicle change view performs soft delete (record retained with delete markers) rather than hard delete. | P0 | Automated (Passing) |
 | TC12 | Verify bulk soft delete from changelist | Verify delete action on selected vehicles soft deletes all selected records. | P0 | Automated (Passing) |
@@ -55,6 +56,7 @@ last_updated: 2026-04-28
 
 ## Alignment Notes (Current Admin Implementation)
 
+- **Vehicle operational status (V2):** SSOT is [vehicle-master-data.md](../../../05-modules/02-master-data/vehicle-master-data.md) §3. Implemented: `no_active_to` replaces V1 `available`; fleet availability APIs use V2 rules via `available_vehicles_queryset`.
 - `VehicleAdmin` derives `operational_status` in `save_model`; e2e assertions should validate resulting status from changelist rows, not rely on change-form widget presence.
 - Change-form rendering varies between editable widgets and readonly text for some fields; e2e selectors should support both DOM patterns.
 - `remarks` uses a textarea widget in admin forms.

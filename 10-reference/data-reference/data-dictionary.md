@@ -46,7 +46,7 @@ This data dictionary defines all data entities, their fields, data types, constr
 | `year_of_manufacture` | Integer | No | 1990-current | Manufacturing year | `2020` |
 | `gps_device_id` | String(50) | No | - | GPS tracker ID | `GPS-12345` |
 | `gps_enabled` | Boolean | Yes | Default: false | GPS tracking available | `true` |
-| `status` | Enum | Yes | See Vehicle Status | Current status | `ACTIVE` |
+| `status` | Enum | Yes | See Vehicle Status (§ below) | Current operational status (`operational_status`) | `no_active_to` |
 | `last_maintenance_date` | Date | No | - | Last maintenance date | `2025-12-01` |
 | `next_maintenance_due` | Date | No | - | Next maintenance due | `2026-03-01` |
 | `insurance_expiry` | Date | No | - | Insurance expiry date | `2026-06-30` |
@@ -62,12 +62,20 @@ This data dictionary defines all data entities, their fields, data types, constr
 - `TANKER` - Liquid transport
 - `PICKUP` - Small pickup truck
 
-**Vehicle Status**:
-- `ACTIVE` - Available for trips
-- `IN_TRIP` - Currently on a trip
-- `MAINTENANCE` - Under maintenance
-- `INACTIVE` - Not available
-- `RETIRED` - Permanently removed from fleet
+**Vehicle Status** (`operational_status` — **V2**, see [vehicle-master-data.md](../../05-modules/02-master-data/vehicle-master-data.md) §3):
+
+| Value | Label | Notes |
+|-------|-------|-------|
+| `no_active_to` | No Active TO | Idle; not assigned, not executing (replaces V1 `available` / `idle`) |
+| `scheduled` | Scheduled | Assigned to non-terminal TO; trip not started |
+| `in_transit` | In-transit | Start Trip through TO terminal (replaces V1 `active`) |
+| `under_maintenance` | Under Maintenance | Unchanged from V1; blocks assignment |
+
+**Version history:** V1 (five values incl. `available`, `active`, `idle`) → **V2** (2026-07-06, TO-driven four-value model). Legacy contract labels (`ACTIVE`, `IN_TRIP`, `MAINTENANCE`, `INACTIVE`, `RETIRED`) are not used on `Vehicle.operational_status`; use `is_active` for fleet retirement and `under_maintenance` for workshop blocks.
+
+**Reconciliation:** `refresh_vehicle_operational_status()` is invoked on every `apply_to_status_transition()` call and on selected assignment admin paths. Repair stale rows: `python manage.py reconcile_vehicle_operational_status` (`--dry-run`, `--schema`).
+
+**Fleet availability APIs** (`GET /api/v1/fleet/availability`, `GET /api/v1/vehicles/available`): count/list own-fleet vehicles that are `is_active`, not `under_maintenance`, and not linked to a non-terminal transport order — implemented via `available_vehicles_queryset` (replaces V1 filter `status=available`). POI filter uses `assigned_poi_id` (not `current_poi_id`).
 
 **Business Rules**:
 - BR-001: Each vehicle must have unique registration number
