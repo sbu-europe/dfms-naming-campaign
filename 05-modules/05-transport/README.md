@@ -25,6 +25,7 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
 | [trip-management.md](trip-management.md) | TDO Own Fleet assignment (vehicle, driver, helpers, ETA — conflict checks), TDO Vendor Fleet assignment (contractual vendor, auto-rate), TO status lifecycle (`CREATED → VEHICLE_ASSIGNED/VENDOR_ASSIGNED → CONFIRMED`), driver account assigned TO list, Trip 17-state machine (Sprint 4) | Sprint 3 (TDO assignment), Sprint 4 (Trip) | DFS-040 (TO-02) |
 | [own-fleet-vehicle-capacity-validation.md](own-fleet-vehicle-capacity-validation.md) | **Proposal** — Django admin capacity fit panel for TDO own-fleet assignment (warn-only; POI-stock / vendor-fleet visual parity) | Post Sprint 6 | TO-02 amend, TAR-004 |
 | [delivery-challan-print.md](delivery-challan-print.md) | **Proposal** — printable Delivery Challan (PDF via WeasyPrint) from a TO at `assigned`+ status; DRF endpoint + Django admin action; source POI issuing unit, destination POI client block, product bag/kg table | Post Sprint 6 | TO-01, TO-02 amend |
+| [own-fleet-active-to-vehicle-driver-reassignment.md](own-fleet-active-to-vehicle-driver-reassignment.md) | **Proposal** — own-fleet vehicle/driver reassignment while a TO is active (`ready_for_dispatch`+); JS popup captures required remarks, writes a timeline entry (old → new + remarks), keeps `Trip` in sync, closes FB-011 driver-exclusivity gap | Post Sprint 6 | TO-02 amend, FB-011 |
 
 ---
 
