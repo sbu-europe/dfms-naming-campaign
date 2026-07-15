@@ -39,11 +39,21 @@ definitions:
   VehicleStatus:
     type: string
     enum:
-      - available
-      - assigned
-      - maintenance
+      - no_active_to
+      - scheduled
+      - in_transit
+      - under_maintenance
       - inactive
-    description: Vehicle status enumeration
+    description: |
+      Vehicle operational_status enumeration (V3, 2026-07-08).
+      SSOT: DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md §3.
+      V1 values (removed): available, active, idle.
+      V3: `inactive` (master-data deactivation, is_active=false) split out of
+      `under_maintenance` (now driver-supervisor-driven only, keeps is_active=true).
+      Fleet availability (`GET /api/v1/fleet/availability`, `GET /api/v1/vehicles/available`):
+      own-fleet counts/lists use `available_vehicles_queryset` — active vehicles excluding
+      `under_maintenance` and vehicles on non-terminal transport orders (not V1 `status=available`).
+      Live GPS hides `inactive` vehicles from the fleet list/map unless explicitly filtered.
   
   DriverStatus:
     type: string

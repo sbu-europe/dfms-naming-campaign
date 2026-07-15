@@ -27,7 +27,7 @@ This module defines master data configuration and management for the DFMS platfo
 |------|-------------|-------------|-----------------|-------|
 | [master-data-configuration.md](master-data-configuration.md) | Maps product specs to **`apps/master_data`** (registry, models, admin, API) | — | — | short |
 | [poi-management.md](poi-management.md) | POI entity model, geofencing system (entry/exit detection), capacity tracking (stock/in-transit/warnings), lifecycle management, operational classification, integrations with requisitions/trips/gate/QC | 6.5.1-6.5.8 | US-014 | 588 |
-| [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, operational status tracking vs master data status, bulk upload, search/filtering, and referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
+| [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, **operational status (V2, TO-driven)** vs master data `is_active`, bulk upload, search/filtering, referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 | [loading-unloading-points.md](loading-unloading-points.md) | Loading/unloading points — POI sub-location master (bays/lines/docks). Model, admin (standalone + inline under POIAdmin), API, RBAC, seed data. Consumed by CC-01, LD-01, QC-01 | 6.5.1, 6.12.2, 6.13.1 | DFS-063 (LUP-01) — Sprint 4 | ~230 |
 
@@ -216,7 +216,7 @@ See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`**
 
 ---
 
-**Last Updated**: 2026-04-17  
+**Last Updated**: 2026-07-06  
 **Status**: Complete (aligned with `apps/master_data` implementation)  
 **Previous Module**: [01-foundation/](../01-foundation/README.md) - System Foundation  
 **Next Module**: [03-operations/](../05-transport/README.md) - Core Operations
