@@ -877,15 +877,18 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 ## 14. Configuration reference
 
 
-| Constant / env                        | Default        | Meaning                                    |
-| ------------------------------------- | -------------- | ------------------------------------------ |
-| `LIVE_MAP_REFRESH_SECONDS`            | 10             | UI/API poll                                |
-| `GPS_TRAIL_MIN_INTERVAL_SECONDS`      | 600 (10 min)   | Min gap between Postgres trail rows (prod) |
-| `MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS` | 120            | Postgres gap (mock)                        |
-| `GT06_SYNC_INTERVAL_SECONDS`          | 30             | Celery beat                                |
-| `SIGNAL_LOST_MINUTES`                 | 10             | Stale / signal lost                        |
-| `MOVING_SPEED_KMH`                    | 3.0            | Moving threshold                           |
-| `PARKED_MIN_MINUTES`                  | 10             | Idle vs parked                             |
+| Constant / env                                      | Default        | Meaning                                    |
+| --------------------------------------------------- | -------------- | ------------------------------------------ |
+| `LIVE_MAP_REFRESH_SECONDS`                          | 10             | UI/API poll                                |
+| `GPS_TRAIL_AND_ACTIVITY_MARKER_INTERVAL_SECONDS`    | 300 (5 min)    | Gated Postgres trail + activity writes     |
+| `GPS_TRAIL_MIN_INTERVAL_SECONDS` (legacy alias)     | same           | Deprecated — use unified key above         |
+| `MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS`               | 120            | Postgres gap (mock)                        |
+| `GT06_SYNC_INTERVAL_SECONDS`                        | 30             | Celery beat                                |
+| `SIGNAL_LOST_MINUTES`                               | 10             | Stale / signal lost                        |
+| `MOVING_SPEED_KMH`                                  | 0.0            | Persisted movement drive threshold         |
+| `STOPPED_MIN_MINUTES`                               | 5              | Zero-speed stopped threshold               |
+| `PARKED_MIN_MINUTES`                                | 30             | Zero-speed parked threshold                |
+| `LIVE_MAP_PARKED_MIN_MINUTES`                       | 10             | Live map idle vs parked                    |
 | `GT06_REDIS_URL`                      | redis://…/3    | Shared ingest + Django                     |
 | `LIVE_GPS_MOCK_FLEET_ONLY`            | `1` in compose | Map filters to mock fleet                  |
 | `GEOFENCE_DETECTION_BUFFER_METERS`    | 20             | Geofence inside-test buffer                |

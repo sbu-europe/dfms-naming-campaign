@@ -185,7 +185,7 @@ ProductRequisitionLineItem {
   type_of_packing: string (nullable)  // Auto-filled from MDM-01 standard_pack_size
 
   // Quantity
-  unit_of_measure: enum ['Bags', 'Tons', 'Cartons', 'Pieces']
+  unit_of_measure: enum ['Bags', 'Tons', 'KG', 'Liters', 'Cartons', 'Pieces']
   product_quantity: Decimal            // Number of units in selected UOM
   weight_per_unit: Decimal             // Per unit in selected UOM (kg)
 
@@ -468,7 +468,7 @@ After product auto-fill, the user manually enters:
 
 | Field | Notes |
 |-------|-------|
-| Unit of Measure (UOM) | Dropdown: Bags / Tons / Cartons / Pieces |
+| Unit of Measure (UOM) | From product master (Bags / Tons / KG / Liters / Cartons / Pieces); readonly on PR line |
 | Product Quantity | Number of units in selected UOM |
 | Weight per Unit | Weight in kg per unit of selected UOM |
 

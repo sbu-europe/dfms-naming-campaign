@@ -22,6 +22,8 @@ resolved_open_questions:
 
 # Stock Operations Specification (Sprint 5 — v2.0)
 
+> **Deprecation notice (2026-07-08):** The v2.0 stock trigger (`abs(scale_in − scale_out)` at scale-out) is superseded by **[stock-operations-v3-loading-unload-trigger.md](./stock-operations-v3-loading-unload-trigger.md)** — stock now moves on loading/unloading complete using UOM line capture. This document remains for historical reference and in-transit / opening-balance behaviour.
+
 ## Overview
 
 The **Stock Operations** specification defines how the platform maintains a live, event-driven stock ledger at every POI (depot, feed mill, warehouse, port).
