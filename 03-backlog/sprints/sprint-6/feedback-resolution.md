@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 16
+total_items: 17
 resolved: 16
 in_progress: 0
-open: 0
+open: 1
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -512,12 +512,41 @@ See full plan: [`tenant-user-management-v2.md`](../../../05-modules/03-users/ten
 
 ---
 
+## FB-017 — Remove yard operations menu access from Depot Officer and Feed Mill Officer roles
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | YARD-01 — POI-scoped yard platform; [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot Officer & Feed Mill Officer yard access); [FB-014](#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) (POI-Admin role) |
+| **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`product-requisition-management-v2.md`](../../../05-modules/04-requisitions/product-requisition-management-v2.md) |
+| **Closing Sub-tasks** | FB-017-1 … FB-017-4 — TBD |
+| **AC Amendment** | **Depot Officer** (`depot_officer`) and **Feed Mill Officer** (`feed_mill_officer`) should **no longer have access** to **yard operations menu** (Gate, Scaling, Command Center, Loading, Unloading). Both roles should retain their **POI-scoped** nature and their **Product Requisition creation** responsibilities at their assigned POI, but **yard operation modules** should be removed from their menu and access grants. With the introduction of **POI-Admin** role (FB-014), yard operations at a POI are now handled by dedicated POI-Admin users. Depot Officer and Feed Mill Officer should focus exclusively on their requester duties (PR creation, stock-snapshot view). |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | FB-007 originally granted yard operations access to `depot_officer` and `feed_mill_officer` at their assigned POI in addition to their PR creation duties. FB-014 introduced `poi_admin` as the dedicated POI-scoped yard operations role. This item reverses the yard-module grant portion of FB-007 while keeping the POI-scoped model and PR-creation responsibility intact. Implementation requires removing yard-module permissions from both role codes and updating menu configuration to hide Gate/Scale/CC/Loading/Unloading from these roles. |
+
+### Client feedback observation
+
+With the introduction of POI-Admin as a dedicated POI-scoped yard operations role (FB-014), Depot Officer and Feed Mill Officer should no longer have access to the yard operations menu. These two roles should focus on their core responsibility of creating Product Requisitions at their assigned POI. Yard operations should be handled exclusively by POI-Admin users.
+
+### Current vs expected behaviour
+
+| Aspect | Current (post FB-007) | Expected (FB-017) |
+|--------|----------------------|-------------------|
+| Depot Officer yard access | Full access to all yard operation modules at assigned POI | No yard operations menu access |
+| Feed Mill Officer yard access | Full access to all yard operation modules at assigned POI | No yard operations menu access |
+| PR creation responsibility | Unchanged | Unchanged — both roles retain PR creation at their assigned POI |
+| POI-scoped model | Both are POI-scoped | Unchanged — both remain POI-scoped |
+| Yard operations at POI | Depot/Feed Mill Officer + POI-Admin | POI-Admin only |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations)*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 11 | 11 | 0 |
-| Medium | 5 | 5 | 0 |
-| **Total** | **16** | **16** | **0** |
+| Medium | 6 | 5 | 1 |
+| **Total** | **17** | **16** | **1** |
