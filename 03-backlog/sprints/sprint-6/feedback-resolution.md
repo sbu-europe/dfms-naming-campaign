@@ -3,9 +3,9 @@ title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
 total_items: 24
-resolved: 16
+resolved: 17
 in_progress: 0
-open: 8
+open: 7
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -519,11 +519,11 @@ See full plan: [`tenant-user-management-v2.md`](../../../05-modules/03-users/ten
 | **Source** | Client feedback — 2026-07-17 |
 | **Affected Stories** | YARD-01 — POI-scoped yard platform; [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot Officer & Feed Mill Officer yard access); [FB-014](#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) (POI-Admin role) |
 | **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`product-requisition-management-v2.md`](../../../05-modules/04-requisitions/product-requisition-management-v2.md) |
-| **Closing Sub-tasks** | FB-017-1 … FB-017-4 — TBD |
+| **Closing Sub-tasks** | FB-017-1 seed catalog (drop yard perms, keep stock read); FB-017-2 `YARD_MULTI_MODULE_OPERATOR_ROLE_CODES` → POI-Admin only; FB-017-3 gate hardcodes (`_GATE_WRITE_ROLES` / `_gate_role_code`); FB-017-4 unit tests + re-run `seed_dfms_rbac` |
 | **AC Amendment** | **Depot Officer** (`depot_officer`) and **Feed Mill Officer** (`feed_mill_officer`) should **no longer have access** to **yard operations menu** (Gate, Scaling, Command Center, Loading, Unloading). Both roles should retain their **POI-scoped** nature and their **Product Requisition creation** responsibilities at their assigned POI, but **yard operation modules** should be removed from their menu and access grants. With the introduction of **POI-Admin** role (FB-014), yard operations at a POI are now handled by dedicated POI-Admin users. Depot Officer and Feed Mill Officer should focus exclusively on their requester duties (PR creation, stock-snapshot view). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | FB-007 originally granted yard operations access to `depot_officer` and `feed_mill_officer` at their assigned POI in addition to their PR creation duties. FB-014 introduced `poi_admin` as the dedicated POI-scoped yard operations role. This item reverses the yard-module grant portion of FB-007 while keeping the POI-scoped model and PR-creation responsibility intact. Implementation requires removing yard-module permissions from both role codes and updating menu configuration to hide Gate/Scale/CC/Loading/Unloading from these roles. |
+| **Notes** | Implemented 2026-07-17: removed `*_yard_operator_permission_codes()` from both roles in `role_seed_data.py` (kept `OPERATIONS_STOCK_READ`); `YARD_MULTI_MODULE_OPERATOR_ROLE_CODES` is now `{poi_admin}` only; gate admin role allow-lists no longer include site officers. Roles remain in `POI_SCOPED_ROLE_CODES` / `POI_SCOPED_REQUESTER_ROLE_CODES`. Deploy must re-run `python manage.py seed_dfms_rbac` (without `--reset`) so public-schema role permissions sync removals. |
 
 ### Client feedback observation
 
@@ -735,10 +735,10 @@ Tenant admins need a dedicated **Product Sub-category** entry in the Master Data
 
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only)*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 12 | 11 | 1 |
-| Medium | 12 | 5 | 7 |
-| **Total** | **24** | **16** | **8** |
+| Medium | 12 | 6 | 6 |
+| **Total** | **24** | **17** | **7** |
