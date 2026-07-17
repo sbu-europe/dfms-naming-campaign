@@ -632,11 +632,11 @@ The printed challan must show a reachable emergency contact on every page footer
 |-------|-------|
 | **Source** | Client feedback — 2026-07-17 |
 | **Affected Stories** | US-053 / Vehicle master data ([`vehicle-master-data.md`](../../../05-modules/02-master-data/vehicle-master-data.md)) |
-| **Closing Sub-tasks** | FB-021-1 … FB-021-3 — TBD |
+| **Closing Sub-tasks** | FB-021-1 Model `sim_number` + migration; FB-021-2 Admin Tracking fieldset; FB-021-3 REST + import/export |
 | **AC Amendment** | Vehicle master data create and edit forms SHALL include a **SIM Number** field (string, optional or required per PO — default **optional** with format validation). Persist on `Vehicle` (e.g. `sim_number`); expose on REST serializers, bulk import/export (`VehicleImportConfig`), and Django admin Vehicle fieldset under **Tracking & Telematics** alongside `gps_tracker_id`. No telematics integration or GPS behaviour change in v1 — capture and display only. |
-| **Status** | Open |
+| **Status** | Implemented |
 | **Priority** | Medium |
-| **Notes** | `Vehicle` today has `gps_tracker_id` but no SIM field (`apps/master_data/models.py`). Distinct from driver contact phone or vehicle registration. |
+| **Notes** | Implemented on `Vehicle.sim_number` (optional BD mobile E.164). Distinct from driver contact phone. GPS runtime still binds by `gps_tracker_id` (IMEI) only. |
 
 ### Client feedback observation
 
@@ -646,9 +646,9 @@ Fleet administrators need to record the **SIM number** tied to each vehicle's tr
 
 | Aspect | Current | Expected (FB-021) |
 |--------|---------|-------------------|
-| Vehicle telematics fields | `gps_tracker_id`, odometer/mileage fields | + **SIM Number** on create/edit |
-| API / import | No SIM attribute | `sim_number` on Vehicle CRUD and bulk CSV where applicable |
-| Operational binding | N/A | None — master-data capture only |
+| Vehicle telematics fields | `gps_tracker_id`, `sim_number`, odometer/mileage fields | + **SIM Number** on create/edit |
+| API / import | `sim_number` on Vehicle CRUD and bulk CSV | `sim_number` on Vehicle CRUD and bulk CSV where applicable |
+| Operational binding | None — master-data capture only | None — master-data capture only |
 
 ---
 
