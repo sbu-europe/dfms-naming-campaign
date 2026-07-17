@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 18
+total_items: 24
 resolved: 16
 in_progress: 0
-open: 2
+open: 8
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -571,12 +571,174 @@ The current POI stock display shows multiple fields including in-transit (out), 
 
 ---
 
+## FB-019 — TO planning-required substate; vendor-fleet bidding status labels on TO
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | TO-01 ([transport-order-management](../../../05-modules/05-transport/transport-order-management.md)), TO-02 ([trip-management](../../../05-modules/05-transport/trip-management.md)), VM-04 / TEVF-02 (non-contractual bidding); amends [FB-008](#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times), [FB-009](#fb-009--tdo-vendor-fleet-retained-transport-planner-selects-vehicle-type-for-vendor-fleet-tos-at-creation) |
+| **Closing Sub-tasks** | FB-019-1 … FB-019-6 — TBD |
+| **AC Amendment** | **(1) Own fleet — planning required substate:** When the Transport Planner creates an own-fleet TO, the TO remains in a **Planning Required** substate (display label; implement as `TOSubState` value or equivalent badge on the TO) until **all three** prerequisites are set: **Vehicle**, **Driver**, and the **lane-applicable planned milestone datetimes** (per FB-006 / FB-008). Until then, the TO must **not** promote to `assigned`. Once all three are complete, `TO.status` advances to **`assigned`** as today; all downstream status transitions and guards (`ready_for_dispatch`, yard execution, completion, Bill Disbursed, etc.) remain unchanged. **(2) Vendor fleet — planning gate:** Vendor-fleet TOs remain in **`under_planning`** until planned milestones are complete. While `under_planning`, the TO **cannot** be assigned to a **non-contractual** vendor or published for bidding. When planned milestones are complete, the TO moves to **`created`** and becomes visible in the **TDO — Vendor Fleet** queue (unchanged handoff from FB-009). **(3) Vendor fleet — non-contractual bidding TO statuses:** When TDO (Vendor Fleet) publishes one or more TOs for **non-contractual** bidding, the TO status (or user-facing status label on the TO) advances through: **`Bidding in Progress`** while the bidding window is **open** (vendors may submit bids); **`Non-Contractual – Bidding in Progress`** while the window is open **or** closed but **no bid has been awarded yet**; **`Bidding Window Closed`** when the bidding window closes (no further submissions). After a bid is **won/awarded**, the TO follows the existing post-award lifecycle (VM-06 / VM-07 confirmation, execution, etc.). Contractual vendor assignment and all other vendor-fleet flows are unchanged. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Own-fleet today starts at `created` and promotes to `assigned` via `sync_own_fleet_assignment_status()` when vehicle + driver + milestones are complete (`planned_milestones.py`); there is no **Planning Required** substate badge yet. Vendor-fleet `under_planning` → `created` handoff is implemented (FB-009). TO-level bidding statuses were removed in Sprint 3 (`open_for_bidding` dropped from `TransportOrder`); bidding state today lives on `BiddingSession.status` (`scheduled`, `open`, `closed`, `awarded`, …) only. This item reintroduces **user-visible TO status labels** for the non-contractual path while keeping session/member award logic intact. Confirm during implementation whether `Bidding Window Closed` and `Non-Contractual – Bidding in Progress` are distinct `TOStatus` enum values or display aliases keyed off session + award state. |
+
+### Client feedback observation
+
+Operations want clearer planning gates on the TO record itself. For **own fleet**, planners should see **Planning Required** until vehicle, driver, and planned milestones are all captured, then **Assigned**. For **vendor fleet**, milestones must finish before TDO sees the TO; once TDO publishes non-contractual bids, the TO should show explicit **Bidding in Progress** / **Bidding Window Closed** states instead of staying at generic `created`.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-019) |
+|--------|---------|-------------------|
+| Own-fleet planning indicator | `created` until vehicle + driver + milestones complete; no Planning Required substate | **Planning Required** substate/badge until all three fields set; then `assigned` |
+| Own-fleet `assigned` trigger | Vehicle + driver + planned milestones (`own_fleet_ready_for_assigned_status`) | Unchanged trigger; add visible planning-required state while incomplete |
+| Vendor-fleet pre-milestone | `under_planning`; hidden from TDO until milestones complete (FB-009) | Unchanged; **block** non-contractual assignment/bidding while `under_planning` |
+| Vendor-fleet post-milestone | `created`; visible to TDO (Vendor Fleet) | Unchanged |
+| Non-contractual bid published | `BiddingSession` tracks window; TO status often stays `created` | TO shows **Bidding in Progress** / **Non-Contractual – Bidding in Progress** / **Bidding Window Closed** per window and award state |
+| Post-award execution | VM-06 award → VM-07 confirmation → dispatch lifecycle | Unchanged |
+
+---
+
+## FB-020 — Delivery challan footer: emergency contact number + printed timestamp + page number
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | Delivery challan print ([`delivery-challan-print.md`](../../../05-modules/05-transport/delivery-challan-print.md)); TO-01 |
+| **Closing Sub-tasks** | FB-020-1 — TBD |
+| **AC Amendment** | Printable Delivery Challan footer SHALL include, on one line or grouped footer row: **(1)** printed timestamp (existing), **(2)** page number (existing), and **(3)** a fixed **Emergency Contact Number: 01713365796**. Layout: printed timestamp + page number + emergency contact number together in the challan **footer** region (below the “RECEIVED THE ABOVE GOODS IN GOOD CONDITION” bar, above signature blocks). Applies to both Django admin “Print Delivery Challan” action and `GET /api/v1/transport-orders/{id}/challan/`. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Implemented in `templates/transport/challan.html` + `apps/transport/challan.py`. Footer today shows `printed_at` and hardcoded `Page 1 of 1` only — no emergency contact line. Number is a **fixed operational constant** (not per-TO or per-POI). |
+
+### Client feedback observation
+
+The printed challan must show a reachable emergency contact on every page footer alongside the print time and page number.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-020) |
+|--------|---------|-------------------|
+| Footer left | Printed timestamp | Unchanged |
+| Footer right | `Page 1 of 1` | Unchanged (or dynamic page count when multi-page) |
+| Emergency contact | Not shown | **Emergency Contact Number: 01713365796** in footer with print time and page number |
+
+---
+
+## FB-021 — Vehicle master data: SIM number field on create/edit
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | US-053 / Vehicle master data ([`vehicle-master-data.md`](../../../05-modules/02-master-data/vehicle-master-data.md)) |
+| **Closing Sub-tasks** | FB-021-1 … FB-021-3 — TBD |
+| **AC Amendment** | Vehicle master data create and edit forms SHALL include a **SIM Number** field (string, optional or required per PO — default **optional** with format validation). Persist on `Vehicle` (e.g. `sim_number`); expose on REST serializers, bulk import/export (`VehicleImportConfig`), and Django admin Vehicle fieldset under **Tracking & Telematics** alongside `gps_tracker_id`. No telematics integration or GPS behaviour change in v1 — capture and display only. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | `Vehicle` today has `gps_tracker_id` but no SIM field (`apps/master_data/models.py`). Distinct from driver contact phone or vehicle registration. |
+
+### Client feedback observation
+
+Fleet administrators need to record the **SIM number** tied to each vehicle's tracker when maintaining vehicle master data.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-021) |
+|--------|---------|-------------------|
+| Vehicle telematics fields | `gps_tracker_id`, odometer/mileage fields | + **SIM Number** on create/edit |
+| API / import | No SIM attribute | `sim_number` on Vehicle CRUD and bulk CSV where applicable |
+| Operational binding | N/A | None — master-data capture only |
+
+---
+
+## FB-022 — POI master data: Classification Type dropdown (Inbound / Outbound / Neutral)
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | POI management ([`poi-management.md`](../../../05-modules/02-master-data/poi-management.md)); PRD §6.5.3 POI Classification |
+| **Reference docs** | [`PRD_DFMS_v1.0.md`](../../../01-source/01-prd/PRD_DFMS_v1.0.md) §POI Classification (Inbound/Outbound/Neutral) |
+| **Closing Sub-tasks** | FB-022-1 … FB-022-3 — TBD |
+| **AC Amendment** | POI create and update forms SHALL include **POI Classification Type** — a **required dropdown** with exactly three choices: **Inbound**, **Outbound**, **Neutral**. Persist on `POI` (e.g. `classification_type`). **No operational binding in this item** — the field is informational/master-data only; routing, gate, stock, and dashboard logic MUST NOT branch on it until a future story explicitly wires it. Optional: PRD-default suggestion by `poi_type` on add (admin may override). |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | README notes inbound/outbound classification is **not** persisted on `POI` today (`poi-management.md` / `master_data` README). `POIAdmin` fieldsets have no classification field. PRD describes defaults by POI type — implement defaults as **form prefill only**, not enforced rules, unless PO confirms. |
+
+### Client feedback observation
+
+Admins need to tag each POI as Inbound, Outbound, or Neutral at master-data entry time. This is a dropdown choice only — no downstream automation required yet.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-022) |
+|--------|---------|-------------------|
+| POI classification field | Not on model or admin form | Required dropdown: Inbound / Outbound / Neutral |
+| Routing / dashboards | N/A | Unchanged — no operational binding |
+| POI type | `poi_type` enum only | Unchanged; classification is an additional attribute |
+
+---
+
+## FB-023 — Driver Attendance form: remove redundant Date field
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | DS-02 ([`driver-supervisor-operations.md`](../../../05-modules/08-fleet-management/driver-supervisor-operations.md)) — Driver Attendance (DS-02-7 / DS-02-18) |
+| **Closing Sub-tasks** | FB-023-1 — TBD |
+| **AC Amendment** | Driver Attendance **admin create/edit form** SHALL **not** show a separate **Date** field. Attendance date is derived from **`entry_datetime`** only (same rule as REST `POST /api/v1/driver-attendance`, which already omits `date` from the request body). The `date` column remains in the database for uniqueness `(driver, date)` and changelist display, but is **read-only or hidden** on the form — operators enter **entry** and **exit** datetimes only. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | `DriverAttendance` model has both `date` and `entry_datetime` (`apps/fleet_supervisor/models.py`). Admin form uses `fields = "__all__"`, exposing redundant date entry. API create path already derives `date` from `entry_datetime`. |
+
+### Client feedback observation
+
+The Driver Attendance screen asks for an extra **Date** field in addition to entry/exit times. Operations want that additional date input removed — one datetime capture is enough.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-023) |
+|--------|---------|-------------------|
+| Admin form fields | `date`, `entry_datetime`, `exit_datetime`, … | **No** editable `date` — entry/exit datetimes only |
+| Attendance date storage | User may set `date` independently of entry time | `date` derived from `entry_datetime` on save |
+| API behaviour | `date` derived server-side | Unchanged |
+| Changelist / reports | Shows `date` column | Unchanged |
+
+---
+
+## FB-024 — Product Sub-category visible submenu under Master Data
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | Product master data ([`product-master-data-management.md`](../../../05-modules/02-master-data/product-master-data-management.md)); MDM admin navigation |
+| **Closing Sub-tasks** | FB-024-1 … FB-024-2 — TBD |
+| **AC Amendment** | **Product Sub-category** SHALL appear as its own **visible sidebar submenu** under **Master Data** (portal navigation), linking to `/admin/master_data/productsubcategory/` with the same RBAC as Product Categories (`MasterData.ProductCategory.Read` / `.Write`). Ordering: after **Product Categories**, before **Products** (align with `config/admin.py` `master_data_menu_order`). Standalone CRUD remains on `ProductSubCategoryAdmin`; inline sub-categories on Product Category change form stay unchanged. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | `ProductSubCategory` is registered in Django admin and listed in Django app index order (`productsubcategory` in `master_data_menu_order`) but is **missing** from `apps/core/portal_navigation.py` Master Data items — users only reach it via Product Category inlines or direct URL. E2E already targets `productsubcategory` admin (`test_product_master_data_e2e.py`). |
+
+### Client feedback observation
+
+Tenant admins need a dedicated **Product Sub-category** entry in the Master Data menu, not only sub-categories embedded under Product Category.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-024) |
+|--------|---------|-------------------|
+| Portal sidebar (Master Data) | Product Categories, Products — no Sub-category row | **Product Sub-category** menu item added |
+| Django admin model admin | `ProductSubCategoryAdmin` exists | Unchanged |
+| Permissions | Uses `MasterData.ProductCategory.*` | Unchanged |
+| Product Category inline | Sub-categories editable inline | Unchanged |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields)*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 11 | 11 | 0 |
-| Medium | 7 | 5 | 2 |
-| **Total** | **18** | **16** | **2** |
+| High | 12 | 11 | 1 |
+| Medium | 12 | 5 | 7 |
+| **Total** | **24** | **16** | **8** |
