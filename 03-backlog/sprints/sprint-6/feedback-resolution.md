@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 17
+total_items: 18
 resolved: 16
 in_progress: 0
-open: 1
+open: 2
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -541,12 +541,42 @@ With the introduction of POI-Admin as a dedicated POI-scoped yard operations rol
 
 ---
 
+## FB-018 — Simplify POI stock display: show only total, current, and free capacity
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | [STK-01](../sprint-5/13-stock-validation-update/STK-01-source-destination-stock-validation.md) ([`stock-operations-sprint5.md`](../../../05-modules/06-poi-operations/stock-operations-sprint5.md)) |
+| **Reference docs** | [`stock-operations-sprint5.md`](../../../05-modules/06-poi-operations/stock-operations-sprint5.md) §POI Stock Snapshot |
+| **Closing Sub-tasks** | FB-018-1 … FB-018-3 — TBD |
+| **AC Amendment** | POI stock snapshot display should be **simplified** to show **only three fields**: **(1) Total Capacity** (`total_capacity_mt`) — the maximum storage capacity of the POI; **(2) Current Stock** (`current_stock_mt`) — calculated using the currently implemented stock bookkeeping logic (per FB-012, driven by loading/unloading completion); **(3) Free Capacity** (`free_capacity_mt = total_capacity_mt − current_stock_mt`) — available storage space. **Remove** the following derived and in-transit fields from the display: **in-transit (out)** (`in_transit_outgoing_mt`), **in-transit (in)** (`in_transit_incoming_mt`), **projected utilization**, and any other computed forecast or allocation fields. The underlying data models and calculations may remain for internal use or future features, but the user-facing POI stock display (admin panels, dashboards, API responses where stock snapshot is exposed) should present only the three core fields. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Current implementation (STK-01 v2.0, `stock-operations-sprint5.md`) tracks `current_stock_mt`, `in_transit_outgoing_mt` (dispatched TO `allocated_quantity` from this POI), `in_transit_incoming_mt` (dispatched TO `allocated_quantity` to this POI), and derives `available_for_new_dispatch_mt = current_stock_mt − in_transit_outgoing_mt` and potentially other projections for allocation planning. This feedback item does not require removing the in-transit counters from the data model or business logic — they may still be maintained for planning or validation — but requests that the **user-facing stock display** be simplified to show only total, current, and free capacity. Admin interfaces (`POIAdmin`, stock snapshot panels on yard queues), dashboard widgets, and API serializers (`POIStockSnapshotSerializer`, if exposed) should be updated to hide in-transit and projected fields. Confirm during implementation planning whether "free capacity" should be a simple subtraction (`total − current`) or should account for any reserved/allocated stock. |
+
+### Client feedback observation
+
+The current POI stock display shows multiple fields including in-transit (out), in-transit (in), projected utilization, and other derived metrics. This creates unnecessary complexity for users who primarily need to understand three core metrics: how much total storage exists at the POI, how much is currently occupied, and how much free space is available. The in-transit and projection fields should be removed from the display to simplify the interface.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-018) |
+|--------|---------|-------------------|
+| POI stock display fields | Total capacity, current stock, in-transit (out), in-transit (in), projected utilization, possibly other derived fields | **Three fields only**: Total capacity, current stock, free capacity |
+| Free capacity calculation | May be computed but not always shown, or shown as "available for new dispatch" | Explicitly shown as `free_capacity_mt = total_capacity_mt − current_stock_mt` |
+| In-transit outgoing/incoming | Displayed to users | Hidden from user-facing display (data model may remain) |
+| Projected utilization | Displayed to users | Hidden from user-facing display |
+| Admin panels (POIAdmin, yard queues) | Show full set of stock fields | Show only total, current, free |
+| API responses (stock snapshot) | Include in-transit and projection fields | Include only total, current, free |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations)*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields)*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 11 | 11 | 0 |
-| Medium | 6 | 5 | 1 |
-| **Total** | **17** | **16** | **1** |
+| Medium | 7 | 5 | 2 |
+| **Total** | **18** | **16** | **2** |
