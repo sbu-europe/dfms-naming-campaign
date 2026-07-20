@@ -6,7 +6,7 @@ phase: Phase 1
 last_updated: 2026-07-20
 changelog: "v1.1 — Explicit seeded-data catalog (fields + default values). v1.0 — Initial plan for session-scoped MCP FG sandbox (seed + wipe)."
 related_stories: PR-01, TO-02, YARD-01, DS-01
-related_testing: ../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/playwright-mcp-runbook.md
+related_testing: ../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md
 credentials: ../../../docs/testing/playwright-mcp-credentials.yaml
 human_guide: ../../../docs/guides/playwright-mcp-admin.md
 ---
@@ -15,7 +15,7 @@ human_guide: ../../../docs/guides/playwright-mcp-admin.md
 
 ## Overview
 
-This document is the **backend implementation plan** for a **session-scoped Finished Goods (FG) fixture sandbox** used by Playwright MCP against the [FG workflow runbook](../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/playwright-mcp-runbook.md).
+This document is the **backend implementation plan** for a **session-scoped Finished Goods (FG) fixture sandbox** used by Playwright MCP against the [FG workflow runbook](../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md).
 
 **Problem:** Local Nourish DBs accumulate residue (shared POIs, contended drivers/vehicles, drifted stock, incomplete `UserOperationalPOI`). FG MCP runs that bind to `CTG-001` / leftover fleet are flaky and non-reproducible. `scripts/seed-data.py` only seeds **identity/RBAC** (tenants, role users, two drivers) — not FG master/ops eligibility.
 
@@ -480,8 +480,8 @@ Source/dest for the run: `MCP-S-<RUN_ID>` → `MCP-D-<RUN_ID>`.
 
 | Doc | Path |
 |-----|------|
-| FG MCP runbook | `../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/playwright-mcp-runbook.md` |
-| FG scenario index | `../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/README.md` |
+| FG MCP runbook | `../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md` |
+| FG scenario index | `../../09-testing/backend/e2e-scenarios/finished-goods-workflow/README.md` |
 | MCP admin guide | `../../../docs/guides/playwright-mcp-admin.md` |
 | Credentials YAML | `../../../docs/testing/playwright-mcp-credentials.yaml` |
 | Identity seed (unchanged role) | `../../../scripts/seed-data.py` |

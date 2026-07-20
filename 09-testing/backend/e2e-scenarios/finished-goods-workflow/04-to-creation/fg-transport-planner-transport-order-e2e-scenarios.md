@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 4 — Transport Planner TO Cr
 version: 1.0
 phase: Phase 1
 related_stories: TO-01, TRQ-01, FB-004, FB-011
-source_spec: ../../../../05-modules/05-transport/transport-order-management.md
+source_spec: ../../../../../05-modules/05-transport/transport-order-management.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

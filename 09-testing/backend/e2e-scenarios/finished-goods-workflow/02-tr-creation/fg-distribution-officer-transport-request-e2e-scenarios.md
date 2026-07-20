@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 2 — Transport Request (TR) 
 version: 1.0
 phase: Phase 1
 related_stories: DR-02, FB-018
-source_spec: ../../../../05-modules/04-requisitions/product-requisition-management-v2.md
+source_spec: ../../../../../05-modules/04-requisitions/product-requisition-management-v2.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---
@@ -72,7 +72,7 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 ### Scope guardrails
 
 - In scope: DO FG TR create-from-PR, Source POI selection, line allocation (partial/multi), capacity panels, PR queue triage columns, DO RBAC (no approve), admin History smoke.
-- Out of scope: DM approve/reject (see `fg-distribution-manager-transport-request-approval-e2e-scenarios.md`), Transport Order creation, Port Consignment TRs, REST API tampering, notification/email delivery.
+- Out of scope: DM approve/reject (see [`03-tr-approval/fg-distribution-manager-transport-request-approval-e2e-scenarios.md`](../03-tr-approval/fg-distribution-manager-transport-request-approval-e2e-scenarios.md)), Transport Order creation, Port Consignment TRs, REST API tampering, notification/email delivery.
 
 ### Role & environment fixtures
 

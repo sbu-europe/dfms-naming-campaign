@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 5 — Driver Supervisor Dispa
 version: 1.0
 phase: Phase 1
 related_stories: FB-004, FB-011, DM-01
-source_spec: ../../../../05-modules/08-fleet-management/driver-supervisor-dispatch.md
+source_spec: ../../../../../05-modules/08-fleet-management/driver-supervisor-dispatch.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

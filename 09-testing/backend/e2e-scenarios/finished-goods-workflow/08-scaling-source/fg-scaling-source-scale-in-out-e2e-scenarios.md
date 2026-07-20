@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Sections 8 & 11 — Scale In/Out (Sou
 version: 1.0
 phase: Phase 1
 related_stories: SC-01, FB-001
-source_spec: ../../../../05-modules/06-yard-operations/scaling-operations.md
+source_spec: ../../../../../05-modules/06-yard-operations/scaling-operations.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

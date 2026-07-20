@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 7 — Gate In (Source POI) �
 version: 1.0
 phase: Phase 1
 related_stories: GT-01, FB-004
-source_spec: ../../../../05-modules/06-yard-operations/gate-operations.md
+source_spec: ../../../../../05-modules/06-yard-operations/gate-operations.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

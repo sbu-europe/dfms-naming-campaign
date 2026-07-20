@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 10 — Loading (Source POI) �
 version: 1.0
 phase: Phase 1
 related_stories: LD-01, STK-01
-source_spec: ../../../../05-modules/06-yard-operations/loading-operations.md
+source_spec: ../../../../../05-modules/06-yard-operations/loading-operations.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

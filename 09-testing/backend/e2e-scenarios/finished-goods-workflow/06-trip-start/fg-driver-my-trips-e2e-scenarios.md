@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 6 — Driver Trip Start — P
 version: 1.0
 phase: Phase 1
 related_stories: DM-01, TLS-01, FB-004
-source_spec: ../../../../05-modules/08-fleet-management/driver-execution.md
+source_spec: ../../../../../05-modules/08-fleet-management/driver-execution.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

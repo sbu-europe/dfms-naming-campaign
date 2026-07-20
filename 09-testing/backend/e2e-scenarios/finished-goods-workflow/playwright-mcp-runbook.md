@@ -1,7 +1,7 @@
 ---
-section: 09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow
+section: 09-testing/backend/e2e-scenarios/finished-goods-workflow
 title: Finished Goods Workflow — Playwright MCP Runbook
-version: 1.0
+version: 1.1
 last_updated: 2026-07-20
 playwright_mcp: true
 ---
@@ -10,9 +10,9 @@ playwright_mcp: true
 
 How to execute the FG scenario plans (Sections 1–18) with **Playwright MCP** against Django Admin SSR on the seeded Nourish tenant.
 
-This runbook is the operational companion to the [scenario index](./README.md). Generic MCP mechanics live in [`docs/guides/playwright-mcp-admin.md`](../../../../../../docs/guides/playwright-mcp-admin.md). Credentials: [`docs/testing/playwright-mcp-credentials.yaml`](../../../../../../docs/testing/playwright-mcp-credentials.yaml) (keep in sync with `scripts/seed-data.py`).
+This runbook is the operational companion to the [scenario index](./README.md). Generic MCP mechanics live in [`docs/guides/playwright-mcp-admin.md`](../../../../../docs/guides/playwright-mcp-admin.md). Credentials: [`docs/testing/playwright-mcp-credentials.yaml`](../../../../../docs/testing/playwright-mcp-credentials.yaml) (keep in sync with `scripts/seed-data.py`).
 
-**Isolated FG fixtures (seed + wipe):** implementation plan [`mcp-playwright-fg-fixture-seed.md`](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — session sandbox `MCP-S-<RUN_ID>` / `MCP-D-<RUN_ID>` via `scripts/seed-mcp-playwright-fg.py` (do **not** bind the chain to leftover `CTG-*` / shared fleet).
+**Isolated FG fixtures (seed + wipe):** implementation plan [`mcp-playwright-fg-fixture-seed.md`](../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — session sandbox `MCP-S-<RUN_ID>` / `MCP-D-<RUN_ID>` via `scripts/seed-mcp-playwright-fg.py` (do **not** bind the chain to leftover `CTG-*` / shared fleet).
 
 ---
 
@@ -34,7 +34,7 @@ This runbook is the operational companion to the [scenario index](./README.md). 
 | Login | `/admin/login/` — **never** bare `localhost` for tenant users |
 | Credentials | Use emails from `playwright-mcp-credentials.yaml` only (pattern `<role.slug><n>.nourish@yopmail.com`) |
 | OTP | Local `.env` must have `ADMIN_LOGIN_OTP_ENABLED=False`. Recreate web after changing. If login lands on OTP (`?otp=1`), **stop and fix env** — do not hardcode OTP. |
-| FG sandbox | `make seed-mcp-fg RUN_ID=…` per [fixture seed plan](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — source `MCP-S-<RUN_ID>`, dest `MCP-D-<RUN_ID>` (not `CTG-*`) |
+| FG sandbox | `make seed-mcp-fg RUN_ID=…` per [fixture seed plan](../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — source `MCP-S-<RUN_ID>`, dest `MCP-D-<RUN_ID>` (not `CTG-*`) |
 | Manifest | `tests/e2e/playwright-mcp/fg-mcp-<RUN_ID>.json` — products, vehicle, MCP driver, UOP binds |
 | Yard | UOP on MCP POIs created by the seeder; select working site **MCP-S / MCP-D** when prompted |
 | Wipe | After suite: `make wipe-mcp-fg RUN_ID=…` (manifest-driven; never delete `@yopmail.com` seed logins) |
@@ -69,14 +69,14 @@ Root: `tests/e2e/playwright-mcp/`
 
 | Suite folder | Sections | Scenario plan(s) |
 |--------------|----------|------------------|
-| `01-pr-artifacts/` | 1 | [`01-pr-creation/fg-depot-feed-mill-officer-product-requisition-pr-creation-e2e-scenarios.md`](./01-pr-creation/fg-depot-feed-mill-officer-product-requisition-pr-creation-e2e-scenarios.md) |
-| `02-tr-create-artifacts/` | 2 | [`../fg-distribution-officer-transport-request-e2e-scenarios.md`](../fg-distribution-officer-transport-request-e2e-scenarios.md) |
-| `03-tr-approval-artifacts/` | 3 | [`../fg-distribution-manager-transport-request-approval-e2e-scenarios.md`](../fg-distribution-manager-transport-request-approval-e2e-scenarios.md) |
-| `04-to-artifacts/` | 4 | [`../../05-transport/fg-transport-planner-transport-order-e2e-scenarios.md`](../../05-transport/fg-transport-planner-transport-order-e2e-scenarios.md) |
-| `05-dispatch-artifacts/` | 5 | [`../../08-fleet-management/fg-driver-supervisor-dispatch-e2e-scenarios.md`](../../08-fleet-management/fg-driver-supervisor-dispatch-e2e-scenarios.md) |
-| `06-driver-trip-artifacts/` | 6 | [`../../08-fleet-management/fg-driver-my-trips-e2e-scenarios.md`](../../08-fleet-management/fg-driver-my-trips-e2e-scenarios.md) |
-| `07-12-source-yard-artifacts/` | 7–12 | Gate / Scale / CC / Load plans under [`../../06-yard-operations/`](../../06-yard-operations/) |
-| `13-18-dest-yard-artifacts/` | 13–18 | Destination yard + auto-closure plans under [`../../06-yard-operations/`](../../06-yard-operations/) |
+| `01-pr-artifacts/` | 1 | [`01-pr-creation/…`](./01-pr-creation/fg-depot-feed-mill-officer-product-requisition-pr-creation-e2e-scenarios.md) |
+| `02-tr-create-artifacts/` | 2 | [`02-tr-creation/…`](./02-tr-creation/fg-distribution-officer-transport-request-e2e-scenarios.md) |
+| `03-tr-approval-artifacts/` | 3 | [`03-tr-approval/…`](./03-tr-approval/fg-distribution-manager-transport-request-approval-e2e-scenarios.md) |
+| `04-to-artifacts/` | 4 | [`04-to-creation/…`](./04-to-creation/fg-transport-planner-transport-order-e2e-scenarios.md) |
+| `05-dispatch-artifacts/` | 5 | [`05-dispatch/…`](./05-dispatch/fg-driver-supervisor-dispatch-e2e-scenarios.md) |
+| `06-driver-trip-artifacts/` | 6 | [`06-trip-start/…`](./06-trip-start/fg-driver-my-trips-e2e-scenarios.md) |
+| `07-12-source-yard-artifacts/` | 7–12 | [`07-gate-in-source/`](./07-gate-in-source/) … [`12-gate-out-source/`](./12-gate-out-source/) (+ [`08-scaling-source/`](./08-scaling-source/) for §8+§11) |
+| `13-18-dest-yard-artifacts/` | 13–18 | [`13-gate-in-destination/`](./13-gate-in-destination/) … [`18-gate-out-destination/`](./18-gate-out-destination/) (+ [`14-scaling-destination/`](./14-scaling-destination/) for §14+§17) |
 
 Each suite folder should contain:
 
@@ -147,7 +147,7 @@ Store under `13-18-dest-yard-artifacts/`.
 4. **Assert UI labels + enum values** from scenario Implementation Notes (e.g. badge **Pending Approval** / `pending_approval`).
 5. **Known gaps:** treat unexpected acceptance as FAIL (e.g. past delivery date on TR create) and file a bug in `RESULTS.md`.
 6. **Stop on OTP** or unexpected permission denial for the seed role — environment/seed issue, not a TC fail.
-7. **Wipe** after the chain (or after a failed long run) via `make wipe-mcp-fg RUN_ID=…` / [fixture seed plan](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) (prefer over ad-hoc DB deletes). Confirm before wipe; never delete `@yopmail.com` seed logins or non-MCP masters (`SUP-01`, etc.).
+7. **Wipe** after the chain (or after a failed long run) via `make wipe-mcp-fg RUN_ID=…` / [fixture seed plan](../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) (prefer over ad-hoc DB deletes). Confirm before wipe; never delete `@yopmail.com` seed logins or non-MCP masters (`SUP-01`, etc.).
 
 ---
 
@@ -204,6 +204,6 @@ Password for operational + drivers: `Nourish@1234!`. Tenant admin: `NourishAdmin
 | Generic MCP admin runbook | `docs/guides/playwright-mcp-admin.md` |
 | Credentials registry | `docs/testing/playwright-mcp-credentials.yaml` |
 | Cursor skill | `.cursor/skills/playwright-mcp-admin/SKILL.md` |
-| FG fixture seed / wipe (implementation) | `../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md` |
+| FG fixture seed / wipe (implementation) | `../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md` |
 | Wipe MCP data | `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md` |
 | Run scenarios skill | `.cursor/skills/run-playwright-mcp-scenarios/SKILL.md` |

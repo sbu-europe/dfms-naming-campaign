@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 1 — PR Creation (Depot Offi
 version: 1.0
 phase: Phase 1
 related_stories: PR-01, FB-007, FB-017, FB-018
-source_spec: ../../../../../../05-modules/04-requisitions/product-requisition-management-v2.md
+source_spec: ../../../../../05-modules/04-requisitions/product-requisition-management-v2.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

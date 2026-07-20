@@ -12,6 +12,6 @@ Cross-cutting **implementation plans** for local/dev test tooling that span mult
 
 | Doc | Path |
 |-----|------|
-| FG E2E scenario index | [`../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/README.md`](../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/README.md) |
-| FG Playwright MCP runbook | [`../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/playwright-mcp-runbook.md`](../../09-testing/backend/e2e-scenarios/04-requisitions/finished-goods-workflow/playwright-mcp-runbook.md) |
+| FG E2E scenario index | [`../../09-testing/backend/e2e-scenarios/finished-goods-workflow/README.md`](../../09-testing/backend/e2e-scenarios/finished-goods-workflow/README.md) |
+| FG Playwright MCP runbook | [`../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md`](../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md) |
 | MCP admin guide | [`../../../docs/guides/playwright-mcp-admin.md`](../../../docs/guides/playwright-mcp-admin.md) |

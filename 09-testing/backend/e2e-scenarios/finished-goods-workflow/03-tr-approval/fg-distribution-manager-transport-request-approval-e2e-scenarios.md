@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 3 — Transport Request (TR) 
 version: 1.0
 phase: Phase 1
 related_stories: DR-02, FB-018
-source_spec: ../../../../05-modules/04-requisitions/product-requisition-management-v2.md
+source_spec: ../../../../../05-modules/04-requisitions/product-requisition-management-v2.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---

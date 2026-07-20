@@ -4,7 +4,7 @@ specification: Finished Goods Workflow — Section 9 — Command Center (Source)
 version: 1.0
 phase: Phase 1
 related_stories: CC-01, FB-001
-source_spec: ../../../../05-modules/06-yard-operations/command-center.md
+source_spec: ../../../../../05-modules/06-yard-operations/command-center.md
 last_updated: 2026-07-20
 playwright_mcp: true
 ---
