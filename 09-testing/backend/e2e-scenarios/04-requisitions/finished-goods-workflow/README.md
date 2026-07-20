@@ -9,6 +9,8 @@ last_updated: 2026-07-20
 
 End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery workflow, grouped by workflow section. Each section maps to the PRD / test-suite section numbering and targets **Playwright MCP** against Django Admin SSR unless noted.
 
+**How to run:** [`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md) — dependency-ordered suites (`01-pr-artifacts` → … → `13-18-dest-yard-artifacts`), OTP skip, `RUN_ID` / `state.json`, wipe notes.
+
 ## Sections
 
 | Section | Topic | Actors | Scenario plan |
@@ -41,6 +43,8 @@ End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery wo
 - Internal IDs: `TC01`, `TC02`, … with legacy `FG_*` IDs in **Original ID map** inside each plan
 
 ## Suggested MCP run order
+
+Full procedure (artifacts folders, actors, exit statuses, resume/wipe): **[`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md)**.
 
 1. Sections 1–3 (PR → TR → DM approve) — fixture chain for `TR-FG-…`
 2. Section 4 (TO create/plan) → Section 5–6 (dispatch + trip start)
