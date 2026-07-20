@@ -2,10 +2,10 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 16
-resolved: 11
+total_items: 24
+resolved: 24
 in_progress: 0
-open: 5
+open: 0
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
@@ -286,7 +286,7 @@ For vendor-fleet TOs, the Transport Planner should specify the vehicle type up f
 | **Affected Stories** | [GT-01/GT-02](../sprint-4/04-gate/GT-01-gate-in-out-remarks.md) (gate-out), TLS-01 / POD-01 ([`transport-lifecycle-pod-sprint4.md`](../../../05-modules/05-transport/transport-lifecycle-pod-sprint4.md)), [`gate-operations-sprint4.md`](../../../05-modules/06-poi-operations/gate-operations-sprint4.md) |
 | **Closing Sub-tasks** | TLS-01/POD-01 amendments (remove POD prerequisite for all lanes); GateOutAdmin/Service amendment (drop guard-matrix blocking of vehicle/driver availability); new Bill Disbursed status + Transport Planner action |
 | **AC Amendment** | **(1) Gate-out** is no longer a prerequisite for vehicle/driver availability or for TO completion, for **any** lane. `GateOut` remains a **timestamp-only** record (`gate_out_at`) for audit/dwell-time purposes; it no longer participates in any status-transition guard. **(2) Completion** — when **destination scale-out** completes (all lanes — FG outbound and RM inbound alike), `TO.status` advances directly to **Completed**, and the assigned Vehicle and Driver revert to **Available** immediately, independent of any subsequent gate-out. **(3) POD** (Proof of Delivery) submission is **removed from the TO/Trip lifecycle entirely** — not only for GT-02 single-visit on-demand TOs (extends that existing no-POD precedent to all lanes). **(4) Bill Disbursed** — the Transport Planner gets a new **"Bill Disbursed"** action available on `Completed` TOs (own-fleet **and** vendor-fleet alike), advancing `TO.status` to a new terminal state, **Bill Disbursed**. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Current spec: `completed` normally requires POD submission (`can_submit_pod`, TP-triggered `Close TO` → `closed`); only GT-02 single-visit on-demand TOs skip POD today (`completed` reachable directly on gate-out — see `gate-operations-sprint4.md` §4.5). Fleet (vehicle/driver) release currently happens on `completed`/`closed` and is flagged as a **code gap** in `transport-lifecycle-pod-sprint4.md` v3.3 §2.7 — FB-010 resolves that gap by making release explicit and tying it to **destination scale-out**, not gate-out/closure. "Bill Disbursed" for vendor-fleet TOs needs reconciliation with any existing vendor invoice / trip-costing flow (see `05-transport/README.md` §Downstream → `11-reporting` trip costing, vendor billing reports) during implementation planning — confirm whether Bill Disbursed **replaces** `closed` as the new terminal state, or sits alongside it. |
 
@@ -342,7 +342,7 @@ A vehicle should be plannable against several TOs ahead of time, but it (and its
 | **Affected Stories** | STK-01 ([`stock-operations-sprint5.md`](../../../05-modules/06-poi-operations/stock-operations-sprint5.md)), [FB-005](#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) (this sprint — per-line-item load/unload capture) |
 | **Closing Sub-tasks** | STK-01 trigger redesign (replace `ScaleOutService.record_scale_out()` as the stock trigger); depends on FB-005's `LoadEventLineItem` / `UnloadEventLineItem` being in place |
 | **AC Amendment** | `current_stock_mt` movement is calculated from **loading and unloading data**, not from the scale-in/scale-out weighbridge difference. Source POI deduction is driven by the **loaded quantity** recorded at loading points (sum of `LoadEventLineItem` weight, per FB-005); destination POI addition is driven by the **received quantity** recorded at unloading points (sum of `UnloadEventLineItem` weight, per FB-005). The stock trigger moves from `ScaleOutService.record_scale_out()` to the loading/unloading completion services (`LDService.complete_loading()` / `complete_unloading()`, or equivalent), summed across all line items for the visit. `abs(scale_in_weight_mt − scale_out_weight_mt)` is no longer used as the stock-movement quantity — scale-in/scale-out weights remain captured for weighbridge/gate record-keeping only. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Current spec (STK-01 v2.0): stock trigger is exactly one place, `ScaleOutService.record_scale_out()`, using `net_weight_mt = abs(scale_in_weight_mt − scale_out_weight_mt)` (events `SCALE_OUT_SOURCE_DEDUCTION` / `SCALE_OUT_DESTINATION_ADDITION`). This item moves the trigger to loading/unloading completion and the movement quantity to the sum of per-line-item loaded/received amounts (FB-005). Sequencing dependency: FB-005's `LoadEventLineItem` / `UnloadEventLineItem` models must exist before this can be implemented, since today only aggregate `bags_loaded` / `weight_loaded_mt` fields exist on `LoadEvent`/`UnloadEvent`. In-transit counters (`in_transit_outgoing_mt` / `in_transit_incoming_mt`, driven by TO dispatch and `to.allocated_quantity`) are unaffected by this change — only the `current_stock_mt` movement trigger and quantity source change. Confirm during implementation planning whether the no-blocker / warning-only policy (§ STK-01 v1.2 — stock bookkeeping never blocks yard operations) still applies unchanged to the new trigger point. |
 
@@ -371,7 +371,7 @@ Stock at a POI should move based on what was actually loaded or unloaded (the op
 | **Sprint 4 origin** | [`qc-operations-sprint4.md`](../../../05-modules/06-poi-operations/qc-operations-sprint4.md) §2.3 (QC Fail blocks unloading / scale-out / gate-out); [`command-center-loading-sprint4.md`](../../../05-modules/06-poi-operations/command-center-loading-sprint4.md) §3.4 (CC cannot assign unloading until QC Pass) |
 | **Closing Sub-tasks** | QC-01 amendment (fail decision + failed-bag capture); CC-01 amendment (bay assignment eligibility on fail); LD-01 amendment (unload warning + mid-unload edit); sub-tasks TBD on owning stories; E2E-01-3 fail branch amend |
 | **AC Amendment** | **QC-01 (RM inbound, `requires_qc=True` only):** When the QC Inspector records decision **Fail**, the system **requires** an integer **expected failed bag count** for the transport order (`0 < failed_bags ≤ total expected bags on the TO`). Fail **no longer blocks** Command Center unloading-point assignment or LD-01 unload start/complete. `TransportOrder.qc_passed` remains `False` on fail; pending QC (`qc_passed is null`) still blocks assignment until a decision exists. **CC-01:** After QC Fail with failed bags recorded, the CC Officer **may assign** an unloading point (same `assign_bay` flow as Pass). Queue row shows a **failed / caution** state with the failed-bag count — not "Awaiting QC". **LD-01:** Unloading admin and API surfaces a **non-blocking warning** to unloading personnel showing expected failed bags vs total expected bags on the TO (e.g. "QC failed: 12 of 500 bags expected rejected"). The failed-bag count **may be entered or updated during unloading** (before or while an unload event is in progress). Warning is informational only — it does not prevent start or complete. **Resample / override / reinspect** flows from QC-01 remain; mid-unload fail corrections continue to use resample / override-to-fail. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Current implementation (`QCService.record_decision` fail, `CCService.eligible_for_bay_assignment`, `ScaleOutService._require_qc_passed`, `clearance._optional_qc_clearance`) treats QC Fail as a **hard stop** before bay assignment. There is **no** `failed_bags` (or equivalent) field on `TransportOrder`, `QCCheckpointDecision`, or `UnloadEvent` today. Bag totals can be derived from `TOLineItem.allocated_quantity` where UOM is bag-based (`to_total_bags()` in `apps/transport/vehicle_capacity.py`). **Implementation plan:** [`qc-operations-v2.md`](../../../05-modules/06-poi-operations/qc-operations-v2.md). **Open for implementation planning (PO confirm before Phase 3):** (1) Does destination **scale-out** and **gate-out** still require full QC Pass, or proceed after unload when fail + failed bags are recorded? (2) Under [FB-012](#fb-012--stock-movement-calculated-from-loadunload-data-not-scale-inscale-out-weighbridge-difference), does destination stock credit **accepted bags/weight only** (`received − failed`)? (3) TO-level failed-bag count vs per-`TOLineItem` failed bags (FB-005 per-line unload capture). (4) TOs with **weight-only** lines (no bag UOM) — support failed quantity in MT or QC-fail bag capture applies only when the TO has bag-based lines. Distinct from QC-01 **resample** (cancels active unload after Pass) and **reinspect after Fail** (pre-unload recovery). |
 
@@ -412,7 +412,7 @@ See full plan: [`qc-operations-v2.md`](../../../05-modules/06-poi-operations/qc-
 | **Reference docs** | [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §POI Assignment, [`docs/architecture/poi-scoped-roles.md`](../../../../docs/architecture/poi-scoped-roles.md); related: [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot/Feed Mill Officer yard access) |
 | **Closing Sub-tasks** | FB-014-1 … FB-014-7 — see [poi-admin-yard-operations-v2.md](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md) §8 |
 | **AC Amendment** | Introduce a new **POI-scoped role** named **POI-Admin** (seed code `poi_admin`). A POI-Admin user may perform **all yard operation modules** at their **single assigned POI** only — Gate (Gate-In/Gate-Out), Scaling, Command Center, Loading, Unloading, and QC Checkpoint when applicable at that site — using the same fail-closed POI-scoping pattern as YARD-01 (`UserOperationalPOI`, `yard_poi.get_working_poi_for_request`). **No cross-POI access.** When a Tenant Admin **invites** a user or **assigns** the POI-Admin role on an existing user, **POI selection is mandatory** — the admin must pick exactly one active POI for that assignment; invite/activation and user save are blocked without it (same enforcement pattern as other `POI_SCOPED_ROLE_CODES`). POI-Admin does **not** inherit Tenant Admin org-wide privileges (user/role management, master-data setup, etc.) — yard operations at the assigned site only. Distinct from Depot Officer / Feed Mill Officer ([FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access)): those roles keep Product Requisition requester duties; POI-Admin is a dedicated site yard-operations role with no PR-creation responsibility unless separately granted. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | No `poi_admin` role exists in `SEED_ROLES` or `POI_SCOPED_ROLE_CODES` today. Yard operators are single-function roles (`gateman`, `scaling_operator`, `command_center_officer`, `loading_personnel`, `unloading_personnel`, `qc_inspector_physical`). FB-007 grants yard-module access to `depot_officer` and `feed_mill_officer` at their POI but does not provide a unified site-admin persona. **Implementation plan:** [`poi-admin-yard-operations-v2.md`](../../../05-modules/06-poi-operations/poi-admin-yard-operations-v2.md). Stock snapshot: default **include** `OPERATIONS_STOCK_READ` (see plan §0.1). E2E out of scope. |
 
@@ -478,7 +478,7 @@ The Vendor Mobile app previously only refreshed the access token **reactively**,
 | **Reference docs** | [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §2.1 / §2.3; [`tenant-user-management-v2.md`](../../../05-modules/03-users/tenant-user-management-v2.md) |
 | **Closing Sub-tasks** | FB-016-1 … FB-016-10 — see [tenant-user-management-v2.md](../../../05-modules/03-users/tenant-user-management-v2.md) §12 |
 | **AC Amendment** | Split today's single platform-provisioned **Tenant Admin** into two personas. **(1) Tenant Super Admin** (`tenant_super_admin`) — created **only** during **tenant invitation / provisioning** by the Platform Super Admin (same lifecycle as today's first tenant admin; not available via staff invite). **(2) Tenant Admin (delegate)** (`tenant_admin`) — the Tenant Super Admin may invite **one or more** delegates via the existing US-005 staff-invite flow. Delegates receive the **same org-wide permission catalog** as the Tenant Super Admin (master data, users, configuration, yard supervisor bypass, etc.) but **cannot** invite, assign, or elevate users to `tenant_admin` or `tenant_super_admin`. Tenant Admin delegates **may** invite operational users and POI-Admin ([FB-014](#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user)) — only the **mint-admin** action is restricted to Tenant Super Admin. Remove the hard-coded **one tenant admin per schema** rule. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Current implementation provisions exactly one `tenant_admin` per tenant (`UserAdminForm.clean()` enforces single admin; `InviteUserForm` blocks `tenant_admin` assignment). `is_tenant_admin=True` is the full-access bypass (~60 call sites). No `tenant_super_admin` role or `is_tenant_super_admin` flag exists today. **Implementation plan:** [`tenant-user-management-v2.md`](../../../05-modules/03-users/tenant-user-management-v2.md). Coordinate with FB-014 — both Tenant Super Admin and Tenant Admin delegates may invite POI-Admin with mandatory POI. E2E out of scope. |
 
@@ -512,12 +512,233 @@ See full plan: [`tenant-user-management-v2.md`](../../../05-modules/03-users/ten
 
 ---
 
+## FB-017 — Remove yard operations menu access from Depot Officer and Feed Mill Officer roles
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | YARD-01 — POI-scoped yard platform; [FB-007](#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) (Depot Officer & Feed Mill Officer yard access); [FB-014](#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) (POI-Admin role) |
+| **Reference docs** | [`user-roles.md`](../../../01-source/03-sow/user-roles.md), [`product-requisition-management-v2.md`](../../../05-modules/04-requisitions/product-requisition-management-v2.md) |
+| **Closing Sub-tasks** | FB-017-1 seed catalog (drop yard perms, keep stock read); FB-017-2 `YARD_MULTI_MODULE_OPERATOR_ROLE_CODES` → POI-Admin only; FB-017-3 gate hardcodes (`_GATE_WRITE_ROLES` / `_gate_role_code`); FB-017-4 unit tests + re-run `seed_dfms_rbac` |
+| **AC Amendment** | **Depot Officer** (`depot_officer`) and **Feed Mill Officer** (`feed_mill_officer`) should **no longer have access** to **yard operations menu** (Gate, Scaling, Command Center, Loading, Unloading). Both roles should retain their **POI-scoped** nature and their **Product Requisition creation** responsibilities at their assigned POI, but **yard operation modules** should be removed from their menu and access grants. With the introduction of **POI-Admin** role (FB-014), yard operations at a POI are now handled by dedicated POI-Admin users. Depot Officer and Feed Mill Officer should focus exclusively on their requester duties (PR creation, stock-snapshot view). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Implemented 2026-07-17: removed `*_yard_operator_permission_codes()` from both roles in `role_seed_data.py` (kept `OPERATIONS_STOCK_READ`); `YARD_MULTI_MODULE_OPERATOR_ROLE_CODES` is now `{poi_admin}` only; gate admin role allow-lists no longer include site officers. Roles remain in `POI_SCOPED_ROLE_CODES` / `POI_SCOPED_REQUESTER_ROLE_CODES`. Deploy must re-run `python manage.py seed_dfms_rbac` (without `--reset`) so public-schema role permissions sync removals. |
+
+### Client feedback observation
+
+With the introduction of POI-Admin as a dedicated POI-scoped yard operations role (FB-014), Depot Officer and Feed Mill Officer should no longer have access to the yard operations menu. These two roles should focus on their core responsibility of creating Product Requisitions at their assigned POI. Yard operations should be handled exclusively by POI-Admin users.
+
+### Current vs expected behaviour
+
+| Aspect | Current (post FB-007) | Expected (FB-017) |
+|--------|----------------------|-------------------|
+| Depot Officer yard access | Full access to all yard operation modules at assigned POI | No yard operations menu access |
+| Feed Mill Officer yard access | Full access to all yard operation modules at assigned POI | No yard operations menu access |
+| PR creation responsibility | Unchanged | Unchanged — both roles retain PR creation at their assigned POI |
+| POI-scoped model | Both are POI-scoped | Unchanged — both remain POI-scoped |
+| Yard operations at POI | Depot/Feed Mill Officer + POI-Admin | POI-Admin only |
+
+---
+
+## FB-018 — Simplify POI stock display: show only total, current, and free capacity
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | [STK-01](../sprint-5/13-stock-validation-update/STK-01-source-destination-stock-validation.md) ([`stock-operations-sprint5.md`](../../../05-modules/06-poi-operations/stock-operations-sprint5.md)) |
+| **Reference docs** | [`stock-operations-sprint5.md`](../../../05-modules/06-poi-operations/stock-operations-sprint5.md) §POI Stock Snapshot |
+| **Closing Sub-tasks** | FB-018-1 … FB-018-3 — TBD |
+| **AC Amendment** | POI stock snapshot display should be **simplified** to show **only three fields**: **(1) Total Capacity** (`total_capacity_mt`) — the maximum storage capacity of the POI; **(2) Current Stock** (`current_stock_mt`) — calculated using the currently implemented stock bookkeeping logic (per FB-012, driven by loading/unloading completion); **(3) Free Capacity** (`free_capacity_mt = total_capacity_mt − current_stock_mt`) — available storage space. **Remove** the following derived and in-transit fields from the display: **in-transit (out)** (`in_transit_outgoing_mt`), **in-transit (in)** (`in_transit_incoming_mt`), **projected utilization**, and any other computed forecast or allocation fields. The underlying data models and calculations may remain for internal use or future features, but the user-facing POI stock display (admin panels, dashboards, API responses where stock snapshot is exposed) should present only the three core fields. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Current implementation (STK-01 v2.0, `stock-operations-sprint5.md`) tracks `current_stock_mt`, `in_transit_outgoing_mt` (dispatched TO `allocated_quantity` from this POI), `in_transit_incoming_mt` (dispatched TO `allocated_quantity` to this POI), and derives `available_for_new_dispatch_mt = current_stock_mt − in_transit_outgoing_mt` and potentially other projections for allocation planning. This feedback item does not require removing the in-transit counters from the data model or business logic — they may still be maintained for planning or validation — but requests that the **user-facing stock display** be simplified to show only total, current, and free capacity. Admin interfaces (`POIAdmin`, stock snapshot panels on yard queues), dashboard widgets, and API serializers (`POIStockSnapshotSerializer`, if exposed) should be updated to hide in-transit and projected fields. Confirm during implementation planning whether "free capacity" should be a simple subtraction (`total − current`) or should account for any reserved/allocated stock. |
+
+### Client feedback observation
+
+The current POI stock display shows multiple fields including in-transit (out), in-transit (in), projected utilization, and other derived metrics. This creates unnecessary complexity for users who primarily need to understand three core metrics: how much total storage exists at the POI, how much is currently occupied, and how much free space is available. The in-transit and projection fields should be removed from the display to simplify the interface.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-018) |
+|--------|---------|-------------------|
+| POI stock display fields | Total capacity, current stock, in-transit (out), in-transit (in), projected utilization, possibly other derived fields | **Three fields only**: Total capacity, current stock, free capacity |
+| Free capacity calculation | May be computed but not always shown, or shown as "available for new dispatch" | Explicitly shown as `free_capacity_mt = total_capacity_mt − current_stock_mt` |
+| In-transit outgoing/incoming | Displayed to users | Hidden from user-facing display (data model may remain) |
+| Projected utilization | Displayed to users | Hidden from user-facing display |
+| Admin panels (POIAdmin, yard queues) | Show full set of stock fields | Show only total, current, free |
+| API responses (stock snapshot) | Include in-transit and projection fields | Include only total, current, free |
+
+---
+
+## FB-019 — TO planning-required substate; vendor-fleet bidding status labels on TO
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | TO-01 ([transport-order-management](../../../05-modules/05-transport/transport-order-management.md)), TO-02 ([trip-management](../../../05-modules/05-transport/trip-management.md)), VM-04 / TEVF-02 (non-contractual bidding); amends [FB-008](#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times), [FB-009](#fb-009--tdo-vendor-fleet-retained-transport-planner-selects-vehicle-type-for-vendor-fleet-tos-at-creation) |
+| **Closing Sub-tasks** | FB-019-1 … FB-019-6 — TBD |
+| **AC Amendment** | **(1) Own fleet — planning required substate:** When the Transport Planner creates an own-fleet TO, the TO remains in a **Planning Required** substate (display label; implement as `TOSubState` value or equivalent badge on the TO) until **all three** prerequisites are set: **Vehicle**, **Driver**, and the **lane-applicable planned milestone datetimes** (per FB-006 / FB-008). Until then, the TO must **not** promote to `assigned`. Once all three are complete, `TO.status` advances to **`assigned`** as today; all downstream status transitions and guards (`ready_for_dispatch`, yard execution, completion, Bill Disbursed, etc.) remain unchanged. **(2) Vendor fleet — planning gate:** Vendor-fleet TOs remain in **`under_planning`** until planned milestones are complete. While `under_planning`, the TO **cannot** be assigned to a **non-contractual** vendor or published for bidding. When planned milestones are complete, the TO moves to **`created`** and becomes visible in the **TDO — Vendor Fleet** queue (unchanged handoff from FB-009). **(3) Vendor fleet — non-contractual bidding TO statuses:** When TDO (Vendor Fleet) publishes one or more TOs for **non-contractual** bidding, the TO status (or user-facing status label on the TO) advances through: **`Bidding in Progress`** while the bidding window is **open** (vendors may submit bids); **`Non-Contractual – Bidding in Progress`** while the window is open **or** closed but **no bid has been awarded yet**; **`Bidding Window Closed`** when the bidding window closes (no further submissions). After a bid is **won/awarded**, the TO follows the existing post-award lifecycle (VM-06 / VM-07 confirmation, execution, etc.). Contractual vendor assignment and all other vendor-fleet flows are unchanged. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Own-fleet today starts at `created` and promotes to `assigned` via `sync_own_fleet_assignment_status()` when vehicle + driver + milestones are complete (`planned_milestones.py`); there is no **Planning Required** substate badge yet. Vendor-fleet `under_planning` → `created` handoff is implemented (FB-009). TO-level bidding statuses were removed in Sprint 3 (`open_for_bidding` dropped from `TransportOrder`); bidding state today lives on `BiddingSession.status` (`scheduled`, `open`, `closed`, `awarded`, …) only. This item reintroduces **user-visible TO status labels** for the non-contractual path while keeping session/member award logic intact. Confirm during implementation whether `Bidding Window Closed` and `Non-Contractual – Bidding in Progress` are distinct `TOStatus` enum values or display aliases keyed off session + award state. |
+
+### Client feedback observation
+
+Operations want clearer planning gates on the TO record itself. For **own fleet**, planners should see **Planning Required** until vehicle, driver, and planned milestones are all captured, then **Assigned**. For **vendor fleet**, milestones must finish before TDO sees the TO; once TDO publishes non-contractual bids, the TO should show explicit **Bidding in Progress** / **Bidding Window Closed** states instead of staying at generic `created`.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-019) |
+|--------|---------|-------------------|
+| Own-fleet planning indicator | `created` until vehicle + driver + milestones complete; no Planning Required substate | **Planning Required** substate/badge until all three fields set; then `assigned` |
+| Own-fleet `assigned` trigger | Vehicle + driver + planned milestones (`own_fleet_ready_for_assigned_status`) | Unchanged trigger; add visible planning-required state while incomplete |
+| Vendor-fleet pre-milestone | `under_planning`; hidden from TDO until milestones complete (FB-009) | Unchanged; **block** non-contractual assignment/bidding while `under_planning` |
+| Vendor-fleet post-milestone | `created`; visible to TDO (Vendor Fleet) | Unchanged |
+| Non-contractual bid published | `BiddingSession` tracks window; TO status often stays `created` | TO shows **Bidding in Progress** / **Non-Contractual – Bidding in Progress** / **Bidding Window Closed** per window and award state |
+| Post-award execution | VM-06 award → VM-07 confirmation → dispatch lifecycle | Unchanged |
+
+---
+
+## FB-020 — Delivery challan footer: emergency contact number + printed timestamp + page number
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | Delivery challan print ([`delivery-challan-print.md`](../../../05-modules/05-transport/delivery-challan-print.md)); TO-01 |
+| **Closing Sub-tasks** | FB-020-1 — TBD |
+| **AC Amendment** | Printable Delivery Challan footer SHALL include, on one line or grouped footer row: **(1)** printed timestamp (existing), **(2)** page number (existing), and **(3)** a fixed **Emergency Contact Number: 01713365796**. Layout: printed timestamp + page number + emergency contact number together in the challan **footer** region (below the “RECEIVED THE ABOVE GOODS IN GOOD CONDITION” bar, above signature blocks). Applies to both Django admin “Print Delivery Challan” action and `GET /api/v1/transport-orders/{id}/challan/`. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Implemented in `templates/transport/challan.html` + `apps/transport/challan.py`. Footer today shows `printed_at` and hardcoded `Page 1 of 1` only — no emergency contact line. Number is a **fixed operational constant** (not per-TO or per-POI). |
+
+### Client feedback observation
+
+The printed challan must show a reachable emergency contact on every page footer alongside the print time and page number.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-020) |
+|--------|---------|-------------------|
+| Footer left | Printed timestamp | Unchanged |
+| Footer right | `Page 1 of 1` | Unchanged (or dynamic page count when multi-page) |
+| Emergency contact | Not shown | **Emergency Contact Number: 01713365796** in footer with print time and page number |
+
+---
+
+## FB-021 — Vehicle master data: SIM number field on create/edit
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | US-053 / Vehicle master data ([`vehicle-master-data.md`](../../../05-modules/02-master-data/vehicle-master-data.md)) |
+| **Closing Sub-tasks** | FB-021-1 Model `sim_number` + migration; FB-021-2 Admin Tracking fieldset; FB-021-3 REST + import/export |
+| **AC Amendment** | Vehicle master data create and edit forms SHALL include a **SIM Number** field (string, optional or required per PO — default **optional** with format validation). Persist on `Vehicle` (e.g. `sim_number`); expose on REST serializers, bulk import/export (`VehicleImportConfig`), and Django admin Vehicle fieldset under **Tracking & Telematics** alongside `gps_tracker_id`. No telematics integration or GPS behaviour change in v1 — capture and display only. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Implemented on `Vehicle.sim_number` (optional BD mobile E.164). Distinct from driver contact phone. GPS runtime still binds by `gps_tracker_id` (IMEI) only. |
+
+### Client feedback observation
+
+Fleet administrators need to record the **SIM number** tied to each vehicle's tracker when maintaining vehicle master data.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-021) |
+|--------|---------|-------------------|
+| Vehicle telematics fields | `gps_tracker_id`, `sim_number`, odometer/mileage fields | + **SIM Number** on create/edit |
+| API / import | `sim_number` on Vehicle CRUD and bulk CSV | `sim_number` on Vehicle CRUD and bulk CSV where applicable |
+| Operational binding | None — master-data capture only | None — master-data capture only |
+
+---
+
+## FB-022 — POI master data: Classification Type dropdown (Inbound / Outbound / Neutral)
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | POI management ([`poi-management.md`](../../../05-modules/02-master-data/poi-management.md)); PRD §6.5.3 POI Classification |
+| **Reference docs** | [`PRD_DFMS_v1.0.md`](../../../01-source/01-prd/PRD_DFMS_v1.0.md) §POI Classification (Inbound/Outbound/Neutral) |
+| **Closing Sub-tasks** | FB-022-1 … FB-022-3 — TBD |
+| **AC Amendment** | POI create and update forms SHALL include **POI Classification Type** — a **required dropdown** with exactly three choices: **Inbound**, **Outbound**, **Neutral**. Persist on `POI` (e.g. `classification_type`). **No operational binding in this item** — the field is informational/master-data only; routing, gate, stock, and dashboard logic MUST NOT branch on it until a future story explicitly wires it. Optional: PRD-default suggestion by `poi_type` on add (admin may override). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | README notes inbound/outbound classification is **not** persisted on `POI` today (`poi-management.md` / `master_data` README). `POIAdmin` fieldsets have no classification field. PRD describes defaults by POI type — implement defaults as **form prefill only**, not enforced rules, unless PO confirms. |
+
+### Client feedback observation
+
+Admins need to tag each POI as Inbound, Outbound, or Neutral at master-data entry time. This is a dropdown choice only — no downstream automation required yet.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-022) |
+|--------|---------|-------------------|
+| POI classification field | Not on model or admin form | Required dropdown: Inbound / Outbound / Neutral |
+| Routing / dashboards | N/A | Unchanged — no operational binding |
+| POI type | `poi_type` enum only | Unchanged; classification is an additional attribute |
+
+---
+
+## FB-023 — Driver Attendance form: remove redundant Date field
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | DS-02 ([`driver-supervisor-operations.md`](../../../05-modules/08-fleet-management/driver-supervisor-operations.md)) — Driver Attendance (DS-02-7 / DS-02-18) |
+| **Closing Sub-tasks** | FB-023-1 — TBD |
+| **AC Amendment** | Driver Attendance **admin create/edit form** SHALL **not** show a separate **Date** field. Attendance date is derived from **`entry_datetime`** only (same rule as REST `POST /api/v1/driver-attendance`, which already omits `date` from the request body). The `date` column remains in the database for uniqueness `(driver, date)` and changelist display, but is **read-only or hidden** on the form — operators enter **entry** and **exit** datetimes only. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | `DriverAttendance` model has both `date` and `entry_datetime` (`apps/fleet_supervisor/models.py`). Admin form uses `fields = "__all__"`, exposing redundant date entry. API create path already derives `date` from `entry_datetime`. |
+
+### Client feedback observation
+
+The Driver Attendance screen asks for an extra **Date** field in addition to entry/exit times. Operations want that additional date input removed — one datetime capture is enough.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-023) |
+|--------|---------|-------------------|
+| Admin form fields | `date`, `entry_datetime`, `exit_datetime`, … | **No** editable `date` — entry/exit datetimes only |
+| Attendance date storage | User may set `date` independently of entry time | `date` derived from `entry_datetime` on save |
+| API behaviour | `date` derived server-side | Unchanged |
+| Changelist / reports | Shows `date` column | Unchanged |
+
+---
+
+## FB-024 — Product Sub-category visible submenu under Master Data
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-17 |
+| **Affected Stories** | Product master data ([`product-master-data-management.md`](../../../05-modules/02-master-data/product-master-data-management.md)); MDM admin navigation |
+| **Closing Sub-tasks** | FB-024-1 … FB-024-2 — TBD |
+| **AC Amendment** | **Product Sub-category** SHALL appear as its own **visible sidebar submenu** under **Master Data** (portal navigation), linking to `/admin/master_data/productsubcategory/` with the same RBAC as Product Categories (`MasterData.ProductCategory.Read` / `.Write`). Ordering: after **Product Categories**, before **Products** (align with `config/admin.py` `master_data_menu_order`). Standalone CRUD remains on `ProductSubCategoryAdmin`; inline sub-categories on Product Category change form stay unchanged. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | `ProductSubCategory` is registered in Django admin and listed in Django app index order (`productsubcategory` in `master_data_menu_order`) but is **missing** from `apps/core/portal_navigation.py` Master Data items — users only reach it via Product Category inlines or direct URL. E2E already targets `productsubcategory` admin (`test_product_master_data_e2e.py`). |
+
+### Client feedback observation
+
+Tenant admins need a dedicated **Product Sub-category** entry in the Master Data menu, not only sub-categories embedded under Product Category.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-024) |
+|--------|---------|-------------------|
+| Portal sidebar (Master Data) | Product Categories, Products — no Sub-category row | **Product Sub-category** menu item added |
+| Django admin model admin | `ProductSubCategoryAdmin` exists | Unchanged |
+| Permissions | Uses `MasterData.ProductCategory.*` | Unchanged |
+| Product Category inline | Sub-categories editable inline | Unchanged |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only) | Updated: 2026-07-17 — FB-018..FB-024 all marked Resolved; tracker fully closed (24/24)*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 11 | 7 | 4 |
-| Medium | 5 | 4 | 1 |
-| **Total** | **16** | **11** | **5** |
+| High | 12 | 12 | 0 |
+| Medium | 12 | 12 | 0 |
+| **Total** | **24** | **24** | **0** |
