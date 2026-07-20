@@ -1,0 +1,195 @@
+---
+section: 09-testing/mobile
+title: Maestro Setup and Run Guide — Vendor App
+version: 1.0
+last_updated: 2026-07-20
+app_repo: nourish-vendor-app
+test_case_specs: ./e2e-scenarios/vendor-fleet-phase01/
+---
+
+# Maestro setup and run guide
+
+Operational guide for Maestro E2E tests on the **DFMS Vendor Flutter app**
+(`nourish-vendor-app`). Test-case specifications and **Maestro Status** tracking
+live in [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/)
+(TC_075–TC_215).
+
+> Maestro is **not** installed through npm. Packages named `maestro` or
+> `maestro-cli` on npm are unrelated. Use the official CLI below.
+
+## 1. Prerequisites
+
+- Java 17+
+- Flutter/FVM for `nourish-vendor-app`
+- Android Studio / SDK (Android) or Xcode (iOS simulator)
+- Running emulator, simulator, or USB-debug device
+
+```bash
+java -version
+fvm flutter --version
+adb --version
+```
+
+## 2. Install Maestro
+
+```bash
+curl -fsSL "https://get.maestro.mobile.dev" | bash
+```
+
+Or on macOS:
+
+```bash
+brew tap mobile-dev-inc/tap
+brew install maestro
+```
+
+Add to `~/.zshrc` if needed:
+
+```bash
+export PATH="$PATH:$HOME/.maestro/bin"
+maestro --version
+```
+
+## 3. Start an Android emulator
+
+```bash
+emulator -list-avds
+emulator -avd Pixel_7_Emulator
+adb devices
+```
+
+Pin a device when multiple are connected:
+
+```bash
+maestro --device emulator-5554 test <flow-or-directory>
+```
+
+## 4. Build and install the app
+
+From `nourish-vendor-app/`:
+
+```bash
+fvm flutter run \
+  --flavor flavor_dev \
+  -t lib/main/main_flavor_dev.dart \
+  -d emulator-5554
+```
+
+Or install APK only:
+
+```bash
+fvm flutter build apk \
+  --flavor flavor_dev \
+  -t lib/main/main_flavor_dev.dart \
+  --debug
+
+adb -s emulator-5554 install -r \
+  build/app/outputs/flutter-apk/app-flavor_dev-debug.apk
+```
+
+Expected package: `com.dfms.app.dev.debug`
+
+## 5. Configure test environment
+
+```bash
+cd nourish-vendor-app
+cp .maestro/.env.example .maestro/.env.local
+```
+
+Edit `.maestro/.env.local` (gitignored). Never commit real credentials.
+
+Maestro 2.6.x loads variables via shell export or `--env` flags (not `--env-file`):
+
+```bash
+set -a && source .maestro/.env.local && set +a
+
+maestro --device emulator-5554 test \
+  --env APP_ID="$APP_ID" \
+  --env VENDOR_EMAIL="$VENDOR_EMAIL" \
+  --env VENDOR_PASSWORD="$VENDOR_PASSWORD" \
+  .maestro/flows/smoke
+```
+
+## 6. Run tests
+
+All commands from `nourish-vendor-app/`:
+
+```bash
+# Smoke
+set -a && source .maestro/.env.local && set +a
+maestro --device emulator-5554 test \
+  --env APP_ID="$APP_ID" --env VENDOR_EMAIL="$VENDOR_EMAIL" --env VENDOR_PASSWORD="$VENDOR_PASSWORD" \
+  .maestro/flows/smoke
+
+# One feature
+maestro --device emulator-5554 test \
+  --env APP_ID="$APP_ID" --env VENDOR_EMAIL="$VENDOR_EMAIL" --env VENDOR_PASSWORD="$VENDOR_PASSWORD" \
+  .maestro/flows/auth
+
+# Full suite
+maestro --device emulator-5554 test \
+  --env APP_ID="$APP_ID" --env VENDOR_EMAIL="$VENDOR_EMAIL" --env VENDOR_PASSWORD="$VENDOR_PASSWORD" \
+  .maestro
+```
+
+Suite config: `nourish-vendor-app/.maestro/config.yaml`
+
+## 7. Flow layout (app repo)
+
+```text
+nourish-vendor-app/.maestro/
+├── config.yaml
+├── .env.example
+├── helpers/
+└── flows/
+    ├── smoke/
+    ├── auth/
+    ├── onboarding/
+    ├── tenants/
+    ├── bids/
+    ├── tos/
+    ├── trips/
+    ├── profile/
+    └── settings/
+```
+
+## 8. Update test results
+
+After each Maestro run, update **Maestro Status** in the matching feature file
+under [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/):
+
+| Status | When to use |
+|--------|-------------|
+| Not Started | No run yet |
+| Partial | Flow exists but TC not fully satisfied |
+| Covered | Flow passes |
+| Manual | Needs admin/backend setup |
+| N/A | Out of scope for mobile app |
+
+## 9. Reports and debugging
+
+```bash
+mkdir -p .maestro/output
+
+maestro --device emulator-5554 test \
+  --env APP_ID="$APP_ID" --env VENDOR_EMAIL="$VENDOR_EMAIL" --env VENDOR_PASSWORD="$VENDOR_PASSWORD" \
+  --format junit --output .maestro/output/report.xml \
+  .maestro
+```
+
+Maestro Studio (selector inspection):
+
+```bash
+maestro --device emulator-5554 studio
+```
+
+## 10. Recommended execution order
+
+1. Smoke → Auth → Profile/Settings → Tenants → Bids → TOs → Trips → full suite
+2. Seed backend fixtures before data-dependent flows (open bids, awarded TOs, active trips)
+
+## Related
+
+- Test case specs → [`e2e-scenarios/vendor-fleet-phase01/README.md`](./e2e-scenarios/vendor-fleet-phase01/README.md)
+- Flow README → `nourish-vendor-app/.maestro/README.md`
+- Backend e2e → [`../backend/e2e-scenarios/`](../backend/e2e-scenarios/)

@@ -8,7 +8,7 @@ Cross-platform test documentation covering strategy, backend scenarios, and mobi
 |---|---|
 | `strategy/` | Overall testing strategy — test types, coverage goals, tooling decisions |
 | `backend/` | Backend API and e2e test scenarios |
-| `mobile/` | Mobile test scenarios (placeholder — in progress) |
+| `mobile/` | Vendor app Maestro setup + Phase 01 E2E scenarios (TC_075–TC_215) |
 
 ## Related
 
