@@ -12,6 +12,8 @@ How to execute the FG scenario plans (Sections 1–18) with **Playwright MCP** a
 
 This runbook is the operational companion to the [scenario index](./README.md). Generic MCP mechanics live in [`docs/guides/playwright-mcp-admin.md`](../../../../../../docs/guides/playwright-mcp-admin.md). Credentials: [`docs/testing/playwright-mcp-credentials.yaml`](../../../../../../docs/testing/playwright-mcp-credentials.yaml) (keep in sync with `scripts/seed-data.py`).
 
+**Isolated FG fixtures (seed + wipe):** implementation plan [`mcp-playwright-fg-fixture-seed.md`](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — session sandbox `MCP-S-<RUN_ID>` / `MCP-D-<RUN_ID>` via `scripts/seed-mcp-playwright-fg.py` (do **not** bind the chain to leftover `CTG-*` / shared fleet).
+
 ---
 
 ## Purpose
@@ -32,8 +34,10 @@ This runbook is the operational companion to the [scenario index](./README.md). 
 | Login | `/admin/login/` — **never** bare `localhost` for tenant users |
 | Credentials | Use emails from `playwright-mcp-credentials.yaml` only (pattern `<role.slug><n>.nourish@yopmail.com`) |
 | OTP | Local `.env` must have `ADMIN_LOGIN_OTP_ENABLED=False`. Recreate web after changing. If login lands on OTP (`?otp=1`), **stop and fix env** — do not hardcode OTP. |
-| POIs | Seed: `CTG-001` / ctg-depot, `CTG-002` / ctg-depot-02 (source ≠ destination for TR/TO) |
-| Yard | Gateman / scaling / CC / loading / unloading need `UserOperationalPOI` or working-site pin for the TO’s source then destination POI |
+| FG sandbox | `make seed-mcp-fg RUN_ID=…` per [fixture seed plan](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — source `MCP-S-<RUN_ID>`, dest `MCP-D-<RUN_ID>` (not `CTG-*`) |
+| Manifest | `tests/e2e/playwright-mcp/fg-mcp-<RUN_ID>.json` — products, vehicle, MCP driver, UOP binds |
+| Yard | UOP on MCP POIs created by the seeder; select working site **MCP-S / MCP-D** when prompted |
+| Wipe | After suite: `make wipe-mcp-fg RUN_ID=…` (manifest-driven; never delete `@yopmail.com` seed logins) |
 | MCP | Playwright MCP browser available in Cursor |
 
 ---
@@ -143,7 +147,7 @@ Store under `13-18-dest-yard-artifacts/`.
 4. **Assert UI labels + enum values** from scenario Implementation Notes (e.g. badge **Pending Approval** / `pending_approval`).
 5. **Known gaps:** treat unexpected acceptance as FAIL (e.g. past delivery date on TR create) and file a bug in `RESULTS.md`.
 6. **Stop on OTP** or unexpected permission denial for the seed role — environment/seed issue, not a TC fail.
-7. **Wipe** after the chain (or after a failed long run) via `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md` using `RUN_ID` / `MCP-` prefixes. Prefer wiping fixtures; never mutate seed codes (`CTG-001`, `SUP-01`, etc.).
+7. **Wipe** after the chain (or after a failed long run) via `make wipe-mcp-fg RUN_ID=…` / [fixture seed plan](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) (prefer over ad-hoc DB deletes). Confirm before wipe; never delete `@yopmail.com` seed logins or non-MCP masters (`SUP-01`, etc.).
 
 ---
 
@@ -200,5 +204,6 @@ Password for operational + drivers: `Nourish@1234!`. Tenant admin: `NourishAdmin
 | Generic MCP admin runbook | `docs/guides/playwright-mcp-admin.md` |
 | Credentials registry | `docs/testing/playwright-mcp-credentials.yaml` |
 | Cursor skill | `.cursor/skills/playwright-mcp-admin/SKILL.md` |
+| FG fixture seed / wipe (implementation) | `../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md` |
 | Wipe MCP data | `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md` |
 | Run scenarios skill | `.cursor/skills/run-playwright-mcp-scenarios/SKILL.md` |

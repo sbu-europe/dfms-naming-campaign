@@ -22,7 +22,7 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | TC01 | Open Add FG Product Requisition form | As **Depot Officer** (`depot.officer1@yopmail.com`), log in at `/admin/login/`, select working site if prompted, open **Requisition → Finished Goods** (`/admin/requisitions/productrequisition/`), click **Add Product Requisition**. Assert add form loads at `/admin/requisitions/productrequisition/add/` with **Urgency**, **Destination POI**, **Preferred delivery date & time**, **Special instructions**, product line inline, and **Destination POI — Stock & Capacity** panel showing only **Total capacity**, **Current stock**, and **Free capacity** (FB-018 — no in-transit or projection fields). | P0 | Planned |
-| TC02 | Destination POI pre-filled with assigned POI | As **Depot Officer** on Add PR, assert **Destination POI** is pre-filled with the officer's primary `UserOperationalPOI` assignment (seed example: **ctg-depot** / `CTG-001`). | P0 | Planned |
+| TC02 | Destination POI pre-filled with assigned POI | As **Depot Officer** on Add PR, assert **Destination POI** is pre-filled with the officer's primary `UserOperationalPOI` assignment (FG sandbox: **MCP Dest `<RUN_ID>`** / `MCP-D-<RUN_ID>`; illustrative seed example: **ctg-depot** / `CTG-001`). | P0 | Planned |
 | TC03 | Destination POI is read-only for POI-scoped requester | As **Depot Officer** on Add PR, assert **Destination POI** control (`#id_destination_poi`) is disabled — no usable dropdown change or text edit. | P0 | Planned |
 
 ## Submit validation (negatives)
@@ -81,13 +81,13 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 | Distribution actor (TC09) | `distribution.officer1@yopmail.com` / `Nourish@1234!` |
 | Tenant Admin (TC13) | `admin@yopmail.com` / `NourishAdmin@1234!` |
 | Credentials registry | `docs/testing/playwright-mcp-credentials.yaml` |
-| Working site | Select seed POI when bar shows **Working site — Required** (e.g. `ctg-depot`) |
+| Working site | FG sandbox: **MCP Dest …** / **MCP Source …** from `fg-mcp-<RUN_ID>.json` (illustrative legacy: `ctg-depot`) |
 
 ### Master data prerequisites
 
-- At least two active seed POIs (`CTG-001` / ctg-depot, `CTG-002` / ctg-depot-02).
-- TC12 requires **distinct** primary `UserOperationalPOI` per Depot Officer — verify before run.
-- At least two active Finished Goods products on the PR line inline (e.g. `FG-F-01`, `FG-F-02` when seeded).
+- **Preferred:** `make seed-mcp-fg RUN_ID=…` — dest `MCP-D-<RUN_ID>`, products `MCP-FG-<RUN_ID>-1/2`, UOP binds for depot/feed-mill (see `mcp-playwright-fg-fixture-seed.md`). Pick products/dest from the manifest; do not bind the happy path to leftover `CTG-*` / `FG-F-*`.
+- **Illustrative only:** seed POIs `CTG-001` / `CTG-002` and catalogue SKUs `FG-F-01` / `FG-F-02` may appear in older examples — MCP FG runs should use the session manifest instead.
+- TC12 (two depot officers, distinct POIs): either bind `depot.officer2` to a second MCP dest for that RUN_ID, or use two seed POIs — verify UOP before run.
 
 ### Admin URLs & UI labels (stable)
 
@@ -109,7 +109,7 @@ Prefer accessibility snapshot selectors over brittle CSS. Hide Django Debug Tool
 - Assert UI badge **Submitted** and persisted enum `submitted`.
 - `pr_number` is system-generated (`PR-FG-YYYYMMDD-####`); track by `pr_number` / requester / date for wipe via `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md`.
 - Prefer one `RUN_ID` per MCP session for **Special instructions** free text (`MCP PR <RUN_ID>`).
-
+- After suite: `make wipe-mcp-fg RUN_ID=…` when a session manifest exists.
 ### Known implementation alignment / gaps
 
 | Topic | Scenario expectation | Current admin (`apps/requisitions/admin.py`) |

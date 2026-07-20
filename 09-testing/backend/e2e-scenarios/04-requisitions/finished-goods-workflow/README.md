@@ -11,6 +11,8 @@ End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery wo
 
 **How to run:** [`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md) — dependency-ordered suites (`01-pr-artifacts` → … → `13-18-dest-yard-artifacts`), OTP skip, `RUN_ID` / `state.json`, wipe notes.
 
+**Isolated fixtures:** [`mcp-playwright-fg-fixture-seed.md`](../../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — session `MCP-S/D-<RUN_ID>` sandbox (`seed-mcp-fg` / `wipe-mcp-fg`); do not bind the chain to leftover `CTG-*` data.
+
 ## Sections
 
 | Section | Topic | Actors | Scenario plan |
