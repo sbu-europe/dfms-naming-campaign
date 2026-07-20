@@ -14,8 +14,9 @@ End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery wo
 | Section | Folder | Actors | Scenario plan |
 |---------|--------|--------|---------------|
 | 1 — Product Requisition (PR) Creation | [`01-pr-creation/`](./01-pr-creation/) | Depot Officer, Feed Mill Officer | [`fg-depot-feed-mill-officer-product-requisition-pr-creation-e2e-scenarios.md`](./01-pr-creation/fg-depot-feed-mill-officer-product-requisition-pr-creation-e2e-scenarios.md) |
+| 2 — Transport Request (TR) Creation | *(sibling `04-requisitions/`)* | Distribution Officer | [`fg-distribution-officer-transport-request-e2e-scenarios.md`](../fg-distribution-officer-transport-request-e2e-scenarios.md) |
 
-Additional FG workflow sections (Distribution TR, Transport Order, yard operations, etc.) remain in sibling module folders (`04-requisitions/`, `05-transport/`, `06-yard-operations/`) until migrated here.
+Additional FG workflow sections (DM TR approval, Transport Order, yard operations, etc.) remain in sibling module folders (`04-requisitions/`, `05-transport/`, `06-yard-operations/`) until migrated here.
 
 ## Naming convention
 
