@@ -479,13 +479,13 @@ Source/dest for the run: `MCP-S-<RUN_ID>` (port) → `MCP-D-<RUN_ID>` (mill).
 
 ## 10. Definition of Done
 
-- [ ] `scripts/seed-mcp-playwright-rm.py` implements ensure + wipe + dry-run
-- [ ] `make seed-mcp-rm` / `make wipe-mcp-rm` documented and working on local compose
-- [ ] Manifest written and sufficient for MCP to pick port/mill/products/driver without reading `PORT-01`/`CTG-*`
-- [ ] Fresh ensure on empty or dirty DB does **not** require shared port/mill POIs or fleet
-- [ ] Wipe removes MCP graph + tagged ops chain (incl. QC); seed `@yopmail.com` users and non-MCP masters remain
-- [ ] RM runbook prerequisites updated to this flow
-- [ ] Wipe skill prefers manifest script (still confirm before delete)
+- [x] `scripts/seed-mcp-playwright-rm.py` implements ensure + wipe + dry-run
+- [x] `make seed-mcp-rm` / `make wipe-mcp-rm` documented and working on local compose
+- [x] Manifest written and sufficient for MCP to pick port/mill/products/driver without reading `PORT-01`/`CTG-*`
+- [x] Fresh ensure on empty or dirty DB does **not** require shared port/mill POIs or fleet
+- [x] Wipe removes MCP graph + tagged ops chain (incl. QC); seed `@yopmail.com` users and non-MCP masters remain
+- [x] RM runbook prerequisites updated to this flow
+- [x] Wipe skill prefers manifest script (still confirm before delete)
 - [ ] Optional: Layer 2 bootstrap behind flag only
 
 ---
@@ -507,8 +507,8 @@ Source/dest for the run: `MCP-S-<RUN_ID>` (port) → `MCP-D-<RUN_ID>` (mill).
 
 ## 12. Implementation TODOs
 
-- [ ] Implement Phase A (ensure + manifest)
-- [ ] Implement Phase B (wipe)
-- [ ] Implement Phase C (docs/skills/runbook)
+- [x] Implement Phase A (ensure + manifest)
+- [x] Implement Phase B (wipe)
+- [x] Implement Phase C (docs/skills/runbook)
 - [ ] (Optional) Phase D bootstrap-to status
-- [ ] Smoke: ensure → CO Add Port Shipment shows `MCP-RM-…` products → PO TR create lists `MCP Port …` source → wipe
+- [x] Smoke: ensure → CO Add Port Shipment shows `MCP-RM-…` products → PO TR create lists `MCP Port …` source → wipe

@@ -82,7 +82,7 @@ Each folder should contain `RESULTS.md`, `state.json` (optional), and failure sc
 | Procurement Officer | `procurement.officer1.nourish@yopmail.com` |
 | Transport Planner | `transport.planner1.nourish@yopmail.com` |
 | Driver Supervisor | `driver.supervisor1.nourish@yopmail.com` |
-| Driver | `driver1.nourish@yopmail.com` |
+| Driver (§6 My Trips) | `mcp.drv.<run_id_lower>@example.com` from manifest — **not** `driver1` |
 | Gateman | `gateman1.nourish@yopmail.com` |
 | Scaling Operator | `scaling.operator1.nourish@yopmail.com` |
 | Command Center Officer | `command.center.officer1.nourish@yopmail.com` |
@@ -91,4 +91,17 @@ Each folder should contain `RESULTS.md`, `state.json` (optional), and failure sc
 | QC Inspector | `qc.inspector.physical1.nourish@yopmail.com` |
 | Tenant Admin | `admin.nourish@yopmail.com` |
 
-Password: `Nourish@1234!` (admin: `NourishAdmin@1234!`)
+Password: `Nourish@1234!` (admin: `NourishAdmin@1234!`; MCP driver password also `Nourish@1234!`)
+
+---
+
+## Seed / wipe commands
+
+```bash
+make seed
+make seed-mcp-rm RUN_ID=989F50AE
+# … run suites using manifest POIs/products …
+make wipe-mcp-rm RUN_ID=989F50AE
+```
+
+Use a **distinct** `RUN_ID` from any FG MCP session (both use `MCP-S/D-<RUN_ID>` codes). Plan: [`mcp-playwright-rm-fixture-seed.md`](../../../../05-modules/testing-plan/mcp-playwright-rm-fixture-seed.md).
