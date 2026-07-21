@@ -19,9 +19,18 @@ scenario docs.
 
 | Path | Contents |
 |------|----------|
-| [`maestro-setup-and-run.md`](./maestro-setup-and-run.md) | Install Maestro, emulator setup, env config, run commands |
+| [`maestro-setup-and-run.md`](./maestro-setup-and-run.md) | Install Maestro, seed (`make seed-vendor-mobile`), emulator, run commands |
 | [`e2e-scenarios/`](./e2e-scenarios/) | Vendor-app E2E scenario index |
-| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_075–TC_215 test cases by feature + Maestro status |
+| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_075–TC_215 by feature + Maestro status |
+
+## Tooling
+
+| Tool | Role |
+|------|------|
+| **Maestro** | Vendor Flutter app UI (`nourish-vendor-app/.maestro/`) |
+| **Playwright** (pytest-playwright) | Django Admin / portal (`nourish-backend/tests/e2e/`) — not mobile |
+| **`make seed-vendor-mobile`** | Maestro-aligned vendor accounts + approved membership |
+
 
 ## App repo (automation assets)
 

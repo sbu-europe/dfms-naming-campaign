@@ -2,7 +2,7 @@
 section: 09-testing/mobile
 title: Maestro Setup and Run Guide — Vendor App
 version: 1.0
-last_updated: 2026-07-20
+last_updated: 2026-07-21
 app_repo: nourish-vendor-app
 test_case_specs: ./e2e-scenarios/vendor-fleet-phase01/
 ---
@@ -16,6 +16,34 @@ live in [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-pha
 
 > Maestro is **not** installed through npm. Packages named `maestro` or
 > `maestro-cli` on npm are unrelated. Use the official CLI below.
+
+## 0. Seed backend fixtures (required for logged-in flows)
+
+From `nourish-backend` (Docker Compose local stack):
+
+```bash
+make seed
+MAESTRO_VENDOR_EMAIL=vendor2@gmail.com \
+MAESTRO_VENDOR_PASSWORD='Abc@123456' \
+MAESTRO_ONBOARDING_EMAIL=onboarding.test@example.com \
+MAESTRO_ONBOARDING_PASSWORD=Test@1234 \
+MAESTRO_VENDOR_PHONE=01712345678 \
+make seed-vendor-mobile
+```
+
+`seed-vendor-mobile` creates/updates:
+
+- Approved Non-Contractual vendor + nourish membership (complete onboarding)
+- Onboarding-incomplete vendor (no mandatory docs)
+
+It does **not** create open bids, awarded TOs, or Ready-for-Dispatch trips — those still require TDO/admin (or Playwright MCP).
+
+Optional Playwright admin smoke (not vendor mobile):
+
+```bash
+scripts/compose-local.sh exec -T web playwright install chromium
+scripts/compose-local.sh exec -T web pytest -q tests/e2e/test_admin_login_smoke.py -m "e2e and admin_auth"
+```
 
 ## 1. Prerequisites
 

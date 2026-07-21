@@ -4,7 +4,7 @@ title: Vendor Fleet Phase 01 Test Cases (TC_075–TC_215)
 version: 1.0
 source_document: DFMS-Sprint_Wise_Test_Cases_Phase01.pdf
 implementation_reference: ../../../../nourish-vendor-app/.maestro/
-last_updated: 2026-07-20
+last_updated: 2026-07-21
 ---
 
 # DFMS Vendor App — Phase 01 Test Cases (TC_075–TC_215)
@@ -12,6 +12,18 @@ last_updated: 2026-07-20
 Source document: `DFMS-Sprint_Wise_Test_Cases_Phase01.pdf`
 
 This folder documents **all vendor-fleet-related test cases from TC_075 through TC_215**, grouped by feature. Use it as the specification baseline before implementing and running Maestro flows in `nourish-vendor-app/.maestro/`.
+
+## Execution snapshot (2026-07-21 evening — full suite on `emulator-5554`)
+
+**Suite:** `maestro --device emulator-5554 test .maestro` → **20 Passed / 12 Failed** (continueOnFailure).
+
+| Wave | Result |
+|------|--------|
+| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants list, profile hub/edit/logout, email login, register nav + empty/mismatch validation **passed**. Failures: phone mode switch, phone login, invalid-creds copy, forgot-password OTP, full register+OTP, tenants empty-search copy, change-password field hints. |
+| B — bids | Bids **list** passed. Search empty-copy + open/submit details **failed** (no published bid + copy mismatch). |
+| C/D — TOs / trips | TO list + empty search + all trips flows **passed**. TO details / post-award validation **failed** (no awarded TO). |
+| Admin-only files (`01`, `05`, `06`, `10`, `11`) | Marked **Manual** / **N/A** with portal checklists. |
+| Seed | `make seed-vendor-mobile` creates approved + onboarding vendor accounts (not bids/TOs). |
 
 ## Feature files
 
@@ -60,7 +72,10 @@ This folder documents **all vendor-fleet-related test cases from TC_075 through 
 
 ## Next steps
 
-1. Seed test accounts and backend fixtures (approved vendor, pending vendor, open bids, awarded TOs, active trips).
-2. Implement Maestro flows feature-by-feature starting with [02-registration-auth.md](./02-registration-auth.md).
-3. After each run, update **Maestro Status** and **Maestro Flow** in the feature file.
-4. See [Maestro setup and run guide](../../maestro-setup-and-run.md) for install, env, and run instructions.
+1. From `nourish-backend`: `make seed` then `make seed-vendor-mobile` (accounts + approved nourish membership).
+2. Fill `nourish-vendor-app/.maestro/.env.local` to match seeded emails.
+3. Run Maestro Wave A (`smoke` → `auth` → `onboarding` → `tenants` → `profile`).
+4. In admin as TDO: create Vendor Fleet TOs → publish bid → award → Ready for Dispatch; re-run `bids` / `tos` / `trips`.
+5. After each run, update **Maestro Status** in the feature file.
+6. See [Maestro setup and run guide](../../maestro-setup-and-run.md).
+

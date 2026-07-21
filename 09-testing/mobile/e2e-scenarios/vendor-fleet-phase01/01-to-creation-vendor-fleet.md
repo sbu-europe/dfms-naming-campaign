@@ -17,4 +17,9 @@
 
 ## Vendor app impact
 
-These cases establish backend data (TO-002, TO-003, TO-004) used by downstream vendor-app tests for bids, TO confirmation, and trips. Seed via admin/TP before running mobile Maestro flows.
+These cases establish backend data (TO-002, TO-003, TO-004) used by downstream vendor-app tests for bids, TO confirmation, and trips.
+
+**Execution (2026-07-21):** Not run via Maestro — mark/run in Transport Planner / TDO admin (or Playwright). Prerequisite for Waves B–E mobile flows.
+
+**Seed note:** `make seed-vendor-mobile` does **not** create TOs/bids. Create Vendor Fleet TOs in admin before publishing bids.
+
