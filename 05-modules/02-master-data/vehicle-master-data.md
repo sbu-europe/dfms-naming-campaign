@@ -69,7 +69,8 @@ Vehicle {
   allowed_product_category: enum ['FM', 'RM', 'Both', 'Byproducts', 'Machineries'] (nullable)
   
   // Tracking & Telematics
-  gps_tracker_id: string (nullable)
+  gps_tracker_id: string (nullable) // device IMEI — GPS sync key
+  sim_number: string (nullable) // SIM in the GPS tracker device (not driver phone); BD mobile E.164
   initial_odometer_reading: Decimal (KM, nullable)
   current_odometer_reading: Decimal (KM, nullable)
   average_mileage: Decimal (KM, nullable)
