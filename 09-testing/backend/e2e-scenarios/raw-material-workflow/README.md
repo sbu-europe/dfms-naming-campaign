@@ -13,6 +13,8 @@ End-to-end scenario plans for the **Raw Materials (Port Consignment → TR → T
 
 **How to run:** [`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md) — dependency-ordered suites, `RUN_ID` / `state.json`, wipe notes.
 
+**Isolated fixtures:** [`mcp-playwright-rm-fixture-seed.md`](../../../05-modules/testing-plan/mcp-playwright-rm-fixture-seed.md) — `make seed-mcp-rm RUN_ID=…` for session sandbox `MCP-S/D-<RUN_ID>` (port → mill).
+
 **Credentials:** `docs/testing/playwright-mcp-credentials.yaml`
 
 ## Sections

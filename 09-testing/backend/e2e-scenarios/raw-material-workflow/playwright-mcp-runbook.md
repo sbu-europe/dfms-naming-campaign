@@ -12,6 +12,8 @@ How to execute the RM scenario plans (Sections 1–17) with **Playwright MCP** a
 
 Companion to the [scenario index](./README.md). Generic MCP mechanics: [`docs/guides/playwright-mcp-admin.md`](../../../../../docs/guides/playwright-mcp-admin.md). Credentials: [`docs/testing/playwright-mcp-credentials.yaml`](../../../../../docs/testing/playwright-mcp-credentials.yaml).
 
+**Isolated RM fixtures (seed + wipe):** implementation plan [`mcp-playwright-rm-fixture-seed.md`](../../../../05-modules/testing-plan/mcp-playwright-rm-fixture-seed.md) — session sandbox `MCP-S-<RUN_ID>` (port) / `MCP-D-<RUN_ID>` (mill) via `scripts/seed-mcp-playwright-rm.py` (do **not** bind the chain to leftover `PORT-01` / `CTG-*` / shared fleet).
+
 ---
 
 ## Purpose
@@ -29,10 +31,11 @@ Companion to the [scenario index](./README.md). Generic MCP mechanics: [`docs/gu
 | Stack | Local compose up; seed applied (`make seed` / `scripts/seed-data.py`) |
 | Base URL | `http://nourish.dev.dfms.local:8000` |
 | Login | `/admin/login/` |
-| Port POI | Seed `PORT-01` / `ctg-port-01` for Source POI on Port TR |
-| Yard POI | Mill/depot POI (e.g. `CTG-001`) as Destination; yard roles need **working site** UOP |
+| RM sandbox | `make seed-mcp-rm RUN_ID=…` per [fixture seed plan](../../../../05-modules/testing-plan/mcp-playwright-rm-fixture-seed.md) — source `MCP-S-<RUN_ID>` (`poi_type=port`), dest `MCP-D-<RUN_ID>` (`feed_mill`; not `PORT-01`/`CTG-*`) |
+| Manifest | `tests/e2e/playwright-mcp/rm-mcp-<RUN_ID>.json` — RM products (`MCP-RM-<RUN_ID>-1` QC-on for §14 path), vehicle, MCP driver, UOP binds |
+| Yard | UOP on MCP POIs created by the seeder; select working site **MCP Port / MCP Mill** when prompted |
 | OTP | `ADMIN_LOGIN_OTP_ENABLED=False` in local `.env` |
-| Wipe | `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md` — track `PS-…`, `TR-PORT-…`, `TO-…` by remarks |
+| Wipe | After suite: `make wipe-mcp-rm RUN_ID=…` (manifest-driven; never delete `@yopmail.com` seed logins). Fallback: `.cursor/skills/detect-wipe-mcp-test-data/SKILL.md` — track `PS-…`, `TR-PORT-…`, `TO-…` by remarks |
 
 ---
 
