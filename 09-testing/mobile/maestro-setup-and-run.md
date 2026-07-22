@@ -27,6 +27,8 @@ MAESTRO_VENDOR_EMAIL=vendor2@gmail.com \
 MAESTRO_VENDOR_PASSWORD='Abc@123456' \
 MAESTRO_ONBOARDING_EMAIL=onboarding.test@example.com \
 MAESTRO_ONBOARDING_PASSWORD=Test@1234 \
+MAESTRO_JOIN_VENDOR_EMAIL=join.test@example.com \
+MAESTRO_JOIN_VENDOR_PASSWORD=Test@1234 \
 MAESTRO_VENDOR_PHONE=01712345678 \
 make seed-vendor-mobile
 ```
@@ -35,10 +37,39 @@ make seed-vendor-mobile
 
 - Approved Non-Contractual vendor + nourish membership (complete onboarding)
 - Onboarding-incomplete vendor (no mandatory docs)
+- **Join-ready** vendor (`JOIN_VENDOR_EMAIL`): onboarded, membership on `nourish` cleared each run
 
 It does **not** create open bids, awarded TOs, or Ready-for-Dispatch trips — those still require TDO/admin (or Playwright MCP).
 
-Optional Playwright admin smoke (not vendor mobile):
+### Tenant join loop (TC_102–105 → approve → TC_117)
+
+```bash
+# Mobile: Join → Requested + locked
+cd ../nourish-vendor-app
+set -a && source .maestro/.env.local && set +a
+maestro --device emulator-5554 test \
+  -e APP_ID="$APP_ID" \
+  -e JOIN_VENDOR_EMAIL="$JOIN_VENDOR_EMAIL" \
+  -e JOIN_VENDOR_PASSWORD="$JOIN_VENDOR_PASSWORD" \
+  .maestro/flows/tenants/03_tenant_join_request_and_lock.yaml
+
+# Backend shell approve (preferred over Playwright for this loop)
+cd ../nourish-backend
+make approve-vendor-join
+
+# Mobile: full menu after approve
+cd ../nourish-vendor-app
+set -a && source .maestro/.env.local && set +a
+maestro --device emulator-5554 test \
+  -e APP_ID="$APP_ID" \
+  -e JOIN_VENDOR_EMAIL="$JOIN_VENDOR_EMAIL" \
+  -e JOIN_VENDOR_PASSWORD="$JOIN_VENDOR_PASSWORD" \
+  .maestro/flows/tenants/04_tenant_join_after_approve_full_menu.yaml
+```
+
+Do not re-seed between Join and post-approve flows — `seed-vendor-mobile` clears join membership.
+
+Optional Playwright admin smoke (not vendor mobile; use for admin UI TCs in `05-tenant-approval-admin.md`):
 
 ```bash
 scripts/compose-local.sh exec -T web playwright install chromium
