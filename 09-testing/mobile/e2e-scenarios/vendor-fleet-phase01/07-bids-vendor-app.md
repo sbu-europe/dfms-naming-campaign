@@ -2,16 +2,16 @@
 
 **Module:** Vendor Management — Vendor Bid Submission (Non-Contractual)  
 **Scope:** Vendor mobile app — **Maestro target**  
-**Last Maestro run:** 2026-07-21 evening full suite (no open bid seeded — list only)
+**Last Maestro run:** 2026-07-22 (emulator-5554, backend up; extended `BID-20260707-JON84YZR` close date)
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
-| TC_133 | Open bid & view TOs | Vendor opens published bid; sees TOs. | High | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/03_open_bid_details_from_list.yaml` | Failed without open bid; list OK via `01` |
-| TC_134 | Partial bid (single TO) | Bid on one TO only. | High | Vendor App | Not Started | — | Needs published bid |
-| TC_135 | Bid on all TOs | Bid both TOs together. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/04_bid_details_submit_and_withdraw.yaml` | Failed 2026-07-21 — no open opportunity |
+| TC_133 | Open bid & view TOs | Vendor opens published bid; sees TOs. | High | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/03_open_bid_details_from_list.yaml` | **Failed 2026-07-22** — list has data; Open-filter + tile tap did not reach Bid details (04 passed with same data) |
+| TC_134 | Partial bid (single TO) | Bid on one TO only. | High | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/04_bid_details_submit_and_withdraw.yaml` | Submit flow **Passed**; partial-TO-only not isolated |
+| TC_135 | Bid on all TOs | Bid both TOs together. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/04_bid_details_submit_and_withdraw.yaml` | **Passed 2026-07-22** — submit on open opportunity |
 | TC_136 | Bid price required | Blank price blocked. | Critical | Vendor App | Not Started | — | |
 | TC_137 | Invalid bid price | Zero/negative/non-numeric rejected. | High | Vendor App | Not Started | — | |
-| TC_138 | No edit after submit | Bid locked post-submission. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/04_bid_details_submit_and_withdraw.yaml` | |
+| TC_138 | No edit after submit | Bid locked post-submission. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/04_bid_details_submit_and_withdraw.yaml` | Submit covered; withdraw/assert lock not fully verified |
 | TC_139 | Closed bid window | After Close Date blocked. | Critical | Vendor App | Not Started | — | |
 | TC_140 | No duplicate bid | Same vendor cannot bid twice. | High | Vendor App | Not Started | — | |
 | TC_141 | Multiple vendors | Two vendors bid independently. | Critical | Mixed | Manual | — | |
@@ -24,13 +24,13 @@
 
 ## Related Maestro flows
 
-| Flow | Result 2026-07-21 evening |
-|------|---------------------------|
+| Flow | Result 2026-07-22 |
+|------|-------------------|
 | `bids/01_bids_list_search_and_filters.yaml` | **Passed** |
-| `bids/02_bids_search_filters_list.yaml` | **Failed** — `No opportunities found` not visible |
-| `bids/03_open_bid_details_from_list.yaml` | **Failed** — no bid tile / Bid details (admin: publish bid) |
-| `bids/04_bid_details_submit_and_withdraw.yaml` | **Failed** — Bid details not visible (admin: publish bid) |
+| `bids/02_bids_search_filters_list.yaml` | **Passed** |
+| `bids/03_open_bid_details_from_list.yaml` | **Failed** — Bid details screen not reached |
+| `bids/04_bid_details_submit_and_withdraw.yaml` | **Passed** |
 
-## Blocker
+## Data note
 
-Admin must complete TC_126 (publish bid) before TC_133–140 can move to Covered.
+All bid sessions had past close dates in DB; extended `BID-20260707-JON84YZR` `bid_close_at` +14 days so mobile list shows opportunities. Re-run `make seed-vendor-dev` does not create bids — extend or publish via TDO when dates lapse.

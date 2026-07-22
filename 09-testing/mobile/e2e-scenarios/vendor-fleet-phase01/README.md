@@ -1,10 +1,10 @@
 ---
 section: 09-testing/mobile/e2e-scenarios/vendor-fleet-phase01
 title: Vendor Fleet Phase 01 Test Cases (TC_075–TC_215)
-version: 1.0
+version: 1.1
 source_document: DFMS-Sprint_Wise_Test_Cases_Phase01.pdf
 implementation_reference: ../../../../nourish-vendor-app/.maestro/
-last_updated: 2026-07-21
+last_updated: 2026-07-22
 ---
 
 # DFMS Vendor App — Phase 01 Test Cases (TC_075–TC_215)
@@ -13,24 +13,40 @@ Source document: `DFMS-Sprint_Wise_Test_Cases_Phase01.pdf`
 
 This folder documents **all vendor-fleet-related test cases from TC_075 through TC_215**, grouped by feature. Use it as the specification baseline before implementing and running Maestro flows in `nourish-vendor-app/.maestro/`.
 
-## Execution snapshot (2026-07-21 evening — full suite on `emulator-5554`)
+## Execution snapshot (2026-07-22 — full suite, backend up, `emulator-5554`)
 
-**Suite:** `maestro --device emulator-5554 test .maestro` → **20 Passed / 12 Failed** (continueOnFailure).
+**Command:** `maestro --device emulator-5554 test .maestro` → **26 Passed / 6 Failed** (continueOnFailure).
+
+**Prep:** `make seed-vendor-dev` (onboarding completeness); extended `BID-20260707-JON84YZR` close date; reset `onboarding.test@example.com` mandatory docs for onboarding flow.
 
 | Wave | Result |
 |------|--------|
-| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants list, profile hub/edit/logout, email login, register nav + empty/mismatch validation **passed**. Failures: phone mode switch, phone login, invalid-creds copy, forgot-password OTP, full register+OTP, tenants empty-search copy, change-password field hints. |
-| B — bids | Bids **list** passed. Search empty-copy + open/submit details **failed** (no published bid + copy mismatch). |
-| C/D — TOs / trips | TO list + empty search + all trips flows **passed**. TO details / post-award validation **failed** (no awarded TO). |
-| Admin-only files (`01`, `05`, `06`, `10`, `11`) | Marked **Manual** / **N/A** with portal checklists. |
-| Seed | `make seed-vendor-mobile` creates approved + onboarding vendor accounts (not bids/TOs). |
+| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants (+ empty search), profile hub/edit/logout, email login, register nav/validation, login mode switch **passed**. **OTP cases Skipped** (see `02-registration-auth.md`). Other failures: phone login (`phone_not_verified`), invalid-creds toast timing, change-password wrong-current assert. |
+| B — bids | List, empty search, **submit bid** **passed**. Open-details navigation **failed** (03). |
+| C — TOs | List, empty search, **TO details** **passed**. Post-award driver/vehicle validation **failed** (04). |
+| D — trips | All 4 trips flows **passed**. |
+| Admin-only files (`01`, `05`, `06`, `10`, `11`) | **Manual** / **N/A** — not run on mobile. |
+
+### OTP policy (current system)
+
+OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exists. Tracked in [`02-registration-auth.md`](./02-registration-auth.md): **TC_090–TC_094**, plus flows `auth/10_register_full_flow_with_stub_otp` and `auth/09_forgot_password_navigation_and_otp`.
+
+### Failed flows (fix list — non-OTP)
+
+| Flow | Failure | Root cause / fix |
+|------|---------|------------------|
+| `auth/05_login_phone_password` | No authenticated landing | Backend `phone_not_verified` for test vendor — seed verified phone or assert error copy |
+| `auth/03_login_invalid_credentials` | Error not visible | Toast `Email/password is wrong` timing — assert faster or use snackbar id |
+| `bids/03_open_bid_details_from_list` | Bid details not reached | Align tap with `04` (Open filter + tile); 04 passed same session |
+| `tos/04_post_award_submission_validation` | Action-required TO not tapped | Use specific TO number (e.g. `TO-20260707-0001`) from seeded list |
+| `profile/03_change_password_validation` | Wrong-password error not shown | API/error toast copy mismatch — inspect change-password failure message |
 
 ## Feature files
 
 | File | Feature area | TC range | Primary scope |
 |------|--------------|----------|---------------|
 | [01-to-creation-vendor-fleet.md](./01-to-creation-vendor-fleet.md) | TO creation (Vendor Fleet, batch) | TC_075–TC_082, TC_202 | Admin / Transport Planner |
-| [02-registration-auth.md](./02-registration-auth.md) | Registration & OTP | TC_083–TC_094 | **Vendor mobile app** |
+| [02-registration-auth.md](./02-registration-auth.md) | Registration & auth (OTP **Skipped**) | TC_083–TC_094 | **Vendor mobile app** |
 | [03-onboarding-documents.md](./03-onboarding-documents.md) | Profile completion & documents | TC_095–TC_101 | **Vendor mobile app** |
 | [04-tenant-join.md](./04-tenant-join.md) | Tenant discovery & join request | TC_102–TC_107, TC_117 | **Vendor mobile app** |
 | [05-tenant-approval-admin.md](./05-tenant-approval-admin.md) | Tenant admin approval | TC_108–TC_118 | Tenant admin portal |
@@ -58,24 +74,15 @@ This folder documents **all vendor-fleet-related test cases from TC_075 through 
 | **Not Started** | Documented only; no Maestro run yet |
 | **Partial** | A related flow exists but does not fully satisfy the TC |
 | **Covered** | Maestro flow implemented and passing |
+| **Failed** | Flow ran and failed (see feature file notes) |
+| **Skipped** | Intentionally not run in current system (e.g. OTP) — see feature-file notes |
 | **Manual** | Requires admin/backend seeding; not suitable for pure mobile automation |
 | **N/A** | Out of scope for the vendor mobile app |
 
-## Summary (141 cases)
-
-| Scope | Count | Maestro target |
-|-------|------:|----------------|
-| Vendor mobile app (primary) | 58 | Yes — implement under `nourish-vendor-app/.maestro/flows/` |
-| Vendor mobile app (visibility / negative) | 12 | Yes — often needs multi-account seed data |
-| TDO / Tenant Admin / TP | 58 | Manual or separate admin test suite |
-| Backend / operational chain | 13 | Manual / integration tests |
-
 ## Next steps
 
-1. From `nourish-backend`: `make seed` then `make seed-vendor-mobile` (accounts + approved nourish membership).
-2. Fill `nourish-vendor-app/.maestro/.env.local` to match seeded emails.
-3. Run Maestro Wave A (`smoke` → `auth` → `onboarding` → `tenants` → `profile`).
-4. In admin as TDO: create Vendor Fleet TOs → publish bid → award → Ready for Dispatch; re-run `bids` / `tos` / `trips`.
-5. After each run, update **Maestro Status** in the feature file.
-6. See [Maestro setup and run guide](../../maestro-setup-and-run.md).
-
+1. From `nourish-backend`: ensure stack is up; `make seed-vendor-dev` for vendor onboarding gates.
+2. Extend or publish open bids when close dates lapse (mobile hides expired opportunities).
+3. Re-run: `maestro --device emulator-5554 test .maestro` from `nourish-vendor-app/`.
+4. Fix the 6 failed flows above; update **Maestro Status** in feature files.
+5. See [Maestro setup and run guide](../../maestro-setup-and-run.md).

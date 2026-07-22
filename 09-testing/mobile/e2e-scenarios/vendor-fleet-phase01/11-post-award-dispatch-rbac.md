@@ -1,8 +1,8 @@
-# Post-Award, Dispatch, RBAC & Edge Cases
+# Post-Award Dispatch & RBAC
 
-**Module:** Ready for Dispatch, RBAC, Edge Cases, Post-Award  
-**Scope:** Mixed — admin TDO + vendor app  
-**Status policy:** Admin/backend rows **Manual**. Vendor negative cases Not Started until fixtures exist.
+**Module:** Vendor Management — Ready for Dispatch, RBAC, Edge Cases  
+**Scope:** Admin + vendor (Mixed)  
+**Last Maestro run:** 2026-07-22 (supporting profile/smoke flows only)
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
@@ -23,21 +23,21 @@
 | TC_201 | TDO cannot dispatch early | Ready for Dispatch before confirm blocked. | Critical | TDO | Manual | — | |
 | TC_214 | Post partial award states | Awarded vs Not Awarded independent. | High | TDO | Manual | — | |
 
-## Vendor app cases in this section
+## Cross-references
 
-| TC ID | Notes |
-|-------|-------|
+| TC | See |
+|----|-----|
 | TC_199 | Needs change-driver UI flow |
 | TC_200 | See `09-trips-vendor-app.md` |
 | TC_213 | See `08-transport-orders-vendor-app.md` |
 
 ## Supporting Maestro flows (not Phase 01 PDF IDs)
 
-| Flow | Result 2026-07-21 evening |
-|------|---------------------------|
+| Flow | Result 2026-07-22 |
+|------|-------------------|
 | `profile/01_profile_hub_navigation.yaml` | **Passed** |
 | `profile/02_view_and_edit_profile.yaml` | **Passed** |
-| `profile/03_change_password_validation.yaml` | **Failed** — `Enter current password` not found |
+| `profile/03_change_password_validation.yaml` | **Failed** — wrong-current-password error toast not matched |
 | `profile/04_logout.yaml` | **Passed** |
 | `settings/01_theme_and_language.yaml` | **Passed** |
 | `smoke/00_app_launches.yaml` | **Passed** |

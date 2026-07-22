@@ -2,7 +2,7 @@
 
 **Module:** Vendor Management — Vendor Confirmation  
 **Scope:** Vendor mobile app + TDO award (Mixed)  
-**Last Maestro run:** 2026-07-21 evening full suite (list only — no awarded TO seeded)
+**Last Maestro run:** 2026-07-22 (emulator-5554, awarded TOs visible for `vendor2@gmail.com`)
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
@@ -11,17 +11,17 @@
 | TC_145 | Award any vendor | Award non-lowest OK. | Critical | TDO | Manual | — | |
 | TC_146 | Award both TOs to one vendor | Award TO-002+003 together. | Critical | TDO | Manual | — | |
 | TC_147 | Split awards | Different vendors per TO. | High | TDO | Manual | — | |
-| TC_148 | Status after award | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | Manual | — | **Admin gate Wave C** |
+| TC_148 | Status after award | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | Manual | — | Data present in local DB |
 | TC_149 | Award locked | Cannot re-award. | Critical | TDO | Manual | — | |
 | TC_150 | Only bidding vendors | Cannot award non-bidder. | High | TDO | Manual | — | |
 | TC_151 | Close bid without award | Close open bid. | High | TDO | Manual | — | |
 | TC_152 | Bid winning log | Award logged. | High | TDO | Manual | — | |
 | TC_153 | Non-winner isolation | Non-winner does not see TO. | High | Vendor App | Not Started | — | |
-| TC_154 | Winner sees awarded TOs | Action Required / Pending. | High | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/01_tos_list_search_and_filters.yaml` | List **Passed** evening; award content needs TC_148 |
+| TC_154 | Winner sees awarded TOs | Action Required / Pending. | High | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/01_tos_list_search_and_filters.yaml`, `tos/03_open_to_details_from_list.yaml` | List + TO details **Passed 2026-07-22** |
 | TC_155 | Individual TO confirm | Each TO confirmed separately. | Medium | Vendor App | Not Started | — | |
-| TC_156 | Vehicle Number required | Blank Vehicle Number blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | **Failed** evening — TO details not visible (no award) |
-| TC_157 | Driver Name required | Blank Driver Name blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | Same blocker as TC_156 |
-| TC_158 | Driver Contact required | Blank/invalid phone blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | Same blocker as TC_156 |
+| TC_156 | Vehicle Number required | Blank Vehicle Number blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | **Failed 2026-07-22** — could not tap Action-required TO reliably |
+| TC_157 | Driver Name required | Blank Driver Name blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | Same as TC_156 |
+| TC_158 | Driver Contact required | Blank/invalid phone blocked. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/tos/04_post_award_submission_validation.yaml` | Same as TC_156 |
 | TC_159 | Optional NID/Helper | Optional fields. | Low | Vendor App | Not Started | — | |
 | TC_160 | Vehicle Capacity captured | Capacity stored. | Medium | Vendor App | Not Started | — | |
 | TC_161 | Status → Submitted | After confirm, Submitted. | Critical | Vendor App | Not Started | — | |
@@ -35,15 +35,9 @@
 
 ## Related Maestro flows
 
-| Flow | Result 2026-07-21 evening |
-|------|---------------------------|
+| Flow | Result 2026-07-22 |
+|------|-------------------|
 | `tos/01_tos_list_search_and_filters.yaml` | **Passed** |
 | `tos/02_tos_search_empty_state.yaml` | **Passed** |
-| `tos/03_open_to_details_from_list.yaml` | **Failed** — TO details / Transport bundle not visible (no TO tile) |
-| `tos/04_post_award_submission_validation.yaml` | **Failed** — TO details not visible (no awarded TO) |
-
-## Admin gate (Wave C)
-
-1. Award bid to `VENDOR_EMAIL` (TC_145–148).
-2. Re-run `flows/tos`.
-3. Update statuses to Covered where flows pass.
+| `tos/03_open_to_details_from_list.yaml` | **Passed** |
+| `tos/04_post_award_submission_validation.yaml` | **Failed** — Action-required TO tap / validation assert |

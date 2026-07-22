@@ -15,7 +15,7 @@
 | TC_125 | Auto-populated fields locked | Vehicles/Type/Capacity locked. | Critical | TDO | Manual | — | |
 | TC_126 | Publish bidding | Creates active bid. | Critical | TDO | Manual | — | **Admin gate for Wave B** |
 | TC_127 | Bid lists both TOs | Bid Management references TO-002/003. | High | TDO | Manual | — | |
-| TC_128 | Visible to approved vendor | Bid visible in Vendor App > Bids. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/01_bids_list_search_and_filters.yaml` | List screen **Passed 2026-07-21**; open bid content needs TC_126 |
+| TC_128 | Visible to approved vendor | Bid visible in Vendor App > Bids. | Critical | Vendor App | Partial | `nourish-vendor-app/.maestro/flows/bids/01_bids_list_search_and_filters.yaml`, `bids/04_bid_details_submit_and_withdraw.yaml` | List + submit **Passed 2026-07-22** after extending bid close date |
 | TC_129 | Hidden from pending vendor | Pending vendor cannot see bid. | Critical | Vendor App | Not Started | — | |
 | TC_130 | Contractual vendor excluded | Contractual cannot join Non-Contractual bid. | High | Vendor App | Not Started | — | |
 | TC_131 | At least one TO required | Publish with no TO blocked. | High | TDO | Manual | — | |
