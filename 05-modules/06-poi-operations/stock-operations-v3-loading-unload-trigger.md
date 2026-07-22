@@ -86,16 +86,30 @@ PR/TR line `weight_per_unit` is **not** used for stock conversion in v3.0.
 
 ### 1.2 Operator input vs conversion (per line)
 
-Aligned with existing LD-01-9 validation in `line_item_helpers.validate_line_capture_row()`:
+Aligned with LD-01-9 validation in `line_item_helpers.validate_line_capture_row()` and capture labels in `uom_capture.line_capture_quantity_label()`.
 
-| Product UOM | Operator enters | Stock MT for that line |
-|---|---|---|
-| **Bag**, **Pieces**, **Cartons** | Unit count (`bags_loaded` / `bags_received`) | `units × product.weight_per_unit_kg ÷ 1000` |
-| **Ton** | Weight MT (`weight_loaded_mt` / `weight_received_mt`) | Entered MT directly |
-| **KG** | Weight MT (`weight_*_mt` field — operator enters MT on form) | Entered MT directly |
-| **Liters** | Volume as MT capture OR liters count — **use same weight field** | Entered MT directly (MDM auto-fills `weight_per_unit = 1` KG per liter on Product) |
+**Canonical conversion (all UOMs — same formula):**
 
-`weight_per_unit` is **required** on Product master for Bag / Pieces / Cartons (existing MDM validation). Conversion raises a catchable error → `STOCK_MUTATION_FAILED` if missing.
+```
+stock_mt = qty_in_product_uom × weight_per_unit_kg ÷ 1000
+```
+
+Operators always enter quantity **in the product's UOM**. Stock mutation never treats raw KG/liter/ton counts as if they were already MT.
+
+| Product UOM | Form label (load/unload) | Persisted field | MDM `weight_per_unit` (KG) | Stock MT for that line |
+|---|---|---|---|---|
+| **Bag** | **Actual bags** | `bags_loaded` / `bags_received` | product value (required) | `bags × wpu ÷ 1000` |
+| **Pieces** | **Actual pieces** | `bags_loaded` / `bags_received` | product value (required) | `pieces × wpu ÷ 1000` |
+| **Cartons** | **Actual cartons** | `bags_loaded` / `bags_received` | product value (required) | `cartons × wpu ÷ 1000` |
+| **Ton** | **Actual tons** | `weight_loaded_mt` / `weight_received_mt` | **1000** (default if unset) | `tons × 1000 ÷ 1000` = tons as MT |
+| **KG** | **Actual KG** | `weight_loaded_mt` / `weight_received_mt` | **1** (default if unset) | `kg × 1 ÷ 1000` |
+| **Liters** | **Actual liters** | `weight_loaded_mt` / `weight_received_mt` | **1** (default if unset; 1 L ≈ 1 KG) | `liters × 1 ÷ 1000` |
+
+**Field naming note:** `weight_loaded_mt` / `weight_received_mt` retain legacy column names but store the operator's **product-UOM quantity** for Ton/KG/Liters lines (e.g. `250` for KG, not `0.250`). Converted MT is written to `stock_mt` at persist time via `line_capture_to_stock_mt()`.
+
+**Examples:** `5.5` tons → **5.500** MT; `250` KG → **0.250** MT; `1500` liters → **1.500** MT.
+
+`weight_per_unit` is **required** on Product master for Bag / Pieces / Cartons (existing MDM validation). For Ton / KG / Liters, MDM admin auto-fills defaults (1000 / 1 / 1); conversion uses those defaults when `weight_per_unit` is unset. Conversion raises a catchable error → `STOCK_MUTATION_FAILED` when `weight_per_unit` is missing and no UOM default applies.
 
 ### 1.3 Visit rollup (single bay)
 
@@ -408,7 +422,8 @@ Because `weight_per_unit` is read **live** from Product master:
 - [ ] Legacy cutover guard — v2.0 scale-out stock not duplicated (§10.1)
 - [ ] Stock failures never block loading/unloading/scale-out (non-blocking policy)
 - [ ] UAT: bag product — operator enters bag count only; stock moves correct MT
-- [ ] UAT: ton product — operator enters MT; stock matches
+- [ ] UAT: ton product — operator enters tons (not pre-converted MT); stock matches `tons × wpu ÷ 1000`
+- [ ] UAT: KG / Liters product — operator enters kg/liters; stock matches `qty × wpu ÷ 1000` (e.g. 250 KG → 0.250 MT)
 
 ---
 
