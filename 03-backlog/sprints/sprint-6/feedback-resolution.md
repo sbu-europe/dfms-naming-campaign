@@ -2,8 +2,8 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 24
-resolved: 24
+total_items: 31
+resolved: 31
 in_progress: 0
 open: 0
 ---
@@ -733,12 +733,188 @@ Tenant admins need a dedicated **Product Sub-category** entry in the Master Data
 
 ---
 
+## FB-025 — User menu status filter shows incorrect status
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | US-007 (user management); [`tenant-user-management.md`](../../../05-modules/03-users/tenant-user-management.md) |
+| **Closing Sub-tasks** | FB-025-1 — User changelist status filter corrected |
+| **AC Amendment** | Under the **Users** admin menu, the **status filter** SHALL show and filter by the **correct user status** values (active / inactive / invited / locked / etc. as implemented). Filtering a status returns only users whose displayed status matches that filter option — no mismatched labels or wrong queryset mapping. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Client reported the User menu status filter was not reflecting the correct status. Fixed so filter options and list results align with the user status shown on the changelist. |
+
+### Client feedback observation
+
+The status filter under the User menu did not show or apply the correct user status, making it hard for Tenant Admins to find users by lifecycle state.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-025) |
+|--------|----------------------|-------------------|
+| Status filter options | Incorrect / mismatched vs displayed status | Options match real user status values |
+| Filter results | Wrong users returned for a selected status | Only users with that status |
+
+---
+
+## FB-026 — Password reset: admin justification field required
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | US-006 / password reset & unlock ([`tenant-user-management.md`](../../../05-modules/03-users/tenant-user-management.md)); PRD §Security — password reset audit |
+| **Closing Sub-tasks** | FB-026-1 — Admin justification on password-reset action |
+| **AC Amendment** | When a Tenant Admin (or privileged admin) triggers a **password reset** for a user, the form/action SHALL require an **admin justification** field. Reset cannot submit with a blank justification. The justification is persisted on the password-reset audit log (admin ID, timestamp, target user, remarks). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | PRD requires justification remarks on admin unlock/reset-style actions. Client reported the justification field was missing from the Password Reset admin flow; field is now present and required. |
+
+### Client feedback observation
+
+Admin-initiated password reset had no justification field, so resets could not be audited with a clear reason.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-026) |
+|--------|----------------------|-------------------|
+| Justification on password reset | Missing | Required text field |
+| Audit | Incomplete / no admin remarks | Justification stored with reset audit entry |
+
+---
+
+## FB-027 — Tenant Admin multi-select accept/reject vendors
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | VM-01 / vendor registration approval ([`vendor-onboarding.md`](../../../05-modules/07-vendor-management/vendor-onboarding.md)) |
+| **Closing Sub-tasks** | FB-027-1 — Bulk accept/reject actions on vendor registration changelist |
+| **AC Amendment** | Tenant Admin SHALL be able to **accept or reject vendors by multi-selection** on the vendor registration / pending-vendor admin list: select multiple rows, then run **Accept** or **Reject** as a bulk action. Each selected vendor follows the same single-row accept/reject rules (validation, status transition, audit). Reject may require a reason where single-row reject already does. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Client asked for multi-select accept/reject instead of one-by-one only. Bulk actions now cover the pending vendor approval queue. |
+
+### Client feedback observation
+
+Tenant Admins needed to approve or reject several vendor registrations at once rather than opening each record individually.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-027) |
+|--------|----------------------|-------------------|
+| Accept / Reject | Single-row only | Multi-select bulk Accept and Reject |
+| Per-vendor rules | Single-row validation | Same rules applied to each selected row |
+
+---
+
+## FB-028 — Master data delete requires Reason field
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | MDM delete ([`master-data-delete-operations.md`](../../../05-modules/02-master-data/master-data-delete-operations.md)) |
+| **Closing Sub-tasks** | FB-028-1 — Mandatory delete reason on hard delete |
+| **AC Amendment** | Master data **cannot be deleted without a Reason field**. On Admin hard delete (when dependency scan finds **no** blocking references), the admin **must enter a delete reason** before the row is removed. Blank reason blocks delete with a validation error. Reason is written to the DELETE audit log. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Aligns with [`master-data-delete-operations.md`](../../../05-modules/02-master-data/master-data-delete-operations.md) v1.2 — no-dependency hard delete requires mandatory delete reason + audit. |
+
+### Client feedback observation
+
+Master-data Delete allowed removal without capturing why the record was deleted. Operations require a mandatory reason for accountability.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-028) |
+|--------|----------------------|-------------------|
+| Delete reason | Optional / missing | **Required** when hard delete is allowed |
+| Audit | May omit reason | DELETE audit includes admin-provided reason |
+
+---
+
+## FB-029 — POI (and master data) deletion: clear dependency messages
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | POI / MDM delete ([`master-data-delete-operations.md`](../../../05-modules/02-master-data/master-data-delete-operations.md), [`poi-management.md`](../../../05-modules/02-master-data/poi-management.md)) |
+| **Closing Sub-tasks** | FB-029-1 — Friendly blocked-delete messages with counts and labels |
+| **AC Amendment** | When Tenant Admin attempts to **delete a POI** (or other master entity) that still has dependencies, the system SHALL show a **clear, user-friendly message** listing what blocks deletion — not a raw Django protected-object dump. Message tone examples: **"Cannot delete Depot ABC - 5 vehicles and 12 users currently assigned"**; **"Cannot delete Product Category Feed - 23 products exist under this category"**; **"Cannot modify Route XY - 3 approved TRs currently reference this route"**. Prefer deactivate when dependencies exist. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Covered by master-data delete dependency gate + human-readable labels (`Cannot delete '{name}' … — {n} {labels} currently assigned. Deactivate it instead.`). Applies across POI and other TenantMasterDataAdmin models. |
+
+### Client feedback observation
+
+When delete was blocked, admins needed plain-language messages that name the entity and count related vehicles, users, products, TRs, etc., so they know what to clean up or that they should deactivate instead.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-029) |
+|--------|----------------------|-------------------|
+| Blocked delete UX | Unclear / technical error | Clear message with entity name + dependency counts/labels |
+| Suggested action | Unclear | Prefer deactivate when dependencies exist |
+
+---
+
+## FB-030 — User bulk import feature not working
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | US-005 / user bulk import ([`tenant-user-management.md`](../../../05-modules/03-users/tenant-user-management.md)); E2E [`user-bulk-import-e2e-scenarios.md`](../../../09-testing/backend/e2e-scenarios/users/user-bulk-import-e2e-scenarios.md) |
+| **Closing Sub-tasks** | FB-030-1 — Restore working User bulk import (template, validate, create) |
+| **AC Amendment** | **User Bulk Import** SHALL work end-to-end for Tenant Admin: download/upload template, validate rows, create/invite users per import rules, and surface clear success/error feedback. Previously broken import paths (template, parsing, or create) are fixed so the feature is usable in Admin. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Client reported User Bulk Import was not functional. Fixed and covered by Playwright MCP / e2e scenarios under `users/user-bulk-import-e2e-scenarios.md`. |
+
+### Client feedback observation
+
+The User Bulk Import admin feature was not working — Tenant Admins could not successfully import users from the bulk CSV/template flow.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-030) |
+|--------|----------------------|-------------------|
+| Bulk import | Broken / non-functional | Working template → validate → create/invite flow |
+| Error feedback | Missing or opaque | Clear row/field errors on failure |
+
+---
+
+## FB-031 — Dwell time: planned data, actual gate-in/out, geofence in/out
+
+| Field | Value |
+|-------|-------|
+| **Source** | Client feedback — 2026-07-22 |
+| **Affected Stories** | GPS / trip dwell ([`gt06-server.md`](../../../05-modules/09-tracking/gt06-server.md)); gate timestamps (GT-01/GT-02); planned milestones ([FB-006](#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta) / [FB-008](#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)) |
+| **Closing Sub-tasks** | FB-031-1 — Surface planned vs actual dwell inputs (plan, gate-in/out, geofence in/out) |
+| **AC Amendment** | Dwell-time visibility SHALL include **(1) Planned data** (lane-applicable planned milestone times), **(2) Actual gate-in / gate-out** timestamps, and **(3) Geofence in / out** events. Operators and reports can compare planned vs actual yard presence using these three sources together — not planned alone or GPS alone. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Ties planned milestones, gate timestamp records, and geofence entry/exit (dwell engine) into the dwell-time operational view / reporting contract. |
+
+### Client feedback observation
+
+Operations need dwell analysis that combines **planned** milestone times with **actual gate-in/out** and **geofence in/out**, so planned vs actual presence at the POI is visible in one place.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before fix) | Expected (FB-031) |
+|--------|----------------------|-------------------|
+| Planned times | Partial / not tied to dwell view | Included in dwell-time data set |
+| Gate-in / gate-out | Captured but not always shown with dwell | Included as actual yard timestamps |
+| Geofence in / out | Engine events exist | Included alongside plan + gate for dwell comparison |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only) | Updated: 2026-07-17 — FB-018..FB-024 all marked Resolved; tracker fully closed (24/24)*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only) | Updated: 2026-07-17 — FB-018..FB-024 all marked Resolved; tracker fully closed (24/24) | Updated: 2026-07-22 — FB-025..FB-031 added and Resolved: User status filter; password-reset admin justification; vendor multi-select accept/reject; master-data delete reason; POI/master delete clear dependency messages; user bulk import; dwell time planned + gate-in/out + geofence in/out (31/31)*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 12 | 12 | 0 |
-| Medium | 12 | 12 | 0 |
-| **Total** | **24** | **24** | **0** |
+| High | 16 | 16 | 0 |
+| Medium | 15 | 15 | 0 |
+| **Total** | **31** | **31** | **0** |
