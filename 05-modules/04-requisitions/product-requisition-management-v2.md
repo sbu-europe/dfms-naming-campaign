@@ -10,7 +10,7 @@ related_stories: YARD-01 (POI-scoped yard platform), BUG-06 (tenant-admin workin
 feedback_items: FB-007
 supersedes: product-requisition-management.md §0 (menu), §1.1 (destination POI), §5 (role gates), §6.2 (destination POI pre-fill), §12.1 (PR type gate — POI scope), §16.1 (RBAC dependency)
 baseline_spec: product-requisition-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md
+feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
 jira_epic: DFS-040
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-040
 
 ## Overview
 
-This document is the **Sprint 6 implementation plan** for [FB-007](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access). It amends the baseline [Product Requisition Management Specification (v1.1)](./product-requisition-management.md).
+This document is the **Sprint 6 implementation plan** for [FB-007](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access). It amends the baseline [Product Requisition Management Specification (v1.1)](./product-requisition-management.md).
 
 **Problem (client feedback — 2026-07-03):** Depot Officer and Feed Mill Officer can raise Finished Goods PRs and view stock at their site, but they **cannot operate the yard** (Gate-In/Out, Scaling, Command Center, Loading, Unloading) at all. Operationally, these officers need to run day-to-day yard workflows at their own depot/feed-mill POI in addition to raising requisitions.
 
@@ -418,7 +418,7 @@ Distribution and Procurement workflows are unaffected. FG PRs still route to Dis
 ## 11. Related documentation
 
 - **[Product Requisition Management (v1.1 — baseline)](./product-requisition-management.md)**
-- **[FB-007 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access)**
+- **[FB-007 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access)**
 - **[YARD-01 — POI-scoped yard platform](../../03-backlog/sprints/sprint-5/10-yard-foundation/YARD-01-poi-scoped-yard-platform.md)**
 - **[BUG-06 — Tenant admin POI access](../../03-backlog/sprints/sprint-6/06-bug-fixes/BUG-06-tenant-admin-poi-access-not-enforced.md)**
 - **[User Tenant Management — POI Assignment](../01-foundation/user-tenant-management.md)**
