@@ -1255,7 +1255,7 @@ Return `{"id", "label", "active_count"}`; label suffix `(N vehicles)` when `acti
 
 ## 12. Sprint 6 FB-005 — Per-line load/unload quantity capture (LD-01-9)
 
-**Feedback**: [Sprint 6 FB-005](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) — operators capture quantities **per `TOLineItem`**, not one aggregate per event.
+**Feedback**: [Sprint 6 FB-005](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) — operators capture quantities **per `TOLineItem`**, not one aggregate per event.
 
 > **Naming**: Sprint 5 [FB-005](../../03-backlog/sprints/sprint-5/feedback-resolution.md#fb-005--waiting-serial-must-support-multiple-vehicles-per-lu-point--daily-reset-at-1200-am) = multiple vehicles per L/U point (§11). Sprint 6 FB-005 = per-line quantity capture (this section). Same label, different sprint trackers.
 
@@ -1389,7 +1389,7 @@ E2E coverage remains LD-01-10 (out of scope for this spec slice).
 - REST/mobile LD two-step start UX (admin-only complete formset in this slice).
 - LD-01-10 Playwright E2E scenarios.
 
-Source: [Sprint 6 feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution.md) § FB-005; closes LD-01-9 (amend), enables LD-01-10.
+Source: [Sprint 6 feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution/README.md) § FB-005; closes LD-01-9 (amend), enables LD-01-10.
 
 ---
 

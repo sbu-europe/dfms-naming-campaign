@@ -10,7 +10,7 @@ related_stories: TO-01 (transport-order-management), TO-02 (trip-management), FB
 feedback_items: FB-008
 supersedes: transport-order-management.md §1 (roles), §2 (model), §3 (status), §4 (creation); trip-management.md §1 (roles), §2.1 (assignment owner)
 baseline_spec: transport-order-management.md, trip-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md
+feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
 jira_epic: DFS-040
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-040
 
 ## Overview
 
-This document is the **Sprint 6 backend implementation plan** for [FB-008](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times). It amends the baseline [Transport Order Management](./transport-order-management.md) and [Trip Management](./trip-management.md) specifications.
+This document is the **Sprint 6 backend implementation plan** for [FB-008](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times). It amends the baseline [Transport Order Management](./transport-order-management.md) and [Trip Management](./trip-management.md) specifications.
 
 **Problem (client feedback — 2026-07-03):** Operations no longer want a separate **TDO — Own Fleet** persona. Today the Transport Planner creates own-fleet TOs and a different user (TDO Own Fleet) assigns vehicle, driver, helpers, and planned times in a separate Assignment Queue. This split adds hand-off friction and duplicates context the Planner already has at creation time.
 
@@ -527,8 +527,8 @@ tests/integration/                         API permission + assignment regressio
 
 ## 13. Related documentation
 
-- **[FB-008 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)**
-- **[FB-006 — Planned milestone times](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta)** (amended by FB-008)
+- **[FB-008 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)**
+- **[FB-006 — Planned milestone times](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta)** (amended by FB-008)
 - **[Transport Order Management (v1 — baseline)](./transport-order-management.md)** *(module README reference)*
 - **[Trip Management (v1 — baseline)](./trip-management.md)** *(module README reference)*
 - **[Own-Fleet Vehicle Capacity Validation](./own-fleet-vehicle-capacity-validation.md)** — primary user becomes Transport Planner
