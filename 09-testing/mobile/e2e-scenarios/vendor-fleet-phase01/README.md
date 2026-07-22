@@ -25,7 +25,7 @@ This folder documents **all vendor-fleet-related test cases from TC_075 through 
 | B — bids | List, empty search, **submit bid** **passed**. Open-details navigation **failed** (03). |
 | C — TOs | List, empty search, **TO details** **passed**. Post-award driver/vehicle validation **failed** (04). |
 | D — trips | All 4 trips flows **passed**. |
-| Admin-only files (`01`, `05`, `06`, `10`, `11`) | **Manual** / **N/A** — not run on mobile. |
+| Admin-only files (`01`, `05`, `06`, `10`, `11`) | **Manual** / **N/A** for Maestro — not run on mobile. **`05` covered by Playwright** (`nourish-backend/tests/e2e/playwright-mcp/vendor-tenant-approval-artifacts/`, 2026-07-22). |
 
 ### OTP policy (current system)
 
@@ -49,7 +49,7 @@ OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exist
 | [02-registration-auth.md](./02-registration-auth.md) | Registration & auth (OTP **Skipped**) | TC_083–TC_094 | **Vendor mobile app** |
 | [03-onboarding-documents.md](./03-onboarding-documents.md) | Profile completion & documents | TC_095–TC_101 | **Vendor mobile app** |
 | [04-tenant-join.md](./04-tenant-join.md) | Tenant discovery & join request | TC_102–TC_107, TC_117 | **Vendor mobile app** |
-| [05-tenant-approval-admin.md](./05-tenant-approval-admin.md) | Tenant admin approval | TC_108–TC_118 | Tenant admin portal |
+| [05-tenant-approval-admin.md](./05-tenant-approval-admin.md) | Tenant admin approval | TC_108–TC_118 | Tenant admin portal (**Playwright**) |
 | [06-bid-publishing-admin.md](./06-bid-publishing-admin.md) | Bid publishing (TDO) | TC_119–TC_132, TC_203–TC_209, TC_205–TC_208 | Vendor Fleet TDO |
 | [07-bids-vendor-app.md](./07-bids-vendor-app.md) | Bid visibility & submission | TC_128–TC_142, TC_192, TC_204, TC_210–TC_212 | **Vendor mobile app** (+ admin eval) |
 | [08-transport-orders-vendor-app.md](./08-transport-orders-vendor-app.md) | Awarded TO confirmation | TC_153–TC_163, TC_180–TC_182, TC_193, TC_213 | **Vendor mobile app** |
@@ -63,7 +63,7 @@ OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exist
 |--------|---------|
 | **Priority** | Critical / High / Medium / Low (from PDF) |
 | **Scope** | Where the case is verified: `Vendor App`, `TDO`, `Tenant Admin`, `TP`, `Backend`, or `Mixed` |
-| **Maestro Status** | Automation status on the vendor mobile app (updated after Maestro runs) |
+| **Maestro Status** | Automation status on the vendor mobile app (updated after Maestro runs). Admin-portal rows use **Playwright Status** in the feature file instead. |
 | **Maestro Flow** | Planned or existing flow under `nourish-vendor-app/.maestro/flows/` |
 | **PDF Notes** | Original PDF flags such as `Skip` (audit-log cases) |
 
