@@ -9,14 +9,14 @@ last_updated: 2026-07-23
 playwright_mcp: true
 suite: master-data-phase1-v2
 last_mcp_run: 2026-07-23
-last_mcp_verdict: 13/14 Pass · 1 Fail
+last_mcp_verdict: 14/14 Pass
 artifacts: tests/e2e/playwright-mcp/product-subcategories-artifacts/
 ---
 # Product Subcategories — E2E Scenario Plan
 
-> **2026-07-23 — 13/14 Pass** (MD_PSUB_001–014). MD_PSUB_003 Fail: inactive category still on Add Subcategory. Suite run via Playwright MCP against Nourish admin.
+> **2026-07-23 — All 14 test cases passed** (MD_PSUB_001–014). Suite signed off via Playwright MCP against Nourish admin.
 
-**Last MCP run:** 2026-07-23 · **13/14 Pass · 1 Fail** · `RUN_ID=AA944B38`  
+**Last MCP run:** 2026-07-23 · **14/14 Pass** · `RUN_ID=BFF061E7`  
 **Artifacts:** [`tests/e2e/playwright-mcp/product-subcategories-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/product-subcategories-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_PSUB_001–013); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_PSUB_014).
 
@@ -24,7 +24,8 @@ artifacts: tests/e2e/playwright-mcp/product-subcategories-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **13/14** | MD_PSUB_003 Fail — inactive category on subcategory form (Playwright MCP). |
+| 2026-07-23 | **14/14** | All test cases passed (Playwright MCP). MD_PSUB_003 inactive-category filter fixed. |
+| 2026-07-23 | **13/14** | Prior run — MD_PSUB_003 Fail (inactive category on subcategory form). |
 
 ## Test cases
 
@@ -32,7 +33,7 @@ artifacts: tests/e2e/playwright-mcp/product-subcategories-artifacts/
 |--------------|---------------|------------------|----------|--------|
 | MD_PSUB_001 | Navigate Add Subcategory | Open `/admin/master_data/productsubcategory/` Add. | P2 | Pass |
 | MD_PSUB_002 | Parent Category mandatory | Blank category blocked. | P0 | Pass |
-| MD_PSUB_003 | Active categories only | Category dropdown/autocomplete excludes inactive. | P0 | Fail |
+| MD_PSUB_003 | Active categories only | Category dropdown/autocomplete excludes inactive. | P0 | Pass |
 | MD_PSUB_004 | Code unique within category | Duplicate sub_category_code under same category rejected. | P0 | Pass |
 | MD_PSUB_005 | Code reusable across categories | Same code under other category succeeds. | P2 | Pass |
 | MD_PSUB_006 | Name mandatory | Blank name blocked. | P0 | Pass |
@@ -55,5 +56,4 @@ artifacts: tests/e2e/playwright-mcp/product-subcategories-artifacts/
 
 | Topic | Suite v2 | Code / this plan |
 |-------|----------|------------------|
-| Inactive parent on Add Subcategory | Excluded | Still listed (MD_PSUB_003 Fail) |
 | Code reusable across categories | Allowed | Global `unique=True` — same code rejected (MD_PSUB_005 Pass with note) |

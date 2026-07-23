@@ -9,14 +9,14 @@ last_updated: 2026-07-23
 playwright_mcp: true
 suite: master-data-phase1-v2
 last_mcp_run: 2026-07-23
-last_mcp_verdict: 19/20 Pass · 1 Fail
+last_mcp_verdict: 20/20 Pass
 artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 ---
 # Product Categories — E2E Scenario Plan
 
-> **2026-07-23 — 19/20 Pass** (MD_PCAT_001–020). MD_PCAT_017 Fail: inactive category still on Product form. Suite run via Playwright MCP against Nourish admin.
+> **2026-07-23 — All 20 test cases passed** (MD_PCAT_001–020). Suite signed off via Playwright MCP against Nourish admin.
 
-**Last MCP run:** 2026-07-23 · **19/20 Pass · 1 Fail** · `RUN_ID=AA944B38`  
+**Last MCP run:** 2026-07-23 · **20/20 Pass** · `RUN_ID=BFF061E7`  
 **Artifacts:** [`tests/e2e/playwright-mcp/product-categories-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/product-categories-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_PCAT_001–019); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_PCAT_020).
 
@@ -24,7 +24,8 @@ artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **19/20** | MD_PCAT_017 Fail — inactive category still in Product dropdown (Playwright MCP). |
+| 2026-07-23 | **20/20** | All test cases passed (Playwright MCP). MD_PCAT_017 inactive filter fixed. |
+| 2026-07-23 | **19/20** | Prior run — MD_PCAT_017 Fail (inactive category on Product form). |
 
 ## Test cases
 
@@ -46,7 +47,7 @@ artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 | MD_PCAT_014 | Export CSV | Export categories. | P2 | Pass |
 | MD_PCAT_015 | Search/filter/pagination | Filter by product_type/status. | P2 | Pass |
 | MD_PCAT_016 | Rename category | Edit name; save. | P1 | Pass |
-| MD_PCAT_017 | Deactivate excludes from Product form | Inactive category not in Add Product category dropdown. | P0 | Fail |
+| MD_PCAT_017 | Deactivate excludes from Product form | Inactive category not in Add Product category dropdown. | P0 | Pass |
 | MD_PCAT_018 | Soft delete via Edit → Inactive | Open **Edit**, uncheck **Is active?**, Save. Assert remains Inactive. | P0 | Pass |
 | MD_PCAT_019 | Hard delete blocked by products | Category with products; hard delete blocked. | P0 | Pass |
 | MD_PCAT_020 | Depot Officer RBAC | Cannot mutate categories. | P0 | Pass |
@@ -56,9 +57,3 @@ artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 - Inline subcategories; bulk import yes.
 - Wipe prefix: `MCP-MD-<RUN_ID>-` / `MCP-<TAG>-<RUN_ID>`
 - Runner: `tests/e2e/playwright-mcp/product-categories-artifacts/run-product-categories.js`
-
-### Known drift (suite PDF → code)
-
-| Topic | Suite v2 | Code / this plan |
-|-------|----------|------------------|
-| Inactive category on Product form | Excluded | Still listed (MD_PCAT_017 Fail) |
