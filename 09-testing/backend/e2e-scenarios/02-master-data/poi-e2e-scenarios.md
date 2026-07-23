@@ -9,12 +9,14 @@ last_updated: 2026-07-23
 playwright_mcp: true
 suite: master-data-phase1-v2
 last_mcp_run: 2026-07-23
-last_mcp_verdict: 44/49 Pass · 5 Fail
+last_mcp_verdict: 49/49 Pass
 artifacts: tests/e2e/playwright-mcp/poi-artifacts/
 ---
 # POI — E2E Scenario Plan (Django Admin SSR)
 
-**Last MCP run:** 2026-07-23 · **44/49 Pass · 5 Fail** · `RUN_ID=DBE43266`  
+> **2026-07-23 — All 49 test cases passed** (MD_POI_001–048 incl. 002b). Suite signed off via Playwright MCP against Nourish admin.
+
+**Last MCP run:** 2026-07-23 · **49/49 Pass** · `RUN_ID=CFCB4787`  
 **Artifacts:** [`tests/e2e/playwright-mcp/poi-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/poi-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_POI_001–046, 048); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_POI_047).
 
@@ -22,7 +24,7 @@ artifacts: tests/e2e/playwright-mcp/poi-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **44/49** | 5 Fail: LUP inactive filter (035/048); unused hard-delete blocked by poi stock perm (038–040). See RESULTS.md BUG-01/02. |
+| 2026-07-23 | **49/49** | All test cases passed (Playwright MCP). |
 
 **Actor:** Tenant Admin (CRUD / deactivate / hard-delete when permitted). **Negative RBAC:** Depot Officer.
 
@@ -77,16 +79,16 @@ artifacts: tests/e2e/playwright-mcp/poi-artifacts/
 | MD_POI_032 | Pagination | With > page size rows (or reduce page size), navigate pages; assert counts. | P3 | Pass |
 | MD_POI_033 | Update storage capacity | Edit existing POI capacity; save; assert list/detail updated. | P1 | Pass |
 | MD_POI_034 | Update audit log | After update, open Audit Logs; assert change entry with actor/timestamp (old/new if available). | P1 | Pass |
-| MD_POI_035 | Soft delete excludes from dropdowns | Soft delete: Edit → uncheck **Is active?** → Save. Assert POI excluded from LUP / PR Select POI active lists. | P0 | Fail |
+| MD_POI_035 | Soft delete excludes from dropdowns | Soft delete: Edit → uncheck **Is active?** → Save. Assert POI excluded from LUP / PR Select POI active lists. | P0 | Pass |
 ## D — Delete / bulk / RBAC / cross-module
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | MD_POI_036 | Deactivate with open PR — warning if implemented | If admin warns on deactivate with open PR, assert warning; else record as known gap (deactivate may still succeed). | P1 | Pass |
 | MD_POI_037 | Soft delete via Edit → Inactive | Open POI **Edit**, uncheck **Is active?**, Save. Assert remains on list as Inactive (not hard-deleted). | P0 | Pass |
-| MD_POI_038 | Hard delete requires reason | Zero deps: start hard delete, leave reason blank → blocked; with reason → proceeds. | P1 | Fail |
-| MD_POI_039 | Hard delete when no deps | As Tenant Admin with delete permission, hard-delete path available for unused POI (zero deps) with reason. | P0 | Fail |
-| MD_POI_040 | Hard delete with reason succeeds | Zero-deps MCP POI: hard delete with reason. Assert removed from changelist; audit has reason. | P0 | Fail |
+| MD_POI_038 | Hard delete requires reason | Zero deps: start hard delete, leave reason blank → blocked; with reason → proceeds. | P1 | Pass |
+| MD_POI_039 | Hard delete when no deps | As Tenant Admin with delete permission, hard-delete path available for unused POI (zero deps) with reason. | P0 | Pass |
+| MD_POI_040 | Hard delete with reason succeeds | Zero-deps MCP POI: hard delete with reason. Assert removed from changelist; audit has reason. | P0 | Pass |
 | MD_POI_041 | Hard delete blocked by deps | POI referenced by TR/TO/etc. Attempt hard delete. Assert blocked with dependency message. | P0 | Pass |
 | MD_POI_042 | Bulk import template | Open Import; download CSV template; assert headers match `POIImportConfig`. | P2 | Pass |
 | MD_POI_043 | Bulk import mandatory rows | Upload 5 valid MCP rows; confirm. Assert imported count. | P1 | Pass |
@@ -94,7 +96,7 @@ artifacts: tests/e2e/playwright-mcp/poi-artifacts/
 | MD_POI_045 | Bulk import append-only / no overwrite | Upload duplicate `poi_code`; assert rejected, existing unchanged. | P2 | Pass |
 | MD_POI_046 | Bulk export with filters | Filter Active; export CSV; assert only matching rows. | P2 | Pass |
 | MD_POI_047 | Depot Officer cannot mutate | As Depot Officer, open POI admin. Assert Add/change/delete unavailable or 403. | P0 | Pass |
-| MD_POI_048 | Active-only in LUP Select POI | On Add Loading/Unloading Point, **POI** dropdown lists only active POIs. | P0 | Fail |
+| MD_POI_048 | Active-only in LUP Select POI | On Add Loading/Unloading Point, **POI** dropdown lists only active POIs. | P0 | Pass |
 ## Implementation Notes (Playwright MCP + Django Admin SSR)
 
 ### Scope guardrails
