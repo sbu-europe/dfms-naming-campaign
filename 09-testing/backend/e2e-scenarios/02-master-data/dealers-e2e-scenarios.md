@@ -9,14 +9,14 @@ last_updated: 2026-07-23
 playwright_mcp: true
 suite: master-data-phase1-v2
 last_mcp_run: 2026-07-23
-last_mcp_verdict: 22/23 Pass · 1 Fail
+last_mcp_verdict: 23/23 Pass
 artifacts: tests/e2e/playwright-mcp/dealers-artifacts/
 ---
 # Dealers — E2E Scenario Plan
 
-> **2026-07-23 — 22/23 passed** (MD_DLR_001–021). MD_DLR_018 Fail: inactive dealers still appear in On-Demand TO autocomplete (see RESULTS.md BUG-01).
+> **2026-07-23 — All 23 test cases passed** (MD_DLR_001–021). Suite signed off via Playwright MCP against Nourish admin.
 
-**Last MCP run:** 2026-07-23 · **22/23 Pass · 1 Fail** · `RUN_ID=BC1A986B`  
+**Last MCP run:** 2026-07-23 · **23/23 Pass** · `RUN_ID=C6E7B6B1`  
 **Artifacts:** [`tests/e2e/playwright-mcp/dealers-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/dealers-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_DLR_001–020); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_DLR_021).
 
@@ -24,7 +24,8 @@ artifacts: tests/e2e/playwright-mcp/dealers-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **22/23** | MD_DLR_018 Fail — inactive dealer in On-Demand TO AC (Playwright MCP). |
+| 2026-07-23 | **23/23** | Re-run after DealerAdmin autocomplete active filter; all passed (Playwright MCP). |
+| 2026-07-23 | **22/23** | Prior run; MD_DLR_018 Fail (inactive dealer in On-Demand TO AC) — fixed in code. |
 
 ## Test cases
 
@@ -49,7 +50,7 @@ artifacts: tests/e2e/playwright-mcp/dealers-artifacts/
 | MD_DLR_015 | Export CSV | Export list. | P2 | Pass |
 | MD_DLR_016 | Search/filter/pagination | Exercise list ops. | P2 | Pass |
 | MD_DLR_017 | Update contact/address | Edit; save. | P1 | Pass |
-| MD_DLR_018 | Deactivate excludes from On-Demand TO | Inactive dealer excluded from FG On-Demand TO Dealer selection. | P0 | Fail |
+| MD_DLR_018 | Deactivate excludes from On-Demand TO | Inactive dealer excluded from FG On-Demand TO Dealer selection. | P0 | Pass |
 | MD_DLR_019 | Soft delete via Edit → Inactive | Open **Edit**, uncheck **Is active?**, Save. Assert remains Inactive. | P0 | Pass |
 | MD_DLR_020 | Hard delete blocked by deps | Referenced by shipment/PR/TR/TO; hard delete blocked. | P0 | Pass |
 | MD_DLR_021 | Depot Officer RBAC | Cannot mutate dealers. | P0 | Pass |
@@ -63,10 +64,10 @@ artifacts: tests/e2e/playwright-mcp/dealers-artifacts/
 - Import template: `/admin/master_data/dealer/import/?template=1` (not `/import/template/`).
 - Import CSV columns: `dealer_code,dealer_name,contact_number,email,address,site_poi_code,latitude,longitude,geofence_radius,is_active`
 - On-Demand TO dealer AC assert: `/admin/autocomplete/?app_label=operations&model_name=gateondemandtorequest&field_name=dealer&term=…`
+- `DealerAdmin.get_search_results` filters `is_active=True` on `/autocomplete/` (same as Supplier/Brand).
 
 ### Known drift (suite PDF → code)
 
 | Topic | Suite v2 | Code / this plan |
 |-------|----------|------------------|
 | Site POI / lat / geofence | Removed in suite | **site_poi required**; lat/lng optional; geofence default 100 |
-| Inactive dealer autocomplete | Excluded from On-Demand TO | **Not filtered** in `DealerAdmin.get_search_results` (MD_DLR_018 Fail / BUG-01) |
