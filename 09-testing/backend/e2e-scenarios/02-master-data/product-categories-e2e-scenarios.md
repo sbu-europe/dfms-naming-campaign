@@ -16,7 +16,7 @@ artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 
 > **2026-07-23 — All 20 test cases passed** (MD_PCAT_001–020). Suite signed off via Playwright MCP against Nourish admin.
 
-**Last MCP run:** 2026-07-23 · **20/20 Pass** · `RUN_ID=BFF061E7`  
+**Last MCP run:** 2026-07-23 · **20/20 Pass** · `RUN_ID=3A8BC7AF`  
 **Artifacts:** [`tests/e2e/playwright-mcp/product-categories-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/product-categories-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_PCAT_001–019); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_PCAT_020).
 
@@ -24,8 +24,8 @@ artifacts: tests/e2e/playwright-mcp/product-categories-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **20/20** | All test cases passed (Playwright MCP). MD_PCAT_017 inactive filter fixed. |
-| 2026-07-23 | **19/20** | Prior run — MD_PCAT_017 Fail (inactive category on Product form). |
+| 2026-07-23 | **20/20** | All test cases passed (Playwright MCP). `RUN_ID=3A8BC7AF`. |
+| 2026-07-23 | **20/20** | Prior run — MD_PCAT_017 inactive filter fixed (`RUN_ID=BFF061E7`). |
 
 ## Test cases
 

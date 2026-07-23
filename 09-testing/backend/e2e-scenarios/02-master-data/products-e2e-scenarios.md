@@ -9,14 +9,14 @@ last_updated: 2026-07-23
 playwright_mcp: true
 suite: master-data-phase1-v2
 last_mcp_run: 2026-07-23
-last_mcp_verdict: 33/36 Pass · 3 Fail · 1 Planned
+last_mcp_verdict: 34/36 Pass · 2 Fail · 1 Planned
 artifacts: tests/e2e/playwright-mcp/products-artifacts/
 ---
 # Products — E2E Scenario Plan
 
-> **2026-07-23 — 33/36 Pass · 3 Fail** (MD_PROD_001–037; MD_PROD_023 Planned/demoted). Suite run via Playwright MCP against Nourish admin.
+> **2026-07-23 — 34/36 Pass · 2 Fail** (MD_PROD_001–037; MD_PROD_023 Planned/demoted). Suite run via Playwright MCP against Nourish admin.
 
-**Last MCP run:** 2026-07-23 · **33/36 Pass · 3 Fail · 1 Planned** · `RUN_ID=B87CD317`  
+**Last MCP run:** 2026-07-23 · **34/36 Pass · 2 Fail · 1 Planned** · `RUN_ID=3A8BC7AF`  
 **Artifacts:** [`tests/e2e/playwright-mcp/products-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/products-artifacts/RESULTS.md)  
 **Accounts:** Tenant Admin `admin.nourish@yopmail.com` (MD_PROD_001–036); Depot Officer `depot.officer1.nourish@yopmail.com` (MD_PROD_037).
 
@@ -24,8 +24,8 @@ artifacts: tests/e2e/playwright-mcp/products-artifacts/
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| 2026-07-23 | **33/36** | 3 Fail (003/004 type filter, 029 import mismatch); 016/025/026/033 Pass; 023 Planned (Playwright MCP). |
-| 2026-07-23 | **32/36** | Prior run — 4 Fail (003/004/016/029); 023 Planned. |
+| 2026-07-23 | **34/36** | 2 Fail (003/004 DOMContentLoaded bind); 029/033 Pass; 023 Planned. `RUN_ID=3A8BC7AF`. |
+| 2026-07-23 | **33/36** | Prior run — 3 Fail (003/004/029); 023 Planned (`RUN_ID=B87CD317`). |
 
 ## A — Create & validation
 
@@ -46,7 +46,7 @@ artifacts: tests/e2e/playwright-mcp/products-artifacts/
 | MD_PROD_013 | UOM mandatory | Blank unit_of_measure blocked. | P0 | Pass |
 | MD_PROD_014 | UOM choices | Bag/Ton/KG/Liters/Pieces/Cartons (per model). | P2 | Pass |
 | MD_PROD_015 | Weight required for Bag/Pieces/Cartons | For Bag UOM, blank weight_per_unit blocked. | P0 | Pass |
-| MD_PROD_016 | Weight rejects 0/negative | Invalid weight rejected. | P1 | Pass |
+| MD_PROD_016 | Weight rejects 0/negative | Negative weight rejected. | P1 | Pass |
 | MD_PROD_017 | Pack size optional | Blank standard_pack_size; succeeds. | P3 | Pass |
 | MD_PROD_018 | Barcode optional | Blank barcode; succeeds. | P3 | Pass |
 | MD_PROD_019 | Manufacturer/handling optional | Blank; succeeds. | P3 | Pass |
@@ -63,7 +63,7 @@ artifacts: tests/e2e/playwright-mcp/products-artifacts/
 |--------------|---------------|------------------|----------|--------|
 | MD_PROD_027 | Import template | Download product CSV template. | P2 | Pass |
 | MD_PROD_028 | Import mixed FG/RM | Import 5 valid mixed rows. | P1 | Pass |
-| MD_PROD_029 | Import type/category mismatch fails | FG type + RM category fails. | P0 | Fail |
+| MD_PROD_029 | Import type/category mismatch fails | FG type + RM category fails. | P0 | Pass |
 | MD_PROD_030 | Import sub validation | Invalid/mismatched sub_category_code fails. | P1 | Pass |
 | MD_PROD_031 | Export filtered | Filter RM; export matches. | P2 | Pass |
 | MD_PROD_032 | Search/filter/pagination | Exercise list ops. | P2 | Pass |
@@ -85,6 +85,6 @@ artifacts: tests/e2e/playwright-mcp/products-artifacts/
 |-------|----------|------------------|
 | Sub-Category | Required when category has subs | Model nullable; UI allows blank (MD_PROD_006 Pass) |
 | Weight always mandatory | Suite always mandatory | Conditional on UOM |
-| Category by product_type | FG/RM filtered in dropdown | Not filtered (MD_PROD_003/004 Fail); form/model clean blocks mismatch on save |
-| Negative weight | Rejected | Now rejected (MD_PROD_016 Pass) |
-| Import type/category match | Enforced | Still accepted in admin import preview (MD_PROD_029 Fail) |
+| Category by product_type | FG/RM filtered in dropdown | AJAX endpoint filters correctly; UI JS never binds (DOMContentLoaded after Media load) — MD_PROD_003/004 Fail |
+| Negative weight | Rejected | MD_PROD_016 Pass |
+| Import type/category match | Enforced | MD_PROD_029 Pass |
