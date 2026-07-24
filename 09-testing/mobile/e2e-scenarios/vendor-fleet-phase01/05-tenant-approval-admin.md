@@ -8,7 +8,7 @@
 | TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
 |-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
 | TC_108 | Pending join request visible | Tenant Admin sees vendor with Join Status = Pending. | High | Tenant Admin | **Pass** (Playwright) | `run-vendor-tenant-approval.mjs` | `make seed-vendor-approval-pw` |
-| TC_109 | Documents visible to admin | Trade License, BIN, TIN, Truck Association viewable. | High | Tenant Admin | **Partial** (Playwright) | same | API returns docs; **portal dialog does not render** them (UI gap) |
+| TC_109 | Documents visible to admin | Trade License, BIN, TIN, Truck Association viewable. | High | Tenant Admin | **Pass** (Playwright pending re-run) | same | Portal Vendor details dialog shows Compliance documents with View file links |
 | TC_110 | Approval type options | Contractual and Non-Contractual options available. | Critical | Tenant Admin | **Pass** (Playwright) | same | Detail + bulk toolbar |
 | TC_111 | Approve Non-Contractual | Approve → Join Status = Approved; eligible for bidding. | Critical | Tenant Admin | **Pass** (Playwright) | same | Also `make seed-vendor-mobile` / `approve-vendor-join` for mobile fixtures |
 | TC_112 | Approve Contractual | Approve Contractual → directly assignable. | Critical | Tenant Admin | **Pass** (Playwright) | same | Type set on approve; assignability checked via TC_115 picker |
@@ -58,5 +58,4 @@ maestro --device emulator-5554 test \
 
 ## Still blocked / skipped
 
-- **TC_109:** needs portal UI to show documents.
 - **TC_118:** PDF Skip until audit surface is in scope.
