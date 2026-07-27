@@ -16,6 +16,7 @@ total_story_points_estimated: "~13 SP (AUTH-01)"
 | **Carry-over from Sprint 6** | To be confirmed at sprint planning |
 | **New Scope** | Phone as selectable login method & 2FA channel; SMS invitation parity with email; first-party URL shortener for SMS-safe activation links |
 | **Related prior work** | CP-03 / CP-04 (email 2FA + invitation), CP-03 FB-005 (OTP channel email\|SMS — Open), US-002, US-005, US-006, BUG-05 |
+| **Feedback tracker** | [feedback.md](./feedback.md) — Sprint 7 client/ops feedback (FB-001 open) |
 
 ---
 
