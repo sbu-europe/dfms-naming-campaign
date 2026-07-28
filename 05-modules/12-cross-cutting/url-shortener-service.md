@@ -6,10 +6,62 @@ last_updated: 2026-07-28
 document_type: implementation_plan
 related_modules: [01-foundation, 03-users, 12-cross-cutting]
 related_stories: [AUTH-01, AUTH-01-3, AUTH-01-4, US-005, CP-03]
-status: Planned — Sprint 7
+status: Service built — DFMS integration outstanding (Sprint 7)
+implementation_path: services/link-shortener/
 ---
 
 # URL Shortener Service (`link-shortener`)
+
+## Implementation Status
+
+**The service is built and verified. The DFMS side has not been started.**
+
+`services/link-shortener/` was implemented on 2026-07-28: Build Order steps 1–5 plus the
+service half of step 7. 103 tests pass against containerised Postgres 16 and Redis 7, the
+Alembic migration applies cleanly, and an end-to-end run exercised CLI client registration →
+signed mint → replay → supersede → revoked-replay → public 302 → 410 on the superseded code
+→ sweeper draining events into the correct monthly partition.
+
+**Nothing under `apps/` was changed.** Steps 0, 6 and 8 were deliberately deferred — they
+commit to product decisions that are still open (Open Items 2 and 8), and Open Items 1, 7
+and 11 were unacknowledged when the service was built.
+
+| Step | Status | Where |
+|---|---|---|
+| **0** — DFMS schema prerequisites | **Not started** — blocked on Open Items 2, 8 | `apps/users/` |
+| 1 — Service scaffold | **Done** | `linkshort/config.py`, `main.py`, `api/app.py`, `Dockerfile`, `docker-compose.yml` |
+| 2 — Data layer | **Done** | `linkshort/storage/models.py`, `alembic/versions/0001_initial_schema.py` |
+| 3 — Auth | **Done** | `linkshort/api/auth.py`, `linkshort/cli.py` |
+| 4 — Core API | **Done** | `linkshort/api/links.py`, `resolve.py`, `events.py`, `cache.py`, `linkshort/domain/`, `linkshort/storage/repositories.py` |
+| 5 — Security verification | **Done** | `tests/` — 103 tests |
+| 6 — DFMS client | **Not started** | `apps/core/shortlink_client.py` |
+| 7 — Audit + sweeper | **Half done** — sweeper built, DFMS webhook receiver not | `linkshort/workers/sweeper.py` |
+| 8 — Wire-up | **Not started** — blocked on step 0 and Open Item 6 | `apps/users/invitation_service.py` |
+
+Infrastructure owned outside engineering — short domain, DNS, TLS, aggregator allowlisting
+and warm-up — is **also not started**, and step 8 cannot ship without it.
+
+### Implementation deviations
+
+Four places where the built service departs from this document. Each is a deliberate
+correction found while implementing; the relevant sections below have been updated to match
+the code, and the same list is in `services/link-shortener/README.md`.
+
+| # | Deviation | Why |
+|---|---|---|
+| V1 | **JWT signature is verified before the `jti` replay check**, reversing steps 1–2 of the mint read/write path | Checking `jti` first lets an unauthenticated caller burn arbitrary nonces and fill Redis with keys it chose. A replayed `jti` is still `401` — the observable contract is unchanged |
+| V2 | **Redis loss on the authenticated path answers `503`, not `401`** | Fail-closed is preserved. `401` tells the Celery retry to give up on what is an infrastructure problem; `503` is the retryable status the D9 queue-and-retry design needs |
+| V3 | **Unknown codes create no `cnt:*` key and no `resolve_event` row** | As specified, a scanner sweeping the keyspace would mint an unbounded number of Redis counters and audit rows. 404-rate alerting reads the Prometheus counter instead, which costs nothing and is the detection this design already relies on |
+| V4 | **Non-ASCII targets are rejected at mint** (`reason=non_ascii`) | The target is emitted verbatim into a latin-1 `Location` header. An IRI has to arrive already percent-encoded and punycoded, or the mint succeeds and the resolve 500s days later, after the SMS has gone out |
+
+### Found during implementation
+
+- **`apps/users/invitation_service.py` defines `create_invitation` twice** (lines 370 and
+  547). The first is a truncated stub that falls off the end of its body; the second
+  shadows it at import time, so behaviour is correct today by accident. It should be
+  deleted before step 8 touches this module. Owner: Backend.
+
+---
 
 ## Overview
 
@@ -174,6 +226,24 @@ No `tenant` or `tenant_allowed_host` table. `namespace` is an opaque grouping ke
 service enforces that reads and bulk operations stay within `(client_id, namespace)`, and
 never attaches meaning to its contents.
 
+**As built** (`linkshort/storage/models.py`, `alembic/versions/0001_initial_schema.py`) —
+the above, plus:
+
+- `api_client.created_at` / `updated_at`.
+- Indexes named explicitly — `uq_short_link_code`, `uq_client_idem`,
+  `uq_short_link_live_ref` — because the mint path branches on which one a
+  `UniqueViolation` names.
+- Two extra read indexes: `ix_short_link_ref` for `revoke-by-ref`, and
+  `ix_short_link_keyset (client_id, namespace, created_at, id)` for the keyset list.
+- `resolve_event` primary key is `(id, occurred_at)` — Postgres requires the partition key
+  in the PK — with `ix_resolve_event_cursor (occurred_at, id)` and
+  `ix_resolve_event_client (client_id, occurred_at)`. The migration seeds the previous,
+  current and next month's partitions so the table is insertable the moment it lands.
+- `webhook_dead_letter (id, payload jsonb, attempts, last_error, next_attempt_at,
+  created_at)` — an audit batch the receiver would not take, retried with exponential
+  backoff up to `SHORTLINK_AUDIT_WEBHOOK_MAX_ATTEMPTS` and then left for
+  `GET /api/v1/events?since=` to reconcile.
+
 ---
 
 ## API
@@ -191,9 +261,15 @@ never attaches meaning to its contents.
 | `GET` | `/healthz` `/readyz` `/metrics` | Ops | none | **ops** |
 
 The mgmt router is private (D4); only the public port is behind the ALB listener rule. Ops
-binds a third port the ALB never exposes — `/metrics` must not be internet-reachable. The
-root-level `/{code}` catch-all is registered **last**, after `/api`, so route precedence is
-not a question.
+binds a third port the ALB never exposes — `/metrics` must not be internet-reachable.
+
+**As built:** three separate FastAPI applications on three binds in one process — public
+`8000`, mgmt `8001`, ops `8002` (`linkshort/api/app.py`, served by `linkshort/main.py`).
+Splitting by *bind* rather than by router makes D4 structural: the management API is not
+merely unrouted on the public port, it is not mounted there. It also settles route
+precedence for free — the root-level `/{code}` catch-all lives on an application that has
+no `/api` routes to shadow, so "registered last" stops being something a future edit can
+get wrong.
 
 ### Redis key map
 
@@ -205,13 +281,25 @@ Every Redis key used by the service, with its writer, reader and failure behavio
 | `idem:{client_id}:{key}` | string → `code`, 24h | mint | mint | fall through to `uq_client_idem` |
 | `jti:{jti}` | string, TTL = `exp − now` | JWT verify (`SET NX`) | JWT verify | **fail closed** — reject |
 | `rl:resolve:{ip}:{minute}` | counter, 120s | resolve | resolve | **fail open** + alert |
-| `cnt:{code}` | counter, no TTL | resolve (`INCR`) | sweeper (flush → Postgres) | drop + metric |
-| `evt:pending` | list | resolve (`RPUSH`) | sweeper (batch → `resolve_event` + webhook) | drop + metric |
+| `cnt:{code}` | counter, no TTL | resolve (`INCR`) — **known codes only** (V3) | sweeper (flush → Postgres) | drop + metric |
+| `evt:pending` | list | resolve (`RPUSH`) — **known codes only** (V3) | sweeper (batch → `resolve_event` + webhook) | drop + metric |
 
 `link:{code}` stores the target **as ciphertext**, decrypted per request — a Redis snapshot
 must not be a plaintext token store any more than a Postgres dump is
 ([token exposure](#token-exposure-at-rest)). The value is a packed record
-`{target_ct, expires_at, link_type}`; revoked links are never cached, they are `DEL`ed.
+`{target_ct, expires_at, link_type, client_id, namespace}` — the last two are carried so a
+cache hit can still attribute its resolve event without a Postgres read; revoked links are
+never cached, they are `DEL`ed.
+
+The ciphertext additionally binds the short code as AES-GCM **additional authenticated
+data**, so a ciphertext lifted from one row cannot be opened under another row's code
+(`linkshort/domain/crypto.py`). A collision retry changes the code and therefore
+re-encrypts.
+
+Implemented in `linkshort/api/cache.py` and `linkshort/storage/redis_client.py`. Every
+Redis call returns a `RedisOutcome` rather than raising, so "key absent" and "Redis
+unreachable" cannot be confused and each caller states its own policy at the call site
+instead of inheriting one by accident.
 
 ---
 
@@ -243,13 +331,17 @@ Content-Type: application/json
 | `expires_at` | required for invitation links; future; ≤ `now + SHORTLINK_MAX_TTL_DAYS`. Absent ⇒ `SHORTLINK_DEFAULT_TTL_DAYS` (generic links only) |
 | `supersede` | revoke the live link for this `external_ref` in the same transaction |
 
-```http
-201 Created                                  200 OK   (idempotent replay)
-{                                            same body, plus:
-  "code":       "aB7xK2pQ",                    "replay": true,
-  "short_url":  "https://dfms.link/aB7xK2pQ",  "revoked": false,
-  "expires_at": "2026-08-03T10:00:00Z",        "revoked_reason": null
-  "created_at": "2026-07-27T10:00:00Z"
+```jsonc
+// 201 Created (minted) and 200 OK (idempotent replay) return the same shape, so a
+// client reads one response body for both statuses.
+{
+  "code":           "aB7xK2pQ",
+  "short_url":      "https://dfms.link/aB7xK2pQ",
+  "expires_at":     "2026-08-03T10:00:00Z",
+  "created_at":     "2026-07-27T10:00:00Z",
+  "replay":         false,   // true on 200
+  "revoked":        false,   // may be true on a replay — see below
+  "revoked_reason": null     // "superseded" | "activated" | "cancelled" | "expired"
 }
 ```
 
@@ -260,13 +352,16 @@ Content-Type: application/json
 | `400` | Bad `url`, disallowed host or scheme, `expires_at` in the past or over the ceiling |
 | `401` / `403` | JWT invalid, expired, replayed `jti`, or scope / `link_type` not granted |
 | `409` | Concurrent supersede on the same `external_ref` — caller retries |
-| `422` | Missing `Idempotency-Key` |
+| `422` | Missing `Idempotency-Key`, or `supersede` without `external_ref` |
+| `503` | Redis unreachable, so `jti` replay protection cannot be enforced — **retryable** (V2) |
 
-**Read / write path**
+**Read / write path** — as built, `linkshort/api/links.py` + `linkshort/storage/repositories.py`
 
 ```
-1. Redis  GET  jti:{jti}             → present ⇒ 401 replay; else SET NX with TTL=exp-now
-2. DB     SELECT api_client          → per-process 60s cache; miss is the only client read
+1. DB     SELECT api_client          → per-process 60s cache; miss is the only client read
+          verify RS256 signature by kid, aud, iss, exp, lifetime ceiling
+2. Redis  SET NX jti:{jti} TTL=exp-now  → already present ⇒ 401 replay
+                                          Redis down    ⇒ 503 (fail closed, retryable)
 3.        validate target host, link_type, expires_at   (pure, no I/O)
 4. Redis  GET  idem:{client}:{key}   → hit ⇒ DB SELECT that row, return 200 replay
 5. DB     BEGIN
@@ -275,16 +370,29 @@ Content-Type: application/json
               WHERE client_id=:c AND namespace=:n AND external_ref=:r AND revoked_at IS NULL
             INSERT short_link (code, target_url=encrypt(url), idempotency_key, ...)
           COMMIT
-          ├─ UniqueViolation(uq_client_idem) ⇒ SELECT by key, return 200 replay
-          ├─ UniqueViolation(code)           ⇒ regenerate ×3, then widen to 10 chars
-          └─ UniqueViolation(partial ref ix) ⇒ 409 (lock lost / lock not taken)
+          ├─ UniqueViolation(uq_client_idem)         ⇒ SELECT by key, return 200 replay
+          ├─ UniqueViolation(uq_short_link_code)     ⇒ regenerate ×3, then widen to 10 chars
+          └─ UniqueViolation(uq_short_link_live_ref) ⇒ 409 (lock lost / lock not taken)
 6. Redis  SETEX idem:{client}:{key} 24h → code        (best-effort)
+          DEL link:{code} for every superseded code   (after the commit, never before)
 7.        no link:{code} write — the cache is populated on first resolve, not at mint
 ```
+
+**Signature before nonce (V1).** The order of steps 1 and 2 is reversed from the original
+plan. Verifying the signature first is what stops an unauthenticated caller writing
+`jti:*` keys of its choosing into Redis. A replayed `jti` is still `401`.
+
+**Index names are load-bearing**, not cosmetic: the mint path branches on which constraint
+a `UniqueViolation` names, so `uq_short_link_code`, `uq_client_idem` and
+`uq_short_link_live_ref` are created explicitly in the migration and read back off the
+asyncpg error (`_constraint_name`, with a string fallback if either library changes shape).
 
 The advisory lock is what makes concurrent supersedes serialise. Without it, under READ
 COMMITTED the `UPDATE` does not see a row inserted by a concurrent transaction after its
 snapshot, so both transactions insert and the partial unique index rejects one at random.
+Verified by `tests/test_api_mint.py::test_concurrent_supersedes_serialise_on_the_advisory_lock`,
+which asserts the invariant that survives any interleaving: **exactly one live link per
+`external_ref`**.
 
 **Idempotency is arbitrated by Postgres, not Redis.** `uq_client_idem` is the authority;
 `idem:*` only saves a round trip. Any design whose correctness depends on that cache
@@ -323,17 +431,27 @@ it holds a live token and the caller already knows what it minted.
 so the endpoint is not an existence oracle. No Redis read — `link:{code}` is the redirect
 cache and does not carry metadata. No writes.
 
+`namespace` is an **optional `?namespace=` query parameter**: the client scope always
+applies, and supplying a namespace narrows it further. The consumer's identity comes from
+the JWT, so a caller can never widen its own scope by omitting it.
+
 ### `GET /api/v1/links` — list
 
 `?namespace=&external_ref=&link_type=&active_only=&limit=&cursor=`. `namespace` is
-**required**; results are hard-filtered to `(client_id, namespace)` regardless of what the
-query asks for. Served by `INDEX (client_id, namespace)`, keyset-paginated on
-`(created_at, id)` — never `OFFSET`. Read-only, no Redis.
+**required** (a missing one is `422`); results are hard-filtered to `(client_id, namespace)`
+regardless of what the query asks for. Served by `INDEX (client_id, namespace)`,
+keyset-paginated on `(created_at, id)` — never `OFFSET`. Read-only, no Redis.
+
+`cursor` is an opaque base64 of `(created_at, id)`; the response carries `next_cursor`,
+null on the last page. Keyset rather than offset because this list is read by a
+reconciliation job walking forward while new rows arrive, and `OFFSET` silently skips rows
+when that happens.
 
 ### `POST /api/v1/links/{code}/revoke` — revoke
 
 ```json
-{ "reason": "activated" }     // activated | cancelled | expired | superseded
+{ "reason": "activated", "namespace": "nourish" }   // namespace optional; reason is one of
+                                                    // activated | cancelled | expired | superseded
 ```
 
 **Read / write path**
@@ -372,14 +490,26 @@ The only unauthenticated path, and the only one on the hot path.
           an `== 8` check would 404 every collision-widened code
 3. Redis  GET link:{code}
             miss → DB SELECT code, target_url, expires_at, revoked_at WHERE code = :code
-                   not found ⇒ 404
+                   not found ⇒ 404, no analytics written (V3)
                    live      ⇒ SETEX link:{code} min(remaining, 300) {ciphertext record}
 4.        revoked_at set?      ⇒ 410, copy from revoked_reason
           now >= expires_at?   ⇒ 410 expired      (server-side UTC; client clocks unused)
-5.        decrypt target in memory
+          target_url NULL?     ⇒ 410 (soft-purged, or NULLed on activation)
+5.        decrypt target in memory (AAD = code)
 6. Redis  INCR cnt:{code}; RPUSH evt:pending {...}      ← both non-blocking, both droppable
 7.        302, Location: <target, byte-for-byte>
 ```
+
+**Analytics are written only for codes that exist (V3).** A scanner sweeping the keyspace
+would otherwise create one `cnt:*` key and one `resolve_event` row per guess — unbounded,
+never expiring, and driven entirely by an unauthenticated attacker. Unknown and malformed
+codes increment `linkshort_resolves_total{outcome="not_found"|"malformed"}` and nothing
+else, which is the same signal the 404-rate alert already reads.
+
+Implemented in `linkshort/api/resolve.py`. The `Location` header is set directly rather
+than through Starlette's `RedirectResponse`, which re-quotes the URL — that re-encoding is
+exactly the "invalid invitation that reproduces on no developer's machine" this design
+warns about.
 
 No target re-validation (D12): the target is immutable after mint, so re-checking buys
 nothing, puts a client-config read on the hot path, and would let an allowlist edit
@@ -439,6 +569,15 @@ Every guarantee below is a property of the shortener itself, independent of tena
 | Enumeration resistant | 46.9 bits of CSPRNG entropy is the actual defence; unknown codes return a generic 404, and **detection is via 404-rate alerting**, not a tight rate limit — see [Rate limiting](#rate-limiting--detect-rather-than-block) |
 | Token exposure bounded | `target_url` encrypted at rest and NULLed the moment the invitation is activated — see [Token exposure at rest](#token-exposure-at-rest) |
 
+**Every row above is implemented and has a test.** Build Order step 5 named five cases
+explicitly; all five are covered — open-redirect (`tests/test_targets.py`, plus the mint-level
+`test_disallowed_targets_are_refused_at_mint`), namespace scoping
+(`test_metadata_from_another_namespace_is_404_not_403`,
+`test_listing_is_hard_filtered_to_the_namespace`), concurrent supersede
+(`test_concurrent_supersedes_serialise_on_the_advisory_lock`), replay-after-supersede
+(`test_replaying_a_superseded_key_reports_it_as_revoked`), and no token in logs or Redis
+(`test_the_target_never_reaches_the_logs`, `test_the_cache_holds_ciphertext_not_the_token`).
+
 ### Open-redirect defense
 
 Generic targets are accepted, so the host check is the only barrier. Without it, an
@@ -446,21 +585,38 @@ attacker mints `https://dfms.link/xY3kP9qR → https://phish-dfms.example/login`
 short domain — the one the invitation SMS trained users to tap — lends its reputation to a
 credential-harvesting page.
 
+As built — `linkshort/domain/targets.py`:
+
 ```python
-def validate_target(url: str, client: ApiClient, *, require_https: bool) -> str:
+def validate_target(url: str, allowed_base_domains: list[str], *, require_https: bool) -> str:
+    if not url or url.strip() != url:          reject("malformed")
+    if not url.isascii():                      reject("non_ascii")   # V4
+
     u = urlparse(url)
-    if require_https and u.scheme != "https":  reject("scheme")
     if u.scheme not in ("https", "http"):      reject("scheme")   # javascript:, data:
+    if require_https and u.scheme != "https":  reject("scheme")
     if u.username or u.password:               reject("credentials")
 
-    host = (u.hostname or "").lower()
-    if not any(host == b or host.endswith("." + b) for b in client.allowed_base_domains):
-        reject("host")
-    return url          # returned byte-for-byte; never parsed and rebuilt
+    host = (u.hostname or "").lower().rstrip(".")
+    for base in allowed_base_domains:
+        b = base.strip().lower().lstrip(".").rstrip(".")
+        if host == b or host.endswith("." + b):
+            return url      # returned byte-for-byte; never parsed and rebuilt
+    reject("host")
 ```
 
 `allowed_base_domains` for `dfms-django` is `{dfms.com, <FRONTEND_URL host>}`.
 `require_https = ENV != "local"`.
+
+**Why the non-ASCII rejection (V4).** The target is emitted verbatim into a `Location`
+header, which is latin-1 on the wire. A URL carrying a raw accented character would mint
+successfully and then raise at resolve time — days later, after the SMS has gone out, on the
+one path with no recovery. An IRI has to arrive already percent-encoded and punycoded.
+
+Covered by `tests/test_targets.py`: the base and its subdomains, byte-for-byte return,
+`dfms.com.evil.io`, `evil.com@nourish.dfms.com`, `evildfms.com`, non-https, `javascript:`,
+`data:`, `file:`, protocol-relative, case folding, trailing dot, explicit port, non-ASCII,
+and an empty allowlist accepting nothing.
 
 **Why base domains, not an exact host set.** `_build_activation_url()`
 (`apps/users/invitation_service.py:75`) resolves the tenant's primary domain from the
@@ -502,6 +658,16 @@ token appears:
 
 Accepted risk, recorded rather than omitted: between mint and activation, a pending
 invitation's token exists in two databases instead of one.
+
+**As built.** AES-GCM at the application layer (`linkshort/domain/crypto.py`), key from
+`TARGET_URL_ENCRYPTION_KEY` with `TARGET_URL_ENCRYPTION_KEY_PREVIOUS` for rotation without a
+bulk re-encrypt; an absent key is a startup failure, never a plaintext fallback. The short
+code is the AAD. Log scrubbing is `linkshort/logging_setup.py` — uvicorn's access log is
+disabled on all three binds, a filter redacts `token=`/`Bearer` shapes on every record, and
+the service's own request log carries method, path and status only. The ALB half is
+configuration, not code: **access logs must still be disabled on the public listener**.
+Asserted by `tests/test_api_resolve.py::test_the_target_never_reaches_the_logs` and
+`::test_the_cache_holds_ciphertext_not_the_token`.
 
 ### Deviation from AC-3
 
@@ -791,16 +957,30 @@ place. Add a **statement timeout and a small dedicated connection pool** on the 
 path's Postgres fallback, so a Redis outage degrades latency instead of exhausting RDS
 connections and taking minting down with it.
 
+**As built.** Two engines (`linkshort/storage/db.py`): the main pool, and a resolve pool of
+`SHORTLINK_RESOLVE_POOL_SIZE` (5) with `statement_timeout` and
+`application_name=linkshort-resolve` set as asyncpg server settings, `max_overflow=0` on
+both. Redis clients carry a 250 ms socket timeout so a *hung* Redis degrades like a dead one
+rather than stalling the hot path. The rejection status for the fail-closed case is `503`
+(V2), not `401`. Both directions are tested:
+`test_redirects_survive_a_redis_outage` (public path still 302s) and
+`test_minting_fails_closed_when_the_nonce_store_is_gone` (mint 503s).
+
 ---
 
 ## DFMS Integration
+
+> **Status: not started.** Everything in this section is Build Order steps 6, 7 (receiver
+> half) and 8, none of which exists yet. The service side of each contract below is built
+> and tested — what is missing is the Django code that calls it. Step 8 is additionally
+> blocked on step 0 and on Open Item 6 (aggregator policy).
 
 | Concern | Detail |
 |---------|--------|
 | Client | `apps/core/shortlink_client.py` — signs the service JWT, passes `namespace=connection.schema_name`, retries with backoff, circuit breaker so a sustained outage fails fast instead of tying up workers. **Breaker state in Redis**, not per-process, or each Celery worker trips independently and the breaker never does its job |
 | Mint | `apps/users/invitation_service.py` — after `_build_activation_url()` (lines 502 create, 693 resend), branch on channel: phone → mint short link → SMS. Runs **inside** the Celery task, not the request path. JWTs are `exp = now + 120s`, so **sign per attempt** — a retry must never replay a stale token |
 | Idempotency key | `invitation:{token}:resend:{invitation.resend_count}`, read from the row the task was handed. **Never `last_resent_at`** — rewritten on failed attempts, so it would turn a retry into a rotation. Requires the `resend_count` migration |
-| Replay handling | A `200` with `"revoked": true` means a newer link already superseded this one. **Abort the send** — do not SMS a link that will 410. A `409` means a concurrent supersede; let the Celery retry pick it up |
+| Replay handling | A `200` with `"revoked": true` means a newer link already superseded this one. **Abort the send** — do not SMS a link that will 410. A `409` means a concurrent supersede, and a `503` means the shortener's Redis is down; let the Celery retry pick both up |
 | Revoke | Explicit `POST /links/{code}/revoke` on activate and cancel — **queued, not inline in the request path**. Activation must not depend on shortener latency; the token is already `is_used`, so revocation is load-bearing only for the token-exposure window, not for security. **Resend does not call revoke** — it mints with `"supersede": true` (AC-2 "new or rotated"). See [mint](#post-apiv1links--mint) |
 | Expiry | `expires_at = invitation.expires_at` — copied **verbatim, never `min()`**. The shortener does not own expiry policy; see [Link Lifecycle](#the-shortener-never-owns-expiry-policy). `SHORTLINK_DEFAULT_TTL_DAYS` applies only to generic links with no explicit `expires_at` |
 | Audit | Shortener batches `resolve_event` rows and POSTs them HMAC-signed to a DFMS internal endpoint. The receiver **validates `namespace` against registered tenant schemas (cached from the public schema) and drops unknown values** before calling `schema_context` — never pass a consumer-supplied string to `schema_context` unchecked. Dead-letter table with backoff, plus `GET /api/v1/events?since=` for reconciliation — an audit gap is always recoverable |
@@ -834,21 +1014,48 @@ success.
 
 ## Deployment
 
+As built:
+
 ```
 services/link-shortener/
   linkshort/
-    api/          routes, JWT dependency, rate limiting
-    domain/       code generation, allowlist validation, link lifecycle
-    storage/      SQLAlchemy models, repositories, Redis client
-    workers/      sweeper: expiry, counter flush, webhook retry, partition
-                  create-ahead + purge, orphan-rotation reconcile
-    cli.py        api_client admin: add / rotate-key / deactivate
-    config.py  main.py
-  alembic/versions/
-  tests/
-  Dockerfile  docker-compose.yml  requirements.txt  pyproject.toml
-  .env.example  README.md
+    api/
+      app.py        three app factories — public / mgmt / ops
+      auth.py       RS256 verification, client cache, scope dependency
+      links.py      mint, list, metadata, revoke, revoke-by-ref
+      events.py     audit reconciliation
+      resolve.py    the public redirect
+      cache.py      Redis caches, counters, rate limiting
+      cursor.py     opaque keyset cursors
+      ops.py        /healthz /readyz /metrics
+      pages.py      tenant-neutral 404 / 410 / 429 pages
+      schemas.py    Pydantic v2 request/response models
+    domain/
+      codes.py      base58 generation + shape check
+      targets.py    open-redirect defense
+      crypto.py     AES-GCM for target_url, code bound as AAD
+      lifecycle.py  revoke reasons, expiry policy, user-facing copy
+      hashing.py    monthly-rotating HMAC for ip_hash / ua_hash
+      errors.py
+    storage/
+      models.py         SQLAlchemy 2.0, named indexes
+      repositories.py   every transaction boundary in the service
+      db.py             main pool + resolve pool
+      redis_client.py   key map, RedisOutcome, per-job failure policy
+    workers/sweeper.py  partitions, counter flush, expiry, purge, webhook retry
+    cli.py        linkshort clients add / rotate-key / deactivate-key /
+                  deactivate / activate / list, plus keygen
+    config.py  main.py  metrics.py  logging_setup.py
+  alembic/versions/0001_initial_schema.py
+  tests/         103 tests: unit run anywhere, integration skip without
+                 SHORTLINK_TEST_DATABASE_URL
+  Dockerfile  docker-compose.yml  alembic.ini  requirements.txt
+  pyproject.toml  .env.example  README.md
 ```
+
+**Not built:** the sweeper's *orphan-rotation reconcile*. The partial unique index makes an
+orphaned rotation unrepresentable, so there is nothing for it to reconcile; it should be
+added only if a concrete case for it appears.
 
 - Own `docker-compose.yml` (api + postgres + redis + sweeper), mirroring `gt06-ingest`.
   Local dev and CI use containerised Postgres; `DATABASE_URL` is the only environment
@@ -881,12 +1088,32 @@ services/link-shortener/
 | `JWT_AUDIENCE` / `JWT_MAX_SKEW_SECONDS` | Token verification |
 | `RESOLVE_RATE_LIMIT` | Per-IP token bucket on the public endpoint. Deliberately loose (~60/min) — CGNAT makes a tight bucket a false-positive machine; detection is via 404-rate alerting |
 | `REQUIRE_HTTPS_TARGETS` | Default `true`; `false` only in local/CI, where `TENANT_DOMAIN_SCHEME` is `http` |
-| `TARGET_URL_ENCRYPTION_KEY` | KMS-backed key for `target_url` at rest (secret store) |
+| `TARGET_URL_ENCRYPTION_KEY` | KMS-backed key for `target_url` at rest (secret store). Absent ⇒ the service refuses to start |
 | `RESOLVE_EVENT_RETENTION_DAYS` | 90 — `ip_hash` is personal data under GDPR |
 | `OPS_PORT` | Separate bind for `/healthz` `/readyz` `/metrics`, not exposed by the ALB |
 
+Added during implementation (`linkshort/config.py`, all with defaults — see `.env.example`):
+
+| Variable | Purpose |
+|----------|---------|
+| `SHORTLINK_ENV` | `local` / `ci` / `production`; drives the `REQUIRE_HTTPS_TARGETS` default |
+| `SHORTLINK_PUBLIC_PORT` / `SHORTLINK_MGMT_PORT` | The other two binds (8000 / 8001) |
+| `SHORTLINK_TRUST_PROXY_HEADERS` | Take the client IP from `X-Forwarded-For` — true behind the ALB |
+| `TARGET_URL_ENCRYPTION_KEY_PREVIOUS` | Decrypt-only key, so a rotation needs no bulk re-encrypt |
+| `SHORTLINK_IP_HASH_SECRET` | Seeds the monthly rotating salt for `ip_hash` / `ua_hash` |
+| `SHORTLINK_WIDE_CODE_LENGTH` | The collision-widened length (10) |
+| `SHORTLINK_CACHE_TTL_SECONDS` | Ceiling on the `link:{code}` TTL (300) |
+| `SHORTLINK_DB_POOL_SIZE` / `SHORTLINK_RESOLVE_POOL_SIZE` | The two pools, sized separately on purpose |
+| `SHORTLINK_RESOLVE_STATEMENT_TIMEOUT_MS` | Statement timeout on the hot-path fallback (250) |
+| `SHORTLINK_REDIS_TIMEOUT_SECONDS` | Socket timeout, so a hung Redis degrades like a dead one (0.25) |
+| `JWT_MAX_LIFETIME_SECONDS` | Rejects tokens minted with a long `exp` — these are `now + 120s` |
+| `SHORTLINK_CLIENT_CACHE_SECONDS` | Per-process `api_client` cache (60) |
+| `SHORTLINK_SWEEPER_INTERVAL_SECONDS` / `_EVENT_BATCH_SIZE` | Sweeper pacing (60 / 500) |
+| `SHORTLINK_AUDIT_WEBHOOK_URL` / `_SECRET` / `_TIMEOUT_SECONDS` / `_MAX_ATTEMPTS` | Audit delivery; empty URL disables it and events stay pullable |
+
 Consumer-side (DFMS): `SHORTLINK_API_URL`, `SHORTLINK_CLIENT_ID`,
-`SHORTLINK_PRIVATE_KEY` (secret store, never committed), `SHORTLINK_ENABLED`.
+`SHORTLINK_PRIVATE_KEY` (secret store, never committed), `SHORTLINK_ENABLED`. **Not yet
+added** — these land with Build Order step 6.
 
 ---
 
@@ -896,40 +1123,60 @@ Steps 1–5 are independent of all phone/SMS work in AUTH-01 and can start immed
 0 is DFMS-side and blocks step 8** — three prerequisites the original plan assumed already
 existed. Land it as one changeset early in the sprint, not alongside the wire-up.
 
-| # | Step | Deliverable |
-|---|------|-------------|
-| **0** | **DFMS schema prerequisites** | `InvitationToken.resend_count` (idempotency key); a `delivery_failed` flag/status + serializer + Users-list column (AC-5); invitee phone storage and a `phone` channel discriminator — `OtpType` is `{none, email}` and there is no phone field on the invitation today. One migration, plus `import_configs.py` and the admin form |
-| 1 | Service scaffold | FastAPI app, config, Dockerfile, compose, `/healthz` `/readyz` |
-| 2 | Data layer | Models, Alembic migrations |
-| 3 | Auth | JWT verification middleware, `api_client` registry **+ management CLI**, scope + link-type enforcement, nonce replay cache |
-| 4 | Core API | Mint (idempotency key + advisory-locked `supersede` transaction + revoked-replay response), resolve, revoke, revoke-by-ref, list, events, Redis cache **of ciphertext**, rate limiting, base-domain validator, target encryption, log scrubbing |
-| 5 | Security verification | Open-redirect coverage (incl. `dfms.com.evil.io`, `evil.com@nourish.dfms.com`, non-https, widened 10-char codes); namespace scoping; concurrent supersede on one `external_ref`; replay-after-supersede returns `revoked: true`; no token in access logs or Redis plaintext |
-| 6 | DFMS client | `shortlink_client.py` with retry, per-attempt JWT signing, Redis-backed circuit breaker |
-| 7 | Audit + sweeper | Webhook receiver in DFMS **with namespace validation**; sweeper for expiry, counter flush, retries, partition create-ahead + purge |
-| 8 | Wire-up | Invitation create mints short URL; **build the phone resend path** (does not exist today); revoke hooks on activate/cancel |
+| # | Step | Deliverable | Status |
+|---|------|-------------|--------|
+| **0** | **DFMS schema prerequisites** | `InvitationToken.resend_count` (idempotency key); a `delivery_failed` flag/status + serializer + Users-list column (AC-5); invitee phone storage and a `phone` channel discriminator — `OtpType` is `{none, email}` and there is no phone field on the invitation today. One migration, plus `import_configs.py` and the admin form | **Not started** — needs Open Items 2 and 8 answered first |
+| 1 | Service scaffold | FastAPI app, config, Dockerfile, compose, `/healthz` `/readyz` | **Done** — three binds, ops on its own port |
+| 2 | Data layer | Models, Alembic migrations | **Done** — `0001_initial_schema`, applies clean; `resolve_event` partitioned with prev/current/next months seeded |
+| 3 | Auth | JWT verification middleware, `api_client` registry **+ management CLI**, scope + link-type enforcement, nonce replay cache | **Done** — signature verified before the nonce (V1); Redis loss answers 503 (V2) |
+| 4 | Core API | Mint (idempotency key + advisory-locked `supersede` transaction + revoked-replay response), resolve, revoke, revoke-by-ref, list, events, Redis cache **of ciphertext**, rate limiting, base-domain validator, target encryption, log scrubbing | **Done** — all seven endpoints |
+| 5 | Security verification | Open-redirect coverage (incl. `dfms.com.evil.io`, `evil.com@nourish.dfms.com`, non-https, widened 10-char codes); namespace scoping; concurrent supersede on one `external_ref`; replay-after-supersede returns `revoked: true`; no token in access logs or Redis plaintext | **Done** — every listed case covered; 103 tests green against real Postgres + Redis |
+| 6 | DFMS client | `shortlink_client.py` with retry, per-attempt JWT signing, Redis-backed circuit breaker | **Not started** |
+| 7 | Audit + sweeper | Webhook receiver in DFMS **with namespace validation**; sweeper for expiry, counter flush, retries, partition create-ahead + purge | **Half done** — sweeper built and verified (partitions, flush, expiry, soft-purge, HMAC-signed POST, dead-letter with backoff). **The DFMS receiver does not exist**, so nothing consumes the webhook yet |
+| 8 | Wire-up | Invitation create mints short URL; **build the phone resend path** (does not exist today); revoke hooks on activate/cancel | **Not started** — blocked on step 0 and Open Item 6 |
 
 Run in parallel with 1–8, owned outside the service: **short domain registration, DNS, TLS,
 and aggregator allowlisting + warm-up** ([SMS Deliverability](#sms-deliverability)). Steps
 1–5 do not depend on it; step 8 cannot ship without it. Start it first — lead times here are
-external and unpredictable.
+external and unpredictable. **Status: not started, and now the longest pole.**
+
+### What remains, in dependency order
+
+1. **Open Items 2 and 8 answered** (PO) — the phone channel discriminator, where the
+   invitee's number is captured, and whether resend opens a new window. Nothing DFMS-side
+   can start until these land.
+2. **Step 0** — one migration on `InvitationToken`, plus `import_configs.py`, the admin
+   form, the serializer and the Users-list column.
+3. **Step 6** — `apps/core/shortlink_client.py`. Contract is fixed and testable against the
+   running service today; note the breaker state belongs in Redis, not per-process, or each
+   Celery worker trips independently.
+4. **Step 7 receiver** — the audit endpoint, with `namespace` validated against registered
+   tenant schemas before it reaches `schema_context()`.
+5. **Step 8** — mint on create, the SMS resend path, revoke hooks on activate and cancel.
+6. **Domain, DNS, TLS, aggregator allowlisting** — in parallel from now, blocking 5.
 
 ---
 
 ## Open Items
 
-| # | Item | Owner |
-|---|------|-------|
-| 1 | **PO acknowledgement of the AC-3 deviation** (namespace instead of tenant model) | PO / Architecture |
-| 2 | **Resend window mismatch** — `resend_invitation()` does not extend `expires_at`, but AC-2 specifies a "new window". Confirm intended behaviour; the shortener mirrors either without change | PO / Backend |
-| 3 | **Dead config** — `INVITATION_EXPIRY_HOURS = 72` (`config/settings/base.py:477`) is unread; live value is `US005_INVITATION_EXPIRY_DAYS = 7`. Remove or align before it misleads someone | Backend |
-| 4 | Short domain hostname and DNS ownership (AUTH-01 Open Question 4) | PO / DevOps |
-| 5 | TLS certificate for the short domain (separate cert or SAN) | DevOps |
-| 6 | **Aggregator policy on shortened links** — confirm the SMS provider permits them at all, and allowlist the domain before wire-up. Blocks step 8; external lead time | DevOps / PO |
-| 7 | Second consumer's scopes, base domains and `allowed_link_types` once identified. **If DFMS Django remains the only consumer**, the RS256/`api_client` layer guards a caller inside our own VPC — decide whether it is worth building in Sprint 7 or deferred to first-second-consumer | Architecture |
-| 8 | **No phone channel exists on the invitation.** `OtpType` is `{none, email}` and `InvitationToken` has no phone field; `resend_invitation()` has no phone branch. Decide the channel discriminator and where the invitee's number is captured (admin form + bulk import) — step 0 | Backend / PO |
-| 9 | Dangling-CNAME monitoring on the `dfms.com` zone — the residual risk accepted by base-domain matching (D6) | DevOps / Security |
-| 10 | Whether the expired-link page offers self-service "request a new invitation" | PO |
-| 11 | **Rejected alternative on record:** a 10-char single-use activation code on `InvitationToken` gives `https://nourish.dfms.com/a/aB7xK2pQ` (~36 chars vs ~26) with no new service, no new domain, no aggregator allowlisting, and no token stored in a second database. It loses the multi-consumer platform argument — which Open Item 7 already treats as unproven. Confirm the ~10-character saving justifies the service before step 1 | Architecture / PO |
+**All eleven are still open.** The service was built without waiting on them because steps
+1–5 are reversible in a way the DFMS-side steps are not: nothing under `apps/` was touched,
+so items 1, 7 and 11 can still be decided against the service without unwinding a migration
+or a changed invitation flow. Items 2, 6 and 8 block the remaining work outright.
+
+| # | Item | Owner | Blocks |
+|---|------|-------|--------|
+| 1 | **PO acknowledgement of the AC-3 deviation** (namespace instead of tenant model) | PO / Architecture | Nothing today — but the built service assumes it. Reversing means adding `allowed_namespaces` + host-from-namespace derivation, which is additive, not a rewrite |
+| 2 | **Resend window mismatch** — `resend_invitation()` does not extend `expires_at`, but AC-2 specifies a "new window". Confirm intended behaviour; the shortener mirrors either without change | PO / Backend | **Step 0** |
+| 3 | **Dead config** — `INVITATION_EXPIRY_HOURS = 72` (`config/settings/base.py:477`) is unread; live value is `US005_INVITATION_EXPIRY_DAYS = 7`. Remove or align before it misleads someone | Backend | Nothing — but fix it before someone "fixes" the shortener against the wrong number |
+| 4 | Short domain hostname and DNS ownership (AUTH-01 Open Question 4) | PO / DevOps | **Step 8.** `SHORTLINK_BASE_URL` is the only place it appears in the service |
+| 5 | TLS certificate for the short domain (separate cert or SAN) | DevOps | **Step 8** |
+| 6 | **Aggregator policy on shortened links** — confirm the SMS provider permits them at all, and allowlist the domain before wire-up. External lead time | DevOps / PO | **Step 8** |
+| 7 | Second consumer's scopes, base domains and `allowed_link_types` once identified. **If DFMS Django remains the only consumer**, the RS256/`api_client` layer guards a caller inside our own VPC — decide whether it is worth keeping | Architecture | Nothing — it is built and costs nothing to keep; the decision is now whether to *remove* it, not whether to build it |
+| 8 | **No phone channel exists on the invitation.** `OtpType` is `{none, email}` and `InvitationToken` has no phone field; `resend_invitation()` has no phone branch. Decide the channel discriminator and where the invitee's number is captured (admin form + bulk import) | Backend / PO | **Step 0**, and therefore step 8 |
+| 9 | Dangling-CNAME monitoring on the `dfms.com` zone — the residual risk accepted by base-domain matching (D6) | DevOps / Security | Nothing — but it is the mitigation the built suffix match relies on |
+| 10 | Whether the expired-link page offers self-service "request a new invitation" | PO | Nothing — the 410 page is built and tenant-neutral; adding a link is a copy change in `linkshort/api/pages.py` |
+| 11 | **Rejected alternative on record:** a 10-char single-use activation code on `InvitationToken` gives `https://nourish.dfms.com/a/aB7xK2pQ` (~36 chars vs ~26) with no new service, no new domain, no aggregator allowlisting, and no token stored in a second database. It loses the multi-consumer platform argument — which Open Item 7 already treats as unproven | Architecture / PO | Nothing yet. **This is the last cheap moment to take it**: the service exists but nothing depends on it, so choosing the alternative costs one deleted directory rather than an unwind. Items 4, 5 and 6 — the external, slow, unstarted ones — disappear with it |
 
 ---
 
@@ -940,12 +1187,24 @@ external and unpredictable.
 - [authentication-security.md](../01-foundation/authentication-security.md) — OTP, MFA
 - [security-compliance.md](security-compliance.md) — tenant isolation standards
 - [integration-requirements.md](integration-requirements.md) — SMS gateway integration
+- [`services/link-shortener/README.md`](../../../services/link-shortener/README.md) —
+  operational detail for the built service: running it, the CLI, key rotation, and the same
+  deviation list
 
 ---
 
-**Last Updated**: 2026-07-28 — engineering review: per-endpoint API spec with explicit
+**Last Updated**: 2026-07-28 — reconciled with the implementation. Build Order steps 1–5 and
+the sweeper half of step 7 are built and verified at `services/link-shortener/`; steps 0, 6,
+8 and the DFMS webhook receiver are not started. Four implementation deviations recorded
+(V1 signature-before-nonce, V2 `503` on Redis loss, V3 no analytics for unknown codes, V4
+non-ASCII targets rejected), and the API, config, Redis key map and deployment sections
+updated to match the code. Open Items regained a "blocks" column — all eleven are still
+open, and Item 11 is called out as now-or-never.
+
+Prior revision (same day) — engineering review: per-endpoint API spec with explicit
 Postgres/Redis read-write paths and a Redis key map; advisory lock on `supersede`;
 revoked-replay contract; `resend_count`-derived idempotency key; ciphertext caching and log
-scrubbing for `target_url`; DFMS schema prerequisites promoted to Build Order step 0;
-rationale sections condensed
-**Status**: Planned — Sprint 7 (AUTH-01-3, AUTH-01-4)
+scrubbing for `target_url`; DFMS schema prerequisites promoted to Build Order step 0.
+
+**Status**: Service built and verified — DFMS integration outstanding (Sprint 7,
+AUTH-01-3, AUTH-01-4)
