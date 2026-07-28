@@ -29,13 +29,11 @@ Isolating it keeps its blast radius outside tenant business data, and lets it sc
 fail independently of the monolith. Follows the existing sidecar precedent set by
 `services/gt06-ingest/`.
 
-> **The rationale is the public edge, not internal API consumption.** DFMS calling this
-> over HTTP is a *cost* of the split, not a reason for it — an in-process Django app would
-> expose an API too, as a function call. The network hop is what makes
-> [Mint Contract](#mint-contract--idempotency-and-ordering) and the
-> [Redis degradation policy](#redis-degradation-policy) mandatory rather than optional:
-> in-process, `mint → send SMS → revoke old` would be one `transaction.atomic()` block and
-> none of those failure modes would be reachable. Budget for that work explicitly.
+> **The rationale is the public edge, not internal API consumption.** DFMS calling this over
+> HTTP is a *cost* of the split. In-process, `mint → send SMS → revoke old` would be one
+> `transaction.atomic()` block; the network hop is what makes the
+> [mint contract](#post-apiv1links--mint) and the
+> [Redis degradation policy](#redis-degradation-policy) mandatory. Budget for it explicitly.
 
 ### Short-link value
 
@@ -57,21 +55,18 @@ point 26 chars of URL is over a third of the message. See
 
 ## The service is not tenant-aware — and does not need to be
 
-AUTH-01 AC-3 specifies a "tenant-aware URL shortener". This implementation satisfies that
-requirement **structurally rather than through a tenant-scoped data model**, which is
-simpler and carries the same security posture. See
-[Deviation from AC-3](#deviation-from-ac-3) for the reasoning and the accepted tradeoff.
+AUTH-01 AC-3 specifies a "tenant-aware URL shortener". This implementation satisfies it
+**structurally rather than through a tenant-scoped data model**: a code maps to exactly one
+stored target URL, and that URL already contains the tenant
+(`https://nourish.dfms.com/...`). No query in this service has a tenant filter that could
+change its answer, so cross-tenant resolution is impossible by construction. The real
+security boundary is the invitation token, validated by Django inside the owning tenant's
+schema.
 
-In short: a code maps to exactly one stored target URL, and that URL already contains the
-tenant (`https://nourish.dfms.com/...`). There is no query in this service where a tenant
-filter would change the answer, so cross-tenant resolution is impossible by construction.
-The actual security boundary is the invitation token, which Django validates inside the
-owning tenant's schema.
-
-What the service stores instead is an opaque **`namespace`** string supplied by the caller
-and never interpreted by the service. DFMS passes `namespace = schema_name`. This provides
-scoped reads, bulk revoke, and audit attribution without the shortener knowing anything
-about DFMS multi-tenancy.
+The service stores an opaque **`namespace`** instead — supplied by the caller, never
+interpreted. DFMS passes `namespace = schema_name`, which buys scoped reads, bulk revoke and
+audit attribution without the shortener knowing anything about DFMS multi-tenancy. See
+[Deviation from AC-3](#deviation-from-ac-3) for the accepted tradeoff.
 
 ---
 
@@ -88,7 +83,7 @@ about DFMS multi-tenancy.
 | D7 | **Multi-consumer platform service** with RS256 service JWTs | DFMS Django is the first consumer; others follow. Asymmetric keys mean the service stores only public keys — full DB compromise yields no ability to mint links |
 | D8 | **Random base58 codes**, never sequential | Sequential/counter-based codes make every invitation link in the platform enumerable. base58 (not base62) for read-aloud/screenshot safety — see [Short Code Generation](#short-code-generation) |
 | D9 | **Queue + retry** on shortener unavailability | Invitation SMS is minted inside the Celery task; failure surfaces to the admin. No SMS ever goes out with a broken or oversized link |
-| D10 | **Mint is idempotent on `Idempotency-Key`, arbitrated by Postgres**, and rotation is a single atomic `supersede` call | Celery retries + a network hop mean a mint may be replayed after its response was lost. A resend reuses the same invitation token, so only the key distinguishes replay from rotation. Doing revoke+mint as two API calls is unserialisable. See [Mint Contract](#mint-contract--idempotency-and-rotation) |
+| D10 | **Mint is idempotent on `Idempotency-Key`, arbitrated by Postgres**, and rotation is a single atomic `supersede` call | Celery retries + a network hop mean a mint may be replayed after its response was lost. A resend reuses the same invitation token, so only the key distinguishes replay from rotation. Doing revoke+mint as two API calls is unserialisable. The transaction takes an advisory lock on `external_ref`, without which two concurrent supersedes both insert and the partial index rejects one at random. See [mint](#post-apiv1links--mint) |
 | D11 | **Split failure policy on Redis loss:** fail *open* on the public path, fail *closed* on the authenticated path | A legitimate invitee must never be blocked by an infra outage; replay protection must never disable itself silently. See [Redis degradation policy](#redis-degradation-policy) |
 | D12 | **Target allowlist validated once, at mint** — not re-checked at resolve | The target is immutable after mint, so re-checking buys nothing, keeps a client-config read on the hot path, and lets an allowlist edit retroactively kill links already sitting in users' SMS inboxes |
 
@@ -183,27 +178,50 @@ never attaches meaning to its contents.
 
 ## API
 
-```
-POST   /api/v1/links                    mint             (auth: links:write)
-GET    /api/v1/links/{code}             metadata         (auth, scoped)
-GET    /api/v1/links?namespace=&ref=    list             (auth: links:read, scoped)
-POST   /api/v1/links/{code}/revoke      revoke           (auth: links:revoke)
-POST   /api/v1/links/revoke-by-ref      bulk revoke      (auth: links:revoke)
-GET    /{code}                          302 redirect     (public, rate-limited)
-GET    /healthz  /readyz  /metrics      ops              (separate port, not ALB-exposed)
-```
+| Method | Path | Purpose | Auth / scope | Port |
+|---|---|---|---|---|
+| `POST` | `/api/v1/links` | Mint (optionally superseding) | `links:write` | mgmt |
+| `GET` | `/api/v1/links/{code}` | Single link metadata | `links:read`, namespace-scoped | mgmt |
+| `GET` | `/api/v1/links` | List by `namespace` / `external_ref` | `links:read`, namespace-scoped | mgmt |
+| `POST` | `/api/v1/links/{code}/revoke` | Revoke one link | `links:revoke` | mgmt |
+| `POST` | `/api/v1/links/revoke-by-ref` | Revoke every live link for a ref | `links:revoke` | mgmt |
+| `GET` | `/api/v1/events` | Resolve events since a cursor (audit reconciliation) | `links:read` | mgmt |
+| `GET` | `/{code}` | 302 to target | **public**, rate-limited | public |
+| `HEAD` | `/{code}` | Same headers, no body, `outcome=head` | **public**, rate-limited | public |
+| `GET` | `/healthz` `/readyz` `/metrics` | Ops | none | **ops** |
 
-Ops endpoints bind to a second uvicorn port that the ALB listener rule does not expose —
-`/metrics` must never be internet-reachable. That also removes any route-precedence question
-with the root-level `/{code}` catch-all, which is registered **last**, after the `/api`
-router.
+The mgmt router is private (D4); only the public port is behind the ALB listener rule. Ops
+binds a third port the ALB never exposes — `/metrics` must not be internet-reachable. The
+root-level `/{code}` catch-all is registered **last**, after `/api`, so route precedence is
+not a question.
 
-### Mint
+### Redis key map
+
+Every Redis key used by the service, with its writer, reader and failure behaviour (D11):
+
+| Key | Type / TTL | Written by | Read by | On Redis loss |
+|---|---|---|---|---|
+| `link:{code}` | string, `min(remaining_lifetime, 300s)` | resolve (on cache miss), `DEL` on revoke | resolve | fall through to Postgres |
+| `idem:{client_id}:{key}` | string → `code`, 24h | mint | mint | fall through to `uq_client_idem` |
+| `jti:{jti}` | string, TTL = `exp − now` | JWT verify (`SET NX`) | JWT verify | **fail closed** — reject |
+| `rl:resolve:{ip}:{minute}` | counter, 120s | resolve | resolve | **fail open** + alert |
+| `cnt:{code}` | counter, no TTL | resolve (`INCR`) | sweeper (flush → Postgres) | drop + metric |
+| `evt:pending` | list | resolve (`RPUSH`) | sweeper (batch → `resolve_event` + webhook) | drop + metric |
+
+`link:{code}` stores the target **as ciphertext**, decrypted per request — a Redis snapshot
+must not be a plaintext token store any more than a Postgres dump is
+([token exposure](#token-exposure-at-rest)). The value is a packed record
+`{target_ct, expires_at, link_type}`; revoked links are never cached, they are `DEL`ed.
+
+---
+
+### `POST /api/v1/links` — mint
 
 ```http
 POST /api/v1/links
 Authorization: Bearer <RS256 JWT>
-Idempotency-Key: invitation:9f2c1a...:resend:2
+Idempotency-Key: invitation:9f2c1a...:resend:2      # required
+Content-Type: application/json
 
 {
   "url":          "https://nourish.dfms.com/activate/?token=9f2c1a...",
@@ -215,68 +233,178 @@ Idempotency-Key: invitation:9f2c1a...:resend:2
   "supersede":    true
 }
 ```
+
+| Field | Rules |
+|---|---|
+| `url` | required; https (unless `REQUIRE_HTTPS_TARGETS=false`); host must match the client's `allowed_base_domains`; no embedded credentials; stored and emitted byte-for-byte |
+| `namespace` | required, ≤128 chars, opaque to the service |
+| `link_type` | must be in the client's `allowed_link_types` |
+| `external_ref` | optional; groups rotations. With `supersede`, required |
+| `expires_at` | required for invitation links; future; ≤ `now + SHORTLINK_MAX_TTL_DAYS`. Absent ⇒ `SHORTLINK_DEFAULT_TTL_DAYS` (generic links only) |
+| `supersede` | revoke the live link for this `external_ref` in the same transaction |
+
 ```http
-201 Created
-{
-  "code":       "aB7xK2pQ",
-  "short_url":  "https://dfms.link/aB7xK2pQ",
-  "expires_at": "2026-08-03T10:00:00Z",
+201 Created                                  200 OK   (idempotent replay)
+{                                            same body, plus:
+  "code":       "aB7xK2pQ",                    "replay": true,
+  "short_url":  "https://dfms.link/aB7xK2pQ",  "revoked": false,
+  "expires_at": "2026-08-03T10:00:00Z",        "revoked_reason": null
   "created_at": "2026-07-27T10:00:00Z"
 }
 ```
 
-### Mint contract — idempotency and rotation
+| Status | Condition |
+|---|---|
+| `201` | Minted |
+| `200` | Replay of a prior `Idempotency-Key` — identical `code`, plus live/revoked state |
+| `400` | Bad `url`, disallowed host or scheme, `expires_at` in the past or over the ceiling |
+| `401` / `403` | JWT invalid, expired, replayed `jti`, or scope / `link_type` not granted |
+| `409` | Concurrent supersede on the same `external_ref` — caller retries |
+| `422` | Missing `Idempotency-Key` |
 
-Two distinct situations must not be confused, because the naive design conflates them:
+**Read / write path**
+
+```
+1. Redis  GET  jti:{jti}             → present ⇒ 401 replay; else SET NX with TTL=exp-now
+2. DB     SELECT api_client          → per-process 60s cache; miss is the only client read
+3.        validate target host, link_type, expires_at   (pure, no I/O)
+4. Redis  GET  idem:{client}:{key}   → hit ⇒ DB SELECT that row, return 200 replay
+5. DB     BEGIN
+            pg_advisory_xact_lock(hashtext(client||namespace||external_ref))   ← if supersede
+            UPDATE short_link SET revoked_at=now(), revoked_reason='superseded'
+              WHERE client_id=:c AND namespace=:n AND external_ref=:r AND revoked_at IS NULL
+            INSERT short_link (code, target_url=encrypt(url), idempotency_key, ...)
+          COMMIT
+          ├─ UniqueViolation(uq_client_idem) ⇒ SELECT by key, return 200 replay
+          ├─ UniqueViolation(code)           ⇒ regenerate ×3, then widen to 10 chars
+          └─ UniqueViolation(partial ref ix) ⇒ 409 (lock lost / lock not taken)
+6. Redis  SETEX idem:{client}:{key} 24h → code        (best-effort)
+7.        no link:{code} write — the cache is populated on first resolve, not at mint
+```
+
+The advisory lock is what makes concurrent supersedes serialise. Without it, under READ
+COMMITTED the `UPDATE` does not see a row inserted by a concurrent transaction after its
+snapshot, so both transactions insert and the partial unique index rejects one at random.
+
+**Idempotency is arbitrated by Postgres, not Redis.** `uq_client_idem` is the authority;
+`idem:*` only saves a round trip. Any design whose correctness depends on that cache
+surviving is broken by definition.
 
 | Situation | What DFMS wants | Distinguished by |
 |---|---|---|
 | Celery **retried** a task whose response was lost | the *same* link back | same `Idempotency-Key` |
-| Admin **resent** the invitation | a *new, rotated* code | new `Idempotency-Key` (`…:resend:2`) |
+| Admin **resent** the invitation | a *new, rotated* code | new `Idempotency-Key` |
 
-Note that a resend reuses the **same invitation token** — `resend_invitation()` does not
-reissue it — so the target URL is byte-identical between the two cases. `external_ref` and
-`target_url` therefore cannot tell them apart. **`Idempotency-Key` is the only signal**,
-which is why it is required rather than optional.
+A resend reuses the **same invitation token** — `resend_invitation()` does not reissue it —
+so `external_ref` and `target_url` are byte-identical across resends. `Idempotency-Key` is
+the only signal, which is why it is required. DFMS derives it from
+`invitation:{token}:resend:{invitation.resend_count}`; `last_resent_at` cannot be used, as
+it is rewritten on failed attempts and would turn a retry into a rotation. **`resend_count`
+does not exist on `InvitationToken` today** — see [Open Items](#open-items).
 
-**Replay is arbitrated by Postgres, not Redis.** `short_link` carries an
-`idempotency_key` column with a unique index per client. The Redis cache (24h) is a latency
-optimisation only; on eviction the insert hits the unique index and returns the same
-answer. Any design whose correctness depends on that cache surviving is broken by
-definition.
+**A replay may return a revoked link.** If `…:resend:1` is retried after `…:resend:2`
+superseded it, the `200` carries `"revoked": true`. The client **must not send an SMS on a
+revoked replay** — abort and let the newer link stand. Rotation is otherwise one call:
+`supersede` makes revoke+insert atomic, so revoke-then-mint (no live link if the mint fails)
+and mint-then-revoke (violates the index) both disappear rather than being mitigated.
+Ordering at the caller is **mint → dispatch SMS**; an SMS failure leaves a live unused link
+and flags the invitation, which is the existing failure path.
 
-```python
-try:
-    row = insert(..., idempotency_key=key)       # → 201 Created
-except UniqueViolation("uq_client_idem"):
-    return 200, select_by_idem(client_id, key)   # replay — identical response
+---
+
+### `GET /api/v1/links/{code}` — metadata
+
+Returns `code, namespace, link_type, external_ref, expires_at, revoked_at, revoked_reason,
+resolve_count, first/last_resolved_at, created_by, created_at`. **Never the target URL** —
+it holds a live token and the caller already knows what it minted.
+
+**Read / write path:** JWT (`jti` `SET NX`) → `SELECT … WHERE code = :code`, then assert
+`client_id` and `namespace` match the token's consumer. A mismatch returns **404, not 403**,
+so the endpoint is not an existence oracle. No Redis read — `link:{code}` is the redirect
+cache and does not carry metadata. No writes.
+
+### `GET /api/v1/links` — list
+
+`?namespace=&external_ref=&link_type=&active_only=&limit=&cursor=`. `namespace` is
+**required**; results are hard-filtered to `(client_id, namespace)` regardless of what the
+query asks for. Served by `INDEX (client_id, namespace)`, keyset-paginated on
+`(created_at, id)` — never `OFFSET`. Read-only, no Redis.
+
+### `POST /api/v1/links/{code}/revoke` — revoke
+
+```json
+{ "reason": "activated" }     // activated | cancelled | expired | superseded
 ```
 
-### Rotation is one atomic call, not a distributed two-step
+**Read / write path**
 
-The partial unique index permits at most one live link per `external_ref`, so a resend must
-revoke the old link and insert the new one. Doing that as two API calls from DFMS is
-unserialisable: revoke-then-mint leaves the invitation with **no live link** if the mint
-fails, and mint-then-revoke simply violates the index.
-
-So it is not two calls. Mint accepts **`"supersede": true`**, and the service does both
-inside one Postgres transaction:
-
-```sql
-BEGIN;
-  UPDATE short_link SET revoked_at = now(), revoked_reason = 'superseded'
-   WHERE client_id = :c AND namespace = :n AND external_ref = :r AND revoked_at IS NULL;
-  INSERT INTO short_link (...) VALUES (...);   -- index now satisfied
-COMMIT;
+```
+1. DB     UPDATE short_link
+             SET revoked_at = now(), revoked_reason = :reason,
+                 target_url = CASE WHEN :reason = 'activated' THEN NULL ELSE target_url END
+           WHERE code = :code AND client_id = :c AND namespace = :n AND revoked_at IS NULL
+          → 0 rows ⇒ 404 (wrong scope) or 200 (already revoked, same reason — idempotent)
+2. Redis  DEL link:{code}        ← must follow the commit, never precede it
 ```
 
-DFMS makes **one** call, retryable and idempotent, with no partial state reachable. The
-distributed-transaction problem disappears rather than being mitigated.
+`activated` NULLs `target_url` in the same statement, collapsing the token's exposure window
+from the retention period to "until the invitee uses it". Revoke is idempotent: repeating it
+with the same reason is `200`, with a different reason is `409` — the first reason is the
+true one. The `DEL` after commit is the ordering that matters; deleting first leaves a
+window where a concurrent resolve repopulates the cache from the pre-commit row.
 
-Ordering around it: **mint (supersede) → dispatch SMS.** If the SMS then fails, the new
-link is live and unused and the invitation is flagged `delivery_failed` (AC-5) — the
-existing failure path, no new state. Explicit `POST /links/{code}/revoke` remains for
-activation and cancellation, where there is no replacement link.
+### `POST /api/v1/links/revoke-by-ref` — bulk revoke
+
+`{ "namespace": "...", "external_ref": "invitation:9f2c1a...", "reason": "cancelled" }` →
+one `UPDATE … WHERE external_ref = :r AND revoked_at IS NULL` returning the affected codes,
+then `DEL` each `link:{code}`. Returns `{ "revoked": ["aB7xK2pQ", …] }`. Used on invitation
+cancellation, where several rotations may still be live in users' inboxes.
+
+### `GET /{code}` — public redirect
+
+The only unauthenticated path, and the only one on the hot path.
+
+```
+1. Redis  INCR rl:resolve:{ip}:{minute}  (EXPIRE 120) → over limit ⇒ 429
+                                          Redis down ⇒ fail open, alert
+2.        shape check: length 8–10, base58 charset — rejects /favicon.ico, /robots.txt
+          and scanner noise before touching any datastore. Must accept the full range;
+          an `== 8` check would 404 every collision-widened code
+3. Redis  GET link:{code}
+            miss → DB SELECT code, target_url, expires_at, revoked_at WHERE code = :code
+                   not found ⇒ 404
+                   live      ⇒ SETEX link:{code} min(remaining, 300) {ciphertext record}
+4.        revoked_at set?      ⇒ 410, copy from revoked_reason
+          now >= expires_at?   ⇒ 410 expired      (server-side UTC; client clocks unused)
+5.        decrypt target in memory
+6. Redis  INCR cnt:{code}; RPUSH evt:pending {...}      ← both non-blocking, both droppable
+7.        302, Location: <target, byte-for-byte>
+```
+
+No target re-validation (D12): the target is immutable after mint, so re-checking buys
+nothing, puts a client-config read on the hot path, and would let an allowlist edit
+retroactively kill links already sitting in users' SMS inboxes.
+
+The Postgres fallback in step 3 uses a **small dedicated pool with a statement timeout**, so
+a Redis outage degrades resolve latency instead of exhausting RDS connections and taking
+minting down with it. Budget: Redis hit ≈ 1 ms, Postgres fallback ≈ 5 ms, target < 20 ms p99
+at the edge. Nothing on this path fans out, and nothing on it writes to Postgres.
+
+**Never log the `Location` header or the decrypted target.** It carries a live activation
+token; access logs have wider read access and no retention policy. Scrub at the uvicorn
+access-log formatter and disable ALB access logs on this listener.
+
+### `GET /api/v1/events` — audit reconciliation
+
+`?since=<cursor>&limit=` over `resolve_event`. The webhook is the primary channel; this is
+the pull-based backstop so an audit gap is always recoverable. Reads the current and
+previous monthly partitions only.
+
+### Ops endpoints
+
+`/healthz` is process-liveness and touches nothing. `/readyz` does `SELECT 1` and Redis
+`PING`, reporting Redis degradation without failing the check — the service is still able to
+resolve from Postgres. `/metrics` is Prometheus text.
 
 ### Service JWT
 
@@ -334,57 +462,43 @@ def validate_target(url: str, client: ApiClient, *, require_https: bool) -> str:
 `allowed_base_domains` for `dfms-django` is `{dfms.com, <FRONTEND_URL host>}`.
 `require_https = ENV != "local"`.
 
-**Why base domains rather than an exact host set.** Activation URLs are not built from a
-fixed host — `_build_activation_url()` (`apps/users/invitation_service.py:75`) resolves the
-tenant's primary domain from the database at send time:
+**Why base domains, not an exact host set.** `_build_activation_url()`
+(`apps/users/invitation_service.py:75`) resolves the tenant's primary domain from the
+database at send time, so valid target hosts are runtime data that grows with every customer
+onboarded. An exact-match array is static config: provision `acme.dfms.com` and every
+invitation for that tenant 400s at mint until someone edits the shortener's database — the
+failure mode D5 eliminates, reproduced by hand.
 
-```python
-tenant = Tenant.objects.filter(schema_name=schema_name).first()
-domain = tenant.domains.filter(is_primary=True).first() or tenant.domains.first()
-return f"{scheme}://{host}{port}/activate/?token={token}"
-```
+**Why the suffix match is safe.** The hazard is a *hardcoded* `endswith(".dfms.com")`, which
+`dfms.com.evil.io` defeats. Here the dot is concatenated to the **configured base**, so that
+host fails both branches. Three details keep it correct: (1) lowercase before comparing;
+(2) use `hostname`, never `netloc`, which carries port and credentials; (3) reject embedded
+credentials explicitly, or `https://evil.com@nourish.dfms.com` passes the host check while
+browsers navigate to `evil.com`.
 
-The set of valid target hosts is therefore **runtime data that grows with every customer
-onboarded**. An exact-match array is static config: provision `acme.dfms.com`, and every
-invitation for that tenant 400s at mint until someone edits an array in the shortener's
-database. That is precisely the failure mode D5 claims to eliminate — reproduced manually,
-which is worse than a sync job, because a sync job at least runs on its own.
+**Residual risk:** the permitted set widens to "any subdomain of a domain we own".
+Exploiting it needs a dangling `dfms.com` subdomain — a takeover scenario you defend against
+anyway. Mitigation is dangling-CNAME monitoring, not a hand-maintained array.
 
-**Why this suffix match is safe.** The hazard is a *hardcoded* `endswith(".dfms.com")`,
-which `dfms.com.evil.io` defeats. Here the leading dot is concatenated to the **configured
-base**, so `dfms.com.evil.io` fails both branches — `host == "dfms.com"` is false, and its
-real suffix is `.evil.io`. Three details keep it correct:
-
-1. lowercase before comparing;
-2. use `hostname`, never `netloc` — `netloc` carries port and credentials;
-3. reject embedded credentials explicitly, or `https://evil.com@nourish.dfms.com` passes
-   the host check while browsers navigate to `evil.com`.
-
-**Residual risk.** The permitted set widens from "these subdomains" to "any subdomain of a
-domain we own". Exploiting that requires a subdomain of `dfms.com` pointed at
-attacker-controlled infrastructure — a dangling-DNS / subdomain-takeover scenario you must
-defend against anyway, and far less likely than the operational failure being traded away.
-Mitigation is dangling-CNAME monitoring on the zone, not a hand-maintained array.
-
-**Local and CI.** `TENANT_DOMAIN_SCHEME` defaults to `"http"` with a `TENANT_DOMAIN_PORT`,
-so an unconditional https requirement rejects every mint outside production. Scope the rule
-to the environment; do not weaken it in production to make dev work.
+**Local and CI:** `TENANT_DOMAIN_SCHEME` defaults to `http`, so an unconditional https
+requirement rejects every mint outside production. Scope the rule to the environment; do not
+weaken it in production to make dev work.
 
 ### Token exposure at rest
 
-`target_url` contains a live activation token. A dump of the shortener database therefore
-yields the activation token for **every pending invitation in every tenant** — direct
-account takeover for those users, with no DFMS compromise required. D7's claim that a full
-DB compromise "yields no ability to mint links" is true and beside this point.
+`target_url` contains a live activation token, so a dump of the shortener database yields
+the activation token for **every pending invitation in every tenant** — direct account
+takeover, no DFMS compromise required. D7's claim that a full DB compromise "yields no
+ability to mint links" is true and beside this point. Inherent to a shortener that stores
+its targets; bounded, not eliminated, and the bound has to hold in **all four** places the
+token appears:
 
-This is inherent to a shortener that stores its targets; it is bounded, not eliminated:
-
-- `target_url` **encrypted at rest** (KMS-backed AES-GCM at the application layer, or
-  `pgcrypto`). Decrypted only on the resolve path.
-- **NULLed on activation.** The revoke hook already fires on activate; make
-  `revoked_reason='activated'` clear the column in the same statement. Exposure window
-  collapses from the 37-day retention period to "until the invitee uses it".
-- Soft-purge NULLs it for everything else at `expires_at + retention`.
+| Where | Control |
+|---|---|
+| Postgres `short_link.target_url` | KMS-backed AES-GCM at the application layer (or `pgcrypto`); decrypted only on resolve |
+| Redis `link:{code}` | **cache the ciphertext**, decrypt per request — a Redis RDB snapshot must not be a plaintext token store either |
+| Access logs (`Location`, uvicorn + ALB) | scrub at the log formatter; disable ALB access logs on the public listener. Logs have wider read access and no retention policy |
+| After use | **NULLed on activation** — `revoked_reason='activated'` clears the column in the same `UPDATE`, collapsing the window from 37 days to "until the invitee taps it". Soft-purge NULLs everything else at `expires_at + retention` |
 
 Accepted risk, recorded rather than omitted: between mint and activation, a pending
 invitation's token exists in two databases instead of one.
@@ -395,33 +509,27 @@ AC-3 asks for a tenant-scoped data model with per-tenant allowlists and cross-te
 isolation checks. This design drops that in favour of an opaque namespace. **Requires PO
 acknowledgement** — recorded here rather than changed silently.
 
-**Why the isolation requirement still holds.** A short code resolves to exactly one stored
-URL, and that URL carries the tenant host. No tenant filter exists that could change a
-resolution outcome, so "a code created for tenant A never resolves to tenant B" is
-guaranteed by the data shape. Even a link deliberately pointed at another tenant's host is
-inert: activation requires a valid invitation token, which Django validates in that
-tenant's own schema, and which the shortener can neither read nor forge.
+**Isolation still holds.** A code resolves to exactly one stored URL carrying the tenant
+host; no tenant filter could change that outcome. Even a link deliberately pointed at
+another tenant's host is inert — activation needs a valid invitation token, which Django
+validates in that tenant's schema and the shortener can neither read nor forge.
 
-**What is genuinely given up.** A consumer could mint a link under namespace A that targets
-a host belonging to tenant B. Impact is negligible — the target remains allowlist-bound to
-DFMS hosts, and the token check is the real boundary. If a genuinely untrusted consumer is
-ever onboarded, add a per-client `allowed_namespaces` list and derive the expected host
-from the namespace. That is an additive change, not a rewrite.
+**What is given up:** a consumer could mint under namespace A a link targeting tenant B's
+host. Negligible — the target stays allowlist-bound and the token check is the real
+boundary. For a genuinely untrusted consumer, add a per-client `allowed_namespaces` and
+derive the expected host from the namespace: additive, not a rewrite.
 
-**Where the opacity claim stops holding — and what that costs.** `namespace` is opaque to
-*this service*, but the audit webhook hands it to `schema_context()` on the DFMS side, so
-something does interpret it: as a schema name, from consumer-supplied data. The receiver
-must therefore validate it against registered tenants and drop unknown values — never pass
-it through unchecked, or a malformed or hostile value writes into `public` or another
-tenant's schema. That validation is ~15 lines against a cached list from the public schema,
-not the tenant-sync subsystem this deviation avoids. The argument survives; the claim needs
-the qualifier. See [DFMS Integration](#dfms-integration).
+**Where the opacity claim stops.** `namespace` is opaque to *this service*, but the audit
+webhook hands it to `schema_context()` on the DFMS side — a schema name from
+consumer-supplied data. The receiver must validate against registered tenants and drop
+unknown values, or a hostile value writes into `public` or another tenant's schema. ~15
+lines against a cached list, not a tenant-sync subsystem. See
+[DFMS Integration](#dfms-integration).
 
-**What this removes:** the `tenant` and `tenant_allowed_host` tables, the tenant sync
-endpoint, the nightly reconcile job, the DFMS provisioning hook, the per-tenant allowlist
-cache in the hot path, and the RLS policies — roughly a third of the service, including its
-most likely production failure mode (a newly provisioned tenant whose sync had not yet
-landed would have had its invitations rejected).
+**What this removes:** the `tenant` and `tenant_allowed_host` tables, the sync endpoint, the
+nightly reconcile, the provisioning hook, the per-tenant allowlist cache on the hot path and
+the RLS policies — roughly a third of the service, including its most likely production
+failure mode (a newly provisioned tenant whose sync had not landed).
 
 ---
 
@@ -487,7 +595,16 @@ T+37d    retention ends     link B  soft-purged: code kept, target_url nulled
 > called with `invitation.token`, which resend does not reissue, so the target URL is
 > byte-identical across resends. This is why `Idempotency-Key` — not `external_ref` or
 > `target_url` — is the only thing that can distinguish a Celery replay from a genuine
-> resend. See [Mint contract](#mint-contract--idempotency-and-rotation).
+> resend. See [mint](#post-apiv1links--mint).
+
+> **Finding — the key that contract needs does not exist.** `InvitationToken` has
+> `last_resent_at` but **no resend counter** (`apps/users/models.py:695-758`), so
+> `…:resend:N` cannot be constructed. `last_resent_at` is not a substitute: it is rewritten
+> on every attempt including failed ones (`invitation_service.py:717`), so a Celery retry
+> would produce a *different* key and mint a rotation instead of replaying — inverting the
+> distinction the contract exists to make. Needs `resend_count =
+> PositiveSmallIntegerField(default=0)`, incremented once per admin-initiated resend in the
+> same transaction. Migration, not wiring — see [Build Order](#build-order) step 0.
 
 ### Early termination (before expiry)
 
@@ -587,25 +704,8 @@ relationship with either service. Everything it needs is in the URL.
 └──────────────────┘
 ```
 
-### Step ④ in detail
-
-```
-1. rate limit          per-IP token bucket (Redis) — deliberately loose, see below
-2. shape check         length 8–10 + base58 charset — rejects /favicon.ico, /robots.txt,
-                       and scanner noise before touching any datastore. Must accept the
-                       full range: collision handling widens codes to 10 chars, and an
-                       `== 8` check would 404 every widened code
-3. lookup              Redis GET link:aB7xK2pQ
-                         miss → Postgres SELECT → cache min(remaining, 300s)
-4. state check         revoked_at set?  → 410 with revoked_reason copy
-                       now >= expires_at? → 410 expired
-5. accounting          Redis INCR counter; enqueue resolve_event  (both non-blocking)
-6. respond             302
-
-No target re-check (D12). The target was validated at mint and is immutable, so re-checking
-buys nothing, puts a client-config read on the hot path, and lets an allowlist edit
-retroactively kill links already sitting in users' SMS inboxes.
-```
+Step ④ — rate limit, shape check, cache-or-Postgres lookup, state check, 302 — is specified
+step by step under [`GET /{code}`](#get-code--public-redirect).
 
 ### The response
 
@@ -663,18 +763,14 @@ window means a late tap gets "this expired" instead of an alarming "not found".
 
 ### Rate limiting — detect rather than block
 
-A tight per-IP bucket is the wrong instrument here. Mobile carriers put thousands of
-subscribers behind a handful of CGNAT addresses, and enterprise mail/SMS scanners fetch from
-shared egress. A limit strict enough to stop enumeration will 429 real invitees — producing
-exactly the "the link doesn't work on my phone" failure the
-[prefetch section](#prefetch-head-and-non-consumption) calls near-impossible to diagnose.
+A tight per-IP bucket is the wrong instrument: carriers put thousands of subscribers behind
+a handful of CGNAT addresses, so a limit strict enough to stop enumeration will 429 real
+invitees. The real defence is **46.9 bits of entropy**, not the bucket.
 
-The real defence against enumeration is **46.9 bits of entropy**, not the bucket. So:
-
-- `RESOLVE_RATE_LIMIT` set generously — order of **60/min/IP**. Absurd for a human, still
-  caps a scanner, survives CGNAT.
-- **Alert on the 404 rate**, which is the clean signal: a scanner produces near-100% 404s,
-  a carrier NAT produces near-100% 302s. Same detection, no false positives on invitees.
+- `RESOLVE_RATE_LIMIT` generous — order of **60/min/IP**. Absurd for a human, still caps a
+  scanner, survives CGNAT.
+- **Alert on the 404 rate.** A scanner produces near-100% 404s, a carrier NAT near-100%
+  302s. Same detection, no false positives on invitees.
 
 ### Redis degradation policy
 
@@ -687,18 +783,13 @@ path.**
 | Resolve cache | fall through to Postgres | Correct but slower |
 | Rate limiter | **fail open**, alert loudly | A legitimate invitee must never be blocked by an infra outage; entropy is the real defence anyway |
 | JWT nonce (replay) | **fail closed** — reject mints | A security control must never disable itself silently. Minting is not time-critical; the Celery retry absorbs it |
-| Idempotency cache | fall through to the Postgres unique index | Already the design ([mint contract](#mint-contract--idempotency-and-rotation)) — no correctness dependency |
+| Idempotency cache | fall through to the Postgres unique index | Already the design ([mint](#post-apiv1links--mint)) — no correctness dependency |
 | Resolve counters / events | drop, emit a metric | Analytics, not correctness |
 
 The claim that "an outage blocks minting, not resolving" holds only with this table in
 place. Add a **statement timeout and a small dedicated connection pool** on the resolve
 path's Postgres fallback, so a Redis outage degrades latency instead of exhausting RDS
 connections and taking minting down with it.
-
-### Budget
-
-Redis hit ≈ 1 ms; Postgres fallback ≈ 5 ms. Target < 20 ms p99 at the edge. The redirect is
-one cache read plus two non-blocking writes — nothing on this path fans out.
 
 ---
 
@@ -708,10 +799,12 @@ one cache read plus two non-blocking writes — nothing on this path fans out.
 |---------|--------|
 | Client | `apps/core/shortlink_client.py` — signs the service JWT, passes `namespace=connection.schema_name`, retries with backoff, circuit breaker so a sustained outage fails fast instead of tying up workers. **Breaker state in Redis**, not per-process, or each Celery worker trips independently and the breaker never does its job |
 | Mint | `apps/users/invitation_service.py` — after `_build_activation_url()` (lines 502 create, 693 resend), branch on channel: phone → mint short link → SMS. Runs **inside** the Celery task, not the request path. JWTs are `exp = now + 120s`, so **sign per attempt** — a retry must never replay a stale token |
-| Revoke | Explicit `POST /links/{code}/revoke` on activate and cancel. **Resend does not call revoke** — it mints with `"supersede": true`, which revokes and reissues in one transaction (AC-2 "new or rotated"). See [rotation](#rotation-is-one-atomic-call-not-a-distributed-two-step) |
+| Idempotency key | `invitation:{token}:resend:{invitation.resend_count}`, read from the row the task was handed. **Never `last_resent_at`** — rewritten on failed attempts, so it would turn a retry into a rotation. Requires the `resend_count` migration |
+| Replay handling | A `200` with `"revoked": true` means a newer link already superseded this one. **Abort the send** — do not SMS a link that will 410. A `409` means a concurrent supersede; let the Celery retry pick it up |
+| Revoke | Explicit `POST /links/{code}/revoke` on activate and cancel — **queued, not inline in the request path**. Activation must not depend on shortener latency; the token is already `is_used`, so revocation is load-bearing only for the token-exposure window, not for security. **Resend does not call revoke** — it mints with `"supersede": true` (AC-2 "new or rotated"). See [mint](#post-apiv1links--mint) |
 | Expiry | `expires_at = invitation.expires_at` — copied **verbatim, never `min()`**. The shortener does not own expiry policy; see [Link Lifecycle](#the-shortener-never-owns-expiry-policy). `SHORTLINK_DEFAULT_TTL_DAYS` applies only to generic links with no explicit `expires_at` |
 | Audit | Shortener batches `resolve_event` rows and POSTs them HMAC-signed to a DFMS internal endpoint. The receiver **validates `namespace` against registered tenant schemas (cached from the public schema) and drops unknown values** before calling `schema_context` — never pass a consumer-supplied string to `schema_context` unchecked. Dead-letter table with backoff, plus `GET /api/v1/events?since=` for reconciliation — an audit gap is always recoverable |
-| Failure | Celery retries 3× with backoff; on final failure the invitation stays `Sent` with a `delivery_failed` flag visible in the Users list (AC-5 "no silent success") |
+| Failure | Celery retries 3× with backoff; on final failure the invitation stays `Sent` with a `delivery_failed` flag visible in the Users list (AC-5 "no silent success"). **`InvitationStatus` has no such value and there is no flag field today** — schema + serializer + list-column change, see [Build Order](#build-order) step 0 |
 | Email path | Unchanged — email invitations keep the long activation URL (AC-3, AC-6 non-regression) |
 
 No tenant provisioning hook is required: a namespace needs no registration, so a tenant
@@ -799,15 +892,18 @@ Consumer-side (DFMS): `SHORTLINK_API_URL`, `SHORTLINK_CLIENT_ID`,
 
 ## Build Order
 
-Steps 1–5 are independent of all phone/SMS work in AUTH-01 and can start immediately.
+Steps 1–5 are independent of all phone/SMS work in AUTH-01 and can start immediately. **Step
+0 is DFMS-side and blocks step 8** — three prerequisites the original plan assumed already
+existed. Land it as one changeset early in the sprint, not alongside the wire-up.
 
 | # | Step | Deliverable |
 |---|------|-------------|
+| **0** | **DFMS schema prerequisites** | `InvitationToken.resend_count` (idempotency key); a `delivery_failed` flag/status + serializer + Users-list column (AC-5); invitee phone storage and a `phone` channel discriminator — `OtpType` is `{none, email}` and there is no phone field on the invitation today. One migration, plus `import_configs.py` and the admin form |
 | 1 | Service scaffold | FastAPI app, config, Dockerfile, compose, `/healthz` `/readyz` |
 | 2 | Data layer | Models, Alembic migrations |
 | 3 | Auth | JWT verification middleware, `api_client` registry **+ management CLI**, scope + link-type enforcement, nonce replay cache |
-| 4 | Core API | Mint (idempotency key + `supersede` transaction), resolve, revoke, revoke-by-ref, list, Redis cache, rate limiting, base-domain validator, target encryption |
-| 5 | Security verification | Open-redirect coverage (incl. `dfms.com.evil.io`, `evil.com@nourish.dfms.com`, non-https, widened 10-char codes); namespace scoping; confirm a code resolves to exactly one target regardless of caller |
+| 4 | Core API | Mint (idempotency key + advisory-locked `supersede` transaction + revoked-replay response), resolve, revoke, revoke-by-ref, list, events, Redis cache **of ciphertext**, rate limiting, base-domain validator, target encryption, log scrubbing |
+| 5 | Security verification | Open-redirect coverage (incl. `dfms.com.evil.io`, `evil.com@nourish.dfms.com`, non-https, widened 10-char codes); namespace scoping; concurrent supersede on one `external_ref`; replay-after-supersede returns `revoked: true`; no token in access logs or Redis plaintext |
 | 6 | DFMS client | `shortlink_client.py` with retry, per-attempt JWT signing, Redis-backed circuit breaker |
 | 7 | Audit + sweeper | Webhook receiver in DFMS **with namespace validation**; sweeper for expiry, counter flush, retries, partition create-ahead + purge |
 | 8 | Wire-up | Invitation create mints short URL; **build the phone resend path** (does not exist today); revoke hooks on activate/cancel |
@@ -830,9 +926,10 @@ external and unpredictable.
 | 5 | TLS certificate for the short domain (separate cert or SAN) | DevOps |
 | 6 | **Aggregator policy on shortened links** — confirm the SMS provider permits them at all, and allowlist the domain before wire-up. Blocks step 8; external lead time | DevOps / PO |
 | 7 | Second consumer's scopes, base domains and `allowed_link_types` once identified. **If DFMS Django remains the only consumer**, the RS256/`api_client` layer guards a caller inside our own VPC — decide whether it is worth building in Sprint 7 or deferred to first-second-consumer | Architecture |
-| 8 | Confirm `phone` is a valid `otp_type` / channel discriminator on `InvitationToken`, and how resend selects the channel — the phone path does not exist in `resend_invitation()` today | Backend |
+| 8 | **No phone channel exists on the invitation.** `OtpType` is `{none, email}` and `InvitationToken` has no phone field; `resend_invitation()` has no phone branch. Decide the channel discriminator and where the invitee's number is captured (admin form + bulk import) — step 0 | Backend / PO |
 | 9 | Dangling-CNAME monitoring on the `dfms.com` zone — the residual risk accepted by base-domain matching (D6) | DevOps / Security |
 | 10 | Whether the expired-link page offers self-service "request a new invitation" | PO |
+| 11 | **Rejected alternative on record:** a 10-char single-use activation code on `InvitationToken` gives `https://nourish.dfms.com/a/aB7xK2pQ` (~36 chars vs ~26) with no new service, no new domain, no aggregator allowlisting, and no token stored in a second database. It loses the multi-consumer platform argument — which Open Item 7 already treats as unproven. Confirm the ~10-character saving justifies the service before step 1 | Architecture / PO |
 
 ---
 
@@ -846,7 +943,9 @@ external and unpredictable.
 
 ---
 
-**Last Updated**: 2026-07-28 — design review: host allowlist (D6), mint idempotency &
-rotation (D10), Redis degradation policy (D11), mint-only target validation (D12), token
-exposure at rest, namespace validation at the audit receiver, SMS deliverability
+**Last Updated**: 2026-07-28 — engineering review: per-endpoint API spec with explicit
+Postgres/Redis read-write paths and a Redis key map; advisory lock on `supersede`;
+revoked-replay contract; `resend_count`-derived idempotency key; ciphertext caching and log
+scrubbing for `target_url`; DFMS schema prerequisites promoted to Build Order step 0;
+rationale sections condensed
 **Status**: Planned — Sprint 7 (AUTH-01-3, AUTH-01-4)
