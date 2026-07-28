@@ -107,7 +107,7 @@ Phase 1 product context previously stated that staff users are invited and recov
 ## 🔗 Related Documents
 
 - [staff-invite-login-password-channels.md](../05-modules/03-users/staff-invite-login-password-channels.md)
-- [Sprint 6 FB-025](../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-025--staff-invite--login--forgot-password-email-or-phone-channel)
+- [Sprint 6 FB-032](../03-backlog/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
 - US-005, US-008
 
 ---

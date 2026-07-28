@@ -18,6 +18,7 @@ parent: ./README.md
 | [FB-025](#fb-025--user-menu-status-filter-shows-incorrect-status) | User menu status filter shows incorrect status | Medium | Resolved |
 | [FB-026](#fb-026--password-reset-admin-justification-field-required) | Password reset: admin justification field required | Medium | Resolved |
 | [FB-030](#fb-030--user-bulk-import-feature-not-working) | User bulk import feature not working | High | Resolved |
+| [FB-032](#fb-032--staff-invite--login--forgot-password-email-or-phone-channel) | Staff invite / login / forgot-password: email or phone channel | High | Resolved |
 
 ---
 
@@ -64,8 +65,6 @@ See full plan: [`tenant-user-management-v2.md`](../../../../05-modules/03-users/
 
 ---
 
----
-
 ## FB-025 — User menu status filter shows incorrect status
 
 | Field | Value |
@@ -88,8 +87,6 @@ The status filter under the User menu did not show or apply the correct user sta
 |--------|----------------------|-------------------|
 | Status filter options | Incorrect / mismatched vs displayed status | Options match real user status values |
 | Filter results | Wrong users returned for a selected status | Only users with that status |
-
----
 
 ---
 
@@ -118,8 +115,6 @@ Admin-initiated password reset had no justification field, so resets could not b
 
 ---
 
----
-
 ## FB-030 — User bulk import feature not working
 
 | Field | Value |
@@ -144,3 +139,44 @@ The User Bulk Import admin feature was not working — Tenant Admins could not s
 | Error feedback | Missing or opaque | Clear row/field errors on failure |
 
 ---
+
+## FB-032 — Staff invite / login / forgot-password: email **or** phone channel
+
+| Field | Value |
+|-------|-------|
+| **Source** | Implementation alignment / product feedback — 2026-07-28 |
+| **Affected Stories** | [US-005](../../../stories/US-005-user-invitation-activation.md) (staff invitation & activation), [US-008](../../../stories/US-008-password-account-reset.md) (password reset); admin login / OTP ([authentication-security.md](../../../../05-modules/01-foundation/authentication-security.md)) |
+| **Reference docs** | [`staff-invite-login-password-channels.md`](../../../../05-modules/03-users/staff-invite-login-password-channels.md); [CR-002](../../../../11-change-requests/CR-002-staff-phone-invite-login-password.md); [`user-tenant-management.md`](../../../../05-modules/01-foundation/user-tenant-management.md) §4 / §7 |
+| **Closing Sub-tasks** | FB-032-1 invitation `invite_channel` email\|phone (no mock `@invite.local` emails); FB-032-2 reinvite follows original channel; FB-032-3 admin login Email\|Phone + `+88` prefix / 11-digit local; FB-032-4 forgot-password single identifier field + SMS/email delivery; FB-032-5 product-context + CR-002 |
+| **AC Amendment** | **(1) Invitation:** Staff invite supports **`invite_channel=email`** or **`invite_channel=phone`**. Phone invites require BD mobile; `User.email` may be **null** (do not invent placeholder emails). OTP type must match channel (`none`/`email` vs `none`/`phone`). Activation link + OTP delivered by email or SMS (`SMS_ENABLED` gates real SMS; otherwise log). **Reinvite** always uses the stored `invite_channel`. **(2) Login:** Admin `/admin/login/` offers Email \| Phone. Phone UI shows fixed prefix **`+88`**; user enters **11 digits starting with `0`** (e.g. `01712345678`); submitted value is E.164 `+8801…`. Identity resolution and login OTP use email or phone accordingly (including phone-only staff). **(3) Forgot password:** `/forgot-password/` uses **one field** (“Email or phone”) — no Email/Phone tabs. Validate by shape (`@` → email; else BD mobile). Deliver reset link + OTP by email or SMS on the matching channel. Authenticated change-password remains session-based (no identifier). Admin-assisted reset emails when email exists, otherwise SMS to phone. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Implemented in `nourish-backend` (`invitation_service.py`, `AuthService._resolve_user_by_identifier`, `password_reset_service.py`, `admin_otp.py`, `templates/admin/login.html`, `templates/auth/forgot_password.html`, `notifications/sms.py`). Supersedes earlier Phase 1 “email invitation only” notes. Distinct from vendor registration phone (FB-002), vendor forgot-password (Sprint 5 FB-011 / VM-01-10), and existing admin password-reset justification (FB-026). **ID note:** main already used FB-025 for user status filter; this item is **FB-032**. |
+
+### Observation
+
+Earlier Phase 1 docs and UI assumed staff users were always invited and recovered **by email**. Operations need **phone-only** staff (no email): invite by SMS, sign in with phone, and reset password via the same phone identity — without Email/Phone tabs on forgot-password, and with a clear BD `+88` prefix on admin phone login.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-032) |
+|--------|--------|----------------|
+| Staff invite channel | Email only (docs); mock emails for phone | **`invite_channel` email \| phone**; phone users may have null email |
+| Reinvite | Could drift to email path | Always original `invite_channel` (SMS vs email) |
+| Admin login identifier | Email-centric UI | Email \| Phone toggle; phone = **`+88`** + 11-digit local from `0` |
+| Login OTP delivery | Email-centric for staff | Email or SMS per 2FA / phone-only user |
+| Forgot password UI | Email-only field (or separate tabs) | **Single** “Email or phone” field + format validation |
+| Forgot password delivery | Email link + OTP only | Email **or** SMS (link + OTP) by identifier shape |
+| Change password (logged in) | Session-based | Unchanged — works for phone-only users |
+
+### Implementation plan
+
+See overview: [`staff-invite-login-password-channels.md`](../../../../05-modules/03-users/staff-invite-login-password-channels.md) · change request: [CR-002](../../../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
+
+| Area | Primary code |
+|------|----------------|
+| Invite / activate / reinvite | `apps/users/invitation_service.py` |
+| Login resolve + OTP | `apps/users/services.py`, `apps/core/admin_otp.py` |
+| Password reset | `apps/users/password_reset_service.py` |
+| Admin / forgot UI | `templates/admin/login.html`, `templates/auth/forgot_password.html` |
+| SMS | `apps/notifications/sms.py` (`SMS_ENABLED`) |

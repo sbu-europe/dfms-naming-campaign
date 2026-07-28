@@ -22,7 +22,7 @@ implementation_reference:
 > Supersedes earlier Phase 1 notes that said “email invitation only.”
 
 **Change request**: [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md)  
-**Sprint tracker**: [FB-025](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-025--staff-invite--login--forgot-password-email-or-phone-channel)
+**Sprint tracker**: [FB-032](../../03-backlog/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
 
 ---
 
