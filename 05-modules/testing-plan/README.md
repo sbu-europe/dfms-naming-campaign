@@ -7,6 +7,7 @@ Cross-cutting **implementation plans** for local/dev test tooling that span mult
 | File | Description |
 |------|-------------|
 | [mcp-playwright-fg-fixture-seed.md](./mcp-playwright-fg-fixture-seed.md) | Isolated Playwright MCP Finished Goods sandbox — **exact data catalog** (POIs, FG products, stock, LUPs, vehicle, MCP driver, UOP) + wipe (`MCP-S/D-<RUN_ID>`) |
+| [mcp-playwright-rm-fixture-seed.md](./mcp-playwright-rm-fixture-seed.md) | Isolated Playwright MCP Raw Materials sandbox — port + mill POIs, RM products (QC + non-QC), stock, LUPs, vehicle, MCP driver, yard/QC UOP + wipe (`MCP-S/D-<RUN_ID>`) |
 
 ## Related
 
@@ -14,4 +15,6 @@ Cross-cutting **implementation plans** for local/dev test tooling that span mult
 |-----|------|
 | FG E2E scenario index | [`../../09-testing/backend/e2e-scenarios/finished-goods-workflow/README.md`](../../09-testing/backend/e2e-scenarios/finished-goods-workflow/README.md) |
 | FG Playwright MCP runbook | [`../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md`](../../09-testing/backend/e2e-scenarios/finished-goods-workflow/playwright-mcp-runbook.md) |
+| RM E2E scenario index | [`../../09-testing/backend/e2e-scenarios/raw-material-workflow/README.md`](../../09-testing/backend/e2e-scenarios/raw-material-workflow/README.md) |
+| RM Playwright MCP runbook | [`../../09-testing/backend/e2e-scenarios/raw-material-workflow/playwright-mcp-runbook.md`](../../09-testing/backend/e2e-scenarios/raw-material-workflow/playwright-mcp-runbook.md) |
 | MCP admin guide | [`../../../docs/guides/playwright-mcp-admin.md`](../../../docs/guides/playwright-mcp-admin.md) |

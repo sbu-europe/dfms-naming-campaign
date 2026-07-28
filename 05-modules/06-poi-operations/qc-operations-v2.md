@@ -10,7 +10,7 @@ related_stories: QC-01 (amendment), CC-01 (amendment), LD-01 (amendment); downst
 feedback_items: FB-013
 supersedes: qc-operations-sprint4.md §0 (Fail blocks unloading), §3.2 On Fail side effects, §4.2 Fail success message, §7 Decision recording downstream block, §9 CC-01 unlock row
 baseline_spec: qc-operations-sprint4.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md
+feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
 jira_epic: DFS-072
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-072
 
 ## Overview
 
-This document is the **Sprint 6 implementation plan v2** for [FB-013](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-013--qc-fail-does-not-block-unloading-capture-expected-failed-bags-and-warn-during-unload). It amends the baseline [QC Operations (Sprint 4)](./qc-operations-sprint4.md) specification and coordinates changes in [Command Center](./command-center-loading-sprint4.md) and LD-01 unload surfaces.
+This document is the **Sprint 6 implementation plan v2** for [FB-013](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-013--qc-fail-does-not-block-unloading-capture-expected-failed-bags-and-warn-during-unload). It amends the baseline [QC Operations (Sprint 4)](./qc-operations-sprint4.md) specification and coordinates changes in [Command Center](./command-center-loading-sprint4.md) and LD-01 unload surfaces.
 
 **Problem (client feedback — 2026-07-07):** When QC records **Fail**, the system today **fully blocks** Command Center unloading-point assignment and LD-01 unload. Operations need to **unload anyway** while knowing **how many bags are expected to fail**, surfaced as a **warning** to unloading personnel. The failed-bag count must be capturable at QC Fail time and **editable during unloading**.
 
@@ -551,7 +551,7 @@ Split RM inbound QC widgets:
 | [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) | §2.3, §3.4 QC Fail row; CC eligibility |
 | [command-center-multi-lup-assignment-fb001.md](./command-center-multi-lup-assignment-fb001.md) | §Locked decisions QC gate row — amend to "after QC decision (Pass or Fail with bags)" |
 | [stock-operations-sprint5.md](./stock-operations-sprint5.md) | FB-012 stock trigger; Phase 3 net-good quantity |
-| [feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution.md) | FB-013 tracker |
+| [feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution/README.md) | FB-013 tracker |
 | [E2E-01](../../03-backlog/sprints/sprint-6/01-e2e-hardening/E2E-01-sprint3-to-5-e2e-coverage.md) | RM inbound fail branch |
 
 ---

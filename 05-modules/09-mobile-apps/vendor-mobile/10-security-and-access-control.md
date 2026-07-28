@@ -27,7 +27,7 @@ The app keeps the session valid transparently — the vendor should never see a 
 - **Refresh token expired / refresh fails** — the stored session is cleared and the vendor is routed to **login with a clear message**.
 - **Rotation note** — the vendor refresh endpoint issues a **new access token only**; the refresh token is **reused** (not rotated) until it expires, distinct from SimpleJWT's `ROTATE_REFRESH_TOKENS` behaviour on internal-user (`/api/v1/auth/token/refresh/`) tokens. The mobile refresher still persists a rotated `refresh` value if the response ever returns one (forward-compatible).
 
-> Tracked as **[FB-015](../../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-015--vendor-mobile-proactive-jwt-refresh--session-hardening-transparent-token-rotation)** (Vendor Mobile proactive JWT refresh & session hardening). Secure token storage (Keystore/Keychain) is tracked under VAPP-01 AC-7.
+> Tracked as **[FB-015](../../../03-backlog/sprints/sprint-6/feedback-resolution/02-vendor-management.md#fb-015--vendor-mobile-proactive-jwt-refresh--session-hardening-transparent-token-rotation)** (Vendor Mobile proactive JWT refresh & session hardening). Secure token storage (Keystore/Keychain) is tracked under VAPP-01 AC-7.
 
 ## Data access control
 

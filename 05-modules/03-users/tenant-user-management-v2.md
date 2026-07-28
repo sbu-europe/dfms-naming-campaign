@@ -10,7 +10,7 @@ related_stories: US-005, US-006, US-007, US-009, PAP-05, PAP-06
 feedback_items: FB-016
 supersedes: user-tenant-management.md §2.1 (three-level hierarchy), §2.3 (single Tenant Admin), US-005 invitation never-assign tenant_admin
 baseline_spec: ../01-foundation/user-tenant-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md
+feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
 ---
 
 # Tenant User Management — Tenant Super Admin & Delegated Tenant Admin (v2)
@@ -36,7 +36,7 @@ This document is the **Sprint 6 backend implementation plan v2** for splitting t
 **Primary module path:** `apps/users/`, `apps/tenants/`  
 **Cross-module touch paths:** `apps/core/role_seed_data.py`, `apps/core/rbac_service.py`, `apps/notifications/email.py`
 
-**Coordinate with (separate item):** [FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) — POI-Admin role; both Tenant Super Admin and Tenant Admin may invite POI-Admin with mandatory POI.
+**Coordinate with (separate item):** [FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) — POI-Admin role; both Tenant Super Admin and Tenant Admin may invite POI-Admin with mandatory POI.
 
 **Out of scope:** Changing operational-role invitation rules; POI-Admin implementation (FB-014); mobile app role picker; permission-matrix UI redesign; **E2E / Playwright tests** (unit + integration only — see §12).
 
@@ -544,7 +544,7 @@ Optional future: `IsTenantSuperAdmin` permission class for elevation-only views.
 | Document | Relationship |
 |----------|--------------|
 | [user-tenant-management.md](../01-foundation/user-tenant-management.md) | Baseline v1 spec — hierarchy §2.1 superseded by this doc |
-| [feedback-resolution.md §FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) | POI-Admin invited by any tenant admin persona |
+| [feedback-resolution.md §FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) | POI-Admin invited by any tenant admin persona |
 | [poi-scoped-roles.md](../../../../docs/architecture/poi-scoped-roles.md) | POI assignment pattern (orthogonal) |
 | [qc-operations-v2.md](../06-poi-operations/qc-operations-v2.md) | Example v2 implementation plan structure |
 

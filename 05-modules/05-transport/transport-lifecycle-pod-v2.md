@@ -10,7 +10,7 @@ related_stories: TLS-01, POD-01 (amended), GT-01, SC-01, DM-01 (POD retired)
 feedback_items: FB-010
 supersedes: transport-lifecycle-pod-sprint4.md §1.2, §1.6, §2 (POD-01 closure path), §2.7, §4.2–4.3, §5.2, §7
 baseline_spec: transport-lifecycle-pod-sprint4.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution.md
+feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
 cross_refs: gate-operations-sprint4.md, scaling-operations-sprint4.md, transport-order-management-v2.md (FB-008), vehicle-driver-multi-to-exclusivity-v2.md (FB-011)
 jira_epic: DFS-075
 ---
@@ -19,7 +19,7 @@ jira_epic: DFS-075
 
 ## Overview
 
-This document is the **Sprint 6 backend implementation plan** for [FB-010](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-010--to-completion-decoupled-from-gate-outpod-completed-triggered-by-destination-scale-out-new-bill-disbursed-terminal-status). It amends the baseline [Transport Lifecycle, POD & QC Integration (Sprint 4)](./transport-lifecycle-pod-sprint4.md) (v3.4).
+This document is the **Sprint 6 backend implementation plan** for [FB-010](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-010--to-completion-decoupled-from-gate-outpod-completed-triggered-by-destination-scale-out-new-bill-disbursed-terminal-status). It amends the baseline [Transport Lifecycle, POD & QC Integration (Sprint 4)](./transport-lifecycle-pod-sprint4.md) (v3.4).
 
 **Problem (client feedback — 2026-07-03):** Today TO completion is tied to destination gate-out and driver POD submission; fleet (vehicle/driver) becomes available only after `completed` / `closed`. Gate-out participates in status guards and blocks reassignment. Operations want the TO to **complete as soon as destination scale-out is done**, with gate-out as an audit timestamp only, **no POD**, and a Transport Planner action to mark **Bill Disbursed** as the billing terminal state.
 
@@ -473,7 +473,7 @@ tests/integration/test_transport_lifecycle_fb010.py             NEW (suggested)
 
 ## 13. Related documentation
 
-- **[FB-010 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution.md#fb-010--to-completion-decoupled-from-gate-outpod-completed-triggered-by-destination-scale-out-new-bill-disbursed-terminal-status)**
+- **[FB-010 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-010--to-completion-decoupled-from-gate-outpod-completed-triggered-by-destination-scale-out-new-bill-disbursed-terminal-status)**
 - **[Transport Lifecycle v1 (Sprint 4 baseline)](./transport-lifecycle-pod-sprint4.md)** — superseded §§ listed in front matter
 - **[Transport Order Management v2 (FB-008)](./transport-order-management-v2.md)** — upstream assignment; execution tail amended here
 - **[Vehicle / Driver Multi-TO Exclusivity v2 (FB-011)](./vehicle-driver-multi-to-exclusivity-v2.md)** — `ACTIVELY_SERVING` must align with completion at scale-out
