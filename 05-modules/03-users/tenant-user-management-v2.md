@@ -82,7 +82,7 @@ Super Admin (platform)
 | Migration: existing provisioned user → super admin | Unit + integration tests only |
 | E2E / Playwright | **Out of scope** — do not add or amend `tests/e2e/` for this item |
 | Platform tenant list invitation status (super admin) | Org-wide audit viewer RBAC redesign |
-| Activation sync for `is_tenant_admin` / `is_tenant_super_admin` | SMS invitation (Phase 1 = email only) |
+| Activation sync for `is_tenant_admin` / `is_tenant_super_admin` | — |
 | Server-side guards on invite API + admin forms + bulk CSV | Self-service role elevation |
 
 ### Locked product decisions (implementation defaults)

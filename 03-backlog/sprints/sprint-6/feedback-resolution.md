@@ -2,8 +2,8 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 24
-resolved: 24
+total_items: 25
+resolved: 25
 in_progress: 0
 open: 0
 ---
@@ -733,12 +733,55 @@ Tenant admins need a dedicated **Product Sub-category** entry in the Master Data
 
 ---
 
+## FB-025 — Staff invite / login / forgot-password: email **or** phone channel
+
+| Field | Value |
+|-------|-------|
+| **Source** | Implementation alignment / product feedback — 2026-07-28 |
+| **Affected Stories** | [US-005](../../stories/US-005-user-invitation-activation.md) (staff invitation & activation), [US-008](../../stories/US-008-password-account-reset.md) (password reset); admin login / OTP ([authentication-security.md](../../../05-modules/01-foundation/authentication-security.md)) |
+| **Reference docs** | [`staff-invite-login-password-channels.md`](../../../05-modules/03-users/staff-invite-login-password-channels.md); [CR-002](../../../11-change-requests/CR-002-staff-phone-invite-login-password.md); [`user-tenant-management.md`](../../../05-modules/01-foundation/user-tenant-management.md) §4 / §7 |
+| **Closing Sub-tasks** | FB-025-1 invitation `invite_channel` email\|phone (no mock `@invite.local` emails); FB-025-2 reinvite follows original channel; FB-025-3 admin login Email\|Phone + `+88` prefix / 11-digit local; FB-025-4 forgot-password single identifier field + SMS/email delivery; FB-025-5 product-context + CR-002 |
+| **AC Amendment** | **(1) Invitation:** Staff invite supports **`invite_channel=email`** or **`invite_channel=phone`**. Phone invites require BD mobile; `User.email` may be **null** (do not invent placeholder emails). OTP type must match channel (`none`/`email` vs `none`/`phone`). Activation link + OTP delivered by email or SMS (`SMS_ENABLED` gates real SMS; otherwise log). **Reinvite** always uses the stored `invite_channel`. **(2) Login:** Admin `/admin/login/` offers Email \| Phone. Phone UI shows fixed prefix **`+88`**; user enters **11 digits starting with `0`** (e.g. `01712345678`); submitted value is E.164 `+8801…`. Identity resolution and login OTP use email or phone accordingly (including phone-only staff). **(3) Forgot password:** `/forgot-password/` uses **one field** (“Email or phone”) — no Email/Phone tabs. Validate by shape (`@` → email; else BD mobile). Deliver reset link + OTP by email or SMS on the matching channel. Authenticated change-password remains session-based (no identifier). Admin-assisted reset emails when email exists, otherwise SMS to phone. |
+| **Status** | Resolved |
+| **Priority** | High |
+| **Notes** | Implemented in `nourish-backend` (`invitation_service.py`, `AuthService._resolve_user_by_identifier`, `password_reset_service.py`, `admin_otp.py`, `templates/admin/login.html`, `templates/auth/forgot_password.html`, `notifications/sms.py`). Supersedes earlier Phase 1 “email invitation only” notes. Distinct from vendor registration phone (FB-002) and vendor forgot-password (Sprint 5 FB-011 / VM-01-10). |
+
+### Observation
+
+Earlier Phase 1 docs and UI assumed staff users were always invited and recovered **by email**. Operations need **phone-only** staff (no email): invite by SMS, sign in with phone, and reset password via the same phone identity — without Email/Phone tabs on forgot-password, and with a clear BD `+88` prefix on admin phone login.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-025) |
+|--------|--------|----------------|
+| Staff invite channel | Email only (docs); mock emails for phone | **`invite_channel` email \| phone**; phone users may have null email |
+| Reinvite | Could drift to email path | Always original `invite_channel` (SMS vs email) |
+| Admin login identifier | Email-centric UI | Email \| Phone toggle; phone = **`+88`** + 11-digit local from `0` |
+| Login OTP delivery | Email-centric for staff | Email or SMS per 2FA / phone-only user |
+| Forgot password UI | Email-only field (or separate tabs) | **Single** “Email or phone” field + format validation |
+| Forgot password delivery | Email link + OTP only | Email **or** SMS (link + OTP) by identifier shape |
+| Change password (logged in) | Session-based | Unchanged — works for phone-only users |
+
+### Implementation plan
+
+See overview: [`staff-invite-login-password-channels.md`](../../../05-modules/03-users/staff-invite-login-password-channels.md) · change request: [CR-002](../../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
+
+| Area | Primary code |
+|------|----------------|
+| Invite / activate / reinvite | `apps/users/invitation_service.py` |
+| Login resolve + OTP | `apps/users/services.py`, `apps/core/admin_otp.py` |
+| Password reset | `apps/users/password_reset_service.py` |
+| Admin / forgot UI | `templates/admin/login.html`, `templates/auth/forgot_password.html` |
+| SMS | `apps/notifications/sms.py` (`SMS_ENABLED`) |
+
+---
+
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only) | Updated: 2026-07-17 — FB-018..FB-024 all marked Resolved; tracker fully closed (24/24)*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-02 — FB-005 client-call loading/unloading per TO line item; FB-006 TDO planned milestone times (FG four / RM two) | Updated: 2026-07-03 — FB-007..FB-011 client feedback: Depot Officer & Feed Mill Officer POI-scoped local roles + yard access; TDO (Own Fleet) removed (Transport Planner owns own-fleet creation/assignment); TDO (Vendor Fleet) retained with Vehicle Type at creation; TO completion on destination scale-out (no POD) + Bill Disbursed status; vehicle multi-TO planning with single-active-TO exclusivity + Driver Supervisor inspect/skip-inspect gate; FB-012 stock movement from load/unload data instead of scale-in/scale-out difference | Updated: 2026-07-06 — FB-008, FB-011 resolved | Updated: 2026-07-07 — FB-013 QC Fail no longer blocks unloading; expected failed-bag capture + unload warning; FB-014 POI-Admin POI-scoped yard operations role with mandatory POI on user assignment | Updated: 2026-07-07 — FB-015 Vendor Mobile proactive JWT refresh & session hardening (transparent token rotation, VAPP-01 AC-4) | Updated: 2026-07-08 — FB-014 confirmed (POI-Admin performs yard tasks at assigned POI); FB-016 Tenant Super Admin at tenant provisioning; delegated Tenant Admin cannot mint admins | Updated: 2026-07-17 — FB-017 Remove yard operations menu access from Depot Officer and Feed Mill Officer roles (POI-Admin now handles yard operations); FB-018 Simplify POI stock display to show only total, current, and free capacity (remove in-transit and projection fields) | Updated: 2026-07-17 — FB-019 TO planning-required substate + vendor-fleet bidding TO status labels; FB-020 challan emergency contact footer; FB-021 vehicle SIM number; FB-022 POI classification type dropdown; FB-023 remove Driver Attendance redundant date field; FB-024 Product Sub-category Master Data menu | Updated: 2026-07-17 — FB-017 resolved (site officers retain POI-scoped PR + stock read; yard modules POI-Admin only) | Updated: 2026-07-17 — FB-018..FB-024 all marked Resolved; tracker fully closed (24/24) | Updated: 2026-07-28 — FB-025 staff invite/login/forgot-password email **or** phone channel (CR-002); tracker 25/25*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 12 | 12 | 0 |
+| High | 13 | 13 | 0 |
 | Medium | 12 | 12 | 0 |
-| **Total** | **24** | **24** | **0** |
+| **Total** | **25** | **25** | **0** |
