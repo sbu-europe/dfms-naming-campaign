@@ -1,13 +1,13 @@
 ---
 title: Sprint 6 — Feedback Resolution Tracker (moved)
 redirect: ./feedback-resolution/README.md
-total_items: 31
-resolved: 31
+total_items: 33
+resolved: 33
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
 
-This tracker was **split by admin menu / module** because the list grew to 31 items.
+This tracker was **split by admin menu / module** because the list grew past a single file.
 
 **→ Go to the new index:** [`feedback-resolution/README.md`](./feedback-resolution/README.md)
 
@@ -56,4 +56,5 @@ This tracker was **split by admin menu / module** because the list grew to 31 it
 | FB-029 | [`feedback-resolution/03-master-data.md#fb-029--poi-and-master-data-deletion-clear-dependency-messages`](./feedback-resolution/03-master-data.md#fb-029--poi-and-master-data-deletion-clear-dependency-messages) |
 | FB-030 | [`feedback-resolution/01-users-and-access.md#fb-030--user-bulk-import-feature-not-working`](./feedback-resolution/01-users-and-access.md#fb-030--user-bulk-import-feature-not-working) |
 | FB-031 | [`feedback-resolution/07-gps-dwell-tracking.md#fb-031--dwell-time-planned-data-actual-gate-inout-geofence-inout`](./feedback-resolution/07-gps-dwell-tracking.md#fb-031--dwell-time-planned-data-actual-gate-inout-geofence-inout) |
-
+| FB-032 | [`feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel`](./feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel) |
+| FB-033 | [`feedback-resolution/01-users-and-access.md#fb-033--driver-invitation-by-phone--radio-channel-selector--mandatory-contact-number`](./feedback-resolution/01-users-and-access.md#fb-033--driver-invitation-by-phone--radio-channel-selector--mandatory-contact-number) |

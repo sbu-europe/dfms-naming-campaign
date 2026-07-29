@@ -10,21 +10,24 @@ implementation_reference:
   - ../../../apps/users/web_views.py (activate_account SSR)
   - ../../../apps/users/invitation_views.py (API)
 test_implementation_reference: ../../../tests/e2e/modules/users/test_user_invitation_activation_e2e.py
-last_updated: 2026-04-27
+last_updated: 2026-07-28
 ---
 
 # User Invitation & Activation (US-005) - Playwright E2E Plan
 
 ## Scope (Phase 1)
 
-- **Email-only invitation** for all roles (including Driver/Helper) via admin "Add user".
-- **OTP type options**: `none`, `email`.
+- **Email or phone invitation** for all roles (including Driver/Helper) via admin "Add user" (`invite_channel`).
+- **OTP type options**: `none`, `email` (email channel); `none`, `phone` (phone channel).
 - **Activation SSR page**: `/activate/?token=...` with OTP step gating (when enabled).
-- **Reinvite** behavior and **cooldown** feedback (2 minutes).
+- **Reinvite** follows original `invite_channel` (email vs SMS) and **cooldown** feedback (2 minutes).
+- Phone-only users may have null email (no mock `@invite.local` addresses).
+
+> Channel overview: [`staff-invite-login-password-channels.md`](../../../05-modules/03-users/staff-invite-login-password-channels.md) · [CR-002](../../../11-change-requests/CR-002-staff-phone-invite-login-password.md)
 
 ## Out of scope (for Playwright E2E in this repo)
 
-- **OTP success path for otp_type=email** (OTP is delivered by email and persisted hashed; Playwright cannot reliably read outbound email in this environment).
+- **OTP success path for otp_type=email/phone** (OTP is delivered by email/SMS and persisted hashed; Playwright cannot reliably read outbound messages in this environment — use logs when `SMS_ENABLED=false`).
 - CSV bulk invitation via API (covered better by integration tests; add Playwright coverage later if UI is added).
 - Subscription plan limit enforcement (environment-dependent; validated in service/integration tests and admin messages elsewhere).
 
@@ -33,9 +36,12 @@ last_updated: 2026-04-27
 | Test Case ID | Scenario | Description | Priority | Status |
 |---|---|---|---:|---|
 | TC01 | Invite user from Users list | From `/admin/users/user/` click **Add user** → fill email, names, employee id, role, OTP type → save → assert redirected back to Users list and row shows **Invited** status. | P0 | Implemented |
+| TC01b | Invite user via phone | Add user with `invite_channel=phone`, BD mobile, no email → assert Invited status and SMS logged/sent. | P0 | Planned |
 | TC02 | Forbidden role hidden | On Invite form, assert Role dropdown **does not** include **Super Admin**. | P0 | Implemented |
 | TC03 | Duplicate email rejected | Invite an email, then attempt invite again with same email; assert validation surfaces an “already exists” style error. | P0 | Implemented |
+| TC03b | Duplicate phone rejected | Invite a phone, then attempt invite again with same phone; assert validation error. | P0 | Planned |
 | TC04 | Reinvite cooldown surfaced | Open invitation detail and click **Reinvite** twice; second attempt should show cooldown/too-many-requests style feedback. | P1 | Implemented |
+| TC04b | Reinvite keeps phone channel | Phone invite → Reinvite → assert SMS path (not email). | P1 | Planned |
 | TC05 | Activation requires OTP step when otp_type=email | Create email-OTP invite; open `/activate/?token=...`; assert OTP step is shown and trying to submit password without OTP shows “verify OTP first”. | P0 | Implemented |
 | TC06 | Activation succeeds when otp_type=none | Create invite with otp_type=none; open `/activate/?token=...`; set password + accept T&C; assert redirect to `/activate/success/`. | P0 | Implemented |
 | TC07 | Activation missing token | Open `/activate/` (no token) and assert “Link Invalid / No invitation token provided” message is shown. | P1 | Implemented |

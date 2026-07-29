@@ -16,6 +16,7 @@ The `03-users` module covers all user management concerns within a tenant — fr
 
 | File | Description | Sprint | Related Stories |
 |------|-------------|--------|-----------------|
+| [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md) | **Channel overview** — staff email vs phone invitation, admin login (`+88` + 11-digit local), forgot-password single identifier field, SMS gating | Sprint 2+ | US-005, US-008 · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md) |
 | [tenant-user-management.md](tenant-user-management.md) | Tenant Admin's user & role management — invite users, assign operational roles, manage user lifecycle (active/suspended/deactivated), roles & permissions view, audit trail, deactivation with session termination | Sprint 2 | US-004, US-005, US-007, US-008, US-009 |
 | [driver-user-profiles.md](driver-user-profiles.md) | Driver entity beyond User account — compliance documents, license validity, state tracking; `/api/v1/drivers`; linked User account with Driver role | Sprint 2 | US-004, US-057 |
 | [helper-master-data.md](helper-master-data.md) | Helper entity model — optional `user_id` FK to User, availability state machine, trip assignment, lifecycle | Sprint 2 | US-061 |
@@ -71,6 +72,6 @@ Platform Admin sidebar (admin.dfms.com) — Super Admin only
 
 ---
 
-**Last Updated**: 2026-04-22
+**Last Updated**: 2026-07-28
 **Previous Module**: [02-master-data/](../02-master-data/README.md) — Master Data Management
 **Next Module**: [04-requisitions/](../04-requisitions/README.md) — Requisition & Distribution Management

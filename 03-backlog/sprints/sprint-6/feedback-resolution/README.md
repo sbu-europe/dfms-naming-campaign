@@ -2,15 +2,15 @@
 title: Sprint 6 — Feedback Resolution Tracker
 source_sprint: Sprint 6
 demo_date: 2026-06-22
-total_items: 31
-resolved: 31
+total_items: 33
+resolved: 33
 in_progress: 0
 open: 0
 ---
 
 # Sprint 6 — Feedback Resolution Tracker
 
-Client demo and follow-up feedback from Sprint 6 (demo 2026-06-22, items through 2026-07-22).
+Client demo and follow-up feedback from Sprint 6 (demo 2026-06-22, items through 2026-07-28).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
@@ -19,13 +19,15 @@ Items are split **by admin menu / module** for easier browsing.
 
 | Folder file | Menu / area | Items | Resolved |
 |-------------|-------------|-------|----------|
-| [Users & Access](./01-users-and-access.md) | Users / Tenant Admin | 4 | 4 |
+| [Users & Access](./01-users-and-access.md) | Users / Tenant Admin | 5 | 5 |
 | [Vendor Management](./02-vendor-management.md) | Vendor Management / Vendor Mobile | 5 | 5 |
 | [Master Data](./03-master-data.md) | Master Data | 5 | 5 |
 | [Yard Operations & Stock](./04-yard-and-stock.md) | Gate / Scale / Command Center / Loading / Unloading / QC / Stock | 8 | 8 |
 | [Transport Orders](./05-transport-orders.md) | Transport / Transport Orders / Challan | 7 | 7 |
 | [Fleet & Driver Supervisor](./06-fleet-supervisor.md) | Fleet / Driver Supervisor | 1 | 1 |
 | [GPS, Maps & Dwell Time](./07-gps-dwell-tracking.md) | GPS / Maps / Tracking / Dwell | 1 | 1 |
+
+> Users & Access count updated to 7 (added FB-032 and FB-033 post-split).
 
 ## All items (quick index)
 
@@ -62,18 +64,20 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-029](./03-master-data.md#fb-029--poi-and-master-data-deletion-clear-dependency-messages) | POI (and master data) deletion: clear dependency messages | [Master Data](./03-master-data.md) | Master Data | High | Resolved |
 | [FB-030](./01-users-and-access.md#fb-030--user-bulk-import-feature-not-working) | User bulk import feature not working | [Users & Access](./01-users-and-access.md) | Users / Tenant Admin | High | Resolved |
 | [FB-031](./07-gps-dwell-tracking.md#fb-031--dwell-time-planned-data-actual-gate-inout-geofence-inout) | Dwell time: planned data, actual gate-in/out, geofence in/out | [GPS, Maps & Dwell Time](./07-gps-dwell-tracking.md) | GPS / Maps / Tracking / Dwell | High | Resolved |
+| [FB-032](./01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel) | Staff invite / login / forgot-password: email or phone channel | [Users & Access](./01-users-and-access.md) | Users / Tenant Admin | High | Resolved |
+| [FB-033](./01-users-and-access.md#fb-033--driver-invitation-by-phone--radio-channel-selector--mandatory-contact-number) | Driver invitation by phone: radio channel selector + mandatory contact number | [Users & Access](./01-users-and-access.md) | Users / Tenant Admin | High | Resolved |
 
 ## Resolution Summary
 
-*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-22 — tracker split into `feedback-resolution/` by menu/module (FB-001..FB-031, 31/31 Resolved)*
+*Created: 2026-06-22 — Sprint 6 demo feedback | Updated: 2026-07-22 — tracker split into `feedback-resolution/` by menu/module (FB-001..FB-031) | Updated: 2026-07-28 — FB-032 staff invite/login/forgot-password email or phone channel (CR-002); tracker 32/32 Resolved | Updated: 2026-07-29 — FB-033 driver invitation by phone + radio channel selector + mandatory contact number; tracker 33/33 Resolved*
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 16 | 16 | 0 |
+| High | 18 | 18 | 0 |
 | Medium | 15 | 15 | 0 |
-| **Total** | **31** | **31** | **0** |
+| **Total** | **33** | **33** | **0** |
 
 ## Legacy path
 
-The former monolith `../feedback-resolution.md` is a redirect stub. Prefer links into this folder (`feedback-resolution/README.md` or a module file).
+The former monolith `../feedback-resolution.md` is a redirect stub with a deep-link map. Prefer links into this folder (`feedback-resolution/README.md` or a module file).
 
