@@ -2,11 +2,11 @@
 source_document: AUTH-01-phone-login-2fa-sms-invitation.md
 source_sections: AC-3 Tenant-aware URL shortener, BR-AUTH-PHONE-003/004
 extracted_date: 2026-07-27
-last_updated: 2026-07-28
+last_updated: 2026-07-29
 document_type: implementation_plan
 related_modules: [01-foundation, 03-users, 12-cross-cutting]
 related_stories: [AUTH-01, AUTH-01-3, AUTH-01-4, US-005, CP-03]
-status: Service built — DFMS integration outstanding (Sprint 7)
+status: Service built + DFMS integration wired — audit webhook receiver and infrastructure outstanding (Sprint 7)
 implementation_path: services/link-shortener/
 ---
 
@@ -14,7 +14,38 @@ implementation_path: services/link-shortener/
 
 ## Implementation Status
 
-**The service is built and verified. The DFMS side has not been started.**
+**The service is built and verified, and the DFMS side is now wired (2026-07-29).**
+
+Steps 0, 6 and 8 were implemented on 2026-07-29, after PR #87
+(`sprint-7/user-invitation-through-phone`) landed the phone invitation channel and
+resolved Open Item 8. Verified end-to-end from the Django container against the running
+sidecar: mint → idempotent replay → resend rotation (supersede) → stale-replay abort →
+public 302 with byte-for-byte target → revoke-by-ref → 410.
+
+- **Step 0**: `InvitationToken.resend_count` + `delivery_failed` (migration
+  `users.0022`), `delivery_failed` exposed in `InvitationListSerializer`. The phone
+  channel, invitee phone field and SMS dispatch already existed from PR #87.
+- **Step 6**: `apps/core/shortlink_client.py` — per-attempt RS256 JWT, typed
+  retryable/non-retryable exceptions, Redis-backed circuit breaker (shared Django cache),
+  `SHORTLINK_*` settings in `config/settings/base.py`. `requests` and `cryptography`
+  added to `requirements/base.txt` (**web image needs a rebuild**).
+- **Step 8**: mint happens **inside** `users.send_invitation_sms` (same retry unit as the
+  send); idempotency key `invitation:<token>:resend:<resend_count>` snapshotted at queue
+  time; revoked replay aborts the SMS; `delivery_failed` set on final failure, cleared on
+  success; `resend_count` incremented per admin resend; queued `revoke-by-ref` on
+  activation (`activated`, NULLs the stored target) and cancel (`cancelled`).
+- **Per PO decision (2026-07-29)**: Open Item 2 closed — resend does **not** extend the
+  invitation window; the DFMS **audit webhook receiver stays deferred** (events remain
+  pullable via `GET /api/v1/events`).
+- Not integrated (pre-existing flow, out of scope): `resend_activation_otp()` SMS still
+  carries the long activation URL.
+
+**Still outstanding:** the DFMS audit webhook receiver (step 7 half), and all
+infrastructure — short domain, DNS, TLS, aggregator allowlisting (Open Items 4-6). With
+`SHORTLINK_ENABLED=false` (default) phone invitations keep the long URL, so nothing ships
+until infrastructure lands and the flag is turned on.
+
+### Original status (2026-07-28) — service-only build
 
 `services/link-shortener/` was implemented on 2026-07-28: Build Order steps 1–5 plus the
 service half of step 7. 103 tests pass against containerised Postgres 16 and Redis 7, the
@@ -28,15 +59,15 @@ and 11 were unacknowledged when the service was built.
 
 | Step | Status | Where |
 |---|---|---|
-| **0** — DFMS schema prerequisites | **Not started** — blocked on Open Items 2, 8 | `apps/users/` |
+| **0** — DFMS schema prerequisites | **Done 2026-07-29** (phone channel came from PR #87; `resend_count` + `delivery_failed` in `users.0022`) | `apps/users/` |
 | 1 — Service scaffold | **Done** | `linkshort/config.py`, `main.py`, `api/app.py`, `Dockerfile`, `docker-compose.yml` |
 | 2 — Data layer | **Done** | `linkshort/storage/models.py`, `alembic/versions/0001_initial_schema.py` |
 | 3 — Auth | **Done** | `linkshort/api/auth.py`, `linkshort/cli.py` |
 | 4 — Core API | **Done** | `linkshort/api/links.py`, `resolve.py`, `events.py`, `cache.py`, `linkshort/domain/`, `linkshort/storage/repositories.py` |
 | 5 — Security verification | **Done** | `tests/` — 103 tests |
-| 6 — DFMS client | **Not started** | `apps/core/shortlink_client.py` |
-| 7 — Audit + sweeper | **Half done** — sweeper built, DFMS webhook receiver not | `linkshort/workers/sweeper.py` |
-| 8 — Wire-up | **Not started** — blocked on step 0 and Open Item 6 | `apps/users/invitation_service.py` |
+| 6 — DFMS client | **Done 2026-07-29** | `apps/core/shortlink_client.py` |
+| 7 — Audit + sweeper | **Half done** — sweeper built; DFMS webhook receiver deferred by PO decision 2026-07-29 | `linkshort/workers/sweeper.py` |
+| 8 — Wire-up | **Done 2026-07-29** — behind `SHORTLINK_ENABLED` (default false); shipping still blocked on Open Item 6 infrastructure | `apps/users/invitation_service.py`, `apps/notifications/tasks.py` |
 
 Infrastructure owned outside engineering — short domain, DNS, TLS, aggregator allowlisting
 and warm-up — is **also not started**, and step 8 cannot ship without it.
@@ -1111,9 +1142,11 @@ Added during implementation (`linkshort/config.py`, all with defaults — see `.
 | `SHORTLINK_SWEEPER_INTERVAL_SECONDS` / `_EVENT_BATCH_SIZE` | Sweeper pacing (60 / 500) |
 | `SHORTLINK_AUDIT_WEBHOOK_URL` / `_SECRET` / `_TIMEOUT_SECONDS` / `_MAX_ATTEMPTS` | Audit delivery; empty URL disables it and events stay pullable |
 
-Consumer-side (DFMS): `SHORTLINK_API_URL`, `SHORTLINK_CLIENT_ID`,
-`SHORTLINK_PRIVATE_KEY` (secret store, never committed), `SHORTLINK_ENABLED`. **Not yet
-added** — these land with Build Order step 6.
+Consumer-side (DFMS), added 2026-07-29 in `config/settings/base.py`: `SHORTLINK_ENABLED`
+(default false — phone invitations keep the long URL until infrastructure lands),
+`SHORTLINK_API_URL` (mgmt bind), `SHORTLINK_CLIENT_ID`, `SHORTLINK_PRIVATE_KEY_PATH`
+(secret store, never committed), `SHORTLINK_JWT_KID`, `SHORTLINK_JWT_AUDIENCE`,
+`SHORTLINK_TIMEOUT_SECONDS`, and the `SHORTLINK_BREAKER_*` trio.
 
 ---
 
@@ -1125,15 +1158,15 @@ existed. Land it as one changeset early in the sprint, not alongside the wire-up
 
 | # | Step | Deliverable | Status |
 |---|------|-------------|--------|
-| **0** | **DFMS schema prerequisites** | `InvitationToken.resend_count` (idempotency key); a `delivery_failed` flag/status + serializer + Users-list column (AC-5); invitee phone storage and a `phone` channel discriminator — `OtpType` is `{none, email}` and there is no phone field on the invitation today. One migration, plus `import_configs.py` and the admin form | **Not started** — needs Open Items 2 and 8 answered first |
+| **0** | **DFMS schema prerequisites** | `InvitationToken.resend_count` (idempotency key); a `delivery_failed` flag/status + serializer + Users-list column (AC-5); invitee phone storage and a `phone` channel discriminator | **Done 2026-07-29** — phone channel landed via PR #87; `resend_count` + `delivery_failed` in migration `users.0022` |
 | 1 | Service scaffold | FastAPI app, config, Dockerfile, compose, `/healthz` `/readyz` | **Done** — three binds, ops on its own port |
 | 2 | Data layer | Models, Alembic migrations | **Done** — `0001_initial_schema`, applies clean; `resolve_event` partitioned with prev/current/next months seeded |
 | 3 | Auth | JWT verification middleware, `api_client` registry **+ management CLI**, scope + link-type enforcement, nonce replay cache | **Done** — signature verified before the nonce (V1); Redis loss answers 503 (V2) |
 | 4 | Core API | Mint (idempotency key + advisory-locked `supersede` transaction + revoked-replay response), resolve, revoke, revoke-by-ref, list, events, Redis cache **of ciphertext**, rate limiting, base-domain validator, target encryption, log scrubbing | **Done** — all seven endpoints |
 | 5 | Security verification | Open-redirect coverage (incl. `dfms.com.evil.io`, `evil.com@nourish.dfms.com`, non-https, widened 10-char codes); namespace scoping; concurrent supersede on one `external_ref`; replay-after-supersede returns `revoked: true`; no token in access logs or Redis plaintext | **Done** — every listed case covered; 103 tests green against real Postgres + Redis |
-| 6 | DFMS client | `shortlink_client.py` with retry, per-attempt JWT signing, Redis-backed circuit breaker | **Not started** |
-| 7 | Audit + sweeper | Webhook receiver in DFMS **with namespace validation**; sweeper for expiry, counter flush, retries, partition create-ahead + purge | **Half done** — sweeper built and verified (partitions, flush, expiry, soft-purge, HMAC-signed POST, dead-letter with backoff). **The DFMS receiver does not exist**, so nothing consumes the webhook yet |
-| 8 | Wire-up | Invitation create mints short URL; **build the phone resend path** (does not exist today); revoke hooks on activate/cancel | **Not started** — blocked on step 0 and Open Item 6 |
+| 6 | DFMS client | `shortlink_client.py` with retry, per-attempt JWT signing, Redis-backed circuit breaker | **Done 2026-07-29** — `apps/core/shortlink_client.py`; breaker state in the shared Redis cache |
+| 7 | Audit + sweeper | Webhook receiver in DFMS **with namespace validation**; sweeper for expiry, counter flush, retries, partition create-ahead + purge | **Half done** — sweeper built and verified. **The DFMS receiver is deferred by PO decision (2026-07-29)**; events stay pullable via `GET /api/v1/events` |
+| 8 | Wire-up | Invitation create mints short URL; phone resend path (landed with PR #87, now supersedes on resend); revoke hooks on activate/cancel | **Done 2026-07-29** — mint inside `users.send_invitation_sms`, gated by `SHORTLINK_ENABLED` (default false); shipping still blocked on Open Item 6 infrastructure |
 
 Run in parallel with 1–8, owned outside the service: **short domain registration, DNS, TLS,
 and aggregator allowlisting + warm-up** ([SMS Deliverability](#sms-deliverability)). Steps
@@ -1167,13 +1200,13 @@ or a changed invitation flow. Items 2, 6 and 8 block the remaining work outright
 | # | Item | Owner | Blocks |
 |---|------|-------|--------|
 | 1 | **PO acknowledgement of the AC-3 deviation** (namespace instead of tenant model) | PO / Architecture | Nothing today — but the built service assumes it. Reversing means adding `allowed_namespaces` + host-from-namespace derivation, which is additive, not a rewrite |
-| 2 | **Resend window mismatch** — `resend_invitation()` does not extend `expires_at`, but AC-2 specifies a "new window". Confirm intended behaviour; the shortener mirrors either without change | PO / Backend | **Step 0** |
+| 2 | ~~Resend window mismatch~~ — **Closed 2026-07-29**: PO confirmed resend does **not** extend `expires_at`; a day-6 resend produces a link with 1 day of life. The shortener mirrors the invitation | PO / Backend | Nothing — resolved |
 | 3 | **Dead config** — `INVITATION_EXPIRY_HOURS = 72` (`config/settings/base.py:477`) is unread; live value is `US005_INVITATION_EXPIRY_DAYS = 7`. Remove or align before it misleads someone | Backend | Nothing — but fix it before someone "fixes" the shortener against the wrong number |
 | 4 | Short domain hostname and DNS ownership (AUTH-01 Open Question 4) | PO / DevOps | **Step 8.** `SHORTLINK_BASE_URL` is the only place it appears in the service |
 | 5 | TLS certificate for the short domain (separate cert or SAN) | DevOps | **Step 8** |
 | 6 | **Aggregator policy on shortened links** — confirm the SMS provider permits them at all, and allowlist the domain before wire-up. External lead time | DevOps / PO | **Step 8** |
 | 7 | Second consumer's scopes, base domains and `allowed_link_types` once identified. **If DFMS Django remains the only consumer**, the RS256/`api_client` layer guards a caller inside our own VPC — decide whether it is worth keeping | Architecture | Nothing — it is built and costs nothing to keep; the decision is now whether to *remove* it, not whether to build it |
-| 8 | **No phone channel exists on the invitation.** `OtpType` is `{none, email}` and `InvitationToken` has no phone field; `resend_invitation()` has no phone branch. Decide the channel discriminator and where the invitee's number is captured (admin form + bulk import) | Backend / PO | **Step 0**, and therefore step 8 |
+| 8 | ~~No phone channel exists on the invitation~~ — **Closed 2026-07-29**: PR #87 (`sprint-7/user-invitation-through-phone`) added `invite_channel`, `phone_number`, `OtpType.PHONE` and the SMS send/resend paths | Backend / PO | Nothing — resolved |
 | 9 | Dangling-CNAME monitoring on the `dfms.com` zone — the residual risk accepted by base-domain matching (D6) | DevOps / Security | Nothing — but it is the mitigation the built suffix match relies on |
 | 10 | Whether the expired-link page offers self-service "request a new invitation" | PO | Nothing — the 410 page is built and tenant-neutral; adding a link is a copy change in `linkshort/api/pages.py` |
 | 11 | **Rejected alternative on record:** a 10-char single-use activation code on `InvitationToken` gives `https://nourish.dfms.com/a/aB7xK2pQ` (~36 chars vs ~26) with no new service, no new domain, no aggregator allowlisting, and no token stored in a second database. It loses the multi-consumer platform argument — which Open Item 7 already treats as unproven | Architecture / PO | Nothing yet. **This is the last cheap moment to take it**: the service exists but nothing depends on it, so choosing the alternative costs one deleted directory rather than an unwind. Items 4, 5 and 6 — the external, slow, unstarted ones — disappear with it |
