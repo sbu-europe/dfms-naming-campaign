@@ -5,10 +5,10 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-06-18
-phase1_note: All users (including Driver, Helper) invited via email only. SMS/phone-based invitation removed from Phase 1 scope.
+last_updated: 2026-07-28
+phase1_note: Staff users may be invited via email OR phone (BD mobile). Phone-invited users may have null email. Login and forgot-password use the same identifier channel. See 03-users/staff-invite-login-password-channels.md and CR-002.
 related_stories: US-005, US-006, US-007, US-008, US-009, PAP-05, PAP-06, BUG-01, BUG-02
-scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted)
+scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted). Channel-aware invite/login/reset — CR-002.
 ---
 
 # User & Tenant Management Specification
@@ -445,16 +445,20 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 
 ```
 Admin (Tenant Admin) → Invite User Form → Submit →
-  System creates user record + dispatches invitation email immediately →
+  System creates user record + dispatches invitation (email OR SMS) immediately →
   invitation_status = "sent" →
 User Clicks Link → invitation_status = "pending" →
   Complete Profile → Verify OTP (if required) → Accept T&C →
   invitation_status = "activated" → Account Active
 ```
 
-> **Phase 1 — Email Only**: All users including Drivers and Helpers are invited via email. There is no SMS or phone-number-based invitation flow in Phase 1.
+> **Invite channel (Phase 1)**: Admin selects **`invite_channel`**: `email` or `phone`.
+> - **Email**: email required; activation/OTP via email when configured.
+> - **Phone**: BD mobile required; `User.email` may be null; activation/OTP via SMS when configured (`SMS_ENABLED`).
+> - **Reinvite** always follows the original `invite_channel`.
+> - Full overview: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md) · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
 
-> **Immediate Email Dispatch**: The invitation email is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming the email was queued/dispatched. If dispatch fails, status remains `pending` and a retry is attempted.
+> **Immediate dispatch**: The invitation is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming email/SMS was queued/dispatched (or logged when SMS is disabled). If dispatch fails, status remains `pending` and a retry is attempted.
 
 **Permission-Based Invitation**:
 - **Tenant Admin** can invite: Operational Users (any department)
@@ -464,25 +468,36 @@ User Clicks Link → invitation_status = "pending" →
 **Required Fields**:
 - First Name
 - Last Name
-- Email Address (mandatory — sole invitation channel for all roles in Phase 1)
+- **Invite channel** (`email` | `phone`)
+- Email Address (**required when channel = email**; not required for phone-only invites)
+- Phone number (**required when channel = phone**; BD mobile, stored E.164 `+8801…`)
 - Role (from 18 predefined operational roles, multi-select supported; **Super Admin role is not listed and cannot be selected**)
 - Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
 - POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
 - Employee ID
 - Functional Role Type (Requester / Approver / Executor)
-- OTP type (None / Email) — default None
+- OTP type — default None; must match channel (`none`/`email` for email invites; `none`/`phone` for phone invites)
 
 **Optional Fields**:
 - Custom invitation message (freeform text)
 - Scheduled send date/time (for deferred invitations)
+- Phone (optional on email invites)
 
 **Validation**:
 ```typescript
 {
+  invite_channel: {
+    enum: ['email', 'phone']
+  },
   email: {
     unique_per_tenant: true,
-    format: 'email'
-    // Phase 1: email is the sole invitation channel for all roles
+    format: 'email',
+    required_when: "invite_channel === 'email'"
+  },
+  phone_number: {
+    unique_per_tenant_when_set: true,
+    format: 'BD_E164', // +8801XXXXXXXXX; accepts 01… / +8801…
+    required_when: "invite_channel === 'phone'"
   },
   role: {
     validate: (role, tenant) => {
@@ -632,7 +647,7 @@ OTPRecord {
   otp_id: UUID
   user_id: UUID
   otp_code: string  // Hashed for security
-  otp_type: enum ['None', 'Email']  // Phase 1: SMS removed
+  otp_type: enum ['None', 'Email', 'Phone']  // must match invite_channel
   purpose: enum ['Registration', 'Activation', 'PasswordReset', 'MFA']
   generated_at: DateTime
   expires_at: DateTime  // 10 minutes
@@ -951,10 +966,13 @@ User enters OTP → User sets new password
 
 **Method 2: Self-Service Reset**:
 ```
-User clicks "Forgot Password" → Enters email/phone →
-System sends reset link → User clicks link (15 min validity) →
-User sets new password → Confirmation
+User clicks "Forgot Password" → Enters email OR phone (single field) →
+System sends reset link + OTP on matching channel (email or SMS) →
+User clicks link (15 min validity) → Verifies OTP → Sets new password → Confirmation
 ```
+
+> Channel overview: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md).
+> Admin login phone UX: fixed prefix **`+88`** + 11-digit local starting with `0`. Forgot-password UI uses one combined field (no Email/Phone tabs).
 
 ### 7.2 Admin-Assisted Reset
 
@@ -1016,9 +1034,9 @@ async function adminAssistedReset(
 
 **Reset Link Generation**:
 ```typescript
-async function generateResetLink(email: string): Promise<string> {
-    // Phase 1: accepts email address only
-    const user = await findUserByEmail(email);
+async function generateResetLink(identifier: string): Promise<string> {
+    // Identifier: email (contains @) or BD phone; invalid format → validation error
+    const user = await findUserByEmailOrPhone(identifier);
     
     if (!user) {
         // Don't reveal if account exists (prevent enumeration)
@@ -1034,7 +1052,7 @@ async function generateResetLink(email: string): Promise<string> {
     // Generate secure token
     const token = crypto.randomBytes(32).toString('hex');
     
-    // Generate 6-digit OTP for mobile verification
+    // Generate 6-digit OTP for verification
     const otp = generateOTP();
     
     // Store token and OTP
@@ -1047,8 +1065,12 @@ async function generateResetLink(email: string): Promise<string> {
         ip_address: request.ip
     });
     
-    // Send reset link + OTP together via email (Phase 1: email only)
-    await sendPasswordResetEmail(user.email, { token, otp });
+    // Deliver on the channel matching the identifier
+    if (identifier.includes('@')) {
+        await sendPasswordResetEmail(user.email, { token, otp });
+    } else {
+        await sendPasswordResetSms(user.phone_number, { token, otp });
+    }
     
     return 'success';
 }

@@ -5,8 +5,9 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
-last_updated: 2026-04-07
+last_updated: 2026-07-28
 related_stories: US-001, US-002, US-003, US-005, US-007, US-008
+changelog_note: CR-002 — staff forgot-password is channel-aware (email or SMS); admin phone login uses +88 prefix + 11-digit local.
 ---
 
 # Authentication & Security Specification
@@ -25,6 +26,8 @@ Most users authenticate using a **3-step login flow**: Identity → OTP Verifica
 
 **Exception (Phase 1): Driver SMS Quick Login (US-005)**  
 Driver users may authenticate via a mobile interface link + system-generated password (no OTP required in Phase 1) to support low digital literacy users.
+
+**Admin login UI (`/admin/login/`)** — Email | Phone toggle. Phone mode shows fixed prefix **`+88`**; user enters **11 digits starting with `0`**. Submitted value is E.164 `+8801…`. Overview: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md).
 
 ```
 Step 1: Enter Email or Phone Number
@@ -575,25 +578,29 @@ Password reset involves two distinct flows that integrate with the authenticatio
 ### 8.1 Self-Service Password Reset
 
 ```
-User → "Forgot Password" → Enter email/mobile
-    → System sends reset link (15 min) + SMS OTP (10 min)
+User → "Forgot Password" → Enter email OR phone (single field)
+    → System validates format by shape (@ → email; else BD mobile)
+    → System sends reset link (15 min) + OTP (10 min) on matching channel
+       (email → inbox; phone → SMS; SMS may be logged when SMS_ENABLED=false)
     → User clicks link → Verifies OTP → Sets new password
     → All active sessions terminated → Must login with new password
 ```
 
 **Security Controls:**
-- Reset tokens are 64-char hex, cryptographically random (`crypto.randomBytes(32)`)
-- Tokens are stored hashed (bcrypt) — raw token only in the email link
+- Reset tokens are URL-safe, cryptographically random; stored hashed — raw token only in the delivery link
 - OTP is 6-digit, stored hashed, valid for 10 minutes
 - Maximum 3 OTP verification attempts per token
-- **Rate Limiting**: Max 3 self-service reset requests per hour per user (HTTP 429 on exceed)
+- **Rate Limiting**: Max 3 self-service reset requests per hour per user
 - Only the latest token/OTP is valid — previous ones are automatically invalidated
-- Response to non-existent email returns same success message (prevents email enumeration)
+- Response for unknown-but-valid identifiers returns the same success message (anti-enumeration)
+- Invalid identifier format returns a validation error (does not leak account existence)
 
 **Password Complexity Enforcement:**
 - Minimum 8 characters, uppercase, lowercase, number, special character
 - Cannot reuse last 3 passwords (history check)
 - Password strength meter displayed on UI
+
+> Overview: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md) · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md)
 
 ### 8.2 Admin-Assisted Password Reset
 

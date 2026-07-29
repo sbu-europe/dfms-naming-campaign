@@ -16,7 +16,7 @@ pending:
   - Resend invitation endpoint (platform admin)
   - Invitation expiry cleanup task
 created: 2026-02-13
-updated: 2026-04-09
+updated: 2026-07-28
 source_documents:
   - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
@@ -26,7 +26,8 @@ related_stories:
   - US-007-account-deactivation.md
   - US-008-password-account-reset.md
 dependencies: []
-tags: [user-management, invitation, activation, onboarding, critical]
+tags: [user-management, invitation, activation, onboarding, critical, phone-invite]
+changelog: "2026-07-28 — CR-002: Phase 1 staff invite supports email OR phone channel; no mock emails; reinvite follows invite_channel. See 05-modules/03-users/staff-invite-login-password-channels.md"
 ---
 
 # US-005: User Invitation & Activation
@@ -34,38 +35,41 @@ tags: [user-management, invitation, activation, onboarding, critical]
 ## User Story
 
 **As a** Tenant Super Admin  
-**I want to** invite users via email, activate accounts securely, and reset passwords through both self-service and admin-assisted methods  
+**I want to** invite users via email or phone, activate accounts securely, and reset passwords through both self-service and admin-assisted methods  
 **So that** user onboarding and account recovery are secure and consistent for all user types
 
 ## Business Context
 
 Organizations need to onboard multiple users with different roles and provide accessible account recovery. The system must support:
-- Secure user onboarding via email invitation and activation workflows for **all user types** (including Drivers and Helpers)
+- Secure user onboarding via **email or phone** invitation and activation workflows for **all user types** (including Drivers and Helpers)
 - Proper role assignment during invitation (18 operational roles across 6 departments)
-- Email OTP verification (optional) before account activation
+- Email or SMS OTP verification (optional, channel-matched) before account activation
 - Bulk user invitation via CSV upload
 - Subscription plan limit enforcement during invitation
 - Admin-assisted password reset
-- Self-service password reset via forgot password flow
+- Self-service password reset via forgot password flow (email or phone identifier)
 - Comprehensive audit logging for all account operations
 
-> **Phase 1 Scope**: All users — including Drivers and Helpers — are invited exclusively via **email**. SMS/phone-based invitation and SMS OTP flows are out of scope for Phase 1.
+> **Phase 1 Scope (updated CR-002)**: Staff users may be invited via **`invite_channel=email`** or **`invite_channel=phone`**. Phone-invited users may have **no email** (`User.email` null). OTP type must match channel (`none`/`email` or `none`/`phone`). Reinvite uses the original channel. Login and forgot-password use the same identity. Canonical overview: [`staff-invite-login-password-channels.md`](../../05-modules/03-users/staff-invite-login-password-channels.md).
 
 ## Acceptance Criteria
 
 Given a tenant Admin user accesses the "Invite User" functionality,
 
-when the Admin fills out the invitation form with user details (Employee ID, First Name, Last Name, Email, Role, Department, POI if applicable, and Functional Role Type),
+when the Admin fills out the invitation form with user details (Employee ID, First Name, Last Name, Invite Channel, Email and/or Phone, Role, Department, POI if applicable, and Functional Role Type),
 
 then the system shall:
 
-- [ ] Allow admin to invite **all users** (including Drivers and Helpers) via **email only**
-- [ ] Enforce unique **email** per tenant
+- [ ] Allow admin to invite **all users** (including Drivers and Helpers) via **email or phone** (`invite_channel`)
+- [ ] Enforce unique **email** per tenant when email is provided
+- [ ] Enforce unique **phone** per tenant when phone is provided; phone invites require BD mobile
+- [ ] Allow phone-only users (`email` null) — do **not** invent placeholder emails
 - [ ] Require the Admin to select a **Department** first (from predefined departments), then select a **Role** under that Department
 - [ ] Role dropdown SHALL be filtered based on selected Department; the system SHALL reject role selections that do not belong to the selected Department
-- [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`
+- [ ] Provide an invitation form field **OTP type** with options: `None`, `Email`, `Phone` (constrained by invite channel)
 - [ ] Default **OTP type** is `None` (no OTP required for activation)
 - [ ] If **OTP type = Email**, system sends a 6-digit OTP via email and requires OTP verification before credential setup
+- [ ] If **OTP type = Phone**, system sends a 6-digit OTP via SMS and requires OTP verification before credential setup
 - [ ] Allow role assignment during invitation with the following roles:
   - Distribution Officer
   - Distribution Manager
@@ -112,10 +116,11 @@ then the system shall:
 | QA / QC | QC Inspector - Physical, QA Lab Technician |
 | Operations | Command Center Officer, Gate man, Scaling Personnel, Loading Personnel, Unloading Personnel |
 
-#### All users — Email-based invitation + activation + credential setup (Phase 1)
+#### All users — Email- or phone-based invitation + activation + credential setup (Phase 1)
 
-- [ ] System SHALL send a user invitation email containing an activation link (applies to **all roles including Driver and Helper**)
+- [ ] System SHALL send a user invitation via **email or SMS** containing an activation link (applies to **all roles including Driver and Helper**)
 - [ ] If **OTP type = Email**, the invitation email includes a 6-digit OTP (valid 10 minutes)
+- [ ] If **OTP type = Phone**, the invitation SMS includes a 6-digit OTP (valid 10 minutes)
 - [ ] If **OTP type = None**, no OTP is sent and the user proceeds directly to credential setup after opening the link
 - [ ] Upon accessing the invitation link:
   - Registered email is automatically populated (read-only)

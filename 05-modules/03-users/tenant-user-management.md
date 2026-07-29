@@ -212,15 +212,15 @@ sent → pending (user opens link) → activated (password set + T&C accepted)
 The activation flow is handled in `01-foundation/user-tenant-management.md`. Summary for reference:
 
 ```
-User receives invitation email
+User receives invitation (email or SMS, per invite_channel)
   → Opens activation link
-  → (If OTP type = Email) Enters OTP code
+  → (If OTP type = Email/Phone) Enters OTP code
   → Sets password (complexity rules enforced)
   → Accepts Terms & Conditions
   → Account status: Invited → Active
 ```
 
-Phase 1: Email invitation only. No SMS/phone invitation channel.
+Invite channel may be **email or phone** (BD mobile). Phone-invited users may have no email. See [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md) and [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
 
 ---
 
