@@ -7,7 +7,9 @@ last_updated: 2026-07-30
 
 # Sprint 7 — E2E scenarios
 
-Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/sprint-7/feedback.md`).
+Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/sprint-7/feedback.md`) and new-scope stories.
+
+### Feedback
 
 | Feedback | Plan | Status |
 |----------|------|--------|
@@ -17,3 +19,9 @@ Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/s
 | FB-005 — PR status filter hides Draft for Distribution Officer | [fb-005-product-requisition-status-filter-e2e-scenarios.md](./fb-005-product-requisition-status-filter-e2e-scenarios.md) | **3/3 Pass** (2026-07-30) |
 | FB-006 — POI bulk I/O: storage capacity & opening stock | [fb-006-poi-bulk-import-export-capacity-opening-stock-e2e-scenarios.md](./fb-006-poi-bulk-import-export-capacity-opening-stock-e2e-scenarios.md) | **7/7 Pass** (2026-07-30) |
 | FB-007 — Helpers delete matches other master data | [fb-007-helpers-delete-match-master-data-e2e-scenarios.md](./fb-007-helpers-delete-match-master-data-e2e-scenarios.md) | **6/6 Pass** (2026-07-30) |
+
+### Stories
+
+| Story | Plan | Status |
+|-------|------|--------|
+| VM-09 — TP & TDO read-only Vendor List | [vm-09-vendors-profile-readonly-tp-tdo-e2e-scenarios.md](./vm-09-vendors-profile-readonly-tp-tdo-e2e-scenarios.md) | **12/12 Pass** (2026-07-30) |
