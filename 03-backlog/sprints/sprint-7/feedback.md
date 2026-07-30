@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 6
+resolved: 7
 in_progress: 0
-open: 2
+open: 1
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -23,7 +23,7 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-004](#fb-004--product-requisition-list--search-should-include-destination-poi) | Product Requisition list: search should include destination POI | Operations / Product Requisitions | Medium | Resolved |
 | [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Resolved |
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Resolved |
-| [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Open |
+| [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Resolved |
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Open |
 
 ## Resolution Summary
@@ -31,8 +31,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 5 | 2 |
-| **Total** | **8** | **6** | **2** |
+| Medium | 7 | 6 | 1 |
+| **Total** | **8** | **7** | **1** |
 
 ---
 
@@ -225,9 +225,9 @@ Bulk POI import/export should also carry storage capacity (MT) and opening stock
 | **Affected Stories** | Helper master (`/admin` Helpers); delete behaviour vs other master data |
 | **Closing Sub-tasks** | FB-007-1 — Fix Helper delete so it works the same way as delete on other master data entities |
 | **AC Amendment** | Helper **delete** SHALL be functional and behave consistently with delete on other master data (same UX, permissions, and outcome pattern). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | — |
+| **Notes** | Implemented: `HelperAdmin` uses `MasterEntityHardDeleteAdminMixin` (deps gate + required delete reason + audit). Soft lifecycle remains Edit → Inactive. Soft-`deleted_at` Admin overrides removed. E2E: [`fb-007-helpers-delete-match-master-data-e2e-scenarios.md`](../../../09-testing/backend/e2e-scenarios/sprint-7/fb-007-helpers-delete-match-master-data-e2e-scenarios.md) **6/6 Pass**. |
 
 ### Internal feedback observation
 
@@ -237,11 +237,11 @@ Helper delete is not functional as implemented for other master data. It needs t
 
 | Aspect | Current | Expected (FB-007) |
 |--------|---------|-------------------|
-| Helper delete | Not functional / broken vs other master data | Works and matches other master data delete behaviour |
+| Helper delete | Hard delete via mixin (parity with Vehicle/Supplier) | Works and matches other master data delete behaviour |
 
 ### Closing checklist
 
-- [ ] FB-007-1 — Helper delete fixed and aligned with other master data
+- [x] FB-007-1 — Helper delete fixed and aligned with other master data
 
 ---
 
