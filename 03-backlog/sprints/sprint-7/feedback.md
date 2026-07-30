@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 4
+resolved: 5
 in_progress: 0
-open: 4
+open: 3
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -21,7 +21,7 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-002](#fb-002--product-line-item-label-should-include-subcategory-when-present) | Product line item label should include subcategory when present | Master Data / Products · dropdowns | Medium | Resolved |
 | [FB-003](#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit) | Bay Assignment add: TO details missing product line-item breakdown & allocated qty unit | Operations / Bay Assignment | Medium | Resolved |
 | [FB-004](#fb-004--product-requisition-list--search-should-include-destination-poi) | Product Requisition list: search should include destination POI | Operations / Product Requisitions | Medium | Resolved |
-| [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Open |
+| [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Resolved |
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Open |
 | [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Open |
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Open |
@@ -31,8 +31,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 3 | 4 |
-| **Total** | **8** | **4** | **4** |
+| Medium | 7 | 4 | 3 |
+| **Total** | **8** | **5** | **3** |
 
 ---
 
@@ -167,9 +167,9 @@ On the Product Requisition list page, search currently works for PR number only.
 | **Affected Stories** | Product Requisition list view (status filter); Distribution Officer role |
 | **Closing Sub-tasks** | FB-005-1 — Remove **Draft** from the status-wise filter options when the logged-in user is Distribution Officer |
 | **AC Amendment** | When logged in as **Distribution Officer**, the Product Requisition list status filter SHALL **not** offer **Draft** as a filter option. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Assumed Product Requisition list (same area as FB-004); confirm if another list is intended. |
+| **Notes** | `PRStatusListFilter` on FG Product Requisition changelist; Draft hidden for `distribution_officer` only. E2E: `fb-005-product-requisition-status-filter-e2e-scenarios.md` (3/3 Pass). |
 
 ### Internal feedback observation
 
@@ -183,7 +183,7 @@ When logged in as Distribution Officer, the Draft option should be removed from 
 
 ### Closing checklist
 
-- [ ] FB-005-1 — Hide Draft in status filter for Distribution Officer
+- [x] FB-005-1 — Hide Draft in status filter for Distribution Officer
 
 ---
 
