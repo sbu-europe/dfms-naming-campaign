@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 1
+resolved: 2
 in_progress: 0
-open: 7
+open: 6
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -18,7 +18,7 @@ Client / ops / internal feedback captured during Sprint 7.
 | ID | Title | Menu / area | Priority | Status |
 |----|-------|-------------|----------|--------|
 | [FB-001](#fb-001--transport-planner--driver-supervisor-may-add-drivers-and-use-driver-bulk-importexport) | Transport Planner & Driver Supervisor may add drivers and use driver bulk import/export | Users / Drivers · Fleet | High | Resolved |
-| [FB-002](#fb-002--product-line-item-label-should-include-subcategory-when-present) | Product line item label should include subcategory when present | Master Data / Products · dropdowns | Medium | Open |
+| [FB-002](#fb-002--product-line-item-label-should-include-subcategory-when-present) | Product line item label should include subcategory when present | Master Data / Products · dropdowns | Medium | Resolved |
 | [FB-003](#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit) | Bay Assignment add: TO details missing product line-item breakdown & allocated qty unit | Operations / Bay Assignment | Medium | Open |
 | [FB-004](#fb-004--product-requisition-list--search-should-include-destination-poi) | Product Requisition list: search should include destination POI | Operations / Product Requisitions | Medium | Open |
 | [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Open |
@@ -31,8 +31,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 0 | 7 |
-| **Total** | **8** | **1** | **7** |
+| Medium | 7 | 1 | 6 |
+| **Total** | **8** | **2** | **6** |
 
 ---
 
@@ -79,9 +79,9 @@ Operations need **Transport Planner** and **Driver Supervisor** to onboard drive
 | **Affected Stories** | Product / product line item display across Admin (dropdowns, lists, wherever product line items are shown) |
 | **Closing Sub-tasks** | FB-002-1 — Extend product line item label to `code-productname-category-subcategory` (subcategory only when present) · FB-002-2 — Apply the same label format consistently everywhere product line items are shown |
 | **AC Amendment** | Product line item labels SHALL render as **code – product name – category – subcategory** when a subcategory exists, and as **code – product name – category** when it does not. This format SHALL be consistent across the system (dropdowns and any other product line item display). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | — |
+| **Notes** | Shared helper `apps.master_data.display.product_line_item_label`; wired into PR line-item dropdown, Gate on-demand form dropdown, and Gate on-demand JSON product choices. |
 
 ### Internal feedback observation
 
@@ -96,8 +96,8 @@ Product line items currently display as **code – product name – category**. 
 
 ### Closing checklist
 
-- [ ] FB-002-1 — Label format includes subcategory when present
-- [ ] FB-002-2 — Same format used consistently across dropdowns / all product line item displays
+- [x] FB-002-1 — Label format includes subcategory when present
+- [x] FB-002-2 — Same format used consistently across dropdowns / all product line item displays
 
 ---
 
