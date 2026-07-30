@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 7
+resolved: 8
 in_progress: 0
-open: 1
+open: 0
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -24,15 +24,15 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Resolved |
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Resolved |
 | [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Resolved |
-| [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Open |
+| [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 6 | 1 |
-| **Total** | **8** | **7** | **1** |
+| Medium | 7 | 7 | 0 |
+| **Total** | **8** | **8** | **0** |
 
 ---
 
@@ -253,9 +253,9 @@ Helper delete is not functional as implemented for other master data. It needs t
 | **Affected Stories** | Bid Management changelist / list view |
 | **Closing Sub-tasks** | FB-008-1 — Show quantity unit with Required Capacity on the Bid Management changelist |
 | **AC Amendment** | On the Bid Management **changelist**, **Required Capacity** SHALL display with its **quantity unit** (not a bare number). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | — |
+| **Notes** | `BiddingSessionAdmin.required_capacity_display` formats with `format_qty` + `MT` on list and change form. Unit: `tests/unit/test_vendors/test_fb008_required_capacity_display.py`. |
 
 ### Internal feedback observation
 
@@ -269,4 +269,4 @@ On the Bid Management changelist page, Required Capacity does not show the quant
 
 ### Closing checklist
 
-- [ ] FB-008-1 — Required Capacity on Bid Management changelist shows quantity unit
+- [x] FB-008-1 — Required Capacity on Bid Management changelist shows quantity unit
