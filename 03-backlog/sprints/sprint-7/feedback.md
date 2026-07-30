@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 5
+resolved: 6
 in_progress: 0
-open: 3
+open: 2
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -22,7 +22,7 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-003](#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit) | Bay Assignment add: TO details missing product line-item breakdown & allocated qty unit | Operations / Bay Assignment | Medium | Resolved |
 | [FB-004](#fb-004--product-requisition-list--search-should-include-destination-poi) | Product Requisition list: search should include destination POI | Operations / Product Requisitions | Medium | Resolved |
 | [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Resolved |
-| [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Open |
+| [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Resolved |
 | [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Open |
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Open |
 
@@ -31,8 +31,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 4 | 3 |
-| **Total** | **8** | **5** | **3** |
+| Medium | 7 | 5 | 2 |
+| **Total** | **8** | **6** | **2** |
 
 ---
 
@@ -195,9 +195,9 @@ When logged in as Distribution Officer, the Draft option should be removed from 
 | **Affected Stories** | POI bulk import / export (template, validate, import, export) |
 | **Closing Sub-tasks** | FB-006-1 — Add optional **storage capacity (MT)** and **opening stock** columns to POI bulk import/export · FB-006-2 — Treat empty values as **zero** on import |
 | **AC Amendment** | POI bulk import and export SHALL include **storage capacity (MT)** and **opening stock**. Both fields are **optional**. If either is empty on import, the system SHALL treat it as **0**. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | — |
+| **Notes** | `POIImportConfig`: optional `storage_capacity_mt` + virtual `opening_stock_mt` (empty → 0); create sets opening via `set_opening_balance`; export includes both. E2E 7/7 Pass. |
 
 ### Internal feedback observation
 
@@ -205,15 +205,15 @@ Bulk POI import/export should also carry storage capacity (MT) and opening stock
 
 ### Current vs expected behaviour
 
-| Aspect | Current | Expected (FB-006) |
-|--------|---------|-------------------|
-| Storage capacity (MT) in bulk I/O | Not included | Included; optional; empty → **0** |
-| Opening stock in bulk I/O | Not included | Included; optional; empty → **0** |
+| Aspect | Current (after FB-006) | Expected (FB-006) |
+|--------|------------------------|-------------------|
+| Storage capacity (MT) in bulk I/O | Included; optional; empty → **0** | Included; optional; empty → **0** |
+| Opening stock in bulk I/O | Included (`opening_stock_mt`); optional; empty → **0** | Included; optional; empty → **0** |
 
 ### Closing checklist
 
-- [ ] FB-006-1 — Template / import / export include storage capacity (MT) and opening stock
-- [ ] FB-006-2 — Empty optional values default to zero on import
+- [x] FB-006-1 — Template / import / export include storage capacity (MT) and opening stock
+- [x] FB-006-2 — Empty optional values default to zero on import
 
 ---
 
