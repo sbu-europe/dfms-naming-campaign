@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 8
-resolved: 2
+resolved: 3
 in_progress: 0
-open: 6
+open: 5
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -19,7 +19,7 @@ Client / ops / internal feedback captured during Sprint 7.
 |----|-------|-------------|----------|--------|
 | [FB-001](#fb-001--transport-planner--driver-supervisor-may-add-drivers-and-use-driver-bulk-importexport) | Transport Planner & Driver Supervisor may add drivers and use driver bulk import/export | Users / Drivers · Fleet | High | Resolved |
 | [FB-002](#fb-002--product-line-item-label-should-include-subcategory-when-present) | Product line item label should include subcategory when present | Master Data / Products · dropdowns | Medium | Resolved |
-| [FB-003](#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit) | Bay Assignment add: TO details missing product line-item breakdown & allocated qty unit | Operations / Bay Assignment | Medium | Open |
+| [FB-003](#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit) | Bay Assignment add: TO details missing product line-item breakdown & allocated qty unit | Operations / Bay Assignment | Medium | Resolved |
 | [FB-004](#fb-004--product-requisition-list--search-should-include-destination-poi) | Product Requisition list: search should include destination POI | Operations / Product Requisitions | Medium | Open |
 | [FB-005](#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer) | Product Requisition list: hide Draft from status filter for Distribution Officer | Operations / Product Requisitions | Medium | Open |
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Open |
@@ -31,8 +31,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 1 | 6 |
-| **Total** | **8** | **2** | **6** |
+| Medium | 7 | 2 | 5 |
+| **Total** | **8** | **3** | **5** |
 
 ---
 
@@ -109,9 +109,9 @@ Product line items currently display as **code – product name – category**. 
 | **Affected Stories** | Bay Assignment add page (TO selection / TO details panel) |
 | **Closing Sub-tasks** | FB-003-1 — Show product line-item breakdown in TO details when a TO is selected on Bay Assignment add · FB-003-2 — Show allocated quantity with unit (not bare number) |
 | **AC Amendment** | On Bay Assignment **add**, when a Transport Order (TO) is selected, the TO details panel SHALL show the **product line-item breakdown**. Allocated quantity SHALL display **with its unit**. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | — |
+| **Notes** | Implemented in `build_cc_assignment_to_details_html`: Product Lines table + allocated qty with unit (single line → line UOM; else header kg). Prefetch on queue-entry details AJAX. |
 
 ### Internal feedback observation
 
@@ -126,8 +126,8 @@ On the Bay Assignment add page, selecting a TO does not show the product line-it
 
 ### Closing checklist
 
-- [ ] FB-003-1 — TO details on Bay Assignment add show product line-item breakdown
-- [ ] FB-003-2 — Allocated qty displays with unit
+- [x] FB-003-1 — TO details on Bay Assignment add show product line-item breakdown
+- [x] FB-003-2 — Allocated qty displays with unit
 
 ---
 
