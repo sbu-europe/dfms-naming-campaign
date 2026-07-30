@@ -13,4 +13,4 @@ Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/s
 |----------|------|--------|
 | FB-002 — Product line item label includes subcategory | [fb-002-product-line-item-label-e2e-scenarios.md](./fb-002-product-line-item-label-e2e-scenarios.md) | Planned (7 TCs) |
 | FB-003 — Bay Assignment TO details: product lines & allocated qty unit | [fb-003-bay-assignment-to-details-e2e-scenarios.md](./fb-003-bay-assignment-to-details-e2e-scenarios.md) | Planned (8 TCs) |
-| FB-004 — Product Requisition list search includes destination POI | [fb-004-product-requisition-search-destination-poi-e2e-scenarios.md](./fb-004-product-requisition-search-destination-poi-e2e-scenarios.md) | Planned (6 TCs) |
+| FB-004 — Product Requisition list search includes destination POI | [fb-004-product-requisition-search-destination-poi-e2e-scenarios.md](./fb-004-product-requisition-search-destination-poi-e2e-scenarios.md) | **6/6 Pass** (2026-07-30) |

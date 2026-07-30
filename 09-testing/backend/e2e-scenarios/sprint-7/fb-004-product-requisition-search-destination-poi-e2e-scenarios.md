@@ -6,10 +6,18 @@ phase: Phase 1
 related_stories: FB-004
 source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
 last_updated: 2026-07-30
+last_mcp_run: 2026-07-30
+last_mcp_verdict: 6/6 Pass
+artifacts: tests/e2e/playwright-mcp/fb-004-product-requisition-search-destination-poi-artifacts/
 playwright_mcp: true
 ---
 
 # Sprint 7 — FB-004 — Product Requisition list: search by destination POI — E2E Scenario Plan (Django Admin SSR)
+
+> **2026-07-30 — All 6 test cases passed** (TC01–TC06). Suite signed off via Playwright MCP against Nourish admin.
+
+**Last MCP run:** 2026-07-30 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-004-product-requisition-search-destination-poi-artifacts/RESULTS.md)  
+**Accounts:** `distribution.officer1`, `depot.officer1` (`.nourish@yopmail.com`)
 
 **Feedback:** [FB-004](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-004--product-requisition-list--search-should-include-destination-poi)
 
@@ -17,8 +25,6 @@ playwright_mcp: true
 
 1. On the Finished Goods **Product Requisition** changelist, the admin search box SHALL match **destination POI** in addition to **PR number**.
 2. Searching by POI **name** and/or **poi_code** (as shown in the Destination POI column) returns matching PRs.
-
-**Current code (pre-fix):** `ProductRequisitionAdmin.search_fields = ("pr_number", "requester_name")` — no `destination_poi__*` lookups. (`requester_name` is already searchable; feedback wording “PR number only” is slightly incomplete.)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).
 
@@ -37,7 +43,7 @@ Prefer wipe-friendly `MCP-` fixtures under tenant **nourish**. Destination POI m
 
 Wipe prefix: `MCP-FB004-` / `MCP FB004`.
 
-If seeding via admin is heavy, reuse two existing PRs whose destination POIs have distinct names/codes and record them in RESULTS.md.
+**2026-07-30 run fixtures:** `PR-FG-MCP-FB004-A` → `MCP-FB004-A`; `PR-FG-MCP-FB004-B` → `MCP-FB004-B`; owner `depot.officer1.nourish@yopmail.com`.
 
 ---
 
@@ -45,22 +51,22 @@ If seeding via admin is heavy, reuse two existing PRs whose destination POIs hav
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Search by destination POI name returns PR | As **Distribution Officer** (`distribution.officer1.nourish@yopmail.com`), log in at `/admin/login/`, set working site if prompted, open **Requisition → Finished Goods → Product Requisitions** (`/admin/requisitions/productrequisition/`). In the changelist search box (`#searchbar` / `input[name="q"]`), enter a distinctive substring of **POI-A** name (e.g. `MCP FB004 Dest Alpha` or `FB004 Dest Alpha`). Submit search. Assert `#result_list` contains **PR-A** (by `pr_number` or Destination POI cell showing **POI-A**). Assert **PR-B** is not shown (unless its POI name also matches the query). | P0 | Planned |
-| TC02 | Search by destination POI code returns PR | On the same changelist, search for **POI-A** `poi_code` (e.g. `MCP-FB004-A`). Assert **PR-A** appears in results with Destination POI matching **POI-A**. | P0 | Planned |
-| TC03 | Search by PR number still works | Search for the exact (or unique prefix of) **PR-A** `pr_number`. Assert **PR-A** is returned. Confirms FB-004 does not regress PR-number search. | P0 | Planned |
+| TC01 | Search by destination POI name returns PR | As **Distribution Officer** (`distribution.officer1.nourish@yopmail.com`), log in at `/admin/login/`, set working site if prompted, open **Requisition → Finished Goods → Product Requisitions** (`/admin/requisitions/productrequisition/`). In the changelist search box (`#searchbar` / `input[name="q"]`), enter a distinctive substring of **POI-A** name (e.g. `MCP FB004 Dest Alpha` or `FB004 Dest Alpha`). Submit search. Assert `#result_list` contains **PR-A** (by `pr_number` or Destination POI cell showing **POI-A**). Assert **PR-B** is not shown (unless its POI name also matches the query). | P0 | Pass |
+| TC02 | Search by destination POI code returns PR | On the same changelist, search for **POI-A** `poi_code` (e.g. `MCP-FB004-A`). Assert **PR-A** appears in results with Destination POI matching **POI-A**. | P0 | Pass |
+| TC03 | Search by PR number still works | Search for the exact (or unique prefix of) **PR-A** `pr_number`. Assert **PR-A** is returned. Confirms FB-004 does not regress PR-number search. | P0 | Pass |
 
 ## B — Negative / isolation
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC04 | Unrelated POI query excludes PR-A | Search for a string unique to **POI-B** only (name or code). Assert **PR-B** appears and **PR-A** does not. | P1 | Planned |
-| TC05 | Nonsense query returns empty | Search for a string that matches no PR number, requester name, or destination POI (e.g. `MCP-FB004-ZZZZ-NOMATCH`). Assert empty results / “0 product requisitions” (or equivalent empty changelist message) and no **PR-A**/**PR-B** rows. | P1 | Planned |
+| TC04 | Unrelated POI query excludes PR-A | Search for a string unique to **POI-B** only (name or code). Assert **PR-B** appears and **PR-A** does not. | P1 | Pass |
+| TC05 | Nonsense query returns empty | Search for a string that matches no PR number, requester name, or destination POI (e.g. `MCP-FB004-ZZZZ-NOMATCH`). Assert empty results / “0 product requisitions” (or equivalent empty changelist message) and no **PR-A**/**PR-B** rows. | P1 | Pass |
 
 ## C — Cross-role (optional smoke)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC06 | Depot Officer can search own PRs by destination POI | As **Depot Officer** (`depot.officer1.nourish@yopmail.com`), open the Product Requisition changelist. Ensure at least one of **their** PRs has destination **POI-A** (create/submit if needed, or use an existing owned PR). Search by **POI-A** name. Assert that owned PR appears. (Scoped queryset: requesters only see own PRs — do not assert other users’ PRs.) | P1 | Planned |
+| TC06 | Depot Officer can search own PRs by destination POI | As **Depot Officer** (`depot.officer1.nourish@yopmail.com`), open the Product Requisition changelist. Ensure at least one of **their** PRs has destination **POI-A** (create/submit if needed, or use an existing owned PR). Search by **POI-A** name. Assert that owned PR appears. (Scoped queryset: requesters only see own PRs — do not assert other users’ PRs.) | P1 | Pass |
 
 ---
 
@@ -90,15 +96,16 @@ If seeding via admin is heavy, reuse two existing PRs whose destination POIs hav
 | Results table | `#result_list` |
 | Destination column | cell under **Destination poi** / `field-destination_poi` (Django FK column) |
 
-### Expected implementation alignment
+### Known implementation alignment
 
-- Likely fix: extend `ProductRequisitionAdmin.search_fields` with `destination_poi__name` and `destination_poi__poi_code` (Django admin OR + `icontains`).
+- `ProductRequisitionAdmin.search_fields` includes `destination_poi__name` and `destination_poi__poi_code` (plus `pr_number`, `requester_name`).
 - List column already shows `POI.__str__` → `{name} ({poi_code})`.
 - DO queryset filters to queue-visible statuses (`PR_QUEUE_VISIBLE_STATUSES`); seed **PR-A**/**PR-B** accordingly for TC01–TC05.
-- Unit alternative (not this plan): assert `ModelAdmin.get_search_results` includes destination POI matches.
+- Unit coverage: `tests/unit/test_requisitions/test_fb004_pr_search_destination_poi.py`.
+- MCP runner may use `?q=` when DFMS topbar intercepts `.dfms-search-submit` clicks.
 
 ### MCP run history
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
-| — | — | Not run yet (scenarios planned; fix Open). |
+| 2026-07-30 | **6/6** | All test cases passed (Playwright MCP). Seeded `MCP-FB004-*` POIs + `PR-FG-MCP-FB004-*`. See artifacts `RESULTS.md`. |
