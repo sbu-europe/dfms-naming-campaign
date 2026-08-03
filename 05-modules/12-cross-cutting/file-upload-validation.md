@@ -54,7 +54,7 @@ This plan defines a **shared validation policy**, wires it into every **live** u
 | Default document max size | **10 MB** per file | NFR + limitations.md + PR §7.3 |
 | Document allowlist | **`pdf`, `jpg`, `jpeg`, `png`** | PR model + vendor mobile TC_099; drop admin Office extras |
 | Photo allowlist | **`jpg`, `jpeg`, `png`** | Field evidence photos only |
-| Photo max upload size | **5 MB** (compress after accept) | Phone cameras; stored target remains ~1 MB via existing compressor |
+| Photo max upload size | **10 MB** (compress after accept) | Align with Document ceiling; stored target remains ~1 MB via existing compressor |
 | CSV import max size | **10 MB** + existing `MAX_IMPORT_ROWS = 5000` | Row cap alone does not bound memory |
 | Invitation CSV max size | **2 MB** + existing row cap (100) | Tiny payload; whole file read into memory today |
 | Content-Type trust | **Secondary only** — never sole gate; empty Content-Type OK if extension (+ image verify) passes | Client MIME is spoofable |
@@ -69,7 +69,7 @@ This plan defines a **shared validation policy**, wires it into every **live** u
 | Class | Allowed extensions | Max bytes | Extra checks |
 |-------|-------------------|-----------|--------------|
 | **Document** | pdf, jpg, jpeg, png | 10 × 1024² | Images: Pillow verify when extension is image |
-| **Photo** | jpg, jpeg, png | 5 × 1024² | Pillow verify; then existing `compress_image_file` |
+| **Photo** | jpg, jpeg, png | 10 × 1024² | Pillow verify; then existing `compress_image_file` |
 | **CSV import** | csv | 10 × 1024² | Keep row-limit validate in `ImportService` |
 | **CSV invitations** | csv | 2 × 1024² | Keep `MAX_BULK_INVITATION_ROWS` |
 
@@ -170,7 +170,7 @@ Update `ALLOWED_EXTENSIONS` / `ALLOWED_CONTENT_TYPES` in `apps/requisitions/admi
 | **0** | Add `apps/core/upload_validation.py` + unit tests (accept/reject matrix per class) | Tests green in isolation |
 | **1** | Wire **F** vendor KYC + **B** PR API (highest risk) | Reject oversize / bad ext with 400; happy path still 201 |
 | **2** | Align **A** PR admin to shared Document rules | Admin form rejects Office + oversize; PDF 10 MB OK |
-| **3** | Wire **G** driver photo reject + compress | Non-image → 400; large JPEG within 5 MB accepted & compressed |
+| **3** | Wire **G** driver photo reject + compress | Non-image → 400; large JPEG within 10 MB accepted & compressed |
 | **4** | Wire **C** + **D** CSV import byte cap | >10 MB rejected before job create |
 | **5** | Wire **E** invitation CSV | Non-csv / >2 MB rejected before `read()` |
 | **6** | Wire **H** (+ **I** or lock) | Admin / gate behaviour matches policy |
@@ -212,7 +212,7 @@ No new public endpoints. No response schema version bump required if error paylo
 | Bulk import CSV > 10 MB | 400 before job row |
 | Invitations `.txt` / huge file | 400 |
 | Driver transition `photo` = PDF | 400 |
-| Driver transition JPEG within 5 MB | 200 + milestone photo set |
+| Driver transition JPEG within 10 MB | 200 + milestone photo set |
 
 ### 6.3 Admin (Playwright MCP scenario plan)
 
