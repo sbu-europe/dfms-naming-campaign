@@ -1,8 +1,8 @@
 ---
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
-total_items: 11
-resolved: 8
+total_items: 12
+resolved: 9
 in_progress: 0
 open: 3
 ---
@@ -27,15 +27,16 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Resolved |
 | [FB-009](#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import) | Phone number normalization on bulk user upload & driver import | Users · Drivers · Bulk I/O | Medium | Open |
 | [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Open |
-| [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Open |
+| [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Resolved |
+| [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 10 | 7 | 3 |
-| **Total** | **11** | **8** | **3** |
+| Medium | 11 | 8 | 3 |
+| **Total** | **12** | **9** | **3** |
 
 ---
 
@@ -366,3 +367,34 @@ Driver invitation bulk import/export is missing reference and address fields nee
 
 - [x] FB-011-1 — Import template / validate / import include reference contact 1, reference contact 2, address
 - [x] FB-011-2 — Export includes the same columns
+
+---
+
+## FB-012 — Driver bulk upload: optional accident history & last training assessment info
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Driver bulk upload / import / export (template, validate, import, export) |
+| **Closing Sub-tasks** | FB-012-1 — Add optional **accident_history** column to driver bulk upload · FB-012-2 — Add optional **last_training_assessment_info** column to driver bulk upload · FB-012-3 — Include the same optional columns on driver bulk export |
+| **AC Amendment** | Driver **bulk upload** (import) and **export** SHALL include optional columns for **accident_history** and **last_training_assessment_info**. Empty values are allowed. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Extends driver bulk I/O with optional safety / training fields. |
+
+### Internal feedback observation
+
+Driver bulk upload should also carry **accident_history** and **last_training_assessment_info**. Both columns are **optional**.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-012) |
+|--------|---------|-------------------|
+| accident_history | Not in bulk upload | Optional column on import **and** export |
+| last_training_assessment_info | Not in bulk upload | Optional column on import **and** export |
+
+### Closing checklist
+
+- [ ] FB-012-1 — Import template / validate / import include optional `accident_history`
+- [ ] FB-012-2 — Import template / validate / import include optional `last_training_assessment_info`
+- [ ] FB-012-3 — Export includes the same optional columns
