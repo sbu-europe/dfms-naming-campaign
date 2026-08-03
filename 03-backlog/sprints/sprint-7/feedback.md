@@ -346,7 +346,7 @@ On manual add, when invitation channel is email, email is mandatory and is typed
 | **Affected Stories** | Driver invitation bulk import / export (template, validate, import, export) |
 | **Closing Sub-tasks** | FB-011-1 — Add **reference contact 1**, **reference contact 2**, and **address** columns to driver invitation bulk import · FB-011-2 — Include the same columns on driver invitation bulk export |
 | **AC Amendment** | Driver invitation **bulk import** and **bulk export** SHALL include columns for **reference contact 1**, **reference contact 2**, and **address**. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | Extends driver invitation bulk I/O template / export columns. |
 
@@ -364,5 +364,5 @@ Driver invitation bulk import/export is missing reference and address fields nee
 
 ### Closing checklist
 
-- [ ] FB-011-1 — Import template / validate / import include reference contact 1, reference contact 2, address
-- [ ] FB-011-2 — Export includes the same columns
+- [x] FB-011-1 — Import template / validate / import include reference contact 1, reference contact 2, address
+- [x] FB-011-2 — Export includes the same columns
