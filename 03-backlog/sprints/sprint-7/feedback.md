@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 12
-resolved: 11
+resolved: 12
 in_progress: 0
-open: 1
+open: 0
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -28,15 +28,15 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-009](#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import) | Phone number normalization on bulk user upload & driver import | Users · Drivers · Bulk I/O | Medium | Resolved |
 | [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Resolved |
 | [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Resolved |
-| [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Open |
+| [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 11 | 10 | 1 |
-| **Total** | **12** | **11** | **1** |
+| Medium | 11 | 11 | 0 |
+| **Total** | **12** | **12** | **0** |
 
 ---
 
@@ -380,7 +380,7 @@ Driver invitation bulk import/export is missing reference and address fields nee
 | **AC Amendment** | Driver **bulk upload** (import) and **export** SHALL include optional columns for **accident_history** and **last_training_assessment_info**. Empty values are allowed. |
 | **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Extends driver bulk I/O with optional safety / training fields. Signed off 2026-08-03 via Playwright MCP (FB-012 E2E 6/6 Pass). |
+| **Notes** | `DriverImportConfig`: optional `accident_history` + `last_training_assessment_info` on import/export. E2E: [`fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md`](../../../09-testing/backend/e2e-scenarios/sprint-7/fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md) **6/6 Pass** (2026-08-03). |
 
 ### Internal feedback observation
 

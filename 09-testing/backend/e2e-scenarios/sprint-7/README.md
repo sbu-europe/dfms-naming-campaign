@@ -21,7 +21,7 @@ Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/s
 | FB-007 — Helpers delete matches other master data | [fb-007-helpers-delete-match-master-data-e2e-scenarios.md](./fb-007-helpers-delete-match-master-data-e2e-scenarios.md) | **6/6 Pass** (2026-07-30) |
 | FB-009 — Phone normalization on bulk user & driver import | [fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md](./fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md) | **8/8 Pass** (2026-08-03) |
 | FB-011 — Driver invitation bulk I/O: reference contacts & address | [fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md](./fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md) | **6/6 Pass** (2026-08-03) |
-| FB-012 — Driver bulk I/O: accident history & last training assessment | [fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md](./fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md) | Planned (6 TCs) |
+| FB-012 — Driver bulk I/O: accident history & last training assessment | [fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md](./fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md) | **6/6 Pass** (2026-08-03) |
 
 ### Stories
 
