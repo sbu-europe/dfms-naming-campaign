@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 12
-resolved: 9
+resolved: 11
 in_progress: 0
-open: 3
+open: 1
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -25,8 +25,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Resolved |
 | [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Resolved |
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Resolved |
-| [FB-009](#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import) | Phone number normalization on bulk user upload & driver import | Users · Drivers · Bulk I/O | Medium | Open |
-| [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Open |
+| [FB-009](#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import) | Phone number normalization on bulk user upload & driver import | Users · Drivers · Bulk I/O | Medium | Resolved |
+| [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Resolved |
 | [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Resolved |
 | [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Open |
 
@@ -35,8 +35,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 11 | 8 | 3 |
-| **Total** | **12** | **9** | **3** |
+| Medium | 11 | 10 | 1 |
+| **Total** | **12** | **11** | **1** |
 
 ---
 
@@ -285,9 +285,9 @@ On the Bid Management changelist page, Required Capacity does not show the quant
 | **Affected Stories** | Bulk User Upload; Driver bulk import (phone validation) |
 | **Closing Sub-tasks** | FB-009-1 — Strip hyphens from phone numbers on bulk user upload and driver import · FB-009-2 — Prefix leading `0` when missing · FB-009-3 — Validate normalized phone is exactly **11 digits** after hyphen strip and optional leading-`0` add |
 | **AC Amendment** | On **Bulk User Upload** and **Driver** bulk import, the system SHALL **exclude hyphens** from phone data when present, SHALL **add a leading `0`** when missing, and SHALL require the normalized phone number to be **11 digits** (after stripping hyphens and adding the leading `0` if needed). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Raised against phone-number validation errors during bulk user upload and driver import. |
+| **Notes** | Implemented via `apps.core.phone.normalize_bd_mobile` (`coerce_bd_mobile` / `validate_bd_mobile_import`) on `UserImportConfig.phone_number` and `DriverImportConfig.contact_number`. Hyphens/spaces stripped; missing leading `0` accepted (10-digit national); invalid length rejected; persisted as E.164 `+8801XXXXXXXXX`. E2E: [`fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md`](../../../09-testing/backend/e2e-scenarios/sprint-7/fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md) **8/8 Pass** (2026-08-03). |
 
 ### Internal feedback observation
 
@@ -295,17 +295,17 @@ Phone number validation fails during Bulk User Upload and driver import when num
 
 ### Current vs expected behaviour
 
-| Aspect | Current | Expected (FB-009) |
-|--------|---------|-------------------|
-| Hyphen in phone | Causes validation error / not stripped | **Exclude (strip) hyphen** from data |
-| Missing leading `0` | Validation error | **Add leading `0`** when missing |
-| Length after normalize | Inconsistent / fails | Exactly **11 digits** |
+| Aspect | Current (after FB-009) | Expected (FB-009) |
+|--------|------------------------|-------------------|
+| Hyphen in phone | Stripped before validate; import succeeds | **Exclude (strip) hyphen** from data |
+| Missing leading `0` | Accepted; normalized to E.164 | **Add leading `0`** when missing |
+| Length after normalize | Invalid local length rejected; valid → E.164 | Exactly **11 digits** (local); persist E.164 |
 
 ### Closing checklist
 
-- [ ] FB-009-1 — Strip hyphens from phone on bulk user upload & driver import
-- [ ] FB-009-2 — Add leading `0` when missing
-- [ ] FB-009-3 — Normalized phone must be 11 digits
+- [x] FB-009-1 — Strip hyphens from phone on bulk user upload & driver import
+- [x] FB-009-2 — Add leading `0` when missing
+- [x] FB-009-3 — Normalized phone must be 11 digits
 
 ---
 
@@ -317,9 +317,9 @@ Phone number validation fails during Bulk User Upload and driver import when num
 | **Affected Stories** | Manual user/driver add (invitation); bulk import when invitation channel is email |
 | **Closing Sub-tasks** | FB-010-1 — When invitation channel is **email**, email is mandatory and collected **once** on manual add (aligned with backend) · FB-010-2 — Apply the same single-email behaviour on **import** (do not require / present a second email entry) |
 | **AC Amendment** | When **invitation channel** is **email**, **email SHALL be mandatory** and SHALL be entered **once** on manual add, matching backend behaviour. The same **single-email** rule SHALL apply on **import** (email typed once on add must not be duplicated or left unchanged incorrectly during import). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Backend already treats email as a single field; UI / import path should match. |
+| **Notes** | Backend already treats email as a single field; UI / import path should match. Driver import drops second `email` column; `user_email` mirrors onto `Driver.email` (manual-add parity). |
 
 ### Internal feedback observation
 
@@ -334,8 +334,8 @@ On manual add, when invitation channel is email, email is mandatory and is typed
 
 ### Closing checklist
 
-- [ ] FB-010-1 — Manual add: email mandatory once when invitation channel is email (confirm parity with backend)
-- [ ] FB-010-2 — Import: apply same single-email behaviour
+- [x] FB-010-1 — Manual add: email mandatory once when invitation channel is email (confirm parity with backend)
+- [x] FB-010-2 — Import: apply same single-email behaviour
 
 ---
 
