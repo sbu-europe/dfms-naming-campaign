@@ -1,10 +1,10 @@
 ---
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
-total_items: 8
+total_items: 11
 resolved: 8
 in_progress: 0
-open: 0
+open: 3
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -25,14 +25,17 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-006](#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock) | POI bulk import/export: include optional storage capacity (MT) & opening stock | Master Data / POIs · Bulk I/O | Medium | Resolved |
 | [FB-007](#fb-007--helpers--delete-should-match-other-master-data) | Helpers: delete should match other master data | Master Data / Helpers | Medium | Resolved |
 | [FB-008](#fb-008--bid-management--required-capacity-missing-quantity-unit-on-changelist) | Bid Management: Required Capacity missing quantity unit on changelist | Operations / Bid Management | Medium | Resolved |
+| [FB-009](#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import) | Phone number normalization on bulk user upload & driver import | Users · Drivers · Bulk I/O | Medium | Open |
+| [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Open |
+| [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 7 | 7 | 0 |
-| **Total** | **8** | **8** | **0** |
+| Medium | 10 | 7 | 3 |
+| **Total** | **11** | **8** | **3** |
 
 ---
 
@@ -270,3 +273,96 @@ On the Bid Management changelist page, Required Capacity does not show the quant
 ### Closing checklist
 
 - [x] FB-008-1 — Required Capacity on Bid Management changelist shows quantity unit
+
+---
+
+## FB-009 — Phone number normalization on bulk user upload & driver import
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Bulk User Upload; Driver bulk import (phone validation) |
+| **Closing Sub-tasks** | FB-009-1 — Strip hyphens from phone numbers on bulk user upload and driver import · FB-009-2 — Prefix leading `0` when missing · FB-009-3 — Validate normalized phone is exactly **11 digits** after hyphen strip and optional leading-`0` add |
+| **AC Amendment** | On **Bulk User Upload** and **Driver** bulk import, the system SHALL **exclude hyphens** from phone data when present, SHALL **add a leading `0`** when missing, and SHALL require the normalized phone number to be **11 digits** (after stripping hyphens and adding the leading `0` if needed). |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Raised against phone-number validation errors during bulk user upload and driver import. |
+
+### Internal feedback observation
+
+Phone number validation fails during Bulk User Upload and driver import when numbers include hyphens or omit the leading zero. The system should normalize before validate: strip hyphens, add leading `0` if missing, then require 11 digits.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-009) |
+|--------|---------|-------------------|
+| Hyphen in phone | Causes validation error / not stripped | **Exclude (strip) hyphen** from data |
+| Missing leading `0` | Validation error | **Add leading `0`** when missing |
+| Length after normalize | Inconsistent / fails | Exactly **11 digits** |
+
+### Closing checklist
+
+- [ ] FB-009-1 — Strip hyphens from phone on bulk user upload & driver import
+- [ ] FB-009-2 — Add leading `0` when missing
+- [ ] FB-009-3 — Normalized phone must be 11 digits
+
+---
+
+## FB-010 — Invitation channel email: single email field on manual add and import
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Manual user/driver add (invitation); bulk import when invitation channel is email |
+| **Closing Sub-tasks** | FB-010-1 — When invitation channel is **email**, email is mandatory and collected **once** on manual add (aligned with backend) · FB-010-2 — Apply the same single-email behaviour on **import** (do not require / present a second email entry) |
+| **AC Amendment** | When **invitation channel** is **email**, **email SHALL be mandatory** and SHALL be entered **once** on manual add, matching backend behaviour. The same **single-email** rule SHALL apply on **import** (email typed once on add must not be duplicated or left unchanged incorrectly during import). |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Backend already treats email as a single field; UI / import path should match. |
+
+### Internal feedback observation
+
+On manual add, when invitation channel is email, email is mandatory and is typed once as the backend expects. That single-email behaviour has not been applied correctly on import — import should also use email once, consistent with the backend.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-010) |
+|--------|---------|-------------------|
+| Manual add (channel = email) | Email mandatory; typed once (backend-aligned) | Unchanged — email once, mandatory |
+| Import (channel = email) | Single-email behaviour not applied | Email **once**, same as backend / manual add |
+
+### Closing checklist
+
+- [ ] FB-010-1 — Manual add: email mandatory once when invitation channel is email (confirm parity with backend)
+- [ ] FB-010-2 — Import: apply same single-email behaviour
+
+---
+
+## FB-011 — Driver invitation bulk import/export: add reference contacts & address
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Driver invitation bulk import / export (template, validate, import, export) |
+| **Closing Sub-tasks** | FB-011-1 — Add **reference contact 1**, **reference contact 2**, and **address** columns to driver invitation bulk import · FB-011-2 — Include the same columns on driver invitation bulk export |
+| **AC Amendment** | Driver invitation **bulk import** and **bulk export** SHALL include columns for **reference contact 1**, **reference contact 2**, and **address**. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Extends driver invitation bulk I/O template / export columns. |
+
+### Internal feedback observation
+
+Driver invitation bulk import/export is missing reference and address fields needed for onboarding. Add columns for reference contact 1, reference contact 2, and address.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-011) |
+|--------|---------|-------------------|
+| Reference contact 1 | Not in bulk I/O | Column on import **and** export |
+| Reference contact 2 | Not in bulk I/O | Column on import **and** export |
+| Address | Not in bulk I/O | Column on import **and** export |
+
+### Closing checklist
+
+- [ ] FB-011-1 — Import template / validate / import include reference contact 1, reference contact 2, address
+- [ ] FB-011-2 — Export includes the same columns
