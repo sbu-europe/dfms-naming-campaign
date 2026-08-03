@@ -378,9 +378,9 @@ Driver invitation bulk import/export is missing reference and address fields nee
 | **Affected Stories** | Driver bulk upload / import / export (template, validate, import, export) |
 | **Closing Sub-tasks** | FB-012-1 — Add optional **accident_history** column to driver bulk upload · FB-012-2 — Add optional **last_training_assessment_info** column to driver bulk upload · FB-012-3 — Include the same optional columns on driver bulk export |
 | **AC Amendment** | Driver **bulk upload** (import) and **export** SHALL include optional columns for **accident_history** and **last_training_assessment_info**. Empty values are allowed. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Extends driver bulk I/O with optional safety / training fields. |
+| **Notes** | Extends driver bulk I/O with optional safety / training fields. Signed off 2026-08-03 via Playwright MCP (FB-012 E2E 6/6 Pass). |
 
 ### Internal feedback observation
 
@@ -390,11 +390,11 @@ Driver bulk upload should also carry **accident_history** and **last_training_as
 
 | Aspect | Current | Expected (FB-012) |
 |--------|---------|-------------------|
-| accident_history | Not in bulk upload | Optional column on import **and** export |
-| last_training_assessment_info | Not in bulk upload | Optional column on import **and** export |
+| accident_history | Optional on import **and** export | Optional column on import **and** export |
+| last_training_assessment_info | Optional on import **and** export | Optional column on import **and** export |
 
 ### Closing checklist
 
-- [ ] FB-012-1 — Import template / validate / import include optional `accident_history`
-- [ ] FB-012-2 — Import template / validate / import include optional `last_training_assessment_info`
-- [ ] FB-012-3 — Export includes the same optional columns
+- [x] FB-012-1 — Import template / validate / import include optional `accident_history`
+- [x] FB-012-2 — Import template / validate / import include optional `last_training_assessment_info`
+- [x] FB-012-3 — Export includes the same optional columns
