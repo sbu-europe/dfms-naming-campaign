@@ -1,10 +1,10 @@
 ---
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
-total_items: 12
-resolved: 12
+total_items: 15
+resolved: 13
 in_progress: 0
-open: 0
+open: 2
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -29,14 +29,17 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-010](#fb-010--invitation-channel-email--single-email-field-on-manual-add-and-import) | Invitation channel email: single email field on manual add and import | Users · Drivers · Invite | Medium | Resolved |
 | [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Resolved |
 | [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Resolved |
+| [FB-013](#fb-013--loadingunloading-bulk-operation-missing) | Loading/Unloading: bulk operation missing for this menu | Master Data / Loading-Unloading · Bulk I/O | Medium | Resolved |
+| [FB-014](#fb-014--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | Master Data / Products · Bulk I/O | Medium | Open |
+| [FB-015](#fb-015--product-sub-category-bulk-operation-missing) | Product Sub-Category: bulk operation missing for this menu | Master Data / Product Sub-Categories · Bulk I/O | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 11 | 11 | 0 |
-| **Total** | **12** | **12** | **0** |
+| Medium | 14 | 12 | 2 |
+| **Total** | **15** | **13** | **2** |
 
 ---
 
@@ -398,3 +401,92 @@ Driver bulk upload should also carry **accident_history** and **last_training_as
 - [x] FB-012-1 — Import template / validate / import include optional `accident_history`
 - [x] FB-012-2 — Import template / validate / import include optional `last_training_assessment_info`
 - [x] FB-012-3 — Export includes the same optional columns
+
+---
+
+## FB-013 — Loading/Unloading: bulk operation missing
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Loading/Unloading master (`/admin` Loading/Unloading); bulk import / export |
+| **Closing Sub-tasks** | FB-013-1 — Enable **bulk import** (template download, validate, import) on Loading/Unloading · FB-013-2 — Enable **bulk export** on Loading/Unloading |
+| **AC Amendment** | Loading/Unloading SHALL offer **bulk import** and **bulk export** consistent with other master-data menus that already support bulk operations. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Implemented: `LoadingUnloadingPointImportConfig` registered as `loadingunloadingpoint`; `LoadingUnloadingPointAdmin` uses `BulkImportExportMixin`. CSV columns: `poi_code`, `short_code`, `name`, `operation_type`, optional `is_active`/`notes`. Upsert on (poi, short_code); `operation_type` immutable after create; `created_by` from import job. |
+
+### Internal feedback observation
+
+Loading/Unloading has no bulk operation. Other master-data menus expose bulk import/export; this menu should too.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-013) |
+|--------|---------|-------------------|
+| Bulk import | Missing | Available (template / validate / import) |
+| Bulk export | Missing | Available |
+
+### Closing checklist
+
+- [x] FB-013-1 — Loading/Unloading bulk import available
+- [x] FB-013-2 — Loading/Unloading bulk export available
+
+---
+
+## FB-014 — Product bulk operation: remove redundant Amount column from template
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Product bulk import (template download) |
+| **Closing Sub-tasks** | FB-014-1 — Remove the **Amount** column from the Product bulk import template · FB-014-2 — Ensure import / validate no longer expect or map an Amount field |
+| **AC Amendment** | The Product **bulk import template** SHALL **not** include an **Amount** column. There is no corresponding Amount field on the Product form; the template SHALL only expose columns that map to form fields. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Redundant Amount column appears in the Product bulk template despite no Amount field on the Product form. |
+
+### Internal feedback observation
+
+Product bulk operation template shows a redundant **Amount** column. There is no such field on the Product form — remove it from the template.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-014) |
+|--------|---------|-------------------|
+| Amount column in Product bulk template | Present | **Removed** (no form field) |
+
+### Closing checklist
+
+- [ ] FB-014-1 — Remove Amount from Product bulk import template
+- [ ] FB-014-2 — Import / validate do not require or map Amount
+
+---
+
+## FB-015 — Product Sub-Category: bulk operation missing
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal feedback — 2026-08-03 |
+| **Affected Stories** | Product Sub-Category master (`/admin` Product Sub-Categories); bulk import / export |
+| **Closing Sub-tasks** | FB-015-1 — Enable **bulk import** (template download, validate, import) on Product Sub-Category · FB-015-2 — Enable **bulk export** on Product Sub-Category |
+| **AC Amendment** | Product Sub-Category SHALL offer **bulk import** and **bulk export** consistent with other master-data menus that already support bulk operations. |
+| **Status** | Open |
+| **Priority** | Medium |
+| **Notes** | Bulk operation is missing for this menu; parity with other master-data bulk I/O expected. |
+
+### Internal feedback observation
+
+Product Sub-Category has no bulk operation. Other master-data menus expose bulk import/export; this menu should too.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-015) |
+|--------|---------|-------------------|
+| Bulk import | Missing | Available (template / validate / import) |
+| Bulk export | Missing | Available |
+
+### Closing checklist
+
+- [ ] FB-015-1 — Product Sub-Category bulk import available
+- [ ] FB-015-2 — Product Sub-Category bulk export available
