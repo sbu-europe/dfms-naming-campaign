@@ -1,14 +1,26 @@
 ---
 section: 09-testing/backend/e2e-scenarios/finished-goods-workflow
 title: Finished Goods Workflow — Playwright MCP Runbook
-version: 1.1
-last_updated: 2026-07-20
+version: 1.2
+last_updated: 2026-07-30
+last_mcp_run: 2026-07-30
+last_mcp_verdict: "Happy path NOT clean — blocked §16 UOM Tons vs Bag; Closed only after DB UOM fix (RUN_ID B9C11F92)"
+artifacts: tests/e2e/playwright-mcp/fg-happy-path-artifacts/
 playwright_mcp: true
 ---
 
 # Finished Goods Workflow — Playwright MCP Runbook
 
 How to execute the FG scenario plans (Sections 1–18) with **Playwright MCP** against Django Admin SSR on the seeded Nourish tenant.
+
+> **2026-07-30 — Happy path regression:** Full chain on `RUN_ID=B9C11F92` reached dest unload, then **failed** with `bag/unit count required for stock conversion` because PR/TR line UOM was **Tons** while product master is **Bag**. After correcting line UOM in DB, §§16–18 completed → TO **Closed**. See [`fg-happy-path-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/fg-happy-path-artifacts/RESULTS.md).
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-07-30 | **Blocked §16** (Closed only with UOM workaround) | Happy path `B9C11F92` / `TO-20260730-0001`. Clean pass: **no**. Artifacts: `tests/e2e/playwright-mcp/fg-happy-path-artifacts/RESULTS.md`. |
+| 2026-07-20 | **18/18** (prior) | Prior full chain `6A8DCB50` → Closed (see suite RESULTS under `01-pr-artifacts` … `13-18-dest-yard-artifacts`). |
 
 This runbook is the operational companion to the [scenario index](./README.md). Generic MCP mechanics live in [`docs/guides/playwright-mcp-admin.md`](../../../../../docs/guides/playwright-mcp-admin.md). Credentials: [`docs/testing/playwright-mcp-credentials.yaml`](../../../../../docs/testing/playwright-mcp-credentials.yaml) (keep in sync with `scripts/seed-data.py`).
 

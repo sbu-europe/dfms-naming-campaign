@@ -55,7 +55,7 @@ suite: master-data-phase1-v2
 ### Admin surface
 
 - URL: `/admin/master_data/loadingunloadingpoint/`
-- No bulk import. short_code/operation_type readonly on change.
+- Bulk import/export via `BulkImportExportMixin` (CSV: `poi_code`, `short_code`, `name`, `operation_type`, optional `is_active`/`notes`). short_code/operation_type readonly on change form.
 
 ### Delete model (cross-cutting — locked)
 
