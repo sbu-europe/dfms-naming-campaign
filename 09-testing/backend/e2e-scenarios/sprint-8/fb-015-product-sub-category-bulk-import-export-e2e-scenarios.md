@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-015 — Product Sub-Category bulk import & export available — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-007 — Product Sub-Category bulk import & export available — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-015
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-007
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (ProductSubCategoryImportConfig)
   - ../../../../../apps/master_data/admin.py (ProductSubCategoryBulkAdmin, BulkImportExportMixin)
@@ -20,14 +20,14 @@ artifacts: tests/e2e/playwright-mcp/fb-015-product-sub-category-bulk-import-expo
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-015 — Product Sub-Category: bulk import & export — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-007 — Product Sub-Category: bulk import & export — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-04 — All 11 test cases passed** (TC01–TC11). Suite signed off via Playwright MCP against Nourish admin.
 
 **Last MCP run:** 2026-08-04 · **11/11 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-015-product-sub-category-bulk-import-export-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **Depot Officer:** `depot.officer1.nourish@yopmail.com` · **RUN_ID:** `5374558B` · **SEED_CAT:** `CAT-001` / `CAT-01`
 
-**Feedback:** [FB-015](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-015--product-sub-category-bulk-operation-missing)
+**Feedback:** [FB-007](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-007--product-sub-category-bulk-operation-missing)
 
 **AC (assert after fix):**
 
@@ -109,7 +109,7 @@ Minimal valid create row:
 ### Scope guardrails
 
 - In scope: Product Sub-Category changelist **Import** / **Export** SSR (`BulkImportExportMixin`); template headers; create + upsert import; **1:N** same-`category_code` multi-row import; `category_code` FK resolution; export columns for **active** rows.
-- Out of scope: REST `/bulk-imports/`; single-row Add/Edit/Delete/RBAC covered by [`product-subcategories-e2e-scenarios.md`](../02-master-data/product-subcategories-e2e-scenarios.md); Product bulk import `sub_category_code` column (FB-014 / Product I/O); Category bulk I/O.
+- Out of scope: REST `/bulk-imports/`; single-row Add/Edit/Delete/RBAC covered by [`product-subcategories-e2e-scenarios.md`](../02-master-data/product-subcategories-e2e-scenarios.md); Product bulk import `sub_category_code` column (FB-006 / Product I/O); Category bulk I/O.
 
 ### Role & environment fixtures
 
@@ -146,7 +146,7 @@ Minimal valid create row:
 - Model uniqueness is **global** per tenant (`sub_category_code` unique=True) — not “unique within category” (see MD_PSUB suite drift note).
 - Permissions reuse `MasterData.ProductCategory.Read` / `.Write` (same as current `ProductSubCategoryAdmin`).
 - TC11: Depot Officer receives **403** on `/admin/master_data/productsubcategory/` (no Read), which satisfies “cannot use bulk I/O”.
-- Manual CRUD scenarios remain in [`product-subcategories-e2e-scenarios.md`](../02-master-data/product-subcategories-e2e-scenarios.md); this plan is **FB-015-only**.
+- Manual CRUD scenarios remain in [`product-subcategories-e2e-scenarios.md`](../02-master-data/product-subcategories-e2e-scenarios.md); this plan is **FB-007-only**.
 
 ### Suggested artifacts
 

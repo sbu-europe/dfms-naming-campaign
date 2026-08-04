@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-011 — Driver invitation bulk import/export include reference contacts & address — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-003 — Driver invitation bulk import/export include reference contacts & address — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-011
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-003
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/users/import_configs.py (DriverImportConfig)
   - ../../../../../apps/users/admin.py (DriverAdmin, BulkImportExportMixin)
@@ -20,14 +20,14 @@ artifacts: tests/e2e/playwright-mcp/fb-011-driver-invitation-bulk-import-export-
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-011 — Driver invitation bulk import/export: reference contacts & address — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-003 — Driver invitation bulk import/export: reference contacts & address — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-03 — All 6 test cases passed** (TC01–TC06). Suite signed off via Playwright MCP against Nourish admin.
 
 **Last MCP run:** 2026-08-03 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-011-driver-invitation-bulk-import-export-reference-address-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `C22D0304`
 
-**Feedback:** [FB-011](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address)
+**Feedback:** [FB-003](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-003--driver-invitation-bulk-importexport--add-reference-contacts--address)
 
 **AC (assert after fix):**
 
@@ -52,7 +52,7 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | License expiry | Future ISO date `YYYY-MM-DD` |
 | Driver type | Enum value from Field Rules (e.g. `own`) |
 
-Minimal required CSV columns for a valid create row (plus the three FB-011 fields under test):
+Minimal required CSV columns for a valid create row (plus the three FB-003 fields under test):
 
 `invite_channel` (optional; default `email`), `user_email`, `first_name`, `last_name`, `contact_number`, `driver_type`, `driving_license_number`, `license_type`, `license_expiry_date`
 
@@ -91,7 +91,7 @@ Minimal required CSV columns for a valid create row (plus the three FB-011 field
 ### Scope guardrails
 
 - In scope: Driver changelist **Import** / **Export** SSR (`BulkImportExportMixin` on `DriverAdmin`); template headers; optional-column listing; persist reference contacts + address on create import; export columns.
-- Out of scope: REST `/bulk-imports/` / `/bulk-exports/`; Helper bulk I/O (already has these columns); single-driver Add form (covered by `drivers-e2e-scenarios.md` MD_DRV_018/019); invitation email/SMS delivery; FB-009 phone normalization; FB-010 single email field; RBAC negatives unless extended later.
+- Out of scope: REST `/bulk-imports/` / `/bulk-exports/`; Helper bulk I/O (already has these columns); single-driver Add form (covered by `drivers-e2e-scenarios.md` MD_DRV_018/019); invitation email/SMS delivery; FB-001 phone normalization; FB-002 single email field; RBAC negatives unless extended later.
 
 ### Role & environment fixtures
 
@@ -123,7 +123,7 @@ Minimal required CSV columns for a valid create row (plus the three FB-011 field
 
 - `DriverImportConfig` optional `reference_contact_1` / `reference_contact_2` / `address`; `perform_batch_import` assigns them; export headers include them via `get_csv_headers()`.
 - Admin SSR exposes the three fields on the driver change form under **References & notes**.
-- Broad driver coverage remains in [`drivers-e2e-scenarios.md`](../02-master-data/drivers-e2e-scenarios.md) (MD_DRV_025–028); this plan is **FB-011-only**.
+- Broad driver coverage remains in [`drivers-e2e-scenarios.md`](../02-master-data/drivers-e2e-scenarios.md) (MD_DRV_025–028); this plan is **FB-003-only**.
 
 ### Suggested artifacts
 

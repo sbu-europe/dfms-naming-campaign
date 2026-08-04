@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-009 — Phone number normalization on bulk user upload & driver import — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-001 — Phone number normalization on bulk user upload & driver import — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-009
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-001
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/core/phone.py (normalize_bd_mobile, coerce_bd_mobile, validate_bd_mobile_import)
   - ../../../../../apps/users/import_configs.py (UserImportConfig.phone_number, DriverImportConfig.contact_number)
@@ -19,14 +19,14 @@ artifacts: tests/e2e/playwright-mcp/fb-009-phone-normalization-bulk-user-driver-
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-009 — Phone normalization on bulk user upload & driver import — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-001 — Phone normalization on bulk user upload & driver import — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-03 — All 8 test cases passed** (TC01–TC08). Suite signed off via Playwright MCP against Nourish admin.
 
 **Last MCP run:** 2026-08-03 · **8/8 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-009-phone-normalization-bulk-user-driver-import-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `EE845722`
 
-**Feedback:** [FB-009](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-009--phone-number-normalization-on-bulk-user-upload--driver-import)
+**Feedback:** [FB-001](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-001--phone-number-normalization-on-bulk-user-upload--driver-import)
 
 **AC (assert after fix / against `normalize_bd_mobile`):**
 
@@ -56,9 +56,9 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | Unique keys | One `RUN_ID` (8 hex) per session; unique emails, `employee_id`, `driving_license_number`, and **phone subscribers** per TC |
 | Phone uniqueness | Each TC uses a distinct BD national `1[3-9]\d{8}` never present on seed users/drivers. Build trailing digits from a numeric `PHONE_SEQ` (do not reuse across TCs in the same run) |
 | User role | Non–POI-scoped `transport_planner` (avoids `poi_code`) unless a TC states otherwise |
-| Driver row | Minimal valid create columns + unique `contact_number` under test (see FB-011/FB-012 plans) |
+| Driver row | Minimal valid create columns + unique `contact_number` under test (see FB-003/FB-004 plans) |
 
-### Phone input shapes (FB-009)
+### Phone input shapes (FB-001)
 
 Let `<N8>` = 8 unique digits so `17<N8>` is a valid BD national (`1[3-9]` + 8 digits).
 
@@ -96,7 +96,7 @@ Let `<N8>` = 8 unique digits so `17<N8>` is a valid BD national (`1[3-9]` + 8 di
 ### Scope guardrails
 
 - In scope: Users **Import** (`UserImportConfig.phone_number`) and Drivers **Import** (`DriverImportConfig.contact_number`) SSR validate → preview → execute; hyphen strip; missing leading `0`; length/validity after normalize; persisted E.164 on change forms.
-- Out of scope: Helper bulk import; single-user / single-driver Add forms; REST `/bulk-imports/`; invitation SMS/email delivery; export CSV phone formatting; RBAC negatives (covered in `users/user-bulk-import-e2e-scenarios.md`); FB-011/FB-012 optional driver columns.
+- Out of scope: Helper bulk import; single-user / single-driver Add forms; REST `/bulk-imports/`; invitation SMS/email delivery; export CSV phone formatting; RBAC negatives (covered in `users/user-bulk-import-e2e-scenarios.md`); FB-003/FB-004 optional driver columns.
 
 ### Role & environment fixtures
 
@@ -144,7 +144,7 @@ email,mcp.fb009.dh.<RUN_ID>@example.com,MCP,FB009H<RUN_ID>,017-1xxx-xxxx,own,MCP
 - Shared coerce/validate: `apps.core.phone.normalize_bd_mobile` via `coerce_bd_mobile` / `validate_bd_mobile_import` on both import configs.
 - Separators stripped include spaces, hyphens, and parentheses (`_SEPARATORS_RE`).
 - Missing leading `0`: 10-digit national `1[3-9]XXXXXXXX` is accepted and stored as `+880…` (equivalent to “add leading 0 then take national”).
-- **Story vs code:** FB-009 AC text emphasises an intermediate **11-digit** local form; runtime persistence is **E.164** `+8801XXXXXXXXX`. E2E asserts the persisted E.164 value and that hyphen / missing-`0` inputs validate; do not assert the CSV cell is rewritten to 11 local digits on disk.
+- **Story vs code:** FB-001 AC text emphasises an intermediate **11-digit** local form; runtime persistence is **E.164** `+8801XXXXXXXXX`. E2E asserts the persisted E.164 value and that hyphen / missing-`0` inputs validate; do not assert the CSV cell is rewritten to 11 local digits on disk.
 - Unit coverage already exists in `tests/unit/test_core/test_phone.py`; this plan covers admin SSR import surfaces only.
 
 ### Suggested artifacts

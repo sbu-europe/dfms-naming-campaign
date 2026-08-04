@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-014 — Product bulk operation: remove redundant Amount column from template — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-006 — Product bulk operation: remove redundant Amount column from template — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-014
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-006
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (ProductImportConfig)
   - ../../../../../apps/master_data/admin.py (ProductAdminForm exclude amount, ProductBulkAdmin)
@@ -20,14 +20,14 @@ artifacts: tests/e2e/playwright-mcp/fb-014-product-bulk-remove-amount-column-art
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-014 — Product bulk: remove Amount column — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-006 — Product bulk: remove Amount column — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-04 — All 6 test cases passed** (TC01–TC06). Suite signed off via Playwright MCP against Nourish admin.
 
 **Last MCP run:** 2026-08-04 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-014-product-bulk-remove-amount-column-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `3CA1A949` · **SEED_CAT:** `CAT-001`
 
-**Feedback:** [FB-014](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-014--product-bulk-operation--remove-redundant-amount-column-from-template)
+**Feedback:** [FB-006](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template)
 
 **AC (assert after fix):**
 
@@ -105,7 +105,7 @@ Minimal valid create row (no `amount`):
 ### Scope guardrails
 
 - In scope: Product changelist **Import** / **Export** SSR (`BulkImportExportMixin` on `ProductBulkAdmin`); template / column lists; import without `amount`; export headers without `amount`; optional legacy-column ignore.
-- Out of scope: REST Product serializers still exposing `amount`; dropping the DB column / migration; Product Sub-Category bulk (FB-015); RBAC negatives; sample-template content beyond header presence.
+- Out of scope: REST Product serializers still exposing `amount`; dropping the DB column / migration; Product Sub-Category bulk (FB-007); RBAC negatives; sample-template content beyond header presence.
 
 ### Role & environment fixtures
 
@@ -136,9 +136,9 @@ Minimal valid create row (no `amount`):
 
 ### Known implementation alignment
 
-- **Fixed (FB-014):** `ProductImportConfig` no longer defines `amount`. Template, optional-column list, validate, and export headers omit `amount`. `ProductAdminForm` already `exclude = ("amount",)`.
+- **Fixed (FB-006):** `ProductImportConfig` no longer defines `amount`. Template, optional-column list, validate, and export headers omit `amount`. `ProductAdminForm` already `exclude = ("amount",)`.
 - Extra `amount` cells in legacy CSVs are ignored (`BaseImportConfig.validate_row` only reads configured fields).
-- DB column `Product.amount` retained; REST serializers may still expose `amount` (out of scope for FB-014).
+- DB column `Product.amount` retained; REST serializers may still expose `amount` (out of scope for FB-006).
 
 ### Suggested artifacts
 

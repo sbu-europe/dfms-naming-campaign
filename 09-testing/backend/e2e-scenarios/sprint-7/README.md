@@ -9,6 +9,8 @@ last_updated: 2026-08-04
 
 Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/sprint-7/feedback.md`) and new-scope stories.
 
+FB-009–FB-015 plans moved to [`../sprint-8/`](../sprint-8/README.md) with the Sprint 8 feedback tracker.
+
 ### Feedback
 
 | Feedback | Plan | Status |
@@ -19,12 +21,6 @@ Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/s
 | FB-005 — PR status filter hides Draft for Distribution Officer | [fb-005-product-requisition-status-filter-e2e-scenarios.md](./fb-005-product-requisition-status-filter-e2e-scenarios.md) | **3/3 Pass** (2026-07-30) |
 | FB-006 — POI bulk I/O: storage capacity & opening stock | [fb-006-poi-bulk-import-export-capacity-opening-stock-e2e-scenarios.md](./fb-006-poi-bulk-import-export-capacity-opening-stock-e2e-scenarios.md) | **7/7 Pass** (2026-07-30) |
 | FB-007 — Helpers delete matches other master data | [fb-007-helpers-delete-match-master-data-e2e-scenarios.md](./fb-007-helpers-delete-match-master-data-e2e-scenarios.md) | **6/6 Pass** (2026-07-30) |
-| FB-009 — Phone normalization on bulk user & driver import | [fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md](./fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md) | **8/8 Pass** (2026-08-03) |
-| FB-011 — Driver invitation bulk I/O: reference contacts & address | [fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md](./fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md) | **6/6 Pass** (2026-08-03) |
-| FB-012 — Driver bulk I/O: accident history & last training assessment | [fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md](./fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md) | **6/6 Pass** (2026-08-03) |
-| FB-013 — Loading/Unloading bulk import & export | [fb-013-loading-unloading-bulk-import-export-e2e-scenarios.md](./fb-013-loading-unloading-bulk-import-export-e2e-scenarios.md) | **11/11 Pass** (2026-08-04) |
-| FB-014 — Product bulk: remove Amount column from template | [fb-014-product-bulk-remove-amount-column-e2e-scenarios.md](./fb-014-product-bulk-remove-amount-column-e2e-scenarios.md) | **6/6 Pass** (2026-08-04) |
-| FB-015 — Product Sub-Category bulk import & export | [fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md](./fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md) | **11/11 Pass** (2026-08-04) |
 
 ### Stories
 

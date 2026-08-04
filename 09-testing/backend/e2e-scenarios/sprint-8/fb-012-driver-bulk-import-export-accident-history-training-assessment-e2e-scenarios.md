@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-012 — Driver bulk upload optional accident history & last training assessment info — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-004 — Driver bulk upload optional accident history & last training assessment info — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-012
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-004
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/users/import_configs.py (DriverImportConfig)
   - ../../../../../apps/users/admin.py (DriverAdmin, BulkImportExportMixin)
@@ -20,11 +20,11 @@ artifacts: tests/e2e/playwright-mcp/fb-012-driver-bulk-import-export-accident-hi
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-012 — Driver bulk upload: optional accident history & last training assessment info — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-004 — Driver bulk upload: optional accident history & last training assessment info — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-03 — All 6 test cases passed** (TC01–TC06). Suite signed off via Playwright MCP against Nourish admin (`admin.nourish@yopmail.com`, RUN_ID `A7F3E201`). Artifacts: [`RESULTS.md`](../../../../../tests/e2e/playwright-mcp/fb-012-driver-bulk-import-export-accident-history-training-assessment-artifacts/RESULTS.md).
 
-**Feedback:** [FB-012](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-012--driver-bulk-upload-optional-accident-history--last-training-assessment-info)
+**Feedback:** [FB-004](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-004--driver-bulk-upload-optional-accident-history--last-training-assessment-info)
 
 **AC (assert after fix):**
 
@@ -49,7 +49,7 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | License expiry | Future ISO date `YYYY-MM-DD` |
 | Driver type | Enum value from Field Rules (e.g. `own`) |
 
-Minimal required CSV columns for a valid create row (plus the two FB-012 fields under test):
+Minimal required CSV columns for a valid create row (plus the two FB-004 fields under test):
 
 `invite_channel` (optional; default `email`), `user_email`, `first_name`, `last_name`, `contact_number`, `driver_type`, `driving_license_number`, `license_type`, `license_expiry_date`
 
@@ -88,7 +88,7 @@ Minimal required CSV columns for a valid create row (plus the two FB-012 fields 
 ### Scope guardrails
 
 - In scope: Driver changelist **Import** / **Export** SSR (`BulkImportExportMixin` on `DriverAdmin`); template headers; optional-column listing; persist `accident_history` + `last_training_assessment_info` on create import; export columns.
-- Out of scope: REST `/bulk-imports/` / `/bulk-exports/`; Helper bulk I/O; single-driver Add form (fields already on change form under **References & notes**); invitation email/SMS delivery; FB-011 reference/address columns (covered separately); RBAC negatives unless extended later.
+- Out of scope: REST `/bulk-imports/` / `/bulk-exports/`; Helper bulk I/O; single-driver Add form (fields already on change form under **References & notes**); invitation email/SMS delivery; FB-003 reference/address columns (covered separately); RBAC negatives unless extended later.
 
 ### Role & environment fixtures
 
@@ -120,7 +120,7 @@ Minimal required CSV columns for a valid create row (plus the two FB-012 fields 
 
 - Model + admin change form expose `accident_history` and `last_training_assessment_info` under **References & notes** (`DriverAdmin` fieldsets).
 - `DriverImportConfig` declares both as optional `FieldConfig`s and assigns them in `perform_batch_import`; export headers come from `get_csv_headers()`.
-- Broad driver coverage remains in [`drivers-e2e-scenarios.md`](../02-master-data/drivers-e2e-scenarios.md); this plan is **FB-012-only**. Sibling: [`fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md`](./fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md).
+- Broad driver coverage remains in [`drivers-e2e-scenarios.md`](../02-master-data/drivers-e2e-scenarios.md); this plan is **FB-004-only**. Sibling: [`fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md`](./fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md).
 
 ### Suggested artifacts
 

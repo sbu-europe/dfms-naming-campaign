@@ -1,10 +1,10 @@
 ---
-module: sprint-7
-specification: FB-013 — Loading/Unloading bulk import & export available — Playwright E2E Scenario Plan
+module: sprint-8
+specification: FB-005 — Loading/Unloading bulk import & export available — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
-related_stories: FB-013
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+related_stories: FB-005
+source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (LoadingUnloadingPointImportConfig)
   - ../../../../../apps/master_data/admin.py (LoadingUnloadingPointAdmin, BulkImportExportMixin)
@@ -20,14 +20,14 @@ artifacts: tests/e2e/playwright-mcp/fb-013-loading-unloading-bulk-import-export-
 playwright_mcp: true
 ---
 
-# Sprint 7 — FB-013 — Loading/Unloading: bulk import & export — E2E Scenario Plan (Django Admin SSR)
+# Sprint 8 — FB-005 — Loading/Unloading: bulk import & export — E2E Scenario Plan (Django Admin SSR)
 
 > **2026-08-04 — All 11 test cases passed** (TC01–TC11). Suite signed off via Playwright MCP against Nourish admin.
 
 **Last MCP run:** 2026-08-04 · **11/11 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-013-loading-unloading-bulk-import-export-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `A4F01304` · **SEED_POI:** `CTG-001`
 
-**Feedback:** [FB-013](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-013--loadingunloading-bulk-operation-missing)
+**Feedback:** [FB-005](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-005--loadingunloading-bulk-operation-missing)
 
 **AC (assert after fix):**
 
@@ -139,7 +139,7 @@ Minimal valid create row:
 - Upsert on `(poi, short_code)`; create sets `created_by` from import job actor; update only `name`, `is_active`, `notes`.
 - `operation_type` change on existing row fails at validate_row (not silent overwrite).
 - Active LUP under inactive POI blocked (parity with `LoadingUnloadingPointAdminForm`).
-- Manual CRUD scenarios remain in [`loading-unloading-points-e2e-scenarios.md`](../02-master-data/loading-unloading-points-e2e-scenarios.md); this plan is **FB-013-only**.
+- Manual CRUD scenarios remain in [`loading-unloading-points-e2e-scenarios.md`](../02-master-data/loading-unloading-points-e2e-scenarios.md); this plan is **FB-005-only**.
 
 ### Suggested artifacts
 
