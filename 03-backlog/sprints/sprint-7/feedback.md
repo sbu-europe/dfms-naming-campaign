@@ -2,9 +2,9 @@
 title: Sprint 7 — Feedback Tracker
 source_sprint: Sprint 7
 total_items: 15
-resolved: 13
+resolved: 14
 in_progress: 0
-open: 2
+open: 1
 ---
 
 # Sprint 7 — Feedback Tracker
@@ -30,7 +30,7 @@ Client / ops / internal feedback captured during Sprint 7.
 | [FB-011](#fb-011--driver-invitation-bulk-importexport--add-reference-contacts--address) | Driver invitation bulk import/export: add reference contacts & address | Users / Drivers · Bulk I/O | Medium | Resolved |
 | [FB-012](#fb-012--driver-bulk-upload--optional-accident-history--last-training-assessment-info) | Driver bulk upload: optional accident history & last training assessment info | Users / Drivers · Bulk I/O | Medium | Resolved |
 | [FB-013](#fb-013--loadingunloading-bulk-operation-missing) | Loading/Unloading: bulk operation missing for this menu | Master Data / Loading-Unloading · Bulk I/O | Medium | Resolved |
-| [FB-014](#fb-014--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | Master Data / Products · Bulk I/O | Medium | Open |
+| [FB-014](#fb-014--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | Master Data / Products · Bulk I/O | Medium | Resolved |
 | [FB-015](#fb-015--product-sub-category-bulk-operation-missing) | Product Sub-Category: bulk operation missing for this menu | Master Data / Product Sub-Categories · Bulk I/O | Medium | Open |
 
 ## Resolution Summary
@@ -38,8 +38,8 @@ Client / ops / internal feedback captured during Sprint 7.
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 1 | 1 | 0 |
-| Medium | 14 | 12 | 2 |
-| **Total** | **15** | **13** | **2** |
+| Medium | 14 | 13 | 1 |
+| **Total** | **15** | **14** | **1** |
 
 ---
 
@@ -442,9 +442,9 @@ Loading/Unloading has no bulk operation. Other master-data menus expose bulk imp
 | **Affected Stories** | Product bulk import (template download) |
 | **Closing Sub-tasks** | FB-014-1 — Remove the **Amount** column from the Product bulk import template · FB-014-2 — Ensure import / validate no longer expect or map an Amount field |
 | **AC Amendment** | The Product **bulk import template** SHALL **not** include an **Amount** column. There is no corresponding Amount field on the Product form; the template SHALL only expose columns that map to form fields. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Redundant Amount column appears in the Product bulk template despite no Amount field on the Product form. |
+| **Notes** | Removed `amount` from `ProductImportConfig` so template / validate / export no longer expose or map Amount. Admin form already excluded the field; DB column retained. |
 
 ### Internal feedback observation
 
@@ -458,8 +458,8 @@ Product bulk operation template shows a redundant **Amount** column. There is no
 
 ### Closing checklist
 
-- [ ] FB-014-1 — Remove Amount from Product bulk import template
-- [ ] FB-014-2 — Import / validate do not require or map Amount
+- [x] FB-014-1 — Remove Amount from Product bulk import template
+- [x] FB-014-2 — Import / validate do not require or map Amount
 
 ---
 
