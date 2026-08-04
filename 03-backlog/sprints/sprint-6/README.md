@@ -14,7 +14,7 @@ total_story_points_estimated: "~67 SP (23 E2E carry-over sub-tasks + GPS Phase 1
 |---|---|
 | **Sprint Dates** | 2026-06-17 → 2026-07-01 |
 | **Carry-over from Sprint 5** | 23 E2E sub-tasks (all stories) + GPS Phase 1 production scope (~13 SP) |
-| **Feedback Items** | 1 open (FB-001) — see [`feedback-resolution.md`](feedback-resolution.md) |
+| **Feedback Items** | 31 resolved (FB-001–FB-031) — see [`feedback-resolution/`](feedback-resolution/README.md) (by menu/module) |
 | **New Scope** | Vendor app release readiness (live API), vendor app design improvements, Phase 1 User Manual, Phase 1 UAT documentation |
 | **Sprint 5 Exit** | ~108/~125 SP delivered; all 19 feedback items closed; functional scope complete |
 
@@ -171,7 +171,7 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 | CC-02-4 | CC-02 | Gate / scale / closure guards for multi-point completion | High |
 | CC-02-5 | CC-02 | E2E — two loading points → single `loading_completed` | Medium |
 
-> Full story: [`07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md`](07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md) | Tracker: [`feedback-resolution.md`](feedback-resolution.md)
+> Full story: [`07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md`](07-command-center-feedback/CC-02-multiple-lu-assignments-per-visit.md) | Tracker: [`feedback-resolution/04-yard-and-stock.md`](feedback-resolution/04-yard-and-stock.md) (FB-001)
 
 ### Epic 05: Audit & Compliance (AUD-01)
 

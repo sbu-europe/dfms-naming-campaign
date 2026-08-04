@@ -4,7 +4,7 @@
 
 **Purpose**: Track, review, and manage changes to the product context repository.
 
-**Quick links**: [**CR Index**](./CR-INDEX.md) (all CRs) · [**Template**](./CR-TEMPLATE.md) (new CR) · **Next number**: [CR-INDEX.md](./CR-INDEX.md#-summary-statistics) → use next sequential (e.g. CR-002)
+**Quick links**: [**CR Index**](./CR-INDEX.md) (all CRs) · [**Template**](./CR-TEMPLATE.md) (new CR) · **Next number**: [CR-INDEX.md](./CR-INDEX.md#-summary-statistics) → use next sequential (e.g. CR-003)
 
 ---
 

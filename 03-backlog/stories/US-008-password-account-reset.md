@@ -11,7 +11,7 @@ epic_name: User & Tenant Foundation
 sprint: Sprint 3
 story_points: 5
 created: 2026-02-13
-updated: 2026-04-07
+updated: 2026-07-28
 source_documents:
   - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
   - ../../../source-documents/04-wbs/stories-table.md
@@ -21,8 +21,8 @@ related_stories:
   - US-006-otp-verification.md
   - US-007-account-deactivation.md
 dependencies: []
-tags: [security, password, reset, admin-assisted, self-service, otp, audit, authentication, critical]
-scope_note: Password reset functionality is also consolidated into US-005. This story provides the dedicated specification for password reset flows.
+tags: [security, password, reset, admin-assisted, self-service, otp, audit, authentication, critical, phone]
+scope_note: Password reset functionality is also consolidated into US-005. This story provides the dedicated specification for password reset flows. CR-002 — single identifier field (email or phone); SMS delivery for phone identifiers.
 ---
 
 # US-008: Password & Account Reset
@@ -30,7 +30,7 @@ scope_note: Password reset functionality is also consolidated into US-005. This 
 ## User Story
 
 **As an** Admin User  
-**I want to** reset my password securely  
+**I want to** reset my password securely using my email or phone  
 **So that** I can regain access to my account
 
 ## Business Context
@@ -40,8 +40,11 @@ Password reset functionality is essential for:
 - Security incidents requiring password changes
 - Account recovery
 - Supporting users with low digital literacy through admin-assisted reset
+- **Phone-invited / phone-only users** who have no email
 
 The system must support both self-service and admin-assisted reset to accommodate all user types.
+
+> **UI (CR-002)**: Forgot-password uses **one field** (“Email or phone”). Validation follows input shape (`@` → email; otherwise BD mobile). Delivery is email or SMS accordingly. Overview: [`staff-invite-login-password-channels.md`](../../05-modules/03-users/staff-invite-login-password-channels.md).
 
 ## Acceptance Criteria
 
@@ -53,20 +56,31 @@ when either **Forgot Password** (unauthenticated) or **Change Password** (authen
 
 then the system shall:
 
-- [ ] Send a 6-digit OTP (valid 10 minutes) to the user’s registered **mobile number or email address** (based on chosen identifier / security policy)
+- [ ] Accept a single **identifier** that is either a registered email or BD phone number (no separate Email/Phone tabs on forgot-password)
+- [ ] Validate identifier format client- and server-side; reject malformed values without enumerating accounts
+- [ ] Send a reset link (15 min) + 6-digit OTP (valid 10 minutes) to the matching channel (**email** or **SMS**)
 - [ ] Require the user to enter the OTP for verification (where applicable)
 - [ ] On successful verification, prompt the user to enter New Password and Confirm Password
 - [ ] Validate password match + password policy compliance (complexity + last 3 password history)
 - [ ] Update the user’s password and invalidate all active sessions
 - [ ] Log the event with user ID, timestamp, IP address, device ID, method, and status
+- [ ] For authenticated **Change Password**, do not require email/phone identifier (session-based)
 
 **Test Scenarios (AC-0):**
 
 ```gherkin
-Scenario: AC-0.1 - Forgot password requires OTP then sets new password
+Scenario: AC-0.1 - Forgot password via email requires OTP then sets new password
   Given a registered user on the login page
   When the user initiates "Forgot Password" using their email
-  Then the system sends a reset link (15 minutes) and an OTP (10 minutes) to the appropriate channels
+  Then the system sends a reset link (15 minutes) and an OTP (10 minutes) by email
+  When the user enters the received OTP successfully
+  Then the system prompts for New Password and Confirm Password
+  And updates the password on successful submission
+
+Scenario: AC-0.1b - Forgot password via phone requires OTP then sets new password
+  Given a phone-only registered user on the login page
+  When the user initiates "Forgot Password" using their BD mobile
+  Then the system sends a reset link and OTP by SMS (or logs SMS when disabled)
   When the user enters the received OTP successfully
   Then the system prompts for New Password and Confirm Password
   And updates the password on successful submission
