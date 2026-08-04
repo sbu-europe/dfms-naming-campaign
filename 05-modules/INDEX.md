@@ -2,7 +2,7 @@
 
 This index provides a comprehensive mapping of all module specifications, cross-references, dependencies, and user story mappings.
 
-**Last Updated**: 2026-04-09
+**Last Updated**: 2026-07-24 (added Module 09 — GPS Tracking SSOT)
 
 ---
 
@@ -228,6 +228,33 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - **Depends on**: `02-master-data/` (Vehicle, Helper masters), `01-foundation/`, `03-users/` (Driver + Helper profiles)
 - **Referenced by**: `05-transport/` (TO/Trip assignment)
 - **Provides**: Fleet availability, vehicle/driver assignment, fuel tracking
+
+---
+
+### [09-tracking/](09-tracking/README.md) - GPS Tracking (SSOT)
+**Purpose**: Live GPS, GT06 ingest, geofencing, dwell, vehicle history  
+**PRD Sections**: 6.5.4–6.5.10  
+**Phase**: Phase 1 (Critical/High); §6.5.10 Phase 2  
+**Sprint Coverage**: Sprint 5–6  
+**Dependencies**: `01-foundation/`, `02-master-data/` (POI, Vehicle), `05-transport/` (TO, Trip)  
+**Django App**: `apps/tracking` · Ingest: `services/gt06-ingest`
+
+#### Specifications
+- [README.md](09-tracking/README.md) — Module SSOT hub
+- [prd-as-built.md](09-tracking/prd-as-built.md) — PRD ↔ implementation matrix
+- [gt06-server.md](09-tracking/gt06-server.md) — Backend architecture pipeline
+- [geofence-and-dwell.md](09-tracking/geofence-and-dwell.md) — Geofence rules + dwell glossary
+- [maps-surfaces.md](09-tracking/maps-surfaces.md) — Live GPS vs Maps Dashboard taxonomy
+- [gps-maintenance-phase2.md](09-tracking/gps-maintenance-phase2.md) — §6.5.10 Phase 2 stub
+
+#### Related Stories
+- Sprint 6 GPS-01…GPS-05; Sprint 5 DFS-070 (demo MVP)
+- US-026 (Command Center map — separate surface); US-097 (POI geofencing)
+
+#### Cross-References
+- **Depends on**: `02-master-data/` (POI radius, `gps_tracker_id`), `05-transport/` (TO origin/destination, Trip)
+- **Related ops dwell**: `06-poi-operations/gate-management.md` (gate dwell ≠ geofence dwell)
+- **Provides**: Live GPS map, geofence events, dwell timeline, GPS trail/history APIs
 
 ---
 

@@ -2,9 +2,9 @@
 source_document: PRD_DFMS_v1.0.md
 source_sections: Integration Requirements
 extracted_date: 2026-02-13
-last_updated: 2026-02-26
+last_updated: 2026-07-24
 document_type: domain_specification
-related_modules: [trip-management, gate-management, vendor-portal]
+related_modules: [trip-management, gate-management, vendor-portal, 09-tracking]
 ---
 
 # Integration Requirements
@@ -25,21 +25,41 @@ Integration Requirements define the **external system integrations** that enable
 
 ## GPS/VTS Integration
 
+> **As-built SSOT:** [`../09-tracking/README.md`](../09-tracking/README.md) · [`../09-tracking/gt06-server.md`](../09-tracking/gt06-server.md)  
+> Phase 1 runtime = **GT06 TCP ingest** → Redis → Django. GPSWOX REST poller remains deferred (contract: `gps-vts-integration.yaml`).
+
 ### Purpose
 Enable real-time vehicle tracking, geofencing, and historical route playback for trip monitoring.
 
 ### Integration Requirements
 
-**Data Pull Frequency:**
-- **Real-time:** Location updates every 30 seconds
-- **Historical:** Track data retrieval for playback (last 7 days)
+**Data Pull Frequency (product intent vs as-built):**
+- **Product / PRD:** Location updates every ~30 seconds (configurable 30/60/120 TBD for UI refresh)
+- **As-built:** Device packets ~10s into Redis; Live GPS UI poll **10s**; Celery sync check **30s**; Postgres trail gated (default 300s)
 
-**Supported GPS Providers (Bangladesh Market):**
-- Track & Trace BD
-- Fleet Management BD
-- GPS BD
+**Supported GPS Providers:**
 
-**Integration Method:**
+| Provider | Status |
+|----------|--------|
+| **GT06 / Concox (direct TCP ingest)** | **Implemented** — `services/gt06-ingest/` |
+| GPSWOX REST | Contracted / deferred adapter |
+| Legacy Bangladesh market list (Track & Trace BD, etc.) | **Historical** — superseded by GT06 / GPSWOX decision path |
+
+**Integration Method (as-built GT06):**
+
+```text
+GT06 device ──TCP :5023──► gt06-ingest ──► Redis (latest + history)
+                                              │
+                         Celery sync (30s) ───┴──► Postgres gps_tracking
+                                              │
+                         GET /api/v1/tracking/live-map/ ──► Live GPS UI
+```
+
+**Identity:** `Vehicle.gps_tracker_id` = device IMEI.
+
+**Geofencing:** Evaluated in Django (`GeofenceService`) against TO origin/destination POIs — see [`../09-tracking/geofence-and-dwell.md`](../09-tracking/geofence-and-dwell.md).
+
+**Historical GPSWOX-oriented sketch (deferred):**
 ```typescript
 interface GPSIntegration {
   // REST API pull
@@ -58,7 +78,7 @@ interface GPSIntegration {
     speed: string;
     timestamp: string;
   };
-}
+}}
 ```
 
 **Geofence Sync:**

@@ -205,17 +205,19 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 
 ## Reference Documents
 
+- **[Module 09 — GPS Tracking SSOT](../../05-modules/09-tracking/README.md)** — as-built hub, PRD matrix, geofence/dwell rules, map surfaces
+- [prd-as-built.md](../../05-modules/09-tracking/prd-as-built.md) — PRD §6.5.4–6.5.10 ↔ code status
+- [gt06-server.md](../../05-modules/09-tracking/gt06-server.md) — backend architecture pipeline
 - [Sprint 5 README](../sprint-5/README.md) — full carry-over context and Sprint 5 goals
 - [Sprint 5 Completion Report](../sprint-5/completion-report.md) — delivered scope, carry-forward list (23 E2E sub-tasks, GPS-01 Phase 1)
-- [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — as-built demo, AC validation, Phase 1 deferred items
-- [Module 09 — Live GPS implementation (GT06 server)](../../05-modules/09-tracking/gt06-server.md) — Sprint 5 backend architecture
-- [GPS/VTS integration contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX provider contract
-- [PRD §6.5.4–6.5.9, §6.8.2](../../01-source/01-prd/PRD_DFMS_v1.0.md) — map layer integration, GPS tracking, geofencing, dwell time, map-based dashboard
+- [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — demo MVP story
+- [GPS/VTS integration contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX provider contract (adapter deferred)
+- [PRD §6.5.4–6.5.10, §6.8.2](../../01-source/01-prd/PRD_DFMS_v1.0.md) — map layer, GPS, geofencing, dwell, maintenance (Phase 2)
 - [Vendor Trip Lifecycle & Status Model](../sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow consumed by vendor app
 - [TO Creation & Vendor Bidding Flow Revision](../sprint-5/08-vendor-management/TO-BID-FLOW-REVISION.md) — Bid bundle model the vendor app release must match
 
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-22 (FB-001 demo feedback — CC-02)
+**Last Updated**: 2026-07-24 (GPS module SSOT linked)
 **Previous**: [Sprint 5](../sprint-5/README.md)

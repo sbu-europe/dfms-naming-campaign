@@ -1,24 +1,28 @@
 ---
-
-## module: 09-tracking
+module: 09-tracking
 specification: GT06 ingest + Live GPS backend architecture
-version: 1.1
+version: 1.2
 phase: Phase 1
-sprint: Sprint 5 (+ post-Sprint geofence & TO-history)
-last_updated: 2026-06-25
-related_stories: GPS-01 (DFS-070)
-status: Implemented (MVP + geofence + TO-centric history)
-doc_sync_note: Merged geofence and TO-centric history from apps/tracking/GEOFENCE_IMPLEMENTATION.md and TO_CENTRIC_HISTORY_PLAN.md
+sprint: Sprint 5–6
+last_updated: 2026-07-24
+related_stories: [GPS-01, GPS-02, GPS-03, GPS-04, GPS-05, DFS-070]
+status: Implemented (MVP + geofence + TO-centric + idle history)
+ssot_role: Architecture / pipeline detail
+ssot_hub: README.md
+prd_matrix: prd-as-built.md
 code_root: apps/tracking
 service_root: services/gt06-ingest
 supersedes:
   - live-gps-sprint5-implementation.md
   - ../../06-contracts/04-integration/gt06-ingest-server.md
+---
 
 # GT06 Server & Live GPS — Backend Architecture
 
-> **Single source of truth** for GPS tracking implementation in DFMS.  
-> **Product / sprint context:** [GPS-01 story](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)  
+> **Architecture SSOT** for the GPS pipeline (device → Redis → Postgres → API → Live GPS UI).  
+> **Module hub / PRD matrix:** [README.md](README.md) · [prd-as-built.md](prd-as-built.md)  
+> **Geofence & dwell rules:** [geofence-and-dwell.md](geofence-and-dwell.md)  
+> **Map surfaces:** [maps-surfaces.md](maps-surfaces.md)  
 > **Hardware:** Jimi IoT GT06N (Concox GT06 protocol over TCP)
 
 ---
@@ -62,9 +66,14 @@ Sprint 5 delivers a **tenant-scoped Live GPS MVP**: a read-only map of vehicles 
 | Map SDK (Leaflet + OpenStreetMap)            | **Done**        |
 | Geofence engine (entry/exit, dwell, circles) | **Done**        |
 | TO-centric history (`vehicle-to-history`)    | **Done**        |
+| Idle vehicle history APIs                    | **Done**        |
+| Dwell timeline (Planned / Gate / Geofence)   | **Done**        |
 | TLS-01 timeline hooks from GPS               | **Deferred**    |
-| Full `/api/v1/maps/`** dashboard             | **Deferred**    |
+| Full `/api/v1/maps/**` dashboard             | **Deferred**    |
 | GPSWOX REST production poller                | **Deferred**    |
+| Configurable UI refresh 30/60/120            | **Deferred**    |
+| POI presence panel (vehicles-in-fence)       | **Deferred**    |
+| GPS maintenance §6.5.10                      | **Phase 2**     |
 
 
 ### Storage at a glance
@@ -73,11 +82,11 @@ Sprint 5 delivers a **tenant-scoped Live GPS MVP**: a read-only map of vehicles 
 | Tier                                                   | Update rate                            | Read by                        | Write by                         |
 | ------------------------------------------------------ | -------------------------------------- | ------------------------------ | -------------------------------- |
 | **Redis** `gt06:latest:{imei}` + `gt06:history:{imei}` | Each GT06 packet (~10s)                | `LiveMapService`, history APIs | `gt06-ingest`                    |
-| **Postgres** `gps_tracking`                            | **One row per 10 min** per trip (prod) | Trail fallback, history merge  | `Gt06SyncService` via Celery     |
-| **Live map UI**                                        | Poll every **10s**                     | —                              | `GET /api/v1/tracking/live-map/` |
+| **Postgres** `gps_tracking`                            | Gated by `GPS_TRAIL_AND_ACTIVITY_MARKER_INTERVAL_SECONDS` (default **300s**) | Trail fallback, history merge  | `Gt06SyncService` via Celery     |
+| **Live map UI**                                        | Poll every **10s** (hardcoded)         | —                              | `GET /api/v1/tracking/live-map/` |
 
 
-**Postgres row rules** (each 10-minute flush): **last** lat/lng in window; `**speed_kmh` = mean** of non-null speeds in window (0 counts).
+**Postgres row rules** (each trail gate flush): **last** lat/lng in window; **`speed_kmh` = mean** of non-null speeds in window (0 counts).
 
 ---
 
@@ -108,7 +117,7 @@ Instead of relying on third-party platforms like TrackSolid or GPSWOX to store a
 | **~10s**   | GT06 device → `gt06-ingest` → Redis                       |
 | **10s**    | Browser `GET /api/v1/tracking/live-map/` → Redis latest   |
 | **30s**    | Celery **checks** Postgres gate (usually skips)           |
-| **10 min** | Celery **inserts one** `gps_tracking` row when gate opens |
+| **~5 min** | Celery **inserts one** `gps_tracking` row when trail gate opens (default 300s; env-configurable) |
 
 
 **Live map never waits for Celery** — operators see instantaneous speed from Redis.
@@ -143,7 +152,8 @@ Driver mobile app ──POST /api/v1/tracking/location/──► GPSTracking (Po
 | D   | Browser (history)   | `GET /api/v1/tracking/vehicle-history/`         | `VehicleHistoryService`                                                 | Postgres + Redis history | —                                    |
 | E   | Browser (history)   | `GET /api/v1/tracking/vehicle-history-summary/` | `VehicleHistorySummaryService` → `VehicleHistoryService` (internal)     | Same as D                | —                                    |
 | F   | Browser (history)   | `GET /api/v1/tracking/geofence-events/`         | `GeofenceEventListView`                                                 | `GeofenceEvent`          | —                                    |
-| G   | Celery Beat (30s)   | `tracking.sync_gt06_all_tenants`                | `Gt06SyncService`                                                       | Redis                    | Postgres *(if ≥10 min gate)*         |
+| G   | Celery Beat (30s)   | `tracking.sync_gt06_all_tenants`                | `Gt06SyncService`                                                       | Redis                    | Postgres *(if trail gate open)*      |
+| L   | Browser (idle hist) | `GET /api/v1/tracking/vehicle-idle-*`           | Idle summary/history services                                           | Postgres (+ Redis)       | —                                    |
 | H   | Celery (async)      | `tracking.evaluate_geofence`                    | `GeofenceService`                                                       | POIs, Redis presence     | `GeofenceEvent`, trip status         |
 | I   | Driver app (future) | `POST /api/v1/tracking/location/`               | `LocationUpdateView`                                                    | —                        | Postgres + `evaluate_geofence`       |
 | J   | Ops / curl          | `GET gt06-ingest:8080/...`                      | FastAPI                                                                 | Redis                    | —                                    |
@@ -171,7 +181,7 @@ Driver mobile app ──POST /api/v1/tracking/location/──► GPSTracking (Po
          │ GET live-map API   │      ┌──────────────────┐                 │
          │ LiveMapService     │      │ Celery sync      │                 │
          └─────────┬──────────┘      └────────┬─────────┘                 │
-                   ▼                           │ INSERT if ≥10 min        ▼
+                   ▼                           │ INSERT if trail gate     ▼
          ┌────────────────────┐      ┌──────────────────┐                 │
          │ Live GPS map (UI)  │      │ gps_tracking     │◄────────────────┘
          └────────────────────┘      │ (Postgres)       │
@@ -197,7 +207,7 @@ flowchart TB
   R_L --> API
   R_H --> API
   SYNC -->|read window| R_H
-  SYNC -->|INSERT 1 row / 10 min| PG[(gps_tracking)]
+  SYNC -->|INSERT 1 row / trail gate| PG[(gps_tracking)]
 
   UI[Live GPS Leaflet UI] -->|poll 10s| API
   PG --> API
@@ -294,10 +304,13 @@ Auth: `IsTenantUser` + `CanViewLiveGps` (`Menu.LiveGps.View`; tenant/super admin
 | `GET`  | `/live-map/`                | `LiveMapView` → `LiveMapService` | Fleet snapshot + POI geofence circles              |
 | `GET`  | `/vehicle-to-history/`      | `VehicleToHistoryService`        | TO/trip list for vehicle in time window            |
 | `GET`  | `/vehicle-history/`         | `VehicleHistoryService`          | Speed/position time series (per `trip_id`)         |
-| `GET`  | `/vehicle-history-summary/` | `VehicleHistorySummaryService`   | Drive / stopped / parked cards                     |
+| `GET`  | `/vehicle-history-summary/` | `VehicleHistorySummaryService`   | Drive / stopped / parked cards + dwell_timeline    |
+| `GET`  | `/vehicle-idle-summary/`    | `VehicleIdleSummaryView`         | Idle (no-trip) activity summary                    |
+| `GET`  | `/vehicle-idle-history/`    | `VehicleIdleHistoryView`         | Idle history points                                |
 | `GET`  | `/geofence-events/`         | `GeofenceEventListView`          | Entry/exit event history                           |
 | `GET`  | `/geofence-check/`          | `GeofenceCheckView`              | Point-in-circle check                              |
 | `POST` | `/location/`                | `LocationUpdateView`             | Driver app GPS (not GT06; not used by Live GPS UI) |
+| `POST` | `/device-command/`          | `DeviceCommandView`              | Relay/custom command to gt06-ingest                |
 
 
 #### `GET /api/v1/tracking/live-map/`
@@ -349,7 +362,7 @@ Poll every **10 seconds** (`LIVE_MAP_REFRESH_SECONDS`).
 | ------------------- | --------------------------------------------------------------------------------- |
 | `connection_status` | `live` / `stale` / `signal_lost` from `received_at` vs `SIGNAL_LOST_MINUTES` (10) |
 | `speed_kmh`         | **Live** — Redis latest; else latest Postgres row                                 |
-| `trail`             | Redis history if live (≥2 pts); else Postgres (~10 min spacing)                   |
+| `trail`             | Redis history if live (≥2 pts); else Postgres (trail-gate spacing)                |
 | `heading_degrees`   | Trail bearing (last 2 points), not raw device course                              |
 | `movement_status`   | `moving` / `idle` / `parked` / `offline`                                          |
 | `planned_route`     | Mock fleet only — gray dashed OSM corridor                                        |
@@ -379,7 +392,8 @@ Returns: `transport_orders[]` — one row per **trip** labeled with `to_number`,
 #### `GET /api/v1/tracking/geofence-events/`
 
 Query: `trip_id` (required for history); optional `poi_id`, `transport_order_id`, `limit`.  
-Returns: entry/exit events with POI code, `dwell_minutes`, `dwell_threshold_breached`.
+Returns: entry/exit events with POI code, `dwell_minutes` on exit.  
+**Note:** `dwell_threshold_breached` was **removed** — see [geofence-and-dwell.md](geofence-and-dwell.md).
 
 #### `GET /api/v1/tracking/geofence-check/`
 
@@ -651,14 +665,16 @@ Developer cheat sheet: [docs/guides/live-gps-mock-simulation.md](../../../docs/g
 | Column                                        | Type                       | Notes                             |
 | --------------------------------------------- | -------------------------- | --------------------------------- |
 | `id`                                          | UUID                       | PK                                |
-| `trip_id`                                     | FK → `transport.Trip`      | CASCADE                           |
+| `trip_id`                                     | FK → `transport.Trip`      | CASCADE; **nullable** for idle (no-trip) GPS |
 | `vehicle_id`                                  | FK → `master_data.Vehicle` | CASCADE                           |
 | `latitude`, `longitude`                       | Decimal(10,7)              | WGS84                             |
 | `speed_kmh`                                   | Decimal(6,2)               | **Window average** on Celery sync |
-| `heading_degrees`, `altitude_m`, `accuracy_m` | Optional                   |                                   |
+| `heading_degrees`, `accuracy_m`               | Optional                   | `altitude_m` removed              |
 | `recorded_at`                                 | DateTime                   | Indexed                           |
 | `device_id`                                   | Char(50)                   | IMEI                              |
-| `is_geofence_event`                           | Boolean                    | Reserved                          |
+| `vehicle_movement`                            | drive/stopped/parked       | Optional                          |
+| `is_geofence_event`                           | Boolean                    | **Reserved — not set by engine** (events in `geofence_event` only) |
+| `is_overspeed_event`                          | Boolean                    | Overspeed marker                  |
 
 
 Migration: `apps/tracking/migrations/0001_initial_gpstracking.py` — `migrate_schemas` on all tenants.
@@ -670,10 +686,12 @@ Migration: `apps/tracking/migrations/0001_initial_gpstracking.py` — `migrate_s
 | `trip_id`, `transport_order_id`, `vehicle_id`, `poi_id` | FK | Event context |
 | `event_type` | entry / exit | |
 | `event_at` | DateTime | GPS timestamp |
-| `dwell_minutes` | Decimal | Set on exit |
-| `dwell_threshold_breached` | Boolean | vs `GEOFENCE_DWELL_THRESHOLD_MINUTES` (default 120) |
+| `dwell_minutes` | PositiveInteger | Set on **exit** only |
+| ~~`dwell_threshold_breached`~~ | — | **Removed** (migration 0011). Do not document as present. |
 
-Migration: `apps/tracking/migrations/0002_geofenceevent.py`
+Migration: `apps/tracking/migrations/0002_geofenceevent.py` (+ `0011_remove_geofenceevent_dwell_threshold_breached`)
+
+Product rules: [geofence-and-dwell.md](geofence-and-dwell.md)
 
 ### Related tables (other Django apps)
 
@@ -690,7 +708,7 @@ Migration: `apps/tracking/migrations/0002_geofenceevent.py`
 | Context              | Value                                          |
 | -------------------- | ---------------------------------------------- |
 | Live map marker      | Redis latest `speed_kmh`                       |
-| Postgres row         | `mean(non-null speeds in 10-min Redis window)` |
+| Postgres row         | `mean(non-null speeds in trail-gate Redis window)` |
 | History graph        | Per-point from merged Redis/Postgres           |
 | Drive card max speed | `max(speed_kmh)` in segment                    |
 
@@ -712,7 +730,7 @@ sum(speeds) / len(speeds)
 | Live speed?     | Redis `gt06:latest`                                |
 | Trail on map?   | Redis history while live; Postgres when stale      |
 | History graph?  | Merged Postgres + Redis                            |
-| Why Celery 30s? | **Checker** for 10-min gate, not per-packet writer |
+| Why Celery 30s? | **Checker** for trail gate, not per-packet writer |
 
 
 ### 10.2 Coordinates and heading
@@ -754,18 +772,19 @@ Each 10s poll: `loadData()` → `updateMap()` → `ensureVehicleMarker()`
 | Status    | Colour | Rule                          |
 | --------- | ------ | ----------------------------- |
 | `moving`  | Green  | speed > 3 km/h                |
-| `idle`    | Yellow | stopped < 10 min              |
-| `parked`  | Red    | stopped ≥ 10 min              |
+| `idle`    | Yellow | stopped; not yet parked           |
+| `parked`  | Red    | stopped ≥ `LIVE_MAP_PARKED_MIN_MINUTES` (default **30**) |
 | `offline` | Red    | not `connection_status: live` |
 
 
 ### 10.6 Celery sync (`Gt06SyncService`)
 
-1. `list_imeis()` → match `Vehicle` + active `Trip`
-2. `_should_persist()` — ≥10 min since last row (or ≥10 min of Redis history for first row)
+1. `list_imeis()` → match `Vehicle` + active `Trip` (or idle path)
+2. `_should_persist()` — trail gate since last row (`GPS_TRAIL_AND_ACTIVITY_MARKER_INTERVAL_SECONDS`)
 3. `get_locations_since()` → last position + mean speed → `GPSTracking.create()`
+4. Queue `evaluate_geofence` when on a trackable trip
 
-Mock: `LIVE_GPS_MOCK=1` → 2 min gate (`MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS=120`).
+Mock: `LIVE_GPS_MOCK=1` → shorter gate (`MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS=120`).
 
 ---
 
@@ -791,7 +810,7 @@ Operators review **what a vehicle did per Transport Order** in a chosen time ran
 | Path             | Writer               | Frequency       |
 | ---------------- | -------------------- | --------------- |
 | GT06 → Redis     | gt06-ingest          | ~10s            |
-| Redis → Postgres | Celery               | ~1 row / 10 min |
+| Redis → Postgres | Celery               | ~1 row per trail gate |
 | Driver POST      | `LocationUpdateView` | Per POST        |
 | Demo seed        | management commands  | Manual          |
 
@@ -817,6 +836,8 @@ Floating mini-map per vehicle (`#live-gps-follow-stack`): own Leaflet instance, 
 
 Circle-based POI geofence evaluation on each GPS point (GT06 Celery sync or `POST /location/`).
 
+**Product rules SSOT:** [geofence-and-dwell.md](geofence-and-dwell.md) (evaluation scope, dwell glossary, threshold decision).
+
 ### What it does
 
 1. Haversine distance vs POI center + `geofence_radius_meters` + `GEOFENCE_DETECTION_BUFFER_METERS` (default 20 m).
@@ -824,19 +845,21 @@ Circle-based POI geofence evaluation on each GPS point (GT06 Celery sync or `POS
 3. `GeofenceEvent` rows on entry/exit; `dwell_minutes` on exit.
 4. Trip auto-transition on origin/destination **entry**: `ARRIVED_AT_SOURCE` / `ARRIVED_AT_DESTINATION`.
 5. Geofence circles on Live GPS map (`live-gps-app.js`); circles turn **green** when a vehicle is inside.
+6. TO admin dwell timeline (Planned / Gate / Geofence) via `dwell_timeline_service.py`.
 
-### POIs evaluated per GPS tick
+### POIs evaluated per GPS tick (event engine)
 
-1. Trip transport order **origin** and **destination**.
-2. Any POI the trip is currently **inside** (exit detection).
-3. Fallback: all **active geocoded POIs**.
+1. Trip transport order **origin** and **destination** only.
+2. Any of those the trip is currently **inside** (for exit detection).
+3. **No** fallback to all active POIs for event logging (map display still shows all active POIs).
 
 ### Settings
 
 | Variable | Default | Meaning |
 | -------- | ------- | ------- |
 | `GEOFENCE_DETECTION_BUFFER_METERS` | 20 | Added to POI radius for inside test |
-| `GEOFENCE_DWELL_THRESHOLD_MINUTES` | 120 | Exit events flag breach when dwell ≥ this |
+
+~~`GEOFENCE_DWELL_THRESHOLD_MINUTES`~~ — **removed**; do not use. Threshold UI compares geofence/gate dwell to **planned** dwell on the TO.
 
 ### Live map visual indicators
 
@@ -848,11 +871,12 @@ Circle-based POI geofence evaluation on each GPS point (GT06 Celery sync or `POS
 
 ### PRD gaps (still deferred)
 
-Per-POI dwell threshold, TLS-01 timeline emission, `PUT /api/v1/pois/{id}/geofence`, driver arrival prompt, geofence config audit log, dwell **alert** notifications (flag only on exit).
+TLS-01 timeline emission, `PUT/PATCH /api/v1/pois/{id}/geofence`, driver arrival prompt, geofence config audit log, dwell **alert** notifications, POI presence panel, per-POI dwell threshold (explicitly not in Phase 1).
 
 ### Tests
 
-`pytest tests/unit/test_tracking/test_geofence_engine.py`
+`pytest tests/unit/test_tracking/test_geofence_engine.py`  
+(Includes assertion that `is_geofence_event` trail rows are **not** created.)
 
 ---
 
@@ -885,15 +909,16 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 | `MOCK_GPS_TRAIL_MIN_INTERVAL_SECONDS`               | 120            | Postgres gap (mock)                        |
 | `GT06_SYNC_INTERVAL_SECONDS`                        | 30             | Celery beat                                |
 | `SIGNAL_LOST_MINUTES`                               | 10             | Stale / signal lost                        |
-| `MOVING_SPEED_KMH`                                  | 0.0            | Persisted movement drive threshold         |
+| `MOVING_SPEED_KMH`                                  | 3.0            | Live/persisted drive threshold             |
 | `STOPPED_MIN_MINUTES`                               | 5              | Zero-speed stopped threshold               |
 | `PARKED_MIN_MINUTES`                                | 30             | Zero-speed parked threshold                |
-| `LIVE_MAP_PARKED_MIN_MINUTES`                       | 10             | Live map idle vs parked                    |
+| `LIVE_MAP_PARKED_MIN_MINUTES`                       | 30             | Live map idle vs parked                    |
 | `GT06_REDIS_URL`                      | redis://…/3    | Shared ingest + Django                     |
 | `LIVE_GPS_MOCK_FLEET_ONLY`            | `1` in compose | Map filters to mock fleet                  |
 | `GEOFENCE_DETECTION_BUFFER_METERS`    | 20             | Geofence inside-test buffer                |
-| `GEOFENCE_DWELL_THRESHOLD_MINUTES`    | 120            | Dwell breach flag threshold                |
 
+
+**Removed / do not configure:** `GEOFENCE_DWELL_THRESHOLD_MINUTES` (threshold field deleted).
 
 ---
 
@@ -923,8 +948,8 @@ Seeded roles: Tenant Admin, Transport Planner, TDO variants (`apps/core/role_see
 | Area | Paths |
 | ---- | ----- |
 | Sidecar | `services/gt06-ingest/**` |
-| Models | `apps/tracking/models.py` (`GPSTracking`, `GeofenceEvent`) |
-| Services | `live_map_service.py`, `sync_service.py`, `gt06_store.py`, `history_*.py`, `vehicle_to_history_service.py`, `geofence_service.py`, `geofence_store.py`, `movement_status.py` |
+| Models | `apps/tracking/models.py` (`GPSTracking`, `GeofenceEvent`, activity segments, `OverspeedEvent`) |
+| Services | `live_map_service.py`, `sync_service.py`, `gt06_store.py`, `history_*.py`, `vehicle_to_history_service.py`, `vehicle_idle_*`, `dwell_timeline_service.py`, `geofence_service.py`, `geofence_store.py`, `movement_status.py` |
 | API | `views.py`, `urls.py`, `permissions.py` |
 | SSR | `portal_views.py` |
 | UI | `templates/admin/tracking/live_gps.html`, `partials/_live_gps_*.html` |
@@ -945,18 +970,27 @@ TCP carries IMEI only. Today: Celery sync per tenant schema; IMEI → vehicle wi
 
 ---
 
-## 18. Deferred (Phase 1)
+## 18. Deferred (Phase 1+) / Phase 2
 
-- `GET /api/v1/maps/**` dashboard APIs + KPI widgets
+### Phase 1 remaining
+
+- `GET /api/v1/maps/**` dashboard APIs + KPI widgets + POI presence panel — [maps-surfaces.md](maps-surfaces.md)
 - TLS-01 timeline hooks from GPS / geofence events
 - GPSWOX REST production poller
+- Configurable live-map refresh 30 / 60 / 120 s
 - Platform admin Live GPS
 - Driver mobile wired to Redis / live map
 - IMEI global registry
-- Per-POI dwell threshold in master data
-- Geofence config audit log
+- Dedicated geofence PATCH + config audit log
 - Driver mobile “Mark as arrived?” prompt
-- Dwell alert notifications (beyond breach flag)
+- Dwell exception alerts / POI aggregation reports (beyond TO admin planned comparison)
+- Enforce geofence radius min/max validation on POI write
+
+### Phase 2
+
+- GPS-based vehicle maintenance (§6.5.10) — [gps-maintenance-phase2.md](gps-maintenance-phase2.md)
+
+**Explicitly not Phase 1:** per-POI dwell threshold on POI master / `dwell_threshold_breached` field (removed).
 
 ---
 
@@ -965,14 +999,19 @@ TCP carries IMEI only. Today: Celery sync per tenant schema; IMEI → vehicle wi
 
 | Document | Purpose |
 | -------- | ------- |
-| [GPS-01 story](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Product context, AC validation |
+| [README.md](README.md) | Module SSOT hub |
+| [prd-as-built.md](prd-as-built.md) | PRD §6.5.4–6.5.10 matrix |
+| [geofence-and-dwell.md](geofence-and-dwell.md) | Geofence rules + dwell glossary |
+| [maps-surfaces.md](maps-surfaces.md) | Live GPS vs Maps Dashboard |
+| [Sprint 6 GPS stories](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/) | Delivery backlog GPS-01…05 |
+| [Sprint 5 DFS-070](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Demo MVP story |
 | [gt06-ingest README](../../../services/gt06-ingest/README.md) | Sidecar local run |
 | [mock/README.md](../../../apps/tracking/mock/README.md) | Fleet demo commands |
 | [gt06-device-integration.md](../../../docs/integrations/gt06-device-integration.md) | Protocol reference |
 | [gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml) | External GPSWOX contract |
 
-*Source plans merged into this file (2026-06-25): `apps/tracking/GEOFENCE_IMPLEMENTATION.md`, `apps/tracking/TO_CENTRIC_HISTORY_PLAN.md`*
+*Historical notes (not SSOT if they conflict): `apps/tracking/GEOFENCE_IMPLEMENTATION.md`, `TO_CENTRIC_HISTORY_PLAN.md`, `VEHICLE_IDLE_HISTORY.md`*
 
 ---
 
-*GPS-01 | DFS-070 | Backend architecture SSOT | Last updated: 2026-06-25*
+*Module 09 tracking — architecture SSOT | Last updated: 2026-07-24*
