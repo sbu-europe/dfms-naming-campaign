@@ -4,7 +4,7 @@ specification: FB-005 — Loading/Unloading bulk import & export available — P
 version: 1.0
 phase: Phase 1
 related_stories: FB-005
-source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
+source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (LoadingUnloadingPointImportConfig)
   - ../../../../../apps/master_data/admin.py (LoadingUnloadingPointAdmin, BulkImportExportMixin)
@@ -27,7 +27,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-04 · **11/11 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-013-loading-unloading-bulk-import-export-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `A4F01304` · **SEED_POI:** `CTG-001`
 
-**Feedback:** [FB-005](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-005--loadingunloading-bulk-operation-missing)
+**Improvement:** [FB-005](../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md#fb-005--loadingunloading-bulk-operation-missing)
 
 **AC (assert after fix):**
 

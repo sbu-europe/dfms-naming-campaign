@@ -15,10 +15,10 @@ total_story_points_estimated: "~3 SP delivered in-sprint (VM-09); AUTH-01 13 SP 
 |---|---|
 | **Sprint Dates** | 2026-07-16 → 2026-07-30 |
 | **Carry-over from Sprint 6** | To be confirmed at sprint planning |
-| **Carried to Sprint 8** | [AUTH-01](../sprint-8/01-auth-phone-channel/AUTH-01-phone-login-2fa-sms-invitation.md) (13 SP); feedback [FB-009–FB-015](../sprint-8/feedback.md) |
+| **Carried to Sprint 8** | [AUTH-01](../sprint-8/01-auth-phone-channel/AUTH-01-phone-login-2fa-sms-invitation.md) (13 SP); improvements [FB-009–FB-015](../sprint-8/improvements/README.md) |
 | **New Scope (in-sprint)** | TP/TDO read-only Vendors Profile list (VM-09) |
 | **Related prior work** | CP-03 / CP-04 (email 2FA + invitation), CP-03 FB-005 (OTP channel email\|SMS — Open), US-002, US-005, US-006, BUG-05; VM-02 |
-| **Feedback tracker** | [feedback.md](./feedback.md) — FB-001–FB-008 (closed); FB-009–FB-015 → [Sprint 8](../sprint-8/feedback.md) |
+| **Feedback tracker** | [feedback.md](./feedback.md) — FB-001–FB-008 (closed); FB-009–FB-015 → [Sprint 8 improvements](../sprint-8/improvements/README.md) |
 
 ---
 

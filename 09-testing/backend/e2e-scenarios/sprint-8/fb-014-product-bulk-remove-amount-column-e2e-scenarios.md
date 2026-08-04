@@ -4,7 +4,7 @@ specification: FB-006 — Product bulk operation: remove redundant Amount column
 version: 1.0
 phase: Phase 1
 related_stories: FB-006
-source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
+source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (ProductImportConfig)
   - ../../../../../apps/master_data/admin.py (ProductAdminForm exclude amount, ProductBulkAdmin)
@@ -27,7 +27,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-04 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-014-product-bulk-remove-amount-column-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `3CA1A949` · **SEED_CAT:** `CAT-001`
 
-**Feedback:** [FB-006](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template)
+**Improvement:** [FB-006](../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template)
 
 **AC (assert after fix):**
 

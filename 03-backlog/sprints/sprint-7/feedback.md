@@ -13,7 +13,7 @@ Client / ops / internal feedback captured during Sprint 7.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Carried to Sprint 8:** [FB-009–FB-015](../sprint-8/feedback.md) (bulk I/O / phone normalization / invitation channel follow-ups).
+> **Carried to Sprint 8:** [FB-009–FB-015](../sprint-8/improvements/README.md) (bulk I/O / phone normalization / invitation channel improvements; tracked as FB-001–FB-007).
 
 ## All items
 

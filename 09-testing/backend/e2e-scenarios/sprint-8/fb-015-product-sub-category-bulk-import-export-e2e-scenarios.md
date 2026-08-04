@@ -4,7 +4,7 @@ specification: FB-007 — Product Sub-Category bulk import & export available �
 version: 1.0
 phase: Phase 1
 related_stories: FB-007
-source_spec: ../../../../03-backlog/sprints/sprint-8/feedback.md
+source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (ProductSubCategoryImportConfig)
   - ../../../../../apps/master_data/admin.py (ProductSubCategoryBulkAdmin, BulkImportExportMixin)
@@ -27,7 +27,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-04 · **11/11 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-015-product-sub-category-bulk-import-export-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **Depot Officer:** `depot.officer1.nourish@yopmail.com` · **RUN_ID:** `5374558B` · **SEED_CAT:** `CAT-001` / `CAT-01`
 
-**Feedback:** [FB-007](../../../../03-backlog/sprints/sprint-8/feedback.md#fb-007--product-sub-category-bulk-operation-missing)
+**Improvement:** [FB-007](../../../../03-backlog/sprints/sprint-8/improvements/02-master-data.md#fb-007--product-sub-category-bulk-operation-missing)
 
 **AC (assert after fix):**
 
