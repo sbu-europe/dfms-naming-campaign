@@ -38,6 +38,8 @@ End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery wo
 
 **Case counts (legacy spreadsheet IDs):** §1: 15 · §2: 15 · §3: 12 · §4: 31 · §5: 10 · §6: 6 · §7–18: 69 · **Total: 158**
 
+> **Live GPS (packet-backed fleet + served-TO history):** not an FG section — see [`../09-tracking/live-gps-e2e-scenarios.md`](../09-tracking/live-gps-e2e-scenarios.md).
+
 ## Naming convention
 
 - Root: `09-testing/backend/e2e-scenarios/finished-goods-workflow/`

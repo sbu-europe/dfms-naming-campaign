@@ -19,6 +19,7 @@ This section captures end-to-end testing scenarios aligned with module specifica
 
 - `01-foundation/` — Auth / session scenarios.
 - `02-master-data/` — Master Data module scenarios.
+- `09-tracking/` — GPS Tracking / Live GPS scenarios.
 - `finished-goods-workflow/` — **Finished Goods only** (§1–18 PR→TR→TO→yard), numbered section folders + MCP runbook.
 - Additional module folders follow `05-modules` ordering when non-FG scenarios are added.
 
@@ -31,6 +32,13 @@ This section captures end-to-end testing scenarios aligned with module specifica
 | Credentials | `docs/testing/playwright-mcp-credentials.yaml` |
 | Generic MCP guide | `docs/guides/playwright-mcp-admin.md` |
 
+## GPS Tracking (Playwright MCP)
+
+| Doc | Path |
+|-----|------|
+| Scenario index | [`09-tracking/README.md`](./09-tracking/README.md) |
+| Live GPS plan | [`09-tracking/live-gps-e2e-scenarios.md`](./09-tracking/live-gps-e2e-scenarios.md) |
+
 Artifact root for RESULTS / screenshots: `tests/e2e/playwright-mcp/<suite>-artifacts/`.
 
 ## Scenario Planning Coverage Tracker
@@ -38,6 +46,7 @@ Artifact root for RESULTS / screenshots: `tests/e2e/playwright-mcp/<suite>-artif
 | Module | Story Points | Scenario Plan Status | Scenario File |
 |--------|--------------|----------------------|---------------|
 | Finished Goods Workflow (§1–18) | FG PR→TR→TO→yard | Planned | [`finished-goods-workflow/README.md`](./finished-goods-workflow/README.md) |
+| GPS Tracking — Live GPS | Fleet, History, FG served TO | Planned | [`09-tracking/live-gps-e2e-scenarios.md`](./09-tracking/live-gps-e2e-scenarios.md) |
 | Master Data - Supplier & Dealer Management | US-096, DFS-018 | Planned | [`02-master-data/supplier-dealer-management-e2e-scenarios.md`](./02-master-data/supplier-dealer-management-e2e-scenarios.md) |
 | Users - User Invitation & Activation | US-005 | Planned | [`users/user-invitation-activation-e2e-scenarios.md`](./users/user-invitation-activation-e2e-scenarios.md) |
 | Users - Account Deactivation | US-007 | Planned | [`users/account-deactivation-e2e-scenarios.md`](./users/account-deactivation-e2e-scenarios.md) |
