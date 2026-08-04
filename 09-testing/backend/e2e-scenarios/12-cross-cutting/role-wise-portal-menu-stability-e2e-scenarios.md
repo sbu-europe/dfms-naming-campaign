@@ -11,12 +11,26 @@ implementation_reference:
   - ../../../templates/admin/nav_sidebar.html (#dfms-nav-sidebar)
   - ../../../tests/unit/test_core/test_role_menu_stability.py (unit matrix SSOT for item ids)
 last_updated: 2026-08-04
+last_mcp_run: 2026-08-04
+last_mcp_verdict: 21/21 Pass
 playwright_mcp: true
 artifacts: tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/
 suite: role-wise-portal-menu-stability
 ---
 
 # Role-wise Portal Menu Stability — E2E Scenario Plan (Django Admin SSR)
+
+> **2026-08-04 — All 21 test cases passed** (TC01–TC21). Suite signed off via Playwright MCP against Nourish admin.
+
+**Last MCP run:** 2026-08-04 · **21/21 Pass** · [RESULTS.md](../../../../tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/RESULTS.md)  
+**Accounts:** operational `…1.nourish@yopmail.com` + `driver1@yopmail.com`  
+**Runner:** `tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/run-role-menu-stability.js`
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-08-04 | **21/21** | All test cases passed (Playwright MCP). |
 
 **Surface:** Tenant admin sidebar `#dfms-nav-sidebar` (RBAC portal nav), not Platform admin.
 
@@ -94,25 +108,25 @@ Assert **exact ordered** flat list: scrape each `.dfms-nav-group` → heading = 
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Depot Officer menu matrix | Clear cookies. Open `http://nourish.dev.dfms.local:8000/admin/login/`. Sign in as **Depot Officer** (`depot.officer1.nourish@yopmail.com` / `Nourish@1234!`). Land on `/admin/` (not login/OTP). Hide `#djDebug*`. Scrape `#dfms-nav-sidebar` flat `Section › Item` list. Assert **exact** match to matrix row `depot_officer`. Assert sections **Gate**, **Transport**, **Master Data**, **Vendors**, **Users & Access** are absent. | P0 | Planned |
-| TC02 | Feed Mill Officer menu matrix | As **Feed Mill Officer** (`feed.mill.officer1.nourish@yopmail.com`), login and scrape sidebar. Assert exact match to `feed_mill_officer` (Overview › Dashboard; Requisition › Finished Goods only). | P0 | Planned |
-| TC03 | Commercial Officer menu matrix | As **Commercial Officer**, assert exact match to `commercial_officer` (Overview › Dashboard; Port Shipments › Port Shipments). Assert **Requisition › Finished Goods** and **Procurement** are absent. | P0 | Planned |
-| TC04 | Procurement Officer menu matrix | As **Procurement Officer**, assert exact match to `procurement_officer` (Dashboard + Procurement › Port Shipments + Transport requests). Assert top-level **Port Shipments** group (Commercial-only) is absent. | P0 | Planned |
-| TC05 | Distribution Officer menu matrix | As **Distribution Officer**, assert exact match to `distribution_officer`. Assert **Transport**, **Gate**, **Vendors** absent. | P0 | Planned |
-| TC06 | Distribution Manager menu matrix | As **Distribution Manager**, assert exact match to `distribution_manager` (same distribution menus as DO). | P0 | Planned |
-| TC07 | Transport Planner menu matrix | As **Transport Planner**, assert exact match to `transport_planner` including **Vendors › Vendors**, Master Data (Vehicle Brands, Vehicles, Helpers), Users & Access › Drivers, Transport (Live GPS, Transport requests, Transport orders, Vehicle planning). Assert **Gate** and **Command Center** sections absent. | P0 | Planned |
-| TC08 | TDO Vendor Fleet menu matrix | As **TDO Vendor Fleet**, assert exact match to `tdo_vendor_fleet` (Dashboard; Live GPS; Transport orders; Bids management; Vendors). Assert **Master Data**, **Trips**, **Users & Access**, **Fleet operations** absent. | P0 | Planned |
-| TC09 | POI-Admin yard menu matrix | As **POI-Admin**, assert exact match to `poi_admin` (Gate + Command Center + Loading + Unloading + QC Checkpoint + Scaling + Drivers). Assert **Requisition**, **Master Data** (POIs/etc.), **Distribution** absent. | P0 | Planned |
-| TC10 | Command Center Officer menu matrix | As **Command Center Officer**, assert exact match to `command_center_officer` only. Assert **Gate**, **Loading**, **Scaling**, **Transport** absent. | P0 | Planned |
-| TC11 | Gateman menu matrix | As **Gateman**, assert exact match to `gateman`. Assert **Command Center**, **Master Data**, **Scaling** absent. | P0 | Planned |
-| TC12 | Scaling Operator menu matrix | As **Scaling Operator**, assert exact match to `scaling_operator`. Assert **Gate**, **Master Data**, **Command Center** absent. | P0 | Planned |
-| TC13 | Loading Personnel menu matrix | As **Loading Personnel**, assert exact match to `loading_personnel`. Assert **Unloading**, **Gate**, **Command Center** absent. | P0 | Planned |
-| TC14 | Unloading Personnel menu matrix | As **Unloading Personnel**, assert exact match to `unloading_personnel`. Assert **Loading**, **Gate**, **Command Center** absent. | P0 | Planned |
-| TC15 | QC Inspector Physical menu matrix | As **QC Inspector – Physical**, assert exact match to `qc_inspector_physical`. Assert **Command Center**, **Requisition** absent. | P0 | Planned |
-| TC16 | QA Lab Technician menu matrix | As **QA Lab Technician**, assert exact match to `qa_lab_technician` (Dashboard + Finished Goods only). | P0 | Planned |
-| TC17 | Driver Supervisor menu matrix | As **Driver Supervisor**, assert exact match to `driver_supervisor` (Fleet operations + Driver Management + Drivers). Assert **Transport**, **Trips › My Trips / POD Records** absent. | P0 | Planned |
-| TC18 | Account Officer menu matrix | As **Account Officer**, assert exact match to `account_officer` (Dashboard + Finished Goods). Assert dedicated **Finance / Costing** sidebar group absent (not implemented in portal nav). | P0 | Planned |
-| TC19 | Driver menu matrix | Clear cookies. Sign in as **Driver** (`driver1@yopmail.com` / `Nourish@1234!`). Assert exact match to `driver` (Dashboard; Transport › Transport orders; Trips › My Trips; Trips › POD Records). Assert **Vendors**, **Fleet operations**, **Master Data** absent. | P0 | Planned |
+| TC01 | Depot Officer menu matrix | Clear cookies. Open `http://nourish.dev.dfms.local:8000/admin/login/`. Sign in as **Depot Officer** (`depot.officer1.nourish@yopmail.com` / `Nourish@1234!`). Land on `/admin/` (not login/OTP). Hide `#djDebug*`. Scrape `#dfms-nav-sidebar` flat `Section › Item` list. Assert **exact** match to matrix row `depot_officer`. Assert sections **Gate**, **Transport**, **Master Data**, **Vendors**, **Users & Access** are absent. | P0 | Pass |
+| TC02 | Feed Mill Officer menu matrix | As **Feed Mill Officer** (`feed.mill.officer1.nourish@yopmail.com`), login and scrape sidebar. Assert exact match to `feed_mill_officer` (Overview › Dashboard; Requisition › Finished Goods only). | P0 | Pass |
+| TC03 | Commercial Officer menu matrix | As **Commercial Officer**, assert exact match to `commercial_officer` (Overview › Dashboard; Port Shipments › Port Shipments). Assert **Requisition › Finished Goods** and **Procurement** are absent. | P0 | Pass |
+| TC04 | Procurement Officer menu matrix | As **Procurement Officer**, assert exact match to `procurement_officer` (Dashboard + Procurement › Port Shipments + Transport requests). Assert top-level **Port Shipments** group (Commercial-only) is absent. | P0 | Pass |
+| TC05 | Distribution Officer menu matrix | As **Distribution Officer**, assert exact match to `distribution_officer`. Assert **Transport**, **Gate**, **Vendors** absent. | P0 | Pass |
+| TC06 | Distribution Manager menu matrix | As **Distribution Manager**, assert exact match to `distribution_manager` (same distribution menus as DO). | P0 | Pass |
+| TC07 | Transport Planner menu matrix | As **Transport Planner**, assert exact match to `transport_planner` including **Vendors › Vendors**, Master Data (Vehicle Brands, Vehicles, Helpers), Users & Access › Drivers, Transport (Live GPS, Transport requests, Transport orders, Vehicle planning). Assert **Gate** and **Command Center** sections absent. | P0 | Pass |
+| TC08 | TDO Vendor Fleet menu matrix | As **TDO Vendor Fleet**, assert exact match to `tdo_vendor_fleet` (Dashboard; Live GPS; Transport orders; Bids management; Vendors). Assert **Master Data**, **Trips**, **Users & Access**, **Fleet operations** absent. | P0 | Pass |
+| TC09 | POI-Admin yard menu matrix | As **POI-Admin**, assert exact match to `poi_admin` (Gate + Command Center + Loading + Unloading + QC Checkpoint + Scaling + Drivers). Assert **Requisition**, **Master Data** (POIs/etc.), **Distribution** absent. | P0 | Pass |
+| TC10 | Command Center Officer menu matrix | As **Command Center Officer**, assert exact match to `command_center_officer` only. Assert **Gate**, **Loading**, **Scaling**, **Transport** absent. | P0 | Pass |
+| TC11 | Gateman menu matrix | As **Gateman**, assert exact match to `gateman`. Assert **Command Center**, **Master Data**, **Scaling** absent. | P0 | Pass |
+| TC12 | Scaling Operator menu matrix | As **Scaling Operator**, assert exact match to `scaling_operator`. Assert **Gate**, **Master Data**, **Command Center** absent. | P0 | Pass |
+| TC13 | Loading Personnel menu matrix | As **Loading Personnel**, assert exact match to `loading_personnel`. Assert **Unloading**, **Gate**, **Command Center** absent. | P0 | Pass |
+| TC14 | Unloading Personnel menu matrix | As **Unloading Personnel**, assert exact match to `unloading_personnel`. Assert **Loading**, **Gate**, **Command Center** absent. | P0 | Pass |
+| TC15 | QC Inspector Physical menu matrix | As **QC Inspector – Physical**, assert exact match to `qc_inspector_physical`. Assert **Command Center**, **Requisition** absent. | P0 | Pass |
+| TC16 | QA Lab Technician menu matrix | As **QA Lab Technician**, assert exact match to `qa_lab_technician` (Dashboard + Finished Goods only). | P0 | Pass |
+| TC17 | Driver Supervisor menu matrix | As **Driver Supervisor**, assert exact match to `driver_supervisor` (Fleet operations + Driver Management + Drivers). Assert **Transport**, **Trips › My Trips / POD Records** absent. | P0 | Pass |
+| TC18 | Account Officer menu matrix | As **Account Officer**, assert exact match to `account_officer` (Dashboard + Finished Goods). Assert dedicated **Finance / Costing** sidebar group absent (not implemented in portal nav). | P0 | Pass |
+| TC19 | Driver menu matrix | Clear cookies. Sign in as **Driver** (`driver1@yopmail.com` / `Nourish@1234!`). Assert exact match to `driver` (Dashboard; Transport › Transport orders; Trips › My Trips; Trips › POD Records). Assert **Vendors**, **Fleet operations**, **Master Data** absent. | P0 | Pass |
 
 ---
 
@@ -120,8 +134,8 @@ Assert **exact ordered** flat list: scrape each `.dfms-nav-group` → heading = 
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC20 | Narrow roles never see Users admin | For **gateman**, **scaling_operator**, and **loading_personnel** (reuse sessions from A or re-login): assert sidebar has **no** **Users & Access › Users** and **no** **Audit Logs**. | P1 | Planned |
-| TC21 | TP and TDO both see Vendors only as listed | As **TP** and **TDO**, assert **Vendors › Vendors** present; assert no Vendor **management** items beyond that single hub link in the sidebar (detail CRUD is out of scope — see VM-09). | P1 | Planned |
+| TC20 | Narrow roles never see Users admin | For **gateman**, **scaling_operator**, and **loading_personnel** (reuse sessions from A or re-login): assert sidebar has **no** **Users & Access › Users** and **no** **Audit Logs**. | P1 | Pass |
+| TC21 | TP and TDO both see Vendors only as listed | As **TP** and **TDO**, assert **Vendors › Vendors** present; assert no Vendor **management** items beyond that single hub link in the sidebar (detail CRUD is out of scope — see VM-09). | P1 | Pass |
 
 ---
 
