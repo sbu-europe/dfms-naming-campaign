@@ -37,10 +37,10 @@ DFMS is **not** a GPS hardware vendor. Vehicles carry a tracker; DFMS receives l
 | Document | Covers | PRD |
 |----------|--------|-----|
 | **[providers/README.md](providers/README.md)** | GPS devices & how each provider connects (all devices in one file) | §9.1 |
-| **[vehicle-arrival-departure.md](vehicle-arrival-departure.md)** | Automatic arrival / departure at POIs | §6.5.6, §6.5.8 |
 
 Live GPS (§6.5.5): backlog story [GPS-01](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc.  
 POI geofence radius (§6.5.7): backlog story [GPS-02](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) — not a separate module doc.  
+Arrival / departure (§6.5.6 / §6.5.8): backlog story [GPS-03](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) — not a separate module doc.  
 Dwell (planned / gate / geofence): backlog story [GPS-04](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) (§6.5.9) — not a separate module doc.  
 Maps Dashboard (§6.5.4 / §6.9.2): backlog story [GPS-05](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc.
 
@@ -96,7 +96,7 @@ Vehicle has GPS device linked in master data
 |-------|-----|------|
 | GPS-01 / DFS-070 | §6.5.5 | [Sprint 5](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) |
 | GPS-02 | §6.5.7 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) |
-| GPS-03 | §6.5.6, §6.5.8 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-geofence-engine-arrival-departure.md) |
+| GPS-03 | §6.5.6, §6.5.8 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) |
 | GPS-04 | §6.5.9 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) |
 | GPS-05 | §6.5.4, §6.9.2 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) |
 

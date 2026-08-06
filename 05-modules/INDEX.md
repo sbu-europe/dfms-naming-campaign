@@ -243,7 +243,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [README.md](09-tracking/README.md) — Module hub
 - [providers/README.md](09-tracking/providers/README.md) — GPS devices / providers (all in one file)
 - Live GPS (§6.5.5): [GPS-01](../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc
-- [vehicle-arrival-departure.md](09-tracking/vehicle-arrival-departure.md) — §6.5.6 / §6.5.8
+- Arrival / departure (§6.5.6 / §6.5.8): [GPS-03](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) — not a separate module doc
 - Maps Dashboard (§6.5.4 / §6.9.2): [GPS-05](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc
 - POI geofence radius (§6.5.7): [GPS-02](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)
 - Dwell (§6.5.9): [GPS-04](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)

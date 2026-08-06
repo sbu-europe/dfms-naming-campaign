@@ -1,15 +1,20 @@
 ---
-module: 09-tracking
-specification: Vehicle Arrival & Departure at POI
+jira_key: DFS-079
+jira_type: Story
+jira_sprint: "Sprint 6"
+story_id: GPS-03
+title: Vehicle Arrival & Departure at POI
+epic: GPS & Maps Dashboard
+status: Delivered (core)
+story_points: 3
+assignee: ~
 prd_refs:
   - "§6.5.6 Geofencing and POI Tracking"
   - "§6.5.8 Vehicle Arrival Tracking at POI"
-related_stories: [GPS-03]
-status: Delivered (core)
-last_updated: 2026-08-06
+phase: Phase 1
 ---
 
-# Vehicle Arrival & Departure at POI
+# GPS-03 — Vehicle Arrival & Departure at POI
 
 ## User Story
 
@@ -79,7 +84,7 @@ Geofence event admin views are read-only.
 ## Business rules
 
 - Events are linked to **TO ID** (and trip / vehicle / POI).
-- Radius comes from POI master — see [GPS-02](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md).
+- Radius comes from POI master — see [GPS-02](GPS-02-poi-geofence-boundary-management.md).
 - Arrival supports gate-in / operational readiness **without requiring** GPS to replace gate process; gate timestamps remain a separate “Real Time (Gate)” source for dwell comparison.
 
 ## API (product-facing, short)
@@ -94,9 +99,9 @@ Live map payload also indicates whether a vehicle is currently inside POI(s).
 ## Dependencies
 
 - **Requires:** GPS feed (GPS-01), POI radius (GPS-02), active Trip/TO with origin & destination  
-- **Enables:** [GPS-04 dwell](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md), map “inside geofence” cues, future Maps Dashboard presence  
+- **Enables:** [GPS-04 dwell](GPS-04-dwell-time-tracking.md), map “inside geofence” cues, future Maps Dashboard presence  
 
 ## Related
 
-- [GPS-02 geofence radius](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) · [GPS-04 dwell](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) · [Module hub](README.md)  
+- [GPS-02 geofence radius](GPS-02-poi-geofence-boundary-management.md) · [GPS-04 dwell](GPS-04-dwell-time-tracking.md) · [Module hub](../../../../05-modules/09-tracking/README.md)  
 - Story: GPS-03  

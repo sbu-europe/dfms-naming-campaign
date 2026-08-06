@@ -69,7 +69,7 @@ Consumer products that are sold quickly at relatively low cost. One of DFMS's ta
 ## G
 
 ### Geofencing
-Virtual geographic boundaries defined around Points of Interest (POIs) to trigger alerts when vehicles enter or exit these zones. Phase 1 uses **radius-based circles** on POI master data; event engine evaluates **TO origin/destination** only. SSOT: [`05-modules/09-tracking/vehicle-arrival-departure.md`](../../05-modules/09-tracking/vehicle-arrival-departure.md)
+Virtual geographic boundaries defined around Points of Interest (POIs) to trigger alerts when vehicles enter or exit these zones. Phase 1 uses **radius-based circles** on POI master data; event engine evaluates **TO origin/destination** only. SSOT: [`GPS-03`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)
 
 ### GPS (Global Positioning System)
 Satellite-based navigation system used for real-time vehicle tracking. DFMS Phase 1 runtime provider is **GT06 TCP ingest** (GPSWOX adapter deferred). SSOT: [`05-modules/09-tracking/README.md`](../../05-modules/09-tracking/README.md)
