@@ -2,9 +2,9 @@
 
 > Centralized index of all change requests
 
-**Last Updated**: 2026-07-28
+**Last Updated**: 2026-08-06
 
-**Next CR number**: **CR-003** (use when creating the next change request)
+**Next CR number**: **CR-004** (use when creating the next change request)
 
 ---
 
@@ -12,14 +12,14 @@
 
 | Status | Count |
 |--------|-------|
-| 📝 Draft | 0 |
+| 📝 Draft | 1 |
 | ⏳ Pending Review | 0 |
 | 👀 In Review | 0 |
 | ✅ Approved | 0 |
 | 🚧 In Progress | 0 |
 | ✅ Implemented | 2 |
 | ❌ Rejected | 0 |
-| **Total** | **2** |
+| **Total** | **3** |
 
 ---
 
@@ -29,6 +29,7 @@
 |------|-------|----------|----------|--------|------|-------------|
 | [CR-001](./CR-001-phase-based-architecture.md) | Phase-Based Architecture Documentation | 🏗️ Architecture | High | ✅ Implemented | 2026-02-13 | 2026-02-13 |
 | [CR-002](./CR-002-staff-phone-invite-login-password.md) | Staff phone invitation, login & forgot password | 📋 Business / 📚 Documentation | High | ✅ Implemented | 2026-07-28 | 2026-07-28 |
+| [CR-003](./CR-003-mandatory-onboarding-otp.md) | Mandatory onboarding OTP | 📋 Business / 🔧 Technical | High | 📝 Draft | 2026-08-06 | — |
 
 ---
 
@@ -39,6 +40,7 @@
 
 ### 📋 Business
 - [CR-002](./CR-002-staff-phone-invite-login-password.md) - Staff phone invitation, login & forgot password
+- [CR-003](./CR-003-mandatory-onboarding-otp.md) - Mandatory onboarding OTP
 
 ### 🔌 Contracts
 - *(None yet)*
@@ -48,6 +50,7 @@
 
 ### 🔧 Technical
 - [CR-002](./CR-002-staff-phone-invite-login-password.md) - Staff phone invitation, login & forgot password
+- [CR-003](./CR-003-mandatory-onboarding-otp.md) - Mandatory onboarding OTP
 
 ### 🌐 Integration
 - *(None yet)*
@@ -59,6 +62,9 @@
 ### ✅ Implemented
 - [CR-001](./CR-001-phase-based-architecture.md) - Phase-Based Architecture Documentation
 - [CR-002](./CR-002-staff-phone-invite-login-password.md) - Staff phone invitation, login & forgot password
+
+### 📝 Draft
+- [CR-003](./CR-003-mandatory-onboarding-otp.md) - Mandatory onboarding OTP
 
 ### ⏳ Pending Review
 - *(None)*
@@ -72,6 +78,7 @@
 
 | Date | CR # | Action | Status |
 |------|------|--------|--------|
+| 2026-08-06 | CR-003 | Created (design agreed, pending implementation) | 📝 Draft |
 | 2026-07-28 | CR-002 | Created & Implemented (docs aligned to backend) | ✅ Implemented |
 | 2026-02-13 | CR-001 | Created & Implemented | ✅ Implemented |
 
