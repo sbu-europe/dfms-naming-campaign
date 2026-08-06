@@ -24,6 +24,8 @@ implementation_reference:
 **Change request**: [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md)  
 **Sprint tracker**: [FB-032](../../03-backlog/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
 
+> **Planned change ([CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md), draft)**: onboarding OTP (§2.4) will become **unconditional** for every invitation, regardless of `otp_type` — the "Allowed OTP types" table in §2.1 and the "Optional OTP step" language in §2.4 reflect **current** shipped behavior only. `otp_type` itself, the invite form, and the API/CSV contracts are **not changing** — `otp_type` continues to exist solely for login 2FA (§3.3), which is explicitly out of scope for CR-003 and fully unaffected. This note will be replaced with updated §2.4 language once CR-003 ships.
+
 ---
 
 ## 1. Summary
