@@ -242,11 +242,11 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Specifications
 - [README.md](09-tracking/README.md) — Module hub
 - [providers/README.md](09-tracking/providers/README.md) — GPS devices / providers (all in one file)
-- [live-gps-monitoring.md](09-tracking/live-gps-monitoring.md) — §6.5.5 Live GPS
-- [geofence-boundary-management.md](09-tracking/geofence-boundary-management.md) — §6.5.7
+- Live GPS (§6.5.5): [GPS-01](../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc
 - [vehicle-arrival-departure.md](09-tracking/vehicle-arrival-departure.md) — §6.5.6 / §6.5.8
-- [dwell-time-tracking.md](09-tracking/dwell-time-tracking.md) — §6.5.9
-- [maps-dashboard.md](09-tracking/maps-dashboard.md) — §6.5.4 / §6.9.2
+- Maps Dashboard (§6.5.4 / §6.9.2): [GPS-05](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc
+- POI geofence radius (§6.5.7): [GPS-02](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)
+- Dwell (§6.5.9): [GPS-04](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
 
 Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/tracking/PRD_AS_BUILT.md`
 

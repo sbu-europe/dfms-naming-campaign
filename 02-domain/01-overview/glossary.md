@@ -51,7 +51,7 @@ The duration a vehicle spends at a Point of Interest. **DFMS distinguishes two m
 | **Geofence dwell** | Exit − entry at the POI geofence circle (`GeofenceEvent`) |
 | **Gate dwell** | Gate-out − gate-in at yard operations |
 
-SSOT: [`05-modules/09-tracking/dwell-time-tracking.md`](../../05-modules/09-tracking/dwell-time-tracking.md)
+SSOT: [`GPS-04`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
 
 ## E
 

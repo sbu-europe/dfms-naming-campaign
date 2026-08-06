@@ -3,7 +3,7 @@ jira_key: DFS-078
 jira_type: Story
 jira_sprint: "Sprint 6"
 story_id: GPS-02
-title: POI Geofencing Boundary Management — Tenant Admin Configuration
+title: POI Geofencing Boundary Management — Radius on POI Master
 epic: GPS & Maps Dashboard
 status: New — Sprint 6 Scope
 story_points: 1
@@ -17,13 +17,11 @@ phase: Phase 1
 
 ## User Story
 
-**As a** Tenant Admin
-**I want to** define and manage geofence boundaries (radius in meters) for each Point of Interest (POI) — depots, feed mills, and port berths — from within the POI master data admin
-**So that** vehicle arrival and departure events are detected automatically, and I can tune boundaries per facility without involving the development team.
+**As a** Tenant Admin  
+**I want to** define a geofence radius (metres) for each Point of Interest  
+**So that** vehicle arrival and departure can be detected automatically when entering or leaving a facility.
 
-**As a** Tenant Admin
-**I want to** also configure a dwell time threshold per POI
-**So that** the system can flag vehicles that stay too long at a loading or unloading point, allowing supervisors to intervene before an operational delay cascades.
+*(PRD §6.5.7)*
 
 ---
 
@@ -31,71 +29,109 @@ phase: Phase 1
 
 ### Why geofence configuration matters
 
-DFMS moves goods across multiple facilities — a coastal port berth (where unloading takes 4–6 hours and the geofence radius needs to be tight to distinguish berths), a large feed mill compound (where the truck queue stretches well outside the gates), and a smaller depot. A single fixed boundary radius cannot serve all three.
+Depots, feed mills, ports, and warehouses need different boundary sizes. A single fixed radius cannot serve a tight port berth and a large mill compound. Geofence configuration sits on **POI master data**; the tracking engine and Live GPS read the current radius.
 
-PRD §6.5.7 assigns geofence configuration to the **Tenant Admin** — the role responsible for all master data and configuration within the tenant. This story gives that admin the configuration surface. Without it:
-- GPS-03 (geofence engine) has no radius to evaluate against → no arrival/departure events are fired.
-- GPS-04 (dwell tracking) has no threshold to flag → no exception alerts.
-- GPS-05 (maps dashboard) cannot display geofence zone circles → the map is bare POI markers only.
+Without a radius:
 
-### How geofence config flows operationally
+- Arrival / departure events have no boundary to evaluate (GPS-03)
+- Live GPS cannot draw meaningful geofence circles
+- Geofence dwell cannot be calculated (GPS-04)
 
-1. Tenant Admin opens **POI master data** → selects a POI → sets **Geofence Radius (m)** and **Dwell Time Threshold (minutes)**.
-2. GPS-03 engine reads the current radius **at evaluation time** (not cached at trip start) — so changes take effect for live trips immediately.
-3. GPS-04 reads the configured threshold to flag in-progress and completed stays that exceed the limit.
-4. Historical `GeofenceEvent` records are **never deleted** when a radius is removed — the boundary change is audited and the historical events remain.
+### How geofence config flows
 
-### Governance rationale
+```
+Tenant Admin opens POI → sets Geofence Radius (m)
+  → Live GPS draws the circle immediately
+  → Arrival/departure engine uses current radius on each GPS update
+```
 
-Geofence radius changes affect real-time event detection. A misconfigured radius (e.g., too large at a port) could suppress ARRIVAL events for vehicles that never actually entered the facility. Therefore:
-- **Only Tenant Admin** and platform configuration roles can modify geofences — operational users (gate staff, transport planners) see the radius as read-only context.
-- Every change is audit-logged (who, when, old → new radius) — PRD §6.2.7 and §10.3 mandate immutable audit trails for all configuration mutations.
-- Geofence deletion requires **explicit confirmation** to prevent accidental removal.
+1. Tenant Admin opens **POI master data** → selects a POI → sets **Geofence Radius (m)**.
+2. Live GPS and GPS-03 read the **current** radius at evaluation / display time — changes apply **immediately** for live trips and map display (no “wait until next trip”).
+3. Historical `GeofenceEvent` records are **not deleted** when a radius changes.
+
+### Geofence definition (Phase 1)
+
+| Attribute | Rule |
+|-----------|------|
+| Shape | Circle only |
+| Center | POI latitude / longitude |
+| Radius | Metres on POI master — **one active geofence per POI** |
+| Effect of change | Immediate for live trips and map display |
+| Who can change | Tenant Admin / users authorised to edit POI master |
+
+PRD cites a configurable range (e.g. 50–1000 m). Product intent: radius is required for geofenced operations; enforce sensible min/max as validation matures.
+
+Only **Active** POIs with coordinates participate in map and operational geofencing. Changing coordinates or radius updates the boundary used by GPS monitoring. Yard “gate dwell” is separate from geofence dwell (see GPS-04).
 
 ---
 
 ## Acceptance Criteria
 
-### AC-1 — Radius-based geofence definition
+### AC-1 — Radius on POI master
 
-- Tenant Admin defines/edits a geofence **radius in meters** per POI from POI master data admin; validation enforces a sane range (min/max agreed with PO).
-- Geofence is linked to the POI master record — **one active geofence per POI** at a time.
+- Tenant Admin defines/edits a geofence **radius in metres** per POI from POI master data admin (standard POI edit — not a separate geofence object).
+- Geofence is a **circle** centred on the POI latitude/longitude; **one active geofence per POI**.
+- Validation enforces a sane min/max range (agreed with PO; PRD example 50–1000 m).
+- Only **Active** POIs with coordinates participate in operational and map geofencing.
 
-### AC-2 — Immediate effect
+### AC-2 — Immediate effect on live trips and map
 
-- Radius changes take effect **immediately for live trips** — the engine (GPS-03) reads the current radius at evaluation time; no restart, cache flush, or trip re-creation needed. Verified by changing a radius while a (mock) vehicle is near the boundary.
+- Radius (and coordinate) changes take effect **immediately** for live trips and Live GPS map circles — no restart, cache flush, or trip re-creation.
+- GPS-03 reads the current radius at evaluation time on each GPS update.
 
-### AC-3 — Governance
+### AC-3 — Access and history preservation
 
-- Only Tenant Admin / authorized configuration roles can create, modify, or remove a geofence; other roles see read-only values.
-- Every change audit-logged: who, when, POI, old → new radius.
-- Geofence **deletion (radius removal) requires explicit confirmation** and writes an audit entry; deletion stops new event detection but never deletes historical `GeofenceEvent` records.
+- Roles with POI write (Tenant Admin / authorised config) can edit the radius; other roles that can view POI see radius as read-only context.
+- Changing radius does **not** delete historical arrival/departure (`GeofenceEvent`) records.
+- Change history is covered by **general POI / audit** behaviour — this story does **not** require a dedicated geofence-only audit surface.
 
-### AC-4 — Dwell threshold configuration
+### Out of scope (explicit)
 
-- Configurable **dwell time threshold** per POI plus a tenant-level default; same RBAC and audit rules as the radius. Consumed by GPS-04 exception flagging.
+- Dedicated geofence-only API + delete UX (configure via POI edit today).
+- Dedicated geofence-specific audit log UI.
+- Per-POI dwell threshold on master and tenant-level dwell-default settings — Phase 1 exceptions use **planned dwell on the TO** ([GPS-04](GPS-04-dwell-time-tracking.md)).
 
 ---
 
 ## API Endpoints
 
-Geofence configuration lives on the POI resource. No standalone geofence object: the radius and threshold are fields on the POI master record, with a dedicated PATCH surface for admin mutation and change audit.
+Geofence radius lives on the POI resource. Phase 1 delivery is **POI read/write** (admin form and/or standard POI API), not a standalone geofence object.
 
+```http
+# Read — authorised roles that can view POI master
+GET /api/v1/pois/{poi_id}/
+# Response includes geofence radius (and lat/lng), e.g.:
+{
+  "id": "...",
+  "name": "...",
+  "latitude": 23.81,
+  "longitude": 90.41,
+  "geofence_radius_m": 200,
+  "is_active": true
+}
+
+GET /api/v1/pois/
+# List includes geofence radius so Live GPS / maps can draw circles
+
+# Write — roles with POI write (Tenant Admin / authorised config)
+PATCH /api/v1/pois/{poi_id}/
+# Update geofence_radius_m (and/or coordinates) via standard POI update;
+# engine and Live GPS read the new values immediately
 ```
-# Read (accessible to authorized roles — see Access & Permissions below)
-GET    /api/v1/pois/{poi_id}/                           # POI detail incl. geofence_radius_m and dwell_threshold_minutes
-GET    /api/v1/pois/                                    # POI list incl. geofence radius (GPS-05 reads this for map circles)
 
-# Write — Tenant Admin only
-PATCH  /api/v1/pois/{poi_id}/geofence/                  # set/update radius_m and/or dwell_threshold_minutes; old→new audit written
-DELETE /api/v1/pois/{poi_id}/geofence/                  # remove radius (requires confirmation token); audit written; historical events preserved
+> There is no separate user write for derived tracking fields. Radius is master-data configuration; arrival/departure and dwell are calculated by downstream engines.
 
-# Tenant-level dwell default
-GET    /api/v1/tenant/settings/dwell-threshold/         # read current tenant-default threshold
-PATCH  /api/v1/tenant/settings/dwell-threshold/         # update tenant-default; Tenant Admin only
+### Deferred / out of scope APIs
+
+These paths were previously sketched for a dedicated geofence surface and dwell-threshold config. They are **not** Sprint Phase 1 acceptance for GPS-02:
+
+```http
+PATCH  /api/v1/pois/{poi_id}/geofence/                  # dedicated geofence-only mutate + delete UX
+DELETE /api/v1/pois/{poi_id}/geofence/                  # dedicated radius removal with confirm token
+GET    /api/v1/tenant/settings/dwell-threshold/         # tenant-default dwell threshold
+PATCH  /api/v1/tenant/settings/dwell-threshold/         # tenant-default dwell threshold
+# Per-POI dwell_threshold_minutes on POI — deferred; see GPS-04 planned dwell
 ```
-
-> The `DELETE` endpoint must accept a `confirm=true` query param or body flag — a bare DELETE without confirmation returns 400. This enforces the explicit-confirmation requirement in AC-3.
 
 ---
 
@@ -103,14 +139,10 @@ PATCH  /api/v1/tenant/settings/dwell-threshold/         # update tenant-default;
 
 | Action | Role |
 |--------|------|
-| View POI geofence radius and dwell threshold | All authenticated roles (read-only in their context) |
-| Create or update geofence radius per POI | Tenant Admin |
-| Delete (remove) geofence radius | Tenant Admin (with explicit confirmation) |
-| Configure dwell time threshold per POI | Tenant Admin |
-| Configure tenant-level default dwell threshold | Tenant Admin |
-| View geofence change audit log | Tenant Admin |
+| View POI including radius | Roles that can view POI master |
+| Edit geofence radius | Roles with POI write (Tenant Admin / authorised config) |
 
-> Operational roles (Transport Planner, TDO, Gate Staff, etc.) can **read** the geofence radius as part of POI context but cannot modify it. The GPS-05 dashboard uses the radius to draw geofence circles — this is a read operation by the dashboard service, not a user action.
+> Operational roles may **read** radius as POI context (e.g. Live GPS drawing circles) but do not edit it. Dedicated geofence delete confirmation UX and dwell-threshold configuration actions are out of scope for this story.
 
 ---
 
@@ -118,19 +150,18 @@ PATCH  /api/v1/tenant/settings/dwell-threshold/         # update tenant-default;
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| GPS-02-1 | Geofence radius admin | AC-1: radius field + validation on POI admin, one-active rule | High | Not started |
-| GPS-02-2 | Immediate-effect verification | AC-2: engine reads live config; boundary-change test | Medium | Not started |
-| GPS-02-3 | RBAC, audit & delete confirmation | AC-3: config-role gating, change audit, confirmed deletion | High | Not started |
-| GPS-02-4 | Dwell threshold config | AC-4: per-POI threshold + tenant default | Medium | Not started |
+| GPS-02-1 | Geofence radius admin | AC-1: radius field + validation on POI admin; circle / one-active rule | High | Not started |
+| GPS-02-2 | Immediate-effect verification | AC-2: live trips + map use current radius after change | Medium | Not started |
+| GPS-02-3 | Access & history preservation | AC-3: POI-write gating; historical events preserved; general POI audit sufficient | High | Not started |
 
 ---
 
 ## Definition of Done
 
-- [ ] Radius configurable per POI with validation and one-active rule (AC-1)
-- [ ] Live-trip immediate effect demonstrated (AC-2)
-- [ ] All changes audited; deletion confirmed + audited; history preserved (AC-3)
-- [ ] Dwell thresholds configurable and readable by GPS-04 (AC-4)
+- [ ] Radius configurable per POI with validation, circle centre, and one-active rule (AC-1)
+- [ ] Live-trip and map immediate effect demonstrated (AC-2)
+- [ ] Only POI-write roles can edit radius; historical events preserved on change (AC-3)
+- [ ] No Sprint AC requiring dedicated geofence API/delete UX, dedicated geofence audit UI, or per-POI dwell threshold (out of scope)
 
 ---
 
@@ -138,11 +169,11 @@ PATCH  /api/v1/tenant/settings/dwell-threshold/         # update tenant-default;
 
 | Dependency | Direction | Note |
 |------------|-----------|------|
-| POI master data | Extends | `lat`/`lng` exist (Sprint 4); radius + threshold fields added here |
-| GPS-03 geofence engine | Consumer | Reads radius at evaluation time (AC-2 contract) |
-| GPS-04 dwell tracking | Consumer | Reads thresholds (AC-4) |
-| AUD-01 audit framework | Integration | Geofence config changes should emit the AUD-01 unified audit standard directly |
+| POI master data | Requires | Radius field and admin UX on POI ([poi-management](../../../../05-modules/02-master-data/poi-management.md)) |
+| GPS-03 arrival/departure | Enables | Engine evaluates against current POI radius |
+| GPS-04 dwell | Enables | Geofence dwell uses arrival/departure pairs at the configured boundary |
+| Live GPS / maps | Enables | Map draws geofence circles from POI radius |
 
 ---
 
-*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 1 SP | PRD: §6.5.7 | Jira: DFS-078 | Last Updated: 2026-06-15*
+*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 1 SP | PRD: §6.5.7 | Jira: DFS-078 | Last Updated: 2026-08-06*

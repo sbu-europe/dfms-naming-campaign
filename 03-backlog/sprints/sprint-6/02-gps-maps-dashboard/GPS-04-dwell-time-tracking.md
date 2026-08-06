@@ -3,7 +3,7 @@ jira_key: DFS-080
 jira_type: Story
 jira_sprint: "Sprint 6"
 story_id: GPS-04
-title: Dwell Time Tracking — Calculation, Visibility & Threshold Exceptions
+title: Dwell Time Tracking — Planned, Gate & Geofence Visibility
 epic: GPS & Maps Dashboard
 status: New — Sprint 6 Scope
 story_points: 2
@@ -19,12 +19,8 @@ phase: Phase 1
 ## User Story
 
 **As a** Transport Planner and Transport Distribution Officer
-**I want to** see how long each vehicle stayed at its source POI (for loading) and destination POI (for unloading)
-**So that** I can identify which facilities are causing operational bottlenecks and escalate before a delay cascades into a missed delivery window.
-
-**As a** Transport Planner
-**I want the** system to flag vehicles that are still inside a POI geofence beyond the configured dwell time threshold
-**So that** I am proactively alerted to a loading or unloading delay — before the vehicle has even departed.
+**I want to** see planned, gate, and geofence dwell for source and destination POIs on a transport order
+**So that** I can compare plan vs actual, identify bottlenecks, and assess delays without relying on a single clock source.
 
 *(PRD §6.5.9)*
 
@@ -32,84 +28,102 @@ phase: Phase 1
 
 ## Business Context
 
-### Why dwell time is a key operational metric
+### Why dwell time matters
 
-In the DFMS context, **dwell time** is the duration a vehicle spends inside a facility's geofence boundary between arrival and departure. Excessive dwell at a feed mill or depot typically indicates:
-- Loading crew shortage or equipment failure (at source).
-- Congestion or documentation hold (at destination).
-- Unauthorized driver stop (on-route POI visits).
+In the DFMS context, **dwell** is how long a vehicle spends at a facility. For this module, the business needs three complementary perspectives on the same stop:
+- **Planned** dwell from TO planning.
+- **Real Time (Gate)** dwell from gate-in / gate-out operations.
+- **Geofence time** from GPS arrival / departure at the POI boundary.
 
-Without dwell measurement, transport planners have no data to support decisions like "increase the truck turn-around target at POI X" or "raise a case with the depot manager about slow loading." PRD §6.5.9 mandates automatic dwell calculation as a Phase 1 deliverable — it is part of the operational efficiency case for DFMS.
+This lets planners compare operational reality against plan and distinguish yard-process delays from GPS-derived movement events.
 
 ### How dwell time flows
 
-1. **GPS-03 fires ARRIVAL** → a dwell record for this vehicle/POI/trip visit is opened with `arrival_timestamp`.
-2. **Vehicle remains inside** → a **Celery periodic task** checks in-progress stays against the POI's configured threshold (GPS-02 AC-4). If the threshold is exceeded **before departure**, an exception flag is raised and visible on the GPS-05 KPI bar and the trip timeline — the planner can act without waiting for the vehicle to leave.
-3. **GPS-03 fires DEPARTURE** → dwell record is closed: `dwell_seconds = departure_timestamp − arrival_timestamp`. If the completed stay exceeded the threshold, the dwell record is also marked as an exception.
-4. **Transport Planner views** → dwell time appears on the TO timeline (with the departure event) and the geofence-event history API (GPS-03 AC-4). Aggregated POI-level dwell metrics (avg/max, visit counts, exception counts) are available for reporting.
+1. **Planned dwell** is defined on the transport order milestone.
+2. **Gate dwell** is derived from yard-operation timestamps where those events exist.
+3. **Geofence dwell** is calculated from GPS arrival and departure events at source and destination POIs.
+4. **Transport Planner / TDO views** the three dwell values together under the TO's planned milestone context to compare plan vs actual.
 
-### Multiple visits
+### Dwell glossary
 
-A single vehicle may visit the same POI more than once within a trip (e.g. a vehicle re-entering the source depot after a rejected load). Each visit produces a **separate dwell record** — the calculation is per ARRIVAL→DEPARTURE pair, not per trip.
+| Name | Meaning | Source |
+|------|---------|--------|
+| **Planned** | Planned time at source / destination from TO planning | TO / planning fields |
+| **Real Time (Gate)** | Gate-out minus gate-in | Gate / operations |
+| **Geofence time** | Departure minus arrival at the POI geofence | GPS entry / exit events |
 
-### Edge cases that must be handled explicitly
-
-| Edge case | Rule |
-|-----------|------|
-| Vehicle starts inside a geofence (no preceding ARRIVAL within this trip) | Dwell start = trip start timestamp; flagged as "estimated — no ARRIVAL event" |
-| Trip completed while vehicle still inside geofence | Dwell closed at trip-completion timestamp; flagged as "trip ended in fence" |
-| GPS signal lost during dwell | Last known position used; flag set on dwell record: "signal lost — dwell may be underestimated" |
-| Engine restart during an open dwell | Resume from Redis presence state; do not create a duplicate ARRIVAL |
-| Negative dwell (clock skew / out-of-order events) | Clamp to zero; log warning; never store negative values |
-
-All rules must be documented in code and referenced in the coverage report.
+All three may appear for both **Source** and **Destination** legs on the transport order.
 
 ---
 
 ## Acceptance Criteria
 
-### AC-1 — Dwell calculation
+### AC-1 — Geofence dwell calculation
 
-- On a `DEPARTURE` event, dwell time is auto-calculated as `departure_timestamp − arrival_timestamp` for that vehicle/POI/trip and stored against the geofence event pair.
-- Calculation covers **both source and destination POIs** of a trip; multiple visits to the same POI within one trip produce separate dwell records.
-- Edge cases defined and handled: missing arrival (event starts mid-fence after signal loss), trip completed while still in fence, engine restart — rules documented, no unbounded or negative dwell values.
+- On a `DEPARTURE` event, geofence dwell is auto-calculated as `departure_timestamp − arrival_timestamp` for that vehicle/POI visit.
+- Calculation applies to both **source** and **destination** POIs in the same operational scope as GPS arrival/departure.
+- Geofence dwell is system-calculated from event timestamps; users do not manually write or override it.
 
-### AC-2 — Visibility
+### AC-2 — Three-way dwell visibility on the TO
 
-- Dwell time visible per trip: on the TO timeline (with the departure event) and in the geofence-event history API (GPS-03 AC-4).
-- Dwell time visible per POI: aggregation view (avg/max dwell, visit count, exception count over a date range) available to authorized roles — admin report view or dashboard widget (GPS-05).
+- The transport order milestone view shows **Planned**, **Real Time (Gate)**, and **Geofence time** together for relevant source and destination stops.
+- Users can compare planned vs gate vs geofence dwell without leaving the TO context.
+- Gate dwell and geofence dwell are shown as distinct values because they answer different operational questions.
 
-### AC-3 — Threshold exceptions
+### AC-3 — Exception comparison scope
 
-- A periodic task flags vehicles whose **in-progress** stay exceeds the POI's configured threshold (GPS-02 AC-4) — the flag must not wait for departure.
-- Completed stays exceeding the threshold are marked as exceptions on the dwell record.
-- Exceptions are flagged for reporting: queryable per POI/per trip, surfaced in the GPS-05 KPI bar, and visible on the trip timeline.
+- Phase 1 exception visibility is limited to comparing **actual dwell vs planned dwell** on the transport order.
+- If actual dwell exceeds planned dwell, the overrun is visible in the TO context for planner review.
+- This story does **not** require in-fence proactive alerts, POI-level dwell thresholds, or a separate exception centre.
 
 ---
 
 ## API Endpoints
 
+```http
+# Geofence-event history for a transport order
+GET /api/v1/maps/transport-orders/{to_id}/geofence-events
+Response includes geofence dwell fields derived from arrival/departure events, e.g.:
+{
+  "to_id": "TO-123",
+  "events": [
+    {
+      "poi_role": "source",
+      "event_type": "DEPARTURE",
+      "arrival_timestamp": "2026-08-06T05:10:00Z",
+      "departure_timestamp": "2026-08-06T06:05:00Z",
+      "dwell_seconds": 3300
+    }
+  ]
+}
+
+# Transport-order timeline / milestone surface
+GET /api/v1/transport-orders/{to_id}/timeline
+Response includes milestone-level dwell comparison where available, e.g.:
+{
+  "to_id": "TO-123",
+  "milestones": [
+    {
+      "poi_role": "source",
+      "planned_dwell_seconds": 3600,
+      "gate_dwell_seconds": 3900,
+      "geofence_dwell_seconds": 3300,
+      "planned_vs_actual_status": "within_plan"
+    }
+  ]
+}
 ```
-# Dwell summary per trip (embedded in geofence-event history — GPS-03 AC-4 endpoint)
-GET   /api/v1/maps/transport-orders/{to_id}/geofence-events
-      Response includes: dwell_seconds, is_exception, dwell_status (in_progress|completed|signal_lost|trip_ended_in_fence)
 
-# Per-POI dwell aggregation report (for Transport Planner / Tenant Admin visibility)
-GET   /api/v1/maps/pois/{poi_id}/dwell-report
-      ?from=ISO8601&to=ISO8601                             # date range
-      Response: { poi_id, poi_name, avg_dwell_seconds, max_dwell_seconds,
-                  visit_count, exception_count, visits: [...] }
+> There is no write endpoint for dwell data. Planned dwell comes from TO planning, gate dwell comes from operational timestamps, and geofence dwell is calculated by the system from GPS arrival/departure events.
 
-# Active dwell exceptions (in-progress stays exceeding threshold — feeds GPS-05 KPI bar)
-GET   /api/v1/maps/dwell-exceptions/active
-      Response: list of { vehicle_id, poi_id, poi_name, arrival_timestamp,
-                          dwell_seconds_so_far, threshold_seconds, trip_id, to_id }
+---
 
-# Trip timeline — dwell appears on DEPARTURE event (existing TLS-01 endpoint, extended)
-GET   /api/v1/transport-orders/{to_id}/timeline
-```
+## Functional Notes
 
-> There is no write endpoint for dwell data. Dwell records are created and closed by the engine (GPS-03 events + Celery task), never by a user action.
+- There is no user write action for geofence dwell; it is derived from GPS arrival/departure events.
+- Planned dwell comes from TO planning data.
+- Gate dwell comes from gate operation timestamps where available.
+- The story outcome is primarily a **business visibility** feature in the transport-order context, not a standalone reporting module.
 
 ---
 
@@ -117,14 +131,10 @@ GET   /api/v1/transport-orders/{to_id}/timeline
 
 | Action | Role |
 |--------|------|
-| View dwell time per trip (timeline + geofence-event history) | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
-| View per-POI dwell aggregation report | Transport Planner, Tenant Admin |
-| View active dwell threshold exceptions | Transport Planner, TDO — Own Fleet, Tenant Admin |
-| View dwell exception indicators on GPS-05 KPI bar | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
-| Configure dwell threshold per POI | Tenant Admin (via GPS-02) |
-| Write / close dwell records | **System only** — engine and Celery task; no user write surface |
+| View dwell on TO / history | Transport Planner, TDO — Own Fleet, TDO — Vendor Fleet, Tenant Admin |
+| Manually set geofence dwell | **Nobody** — calculated from events |
 
-> Vendor-fleet TDOs can see dwell for TOs in their scope (vendor trips). Gate staff, scaling operators, and other yard roles do not have access to the dwell aggregation or exception APIs — they see their own queues via module-specific screens.
+> Vendor-fleet TDOs can see dwell for TOs in their scope (vendor trips). Gate staff, scaling operators, and other yard roles do not use this TO-level dwell visibility surface; they operate through their own module-specific screens.
 
 ---
 
@@ -132,19 +142,19 @@ GET   /api/v1/transport-orders/{to_id}/timeline
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| GPS-04-1 | Dwell calculation | AC-1: compute on departure; source + destination; multi-visit; edge-case rules | High | Not started |
-| GPS-04-2 | Threshold exception task | AC-3: periodic in-fence check + completed-stay marking | High | Not started |
-| GPS-04-3 | Trip-level visibility | AC-2: timeline + event-history exposure | Medium | Not started |
-| GPS-04-4 | Per-POI aggregation | AC-2: avg/max/visits/exceptions report view | Medium | Not started |
+| GPS-04-1 | Geofence dwell calculation | AC-1: compute on departure from arrival/departure event pair | High | Not started |
+| GPS-04-2 | TO milestone visibility | AC-2: show planned, gate, and geofence dwell together | High | Not started |
+| GPS-04-3 | Planned vs actual comparison | AC-3: show when actual dwell exceeds planned dwell on the TO | Medium | Not started |
+| GPS-04-4 | History / summary exposure | Surface dwell in TO history/summary where relevant | Medium | Not started |
 
 ---
 
 ## Definition of Done
 
-- [ ] Dwell auto-calculated on departure for source and destination stays (AC-1)
-- [ ] Edge-case rules documented and tested (AC-1)
-- [ ] In-progress threshold breach flagged before departure (AC-3)
-- [ ] Dwell + exceptions visible per trip and per POI (AC-2, AC-3)
+- [ ] Geofence dwell auto-calculated on departure for source and destination stays (AC-1)
+- [ ] Planned, gate, and geofence dwell visible together on the TO (AC-2)
+- [ ] Planned vs actual dwell comparison visible in the TO context (AC-3)
+- [ ] No manual dwell-entry workflow exists for users (AC-1)
 
 ---
 
@@ -152,11 +162,11 @@ GET   /api/v1/transport-orders/{to_id}/timeline
 
 | Dependency | Direction | Note |
 |------------|-----------|------|
-| GPS-03 events | Upstream | Arrival/departure pairs are the calculation input |
-| GPS-02 thresholds | Upstream | Per-POI threshold + tenant default |
-| GPS-05 dashboard | Consumer | KPI bar + POI panel surface dwell/exceptions |
-| Celery | Infra | Periodic threshold task |
+| GPS-03 events | Upstream | Arrival/departure pairs are the geofence dwell input |
+| TO planned milestones | Upstream | Source of planned dwell baseline |
+| Gate timestamps | Upstream | Source of real-time gate dwell where captured |
+| GPS-05 dashboard / history | Consumer | May surface dwell summaries when that surface uses the same data |
 
 ---
 
-*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 2 SP | PRD: §6.5.9, §6.5.6 | Jira: DFS-080 | Last Updated: 2026-06-15*
+*Epic: GPS & Maps Dashboard | Phase: 1 | Sprint 6: 2 SP | PRD: §6.5.9, §6.5.6 | Jira: DFS-080 | Last Updated: 2026-08-06*

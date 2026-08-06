@@ -230,6 +230,5 @@ Update the [Provider catalogue](#provider-catalogue) table.
 
 ## Related
 
-- [Live GPS monitoring](../live-gps-monitoring.md)
+- [Live GPS (GPS-01)](../../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)
 - [Module hub](../README.md)
-- Backlog: [GPS-01](../../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-01-gps-tracking-monitoring.md)

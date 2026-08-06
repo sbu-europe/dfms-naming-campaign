@@ -79,7 +79,7 @@ Geofence event admin views are read-only.
 ## Business rules
 
 - Events are linked to **TO ID** (and trip / vehicle / POI).
-- Radius comes from POI master — see [geofence-boundary-management.md](geofence-boundary-management.md).
+- Radius comes from POI master — see [GPS-02](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md).
 - Arrival supports gate-in / operational readiness **without requiring** GPS to replace gate process; gate timestamps remain a separate “Real Time (Gate)” source for dwell comparison.
 
 ## API (product-facing, short)
@@ -94,9 +94,9 @@ Live map payload also indicates whether a vehicle is currently inside POI(s).
 ## Dependencies
 
 - **Requires:** GPS feed (GPS-01), POI radius (GPS-02), active Trip/TO with origin & destination  
-- **Enables:** [dwell-time-tracking.md](dwell-time-tracking.md), map “inside geofence” cues, future Maps Dashboard presence  
+- **Enables:** [GPS-04 dwell](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md), map “inside geofence” cues, future Maps Dashboard presence  
 
 ## Related
 
-- [Geofence boundaries](geofence-boundary-management.md) · [Dwell](dwell-time-tracking.md) · [Module hub](README.md)  
+- [GPS-02 geofence radius](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) · [GPS-04 dwell](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) · [Module hub](README.md)  
 - Story: GPS-03  

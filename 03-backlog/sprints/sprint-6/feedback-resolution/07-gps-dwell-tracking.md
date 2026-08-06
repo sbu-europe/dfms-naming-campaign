@@ -23,7 +23,7 @@ parent: ./README.md
 | Field | Value |
 |-------|-------|
 | **Source** | Client feedback — 2026-07-22 |
-| **Affected Stories** | GPS / trip dwell ([`dwell-time-tracking.md`](../../../../05-modules/09-tracking/dwell-time-tracking.md)); gate timestamps (GT-01/GT-02); planned milestones ([FB-006](./05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta) / [FB-008](./05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)) |
+| **Affected Stories** | GPS / trip dwell ([GPS-04](../02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)); gate timestamps (GT-01/GT-02); planned milestones ([FB-006](./05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta) / [FB-008](./05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)) |
 | **Closing Sub-tasks** | FB-031-1 — Surface planned vs actual dwell inputs (plan, gate-in/out, geofence in/out) |
 | **AC Amendment** | Dwell-time visibility SHALL include **(1) Planned data** (lane-applicable planned milestone times), **(2) Actual gate-in / gate-out** timestamps, and **(3) Geofence in / out** events. Operators and reports can compare planned vs actual yard presence using these three sources together — not planned alone or GPS alone. |
 | **Status** | Resolved |
