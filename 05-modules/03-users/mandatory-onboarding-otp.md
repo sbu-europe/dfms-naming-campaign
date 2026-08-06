@@ -1,7 +1,7 @@
 ---
 module: 03-users
 specification: Mandatory onboarding OTP — invitation module spec
-version: 2.0
+version: 2.1
 phase: Phase 1
 status: Draft — pre-implementation spec (not yet built)
 last_updated: 2026-08-06
@@ -16,6 +16,8 @@ implementation_reference:
 > **Purpose**: Implementation spec for [CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md), written **before** the code change so engineering has a concrete contract to build against and product/QA have a concrete contract to verify against.
 >
 > **Scope**: Onboarding OTP during user invitation/activation only, made **unconditional** — independent of `otp_type`. **`otp_type` and login 2FA are out of scope and are not modified.** `AuthService._get_login_2fa_setting()`, `admin_login_requires_otp()`, `apps/core/admin_otp.py`, the `CreateInvitationSerializer.otp_type` field, `InviteUserForm.otp_type`, and the bulk-import `otp_type` CSV column are all **untouched** by this spec.
+
+> **v2.1 revision note**: v2.0 incorrectly stated that the admin-facing "Reinvite selected users" action reaches OTP generation through `resend_activation_otp()`. It doesn't — `resend_invitation()` has its own independent, inline OTP block. v2.0's diff also carried a latent bug: the delivery-channel branch inside `resend_activation_otp()` keyed off `otp_type` rather than `invite_channel`, which would misroute OTP delivery for phone-only legacy invitations once the `otp_type` gate was removed. §3.3–§3.3.2 below are rewritten to fix both: a shared `_regenerate_and_dispatch_activation_otp()` helper now owns channel selection (keyed on `invite_channel`), and the admin resend path gets its own explicit, unconditional-generation edit.
 
 ---
 
@@ -88,9 +90,59 @@ if not inv.activation_otp_hash or not inv.activation_otp_expires_at:
 
 This reuses the existing "OTP is not configured for this invitation" check that already exists a few lines below (previously redundant with the `otp_type` gate) as the **sole** gate. For every token created after this ships, `activation_otp_hash` is always populated (per §3.1), so this check always passes. For pre-rollout tokens (see §5), it correctly reports "not required."
 
-### 3.3 `resend_activation_otp()`
+### 3.3 Shared helper: `_regenerate_and_dispatch_activation_otp()`
 
-**Decision**: resend becomes unconditional too — it generates a fresh OTP regardless of whether the invitation had one before. This means a legacy invitation (created pre-rollout, never had `activation_otp_hash`) gets **upgraded** to requiring OTP the moment someone resends it, even though it didn't require OTP at creation.
+**Decision**: resend becomes unconditional across both resend entry points (§3.3.1, §3.3.2) — each generates a fresh OTP regardless of whether the invitation had one before. This means a legacy invitation (created pre-rollout, never had `activation_otp_hash`) gets **upgraded** to requiring OTP the moment anyone resends it, even though it didn't require OTP at creation.
+
+Rather than repeat the generate/overwrite/redeliver logic in each of the two resend functions, factor it into one new private helper in `invitation_service.py`, used by both:
+
+```python
+def _regenerate_and_dispatch_activation_otp(
+    *, invitation: InvitationToken, schema_name: str, sync_email: bool = False
+) -> None:
+    now = timezone.now()
+    otp_plain = _generate_otp()
+    invitation.activation_otp_hash = _hash_otp(otp_plain)
+    invitation.activation_otp_expires_at = now + timedelta(
+        minutes=getattr(settings, "OTP_EXPIRY_MINUTES", 10)
+    )
+    invitation.activation_otp_attempts = 0
+
+    invite_url = _build_activation_url(invitation.token, schema_name)
+    name = invitation.invited_by.full_name if invitation.invited_by else "DFMS"
+
+    if invitation.invite_channel == InvitationToken.InviteChannel.PHONE:
+        if not invitation.phone_number:
+            raise ValidationError(
+                {"phone_number": "Invitation has no phone number for OTP SMS."},
+                code="INV-400-PHONE",
+            )
+        from apps.notifications.sms import send_activation_otp_sms
+
+        # SMS only — email keeps the full activation URL (AUTH-01 shortener plan §4).
+        sms_url = shorten_for_sms(
+            target_url=invite_url, token=invitation.token, expires_at=invitation.expires_at
+        )
+        send_activation_otp_sms(to_phone=invitation.phone_number, otp=otp_plain, activation_url=sms_url)
+        return
+
+    if sync_email:
+        _dispatch_staff_invitation_email(
+            to_email=invitation.email, invite_url=invite_url,
+            invited_by_name=name, activation_otp=otp_plain, schema_name=schema_name,
+        )
+    else:
+        _queue_staff_invitation_email(
+            to_email=invitation.email, invite_url=invite_url,
+            invited_by_name=name, activation_otp=otp_plain, schema_name=schema_name,
+        )
+```
+
+**Fix vs. the shipped `resend_activation_otp()` body this replaces**: the current code picks SMS-vs-email delivery off `invitation.otp_type == PHONE`, not `invitation.invite_channel == PHONE`. That's harmless today only because the current guard (`if not _otp_requires_verification(otp_type): raise ...`) makes the function unreachable whenever `otp_type=none`, and `_validate_otp_type_for_channel` never allows `otp_type=email` on a phone-channel invite — so today's only reachable phone case is `otp_type=phone`, which happens to match. Once resend becomes unconditional (the entire point of this spec), a phone-channel invitation with `otp_type=none` — the default, and the common case once OTP is mandatory regardless of `otp_type` — would reach this logic, fail an `otp_type == PHONE` check, and fall into the **email** branch against an invitee who may have no email address at all (phone-only invites are supported by `_resolve_invite_identity`). The helper above keys off `invite_channel` instead, matching `_create_token_and_dispatch()` (§3.1) and the untouched dispatch logic already inside `resend_invitation()` (§3.3.2).
+
+### 3.3.1 `resend_activation_otp()` (invitee-facing)
+
+`POST /api/v1/users/invitations/{token}/otp/resend/` → `InvitationActivationOtpResendView` (invitee clicks "Resend code" on the activation page).
 
 **Before**:
 ```python
@@ -108,29 +160,71 @@ def resend_activation_otp(*, invitation: InvitationToken, schema_name: str, sync
     # No otp_type / activation_otp_hash gate — resend always (re)generates an OTP.
     if not invitation.is_valid():
         raise ValidationError("Invitation is no longer valid.", code="INV-410-EXPIRED")
-    ...
+    now = timezone.now()
+    if invitation.last_resent_at and (now - invitation.last_resent_at).total_seconds() < getattr(
+        settings, "OTP_RESEND_COOLDOWN_SECONDS", 120
+    ):
+        raise ValidationError(
+            {"detail": "Please wait before requesting another OTP."},
+            code="INV-429-OTP-COOLDOWN",
+        )
+    invitation.last_resent_at = now
+    _regenerate_and_dispatch_activation_otp(invitation=invitation, schema_name=schema_name, sync_email=sync_email)
+    invitation.save(
+        update_fields=[
+            "activation_otp_hash",
+            "activation_otp_expires_at",
+            "activation_otp_attempts",
+            "last_resent_at",
+            "updated_at",
+        ]
+    )
 ```
 
-The rest of the function is unchanged — it already generates a fresh OTP, overwrites `activation_otp_hash`/`activation_otp_expires_at`, resets `activation_otp_attempts=0`, and redelivers on `invitation.invite_channel`. Removing the guard simply means this code path is no longer skippable — every resend now leaves the invitation with a live `activation_otp_hash`, whether or not it had one before.
+Removing the guard means this code path is no longer skippable — every resend now leaves the invitation with a live `activation_otp_hash`, whether or not it had one before.
 
 **Consequence**: after this resend, `activate_invitation()`'s gate (`if inv.activation_otp_hash:`, §3.4) now evaluates to "required" for that invitation, even though it didn't at creation time. The invitee must verify OTP on their next activation attempt, regardless of what the invitation looked like before the resend.
 
-### 3.3.1 Resend flow, step by step
+### 3.3.2 `resend_invitation()` (admin-facing "Reinvite selected users")
 
-Two entry points call `resend_activation_otp()`:
-- **Invitee-facing**: `POST /api/v1/users/invitations/{token}/otp/resend/` → `InvitationActivationOtpResendView` (invitee clicks "Resend code" on the activation page).
-- **Admin-facing**: the "Reinvite selected users" admin action (`UserAdmin`/`InviteUserAdmin`, `admin.py:574, 1886`) → `resend_invitation()`, which can also trigger a fresh OTP.
+The "Reinvite selected users" admin action (`UserAdmin`/`InviteUserAdmin`, `admin.py:574, 1886`) calls `resend_invitation()` — **not** `resend_activation_otp()`. v2.0 of this spec incorrectly stated both resend surfaces funnel through the same function; they don't. `resend_invitation()` has its own independent, inline OTP-generation block, gated the same old way, that must be edited on its own or the admin "Reinvite" action will keep silently skipping OTP generation for `otp_type=none` invitations after this ships.
 
-**Normal case (invitation already has an OTP, created after rollout, or a legacy invitation already upgraded by a prior resend):**
+**Before** (`invitation_service.py:965-972`):
+```python
+otp_plain = None
+if _otp_requires_verification(invitation.otp_type):
+    otp_plain = _generate_otp()
+    invitation.activation_otp_hash = _hash_otp(otp_plain)
+    invitation.activation_otp_expires_at = now + timedelta(
+        minutes=getattr(settings, "OTP_EXPIRY_MINUTES", 10)
+    )
+    invitation.activation_otp_attempts = 0
+```
+
+**After**:
+```python
+otp_plain = _generate_otp()
+invitation.activation_otp_hash = _hash_otp(otp_plain)
+invitation.activation_otp_expires_at = now + timedelta(
+    minutes=getattr(settings, "OTP_EXPIRY_MINUTES", 10)
+)
+invitation.activation_otp_attempts = 0
+```
+
+This function's own dispatch logic (a few lines further down) already branches on `invitation.invite_channel`, not `otp_type` — it does not have the §3.3 channel-selection bug and does not need to move to the shared helper. Only its generation gate needs to become unconditional, matching §3.3.1. The rest of `resend_invitation()` (cooldown check, status checks, audit logging) is unchanged.
+
+### 3.3.3 Resend flow, step by step
+
+**Normal case (invitation already has an OTP, created after rollout, or a legacy invitation already upgraded by a prior resend), either entry point:**
 1. Look up `InvitationToken` by `token`; `is_valid()` check (not expired/cancelled/activated) → `INV-410-EXPIRED` if invalid.
-2. Cooldown check against `last_resent_at` vs `OTP_RESEND_COOLDOWN_SECONDS` (120s default) → `INV-429-OTP-COOLDOWN` if too soon.
+2. Cooldown check against `last_resent_at` vs the relevant cooldown setting → `INV-429-...-COOLDOWN` if too soon.
 3. Generate a new 6-digit OTP, hash it, overwrite `activation_otp_hash`/`activation_otp_expires_at` (fresh `OTP_EXPIRY_MINUTES` window from now), reset `activation_otp_attempts=0`, stamp `last_resent_at=now`.
 4. Redeliver on the invitation's **original `invite_channel`** — never switches channel (phone → `shorten_for_sms()` + SMS; email → full activation URL). The invitee's previous OTP is now dead, since its hash has been overwritten.
 
 **Legacy invitation case (no `activation_otp_hash` yet, created before rollout, never resent):**
-Same four steps run unchanged — nothing in the function branches on "does this invitation already have an OTP." Step 3 populates `activation_otp_hash` **for the first time**. From that point on, `activate_invitation()`'s gate (§3.4) sees a populated hash and requires OTP verification — even though this same invitation didn't require it a moment before the resend.
+Same four steps run unchanged — nothing branches on "does this invitation already have an OTP." Step 3 populates `activation_otp_hash` **for the first time**. From that point on, `activate_invitation()`'s gate (§3.4) sees a populated hash and requires OTP verification — even though this same invitation didn't require it a moment before the resend.
 
-**What never changes between the two cases**: cooldown enforcement, expiry window, attempt-reset, and channel selection are identical regardless of whether this is the invitation's first-ever OTP or its fifth resend. There is no "is this a first-time legacy upgrade" special case anywhere in the function — the unconditional generate/overwrite/redeliver logic handles both situations identically, which is what makes this a small, low-risk change rather than a branchy one.
+**What never changes between the two cases, and between the two entry points**: cooldown enforcement, expiry window, attempt-reset, and channel selection (now uniformly keyed on `invite_channel` per §3.3) are identical regardless of whether this is the invitation's first-ever OTP or its fifth resend, or whether the invitee or an admin triggered it. There is no "is this a first-time legacy upgrade" special case anywhere — the unconditional generate/overwrite/redeliver logic handles both situations identically, which is what keeps this a small, low-risk change rather than a branchy one.
 
 ### 3.4 `activate_invitation()`
 
@@ -177,9 +271,11 @@ Target: `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-s
 3. **`otp_type=none` invitation still requires onboarding OTP**: confirms the decoupling — `otp_type` no longer controls onboarding OTP at all.
 4. **Login 2FA regression**: create invitations with each `otp_type` value; confirm `AuthService._get_login_2fa_setting()` behavior for the resulting users is byte-for-byte identical to pre-CR-003 behavior. This is the key regression check proving true decoupling.
 5. **Legacy pending invitations, no resend**: an invitation created before this ships, never resent, still activates without an OTP step.
-6. **Legacy pending invitation, then resent**: resend generates a fresh OTP for an invitation that didn't have one; the invitee must now verify OTP to activate — confirms the upgrade-on-resend behavior.
-7. **Cooldown still applies on legacy resend**: `OTP_RESEND_COOLDOWN_SECONDS` is still enforced even on the first-ever resend of a legacy invitation (no special exemption for the "first" resend).
-8. **Django admin, API, bulk CSV import**: all three remain visually/functionally identical (no field removed, no dropdown removed, no CSV column removed) — this is a "nothing changed here" regression check, not a new-behavior check.
+6. **Legacy pending invitation, then resent (invitee-facing)**: resend via `resend_activation_otp()` generates a fresh OTP for an invitation that didn't have one; the invitee must now verify OTP to activate — confirms the upgrade-on-resend behavior.
+7. **Legacy pending invitation, then reinvited by admin**: admin "Reinvite selected users" action on an `otp_type=none` invitation (via `resend_invitation()`) also generates a fresh OTP going forward — confirms §3.3.2's fix, i.e. that the admin path is not silently exempt from mandatory OTP.
+8. **Phone-channel, `otp_type=none` invitation, resent (either entry point)**: OTP is delivered via SMS to `invitation.phone_number`, not misrouted to an email dispatch attempt — regression check for the §3.3 channel-selection fix (delivery keyed on `invite_channel`, not `otp_type`).
+9. **Cooldown still applies on legacy resend**: the relevant cooldown setting is still enforced even on the first-ever resend of a legacy invitation, on both entry points (no special exemption for the "first" resend).
+10. **Django admin, API, bulk CSV import**: all three remain visually/functionally identical (no field removed, no dropdown removed, no CSV column removed) — this is a "nothing changed here" regression check, not a new-behavior check.
 
 ---
 
@@ -199,9 +295,9 @@ Target: `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-s
 
 ## 9. Rollout
 
-Single self-contained change to `apps/users/invitation_service.py`. No coordination needed across multiple entry points (unlike earlier drafts of this spec) since the serializer/admin/import surfaces are untouched.
+Single self-contained change to `apps/users/invitation_service.py`, touching four functions: `_create_token_and_dispatch()` (§3.1), `verify_invitation_otp()` (§3.2), `resend_activation_otp()` and `resend_invitation()` (§3.3.1–3.3.2, both routed through the new §3.3 shared helper), and `activate_invitation()` (§3.4). No coordination needed across multiple entry points at the API/admin/CSV layer (unlike earlier drafts of this spec) since those surfaces are untouched.
 
 ---
 
 **Last Updated**: 2026-08-06
-**Version**: 2.0
+**Version**: 2.1
