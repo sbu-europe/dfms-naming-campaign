@@ -243,6 +243,65 @@ Same four steps run unchanged — nothing branches on "does this invitation alre
 - `AuthService._get_login_2fa_setting()`, `admin_login_requires_otp()`, `apps/core/admin_otp.py` — untouched.
 - `_otp_requires_verification(otp_type)` helper function itself — can remain in the codebase unused-by-onboarding (still potentially useful elsewhere), or be left as dead code for a later cleanup; not required to be deleted for this spec to be correct.
 
+### 3.6 `apps/users/web_views.py` — `activate_account()` (added in v2.2)
+
+The SSR activation page (`GET/POST /activate/?token=…`) independently decided whether to show the OTP step, using its own copy of the `otp_type` gate this spec removes from `invitation_service.py`. Left as-is, it silently defeats §3.1–§3.4: the service always generates an OTP, but the page skips straight to the password step because `otp_type` defaults to `none`. Three spots inside `activate_account()` need the same "token state, not `otp_type`" fix (§4):
+
+**Before** (`requires_otp` / destination / channel derivation):
+```python
+otp_channel = inv.otp_type  # none | email | phone
+requires_otp = (
+    otp_channel in (InvitationToken.OtpType.EMAIL, InvitationToken.OtpType.PHONE)
+    and not inv.otp_verified
+    and not _otp_verified_in_session(request, token)
+)
+otp_destination = (
+    inv.phone_number
+    if otp_channel == InvitationToken.OtpType.PHONE
+    else inv.email
+)
+otp_via_phone = otp_channel == InvitationToken.OtpType.PHONE
+```
+
+**After**:
+```python
+# Onboarding OTP is mandatory whenever the token has one configured
+# (CR-003) — independent of otp_type, which only drives login 2FA.
+requires_otp = (
+    bool(inv.activation_otp_hash)
+    and not inv.otp_verified
+    and not _otp_verified_in_session(request, token)
+)
+otp_via_phone = inv.invite_channel == InvitationToken.InviteChannel.PHONE
+otp_destination = inv.phone_number if otp_via_phone else inv.email
+```
+
+`otp_destination`/`otp_via_phone` move from `otp_type` to `invite_channel` for the same reason as §3.3: `invite_channel` is what actually determines where the OTP was delivered, and a phone-channel invitation with `otp_type=none` (now the common case) would otherwise mis-display an email destination.
+
+**Resend step** (`step == "resend_otp"`): the pre-check `if otp_channel not in (EMAIL, PHONE): return "OTP is not enabled for this invitation."` is deleted outright. It's not replaced by an `activation_otp_hash` check because `resend_activation_otp()` (§3.3.1) no longer has a "not available" failure mode to guard against — resend is unconditional, so gating the page in front of it is redundant and (for `otp_type=none` invitations) actively wrong.
+
+**Step-2 re-check** (defense against a direct POST that skips step 1):
+
+**Before**:
+```python
+if (
+    otp_channel in (InvitationToken.OtpType.EMAIL, InvitationToken.OtpType.PHONE)
+    and not inv.otp_verified
+    and not _otp_verified_in_session(request, token)
+):
+```
+
+**After**:
+```python
+if (
+    inv.activation_otp_hash
+    and not inv.otp_verified
+    and not _otp_verified_in_session(request, token)
+):
+```
+
+No other part of `web_views.py` reads `otp_type`; `otp_channel` is removed as a local entirely once these three call sites are updated.
+
 ---
 
 ## 4. The gate: token state, not `otp_type`
@@ -279,6 +338,8 @@ Target: `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-s
 8. **Phone-channel, `otp_type=none` invitation, resent (either entry point)**: OTP is delivered via SMS to `invitation.phone_number`, not misrouted to an email dispatch attempt — regression check for the §3.3 channel-selection fix (delivery keyed on `invite_channel`, not `otp_type`).
 9. **Cooldown still applies on legacy resend**: the relevant cooldown setting is still enforced even on the first-ever resend of a legacy invitation, on both entry points (no special exemption for the "first" resend).
 10. **Django admin, API, bulk CSV import**: all three remain visually/functionally identical (no field removed, no dropdown removed, no CSV column removed) — this is a "nothing changed here" regression check, not a new-behavior check.
+11. **SSR activation page (`/activate/?token=…`), `otp_type=none` invitation**: `GET` shows the OTP step (not the password step) for any invitation with `activation_otp_hash` populated, regardless of `otp_type` — regression check for §3.6.
+12. **SSR activation page, phone-channel invitation**: OTP destination shown on the page is the invitation's phone number, and `otp_via_phone` is true, keyed off `invite_channel` — regression check for §3.6's channel-selection fix, mirroring scenario 8 for the web layer.
 
 ---
 
@@ -298,9 +359,15 @@ Target: `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-s
 
 ## 9. Rollout
 
-Single self-contained change to `apps/users/invitation_service.py`, touching four functions: `_create_token_and_dispatch()` (§3.1), `verify_invitation_otp()` (§3.2), `resend_activation_otp()` and `resend_invitation()` (§3.3.1–3.3.2, both routed through the new §3.3 shared helper), and `activate_invitation()` (§3.4). No coordination needed across multiple entry points at the API/admin/CSV layer (unlike earlier drafts of this spec) since those surfaces are untouched.
+Two-file change, both under `apps/users/`:
+- `invitation_service.py`, touching four functions: `_create_token_and_dispatch()` (§3.1), `verify_invitation_otp()` (§3.2), `resend_activation_otp()` and `resend_invitation()` (§3.3.1–3.3.2, both routed through the new §3.3 shared helper), and `activate_invitation()` (§3.4).
+- `web_views.py`, touching `activate_account()`'s three `otp_type`-derived call sites (§3.6) — required for the mandatory OTP step to actually surface on the SSR activation page; without it, the service-layer change is invisible to invitees.
+
+No coordination needed across multiple entry points at the API/admin/CSV layer (unlike earlier drafts of this spec) since those surfaces are untouched.
+
+**Status**: implemented and unit-tested (`tests/unit/test_users/test_invitation_service.py`, `tests/unit/test_users/test_invitation_shortlink_wiring.py`); §6 E2E scenarios 1–12 still to be added to `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-scenarios.md`.
 
 ---
 
 **Last Updated**: 2026-08-06
-**Version**: 2.1
+**Version**: 2.2
