@@ -1,14 +1,15 @@
 ---
 module: 03-users
 specification: Mandatory onboarding OTP — invitation module spec
-version: 2.1
+version: 2.2
 phase: Phase 1
-status: Draft — pre-implementation spec (not yet built)
+status: Implemented
 last_updated: 2026-08-06
 related_stories: US-005
 related_cr: CR-003
 implementation_reference:
   - nourish-backend/apps/users/invitation_service.py
+  - nourish-backend/apps/users/web_views.py
 ---
 
 # Mandatory onboarding OTP — module spec
@@ -18,6 +19,8 @@ implementation_reference:
 > **Scope**: Onboarding OTP during user invitation/activation only, made **unconditional** — independent of `otp_type`. **`otp_type` and login 2FA are out of scope and are not modified.** `AuthService._get_login_2fa_setting()`, `admin_login_requires_otp()`, `apps/core/admin_otp.py`, the `CreateInvitationSerializer.otp_type` field, `InviteUserForm.otp_type`, and the bulk-import `otp_type` CSV column are all **untouched** by this spec.
 
 > **v2.1 revision note**: v2.0 incorrectly stated that the admin-facing "Reinvite selected users" action reaches OTP generation through `resend_activation_otp()`. It doesn't — `resend_invitation()` has its own independent, inline OTP block. v2.0's diff also carried a latent bug: the delivery-channel branch inside `resend_activation_otp()` keyed off `otp_type` rather than `invite_channel`, which would misroute OTP delivery for phone-only legacy invitations once the `otp_type` gate was removed. §3.3–§3.3.2 below are rewritten to fix both: a shared `_regenerate_and_dispatch_activation_otp()` helper now owns channel selection (keyed on `invite_channel`), and the admin resend path gets its own explicit, unconditional-generation edit.
+>
+> **v2.2 revision note**: §3.5 originally scoped this change to `invitation_service.py` only, on the assumption that the SSR activation page (`apps/users/web_views.py`) already read OTP-required state generically. It doesn't — `activate_account()` independently re-derived "is OTP required" from `inv.otp_type`, the same coupling this spec exists to remove. Left unpatched, invitees clicked the activation link and landed directly on the password-set step, skipping OTP entirely, because `otp_type` defaults to `none`. §3.6 (new) documents the required `web_views.py` fix — same "token state, not `otp_type`" gate (§4), plus the same `invite_channel`-not-`otp_type` channel-selection fix as §3.3. This file is now in scope; status moves to **Implemented**.
 
 ---
 
@@ -37,7 +40,7 @@ An earlier draft of this spec proposed deriving `otp_type` from `invite_channel`
 | Onboarding OTP generation | Only generated `if _otp_requires_verification(otp_type)` | **Always generated**, on every new `InvitationToken`, regardless of `otp_type` |
 | Onboarding OTP verification | Only required `if _otp_requires_verification(otp_type)` | **Always required** if the token has an activation OTP configured (see §4 gate) |
 | Admin choice | `invite_channel` + `otp_type` (two fields) | **Unchanged** — still two fields; `otp_type` keeps meaning "login 2FA setting," unrelated to the now-mandatory onboarding OTP |
-| Entry points touched | — | **Only `invitation_service.py`.** API serializer, Django admin form, bulk CSV import are not modified |
+| Entry points touched | — | **`invitation_service.py` (§3) and `web_views.py` (§3.6).** API serializer, Django admin form, bulk CSV import are not modified |
 | Activation flow (`/activate/?token=…`) | Step 1 (OTP) optional depending on `otp_type` | Step 1 (OTP) always present for tokens created after this ships |
 
 ---
