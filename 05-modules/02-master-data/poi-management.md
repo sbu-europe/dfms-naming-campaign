@@ -17,8 +17,8 @@ Points of Interest (POIs) are fundamental entities in the DFMS platform, represe
 
 This specification defines the POI data model, lifecycle management, geofencing capabilities, capacity tracking mechanisms, and integration with operational modules.
 
-> **Runtime geofence / Live GPS / dwell (as-built SSOT):**  
-> [`../09-tracking/README.md`](../09-tracking/README.md) · [`../09-tracking/geofence-and-dwell.md`](../09-tracking/geofence-and-dwell.md)  
+> **Runtime geofence / Live GPS / dwell (product SSOT):**  
+> [`../09-tracking/README.md`](../09-tracking/README.md) · [`../09-tracking/geofence-boundary-management.md`](../09-tracking/geofence-boundary-management.md) · [`../09-tracking/vehicle-arrival-departure.md`](../09-tracking/vehicle-arrival-departure.md)  
 > This master-data doc owns the **POI radius field and admin UX**; tracking owns **evaluation, events, and map**.
 
 ---

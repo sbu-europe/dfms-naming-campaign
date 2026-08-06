@@ -13,5 +13,5 @@ extracted_date: 2026-02-13
 ### GPS / Fleet (tracking module)
 
 - **GPS-based vehicle maintenance (§6.5.10)** — distance-since-service, thresholds, usage indicators.  
-  Stub SSOT: [`../09-tracking/gps-maintenance-phase2.md`](../09-tracking/gps-maintenance-phase2.md)  
+  Stub: Phase 2 only — see [`../09-tracking/README.md`](../09-tracking/README.md) PRD coverage (§6.5.10).  
   Phase 1 GPS as-built: [`../09-tracking/README.md`](../09-tracking/README.md)

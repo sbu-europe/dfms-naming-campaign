@@ -2,7 +2,7 @@
 module: 09-tracking
 phase: Phase 1
 sprint: Sprint 5–6
-last_updated: 2026-07-24
+last_updated: 2026-08-06
 related_stories:
   - GPS-01
   - GPS-02
@@ -18,21 +18,15 @@ prd_sections:
   - 6.5.8
   - 6.5.9
   - 6.5.10
+  - 6.9.2
 django_app: apps/tracking
-ingest_service: services/gt06-ingest
-ssot: true
 ---
 
-# Module 09 — GPS Tracking (SSOT)
+# Module 09 — GPS Tracking
 
-**This folder is the single source of truth** for GPS tracking, Live GPS, geofencing, dwell, and related Phase 1 map behaviour in DFMS.
+Real-time vehicle location, POI geofencing, arrival/departure, and dwell — so Transport Planner and TDO can monitor trips without phone calls.
 
-| Authority | Role |
-|-----------|------|
-| **Code** (`apps/tracking/`, `services/gt06-ingest/`) | What ships |
-| **This module** (`05-modules/09-tracking/`) | Product + as-built SSOT — PRD intent, implemented behaviour, intentional deviations, deferred work |
-| **Sprint stories** (GPS-01…05) | Delivery backlog / AC checklists — not as-built truth when they disagree with this module |
-| **`apps/tracking/*.md` plans** | Historical design notes — superseded when they conflict with this module |
+DFMS is **not** a GPS hardware vendor. Vehicles carry a tracker; DFMS receives location and uses it on Live GPS and related surfaces.
 
 > Folder note: `09-tracking/` and `09-mobile-apps/` both use module number 09. Tracking is Django app `apps/tracking`; mobile apps are separate.
 
@@ -40,18 +34,62 @@ ssot: true
 
 ## Documents
 
-| Document | Purpose |
-|----------|---------|
-| **[prd-as-built.md](prd-as-built.md)** | **PRD §6.5.4–6.5.10 ↔ implementation matrix** (Done / Partial / Missing) |
-| **[gt06-server.md](gt06-server.md)** | Backend architecture — ingest, Redis, Postgres, APIs, Live GPS UI, sync |
-| **[geofence-and-dwell.md](geofence-and-dwell.md)** | Geofence product rules, dwell glossary (geofence vs gate), threshold decisions |
-| **[maps-surfaces.md](maps-surfaces.md)** | Live GPS vs Maps Dashboard vs Command Center map; API family |
-| **[gps-maintenance-phase2.md](gps-maintenance-phase2.md)** | PRD §6.5.10 Phase 2 stub (not implemented) |
-| [live-gps-mock-simulation.md](../../../docs/guides/live-gps-mock-simulation.md) | How to run mock fleet |
-| [mock/README.md](../../../apps/tracking/mock/README.md) | Mock package quick reference |
-| [gps-vts-integration.yaml](../../06-contracts/04-integration/gps-vts-integration.yaml) | External GPSWOX contract (deferred adapter) |
+| Document | Covers | PRD |
+|----------|--------|-----|
+| **[providers/README.md](providers/README.md)** | GPS devices & how each provider connects (all devices in one file) | §9.1 |
+| **[live-gps-monitoring.md](live-gps-monitoring.md)** | Live GPS map — positions, trails, history, signal lost | §6.5.5 |
+| **[geofence-boundary-management.md](geofence-boundary-management.md)** | POI geofence radius configuration | §6.5.7 |
+| **[vehicle-arrival-departure.md](vehicle-arrival-departure.md)** | Automatic arrival / departure at POIs | §6.5.6, §6.5.8 |
+| **[dwell-time-tracking.md](dwell-time-tracking.md)** | How long a vehicle stays at a POI (planned / gate / geofence) | §6.5.9 |
+| **[maps-dashboard.md](maps-dashboard.md)** | Maps Dashboard vs Live GPS; §6.5.4 / §6.9.2 scope | §6.5.4, §6.9.2 |
 
-### Backlog (delivery intent — verify against this SSOT)
+**Delivery AC / DoD:** backlog stories GPS-01…GPS-05 (Sprint 6) and Sprint 5 DFS-070 — not duplicated here.
+
+**Engineering how-to** (ingest, Redis, code paths): [`apps/tracking/`](../../../apps/tracking/) and [`docs/guides/live-gps-mock-simulation.md`](../../../docs/guides/live-gps-mock-simulation.md) — not product SSOT.
+
+---
+
+## Authority
+
+| Layer | Role |
+|-------|------|
+| **Backlog stories** (GPS-01…05) | Sprint acceptance criteria and Definition of Done |
+| **This module** | Product behaviour — who, what, business rules, PRD vs delivered |
+| **Code** (`apps/tracking/`, `services/gt06-ingest/`) | What ships |
+
+When story intent and product behaviour diverge, update the story or these specs so they stay aligned. Do not treat engineering runbooks as BA source of truth.
+
+---
+
+## PRD coverage (summary)
+
+| PRD | Topic | Status |
+|-----|-------|--------|
+| §6.5.5 | GPS tracking & Live GPS | **Delivered** (MVP) — refresh 30/60/120 and GPSWOX deferred |
+| §6.5.7 | POI geofence boundary | **Delivered** — radius on POI master; dedicated geofence API deferred |
+| §6.5.6 / §6.5.8 | Entry / exit & arrival | **Delivered** — events on TO **origin + destination** only |
+| §6.5.9 | Dwell | **Delivered** — Planned / Gate / Geofence; exception alerts pipeline deferred |
+| §6.5.4 / §6.9.2 | Map layer / Maps Dashboard | **Partial** — Live GPS done; full Maps Dashboard deferred |
+| §6.5.10 | GPS-based maintenance | **Phase 2** — not started |
+| §9.1 | Multi-provider GPS/VTS | **Partial** — GT06 active; GPSWOX and further providers planned |
+
+Detail lives in each feature file and in [providers/README.md](providers/README.md).
+
+---
+
+## Operational flow (business)
+
+```
+Vehicle has GPS device linked in master data
+  → Provider sends location to DFMS
+    → Operator opens Live GPS → sees GPS-linked fleet vehicles on the map
+      → Enter/exit origin or destination geofence during live TO movement → Arrival / Departure
+        → Dwell visible on TO (Planned vs Gate vs Geofence)
+```
+
+---
+
+## Backlog
 
 | Story | PRD | Path |
 |-------|-----|------|
@@ -59,68 +97,14 @@ ssot: true
 | GPS-02 | §6.5.7 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) |
 | GPS-03 | §6.5.6, §6.5.8 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-geofence-engine-arrival-departure.md) |
 | GPS-04 | §6.5.9 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) |
-| GPS-05 | §6.5.4 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) |
-| DFS-070 (demo MVP) | — | [Sprint 5](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) |
-
-*Superseded paths (do not update as SSOT): `live-gps-sprint5-implementation.md`, `06-contracts/04-integration/gt06-ingest-server.md`.*
+| GPS-05 | §6.5.4, §6.9.2 | [Sprint 6](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) |
+| DFS-070 | Demo MVP | [Sprint 5](../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) |
 
 ---
 
-## As-built summary (Phase 1)
+## Related modules
 
-### Delivered
-
-- **Provider:** GT06 TCP ingest sidecar → Redis → Celery sync → Postgres (`gps_tracking`)
-- **Live GPS** tenant admin page (Leaflet + OSM) + `GET /api/v1/tracking/live-map/`
-- **POI geofence circles** on map; vehicle `inside_pois` / `inside_geofence`
-- **Geofence engine:** ENTRY / EXIT `GeofenceEvent` linked to vehicle, trip, TO, POI; dwell on exit
-- **TO origin/destination only** evaluated for event detection (map may show all active POIs)
-- **Trip auto-status** on origin/dest entry → `ARRIVED_AT_SOURCE` / `ARRIVED_AT_DESTINATION`
-- **Dwell timeline** (Planned / Gate / Geofence) on TO admin + history summary APIs
-- **TO-centric + idle vehicle history** APIs
-- **Signal-loss:** last known location; `connection_status` live / stale / signal_lost (10 min)
-- **Vehicle delete guard** when used on a trip (`PROTECT` + dependency gate)
-- **24/7 ingest** including idle (no-trip) path
-
-### Intentional deviations / partials
-
-| Topic | As-built rule |
-|-------|----------------|
-| Refresh interval | UI poll **hardcoded 10s** — not configurable 30/60/120 (PRD TBD) |
-| Provider | **GT06 only** in runtime; GPSWOX poller deferred |
-| Geofence POI scope | Engine = **TO origin + destination** only; not every active POI |
-| Dwell threshold field | `dwell_threshold_breached` **removed**; TO admin flags vs **planned** dwell only |
-| GPS ↔ TO linkage | `GPSTracking` has vehicle + trip (no direct TO FK); TO via trip / `GeofenceEvent` |
-| Maps Dashboard | Live GPS MVP only — full `/api/v1/maps/**` deferred |
-| POI presence panel | Vehicle→POIs on live-map; not POI→vehicles + entry duration API |
-| Radius min/max | Settings exist; **not enforced** on POI model/admin validation |
-
-### Deferred / Phase 2
-
-- Full Maps Dashboard (`/api/v1/maps/**`), KPI widgets, POI presence panel (GPS-05)
-- TLS-01 timeline emission from geofence events
-- GPSWOX production REST adapter
-- Dedicated `PATCH` geofence + audit log (GPS-02)
-- Configurable refresh 30/60/120; dwell exception alerts / reporting pipeline
-- Driver mobile background GPS on live map
-- **§6.5.10 GPS-based vehicle maintenance** — Phase 2 ([stub](gps-maintenance-phase2.md))
-
----
-
-## Code roots
-
-| Area | Path |
-|------|------|
-| Django tracking | `apps/tracking/` |
-| GT06 ingest | `services/gt06-ingest/` |
-| Live GPS UI | `templates/admin/tracking/`, `static/tracking/` |
-| POI radius master | `apps/master_data.models.POI.geofence_radius_meters` |
-| TO source/dest | `apps/transport.models.TransportOrder.origin_poi` / `destination_poi` |
-
----
-
-## How to keep this SSOT current
-
-1. Change behaviour in code → update **prd-as-built.md** status + the relevant rule doc the same PR/commit when possible.
-2. Prefer editing this module over `apps/tracking/GEOFENCE_IMPLEMENTATION.md` (that file points here).
-3. Sprint story checkboxes may lag; **this module wins** for “what is true in production code.”
+- [POI master / geofence radius field](../02-master-data/poi-management.md)
+- [Vehicle master / GPS Device ID](../02-master-data/vehicle-master-data.md)
+- [Gate dwell (yard)](../06-poi-operations/) — Real Time (Gate) on TO milestones
+- [GPS/VTS contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX (deferred)

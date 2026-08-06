@@ -206,8 +206,10 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 ## Reference Documents
 
 - **[Module 09 — GPS Tracking SSOT](../../05-modules/09-tracking/README.md)** — as-built hub, PRD matrix, geofence/dwell rules, map surfaces
-- [prd-as-built.md](../../05-modules/09-tracking/prd-as-built.md) — PRD §6.5.4–6.5.10 ↔ code status
-- [gt06-server.md](../../05-modules/09-tracking/gt06-server.md) — backend architecture pipeline
+- [09-tracking README](../../05-modules/09-tracking/README.md) — GPS product context hub
+- [providers/README.md](../../05-modules/09-tracking/providers/README.md) — device / provider configuration
+- [GT06_IMPLEMENTATION.md](../../../apps/tracking/GT06_IMPLEMENTATION.md) — engineering pipeline
+- [PRD_AS_BUILT.md](../../../apps/tracking/PRD_AS_BUILT.md) — PRD ↔ code status (eng)
 - [Sprint 5 README](../sprint-5/README.md) — full carry-over context and Sprint 5 goals
 - [Sprint 5 Completion Report](../sprint-5/completion-report.md) — delivered scope, carry-forward list (23 E2E sub-tasks, GPS-01 Phase 1)
 - [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — demo MVP story

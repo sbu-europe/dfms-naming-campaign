@@ -25,7 +25,8 @@ Integration Requirements define the **external system integrations** that enable
 
 ## GPS/VTS Integration
 
-> **As-built SSOT:** [`../09-tracking/README.md`](../09-tracking/README.md) · [`../09-tracking/gt06-server.md`](../09-tracking/gt06-server.md)  
+> **As-built product SSOT:** [`../09-tracking/README.md`](../09-tracking/README.md) · [`../09-tracking/providers/README.md`](../09-tracking/providers/README.md)  
+> **Engineering pipeline:** [`../../../apps/tracking/GT06_IMPLEMENTATION.md`](../../../apps/tracking/GT06_IMPLEMENTATION.md)  
 > Phase 1 runtime = **GT06 TCP ingest** → Redis → Django. GPSWOX REST poller remains deferred (contract: `gps-vts-integration.yaml`).
 
 ### Purpose
@@ -57,7 +58,7 @@ GT06 device ──TCP :5023──► gt06-ingest ──► Redis (latest + histo
 
 **Identity:** `Vehicle.gps_tracker_id` = device IMEI.
 
-**Geofencing:** Evaluated in Django (`GeofenceService`) against TO origin/destination POIs — see [`../09-tracking/geofence-and-dwell.md`](../09-tracking/geofence-and-dwell.md).
+**Geofencing:** Evaluated in Django (`GeofenceService`) against TO origin/destination POIs — see [`../09-tracking/vehicle-arrival-departure.md`](../09-tracking/vehicle-arrival-departure.md).
 
 **Historical GPSWOX-oriented sketch (deferred):**
 ```typescript

@@ -10,7 +10,7 @@ status: MVP + geofence + TO-centric history (post–Sprint 5)
 last_updated: 2026-06-25
 implementation_docs:
   - DFMS-product-context/03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md
-  - DFMS-product-context/05-modules/09-tracking/gt06-server.md
+  - DFMS-product-context/05-modules/09-tracking/README.md
 story_points: 8
 assignee: ~
 prd_refs:
@@ -33,13 +33,13 @@ integration_contracts:
 ## At a glance — Sprint 5 acceptance criteria
 
 Read the full AC wording in [Acceptance criteria — Sprint 5 (R&D & demo)](#acceptance-criteria--sprint-5-rd--demo) below.  
-Implementation detail: [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md).
+Implementation detail: [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md).
 
 
 | AC          | Summary                                      | Status             | Notes                                                                                                                 |
 | ----------- | -------------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------- |
 | **AC-S5-1** | GPS/VTS provider feasibility + adapter spike | **Partially done** | GT06 ingest + Redis + Celery sync shipped; GPSWOX REST poller deferred; formal `GPS-01-R&D-findings.md` not published |
-| **AC-S5-2** | Map display provider (SDK selection)         | **Done**           | Leaflet + OpenStreetMap; documented in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)               |
+| **AC-S5-2** | Map display provider (SDK selection)         | **Done**           | Leaflet + OpenStreetMap; documented in [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md)               |
 | **AC-S5-3** | Demo map surface in DFMS                     | **Done**           | Live GPS page + vehicle markers + POI geofence circles on map                                                         |
 | **AC-S5-4** | Demo API consumption                         | **Partially done** | `GET /api/v1/tracking/live-map/` + GT06 pipeline (not GPSWOX demo URL); degraded-mode banner not fully verified       |
 | **AC-S5-5** | Demo RBAC (minimum)                          | **Done**           | `Menu.LiveGps.View`, tenant admin bypass, 403 for unauthorised users                                                  |
@@ -52,7 +52,7 @@ Implementation detail: [gt06-server.md](../../../05-modules/09-tracking/gt06-ser
 
 ## Current state (2026-06-25)
 
-Post–Sprint 5 work is documented in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) (single SSOT).
+Post–Sprint 5 work is documented in [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md) (single SSOT).
 
 
 | Capability | Status | Notes |
@@ -85,7 +85,7 @@ Sprint 5 does **not** commit to the full Phase 1 maps dashboard and geofence eng
 | Artifact               | Path                                                                                    |
 | ---------------------- | --------------------------------------------------------------------------------------- |
 | Implementation context | [This file](GPS-01-maps-dashboard-gps-tracking.md)                                      |
-| Backend architecture   | [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)                        |
+| Backend architecture   | [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md)                        |
 
 
 **Delivered in code:** tenant admin **Live GPS** (`/admin/tracking/live-gps/`), `GET /api/v1/tracking/live-map/`, `GPSTracking` + GT06 ingest/sync, demo seed commands, **geofence engine** (entry/exit, dwell, circles), **TO-centric history** (`vehicle-to-history`). **Not yet:** full `/api/v1/maps/**`, TLS-01 timeline hooks, GPSWOX REST poller.
@@ -201,7 +201,7 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 | ----------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------ |
 | Document GPSWOX API access vs integration contract          | **Deferred**       | Production GPSWOX credentials/endpoints still pending; see meeting notes + yaml contract         |
 | Spike read-only adapter (GPSWOX or mock → internal DTO)     | **Partially done** | **GT06 TCP ingest** + `Gt06RedisReader` + `LiveMapService` replace GPSWOX demo path for Sprint 5 |
-| Record blockers, fallback options, poll interval            | **Partially done** | GT06 ~10s ingest, live-map 10s poll, Postgres 10 min trail — documented in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) |
+| Record blockers, fallback options, poll interval            | **Partially done** | GT06 ~10s ingest, live-map 10s poll, Postgres 10 min trail — documented in [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md) |
 | Deliverable: `GPS-01-R&D-findings.md` reviewed with TL + PO | **Not done**       | Optional formal write-up not published                                                           |
 
 
@@ -254,10 +254,10 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 
 | Criterion (from AC)             | Status             | Evidence / gap                                                       |
 | ------------------------------- | ------------------ | -------------------------------------------------------------------- |
-| UAT script 5–10 steps           | **Partially done** | Steps in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) § Verification; not formally signed off by PO |
+| UAT script 5–10 steps           | **Partially done** | Steps in [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md) § Verification; not formally signed off by PO |
 | See ≥1 POI and ≥1 vehicle       | **Done**           | Geofence circles on map; mock fleet seeds `MOCK-MAP-*` POIs      |
 | Refresh updates marker position | **Done**           | 10s poll + GT06/mock ingest                                      |
-| Known limitations list for demo | **Done**           | §18 in [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md) |
+| Known limitations list for demo | **Done**           | §18 in [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md) |
 
 
 ### Phase 1 items — status (2026-06-25)
@@ -318,7 +318,7 @@ Demo map access in Sprint 5 may use a **narrower pilot role set** (e.g. Tenant A
 
 ## Definition of done — Sprint 5
 
-- Map SDK selected and documented — Leaflet + OpenStreetMap (AC-S5-2) — see [gt06-server.md](../../../05-modules/09-tracking/gt06-server.md)
+- Map SDK selected and documented — Leaflet + OpenStreetMap (AC-S5-2) — see [09-tracking README](../../../05-modules/09-tracking/README.md) / [GT06_IMPLEMENTATION.md](../../../../apps/tracking/GT06_IMPLEMENTATION.md)
 - Demo GPS pipeline — GT06 ingest + Redis sync + `GPSTracking` (AC-S5-1, AC-S5-4 partial)
 - Demo map page live in DFMS with vehicle markers + geofence circles (AC-S5-3)
 - Pilot RBAC enforced — `Menu.LiveGps.View` + tenant admin bypass (AC-S5-5)

@@ -231,21 +231,24 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 ---
 
-### [09-tracking/](09-tracking/README.md) - GPS Tracking (SSOT)
-**Purpose**: Live GPS, GT06 ingest, geofencing, dwell, vehicle history  
-**PRD Sections**: 6.5.4–6.5.10  
+### [09-tracking/](09-tracking/README.md) - GPS Tracking (product SSOT)
+**Purpose**: Live GPS, providers, geofencing, dwell, maps surfaces  
+**PRD Sections**: 6.5.4–6.5.10, 6.9.2, 9.1  
 **Phase**: Phase 1 (Critical/High); §6.5.10 Phase 2  
 **Sprint Coverage**: Sprint 5–6  
 **Dependencies**: `01-foundation/`, `02-master-data/` (POI, Vehicle), `05-transport/` (TO, Trip)  
 **Django App**: `apps/tracking` · Ingest: `services/gt06-ingest`
 
 #### Specifications
-- [README.md](09-tracking/README.md) — Module SSOT hub
-- [prd-as-built.md](09-tracking/prd-as-built.md) — PRD ↔ implementation matrix
-- [gt06-server.md](09-tracking/gt06-server.md) — Backend architecture pipeline
-- [geofence-and-dwell.md](09-tracking/geofence-and-dwell.md) — Geofence rules + dwell glossary
-- [maps-surfaces.md](09-tracking/maps-surfaces.md) — Live GPS vs Maps Dashboard taxonomy
-- [gps-maintenance-phase2.md](09-tracking/gps-maintenance-phase2.md) — §6.5.10 Phase 2 stub
+- [README.md](09-tracking/README.md) — Module hub
+- [providers/README.md](09-tracking/providers/README.md) — GPS devices / providers (all in one file)
+- [live-gps-monitoring.md](09-tracking/live-gps-monitoring.md) — §6.5.5 Live GPS
+- [geofence-boundary-management.md](09-tracking/geofence-boundary-management.md) — §6.5.7
+- [vehicle-arrival-departure.md](09-tracking/vehicle-arrival-departure.md) — §6.5.6 / §6.5.8
+- [dwell-time-tracking.md](09-tracking/dwell-time-tracking.md) — §6.5.9
+- [maps-dashboard.md](09-tracking/maps-dashboard.md) — §6.5.4 / §6.9.2
+
+Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/tracking/PRD_AS_BUILT.md`
 
 #### Related Stories
 - Sprint 6 GPS-01…GPS-05; Sprint 5 DFS-070 (demo MVP)
@@ -253,7 +256,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Cross-References
 - **Depends on**: `02-master-data/` (POI radius, `gps_tracker_id`), `05-transport/` (TO origin/destination, Trip)
-- **Related ops dwell**: `06-poi-operations/gate-management.md` (gate dwell ≠ geofence dwell)
+- **Related ops dwell**: `06-poi-operations/` (gate dwell ≠ geofence dwell)
 - **Provides**: Live GPS map, geofence events, dwell timeline, GPS trail/history APIs
 
 ---
