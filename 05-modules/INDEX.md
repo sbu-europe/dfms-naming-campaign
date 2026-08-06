@@ -2,7 +2,7 @@
 
 This index provides a comprehensive mapping of all module specifications, cross-references, dependencies, and user story mappings.
 
-**Last Updated**: 2026-04-09
+**Last Updated**: 2026-07-24 (added Module 09 — GPS Tracking SSOT)
 
 ---
 
@@ -228,6 +228,36 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - **Depends on**: `02-master-data/` (Vehicle, Helper masters), `01-foundation/`, `03-users/` (Driver + Helper profiles)
 - **Referenced by**: `05-transport/` (TO/Trip assignment)
 - **Provides**: Fleet availability, vehicle/driver assignment, fuel tracking
+
+---
+
+### [09-tracking/](09-tracking/README.md) - GPS Tracking (product SSOT)
+**Purpose**: Live GPS, providers, geofencing, dwell, maps surfaces  
+**PRD Sections**: 6.5.4–6.5.10, 6.9.2, 9.1  
+**Phase**: Phase 1 (Critical/High); §6.5.10 Phase 2  
+**Sprint Coverage**: Sprint 5–6  
+**Dependencies**: `01-foundation/`, `02-master-data/` (POI, Vehicle), `05-transport/` (TO, Trip)  
+**Django App**: `apps/tracking` · Ingest: `services/gt06-ingest`
+
+#### Specifications
+- [README.md](09-tracking/README.md) — Module hub
+- [providers/README.md](09-tracking/providers/README.md) — GPS devices / providers (all in one file)
+- Live GPS (§6.5.5): [GPS-01](../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc
+- Arrival / departure (§6.5.6 / §6.5.8): [GPS-03](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) — not a separate module doc
+- Maps Dashboard (§6.5.4 / §6.9.2): [GPS-05](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc
+- POI geofence radius (§6.5.7): [GPS-02](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)
+- Dwell (§6.5.9): [GPS-04](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
+
+Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/tracking/PRD_AS_BUILT.md`
+
+#### Related Stories
+- Sprint 6 GPS-01…GPS-05; Sprint 5 DFS-070 (demo MVP)
+- US-026 (Command Center map — separate surface); US-097 (POI geofencing)
+
+#### Cross-References
+- **Depends on**: `02-master-data/` (POI radius, `gps_tracker_id`), `05-transport/` (TO origin/destination, Trip)
+- **Related ops dwell**: `06-poi-operations/` (gate dwell ≠ geofence dwell)
+- **Provides**: Live GPS map, geofence events, dwell timeline, GPS trail/history APIs
 
 ---
 

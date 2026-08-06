@@ -29,6 +29,7 @@ These are **module specifications** (not just business requirements or just tech
 | [06-poi-operations/](06-poi-operations/) | Gate, Scaling, QC, Command Center | 4 | POI-level physical operations | `apps/operations` | Sprint 4 |
 | [07-vendor-management/](07-vendor-management/) | Vendor onboarding, bidding, portal | 3 | Vendor ecosystem management | `apps/vendors` | Sprint 4 |
 | [08-fleet-management/](08-fleet-management/) | Vehicles, drivers, helpers, fuel | 4 | Fleet lifecycle management | `apps/users`, `apps/master_data` | Sprint 4 |
+| [09-tracking/](09-tracking/) | **GPS / Live GPS / geofence / dwell (product SSOT)** | 7 | Providers, Live GPS, geofence, dwell, maps | `apps/tracking`, `services/gt06-ingest` | Sprint 5–6 |
 | [09-mobile-apps/](09-mobile-apps/) | Driver, QC, Vendor mobile apps | 3 | Mobile interfaces for field users | — | Sprint 5 |
 | [10-audit/](10-audit/) | Audit log implementation | 1 | Entity audit trail | `apps/audit` | Sprint 2+ |
 | [11-reporting/](11-reporting/) | Reports and analytics | 2 | Dashboards, KPIs, reports | `apps/reporting` | Phase 2 |

@@ -23,7 +23,7 @@ total_story_points_estimated: "~67 SP (23 E2E carry-over sub-tasks + GPS Phase 1
 ## Sprint Goals
 
 1. **E2E test coverage for Sprint 3 → Sprint 5 work (E2E-01)** — execute all 23 story-level E2E sub-tasks carried from Sprint 5 plus cross-module journey scenarios covering Sprint 3 flows (PR → TR → TO, port shipments, on-demand TO). Every Phase 1 story exits with its E2E Definition of Done satisfied. See [`01-e2e-hardening/E2E-01-sprint3-to-5-e2e-coverage.md`](01-e2e-hardening/E2E-01-sprint3-to-5-e2e-coverage.md).
-2. **GPS Maps Dashboard — Phase 1 production (GPS-01 → GPS-05)** — graduate the Sprint 5 demo MVP to the full Phase 1 delivery per PRD §6.5.4–6.5.9 and §6.8.2, broken into five stories along the PRD user-story seams: GPS tracking & live vehicle feed ([GPS-01](02-gps-maps-dashboard/GPS-01-gps-tracking-monitoring.md)), geofence boundary management ([GPS-02](02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)), arrival/departure event engine ([GPS-03](02-gps-maps-dashboard/GPS-03-geofence-engine-arrival-departure.md)), dwell time tracking ([GPS-04](02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)), and the maps dashboard with TO/PR integration ([GPS-05](02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md)). Sprint 5's open demo gaps fold in (R&D findings → GPS-01; POI map layer, degraded mode, PO sign-off → GPS-05). Delivery order follows the dependency chain GPS-01/02 → 03 → 04 → 05.
+2. **GPS Maps Dashboard — Phase 1 production (GPS-01 → GPS-05)** — graduate the Sprint 5 demo MVP to the full Phase 1 delivery per PRD §6.5.4–6.5.9 and §6.8.2, broken into five stories along the PRD user-story seams: GPS tracking & live vehicle feed ([GPS-01](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)), geofence boundary management ([GPS-02](02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)), arrival/departure event engine ([GPS-03](02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)), dwell time tracking ([GPS-04](02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)), and the maps dashboard with TO/PR integration ([GPS-05](02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md)). Sprint 5's open demo gaps fold in (R&D findings → GPS-01; POI map layer, degraded mode, PO sign-off → GPS-05). Delivery order follows the dependency chain GPS-01/02 → 03 → 04 → 05.
 3. **Vendor app release readiness — live API (VAPP-01)** — produce a release-ready vendor mobile app build that runs against the live DFMS API: environment-based configuration, auth/session hardening, failure-state handling, signed release artifacts, and a live-API smoke test pass. See [`03-vendor-app/VAPP-01-release-readiness-live-api.md`](03-vendor-app/VAPP-01-release-readiness-live-api.md).
 4. **Vendor app design improvements (VAPP-02)** — UX/UI polish pass across vendor app surfaces: consistent design system, loading/empty/error states, bid and trip lifecycle screen refinements. See [`03-vendor-app/VAPP-02-design-improvements.md`](03-vendor-app/VAPP-02-design-improvements.md).
 5. **Phase 1 User Manual readiness (DOC-01)** — role-based user manual covering every Phase 1 module, reviewed and sign-off ready. See [`04-phase1-readiness-docs/DOC-01-phase1-user-manual.md`](04-phase1-readiness-docs/DOC-01-phase1-user-manual.md).
@@ -88,9 +88,9 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 
 | Story | Title | PRD | Jira | SP |
 |-------|-------|-----|------|----|
-| [GPS-01](02-gps-maps-dashboard/GPS-01-gps-tracking-monitoring.md) | GPS Tracking & Monitoring — provider adapter & live vehicle feed | §6.5.5, §9.1 | DFS-077 | 3 |
+| [GPS-01](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) | Live GPS Monitoring | §6.5.5 | DFS-070 | 8 |
 | [GPS-02](02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) | POI Geofence Boundary Management — Tenant Admin config | §6.5.7 | DFS-078 | 1 |
-| [GPS-03](02-gps-maps-dashboard/GPS-03-geofence-engine-arrival-departure.md) | Geofence Engine — arrival/departure events + TLS-01 timeline | §6.5.6, §6.5.8 | DFS-079 | 3 |
+| [GPS-03](02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) | Vehicle Arrival & Departure at POI | §6.5.6, §6.5.8 | DFS-079 | 3 |
 | [GPS-04](02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) | Dwell Time Tracking — calculation, visibility & threshold exceptions | §6.5.9 | DFS-080 | 2 |
 | [GPS-05](02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) | Maps Dashboard & TO/PR Integration — map UI, APIs & RBAC | §6.5.4, §6.8.2, §9.2 | DFS-081 | 4 |
 
@@ -205,17 +205,21 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 
 ## Reference Documents
 
+- **[Module 09 — GPS Tracking SSOT](../../05-modules/09-tracking/README.md)** — as-built hub, PRD matrix, geofence/dwell rules, map surfaces
+- [09-tracking README](../../05-modules/09-tracking/README.md) — GPS product context hub
+- [providers/README.md](../../05-modules/09-tracking/providers/README.md) — device / provider configuration
+- [GT06_IMPLEMENTATION.md](../../../apps/tracking/GT06_IMPLEMENTATION.md) — engineering pipeline
+- [PRD_AS_BUILT.md](../../../apps/tracking/PRD_AS_BUILT.md) — PRD ↔ code status (eng)
 - [Sprint 5 README](../sprint-5/README.md) — full carry-over context and Sprint 5 goals
 - [Sprint 5 Completion Report](../sprint-5/completion-report.md) — delivered scope, carry-forward list (23 E2E sub-tasks, GPS-01 Phase 1)
-- [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — as-built demo, AC validation, Phase 1 deferred items
-- [Module 09 — Live GPS implementation (GT06 server)](../../05-modules/09-tracking/gt06-server.md) — Sprint 5 backend architecture
-- [GPS/VTS integration contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX provider contract
-- [PRD §6.5.4–6.5.9, §6.8.2](../../01-source/01-prd/PRD_DFMS_v1.0.md) — map layer integration, GPS tracking, geofencing, dwell time, map-based dashboard
+- [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — demo MVP story
+- [GPS/VTS integration contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX provider contract (adapter deferred)
+- [PRD §6.5.4–6.5.10, §6.8.2](../../01-source/01-prd/PRD_DFMS_v1.0.md) — map layer, GPS, geofencing, dwell, maintenance (Phase 2)
 - [Vendor Trip Lifecycle & Status Model](../sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow consumed by vendor app
 - [TO Creation & Vendor Bidding Flow Revision](../sprint-5/08-vendor-management/TO-BID-FLOW-REVISION.md) — Bid bundle model the vendor app release must match
 
 ---
 
 **Sprint Lead**: ~
-**Last Updated**: 2026-06-22 (FB-001 demo feedback — CC-02)
+**Last Updated**: 2026-07-24 (GPS module SSOT linked)
 **Previous**: [Sprint 5](../sprint-5/README.md)

@@ -44,7 +44,14 @@ A person assigned to operate a vehicle for transporting goods. Tracked in the sy
 An assistant assigned to help drivers during trips, particularly with loading, unloading, and quality checks.
 
 ### Dwell Time
-The duration a vehicle spends stationary at a Point of Interest (POI) during loading, unloading, or waiting.
+The duration a vehicle spends at a Point of Interest. **DFMS distinguishes two measures** (do not conflate):
+
+| Term | Meaning |
+|------|---------|
+| **Geofence dwell** | Exit − entry at the POI geofence circle (`GeofenceEvent`) |
+| **Gate dwell** | Gate-out − gate-in at yard operations |
+
+SSOT: [`GPS-04`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
 
 ## E
 
@@ -62,10 +69,10 @@ Consumer products that are sold quickly at relatively low cost. One of DFMS's ta
 ## G
 
 ### Geofencing
-Virtual geographic boundaries defined around Points of Interest (POIs) to trigger alerts when vehicles enter or exit these zones.
+Virtual geographic boundaries defined around Points of Interest (POIs) to trigger alerts when vehicles enter or exit these zones. Phase 1 uses **radius-based circles** on POI master data; event engine evaluates **TO origin/destination** only. SSOT: [`GPS-03`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)
 
 ### GPS (Global Positioning System)
-Satellite-based navigation system used for real-time vehicle tracking.
+Satellite-based navigation system used for real-time vehicle tracking. DFMS Phase 1 runtime provider is **GT06 TCP ingest** (GPSWOX adapter deferred). SSOT: [`05-modules/09-tracking/README.md`](../../05-modules/09-tracking/README.md)
 
 ## H
 
@@ -214,7 +221,7 @@ Business arrangement where custom features beyond standard DFMS scope are develo
 Point of Interest that can be created, modified, or removed in real-time based on operational needs.
 
 ### Geofence Arrival/Departure
-Automated logging when a vehicle enters or exits a POI's geofenced boundary.
+Automated logging when a vehicle enters or exits a POI's geofenced boundary (`GeofenceEvent` entry/exit), linked to Trip / TO / Vehicle / POI when on a trip.
 
 ### Incident Logging
 Recording of exceptions, deviations, or issues during trips for audit and accountability.

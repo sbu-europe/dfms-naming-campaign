@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: PRD_DFMS_v1.0.md
 source_sections: 6.5.1-6.5.8
-last_updated: 2026-04-17
+last_updated: 2026-07-24
 related_stories: US-014
 ---
 
@@ -16,6 +16,10 @@ related_stories: US-014
 Points of Interest (POIs) are fundamental entities in the DFMS platform, representing physical locations where transport, logistics, and quality control operations occur. POIs include depots, feed mills, warehouses, factories, ports, dealer locations, and supplier sites. The POI management system provides GPS-based geofencing, capacity tracking, and operational classification to support requisition management, trip monitoring, and real-time vehicle tracking.
 
 This specification defines the POI data model, lifecycle management, geofencing capabilities, capacity tracking mechanisms, and integration with operational modules.
+
+> **Runtime geofence / Live GPS / dwell (product SSOT):**  
+> [`../09-tracking/README.md`](../09-tracking/README.md) · [`GPS-02`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) · [`GPS-03`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)  
+> This master-data doc owns the **POI radius field and admin UX**; product AC for radius is [GPS-02](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md); tracking owns **evaluation, events, and map**.
 
 ---
 

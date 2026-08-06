@@ -73,6 +73,8 @@ Sections 7–18 mutate **one** Transport Order’s lifecycle. Isolating a mid-ya
 
 **Negatives / RBAC / multi-point:** clone a second PR/TR/TO (or second LUP) inside the suite that needs it; do not break the main chain.
 
+> **Live GPS history** after an FG TO is served: [`../09-tracking/live-gps-e2e-scenarios.md`](../09-tracking/live-gps-e2e-scenarios.md) (Part D), not an FG section.
+
 ---
 
 ## Artifact layout
