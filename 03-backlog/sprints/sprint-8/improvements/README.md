@@ -2,27 +2,31 @@
 title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
-total_items: 7
+total_items: 14
 resolved: 7
 in_progress: 0
-open: 0
+open: 7
 ---
 
 # Sprint 8 — Improvements Tracker
 
-Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007). Originally captured during Sprint 7; tracked here for Sprint 8 delivery / close-out.
+Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-014).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-014** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight, Driver My Trips cargo weight).
 
 ## Modules
 
-| Folder file | Menu / area | Items | Resolved |
-|-------------|-------------|-------|----------|
-| [Users & Access](./01-users-and-access.md) | Users / Drivers · Invite · Bulk I/O | 4 | 4 |
-| [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 |
+| Folder file | Menu / area | Items | Resolved | Open |
+|-------------|-------------|-------|----------|------|
+| [Users & Access](./01-users-and-access.md) | Users / Drivers · Invite · Bulk I/O | 4 | 4 | 0 |
+| [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 | 0 |
+| [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 0 | 1 |
+| [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 0 | 2 |
+| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 3 | 0 | 3 |
+| [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 0 | 1 |
 
 ## All items (quick index)
 
@@ -35,10 +39,18 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-005](./02-master-data.md#fb-005--loadingunloading-bulk-operation-missing) | Loading/Unloading: bulk operation missing for this menu | [Master Data](./02-master-data.md) | Master Data / Loading-Unloading · Bulk I/O | Medium | Resolved |
 | [FB-006](./02-master-data.md#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | [Master Data](./02-master-data.md) | Master Data / Products · Bulk I/O | Medium | Resolved |
 | [FB-007](./02-master-data.md#fb-007--product-sub-category-bulk-operation-missing) | Product Sub-Category: bulk operation missing for this menu | [Master Data](./02-master-data.md) | Master Data / Product Sub-Categories · Bulk I/O | Medium | Resolved |
+| [FB-008](./03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission) | PR locked from edit by Depot / Feed Mill / Commercial Officers after submission | [Product Requisition](./03-product-requisition.md) | Requisition / PR · Port Shipments | High | Open |
+| [FB-009](./04-transport-requests.md#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles) | TR List: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · TRs | Medium | Open |
+| [FB-010](./04-transport-requests.md#fb-010--tr-details--line-items-show-total-weight-kg-and-total-quantity-for-distribution--procurement-roles) | TR Details & line items: Total Weight (KG) + Total Quantity (DO / DM / PO) | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · TRs | Medium | Open |
+| [FB-011](./05-transport-planner.md#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: Remaining Weight (KG) for planning | [Transport Planner](./05-transport-planner.md) | Transport · TR queue | High | Open |
+| [FB-012](./05-transport-planner.md#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation: Allocated Quantity Per Product — Remaining Quantity column | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | High | Open |
+| [FB-013](./05-transport-planner.md#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | [Transport Planner](./05-transport-planner.md) | Transport · TO details | High | Open |
+| [FB-014](./06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips Cargo table: Allocated Weight with Allocated Quantity | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| Medium | 7 | 7 | 0 |
-| **Total** | **7** | **7** | **0** |
+| High | 4 | 0 | 4 |
+| Medium | 10 | 7 | 3 |
+| **Total** | **14** | **7** | **7** |
