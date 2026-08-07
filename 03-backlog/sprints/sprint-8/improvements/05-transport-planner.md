@@ -16,7 +16,7 @@ parent: ./README.md
 |----|-------|----------|--------|
 | [FB-011](#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: display Remaining Weight (KG) for planning | High | Resolved |
 | [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Resolved |
-| [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Open |
+| [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Resolved |
 | [FB-015](#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
 
 ---
@@ -87,7 +87,7 @@ On **TO Creation Details**, **Allocated Quantity Per Product** shall display a *
 | **Affected Stories** | [TO-01](../../sprint-3/05-transport/02-transport-orders.md) (TO detail after creation) |
 | **Closing Sub-tasks** | FB-013-1 — After TO creation, the **TO details** page SHALL render the **PR line items** table · FB-013-2 — Table shows the linked PR/TR product line items expected on the detail view (no blank / missing section) |
 | **AC Amendment** | After a Transport Order is created, the **TO details** page SHALL display the **PR line items** table. The table MUST NOT be missing or empty solely because the TO has been created. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Bug: PR line items table fails to show on TO details after creation. Confirm data source (PR vs TR line items) matches the designed detail layout and fix the render/query path. |
 
@@ -103,8 +103,8 @@ On **TO Creation Details**, **Allocated Quantity Per Product** shall display a *
 
 ### Closing checklist
 
-- [ ] FB-013-1 — PR line items table renders on TO details after creation
-- [ ] FB-013-2 — Line items content correct (linked PR/TR products)
+- [x] FB-013-1 — PR line items table renders on TO details after creation
+- [x] FB-013-2 — Line items content correct (linked PR/TR products)
 
 ---
 
