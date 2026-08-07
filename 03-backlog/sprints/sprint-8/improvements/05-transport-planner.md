@@ -17,7 +17,7 @@ parent: ./README.md
 | [FB-011](#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: display Remaining Weight (KG) for planning | High | Resolved |
 | [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Resolved |
 | [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Open |
-| [FB-015](#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | Medium | Open |
+| [FB-015](#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
 
 ---
 
@@ -116,7 +116,7 @@ On **TO Creation Details**, **Allocated Quantity Per Product** shall display a *
 | **Affected Stories** | [TO-01](../../sprint-3/05-transport/02-transport-orders.md) (Transport Order Creation) |
 | **Closing Sub-tasks** | FB-015-1 — On **TO Creation** (`create-from-tr`), show **Allocating TO Load** under **Allocate Quantities per Product** · FB-015-2 — Value = Σ(allocate qty × weight_per_unit) × **Number of TOs**, formatted `{mt} MT ({kg} kg)`; updates live as allocate / TO count changes; show **—** when load is zero |
 | **AC Amendment** | On the **TO Creation** page, while the planner enters **Allocate for This TO** / **Allocate per TO**, the form SHALL display **Allocating TO Load** as the combined weight of the allocation being created: Σ(line allocate qty × weight_per_unit) × **Number of TOs**, in **`{mt} MT ({kg} kg)`** format (same style as TR **Total Weight**). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | Complements FB-012 (Remaining Quantity). Load is **all TOs combined** (× Number of TOs), not per-TO only. E2E: [fb-015-to-creation-allocating-to-load-e2e-scenarios.md](../../../../09-testing/backend/e2e-scenarios/sprint-8/fb-015-to-creation-allocating-to-load-e2e-scenarios.md). |
 
@@ -132,5 +132,5 @@ While allocating quantities on TO creation, planners need a live **Allocating TO
 
 ### Closing checklist
 
-- [ ] FB-015-1 — Allocating TO Load displayed on create-from-tr (Allocate section)
-- [ ] FB-015-2 — Live value = combined load × Number of TOs; `—` when zero
+- [x] FB-015-1 — Allocating TO Load displayed on create-from-tr (Allocate section)
+- [x] FB-015-2 — Live value = combined load × Number of TOs; `—` when zero
