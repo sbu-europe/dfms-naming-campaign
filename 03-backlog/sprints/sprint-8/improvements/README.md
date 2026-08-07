@@ -3,9 +3,9 @@ title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
 total_items: 14
-resolved: 7
+resolved: 8
 in_progress: 0
-open: 7
+open: 6
 ---
 
 # Sprint 8 — Improvements Tracker
@@ -23,7 +23,7 @@ Items are split **by admin menu / module** for easier browsing.
 |-------------|-------------|-------|----------|------|
 | [Users & Access](./01-users-and-access.md) | Users / Drivers · Invite · Bulk I/O | 4 | 4 | 0 |
 | [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 | 0 |
-| [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 0 | 1 |
+| [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 1 | 0 |
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 0 | 2 |
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 3 | 0 | 3 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 0 | 1 |
@@ -39,7 +39,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-005](./02-master-data.md#fb-005--loadingunloading-bulk-operation-missing) | Loading/Unloading: bulk operation missing for this menu | [Master Data](./02-master-data.md) | Master Data / Loading-Unloading · Bulk I/O | Medium | Resolved |
 | [FB-006](./02-master-data.md#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | [Master Data](./02-master-data.md) | Master Data / Products · Bulk I/O | Medium | Resolved |
 | [FB-007](./02-master-data.md#fb-007--product-sub-category-bulk-operation-missing) | Product Sub-Category: bulk operation missing for this menu | [Master Data](./02-master-data.md) | Master Data / Product Sub-Categories · Bulk I/O | Medium | Resolved |
-| [FB-008](./03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission) | PR locked from edit by Depot / Feed Mill / Commercial Officers after submission | [Product Requisition](./03-product-requisition.md) | Requisition / PR · Port Shipments | High | Open |
+| [FB-008](./03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission) | PR locked from edit by Depot / Feed Mill / Commercial Officers after submission | [Product Requisition](./03-product-requisition.md) | Requisition / PR · Port Shipments | High | Resolved |
 | [FB-009](./04-transport-requests.md#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles) | TR List: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · TRs | Medium | Open |
 | [FB-010](./04-transport-requests.md#fb-010--tr-details--line-items-show-total-weight-kg-and-total-quantity-for-distribution--procurement-roles) | TR Details & line items: Total Weight (KG) + Total Quantity (DO / DM / PO) | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · TRs | Medium | Open |
 | [FB-011](./05-transport-planner.md#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: Remaining Weight (KG) for planning | [Transport Planner](./05-transport-planner.md) | Transport · TR queue | High | Open |
@@ -51,6 +51,6 @@ Items are split **by admin menu / module** for easier browsing.
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 4 | 0 | 4 |
+| High | 4 | 1 | 3 |
 | Medium | 10 | 7 | 3 |
-| **Total** | **14** | **7** | **7** |
+| **Total** | **14** | **8** | **6** |
