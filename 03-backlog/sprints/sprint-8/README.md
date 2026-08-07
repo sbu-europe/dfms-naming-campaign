@@ -60,7 +60,7 @@ See [`improvements/`](./improvements/README.md). E2E plans: [`09-testing/.../e2e
 | ID | Area | Summary | Priority | Status |
 |----|------|---------|----------|--------|
 | FB-008 | Product Requisition | PR locked from edit after submission (Depot / Feed Mill / Commercial Officers) | High | Open |
-| FB-009 | Transport Requests | TR list: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | Medium | Open |
+| FB-009 | Transport Requests | TR list: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | Medium | Resolved |
 | FB-010 | Transport Requests | TR details & line items: Total Weight (KG) + Total Quantity | Medium | Open |
 | FB-011 | Transport Planner | TR list: Remaining Weight (KG) for planning | High | Open |
 | FB-012 | Transport Planner | TO creation: Remaining Quantity on Allocated Quantity Per Product | High | Open |

@@ -14,7 +14,7 @@ parent: ./README.md
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [FB-009](#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles) | TR List: show Total Weight (KG) instead of Total Quantity for Distribution & Procurement roles | Medium | Open |
+| [FB-009](#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles) | TR List: show Total Weight (KG) instead of Total Quantity for Distribution & Procurement roles | Medium | Resolved |
 | [FB-010](#fb-010--tr-details--line-items-show-total-weight-kg-and-total-quantity-for-distribution--procurement-roles) | TR Details & line items: show Total Weight (KG) and Total Quantity for Distribution & Procurement roles | Medium | Open |
 
 ---
@@ -27,7 +27,7 @@ parent: ./README.md
 | **Affected Stories** | [DR-02](../../sprint-3/03-distribution/DR-02-transport-requests.md) (FG TRs); [PC-02](../../sprint-3/04-procurement/PC-02-transport-requests.md) (Port Consignment TRs) |
 | **Closing Sub-tasks** | FB-009-1 — On TR list for **Distribution Officer**, **Distribution Manager**, and **Procurement Officer**, replace **Total Quantity** (count of items) with **Total Weight (KG)** · FB-009-2 — Column header and value formatting use KG (consistent with requisition weight totals) |
 | **AC Amendment** | For **Distribution Officer**, **Distribution Manager**, and **Procurement Officer**, the **Transport Request list** SHALL display a **Total Weight (KG)** column **instead of** **Total Quantity** (count of items). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | Applies to the TR list views those roles use under Distribution / Procurement — not the Transport Planner queue (see FB-011 for Remaining Weight on the planner list). |
 
@@ -44,8 +44,8 @@ On the TR list for Distribution Officer, Distribution Manager, and Procurement O
 
 ### Closing checklist
 
-- [ ] FB-009-1 — List display uses Total Weight (KG) instead of Total Quantity for DO / DM / PO
-- [ ] FB-009-2 — Header / units labelled as KG
+- [x] FB-009-1 — List display uses Total Weight (KG) instead of Total Quantity for DO / DM / PO
+- [x] FB-009-2 — Header / units labelled as KG
 
 ---
 
