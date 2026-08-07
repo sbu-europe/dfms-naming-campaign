@@ -2,20 +2,20 @@
 title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
-total_items: 14
+total_items: 15
 resolved: 11
 in_progress: 0
-open: 3
+open: 4
 ---
 
 # Sprint 8 — Improvements Tracker
 
-Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-014).
+Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-015).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-014** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight, Driver My Trips cargo weight).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-015** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight).
 
 ## Modules
 
@@ -25,7 +25,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 | 0 |
 | [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 1 | 0 |
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 2 | 0 |
-| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 3 | 1 | 2 |
+| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 2 | 2 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 0 | 1 |
 
 ## All items (quick index)
@@ -46,11 +46,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-012](./05-transport-planner.md#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation: Allocated Quantity Per Product — Remaining Quantity column | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | High | Resolved |
 | [FB-013](./05-transport-planner.md#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | [Transport Planner](./05-transport-planner.md) | Transport · TO details | High | Open |
 | [FB-014](./06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips Cargo table: Allocated Weight with Allocated Quantity | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips | Medium | Open |
+| [FB-015](./05-transport-planner.md#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 4 | 2 | 2 |
-| Medium | 10 | 9 | 1 |
-| **Total** | **14** | **11** | **3** |
+| Medium | 11 | 9 | 2 |
+| **Total** | **15** | **11** | **4** |
