@@ -21,6 +21,7 @@ Playwright MCP scenario plans for Sprint 8 improvements carried from Sprint 7 (`
 | FB-007 — Product Sub-Category bulk import & export | [fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md](./fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md) | **11/11 Pass** (2026-08-04) |
 | FB-008 — PR locked after submission (Depot / Feed Mill / Commercial) | [fb-008-pr-locked-after-submission-e2e-scenarios.md](./fb-008-pr-locked-after-submission-e2e-scenarios.md) | **8/8 Pass** (2026-08-07; TC09 Skip) |
 | FB-009 — TR List: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | [fb-009-tr-list-total-weight-kg-e2e-scenarios.md](./fb-009-tr-list-total-weight-kg-e2e-scenarios.md) | **5/5 Pass** (2026-08-07) |
+| FB-010 — TR Details & line items: Total Weight (KG) + Total Quantity (DO / DM / PO) | [fb-010-tr-details-line-items-total-weight-kg-e2e-scenarios.md](./fb-010-tr-details-line-items-total-weight-kg-e2e-scenarios.md) | **6/6 Pass** (2026-08-07) |
 
 > **Naming:** [`fb-009-phone-normalization-…`](./fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md) maps to improvements **FB-001** (legacy sprint-7 FB-009 id). Improvements **FB-009** (TR weight) uses [`fb-009-tr-list-total-weight-kg-e2e-scenarios.md`](./fb-009-tr-list-total-weight-kg-e2e-scenarios.md).
 
