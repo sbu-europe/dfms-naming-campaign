@@ -14,7 +14,7 @@ parent: ./README.md
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [FB-011](#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: display Remaining Weight (KG) for planning | High | Open |
+| [FB-011](#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: display Remaining Weight (KG) for planning | High | Resolved |
 | [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Open |
 | [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Open |
 
@@ -28,7 +28,7 @@ parent: ./README.md
 | **Affected Stories** | [TRQ-01](../../sprint-3/05-transport/01-transport-requests-queue.md) (Transport Requests Queue) |
 | **Closing Sub-tasks** | FB-011-1 — Add **Remaining Weight (KG)** column to the Transport Planner **TR list** · FB-011-2 — Remaining Weight = TR total weight minus weight already allocated to TOs (planning remainder) |
 | **AC Amendment** | The Transport Planner **TR list** SHALL display **Remaining Weight (KG)** so planners can see how much weight is still available for planning / TO allocation. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Distinct from FB-009 (DO/DM/PO Total Weight). Planner needs the **remaining** (unallocated) weight, not only the TR total. |
 
@@ -44,8 +44,8 @@ Transport Planner **TR List** needs to display **Remaining Weight (KG)** for pla
 
 ### Closing checklist
 
-- [ ] FB-011-1 — Remaining Weight (KG) column on Transport Planner TR list
-- [ ] FB-011-2 — Value reflects unallocated / remaining weight for planning
+- [x] FB-011-1 — Remaining Weight (KG) column on Transport Planner TR list
+- [x] FB-011-2 — Value reflects unallocated / remaining weight for planning
 
 ---
 
