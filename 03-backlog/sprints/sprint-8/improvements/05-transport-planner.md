@@ -15,7 +15,7 @@ parent: ./README.md
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
 | [FB-011](#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: display Remaining Weight (KG) for planning | High | Resolved |
-| [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Open |
+| [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Resolved |
 | [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Open |
 
 ---
@@ -57,7 +57,7 @@ Transport Planner **TR List** needs to display **Remaining Weight (KG)** for pla
 | **Affected Stories** | [TO-01](../../sprint-3/05-transport/02-transport-orders.md) (Transport Order Creation) |
 | **Closing Sub-tasks** | FB-012-1 — On **TO Creation** details, in **Allocated Quantity Per Product**, add a **Remaining Quantity** column · FB-012-2 — Remaining Quantity updates as allocated qty is entered (TR product qty − allocated across TOs / this TO) |
 | **AC Amendment** | On the **TO Creation** details page, the **Allocated Quantity Per Product** section SHALL display a **Remaining Quantity** column so the planner can see how much quantity is left to allocate per product. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | High |
 | **Notes** | Complements FB-011 (remaining weight on TR list) with remaining **quantity** at TO creation time. |
 
@@ -73,8 +73,8 @@ On **TO Creation Details**, **Allocated Quantity Per Product** shall display a *
 
 ### Closing checklist
 
-- [ ] FB-012-1 — Remaining Quantity column on Allocated Quantity Per Product (TO creation)
-- [ ] FB-012-2 — Remaining Quantity reflects unallocated qty per product
+- [x] FB-012-1 — Remaining Quantity column on Allocated Quantity Per Product (TO creation)
+- [x] FB-012-2 — Remaining Quantity reflects unallocated qty per product
 
 ---
 

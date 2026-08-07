@@ -63,7 +63,7 @@ See [`improvements/`](./improvements/README.md). E2E plans: [`09-testing/.../e2e
 | FB-009 | Transport Requests | TR list: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | Medium | Resolved |
 | FB-010 | Transport Requests | TR details & line items: Total Weight (KG) + Total Quantity | Medium | Open |
 | FB-011 | Transport Planner | TR list: Remaining Weight (KG) for planning | High | Open |
-| FB-012 | Transport Planner | TO creation: Remaining Quantity on Allocated Quantity Per Product | High | Open |
+| FB-012 | Transport Planner | TO creation: Remaining Quantity on Allocated Quantity Per Product | High | Resolved |
 | FB-013 | Transport Planner | TO details: PR line items table not showing after creation | High | Open |
 | FB-014 | Driver My Trips | Cargo table: Allocated Weight with Allocated Quantity | Medium | Open |
 
