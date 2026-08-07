@@ -25,8 +25,8 @@ Items are split **by admin menu / module** for easier browsing.
 | [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 | 0 |
 | [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 1 | 0 |
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 2 | 0 |
-| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 3 | 1 |
-| [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 0 | 1 |
+| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
+| [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
 
 ## All items (quick index)
 
@@ -45,13 +45,13 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-011](./05-transport-planner.md#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning) | Transport Planner TR List: Remaining Weight (KG) for planning | [Transport Planner](./05-transport-planner.md) | Transport · TR queue | High | Resolved |
 | [FB-012](./05-transport-planner.md#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation: Allocated Quantity Per Product — Remaining Quantity column | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | High | Resolved |
 | [FB-013](./05-transport-planner.md#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | [Transport Planner](./05-transport-planner.md) | Transport · TO details | High | Resolved |
-| [FB-014](./06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips Cargo table: Allocated Weight with Allocated Quantity | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips | Medium | Open |
+| [FB-014](./06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips Cargo table: Allocated Weight with Allocated Quantity | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips | Medium | Resolved |
 | [FB-015](./05-transport-planner.md#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
-| High | 4 | 2 | 2 |
-| Medium | 11 | 10 | 1 |
-| **Total** | **15** | **12** | **3** |
+| High | 4 | 4 | 0 |
+| Medium | 11 | 11 | 0 |
+| **Total** | **15** | **15** | **0** |
