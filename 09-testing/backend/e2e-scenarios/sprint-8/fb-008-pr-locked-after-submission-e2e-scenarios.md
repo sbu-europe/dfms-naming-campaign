@@ -11,10 +11,18 @@ implementation_reference:
   - ../../../../../templates/admin/requisitions/portshipmentproxy/change_form.html
   - ../../../../../apps/requisitions/role_access.py
 last_updated: 2026-08-07
+last_mcp_run: 2026-08-07
+last_mcp_verdict: 8/8 Pass · TC09 Skip
+artifacts: tests/e2e/playwright-mcp/fb-008-pr-locked-after-submission-artifacts/
 playwright_mcp: true
 ---
 
 # Sprint 8 — FB-008 — PR / Port Shipment locked after submission — E2E Scenario Plan (Django Admin SSR)
+
+> **2026-08-07 — All 8 executed P0/P0+ cases passed** (TC01–TC08). TC09 skipped (no partially_allocated fixture). Suite signed off via Playwright MCP against Nourish admin.
+
+**Last MCP run:** 2026-08-07 · **8/8 Pass** (TC09 Skip) · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-008-pr-locked-after-submission-artifacts/RESULTS.md)  
+**Accounts:** `depot.officer1` · `feed.mill.officer1` · `commercial.officer1` (`.nourish@yopmail.com`) · **RUN_ID:** `B69F080E`
 
 **Improvement:** [FB-008](../../../../03-backlog/sprints/sprint-8/improvements/03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission)
 
@@ -37,8 +45,9 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | Credentials | `docs/testing/playwright-mcp-credentials.yaml` |
 | Wipe prefix | `MCP-FB008-` / `RUN_ID` in remarks / vessel / special instructions where helpful |
 | FG PR | Own Draft + own Submitted FG PR for depot (and one Submitted for feed mill). Use existing seed PRs or create via admin: **Save as Draft** then **Submit Requisition**. Submitted PR must have ≥1 line item. Prefer status `submitted` with **no** active TRs for cancel TC. |
-| Port Shipment | Own Draft + own Submitted Port Shipment for commercial officer (≥1 RM cargo line). Create via **Port Shipments** → **Save as Draft** / **Submit Shipment**. |
+| Port Shipment | Own Draft + own Submitted Port Shipment for commercial officer (≥1 RM cargo line + Arrival Notice for submit). Create via **Port Shipments** → **Save as Draft** / **Submit Shipment**. |
 | Working site | Set if prompted after login |
+| UOP | Depot/Feed Mill need **primary** `UserOperationalPOI` (`is_primary=True`) or destination POI queryset is empty on add |
 
 ---
 
@@ -46,25 +55,31 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Draft FG PR still editable (Depot) | As **Depot Officer** (`depot.officer1.nourish@yopmail.com`), log in at `/admin/login/`, open **Requisition → Finished Goods → Product Requisitions** (`/admin/requisitions/productrequisition/`). Open (or create) a **Draft** own PR. Assert **Save as Draft** and **Submit Requisition** are visible; assert **Urgency** is an editable select (not `readonly`); assert line-item inline allows editing quantity (or add row) when Draft. | P0 | Planned |
-| TC02 | Submitted FG PR — no Save Changes; Urgency locked (Depot) | Still as Depot Officer, open a **Submitted** own FG PR change form. Assert **Save Changes** is **not** present. Assert **Save as Draft** / **Submit Requisition** are absent. Assert **Urgency** is readonly / non-editable (no enabled `<select name="urgency">`, or field rendered as readonly text). Assert locked hint or equivalent view-only affordance if implemented (e.g. **Record is locked** / lock icon). | P0 | Planned |
-| TC03 | Submitted FG PR — line items view-only (Depot) | On the same Submitted FG PR, assert line-item inline fields are not editable (no enabled product/quantity inputs; no usable **Add another** that persists). Optionally change a visible control if any remain and confirm no successful field save path exists (no **Save Changes**). | P0 | Planned |
-| TC04 | Cancel Requisition still available on Submitted (no active TR) | On a **Submitted** FG PR with **no** active Transport Requests, assert **Cancel Requisition** link is visible (`admin:requisitions_productrequisition_cancel`). Click it; assert cancel-reason page loads (`Cancel Requisition — …`). Do **not** require completing cancel if wipe hygiene prefers leaving the PR; abort via back to list is fine after asserting the page. | P0 | Planned |
-| TC05 | Submitted FG PR locked for Feed Mill Officer | As **Feed Mill Officer** (`feed.mill.officer1.nourish@yopmail.com`), open a **Submitted** own FG PR. Assert same locks as TC02–TC03: no **Save Changes**; **Urgency** and line items view-only. | P0 | Planned |
+| TC01 | Draft FG PR still editable (Depot) | As **Depot Officer** (`depot.officer1.nourish@yopmail.com`), log in at `/admin/login/`, open **Requisition → Finished Goods → Product Requisitions** (`/admin/requisitions/productrequisition/`). Open (or create) a **Draft** own PR. Assert **Save as Draft** and **Submit Requisition** are visible; assert **Urgency** is an editable select (not `readonly`); assert line-item inline allows editing quantity (or add row) when Draft. | P0 | Pass |
+| TC02 | Submitted FG PR — no Save Changes; Urgency locked (Depot) | Still as Depot Officer, open a **Submitted** own FG PR change form. Assert **Save Changes** is **not** present. Assert **Save as Draft** / **Submit Requisition** are absent. Assert **Urgency** is readonly / non-editable (no enabled `<select name="urgency">`, or field rendered as readonly text). Assert locked hint or equivalent view-only affordance if implemented (e.g. **Record is locked** / lock icon). | P0 | Pass |
+| TC03 | Submitted FG PR — line items view-only (Depot) | On the same Submitted FG PR, assert line-item inline fields are not editable (no enabled product/quantity inputs; no usable **Add another** that persists). Optionally change a visible control if any remain and confirm no successful field save path exists (no **Save Changes**). | P0 | Pass |
+| TC04 | Cancel Requisition still available on Submitted (no active TR) | On a **Submitted** FG PR with **no** active Transport Requests, assert **Cancel Requisition** link is visible (`admin:requisitions_productrequisition_cancel`). Click it; assert cancel-reason page loads (`Cancel Requisition — …`). Do **not** require completing cancel if wipe hygiene prefers leaving the PR; abort via back to list is fine after asserting the page. | P0 | Pass |
+| TC05 | Submitted FG PR locked for Feed Mill Officer | As **Feed Mill Officer** (`feed.mill.officer1.nourish@yopmail.com`), open a **Submitted** own FG PR. Assert same locks as TC02–TC03: no **Save Changes**; **Urgency** and line items view-only. | P0 | Pass |
 
 ## B — Port Shipment (Commercial Officer)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC06 | Draft Port Shipment still editable | As **Commercial Officer** (`commercial.officer1.nourish@yopmail.com`), open **Port Shipments** (`/admin/requisitions/portshipmentproxy/`). Open/create a **Draft** own shipment. Assert **Save as Draft** and **Submit Shipment** are visible; assert header fields (e.g. **Urgency**, vessel/LC fields) are editable. | P0 | Planned |
-| TC07 | Submitted Port Shipment — record locked | Still as Commercial Officer, open a **Submitted** own Port Shipment. Assert **Save as Draft** / **Submit Shipment** are absent; assert no **Save Changes** (or other `_save`) submit button; assert **Shipment submitted — record is locked** (`.dfms-ps-locked-hint`) is visible (when Create TR is not shown for this role). Assert **Urgency** and LC/shipping fields are readonly / non-editable. | P0 | Planned |
-| TC08 | Submitted Port Shipment — RM cargo lines view-only | On the same Submitted Port Shipment, assert **RM Cargo Line Items** inline is view-only (no enabled quantity/product editors; add/delete not available for persistable edits). | P0 | Planned |
+| TC06 | Draft Port Shipment still editable | As **Commercial Officer** (`commercial.officer1.nourish@yopmail.com`), open **Port Shipments** (`/admin/requisitions/portshipmentproxy/`). Open/create a **Draft** own shipment. Assert **Save as Draft** and **Submit Shipment** are visible; assert header fields (e.g. **Urgency**, vessel/LC fields) are editable. | P0 | Pass |
+| TC07 | Submitted Port Shipment — record locked | Still as Commercial Officer, open a **Submitted** own Port Shipment. Assert **Save as Draft** / **Submit Shipment** are absent; assert no **Save Changes** (or other `_save`) submit button; assert **Shipment submitted — record is locked** (`.dfms-ps-locked-hint`) is visible (when Create TR is not shown for this role). Assert **Urgency** and LC/shipping fields are readonly / non-editable. | P0 | Pass |
+| TC08 | Submitted Port Shipment — RM cargo lines view-only | On the same Submitted Port Shipment, assert **RM Cargo Line Items** inline is view-only (no enabled quantity/product editors; add/delete not available for persistable edits). | P0 | Pass |
 
 ## C — Negative / regression (optional depth)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC09 | Partially allocated FG PR also has no Save Changes | As Depot Officer, if a `partially_allocated` own PR exists (or create via Distribution TR allocation outside this suite), open its change form and assert **Save Changes** is absent and **Urgency** is locked (same as Submitted). Skip with note if no fixture available. | P1 | Planned |
+| TC09 | Partially allocated FG PR also has no Save Changes | As Depot Officer, if a `partially_allocated` own PR exists (or create via Distribution TR allocation outside this suite), open its change form and assert **Save Changes** is absent and **Urgency** is locked (same as Submitted). Skip with note if no fixture available. | P1 | Skip |
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-08-07 | **8/8** (+ TC09 Skip) | Playwright MCP; RUN_ID `B69F080E`. Fixed depot UOP `is_primary`; seeded feed mill UOP + submitted FG/PS fixtures. |
 
 ---
 
@@ -95,17 +110,19 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | Port change | `/admin/requisitions/portshipmentproxy/<id>/change/` |
 | Submit row | `.dfms-pr-submit-row` / `.dfms-ps-submit-row` |
 | Save Changes | `button[name="_save"]` with text **Save Changes** (must be absent post-submit for requester roles after fix) |
+| Locked hint (FG) | `.dfms-ps-locked-hint` — **Requisition submitted — record is locked** |
 | Locked hint (Port) | `.dfms-ps-locked-hint` — **Shipment submitted — record is locked** |
 | Urgency | `#id_urgency` or `select[name="urgency"]` — must not be enabled post-submit |
 
-### Known story ↔ code drift (pre-fix)
+### Known story ↔ code alignment (post-impl)
 
-- `_PRBaseAdmin.get_readonly_fields` currently **keeps `urgency` editable** for non-admin requesters on non-Draft PRs (Sprint 3 FB-004 exception). FB-008 **removes** that exception.
-- FG `change_form.html` shows **Save Changes** for `is_pr_owner_role` when status is `submitted` or `partially_allocated` — must be removed/hidden for FB-008.
-- `PRLineItemInline` / `PRDocumentInline` `_is_readonly_role` today covers DO/DM/PO only — Depot / Feed Mill / Commercial can still edit inlines on submitted records until locked by status.
-- Port Shipment template already omits **Save Changes** and shows locked hint for Commercial Officer; still verify **Urgency** and line widgets are truly readonly after the admin fix.
-- PR-01 AC-3 text claims submitted PRs are locked for requesters; runtime still allows urgency + Save Changes — FB-008 is the corrective AC.
+- `_PRBaseAdmin.get_readonly_fields` locks **all** fields including **Urgency** for non-admins on non-Draft.
+- FG `change_form.html` no longer shows **Save Changes** after submit; shows **Requisition submitted — record is locked** for requester roles (no Create TR).
+- Line/document inlines lock when parent status ≠ `draft` for non-admin users (and always for DO/DM/PO).
+- `save_model` / `save_formset` reject forged non-Draft mutations for non-admins.
+- **Cancel Requisition** remains available on Draft/Submitted (no active TRs).
+- Tenant Admin may still edit submitted records.
 
 ### Suggested next step
 
-Implement FB-008 in `apps/requisitions/admin.py` + FG change_form template, then run this plan via `playwright-mcp-admin` / `run-playwright-mcp-scenarios`.
+Optional: seed a `partially_allocated` own PR for TC09, or mark FB-008 closed on the sprint improvements tracker.

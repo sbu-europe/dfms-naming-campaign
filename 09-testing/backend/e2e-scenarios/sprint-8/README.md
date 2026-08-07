@@ -19,6 +19,6 @@ Playwright MCP scenario plans for Sprint 8 improvements carried from Sprint 7 (`
 | FB-005 — Loading/Unloading bulk import & export | [fb-013-loading-unloading-bulk-import-export-e2e-scenarios.md](./fb-013-loading-unloading-bulk-import-export-e2e-scenarios.md) | **11/11 Pass** (2026-08-04) |
 | FB-006 — Product bulk: remove Amount column from template | [fb-014-product-bulk-remove-amount-column-e2e-scenarios.md](./fb-014-product-bulk-remove-amount-column-e2e-scenarios.md) | **6/6 Pass** (2026-08-04) |
 | FB-007 — Product Sub-Category bulk import & export | [fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md](./fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md) | **11/11 Pass** (2026-08-04) |
-| FB-008 — PR locked after submission (Depot / Feed Mill / Commercial) | [fb-008-pr-locked-after-submission-e2e-scenarios.md](./fb-008-pr-locked-after-submission-e2e-scenarios.md) | Planned |
+| FB-008 — PR locked after submission (Depot / Feed Mill / Commercial) | [fb-008-pr-locked-after-submission-e2e-scenarios.md](./fb-008-pr-locked-after-submission-e2e-scenarios.md) | **8/8 Pass** (2026-08-07; TC09 Skip) |
 
 Sprint 7 plans for FB-001–FB-008 and VM-09 remain under [`../sprint-7/`](../sprint-7/README.md).
