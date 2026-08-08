@@ -3,9 +3,9 @@ title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
 total_items: 19
-resolved: 18
+resolved: 19
 in_progress: 0
-open: 1
+open: 0
 ---
 
 # Sprint 8 — Improvements Tracker
@@ -28,7 +28,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
 | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) | 2 | 2 | 0 |
-| [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Gate / QC panels | 1 | 0 | 1 |
+| [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Gate / QC panels | 1 | 1 | 0 |
 
 ## All items (quick index)
 
@@ -52,12 +52,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-016](./07-gate-operations.md#fb-016--gate-out-form--remove-non-updating-clearance-status-panel) | Gate-Out form: remove non-updating Clearance Status panel | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Exit (Gate-Out) | Medium | Resolved |
 | [FB-017](./07-gate-operations.md#fb-017--gate-in-add--remove-project--from-from-to-snapshot--readonly-project-from-info) | Gate-In add: remove Project / From from TO snapshot; readonly Project From Info | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) | Medium | Resolved |
 | [FB-018](./02-master-data.md#fb-018--vehicle-master-data--capacity-unit-mt--kg-only-remove-bag) | Vehicle capacity unit: MT & KG only (remove Bag) | [Master Data](./02-master-data.md) | Master Data · Vehicles | Medium | Resolved |
-| [FB-019](./08-command-center.md#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | [Command Center](./08-command-center.md) | CC · Loading · Gate · QC | Medium | Open |
+| [FB-019](./08-command-center.md#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | [Command Center](./08-command-center.md) | CC · Loading · Gate · QC | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 4 | 4 | 0 |
-| Medium | 15 | 14 | 1 |
-| **Total** | **19** | **18** | **1** |
+| Medium | 15 | 15 | 0 |
+| **Total** | **19** | **19** | **0** |

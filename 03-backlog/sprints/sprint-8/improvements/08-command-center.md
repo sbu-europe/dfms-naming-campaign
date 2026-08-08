@@ -15,7 +15,7 @@ parent: ./README.md
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [FB-019](#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | Medium | Open |
+| [FB-019](#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | Medium | Resolved |
 
 ---
 
@@ -27,9 +27,9 @@ parent: ./README.md
 | **Affected Stories** | [CC-01](../../../../05-modules/06-poi-operations/command-center-loading-sprint4.md) (Command Center); Loading / Gate / QC TO context panels |
 | **Closing Sub-tasks** | FB-019-1 — CC Bay Assignment TO panel: rename labels + Allocated Weight MT (kg) · FB-019-2 — CC Queue list: rename **Flow Lane** column · FB-019-3 — Loading TO summary: rename Flow Lane / Origin POI / Allocated Qty · FB-019-4 — Gate visit summary: rename **Quantity** → **Allocated Weight**; value always MT (kg) · FB-019-5 — QC TO context / widget: **Origin POI** → **Source POI** · FB-019-6 — Shared weight formatter; unit tests for CC / Gate / Loading label+value |
 | **AC Amendment** | Yard / Command Center TO context SHALL use TO-aligned labels (**TO Status**, **Product Classification Type**, **TO Sub-Status**, **Source POI**). Summary cargo weight SHALL be labelled **Allocated Weight** and always display `{mt} MT ({kg} kg)` from TO header kg (never line Bags/UOM). Product line tables may still show per-line Alloc. Qty in UOM. |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Display / panel formatting only — do not rename DB fields (`flow_lane`, `origin_poi`, `allocated_quantity`, `status`, `sub_state`). Loading today formats header kg as `{} MT` (incorrect); fix to MT (kg). Gate visit card has no Origin POI row (FB-017); quantity label+value is the Gate part of this item. Scaling list **Flow Lane** columns are out of scope unless pulled in later. |
+| **Notes** | Display / panel formatting only — do not rename DB fields (`flow_lane`, `origin_poi`, `allocated_quantity`, `status`, `sub_state`). Shared helper: `apps/transport/display_weight.py` → `format_allocated_weight_mt_kg`. Loading kg-as-MT mislabel fixed. Gate visit card has no Origin POI row (FB-017). Scaling list **Flow Lane** columns remain out of scope. |
 
 ### Improvement observation
 
@@ -89,9 +89,9 @@ Command Center, Loading, Gate, and QC still use TLS / yard wording (**Flow Lane*
 
 ### Closing checklist
 
-- [ ] FB-019-1 — CC Bay Assignment TO panel: five label renames + Allocated Weight MT (kg)
-- [ ] FB-019-2 — CC Queue list column: Flow Lane → Product Classification Type
-- [ ] FB-019-3 — Loading TO summary: Flow Lane / Origin POI / Allocated Weight MT (kg)
-- [ ] FB-019-4 — Gate visit summary: Quantity → Allocated Weight; value always MT (kg)
-- [ ] FB-019-5 — QC TO context / widget: Origin POI → Source POI
-- [ ] FB-019-6 — Shared (or reused) MT (kg) formatter; unit tests cover CC / Gate / Loading
+- [x] FB-019-1 — CC Bay Assignment TO panel: five label renames + Allocated Weight MT (kg)
+- [x] FB-019-2 — CC Queue list column: Flow Lane → Product Classification Type
+- [x] FB-019-3 — Loading TO summary: Flow Lane / Origin POI / Allocated Weight MT (kg)
+- [x] FB-019-4 — Gate visit summary: Quantity → Allocated Weight; value always MT (kg)
+- [x] FB-019-5 — QC TO context / widget: Origin POI → Source POI
+- [x] FB-019-6 — Shared (or reused) MT (kg) formatter; unit tests cover CC / Gate / Loading
