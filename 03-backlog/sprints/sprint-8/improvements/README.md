@@ -2,27 +2,27 @@
 title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
-total_items: 17
-resolved: 17
+total_items: 18
+resolved: 18
 in_progress: 0
 open: 0
 ---
 
 # Sprint 8 — Improvements Tracker
 
-Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-017).
+Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-018).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-017** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-018** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only).
 
 ## Modules
 
 | Folder file | Menu / area | Items | Resolved | Open |
 |-------------|-------------|-------|----------|------|
 | [Users & Access](./01-users-and-access.md) | Users / Drivers · Invite · Bulk I/O | 4 | 4 | 0 |
-| [Master Data](./02-master-data.md) | Master Data · Bulk I/O | 3 | 3 | 0 |
+| [Master Data](./02-master-data.md) | Master Data · Vehicles · Bulk I/O | 4 | 4 | 0 |
 | [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 1 | 0 |
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 2 | 0 |
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
@@ -50,11 +50,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-015](./05-transport-planner.md#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | [Transport Planner](./05-transport-planner.md) | Transport · TO creation | Medium | Resolved |
 | [FB-016](./07-gate-operations.md#fb-016--gate-out-form--remove-non-updating-clearance-status-panel) | Gate-Out form: remove non-updating Clearance Status panel | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Exit (Gate-Out) | Medium | Resolved |
 | [FB-017](./07-gate-operations.md#fb-017--gate-in-add--remove-project--from-from-to-snapshot--readonly-project-from-info) | Gate-In add: remove Project / From from TO snapshot; readonly Project From Info | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) | Medium | Resolved |
+| [FB-018](./02-master-data.md#fb-018--vehicle-master-data--capacity-unit-mt--kg-only-remove-bag) | Vehicle capacity unit: MT & KG only (remove Bag) | [Master Data](./02-master-data.md) | Master Data · Vehicles | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 4 | 4 | 0 |
-| Medium | 13 | 13 | 0 |
-| **Total** | **17** | **17** | **0** |
+| Medium | 14 | 14 | 0 |
+| **Total** | **18** | **18** | **0** |

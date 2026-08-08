@@ -1,13 +1,13 @@
 ---
 title: Sprint 8 Improvements — Master Data
 module: 02-master-data
-menu: Master Data · Bulk I/O
+menu: Master Data · Vehicles · Bulk I/O
 parent: ./README.md
 ---
 
 # Master Data
 
-**Admin menu / area:** Master Data · Bulk I/O  
+**Admin menu / area:** Master Data · Vehicles · Bulk I/O  
 **Tracker index:** [README.md](./README.md)
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
@@ -17,6 +17,7 @@ parent: ./README.md
 | [FB-005](#fb-005--loadingunloading-bulk-operation-missing) | Loading/Unloading: bulk operation missing for this menu | Medium | Resolved |
 | [FB-006](#fb-006--product-bulk-operation--remove-redundant-amount-column-from-template) | Product bulk operation: remove redundant Amount column from template | Medium | Resolved |
 | [FB-007](#fb-007--product-sub-category-bulk-operation-missing) | Product Sub-Category: bulk operation missing for this menu | Medium | Resolved |
+| [FB-018](#fb-018--vehicle-master-data--capacity-unit-mt--kg-only-remove-bag) | Vehicle capacity unit: MT & KG only (remove Bag) | Medium | Resolved |
 
 ---
 
@@ -106,3 +107,35 @@ Product Sub-Category has no bulk operation. Other master-data menus expose bulk 
 
 - [x] FB-007-1 — Product Sub-Category bulk import available
 - [x] FB-007-2 — Product Sub-Category bulk export available
+
+---
+
+## FB-018 — Vehicle master data: capacity unit MT & KG only (remove Bag)
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-08 |
+| **Affected Stories** | US-053 / Vehicle master data ([`vehicle-master-data.md`](../../../../05-modules/02-master-data/vehicle-master-data.md)) |
+| **Closing Sub-tasks** | FB-018-1 — Restrict `VehicleCapacityUnit` choices to **MT** and **KG** (remove **Bag**) · FB-018-2 — Admin / API / bulk import validate and expose only MT & KG · FB-018-3 — Schema `AlterField` migration (no data migration — no vehicles used Bag) |
+| **AC Amendment** | Vehicle master data **capacity unit** SHALL allow only **MT** and **KG**. **Bag** SHALL NOT be offered as a capacity unit type on create/edit, serializers, or bulk import/export. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Removed `BAG` from `VehicleCapacityUnit`; admin / serializers / `VehicleImportConfig` follow enum choices. Dropped Bag branch from `assess_capacity_fit` (legacy `"bag"` → unknown). Product/TO Bag UOM unchanged. |
+
+### Improvement observation
+
+On **Master Data → Vehicles**, **Capacity unit** offers **Bag** alongside **MT** and **KG**. Vehicle capacity should be expressed in weight units only.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before) | Expected (FB-018) |
+|--------|------------------|-------------------|
+| Capacity unit choices | MT, KG, Bag | **MT, KG only** |
+| Bag as capacity unit | Selectable | **Removed** |
+| Admin / API / bulk I/O | Accept Bag | Reject / omit Bag |
+
+### Closing checklist
+
+- [x] FB-018-1 — `VehicleCapacityUnit`: remove Bag; choices = MT, KG
+- [x] FB-018-2 — Admin form, serializers, and Vehicle bulk import/export align with MT/KG only
+- [x] FB-018-3 — Schema migration only; no data migration (no Bag vehicles)

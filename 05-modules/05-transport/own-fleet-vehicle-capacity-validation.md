@@ -297,7 +297,7 @@ Pure functions — no HTML. Admin calls these; templates never implement convers
 @dataclass(frozen=True)
 class CapacityFitResult:
     status: Literal["ok", "over", "unknown", "mixed_load_warning"]
-    dimension: Literal["weight", "bags", "none"]
+    dimension: Literal["weight", "none"]
     payload_value: Decimal | None
     vehicle_capacity_value: Decimal | None
     utilization_pct: Decimal | None
@@ -313,7 +313,7 @@ def format_capacity_message(fit, vehicle) -> str: ...
 | Vehicle unit | Compare |
 |--------------|---------|
 | `mt` / `kg` | `TO.allocated_quantity` (kg) vs vehicle → kg |
-| `bag` | Sum bag `TOLineItem` qty vs `Vehicle.capacity` |
+| other / unsupported (e.g. legacy `bag`) | `unknown` |
 | null capacity | `unknown` |
 
 ### 6.3 Policy matrix

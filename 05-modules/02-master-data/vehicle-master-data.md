@@ -195,7 +195,7 @@ BulkUploadLog {
 
 The **`Vehicle`** model in **`apps/master_data`** deliberately keeps **many fields optional** (e.g. `chassis_number`, `body_type`, `fuel_type`, `capacity`, `number_of_wheels`, `model_name`, `fitness_expiry_date`, `insurance_expiry_date`) with database-level **null/blank** allowed. Import configs and forms may still require subsets for CSV or business rules.
 
-**Load capacity** is stored as **`capacity`** + **`capacity_unit`** (e.g. MT, KG, Bag), not a single `capacity_tonnage` field.
+**Load capacity** is stored as **`capacity`** + **`capacity_unit`** (MT, KG), not a single `capacity_tonnage` field.
 
 **`allowed_product_category`** values in the database use **lowercase** keys (`fm`, `rm`, …) with human-readable labels.
 
