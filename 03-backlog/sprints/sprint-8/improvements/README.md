@@ -2,20 +2,20 @@
 title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
-total_items: 18
+total_items: 19
 resolved: 18
 in_progress: 0
-open: 0
+open: 1
 ---
 
 # Sprint 8 — Improvements Tracker
 
-Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-018).
+Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-019).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-018** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-019** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only, yard-ops TO labels + Allocated Weight).
 
 ## Modules
 
@@ -28,6 +28,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
 | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) | 2 | 2 | 0 |
+| [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Gate / QC panels | 1 | 0 | 1 |
 
 ## All items (quick index)
 
@@ -51,11 +52,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-016](./07-gate-operations.md#fb-016--gate-out-form--remove-non-updating-clearance-status-panel) | Gate-Out form: remove non-updating Clearance Status panel | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Exit (Gate-Out) | Medium | Resolved |
 | [FB-017](./07-gate-operations.md#fb-017--gate-in-add--remove-project--from-from-to-snapshot--readonly-project-from-info) | Gate-In add: remove Project / From from TO snapshot; readonly Project From Info | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) | Medium | Resolved |
 | [FB-018](./02-master-data.md#fb-018--vehicle-master-data--capacity-unit-mt--kg-only-remove-bag) | Vehicle capacity unit: MT & KG only (remove Bag) | [Master Data](./02-master-data.md) | Master Data · Vehicles | Medium | Resolved |
+| [FB-019](./08-command-center.md#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | [Command Center](./08-command-center.md) | CC · Loading · Gate · QC | Medium | Open |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | Open |
 |----------|-------|----------|------|
 | High | 4 | 4 | 0 |
-| Medium | 14 | 14 | 0 |
-| **Total** | **18** | **18** | **0** |
+| Medium | 15 | 14 | 1 |
+| **Total** | **19** | **18** | **1** |
