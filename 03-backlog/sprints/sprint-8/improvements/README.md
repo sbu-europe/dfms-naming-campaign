@@ -3,9 +3,9 @@ title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
 total_items: 21
-resolved: 19
+resolved: 20
 in_progress: 1
-open: 1
+open: 0
 ---
 
 # Sprint 8 — Improvements Tracker
@@ -15,7 +15,7 @@ Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-021** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only, yard-ops TO labels + Allocated Weight, On-Demand TO optional gate-in datetime, CC Queue list missing vehicle / scale-in / product / weight details).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-021** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only, yard-ops TO labels + Allocated Weight, On-Demand TO optional gate-in datetime, CC Queue change-form visit/cargo details).
 
 ## Modules
 
@@ -28,7 +28,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
 | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) · On-Demand TO | 3 | 2 | 1 |
-| [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Gate / QC panels | 2 | 1 | 1 |
+| [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Gate / QC panels | 2 | 2 | 0 |
 
 ## All items (quick index)
 
@@ -54,12 +54,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-018](./02-master-data.md#fb-018--vehicle-master-data--capacity-unit-mt--kg-only-remove-bag) | Vehicle capacity unit: MT & KG only (remove Bag) | [Master Data](./02-master-data.md) | Master Data · Vehicles | Medium | Resolved |
 | [FB-019](./08-command-center.md#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | [Command Center](./08-command-center.md) | CC · Loading · Gate · QC | Medium | Resolved |
 | [FB-020](./07-gate-operations.md#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a) | On-Demand TO create: optional Gate-in date/time (Option A) | [Gate Operations](./07-gate-operations.md) | Gate · On-Demand TO | High | In Progress |
-| [FB-021](./08-command-center.md#fb-021--cc-queue-list--show-vehicle-scale-in-datetime-product-lines-type--weight) | CC Queue list: Vehicle, Scale-in Date & Time, Product Lines, Product Type (FG/RM), Weight | [Command Center](./08-command-center.md) | CC · Queue | High | Open |
+| [FB-021](./08-command-center.md#fb-021--cc-queue-change-form--show-vehicle-scale-in-datetime-product-lines-type--weight) | CC Queue change form: Vehicle, Scale-in Date & Time, Product Lines, Product Type (FG/RM), Weight | [Command Center](./08-command-center.md) | CC · Queue | High | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | In Progress | Open |
 |----------|-------|----------|-------------|------|
-| High | 6 | 4 | 1 | 1 |
+| High | 6 | 5 | 1 | 0 |
 | Medium | 15 | 15 | 0 | 0 |
-| **Total** | **21** | **19** | **1** | **1** |
+| **Total** | **21** | **20** | **1** | **0** |
