@@ -16,6 +16,7 @@ parent: ./README.md
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
 | [FB-019](#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | Medium | Resolved |
+| [FB-021](#fb-021--cc-queue-list--show-vehicle-scale-in-datetime-product-lines-type--weight) | CC Queue list: show Vehicle, Scale-in Date & Time, Product Lines, Product Type (FG/RM), Weight | High | Open |
 
 ---
 
@@ -95,3 +96,40 @@ Command Center, Loading, Gate, and QC still use TLS / yard wording (**Flow Lane*
 - [x] FB-019-4 — Gate visit summary: Quantity → Allocated Weight; value always MT (kg)
 - [x] FB-019-5 — QC TO context / widget: Origin POI → Source POI
 - [x] FB-019-6 — Shared (or reused) MT (kg) formatter; unit tests cover CC / Gate / Loading
+
+---
+
+## FB-021 — CC Queue list: show Vehicle, Scale-in Date & Time, Product Lines, Product Type (FG/RM), Weight
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-09 |
+| **Affected Stories** | [CC-01](../../../../05-modules/06-poi-operations/command-center-loading-sprint4.md) (Command Center Queue); FR [5.8 Queue Monitoring](../../../../02-domain/02-requirements/03-functional-requirements/functional-requirements-summary.md) |
+| **Closing Sub-tasks** | FB-021-1 — Queue changelist: ensure **Vehicle number** displays for every scaled-in entry · FB-021-2 — Add **Scale-in Date & Time** column (from Scale-In record) · FB-021-3 — Surface **Product line item** details (list and/or row detail) · FB-021-4 — Ensure **Product Type (FG / RM)** is visible (align with Product Classification Type / flow lane) · FB-021-5 — Ensure **Weight** (gross scale-in and/or allocated) is visible and populated · FB-021-6 — Unit / admin smoke coverage for queue list columns |
+| **AC Amendment** | **Command Center → Queue** list (and any queue-row detail the operator uses from that list) SHALL show, for each scaled-in vehicle awaiting / in bay assignment: **Vehicle number**, **Scale-in Date & Time**, **Product line item** details, **Product Type (FG / RM)**, and **Weight**. Values SHALL resolve from the linked gate visit / scale-in / TO — not blank “—” when the underlying data exists. |
+| **Status** | Open |
+| **Priority** | High |
+| **Notes** | Today `QueueEntryAdmin.list_display` has Vehicle, Product Classification Type, and Gross Wt (MT), but operators report these details are missing or empty; **Scale-in Date & Time** and **Product line items** are not on the queue list. Prefer fixing data resolution + adding missing columns over a separate screen unless product chooses a detail drawer. Bay Assignment TO panel (`build_cc_assignment_to_details_html`) already has some of this — FR 5.8 requires it on the **Queue** list itself. Urgency Level (also in FR 5.8) is out of scope unless product asks. |
+
+### Improvement observation
+
+On **Command Center → Queue**, the queue list / row details do not reliably show the information CCO needs to prioritize and assign: vehicle number, scale-in date & time, product line items, product type (FG / RM), and weight.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-021) |
+|--------|---------|-------------------|
+| Vehicle number | Column exists but often not useful / empty for operators | Always show registration from gate visit / vehicle |
+| Scale-in Date & Time | Not on Queue list (`waiting_since` ≠ scale-in datetime) | Dedicated **Scale-in Date & Time** from Scale-In |
+| Product line items | Not on Queue list | Show line/item summary (or expandable detail) from TO lines |
+| Product Type (FG / RM) | Product Classification Type column may be missing/unclear to operators | Clearly show FG / RM (or RM Inbound / FG Outbound) |
+| Weight | Gross Wt (MT) column may be empty when scale-in exists | Show scale-in / cargo weight when data exists |
+
+### Closing checklist
+
+- [ ] FB-021-1 — Vehicle number resolved and shown on Queue changelist
+- [ ] FB-021-2 — Scale-in Date & Time column added and populated
+- [ ] FB-021-3 — Product line item details visible from Queue list
+- [ ] FB-021-4 — Product Type (FG / RM) visible and clear
+- [ ] FB-021-5 — Weight visible and populated from scale-in / TO
+- [ ] FB-021-6 — Tests / admin smoke for the above columns
