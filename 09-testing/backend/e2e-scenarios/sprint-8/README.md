@@ -2,7 +2,7 @@
 section: 09-testing/backend/e2e-scenarios/sprint-8
 title: Sprint 8 — Improvements E2E Scenario Plans
 version: 1.0
-last_updated: 2026-08-07
+last_updated: 2026-08-09
 ---
 
 # Sprint 8 — E2E scenarios
@@ -26,6 +26,7 @@ Playwright MCP scenario plans for Sprint 8 improvements carried from Sprint 7 (`
 | FB-012 — TO Creation: Remaining Quantity on Allocate Quantities per Product | [fb-012-to-creation-remaining-quantity-e2e-scenarios.md](./fb-012-to-creation-remaining-quantity-e2e-scenarios.md) | **8/8 Pass** (2026-08-07) |
 | FB-014 — My Trips details: Cargo Allocated Weight with Allocated Quantity | [fb-014-my-trips-cargo-allocated-weight-e2e-scenarios.md](./fb-014-my-trips-cargo-allocated-weight-e2e-scenarios.md) | Planned |
 | FB-015 — TO Creation: Allocating TO Load live sum in MT (kg) | [fb-015-to-creation-allocating-to-load-e2e-scenarios.md](./fb-015-to-creation-allocating-to-load-e2e-scenarios.md) | **7/7 Pass** (2026-08-07) |
+| FB-020 — On-Demand TO create: optional Gate-in date/time (Option A) | [fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md](./fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md) | Planned (7 TCs; run after impl) |
 
 > **Naming:** [`fb-009-phone-normalization-…`](./fb-009-phone-normalization-bulk-user-driver-import-e2e-scenarios.md) maps to improvements **FB-001** (legacy sprint-7 FB-009 id). Improvements **FB-009** (TR weight) uses [`fb-009-tr-list-total-weight-kg-e2e-scenarios.md`](./fb-009-tr-list-total-weight-kg-e2e-scenarios.md). Improvements **FB-011** (planner remaining weight) uses [`fb-011-transport-planner-tr-list-remaining-weight-kg-e2e-scenarios.md`](./fb-011-transport-planner-tr-list-remaining-weight-kg-e2e-scenarios.md) — distinct from [`fb-011-driver-invitation-…`](./fb-011-driver-invitation-bulk-import-export-reference-address-e2e-scenarios.md) (improvements **FB-003**). Improvements **FB-012** uses [`fb-012-to-creation-remaining-quantity-e2e-scenarios.md`](./fb-012-to-creation-remaining-quantity-e2e-scenarios.md) — distinct from [`fb-012-driver-bulk-…`](./fb-012-driver-bulk-import-export-accident-history-training-assessment-e2e-scenarios.md) (improvements **FB-004**). Improvements **FB-014** (My Trips cargo weight) uses [`fb-014-my-trips-cargo-allocated-weight-e2e-scenarios.md`](./fb-014-my-trips-cargo-allocated-weight-e2e-scenarios.md) — distinct from [`fb-014-product-bulk-…`](./fb-014-product-bulk-remove-amount-column-e2e-scenarios.md) (improvements **FB-006**). Improvements **FB-015** (Allocating TO Load) uses [`fb-015-to-creation-allocating-to-load-e2e-scenarios.md`](./fb-015-to-creation-allocating-to-load-e2e-scenarios.md) — distinct from [`fb-015-product-sub-category-…`](./fb-015-product-sub-category-bulk-import-export-e2e-scenarios.md) (improvements **FB-007**).
 
