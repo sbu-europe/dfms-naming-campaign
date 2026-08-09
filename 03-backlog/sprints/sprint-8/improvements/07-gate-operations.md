@@ -88,11 +88,11 @@ On **Gate → Vehicle Entry (Gate-In) → Add**, selecting a TO showed **Project
 |-------|-------|
 | **Source** | Internal improvement — 2026-08-09 |
 | **Affected Stories** | [GT-02](../../sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md) (On-Demand TO at gate); related [GT-01](../../sprint-4/04-gate/GT-01-gate-in-out-remarks.md) status advance on gate-in |
-| **Closing Sub-tasks** | FB-020-1 — Split service: TO-only create vs optional gate-in · FB-020-2 — Admin optional **Gate-in date/time** on On-Demand TO Add · FB-020-3 — API optional `gate_in_at` on dealer/supplier create · FB-020-4 — Unit tests for both branches (created-only vs gated-in) · FB-020-5 — Align [gate-operations-sprint4.md](../../../../05-modules/06-poi-operations/gate-operations-sprint4.md) (§0 / §4.3 / §4.5 / §6.4 / §7.4) with Option A · FB-020-6 — E2E scenario plan + MCP run |
-| **AC Amendment** | On **Gate → On-Demand TO → Add**, **Gate-in date/time** SHALL be **optional**. If empty, the system creates the on-demand Transport Order (and audit row) and leaves `TO.status` = **`created`** with **no** gate visit / gate-in. If filled, the system creates the TO **and** records gate-in at that timestamp in the same submit, then advances status via existing gate-in success rules (**`at_source`** for dealer FG outbound; **`at_destination`** for supplier RM inbound). Change form after create remains read-only (no second-screen gate-in — Option A only). |
+| **Closing Sub-tasks** | FB-020-1 — Split service: TO-only create vs optional gate-in · FB-020-2 — Admin optional **Gate-in date/time** on On-Demand TO Add · FB-020-3 — API optional `gate_in_at` on dealer/supplier create · FB-020-4 — Unit tests for both branches (created-only vs gated-in) · FB-020-5 — Align [gate-operations-sprint4.md](../../../../05-modules/06-poi-operations/gate-operations-sprint4.md) (§0 / §4.3 / §4.5 / §6.4 / §7.4) with Option A · FB-020-6 — E2E scenario plan + MCP run · FB-020-7 — Option B: deferred gate-in on On-Demand change when TO still `created` |
+| **AC Amendment** | On **Gate → On-Demand TO → Add**, **Gate-in date/time** SHALL be **optional**. If empty, the system creates the on-demand Transport Order (and audit row) and leaves `TO.status` = **`created`** with **no** gate visit / gate-in. If filled, the system creates the TO **and** records gate-in at that timestamp in the same submit, then advances status via existing gate-in success rules (**`at_source`** for dealer FG outbound; **`at_destination`** for supplier RM inbound). If created without gate-in, the On-Demand **change** form SHALL allow recording **Gate-in date/time** later (Option B) while the TO remains **`created`** and no visit exists; after deferred gate-in, dealer FG SHALL be **`at_source`**. |
 | **Status** | In Progress |
 | **Priority** | High |
-| **Notes** | **Option A** = decide on the create submit only. Out of scope: create-now / gate-in-later (Option B), showing gate-sourced TOs on normal Gate-In picker, changing supplier post-gate-in target to `at_source`. Default the new field to **empty** (explicit opt-in to gate-in). Module spec updated to **v2.11** ahead of code (spec-first). |
+| **Notes** | **Option A** = decide on create submit. **Option B** = create-now / gate-in-later on the On-Demand change form (same `gate_in_on_demand_to` helper). Still out of scope: showing gate-sourced TOs on normal Gate-In picker; changing supplier post-gate-in target to `at_source`. Default the create field to **empty** (explicit opt-in to gate-in). Module spec updated to **v2.11** ahead of code (spec-first). |
 
 ### Improvement observation
 
@@ -107,7 +107,7 @@ Today On-Demand TO create always calls `create_on_demand_to_and_gate_in` → TO 
 | TO status after create (with datetime) | `at_source` / `at_destination` | Same, using provided `gate_in_at` |
 | `gate_visit_sessions` / `gate_ins` | Always written | Only when datetime filled |
 | `GateOnDemandTORequest.gate_visit_session` | Always set | Null when TO-only; set when gated |
-| On-Demand change after create | Read-only | Unchanged (no Option B) |
+| On-Demand change after create | Read-only | If still `created` / no visit: editable **Gate-in** (Option B); else read-only |
 | Normal Gate-In picker | Excludes `source=GATE` | Unchanged |
 
 ### UX (admin)
@@ -166,9 +166,8 @@ Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form
 | [`gate-operations-sprint4.md`](../../../../05-modules/06-poi-operations/gate-operations-sprint4.md) | **v2.11** — optional `gate_in_at` in §0 wizard, §4.0 exemption, §4.3 flow + status table, §4.5 note, §6.4 admin fieldsets/`save_model`, §7.4 API body/responses (**done in tracker prep**; keep in sync if impl diverges) |
 | Admin `change_form.html` help | Update “create TO and gate-in in one step” copy to match optional gate-in |
 
-#### 6. Explicitly out of scope (Option B / other)
+#### 6. Explicitly out of scope (other)
 
-- Second-screen / edit On-Demand to add gate-in later
 - Including `source=GATE` + `created` TOs in normal Gate-In admin picker
 - Changing supplier post-gate-in status from `at_destination` to `at_source`
 - Auto-defaulting the datetime widget to `now` (unless product revises Notes)
@@ -181,6 +180,7 @@ Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form
 - [x] FB-020-4 — Unit tests for created-only vs gated-in branches (dealer + supplier status targets)
 - [x] FB-020-5 — Module spec `gate-operations-sprint4.md` v2.11 Option A wording (§0 / §4.0 / §4.3 / §4.5 / §6.4 / §7.4)
 - [ ] FB-020-6 — E2E: [fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md](../../../../09-testing/backend/e2e-scenarios/sprint-8/fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md) + MCP RESULTS after impl
+- [x] FB-020-7 — Option B: deferred gate-in on On-Demand change (Created + no visit) → dealer FG **`at_source`**
 
 ### Implementation order
 

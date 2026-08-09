@@ -28,7 +28,8 @@ playwright_mcp: true
 1. On-Demand TO **Add** shows optional **Gate-in date/time** (default empty).
 2. Submit **without** datetime → TO status **`created`**; no gate visit / gate-in; success message TO-created only.
 3. Submit **with** datetime → gate-in at that time; dealer FG → **`at_source`**; supplier RM → **`at_destination`**; success message includes gate-in.
-4. After create, On-Demand change view remains **read-only** (Option A — no second-screen gate-in).
+4. After create **without** gate-in, On-Demand change view shows editable **Gate-in date/time** + **Record Gate-In** (Option B). After gate-in (or create-with-gate-in), change view is read-only.
+5. Deferred dealer FG gate-in → TO status **`at_source`**.
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).
 
@@ -70,11 +71,12 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | TC04 | Dealer FG — filled datetime → At Source + gate-in | As **Gateman**, create On-Demand dealer FG TO as in TC02 with unique plate `MCPFB0203`, fill **Gate-in date/time** with a valid past/now datetime, save. Assert success mentions **gate-in recorded**. Assert TO status **At Source** (`at_source`). On On-Demand request detail, assert **Transport order** and **gate visit** / gate-in context present; if gate-in time is shown, it matches the submitted value (timezone-tolerant). | P0 | Planned |
 | TC05 | Supplier RM — filled datetime → At Destination + gate-in | Same as TC04 for supplier RM path, plate `MCPFB0204`. Assert TO status **At Destination** (`at_destination`) and gate-in recorded. | P0 | Planned |
 
-## D — Read-only after create (Option A boundary)
+## D — Deferred gate-in on change (Option B)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC06 | Created-only request cannot add gate-in on change | After TC02 (TO still `created`), open the **On-Demand TO Request** change page. Assert fields are **read-only** / no editable **Gate-in date/time** submit path to attach gate-in later (Option A). | P1 | Planned |
+| TC06 | Created-only request can record gate-in on change | After TC02 (TO still `created`), open the **On-Demand TO Request** change page. Assert editable **Gate-in date/time** and **Record Gate-In** submit. Fill datetime, save. Assert success mentions gate-in; TO status **At Source** (`at_source`); visit linked on the request. | P0 | Planned |
+| TC06b | Already gated request has no deferred gate-in | After TC04 (already gated), open On-Demand change. Assert no editable gate-in / no **Record Gate-In** button (read-only). | P1 | Planned |
 
 ## E — Messaging & list smoke
 
@@ -94,8 +96,8 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 ### Scope guardrails
 
-- In scope: On-Demand TO **Add** optional gate-in datetime; TO status and gate-in presence for dealer FG + supplier RM; read-only change after create.
-- Out of scope: REST `gate_in_at` API contract; Option B (gate-in later via edit or normal Gate-In picker); loading / QC / scale / gate-out after create; changing supplier target status to `at_source`.
+- In scope: On-Demand TO **Add** optional gate-in datetime; deferred gate-in on change (Option B); TO status and gate-in presence for dealer FG + supplier RM.
+- Out of scope: REST `gate_in_at` API contract; loading / QC / scale / gate-out after create; changing supplier target status to `at_source`; normal Gate-In picker for `source=GATE`.
 
 ### Admin URLs & selectors
 
