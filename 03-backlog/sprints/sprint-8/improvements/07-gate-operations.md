@@ -16,7 +16,7 @@ parent: ./README.md
 |----|-------|----------|--------|
 | [FB-016](#fb-016--gate-out-form--remove-non-updating-clearance-status-panel) | Gate-Out form: remove non-updating Clearance Status panel | Medium | Resolved |
 | [FB-017](#fb-017--gate-in-add--remove-project--from-from-to-snapshot--readonly-project-from-info) | Gate-In add: remove Project / From from TO snapshot; readonly Project From Info | Medium | Resolved |
-| [FB-020](#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a) | On-Demand TO create: optional Gate-in date/time (Option A) | High | Open |
+| [FB-020](#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a) | On-Demand TO create: optional Gate-in date/time (Option A) | High | In Progress |
 
 ---
 
@@ -88,11 +88,11 @@ On **Gate → Vehicle Entry (Gate-In) → Add**, selecting a TO showed **Project
 |-------|-------|
 | **Source** | Internal improvement — 2026-08-09 |
 | **Affected Stories** | [GT-02](../../sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md) (On-Demand TO at gate); related [GT-01](../../sprint-4/04-gate/GT-01-gate-in-out-remarks.md) status advance on gate-in |
-| **Closing Sub-tasks** | FB-020-1 — Split service: TO-only create vs optional gate-in · FB-020-2 — Admin optional **Gate-in date/time** on On-Demand TO Add · FB-020-3 — API optional `gate_in_at` on dealer/supplier create · FB-020-4 — Unit tests for both branches (created-only vs gated-in) |
+| **Closing Sub-tasks** | FB-020-1 — Split service: TO-only create vs optional gate-in · FB-020-2 — Admin optional **Gate-in date/time** on On-Demand TO Add · FB-020-3 — API optional `gate_in_at` on dealer/supplier create · FB-020-4 — Unit tests for both branches (created-only vs gated-in) · FB-020-5 — Align [gate-operations-sprint4.md](../../../../05-modules/06-poi-operations/gate-operations-sprint4.md) (§0 / §4.3 / §4.5 / §6.4 / §7.4) with Option A · FB-020-6 — E2E scenario plan + MCP run |
 | **AC Amendment** | On **Gate → On-Demand TO → Add**, **Gate-in date/time** SHALL be **optional**. If empty, the system creates the on-demand Transport Order (and audit row) and leaves `TO.status` = **`created`** with **no** gate visit / gate-in. If filled, the system creates the TO **and** records gate-in at that timestamp in the same submit, then advances status via existing gate-in success rules (**`at_source`** for dealer FG outbound; **`at_destination`** for supplier RM inbound). Change form after create remains read-only (no second-screen gate-in — Option A only). |
-| **Status** | Open |
+| **Status** | In Progress |
 | **Priority** | High |
-| **Notes** | **Option A** = decide on the create submit only. Out of scope: create-now / gate-in-later (Option B), showing gate-sourced TOs on normal Gate-In picker, changing supplier post-gate-in target to `at_source`. Default the new field to **empty** (explicit opt-in to gate-in). |
+| **Notes** | **Option A** = decide on the create submit only. Out of scope: create-now / gate-in-later (Option B), showing gate-sourced TOs on normal Gate-In picker, changing supplier post-gate-in target to `at_source`. Default the new field to **empty** (explicit opt-in to gate-in). Module spec updated to **v2.11** ahead of code (spec-first). |
 
 ### Improvement observation
 
@@ -159,7 +159,14 @@ Do **not** invent new status rules; reuse existing gate-in success maps.
 
 Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form.py`; add/extend service tests for the split orchestrator.
 
-#### 5. Explicitly out of scope (Option B / other)
+#### 5. Product / module docs
+
+| File | Change |
+|------|--------|
+| [`gate-operations-sprint4.md`](../../../../05-modules/06-poi-operations/gate-operations-sprint4.md) | **v2.11** — optional `gate_in_at` in §0 wizard, §4.0 exemption, §4.3 flow + status table, §4.5 note, §6.4 admin fieldsets/`save_model`, §7.4 API body/responses (**done in tracker prep**; keep in sync if impl diverges) |
+| Admin `change_form.html` help | Update “create TO and gate-in in one step” copy to match optional gate-in |
+
+#### 6. Explicitly out of scope (Option B / other)
 
 - Second-screen / edit On-Demand to add gate-in later
 - Including `source=GATE` + `created` TOs in normal Gate-In admin picker
@@ -168,15 +175,18 @@ Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form
 
 ### Closing checklist
 
-- [ ] FB-020-1 — Service split: TO-only create + optional `gate_in_on_demand_to`; orchestrator accepts `gate_in_at=None`
-- [ ] FB-020-2 — Admin Add: optional **Gate-in date/time**; messages; empty default
-- [ ] FB-020-3 — API: optional `gate_in_at` on dealer/supplier on-demand create
-- [ ] FB-020-4 — Unit tests for created-only vs gated-in branches (dealer + supplier status targets)
+- [x] FB-020-1 — Service split: TO-only create + optional `gate_in_on_demand_to`; orchestrator accepts `gate_in_at=None`
+- [x] FB-020-2 — Admin Add: optional **Gate-in date/time**; messages; empty default; help-text update
+- [x] FB-020-3 — API: optional `gate_in_at` on dealer/supplier on-demand create
+- [x] FB-020-4 — Unit tests for created-only vs gated-in branches (dealer + supplier status targets)
+- [x] FB-020-5 — Module spec `gate-operations-sprint4.md` v2.11 Option A wording (§0 / §4.0 / §4.3 / §4.5 / §6.4 / §7.4)
+- [ ] FB-020-6 — E2E: [fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md](../../../../09-testing/backend/e2e-scenarios/sprint-8/fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md) + MCP RESULTS after impl
 
 ### Implementation order
 
-1. Service split + unit tests  
-2. Admin field + messages  
-3. API field  
-4. Smoke both paths on `/admin/operations/gateondemandtorequest/add/`  
-5. E2E: [fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md](../../../../09-testing/backend/e2e-scenarios/sprint-8/fb-020-on-demand-to-optional-gate-in-e2e-scenarios.md)
+1. Module spec align (FB-020-5) — **done**  
+2. Service split + unit tests (FB-020-1, FB-020-4) — **done**  
+3. Admin field + messages + help text (FB-020-2) — **done**  
+4. API field (FB-020-3) — **done**  
+5. Smoke both paths on `/admin/operations/gateondemandtorequest/add/`  
+6. E2E MCP suite (FB-020-6)
