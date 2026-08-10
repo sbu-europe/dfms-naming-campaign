@@ -201,22 +201,22 @@ Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form
 | **Source** | Internal improvement — 2026-08-10 |
 | **Affected Stories** | [GT-01](../../sprint-4/04-gate/GT-01-gate-in-out-remarks.md) (Gate visit dwell); related [GPS-04](../../sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) (TO Planned / Gate / Geofence dwell matrix) |
 | **Closing Sub-tasks** | FB-026-1 — Compute dwell with second precision (not `// 60` only) · FB-026-2 — Shared formatter: display as **H.m.s** (hours.minutes.seconds) · FB-026-3 — Gate Visit list / CSV / visit API `dwell_time_display` use H.m.s · FB-026-4 — TO dwell timeline matrix (`dwell_display`) use same H.m.s · FB-026-5 — Unit tests for formatter edge cases (0s, sub-hour, multi-hour) |
-| **AC Amendment** | Dwell time SHALL be shown in **H.m.s** format (hours.minutes.seconds), e.g. `1.05.30` for 1 hour 5 minutes 30 seconds. Surfaces that today show minutes-only (or “X hours Y minutes” / `{n} min`) SHALL use this format. Numeric minutes fields (e.g. API `dwell_time_minutes`) may remain for consumers that need a minute value. |
+| **AC Amendment** | Dwell time SHALL be shown in readable **H/m/s** form (hours, minutes, seconds), e.g. `1h 5m 30s`. Zero units are omitted (`45m 12s`, `2h 5m`, `9s`). Surfaces that today show minutes-only (or “X hours Y minutes” / `{n} min`) SHALL use this format. Numeric minutes fields (e.g. API `dwell_time_minutes`) may remain for consumers that need a minute value. |
 | **Status** | Resolved |
 | **Priority** | Medium |
-| **Notes** | Shared helpers in `apps/operations/gate/dwell.py`: `compute_dwell_seconds`, `format_dwell_hms` → `H.MM.SS` (zero-padded minutes/seconds, e.g. `1.05.30`). Gate Visit list/CSV/API display use seconds; `dwell_time_minutes` unchanged. TO dwell matrix uses the same formatter (timestamp delta when both ends exist). |
+| **Notes** | Shared helpers in `apps/operations/gate/dwell.py`: `compute_dwell_seconds`, `format_dwell_hms` → readable `1h 5m 30s`. Gate Visit list/CSV/API display use seconds; `dwell_time_minutes` unchanged. TO dwell matrix uses the same formatter (timestamp delta when both ends exist). |
 
 ### Improvement observation
 
-Dwell time is shown in minutes format only. Operators need **H.m.s** so short and long dwells are readable with second-level detail.
+Dwell time is shown in minutes format only. Operators need readable **H/m/s** so short and long dwells are clear with second-level detail.
 
 ### Current vs expected behaviour
 
 | Aspect | Current | Expected (FB-026) |
 |--------|---------|-------------------|
-| Gate Visit list **Dwell time** | “45 minutes” / “2 hours 5 minutes” | **H.m.s** (e.g. `0.45.12`, `2.05.00`) |
-| Gate visit CSV / API `dwell_time_display` | Same minutes wording | Same **H.m.s** |
-| TO Planned Milestones dwell cells | `{n} min` | Same **H.m.s** |
+| Gate Visit list **Dwell time** | “45 minutes” / “2 hours 5 minutes” | Readable H/m/s (e.g. `45m 12s`, `2h 5m`) |
+| Gate visit CSV / API `dwell_time_display` | Same minutes wording | Same readable H/m/s |
+| TO Planned Milestones dwell cells | `{n} min` | Same readable H/m/s |
 | Precision | Whole minutes (`total_seconds() // 60`) | Include seconds |
 
 ### Closing checklist
