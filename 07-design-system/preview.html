@@ -468,10 +468,10 @@
     .kpi-accent-warning { border-top: 3px solid var(--color-warning); }
     .kpi-accent-danger { border-top: 3px solid var(--color-danger); }
 
-    /* ─── Table ─── */
+    /* ─── Table (admin changelist) ─── */
     .table-wrap {
       border: 1px solid var(--color-border);
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
@@ -479,27 +479,37 @@
       border-color: #D1D5DB;
       box-shadow: 0 1px 4px rgba(18,32,86,0.07), 0 0 0 1px rgba(18,32,86,0.04);
     }
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead { background: var(--color-bg-surface-alt); }
-    [data-theme="light"] thead { background: #F0F1F8; }
+    [data-theme="light"] thead { background: #F9FAFB; }
     th {
       text-align: left;
       font-size: 12px; font-weight: 600;
-      letter-spacing: 0.05em; text-transform: uppercase;
+      letter-spacing: 0; text-transform: none;
       color: var(--color-text-muted);
-      padding: 12px 16px;
+      padding: 0 16px;
+      height: 40px;
       border-bottom: 1px solid var(--color-border);
+      white-space: nowrap;
+      user-select: none;
     }
     td {
-      padding: 13px 16px;
-      font-size: 14px;
+      padding: 0 16px;
+      height: 44px;
+      font-size: 13px;
       color: var(--color-text-secondary);
       border-bottom: 1px solid var(--color-border-subtle);
+      vertical-align: middle;
+      white-space: nowrap;
     }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--color-bg-surface-alt); }
-    [data-theme="light"] tr:hover td { background: #F5F6FB; }
-    .td-primary { color: var(--color-text-primary); font-weight: 500; }
+    [data-theme="light"] tr:hover td { background: #F9FAFB; }
+    tr.selected td { background: var(--color-primary-light) !important; }
+    .td-check { width: 44px; min-width: 44px; padding-left: 16px; text-align: center; }
+    .td-check input { accent-color: var(--color-primary); width: 15px; height: 15px; cursor: pointer; }
+    .td-primary { color: var(--color-primary); font-weight: 500; }
+    .td-primary:hover { text-decoration: underline; }
     .td-mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
 
     /* ─── Alerts ─── */
@@ -559,21 +569,79 @@
     }
     .radius-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--color-text-muted); }
 
-    /* ─── Pagination ─── */
-    .pagination { display: flex; gap: 4px; }
-    .page-btn {
-      width: 36px; height: 36px;
+    /* ─── Pagination (admin DynamicPagination) ─── */
+    .dfms-pagination-parent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      width: 100%;
+      background: var(--color-bg-surface-alt);
+      border: 1px solid var(--color-border);
       border-radius: 8px;
-      border: 1.5px solid var(--color-border);
+      padding: 10px 16px;
+    }
+    [data-theme="light"] .dfms-pagination-parent { background: #F9FAFB; }
+    .pagination { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .page-btn {
+      min-width: 32px; height: 32px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
       background: var(--color-bg-surface);
       color: var(--color-text-secondary);
-      font-size: 14px; font-weight: 500;
+      font-size: 13px; font-weight: 600;
       cursor: pointer; font-family: inherit;
       display: flex; align-items: center; justify-content: center;
-      transition: all 150ms ease;
+      transition: all 120ms ease;
     }
-    .page-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
-    .page-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+    .page-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+      box-shadow: 0 0 0 2px rgba(91, 101, 220, 0.12);
+    }
+    .page-btn.active {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(91, 101, 220, 0.24);
+    }
+    .page-btn.nav { min-width: 74px; }
+    .page-btn:disabled {
+      opacity: 1;
+      color: var(--color-text-muted);
+      cursor: not-allowed;
+      background: var(--color-bg-surface);
+    }
+    .per-page-selector {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+    .per-page-selector__label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+    }
+    .per-page-selector__select {
+      min-width: 78px;
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--color-bg-surface);
+      color: var(--color-text-primary);
+    }
+    .per-page-selector__select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(91, 101, 220, 0.16);
+    }
 
     /* ─── Toggle / Checkbox ─── */
     .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -1211,12 +1279,13 @@
          ════════════════════════════════════ -->
     <section class="section" id="tables">
       <div class="section-title">Tables</div>
-      <p class="section-subtitle">Standard data table with status badges. Hover rows to see highlight.</p>
+      <p class="section-subtitle">Admin changelist table (<code>#result_list</code>) — checkbox column, sentence-case headers, primary object links, status badges. Spec: <code>custom.css</code> + <code>dynamic_pagination_changelist.html</code>.</p>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th class="td-check"><input type="checkbox" aria-label="Select all"></th>
               <th>Trip ID</th>
               <th>Vehicle</th>
               <th>Driver</th>
@@ -1227,44 +1296,49 @@
           </thead>
           <tbody>
             <tr>
-              <td class="td-mono">TRP-2024-0891</td>
+              <td class="td-check"><input type="checkbox" aria-label="Select row"></td>
+              <td class="td-mono"><a class="td-primary" href="#">TRP-2024-0891</a></td>
               <td class="td-mono">DH-2345</td>
-              <td class="td-primary">Md. Rahim Uddin</td>
-              <td style="font-size:13px;color:var(--color-text-secondary)">Dhaka → Chittagong</td>
+              <td>Md. Rahim Uddin</td>
+              <td style="color:var(--color-text-secondary)">Dhaka → Chittagong</td>
               <td><span class="badge" style="background:color-mix(in srgb,var(--color-status-in-transit) 15%,transparent);color:var(--color-status-in-transit)"><span class="badge-dot"></span>In Transit</span></td>
-              <td class="td-primary" style="font-variant-numeric:tabular-nums">4,250</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:500">4,250</td>
             </tr>
-            <tr>
-              <td class="td-mono">TRP-2024-0892</td>
+            <tr class="selected">
+              <td class="td-check"><input type="checkbox" checked aria-label="Select row"></td>
+              <td class="td-mono"><a class="td-primary" href="#">TRP-2024-0892</a></td>
               <td class="td-mono">DH-1122</td>
-              <td class="td-primary">Karim Hossain</td>
-              <td style="font-size:13px;color:var(--color-text-secondary)">Dhaka → Sylhet</td>
+              <td>Karim Hossain</td>
+              <td style="color:var(--color-text-secondary)">Dhaka → Sylhet</td>
               <td><span class="badge" style="background:color-mix(in srgb,var(--color-status-loading) 15%,transparent);color:var(--color-status-loading)"><span class="badge-dot"></span>Loading</span></td>
-              <td class="td-primary" style="font-variant-numeric:tabular-nums">—</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:500">—</td>
             </tr>
             <tr>
-              <td class="td-mono">TRP-2024-0888</td>
+              <td class="td-check"><input type="checkbox" aria-label="Select row"></td>
+              <td class="td-mono"><a class="td-primary" href="#">TRP-2024-0888</a></td>
               <td class="td-mono">DH-9901</td>
-              <td class="td-primary">Jamal Mia</td>
-              <td style="font-size:13px;color:var(--color-text-secondary)">Dhaka → Comilla</td>
+              <td>Jamal Mia</td>
+              <td style="color:var(--color-text-secondary)">Dhaka → Comilla</td>
               <td><span class="badge" style="background:color-mix(in srgb,var(--color-status-completed) 15%,transparent);color:var(--color-status-completed)"><span class="badge-dot"></span>Completed</span></td>
-              <td class="td-primary" style="font-variant-numeric:tabular-nums">5,840</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:500">5,840</td>
             </tr>
             <tr>
-              <td class="td-mono">TRP-2024-0885</td>
+              <td class="td-check"><input type="checkbox" aria-label="Select row"></td>
+              <td class="td-mono"><a class="td-primary" href="#">TRP-2024-0885</a></td>
               <td class="td-mono">DH-7732</td>
-              <td class="td-primary">Salam Khan</td>
-              <td style="font-size:13px;color:var(--color-text-secondary)">Dhaka → Rajshahi</td>
+              <td>Salam Khan</td>
+              <td style="color:var(--color-text-secondary)">Dhaka → Rajshahi</td>
               <td><span class="badge" style="background:color-mix(in srgb,var(--color-status-on-hold) 15%,transparent);color:var(--color-status-on-hold)"><span class="badge-dot"></span>On Hold</span></td>
-              <td class="td-primary" style="font-variant-numeric:tabular-nums">3,100</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:500">3,100</td>
             </tr>
             <tr>
-              <td class="td-mono">TRP-2024-0880</td>
+              <td class="td-check"><input type="checkbox" aria-label="Select row"></td>
+              <td class="td-mono"><a class="td-primary" href="#">TRP-2024-0880</a></td>
               <td class="td-mono">DH-4456</td>
-              <td class="td-primary">Nurul Islam</td>
-              <td style="font-size:13px;color:var(--color-text-secondary)">Dhaka → Khulna</td>
+              <td>Nurul Islam</td>
+              <td style="color:var(--color-text-secondary)">Dhaka → Khulna</td>
               <td><span class="badge" style="background:color-mix(in srgb,var(--color-status-cancelled) 15%,transparent);color:var(--color-status-cancelled)"><span class="badge-dot"></span>Cancelled</span></td>
-              <td class="td-primary" style="font-variant-numeric:tabular-nums">—</td>
+              <td style="font-variant-numeric:tabular-nums;font-weight:500">—</td>
             </tr>
           </tbody>
         </table>
@@ -1276,15 +1350,28 @@
          ════════════════════════════════════ -->
     <section class="section" id="pagination">
       <div class="section-title">Pagination</div>
-      <div class="pagination">
-        <button class="page-btn">‹</button>
-        <button class="page-btn">1</button>
-        <button class="page-btn active">2</button>
-        <button class="page-btn">3</button>
-        <button class="page-btn">4</button>
-        <button class="page-btn" style="width:auto;padding:0 12px;font-size:13px;color:var(--color-text-muted);cursor:default">…</button>
-        <button class="page-btn">12</button>
-        <button class="page-btn">›</button>
+      <p class="section-subtitle">Admin DynamicPagination — page links left, <code>Rows per page</code> (15 / 25 / 50 / 100 / 200) right. Template: <code>admin/dynamic_pagination_changelist.html</code>.</p>
+      <div class="dfms-pagination-parent">
+        <div class="pagination">
+          <button class="page-btn nav" disabled>‹ Prev</button>
+          <button class="page-btn">1</button>
+          <button class="page-btn active">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn" style="width:auto;border:none;background:transparent;box-shadow:none;color:var(--color-text-muted);cursor:default;font-weight:600" disabled>…</button>
+          <button class="page-btn">12</button>
+          <button class="page-btn nav">Next ›</button>
+        </div>
+        <form class="per-page-selector" onsubmit="return false;">
+          <label for="preview-per-page" class="per-page-selector__label">Rows per page:</label>
+          <select id="preview-per-page" class="per-page-selector__select" aria-label="Rows per page">
+            <option>15</option>
+            <option selected>25</option>
+            <option>50</option>
+            <option>100</option>
+            <option>200</option>
+          </select>
+        </form>
       </div>
     </section>
 

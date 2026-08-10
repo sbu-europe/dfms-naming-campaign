@@ -3,7 +3,7 @@ title: DFMS Design System
 category: design-system
 status: approved
 created: 2026-02-23
-updated: 2026-03-12
+updated: 2026-08-10
 ---
 
 # DFMS Design System
@@ -43,7 +43,7 @@ updated: 2026-03-12
 |----------|----------------|
 | [Buttons](./02-components/buttons.md) | Variants, sizes, states, HTML + Flutter examples |
 | [Forms](./02-components/forms.md) | Text inputs, selects, checkboxes, toggles, file upload, layout rules |
-| [Data Display](./02-components/data-display.md) | Tables, cards, status badges, KPI panels, alerts, empty states, loading |
+| [Data Display](./02-components/data-display.md) | Tables (admin changelist), DynamicPagination, cards, status badges, KPI panels, alerts, empty states, loading |
 | [Navigation](./02-components/navigation.md) | Sidebar, topbar, breadcrumbs, tabs, modals |
 
 ### Patterns
@@ -166,6 +166,7 @@ The design system is owned by the **Tech Lead** and maintained by the frontend t
 | 1.1 | 2026-03-12 | Brand colors updated to Brainstation-23 palette (Pantone 2766 C + 2726 C); dark theme added; design philosophy documented |
 | 1.2 | 2026-03-12 | Design influences documented: IBM Carbon (web), M3 structural (Flutter), Radix (accessibility), Ant Design (behaviour); binding design principles defined; M3 anti-patterns called out |
 | 1.3 | 2026-05-07 | Label capitalisation convention documented — sentence-case default, acronym ALL CAPS rule, `verbose_name` source fixes across 13 fields, `dfms_labels.js` JS safety net |
+| 1.4 | 2026-08-10 | Admin changelist table + DynamicPagination (`dynamic_pagination_changelist.html`) documented in Data Display / Web platform; preview updated to match |
 
 ---
 

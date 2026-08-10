@@ -4,6 +4,7 @@ category: design-system
 section: platforms
 status: approved
 created: 2026-02-23
+updated: 2026-08-10
 ---
 
 # Web Platform Guidelines
@@ -24,6 +25,26 @@ created: 2026-02-23
 | Charts | Chart.js 4.x |
 | Date handling | Day.js |
 | Tables (complex) | DataTables (Bootstrap 5 integration) |
+| Admin changelists | Django `#result_list` + `DynamicPaginationMixin` |
+
+---
+
+## Django Admin Changelist Tables
+
+Operational list views use the Django admin changelist, not DataTables.
+
+| Piece | Location |
+|-------|----------|
+| Table / paginator CSS | `static/admin/css/custom.css` (`#result_list`, `.results table`, `.paginator`) |
+| Rows-per-page + AJAX pagination | `templates/admin/dynamic_pagination_changelist.html` |
+| Mixin | `DynamicPaginationMixin` in `apps/core/admin.py` (`VALID_PER_PAGE = {15, 25, 50, 100, 200}`) |
+
+Rules:
+
+1. Prefer inheriting `TenantOnlyAdminMixin` / `PlatformOnlyAdminMixin` so pagination is automatic.
+2. Custom `change_list.html` must extend `admin/dynamic_pagination_changelist.html`.
+3. Do not reintroduce Django “Show all”; it is hidden in CSS.
+4. Visual specs live in [Data Display → Tables](../02-components/data-display.md).
 
 ---
 
