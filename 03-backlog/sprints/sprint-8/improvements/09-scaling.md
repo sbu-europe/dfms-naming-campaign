@@ -17,6 +17,7 @@ parent: ./README.md
 |----|-------|----------|--------|
 | [FB-022](#fb-022--scale-inout--kg-input--listnet-display-as-mt-kg-option-a) | Scale-In/Out: kg input + list/net display as MT (kg) (Option A) | Medium | Resolved |
 | [FB-024](#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | Medium | Resolved |
+| [FB-025](#fb-025--to-execution-timeline--empty--loaded-vehicle-weight-notes) | TO Execution timeline: empty / loaded vehicle weight notes | Medium | Resolved |
 
 ---
 
@@ -91,3 +92,36 @@ Empty vehicle could only be marked on Scale-In. At destination the empty weighin
 - [x] FB-024-2 — Scale-Out admin Add/change: Empty vehicle checkbox
 - [x] FB-024-3 — Scale-Out list: Empty (In) / Empty (Out) indicators
 - [x] FB-024-4 — `ScaleOutService` + Scale-Out API wire `is_empty_vehicle`
+
+---
+
+## FB-025 — TO Execution timeline: empty / loaded vehicle weight notes
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-10 |
+| **Affected Stories** | [SC-01](../../../../05-modules/06-poi-operations/scaling-operations-sprint4.md); TLS-01 Execution timeline on Transport Order |
+| **Closing Sub-tasks** | FB-025-1 — Shared `vehicle_weight_clause` helper · FB-025-2 — Scale-In TLS note: empty/loaded weight + P.C. code · FB-025-3 — Scale-Out TLS note: empty/loaded weight + Net (scale-out may be empty) · FB-025-4 — Unit tests for note strings |
+| **AC Amendment** | When Scale-In / Scale-Out is recorded, the TO **Execution timeline** note SHALL include **Empty vehicle weight** or **Weight of loaded vehicle** (from `is_empty_vehicle`) with the weighbridge reading as `{mt} MT ({kg} kg)`. Scale-in notes SHALL keep **P.C. code**. Scale-out notes SHALL keep **Net** in the same string. Forward-only (no backfill of historical notes). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Writes via `record_yard_sub_state` in `ScaleInService` / `ScaleOutService`. |
+
+### Improvement observation
+
+Execution timeline notes said only “Scale-in recorded. P.C. code…” / “Scale-out recorded. Net weight…” with no empty vs loaded distinction, even though either weighing can be empty.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-025) |
+|--------|--------|----------------|
+| Scale-in timeline note | P.C. code only | Empty/loaded weight MT (kg) + P.C. code |
+| Scale-out timeline note | Net weight (bare MT) | Empty/loaded weight MT (kg) + Net MT (kg) |
+| Scale-out empty | Not reflected in notes | Uses `ScaleOut.is_empty_vehicle` |
+
+### Closing checklist
+
+- [x] FB-025-1 — `vehicle_weight_clause` helper
+- [x] FB-025-2 — Scale-In note: empty/loaded + P.C. code
+- [x] FB-025-3 — Scale-Out note: empty/loaded + Net
+- [x] FB-025-4 — Unit tests
