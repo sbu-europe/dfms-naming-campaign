@@ -8,7 +8,7 @@ parent: ./README.md
 # Command Center
 
 **Admin menu / area:** Command Center · Queue · Bay Assignment (Command Center Officer)  
-**Also in scope:** Loading TO summary · Gate visit quantity · QC TO context  
+**Also in scope:** Loading / Unloading TO summary · LoadEvent / UnloadEvent line capture · Gate visit quantity · QC TO context  
 **Tracker index:** [README.md](./README.md)
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
@@ -17,6 +17,7 @@ parent: ./README.md
 |----|-------|----------|--------|
 | [FB-019](#fb-019--yard-ops-to-aligned-labels--allocated-weight-mt-kg) | Yard ops TO-aligned labels + Allocated Weight MT (kg) | Medium | Resolved |
 | [FB-021](#fb-021--cc-queue-change-form--show-vehicle-scale-in-datetime-product-lines-type--weight) | CC Queue change form: Vehicle, Scale-in Date & Time, Product Lines, Product Type (FG/RM), Weight | High | Resolved |
+| [FB-023](#fb-023--loadeventunloadevent--live-loadedreceived-weight-from-uom--wpu) | LoadEvent/UnloadEvent: live Loaded/Received weight from UOM × WPU | Medium | Resolved |
 
 ---
 
@@ -135,3 +136,37 @@ On **Command Center → Queue**, opening a queue entry did not show the visit/ca
 - [x] FB-021-4 — Product Type (FG/RM) + Product Lines
 - [x] FB-021-5 — Gross weight scale-in (MT)
 - [x] FB-021-6 — Unit tests (panel + QueueEntryAdmin)
+
+---
+
+## FB-023 — LoadEvent/UnloadEvent: live Loaded/Received weight from UOM × WPU
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-10 |
+| **Affected Stories** | [LD-01](../../../../05-modules/06-poi-operations/command-center-loading-sprint4.md) (Loading / Unloading complete); [STK-03](../../../../05-modules/06-poi-operations/stock-operations-v3-loading-unload-trigger.md) (UOM → stock MT) |
+| **Closing Sub-tasks** | FB-023-1 — Expose Product-master `weight_per_unit` on each line-capture row · FB-023-2 — Product line quantities table: **WPU (kg/unit)** + **Loaded/Received weight** columns · FB-023-3 — Live JS recalc `qty × wpu` as `{mt} MT ({kg} kg)` + footer total · FB-023-4 — Shared Load/Unload `ldevent/change_form.html`; Unload labels use Received weight |
+| **AC Amendment** | On **LoadEvent / UnloadEvent → change**, the **Product line quantities** capture table SHALL show Product-master **WPU (kg/unit)** and a live **Loaded weight** / **Received weight** per line plus footer total, using `qty_in_product_uom × weight_per_unit_kg` formatted `{mt} MT ({kg} kg)` (same formula as `line_capture_to_stock_mt`). Persist / stock conversion unchanged (server remains source of truth). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Aligns LoadEvent capture UX with PR / gate / TO live weight (FB-015 style). WPU source is **Product master** (stock path), not PR-line WPU. Files: `apps/operations/loading/forms.py`, `apps/operations/stock/conversion.py` (`weight_per_unit_kg_for_to_line`), `templates/admin/operations/ldevent/change_form.html`, `static/admin/js/ld_line_capture_weight.js`. |
+
+### Improvement observation
+
+Load/Unload complete forms captured actual qty in product UOM only. Operators could not see loaded/received weight while typing, unlike TO creation (Allocating TO Load) and PR/gate line UIs.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-023) |
+|--------|--------|----------------|
+| Product line quantities columns | # / Product / Expected / Actual | + **WPU (kg/unit)** + **Loaded/Received weight** |
+| Live weight while typing | None (MT only after save/stock) | `qty × Product.weight_per_unit` → `{mt} MT ({kg} kg)` |
+| Footer total | None | **Loaded weight (total)** / **Received weight (total)** |
+| Server persist / stock MT | `line_capture_to_stock_mt` | Unchanged |
+
+### Closing checklist
+
+- [x] FB-023-1 — Product-master WPU on each line-capture form row
+- [x] FB-023-2 — WPU + Loaded/Received weight columns on capture table
+- [x] FB-023-3 — Live JS recalc + footer total (`ld_line_capture_weight.js`)
+- [x] FB-023-4 — Shared Load/Unload template; unload uses Received weight labels
