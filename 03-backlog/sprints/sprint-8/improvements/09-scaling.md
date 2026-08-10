@@ -16,6 +16,7 @@ parent: ./README.md
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
 | [FB-022](#fb-022--scale-inout--kg-input--listnet-display-as-mt-kg-option-a) | Scale-In/Out: kg input + list/net display as MT (kg) (Option A) | Medium | Resolved |
+| [FB-024](#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | Medium | Resolved |
 
 ---
 
@@ -56,3 +57,37 @@ Operators enter weighbridge readings in **kg**, but Scale-In / Scale-Out forms a
 - [x] FB-022-5 — CC gross scale-in + QC scale-in display: MT (kg)
 - [x] FB-022-6 — API dual-accept `*_kg` / `*_mt`
 - [x] FB-022-7 — Unit tests (conversion + display / CC / queue token)
+
+---
+
+## FB-024 — Scale-In/Out: empty vehicle on both + Scale-Out list indicators
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-10 |
+| **Affected Stories** | [SC-01](../../../../05-modules/06-poi-operations/scaling-operations-sprint4.md) (Scale-In / Scale-Out) |
+| **Closing Sub-tasks** | FB-024-1 — `ScaleOut.is_empty_vehicle` column + migration · FB-024-2 — Scale-Out **Add**/change: **Empty vehicle** checkbox (parity with Scale-In) · FB-024-3 — Scale-Out list: indicate Scale-In empty and Scale-Out empty · FB-024-4 — Service + API accept `is_empty_vehicle` on scale-out |
+| **AC Amendment** | Either weighing MAY be an empty vehicle (source: empty in / loaded out; destination: loaded in / empty out). **Scale-In** and **Scale-Out** Add forms SHALL each expose an independent **Empty vehicle** flag. **Scale-Out** changelist SHALL show whether Scale-In was empty and/or Scale-Out was empty. Net weight remains `abs(scale_in − scale_out)`; empty flags are operator documentation only (no mutual exclusion). |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Scale-In already had `is_empty_vehicle`. Scale-Out previously had no flag and list showed neither side’s empty state. |
+
+### Improvement observation
+
+Empty vehicle could only be marked on Scale-In. At destination the empty weighing is Scale-Out; operators had no way to record that, and the Scale-Out list gave no empty indication for either weighing.
+
+### Current vs expected behaviour
+
+| Aspect | Before | After (FB-024) |
+|--------|--------|----------------|
+| Scale-In Add empty checkbox | Present | Unchanged |
+| Scale-Out Add empty checkbox | Missing | **Empty vehicle** on add + change |
+| ScaleOut DB / API | No flag | `is_empty_vehicle` (default False); API accepts same |
+| Scale-Out list | Weights only | **Empty (In)** + **Empty (Out)** columns |
+
+### Closing checklist
+
+- [x] FB-024-1 — `ScaleOut.is_empty_vehicle` + migration
+- [x] FB-024-2 — Scale-Out admin Add/change: Empty vehicle checkbox
+- [x] FB-024-3 — Scale-Out list: Empty (In) / Empty (Out) indicators
+- [x] FB-024-4 — `ScaleOutService` + Scale-Out API wire `is_empty_vehicle`
