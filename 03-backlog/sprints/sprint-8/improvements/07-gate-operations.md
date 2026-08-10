@@ -17,6 +17,7 @@ parent: ./README.md
 | [FB-016](#fb-016--gate-out-form--remove-non-updating-clearance-status-panel) | Gate-Out form: remove non-updating Clearance Status panel | Medium | Resolved |
 | [FB-017](#fb-017--gate-in-add--remove-project--from-from-to-snapshot--readonly-project-from-info) | Gate-In add: remove Project / From from TO snapshot; readonly Project From Info | Medium | Resolved |
 | [FB-020](#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a) | On-Demand TO create: optional Gate-in date/time (Option A) | High | In Progress |
+| [FB-026](#fb-026--dwell-time--show-hms-format-instead-of-minutes-only) | Dwell time: show H.m.s format instead of minutes only | Medium | Resolved |
 
 ---
 
@@ -190,3 +191,38 @@ Suggested locations: extend `tests/unit/test_operations/test_gate_on_demand_form
 4. API field (FB-020-3) — **done**  
 5. Smoke both paths on `/admin/operations/gateondemandtorequest/add/`  
 6. E2E MCP suite (FB-020-6)
+
+---
+
+## FB-026 — Dwell time: show H.m.s format instead of minutes only
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-10 |
+| **Affected Stories** | [GT-01](../../sprint-4/04-gate/GT-01-gate-in-out-remarks.md) (Gate visit dwell); related [GPS-04](../../sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md) (TO Planned / Gate / Geofence dwell matrix) |
+| **Closing Sub-tasks** | FB-026-1 — Compute dwell with second precision (not `// 60` only) · FB-026-2 — Shared formatter: display as **H.m.s** (hours.minutes.seconds) · FB-026-3 — Gate Visit list / CSV / visit API `dwell_time_display` use H.m.s · FB-026-4 — TO dwell timeline matrix (`dwell_display`) use same H.m.s · FB-026-5 — Unit tests for formatter edge cases (0s, sub-hour, multi-hour) |
+| **AC Amendment** | Dwell time SHALL be shown in **H.m.s** format (hours.minutes.seconds), e.g. `1.05.30` for 1 hour 5 minutes 30 seconds. Surfaces that today show minutes-only (or “X hours Y minutes” / `{n} min`) SHALL use this format. Numeric minutes fields (e.g. API `dwell_time_minutes`) may remain for consumers that need a minute value. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Shared helpers in `apps/operations/gate/dwell.py`: `compute_dwell_seconds`, `format_dwell_hms` → `H.MM.SS` (zero-padded minutes/seconds, e.g. `1.05.30`). Gate Visit list/CSV/API display use seconds; `dwell_time_minutes` unchanged. TO dwell matrix uses the same formatter (timestamp delta when both ends exist). |
+
+### Improvement observation
+
+Dwell time is shown in minutes format only. Operators need **H.m.s** so short and long dwells are readable with second-level detail.
+
+### Current vs expected behaviour
+
+| Aspect | Current | Expected (FB-026) |
+|--------|---------|-------------------|
+| Gate Visit list **Dwell time** | “45 minutes” / “2 hours 5 minutes” | **H.m.s** (e.g. `0.45.12`, `2.05.00`) |
+| Gate visit CSV / API `dwell_time_display` | Same minutes wording | Same **H.m.s** |
+| TO Planned Milestones dwell cells | `{n} min` | Same **H.m.s** |
+| Precision | Whole minutes (`total_seconds() // 60`) | Include seconds |
+
+### Closing checklist
+
+- [x] FB-026-1 — Second-precision dwell duration from gate-in → gate-out (or now)
+- [x] FB-026-2 — Shared **H.m.s** display formatter
+- [x] FB-026-3 — Gate Visit list / CSV / `dwell_time_display` use H.m.s
+- [x] FB-026-4 — TO dwell timeline matrix `dwell_display` use H.m.s
+- [x] FB-026-5 — Unit tests for formatter (zero, sub-hour, multi-hour)

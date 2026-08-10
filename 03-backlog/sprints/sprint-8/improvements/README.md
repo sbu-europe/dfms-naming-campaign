@@ -2,20 +2,20 @@
 title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
-total_items: 25
-resolved: 24
+total_items: 26
+resolved: 25
 in_progress: 1
 open: 0
 ---
 
 # Sprint 8 — Improvements Tracker
 
-Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-025).
+Bulk I/O and invitation-channel improvements carried from Sprint 7 (FB-001–FB-007), plus new Sprint 8 workflow / display improvements (FB-008–FB-026).
 Items are split **by admin menu / module** for easier browsing.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-025** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only, yard-ops TO labels + Allocated Weight, On-Demand TO optional gate-in datetime, CC Queue change-form visit/cargo details, Scaling kg input + MT (kg) display, LoadEvent/UnloadEvent live Loaded/Received weight from UOM × WPU, Scale-In/Out empty vehicle on both + Scale-Out list indicators, TO Execution timeline empty/loaded weight notes).
+> **Origin:** Sprint 7 tracker retained [FB-001–FB-008](../../sprint-7/feedback.md). FB-001–FB-007 here are the Sprint 7 carry-over bulk I/O / invitation items. **FB-008–FB-026** are new Sprint 8 improvements (PR lock, TR weight columns, Transport Planner remaining qty/weight / Allocating TO Load, Driver My Trips cargo weight, Gate-In/Out form cleanup, Vehicle capacity unit MT/KG only, yard-ops TO labels + Allocated Weight, On-Demand TO optional gate-in datetime, CC Queue change-form visit/cargo details, Scaling kg input + MT (kg) display, LoadEvent/UnloadEvent live Loaded/Received weight from UOM × WPU, Scale-In/Out empty vehicle on both + Scale-Out list indicators, TO Execution timeline empty/loaded weight notes, Dwell time H.m.s display).
 
 ## Modules
 
@@ -27,7 +27,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 2 | 0 |
 | [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 4 | 4 | 0 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
-| [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) · On-Demand TO | 3 | 2 | 1 |
+| [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) · On-Demand TO · Visit dwell | 4 | 3 | 1 |
 | [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Unloading line capture · Gate / QC panels | 3 | 3 | 0 |
 | [Scaling](./09-scaling.md) | Scaling · Scale-In · Scale-Out; Gate Pass / Queue Token / CC·QC weight display | 3 | 3 | 0 |
 
@@ -60,11 +60,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-023](./08-command-center.md#fb-023--loadeventunloadevent--live-loadedreceived-weight-from-uom--wpu) | LoadEvent/UnloadEvent: live Loaded/Received weight from UOM × WPU | [Command Center](./08-command-center.md) | Loading · Unloading · line capture | Medium | Resolved |
 | [FB-024](./09-scaling.md#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | [Scaling](./09-scaling.md) | Scaling · Scale-In · Scale-Out | Medium | Resolved |
 | [FB-025](./09-scaling.md#fb-025--to-execution-timeline--empty--loaded-vehicle-weight-notes) | TO Execution timeline: empty / loaded vehicle weight notes | [Scaling](./09-scaling.md) | Scaling · TO Execution timeline | Medium | Resolved |
+| [FB-026](./07-gate-operations.md#fb-026--dwell-time--show-hms-format-instead-of-minutes-only) | Dwell time: show H.m.s format instead of minutes only | [Gate Operations](./07-gate-operations.md) | Gate · Visit dwell · TO dwell matrix | Medium | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | In Progress | Open |
 |----------|-------|----------|-------------|------|
 | High | 6 | 5 | 1 | 0 |
-| Medium | 19 | 19 | 0 | 0 |
-| **Total** | **25** | **24** | **1** | **0** |
+| Medium | 20 | 20 | 0 | 0 |
+| **Total** | **26** | **25** | **1** | **0** |
