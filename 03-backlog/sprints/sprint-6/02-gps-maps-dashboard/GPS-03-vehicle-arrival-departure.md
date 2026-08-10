@@ -104,14 +104,6 @@ On entry while the trip is en-route:
 - Authorised roles can read entry/exit history via tracking geofence-events API (trip / TO scoped as implemented).
 - Live map payload may indicate whether a vehicle is currently inside POI(s) for map cues; this is **not** the Maps Dashboard POI presence panel.
 
-### Out of scope (explicit)
-
-- Emit full **TLS-01** timeline rows from geofence events — **Deferred**.
-- List of all vehicles currently inside a POI (**presence panel**) — **Deferred** to [GPS-05](GPS-05-maps-dashboard-integration.md).
-- Off-trip / idle geofence events for audit — **Not in Phase 1**.
-- Dedicated `/api/v1/maps/**` geofence-events family — deferred with Maps Dashboard ([GPS-05](GPS-05-maps-dashboard-integration.md)); Phase 1 uses `/api/v1/tracking/`.
-- Evaluating **all** active POIs in the event engine (map display of all POIs remains in scope for Live GPS / GPS-01).
-
 ---
 
 ## API Endpoints
@@ -153,12 +145,6 @@ Live map (`GET /api/v1/tracking/live-map/`) may include `inside_pois` / `inside_
 
 > There is **no user write** for arrival/departure or geofence dwell. Events are system-generated from GPS evaluation.
 
-### Deferred / out of scope APIs
-
-```http
-# Maps Dashboard family — not Phase 1 GPS-03 acceptance (see GPS-05)
-GET /api/v1/maps/transport-orders/{to_id}/geofence-events
-GET /api/v1/maps/pois/{poi_id}/presence
 ```
 
 ---
