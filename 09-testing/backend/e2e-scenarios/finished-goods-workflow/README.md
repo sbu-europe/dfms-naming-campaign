@@ -2,7 +2,7 @@
 section: 09-testing/backend/e2e-scenarios/finished-goods-workflow
 title: Finished Goods Workflow — E2E Scenario Plans
 version: 1.2
-last_updated: 2026-07-20
+last_updated: 2026-08-11
 ---
 
 # Finished Goods Workflow — E2E Scenarios
@@ -10,6 +10,8 @@ last_updated: 2026-07-20
 End-to-end scenario plans for the Finished Goods (FG) requisition-to-delivery workflow. **All FG plans live in this directory** (numbered section folders). Each section maps to the PRD / test-suite numbering and targets **Playwright MCP** against Django Admin SSR unless noted.
 
 **How to run:** [`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md) — dependency-ordered suites (`01-pr-artifacts` → … → `13-18-dest-yard-artifacts`), OTP skip, `RUN_ID` / `state.json`, wipe notes.
+
+**Last MCP run:** 2026-08-11 · `RUN_ID=BE16C49E` · happy path **Closed** (`TO-20260811-0006`). Per-section RESULTS under `tests/e2e/playwright-mcp/`. `stock-capacity-uom` not run.
 
 **Isolated fixtures:** [`mcp-playwright-fg-fixture-seed.md`](../../../../05-modules/testing-plan/mcp-playwright-fg-fixture-seed.md) — session `MCP-S/D-<RUN_ID>` sandbox (`seed-mcp-fg` / `wipe-mcp-fg`); do not bind the chain to leftover `CTG-*` data.
 
