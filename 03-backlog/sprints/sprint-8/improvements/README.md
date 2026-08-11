@@ -4,8 +4,8 @@ source_sprint: Sprint 8
 carried_from: Sprint 7
 total_items: 27
 resolved: 25
-in_progress: 1
-open: 1
+in_progress: 2
+open: 0
 ---
 
 # Sprint 8 — Improvements Tracker
@@ -61,12 +61,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-024](./09-scaling.md#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | [Scaling](./09-scaling.md) | Scaling · Scale-In · Scale-Out | Medium | Resolved |
 | [FB-025](./09-scaling.md#fb-025--to-execution-timeline--empty--loaded-vehicle-weight-notes) | TO Execution timeline: empty / loaded vehicle weight notes | [Scaling](./09-scaling.md) | Scaling · TO Execution timeline | Medium | Resolved |
 | [FB-026](./07-gate-operations.md#fb-026--dwell-time--show-hms-format-instead-of-minutes-only) | Dwell time: show H.m.s format instead of minutes only | [Gate Operations](./07-gate-operations.md) | Gate · Visit dwell · TO dwell matrix | Medium | Resolved |
-| [FB-027](./05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | [Transport Planner](./05-transport-planner.md) | Transport · Transport Orders | High | Open |
+| [FB-027](./05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | [Transport Planner](./05-transport-planner.md) | Transport · Transport Orders | High | In Progress |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | In Progress | Open |
 |----------|-------|----------|-------------|------|
-| High | 7 | 5 | 1 | 1 |
+| High | 7 | 5 | 2 | 0 |
 | Medium | 20 | 20 | 0 | 0 |
-| **Total** | **27** | **25** | **1** | **1** |
+| **Total** | **27** | **25** | **2** | **0** |

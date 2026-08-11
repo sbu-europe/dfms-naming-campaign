@@ -18,7 +18,7 @@ parent: ./README.md
 | [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Resolved |
 | [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Resolved |
 | [FB-015](#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
-| [FB-027](#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | High | Open |
+| [FB-027](#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | High | In Progress |
 
 ---
 
@@ -146,19 +146,19 @@ While allocating quantities on TO creation, planners need a live **Allocating TO
 | **Affected Stories** | [TO-01](../../sprint-3/05-transport/02-transport-orders.md) (Transport Order Creation / planning); [FB-008 / FB-009 Sprint 6](../../sprint-6/feedback-resolution/05-transport-orders.md) (Own vs Vendor fleet paths); business rule [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md) |
 | **Closing Sub-tasks** | FB-027-1 — Widen TP editable window for `fleet_type` (direction-aware statuses) · FB-027-2 — Interchange service: remap status + clear opposite-fleet assignment fields · FB-027-3 — Vendor→Own → `created` + Planning Required · FB-027-4 — Own→Vendor (pre-RFD) → `under_planning` · FB-027-5 — Hard-block at/after `ready_for_dispatch`; gate on-demand TOs unchanged · FB-027-6 — Amend TOR-005 wording · FB-027-7 — Unit + E2E scenarios |
 | **AC Amendment** | A **Transport Planner** SHALL be able to change a Transport Order’s **Fleet type** between **Vendor Fleet** and **Own Fleet** before the TO reaches **Ready for Dispatch**, with status and assignment side-effects as below. The TO MUST remain a single fleet type at all times (TOR-004). |
-| **Status** | Open |
+| **Status** | In Progress |
 | **Priority** | High |
-| **Notes** | Today `fleet_type` is editable only while `status=created` (`_FLEET_TYPE_EDITABLE_STATUSES`) and changing it does **not** remap status or clear vendor/own assignment fields. E2E: [fb-027-to-fleet-type-interchange-e2e-scenarios.md](../../../../09-testing/backend/e2e-scenarios/sprint-8/fb-027-to-fleet-type-interchange-e2e-scenarios.md). |
+| **Notes** | Implemented in `TransportOrderService.change_fleet_type` + TO admin (direction-aware editable window; skip vendor handoff sync on interchange save). TOR-005 amended. E2E MCP still Planned. |
 
 ### Improvement observation
 
-Once a TO is created as Vendor or Own Fleet, TP cannot usefully switch fleet mode when plans change (e.g. vendor capacity unavailable → use own fleet, or own resources unavailable → vendor). Field is locked outside `created`, and even in `created` there is no lifecycle remapping.
+Once a TO is created as Vendor or Own Fleet, TP cannot usefully switch fleet mode when plans change (e.g. vendor capacity unavailable → use own fleet, or own resources unavailable → vendor). Field was locked outside `created`, and even in `created` there was no lifecycle remapping.
 
 ### Current vs expected behaviour
 
-| Aspect | Current | Expected (FB-027) |
-|--------|---------|-------------------|
-| Vendor TO `under_planning` → Own | `fleet_type` readonly | Editable; after save → Own, status **`created`**, Planning Required (vehicle/driver incomplete) |
+| Aspect | Before | Expected / implemented (FB-027) |
+|--------|--------|----------------------------------|
+| Vendor TO `under_planning` → Own | `fleet_type` readonly | Editable; after save → Own, status **`created`**, Planning Required |
 | Vendor TO `created` → Own | Field may change; no cleanup/remap | Own, status **`created`**, vendor fields cleared, Planning Required |
 | Own TO `created` / `assigned` (not yet RFD) → Vendor | Locked when `assigned`; no remap when `created` | Vendor, status **`under_planning`**, own vehicle/driver/helpers cleared |
 | At/after `ready_for_dispatch` | Locked | Remains locked — no interchange |
@@ -198,10 +198,10 @@ Once a TO is created as Vendor or Own Fleet, TP cannot usefully switch fleet mod
 
 ### Closing checklist
 
-- [ ] FB-027-1 — Direction-aware editable statuses for `fleet_type` (admin readonly + `save_model` revert aligned)
-- [ ] FB-027-2 — Dedicated interchange helper (service) called from TO admin on `fleet_type` change
-- [ ] FB-027-3 — Vendor→Own: `created` + vendor fields cleared + Planning Required
-- [ ] FB-027-4 — Own→Vendor (pre-RFD): `under_planning` + own resources released
-- [ ] FB-027-5 — Block RFD+, gate on-demand, TDO/driver; block/handle bids & bundles
-- [ ] FB-027-6 — Update [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md) + transport-order module note if needed
-- [ ] FB-027-7 — Unit tests + E2E scenario plan executed (MCP)
+- [x] FB-027-1 — Direction-aware editable statuses for `fleet_type` (admin readonly + `save_model` revert aligned)
+- [x] FB-027-2 — Dedicated interchange helper (service) called from TO admin on `fleet_type` change
+- [x] FB-027-3 — Vendor→Own: `created` + vendor fields cleared + Planning Required
+- [x] FB-027-4 — Own→Vendor (pre-RFD): `under_planning` + own resources released
+- [x] FB-027-5 — Block RFD+, gate on-demand, TDO/driver; block/handle bids & bundles
+- [x] FB-027-6 — Update [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md) + transport-order module note if needed
+- [ ] FB-027-7 — Unit tests + E2E scenario plan executed (MCP) — unit tests done; E2E MCP pending
