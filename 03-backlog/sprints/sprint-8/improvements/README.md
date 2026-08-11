@@ -3,8 +3,8 @@ title: Sprint 8 — Improvements Tracker
 source_sprint: Sprint 8
 carried_from: Sprint 7
 total_items: 27
-resolved: 25
-in_progress: 2
+resolved: 26
+in_progress: 1
 open: 0
 ---
 
@@ -25,7 +25,7 @@ Items are split **by admin menu / module** for easier browsing.
 | [Master Data](./02-master-data.md) | Master Data · Vehicles · Bulk I/O | 4 | 4 | 0 |
 | [Product Requisition](./03-product-requisition.md) | Requisition / Product Requisitions · Port Shipments | 1 | 1 | 0 |
 | [Transport Requests](./04-transport-requests.md) | Distribution / Procurement · Transport Requests | 2 | 2 | 0 |
-| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 5 | 4 | 1 |
+| [Transport Planner](./05-transport-planner.md) | Transport · Transport Requests · Transport Orders | 5 | 5 | 0 |
 | [Driver Mobile / My Trips](./06-driver-mobile.md) | Trips · My Trips · Driver Mobile | 1 | 1 | 0 |
 | [Gate Operations](./07-gate-operations.md) | Gate · Vehicle Entry (Gate-In) · Vehicle Exit (Gate-Out) · On-Demand TO · Visit dwell | 4 | 3 | 1 |
 | [Command Center](./08-command-center.md) | Command Center · Queue · Bay Assignment (CCO); Loading / Unloading line capture · Gate / QC panels | 3 | 3 | 0 |
@@ -61,12 +61,12 @@ Items are split **by admin menu / module** for easier browsing.
 | [FB-024](./09-scaling.md#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | [Scaling](./09-scaling.md) | Scaling · Scale-In · Scale-Out | Medium | Resolved |
 | [FB-025](./09-scaling.md#fb-025--to-execution-timeline--empty--loaded-vehicle-weight-notes) | TO Execution timeline: empty / loaded vehicle weight notes | [Scaling](./09-scaling.md) | Scaling · TO Execution timeline | Medium | Resolved |
 | [FB-026](./07-gate-operations.md#fb-026--dwell-time--show-hms-format-instead-of-minutes-only) | Dwell time: show H.m.s format instead of minutes only | [Gate Operations](./07-gate-operations.md) | Gate · Visit dwell · TO dwell matrix | Medium | Resolved |
-| [FB-027](./05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | [Transport Planner](./05-transport-planner.md) | Transport · Transport Orders | High | In Progress |
+| [FB-027](./05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | [Transport Planner](./05-transport-planner.md) | Transport · Transport Orders | High | Resolved |
 
 ## Resolution Summary
 
 | Priority | Total | Resolved | In Progress | Open |
 |----------|-------|----------|-------------|------|
-| High | 7 | 5 | 2 | 0 |
+| High | 7 | 6 | 1 | 0 |
 | Medium | 20 | 20 | 0 | 0 |
-| **Total** | **27** | **25** | **2** | **0** |
+| **Total** | **27** | **26** | **1** | **0** |

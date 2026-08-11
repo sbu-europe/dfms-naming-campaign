@@ -18,7 +18,7 @@ parent: ./README.md
 | [FB-012](#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity) | TO Creation details: Allocated Quantity Per Product shall show Remaining Quantity | High | Resolved |
 | [FB-013](#fb-013--to-details-after-creation--pr-line-items-table-not-showing) | TO details after creation: PR line items table not showing | High | Resolved |
 | [FB-015](#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg) | TO Creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
-| [FB-027](#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | High | In Progress |
+| [FB-027](#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch) | TO fleet type interchange: Vendor ↔ Own before Ready for Dispatch | High | Resolved |
 
 ---
 
@@ -146,9 +146,9 @@ While allocating quantities on TO creation, planners need a live **Allocating TO
 | **Affected Stories** | [TO-01](../../sprint-3/05-transport/02-transport-orders.md) (Transport Order Creation / planning); [FB-008 / FB-009 Sprint 6](../../sprint-6/feedback-resolution/05-transport-orders.md) (Own vs Vendor fleet paths); business rule [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md) |
 | **Closing Sub-tasks** | FB-027-1 — Widen TP editable window for `fleet_type` (direction-aware statuses) · FB-027-2 — Interchange service: remap status + clear opposite-fleet assignment fields · FB-027-3 — Vendor→Own → `created` + Planning Required · FB-027-4 — Own→Vendor (pre-RFD) → `under_planning` · FB-027-5 — Hard-block at/after `ready_for_dispatch`; gate on-demand TOs unchanged · FB-027-6 — Amend TOR-005 wording · FB-027-7 — Unit + E2E scenarios |
 | **AC Amendment** | A **Transport Planner** SHALL be able to change a Transport Order’s **Fleet type** between **Vendor Fleet** and **Own Fleet** before the TO reaches **Ready for Dispatch**, with status and assignment side-effects as below. The TO MUST remain a single fleet type at all times (TOR-004). |
-| **Status** | In Progress |
+| **Status** | Resolved |
 | **Priority** | High |
-| **Notes** | Implemented in `TransportOrderService.change_fleet_type` + TO admin (direction-aware editable window; skip vendor handoff sync on interchange save). TOR-005 amended. E2E MCP still Planned. |
+| **Notes** | Implemented in `TransportOrderService.change_fleet_type` + TO admin. TOR-005 amended. MCP **11/11 Pass** · 2 Skip (2026-08-11). |
 
 ### Improvement observation
 
@@ -204,4 +204,4 @@ Once a TO is created as Vendor or Own Fleet, TP cannot usefully switch fleet mod
 - [x] FB-027-4 — Own→Vendor (pre-RFD): `under_planning` + own resources released
 - [x] FB-027-5 — Block RFD+, gate on-demand, TDO/driver; block/handle bids & bundles
 - [x] FB-027-6 — Update [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md) + transport-order module note if needed
-- [ ] FB-027-7 — Unit tests + E2E scenario plan executed (MCP) — unit tests done; E2E MCP pending
+- [x] FB-027-7 — Unit tests + E2E scenario plan executed (MCP) — unit tests done; MCP **11/11 Pass** · 2 Skip (2026-08-11)
