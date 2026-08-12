@@ -18,6 +18,7 @@ parent: ./README.md
 | [FB-022](#fb-022--scale-inout--kg-input--listnet-display-as-mt-kg-option-a) | Scale-In/Out: kg input + list/net display as MT (kg) (Option A) | Medium | Resolved |
 | [FB-024](#fb-024--scale-inout--empty-vehicle-on-both--scale-out-list-indicators) | Scale-In/Out: empty vehicle on both + Scale-Out list indicators | Medium | Resolved |
 | [FB-025](#fb-025--to-execution-timeline--empty--loaded-vehicle-weight-notes) | TO Execution timeline: empty / loaded vehicle weight notes | Medium | Resolved |
+| [FB-028](#fb-028--scale-out--independent-pc-code-text-input-parity-with-scale-in) | Scale-Out: independent P.C. Code text input (parity with Scale-In) | Medium | Resolved |
 
 ---
 
@@ -125,3 +126,40 @@ Execution timeline notes said only “Scale-in recorded. P.C. code…” / “Sc
 - [x] FB-025-2 — Scale-In note: empty/loaded + P.C. code
 - [x] FB-025-3 — Scale-Out note: empty/loaded + Net
 - [x] FB-025-4 — Unit tests
+
+---
+
+## FB-028 — Scale-Out: independent P.C. Code text input (parity with Scale-In)
+
+| Field | Value |
+|-------|-------|
+| **Source** | Internal improvement — 2026-08-12 |
+| **Affected Stories** | [SC-01](../../../../05-modules/06-poi-operations/scaling-operations-sprint4.md) (Scale-Out); Gate Pass |
+| **Closing Sub-tasks** | FB-028-1 — `ScaleOut.pc_code` column + migration · FB-028-2 — Scale-Out **Add**: required **P.C. Code** CharField (same UX as Scale-In; independent of Scale-In P.C.) · FB-028-3 — Service + API persist / require `pc_code` · FB-028-4 — List / change / search + Gate Pass use Scale-Out P.C. · FB-028-5 — Unit tests |
+| **AC Amendment** | **Scaling → Scale-Out → Add** SHALL expose a required **P.C. Code** **text input** (same pattern as Scale-In: operator types a free-text code — trim, max 50). The value is **independent** of `ScaleIn.pc_code` / `QueueToken.pc_code` (no match / confirm / uniqueness vs scale-in). Persist on `ScaleOut.pc_code`. Gate Pass SHALL show Scale-Out P.C. code. Scale-Out changelist SHALL show and search by it. |
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Notes** | Not a confirm-against-scale-in field. Queue token P.C. remains the scale-in code for CC queue. Gate Pass uses Scale-Out P.C. |
+
+### Improvement observation
+
+Scale-In has a required free-text **P.C. Code** input. Scale-Out had no P.C. field — operators need to enter a (separate) P.C. code at scale-out the same way.
+
+### Current vs expected behaviour
+
+| Aspect | Current (before) | Expected (FB-028) |
+|--------|------------------|-------------------|
+| Scale-Out Add P.C. | Missing | Required **text input** (Scale-In UX parity) |
+| Relation to Scale-In P.C. | N/A | **Independent** — no match required |
+| `ScaleOut` model | No `pc_code` | `pc_code` CharField(max 50) |
+| Gate Pass P.C. | From Scale-In | From Scale-Out |
+| Scale-Out list / search | TO + vehicle only | Show + search Scale-Out P.C. |
+| Scale-Out API | session + weight | + required `pc_code` |
+
+### Closing checklist
+
+- [x] FB-028-1 — `ScaleOut.pc_code` + migration
+- [x] FB-028-2 — Scale-Out Add: required **P.C. Code** text input
+- [x] FB-028-3 — `ScaleOutService` + API require/persist `pc_code`
+- [x] FB-028-4 — List / change / search + Gate Pass use Scale-Out P.C.
+- [x] FB-028-5 — Unit tests
