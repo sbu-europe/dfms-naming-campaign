@@ -104,54 +104,31 @@ class EmailService:
 
 ```python
 # settings.py
-SMS_PROVIDER = env('SMS_PROVIDER', default='twilio')
-SMS_API_KEY = env('SMS_API_KEY')
-SMS_API_SECRET = env('SMS_API_SECRET')
-SMS_FROM_NUMBER = env('SMS_FROM_NUMBER')
+SMS_ENABLED = env.bool('SMS_ENABLED', default=False)
+SMS_PROVIDER = env('SMS_PROVIDER', default='mimsms')
+
+MIMSMS_BASE_URL = env('MIMSMS_BASE_URL', default='https://api.mimsms.com')
+MIMSMS_API_KEY = env('MIMSMS_API_KEY')
+MIMSMS_USERNAME = env('MIMSMS_USERNAME')
+MIMSMS_SENDER_NAME = env('MIMSMS_SENDER_NAME')
+MIMSMS_TRANSACTION_TYPE = env('MIMSMS_TRANSACTION_TYPE', default='T')
 ```
 
 ### SMS Service Implementation
 
-```python
-# apps/notifications/services.py
-import requests
-from django.conf import settings
+See `nourish-backend/apps/notifications/sms.py` — the canonical implementation.
 
-class SMSService:
-    """SMS notification service"""
-    
-    @staticmethod
-    def send_sms(phone_number, message):
-        """Send SMS notification"""
-        if settings.SMS_PROVIDER == 'twilio':
-            return SMSService._send_twilio_sms(phone_number, message)
-        elif settings.SMS_PROVIDER == 'aws_sns':
-            return SMSService._send_aws_sns_sms(phone_number, message)
-    
-    @staticmethod
-    def _send_twilio_sms(phone_number, message):
-        """Send SMS via Twilio"""
-        from twilio.rest import Client
-        
-        client = Client(settings.SMS_API_KEY, settings.SMS_API_SECRET)
-        
-        message = client.messages.create(
-            body=message,
-            from_=settings.SMS_FROM_NUMBER,
-            to=phone_number
-        )
-        
-        return {'status': 'sent', 'message_id': message.sid}
-    
-    @staticmethod
-    def send_trip_started_notification(trip, driver_phone):
-        """Send trip started SMS"""
-        message = (
-            f"Trip {trip.trip_number} has started. "
-            f"Origin: {trip.origin_poi.name}. "
-            f"Destination: {trip.destination_poi.name}"
-        )
-        return SMSService.send_sms(driver_phone, message)
+```python
+# apps/notifications/sms.py
+from apps.notifications.sms import send_sms, is_sms_enabled
+
+def send_login_otp_sms(phone_number: str, otp: str) -> str:
+    """Send login OTP via MiM SMS (or log when SMS_ENABLED=false)."""
+    return send_sms(
+        to_phone=phone_number,
+        body=f"Your DFMS login code is {otp}",
+        campaign_name="login-otp",
+    )
 ```
 
 ---

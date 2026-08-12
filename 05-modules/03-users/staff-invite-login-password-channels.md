@@ -146,7 +146,16 @@ Delivers via user’s email if present; otherwise SMS to phone. Justification st
 | Setting | Effect |
 |---|---|
 | `SMS_ENABLED=false` (default local) | Invitation / login OTP / password-reset SMS logged, not sent |
-| `SMS_ENABLED=true` + Twilio credentials | Real SMS via configured provider |
+| `SMS_ENABLED=true` + `MIMSMS_*` credentials | Real SMS via [MiM SMS API V2](https://www.mimsms.com/api-documentation) |
+
+| Variable | Purpose |
+|---|---|
+| `SMS_PROVIDER` | `mimsms` (default) or `aws_sns` (deprecated rollback) |
+| `MIMSMS_API_KEY` | MiM API key |
+| `MIMSMS_USERNAME` | Registered MiM account email |
+| `MIMSMS_SENDER_NAME` | Approved sender ID / masking number |
+| `MIMSMS_TRANSACTION_TYPE` | `T` for transactional (all auth/onboarding SMS) |
+| `MIMSMS_BASE_URL` | Default `https://api.mimsms.com` |
 
 ---
 
@@ -162,4 +171,4 @@ Delivers via user’s email if present; otherwise SMS to phone. Justification st
 
 ---
 
-**Last Updated**: 2026-07-28
+**Last Updated**: 2026-08-12
