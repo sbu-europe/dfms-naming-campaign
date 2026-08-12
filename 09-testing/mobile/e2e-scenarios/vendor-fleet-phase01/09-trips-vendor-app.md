@@ -1,4 +1,4 @@
-# Trips — Vendor App (Start, Status, POD)
+# Tracks — Vendor App (Start, Status, POD)
 
 **Module:** Vendor Management — Trip Start  
 **Scope:** Vendor mobile app (**Maestro**) + trip lifecycle APIs (**Playwright**)  
@@ -8,7 +8,7 @@
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
 |-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
-| TC_168 | Trip visible after dispatch | Trip in Vendor App > Trips after Ready for Dispatch. | High | Vendor App | **Pass** (Playwright + Maestro) | `run-vendor-trips.mjs` + `trips/02` | Active list includes RFD TO; Maestro search finds `TO-20260605-0011` |
+| TC_168 | Trip visible after dispatch | Trip in Vendor App > Tracks after Ready for Dispatch. | High | Vendor App | **Pass** (Playwright + Maestro) | `run-vendor-trips.mjs` + `trips/02` | Active list includes RFD TO; Maestro search finds `TO-20260605-0011` |
 | TC_169 | Start Trip status | FG → Driving Towards Source; RM → Destination. | Critical | Vendor App | **Pass** (Playwright + Maestro) | same + `trips/04` | API: `ready_for_dispatch` → `driving_towards_source` (fg_outbound) |
 | TC_170 | Start unavailable early | Start disabled before Ready for Dispatch. | High | Vendor App | **Pass** (Playwright) | `run-vendor-trips.mjs` | `advance-status` on Assigned → 409 |
 | TC_171 | No manual status change | Vendor cannot manually change TO status. | Critical | Vendor App | **Pass** (Playwright) | same | Force `COMPLETED` blocked (409) |

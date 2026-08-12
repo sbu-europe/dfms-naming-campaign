@@ -244,7 +244,7 @@ maestro --device emulator-5554 studio
 
 ## 10. Recommended execution order
 
-1. Smoke → Auth → Profile/Settings → Tenants → Bids → TOs → Trips → full suite
+1. Smoke → Auth → Profile/Settings → Tenants → Bids → TOs → Tracks → full suite
 2. Seed backend fixtures before data-dependent flows (open bids, awarded TOs, active trips)
 
 ## Related

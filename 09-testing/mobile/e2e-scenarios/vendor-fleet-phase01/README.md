@@ -53,7 +53,7 @@ OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exist
 | [06-bid-publishing-admin.md](./06-bid-publishing-admin.md) | Bid publishing (TDO) | TC_119–TC_132, TC_203–TC_209, TC_205–TC_208 | Vendor Fleet TDO |
 | [07-bids-vendor-app.md](./07-bids-vendor-app.md) | Bid visibility & submission | TC_128–TC_142, TC_192, TC_204, TC_210–TC_212 | **Vendor mobile app** (+ admin eval) |
 | [08-transport-orders-vendor-app.md](./08-transport-orders-vendor-app.md) | Awarded TO confirmation | TC_153–TC_163, TC_180–TC_182, TC_193, TC_213 | **Vendor mobile app** |
-| [09-trips-vendor-app.md](./09-trips-vendor-app.md) | Trips, start, POD | TC_168–TC_172, TC_186–TC_187, TC_200, TC_215 | **Vendor mobile app** |
+| [09-trips-vendor-app.md](./09-trips-vendor-app.md) | Tracks, start, POD | TC_168–TC_172, TC_186–TC_187, TC_200, TC_215 | **Vendor mobile app** |
 | [10-contractual-assignment-admin.md](./10-contractual-assignment-admin.md) | Contractual TO assignment | TC_173–TC_179, TC_184–TC_185 | Vendor Fleet TDO |
 | [11-post-award-dispatch-rbac.md](./11-post-award-dispatch-rbac.md) | Ready for dispatch, RBAC, edge cases | TC_164–TC_167, TC_188–TC_201, TC_211, TC_214 | Admin + vendor (mixed) |
 

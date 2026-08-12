@@ -23,7 +23,7 @@
 
 | Flow | Result |
 |------|--------|
-| `tos/05_contractual_rate_hidden.yaml` | **Passed** (contractual login; Trips Active detail; rate not visible) |
+| `tos/05_contractual_rate_hidden.yaml` | **Passed** (contractual login; Tracks Active detail; rate not visible) |
 
 ## How to run
 

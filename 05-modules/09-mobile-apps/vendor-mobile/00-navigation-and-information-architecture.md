@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-08-12
 ---
 
 # Vendor Mobile — Navigation & Information Architecture (IA)
@@ -45,7 +45,7 @@ last_updated: 2026-05-13
   | **Bids** tab → opportunities list | **Empty / hidden** for this tenant | Populated |
   | **Bids** tab → bid submission form | Not accessible | Accessible |
   | **Assigned TOs** tab | Populated (direct assignments) | Populated (won bids) |
-  | **Trips** tab | Populated | Populated |
+  | **Tracks** tab | Populated | Populated |
   | Rate / bid_amount on TO Details + Completed Trip History | **Hidden** (rate is contractual + backend-controlled) | Visible (vendor's own bid amount) |
   | **Profile** tab | Same | Same |
 
@@ -64,7 +64,7 @@ last_updated: 2026-05-13
 
 - **Bids**
 - **Assigned TOs**
-- **Trips**
+- **Tracks**
 - **Profile**
 
 ---
@@ -78,7 +78,7 @@ Vendors may be approved for multiple tenants. The UI must clearly answer: “Whi
 - A **Tenant selector** is visible on data-bearing tabs:
   - Bids
   - Assigned TOs
-  - Trips
+  - Tracks
 - Selector options:
   - **All Approved Tenants** (optional)
   - Each **Approved Tenant** (Tenant A, Tenant B, …)
@@ -139,7 +139,7 @@ Tenant cards should display one of:
   - For `assignment_type=BID_WON`: shows `winning_bid_amount`
 - **Post-award Submission** (Driver/Vehicle/Helpers per-TO) — same form for both types (VM-07)
 
-#### Trips tab — **both vendor types**
+#### Tracks tab — **both vendor types**
 
 - **Active Trips**
   - Active Trip Tracking (map + status timeline + call driver)
@@ -199,7 +199,7 @@ flowchart TD
   ADV1 --> AT[View Trip if in progress]
   ADV2 --> AT
 
-  H --> TR[Trips Tab<br/>both vendor types]
+  H --> TR[Tracks Tab<br/>both vendor types]
   TR --> AT
   TR --> CH[Completed Trip History<br/>bid_amount hidden if CONTRACTUAL]
   CH --> CTD[Completed Trip Details]
