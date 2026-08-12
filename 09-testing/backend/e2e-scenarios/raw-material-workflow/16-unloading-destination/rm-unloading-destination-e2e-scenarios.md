@@ -1,11 +1,11 @@
 ---
 module: 06-yard-operations
 specification: Raw Materials Workflow — Section 16 — Unloading (Destination) — Playwright E2E Scenario Plan
-version: 1.0
+version: 1.1
 phase: Phase 1
-related_stories: LD-01, STK-01, QC-01
+related_stories: LD-01, STK-01, QC-01, FB-013
 source_spec: ../../../../../05-modules/06-yard-operations/loading-unloading.md
-last_updated: 2026-07-21
+last_updated: 2026-08-10
 playwright_mcp: true
 ---
 
@@ -25,10 +25,11 @@ playwright_mcp: true
 | TC08 | Destination stock increases only after QC Pass + Unloading Completed | QC **Pass** fixture: note dest stock before unload; after all points complete, stock increased. | P0 | Planned |
 | TC09 | Unloading blocked without CC assignment | **Waiting for Command Center** without unloading point. Blocked. | P0 | Planned |
 | TC10 | RBAC — Driver denied Unloading | Driver blocked. | P0 | Planned |
-| TC11 | Unloading blocked for QC-Failed TO | QC **Fail**: **Start Unloading** blocked. | P0 | Planned |
+| TC11 | Unloading after QC Fail (FB-013) | QC **Fail** with bay assigned (§15 TC03). Assert **Start Unloading** is **not** blocked solely for Fail; unload warning / failed-quantity context may show. Destination **good** stock still does not increase without QC Pass (see TC08). | P0 | Planned |
 | TC12 | Audit unloading events per point | Log entries for start/continue/end + overall Unloading Completed. | P1 | Planned |
 
 ## Implementation Notes
 
 - Stock rule: destination stock **only** after **Unloading Completed** AND **QC Pass** (QC-enabled products).
-- **Original ID map:** RM_149–RM_160 → TC01–TC12.
+- **FB-013:** QC Fail does not by itself block Start Unloading once CC has assigned a point; pending QC still blocks CC assign (§15 TC04).
+- **Original ID map:** RM_149–RM_160 → TC01–TC12 (TC11 expectation updated 2026-08-10).

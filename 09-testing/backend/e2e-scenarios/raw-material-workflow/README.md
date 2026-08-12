@@ -2,14 +2,14 @@
 section: 09-testing/backend/e2e-scenarios/raw-material-workflow
 title: Raw Materials Workflow — E2E Scenario Plans
 version: 1.0
-last_updated: 2026-07-21
+last_updated: 2026-08-10
 ---
 
 # Raw Materials (RM) Workflow — E2E Scenarios
 
 End-to-end scenario plans for the **Raw Materials (Port Consignment → TR → TO → yard)** workflow. Covers **Own Fleet** and **Vendor Fleet** (Phase 1). Each section targets **Playwright MCP** against Django Admin SSR unless noted.
 
-**Workflow reference:** Source-first driver routing · QC-gated destination unloading · TP-led Own Fleet planning · stock reduces at **Loading Completed** (source) · stock increases at **Unloading Completed** only after **QC Pass**.
+**Workflow reference:** Source-first driver routing · QC-gated destination unloading (v3 **QC Queue** / **Add QC**; FB-013 Fail does not block CC assign) · TP-led Own Fleet planning · stock reduces at **Loading Completed** (source) · stock increases at **Unloading Completed** only after **QC Pass**.
 
 **How to run:** [`playwright-mcp-runbook.md`](./playwright-mcp-runbook.md) — dependency-ordered suites, `RUN_ID` / `state.json`, wipe notes.
 
@@ -34,7 +34,7 @@ End-to-end scenario plans for the **Raw Materials (Port Consignment → TR → T
 | 11 — Gate Out (Source) | Source gate-out | Gateman | [`11-gate-out-source/rm-gate-source-gate-out-e2e-scenarios.md`](./11-gate-out-source/rm-gate-source-gate-out-e2e-scenarios.md) |
 | 12 — Gate In (Destination) | Destination gate-in | Gateman | [`12-gate-in-destination/rm-gate-destination-gate-in-e2e-scenarios.md`](./12-gate-in-destination/rm-gate-destination-gate-in-e2e-scenarios.md) |
 | 13 — Scale In/Out (Destination) | Destination weighing + QC flag | Scaling Operator | [`13-scaling-destination/rm-scaling-destination-scale-in-out-e2e-scenarios.md`](./13-scaling-destination/rm-scaling-destination-scale-in-out-e2e-scenarios.md) |
-| 14 — QC Checkpoint | Sample + decision | QC Inspector | [`14-qc-checkpoint/rm-qc-inspector-checkpoint-e2e-scenarios.md`](./14-qc-checkpoint/rm-qc-inspector-checkpoint-e2e-scenarios.md) |
+| 14 — QC Checkpoint | QC Queue + Add QC (v3; Save Draft) | QC Inspector | [`14-qc-checkpoint/rm-qc-inspector-checkpoint-e2e-scenarios.md`](./14-qc-checkpoint/rm-qc-inspector-checkpoint-e2e-scenarios.md) |
 | 15 — Command Center (Destination) | Bay / unloading point assignment | Command Center Officer | [`15-command-center-destination/rm-command-center-destination-bay-assignment-e2e-scenarios.md`](./15-command-center-destination/rm-command-center-destination-bay-assignment-e2e-scenarios.md) |
 | 16 — Unloading (Destination) | Start/continue/end unloading | Unloading Personnel | [`16-unloading-destination/rm-unloading-destination-e2e-scenarios.md`](./16-unloading-destination/rm-unloading-destination-e2e-scenarios.md) |
 | 17 — Gate Out (Destination) | Gate-out + auto TO closure | Gateman | [`17-gate-out-destination/rm-gate-destination-gate-out-e2e-scenarios.md`](./17-gate-out-destination/rm-gate-destination-gate-out-e2e-scenarios.md) |

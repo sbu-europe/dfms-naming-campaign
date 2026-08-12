@@ -4,6 +4,7 @@ category: design-system
 section: components
 status: approved
 created: 2026-02-23
+updated: 2026-08-10
 ---
 
 # Data Display Components
@@ -16,38 +17,41 @@ created: 2026-02-23
 
 DFMS is a data-heavy operational system. Tables are the primary UI pattern.
 
+**Web Admin source of truth:** Django changelist tables styled in `static/admin/css/custom.css` (`#result_list` / `.results table`), with pagination from `templates/admin/dynamic_pagination_changelist.html` + `DynamicPaginationMixin` (`apps/core/admin.py`).
+
 ### Anatomy
 
 ```
-+--[Toolbar: Title | Search | Filters | Actions]----------+
-+--[Column Headers (sortable)]----------------------------+
++--[Toolbar: Search]--------------------------------------+
++--[Column Headers (sortable) + action checkbox]----------+
 +--[Row]--------------------------------------------------+
 |  [Checkbox] [Column 1] [Column 2] ... [Row Actions]     |
-+--[Row (striped)]----------------------------------------+
++--[Row]--------------------------------------------------+
 |  ...                                                     |
-+--[Pagination Footer]------------------------------------+
++--[Pagination Footer: page nav | Rows per page]----------+
 ```
 
 ### Specifications
 
-| Property | Default | Compact |
-|----------|---------|---------|
-| Header height | 44px | 36px |
-| Row height | 48px | 36px |
-| Cell padding | 12px 16px | 8px 12px |
-| Header font | 12px / semibold / grey-700 / uppercase | same |
-| Cell font | 14px / 400 / grey-900 | same |
-| Header background | `grey-50` | same |
-| Row stripe (even) | `grey-50` | same |
-| Row hover | `primary-muted` (subtle) | same |
-| Row selected | `primary-muted` with left border `primary` | same |
-| Border | 1px `grey-200` | same |
+| Property | Value (admin changelist) |
+|----------|--------------------------|
+| Header height | 40px |
+| Row height | 44px |
+| Cell padding | `0 16px` |
+| Header font | 12px / 600 / `grey-600` / sentence case (not uppercase) |
+| Cell font | 13px / 400 / `grey-800` |
+| Header background | `grey-50` |
+| Table border | 1px `grey-200`, radius `radius-md` |
+| Row hover | `grey-50` |
+| Row selected | `primary-light` |
+| Checkbox column | 44px wide |
+| Object title link | `primary` / 500; underline on hover |
 
 ### Column Types
 
 | Type | Alignment | Format |
 |------|-----------|--------|
-| Text | Left | Plain, truncate with tooltip at 200px |
+| Text | Left | Plain; IDs/codes use mono (`JetBrains Mono`) |
 | Number / Quantity | Right | Tabular numerals, thousands separator |
 | Currency | Right | `BDT 1,24,000` format (Bangladesh locale) |
 | Date | Center | `DD MMM YYYY` (e.g. `23 Feb 2026`) |
@@ -58,20 +62,42 @@ DFMS is a data-heavy operational system. Tables are the primary UI pattern.
 
 ### Toolbar
 
-- **Left**: Table title (if standalone) or count (`142 Transport Orders`)
-- **Right** (left to right): Search → Filters → Column toggle → Export → Primary action
+- Admin changelist: search lives in `#toolbar` above the results table (border shared with table)
+- Filters: right sidebar `#changelist-filter`
+- Bulk actions: Django action bar when rows are selected
 
 ### Sorting
 
-- Sortable columns: arrow icons appear on hover; active column shows solid arrow
+- Sortable headers: chevron on active column (`bi-chevron-up` / `bi-chevron-down`); unsorted hover shows `bi-arrow-down-up`
+- Multi-sort priority badge: primary pill with sort order number
 - Default sort shown on initial load (usually date descending)
 
-### Pagination
+### Pagination (admin — DynamicPagination)
 
-- Default page size: 25 rows
-- Page size selector: 10, 25, 50, 100
-- Controls: `<< First  < Prev  Page X of Y  Next >  Last >>`
-- Show total record count: `Showing 26-50 of 142 results`
+Canonical UI from `templates/admin/dynamic_pagination_changelist.html`:
+
+```
++--[.dfms-pagination-parent]------------------------------------------+
+|  [.dfms-pagination-numbers]              [.dfms-pagination-controls] |
+|  [‹ Prev] [1] [2] [3] … [N] [Next ›]     Rows per page: [ 25 ▾ ]   |
++---------------------------------------------------------------------+
+```
+
+| Rule | Value |
+|------|--------|
+| Default page size | 25 |
+| Allowed sizes | 15, 25, 50, 100, 200 |
+| Label | `Rows per page:` |
+| Layout | Page links left; per-page `<select>` right |
+| Navigation | AJAX `fetch` replaces `#changelist` innerHTML; `history.pushState`; fallback full navigation on failure |
+| Session | Preference stored per model (`per_page_<app.Model>`) |
+| Query params | `?per_page=` and `?p=`; changing per-page resets `p` |
+| Show all | Hidden (Django “Show all” must not appear) |
+| Event | Dispatch `dfms:changelist-replaced` after successful swap; re-bind action-toggle / `dfmsInitAdminActions` |
+
+**Mixin:** any ModelAdmin using `DynamicPaginationMixin` (via `TenantOnlyAdminMixin` / `PlatformOnlyAdminMixin` / `AdminPaginationMixin`) sets `change_list_template = "admin/dynamic_pagination_changelist.html"`. Custom changelists should `{% extends "admin/dynamic_pagination_changelist.html" %}`, not bare `admin/change_list.html`.
+
+**Select styles:** `.per-page-selector__select` — height 34px, radius 8px, border `grey-300`, focus ring primary.
 
 ### Empty State
 

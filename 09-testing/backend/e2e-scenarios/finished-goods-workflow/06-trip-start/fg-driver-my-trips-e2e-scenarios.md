@@ -5,11 +5,25 @@ version: 1.0
 phase: Phase 1
 related_stories: DM-01, TLS-01, FB-004
 source_spec: ../../../../../05-modules/08-fleet-management/driver-execution.md
-last_updated: 2026-07-20
+last_updated: 2026-08-11
+last_mcp_run: 2026-08-11
+last_mcp_verdict: 4/5 Pass · 1 Fail · 1 Planned
+artifacts: tests/e2e/playwright-mcp/06-driver-trip-artifacts/
 playwright_mcp: true
 ---
 
 # Finished Goods Workflow — Section 6 — Driver — Trip Start — E2E Scenario Plan (Django Admin SSR)
+
+**Last MCP run:** 2026-08-11 · **4/5 Pass · 1 Fail · 1 Planned** · `RUN_ID=BE16C49E`  
+**Artifacts:** [`../../../../../../tests/e2e/playwright-mcp/06-driver-trip-artifacts/RESULTS.md`](../../../../../../tests/e2e/playwright-mcp/06-driver-trip-artifacts/RESULTS.md)  
+**Accounts:** `mcp.drv.be16c49e@example.com` (manifest driver).
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-08-11 | **4/5** | MCP driver trip start PASS. TC05 FAIL: driver2.nourish login failed. TC02 Planned. |
+
 
 **Navigation:** Driver portal → **My Trips** (`/admin/transport/drivertransportorder/`)
 
@@ -19,12 +33,12 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Driver sees TO after dispatch | TO **Ready for Dispatch** assigned to `driver1@yopmail.com`. Log in as **Driver** (`driver1@yopmail.com` / `Nourish@1234!`). Open **My Trips**. Assert `to_number` listed with status **Ready for Dispatch**. | P0 | Planned |
+| TC01 | Driver sees TO after dispatch | TO **Ready for Dispatch** assigned to `driver1@yopmail.com`. Log in as **Driver** (`driver1@yopmail.com` / `Nourish@1234!`). Open **My Trips**. Assert `to_number` listed with status **Ready for Dispatch**. | P0 | Pass |
 | TC02 | Trip start unavailable before dispatch | TO **Assigned** (not dispatched) for same driver. **My Trips** tab **Awaiting Dispatch** may list it; assert **Start trip** / driver transition action absent or `is_dispatch_gated` blocks transition. | P0 | Planned |
-| TC03 | Driver starts trip after dispatch | On **Ready for Dispatch** TO, open change view → record allowed driver transition (**Trip start** / driving leg). Assert success; status **Driving Towards Source** (FG outbound) or lane-appropriate driving status. | P0 | Planned |
-| TC04 | TO status Driving Towards Source visible to planner | After TC03, as **Transport Planner** or **Driver Supervisor**, open TO changelist/detail. Assert status **Driving Towards Source**. | P0 | Planned |
-| TC05 | RBAC — driver sees only own trips | Log in as `driver2@yopmail.com`. Assert TO assigned to `driver1` not in **My Trips** queryset. | P0 | Planned |
-| TC06 | Audit trail for trip start | After TC03, Tenant Admin TO **History** shows driver transition log entry with driver user and timestamp. *Rewrite FG_DR_006 — admin History, not tenant Audit Logs.* | P1 | Planned |
+| TC03 | Driver starts trip after dispatch | On **Ready for Dispatch** TO, open change view → record allowed driver transition (**Trip start** / driving leg). Assert success; status **Driving Towards Source** (FG outbound) or lane-appropriate driving status. | P0 | Pass |
+| TC04 | TO status Driving Towards Source visible to planner | After TC03, as **Transport Planner** or **Driver Supervisor**, open TO changelist/detail. Assert status **Driving Towards Source**. | P0 | Pass |
+| TC05 | RBAC — driver sees only own trips | Log in as `driver2@yopmail.com`. Assert TO assigned to `driver1` not in **My Trips** queryset. | P0 | Fail |
+| TC06 | Audit trail for trip start | After TC03, Tenant Admin TO **History** shows driver transition log entry with driver user and timestamp. *Rewrite FG_DR_006 — admin History, not tenant Audit Logs.* | P1 | Pass |
 
 ## Implementation Notes
 

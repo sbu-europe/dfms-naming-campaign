@@ -14,7 +14,7 @@ parent: ./README.md
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [FB-014](#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips details: Cargo table shall show Allocated Weight with Allocated Quantity | Medium | Open |
+| [FB-014](#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity) | My Trips details: Cargo table shall show Allocated Weight with Allocated Quantity | Medium | Resolved |
 
 ---
 
@@ -26,7 +26,7 @@ parent: ./README.md
 | **Affected Stories** | [DM-01](../../sprint-4/03-driver-mobile-interface/DM-01-driver-mobile-interface-to-list-milestones-pod.md) (Driver Mobile / My Trips detail); driver TO detail / cargo display |
 | **Closing Sub-tasks** | FB-014-1 — On **My Trips** details **Cargo** table, display **Allocated Weight** alongside **Allocated Quantity** (count of items) · FB-014-2 — Weight unit labelled consistently (KG) with other weight columns in the product |
 | **AC Amendment** | On the Driver **My Trips** details list / detail **Cargo** table, the system SHALL display **Allocated Weight** as well as **Allocated Quantity** (count of items). |
-| **Status** | Open |
+| **Status** | Resolved |
 | **Priority** | Medium |
 | **Notes** | Applies to Driver Mobile Interface and the admin **My Trips** detail cargo presentation used by drivers. |
 
@@ -43,5 +43,5 @@ Driver Mobile Interface — **My Trips** details: **Cargo** table should display
 
 ### Closing checklist
 
-- [ ] FB-014-1 — Cargo table shows Allocated Weight with Allocated Quantity
-- [ ] FB-014-2 — Weight unit labelled (KG) consistently
+- [x] FB-014-1 — Cargo table shows Allocated Weight with Allocated Quantity
+- [x] FB-014-2 — Weight unit labelled (KG) consistently

@@ -5,11 +5,25 @@ version: 1.0
 phase: Phase 1
 related_stories: FB-004, FB-011, DM-01
 source_spec: ../../../../../05-modules/08-fleet-management/driver-supervisor-dispatch.md
-last_updated: 2026-07-20
+last_updated: 2026-08-11
+last_mcp_run: 2026-08-11
+last_mcp_verdict: 4/4 Pass · 6 Planned
+artifacts: tests/e2e/playwright-mcp/05-dispatch-artifacts/
 playwright_mcp: true
 ---
 
 # Finished Goods Workflow — Section 5 — Driver Supervisor — Dispatch — E2E Scenario Plan (Django Admin SSR)
+
+**Last MCP run:** 2026-08-11 · **4/4 Pass · 6 Planned** · `RUN_ID=BE16C49E`  
+**Artifacts:** [`../../../../../../tests/e2e/playwright-mcp/05-dispatch-artifacts/RESULTS.md`](../../../../../../tests/e2e/playwright-mcp/05-dispatch-artifacts/RESULTS.md)  
+**Accounts:** `driver.supervisor1.nourish@yopmail.com`.
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-08-11 | **4/4** | Happy-path dispatch + TP 403 + History. Conflict/Created-TO cases Planned. |
+
 
 **Navigation:** Fleet → **Dispatch queue** (`/admin/fleet_supervisor/vehicleinspection/dispatch-queue/`)
 
@@ -21,14 +35,14 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Supervisor sees Assigned TOs in dispatch queue | As **Driver Supervisor** (`driver.supervisor1@yopmail.com`), open **Fleet → Dispatch queue**. Assert TO from Section 4 (status **Assigned**, vehicle + driver set) appears with `to_number`, vehicle, driver metadata. | P0 | Planned |
+| TC01 | Supervisor sees Assigned TOs in dispatch queue | As **Driver Supervisor** (`driver.supervisor1@yopmail.com`), open **Fleet → Dispatch queue**. Assert TO from Section 4 (status **Assigned**, vehicle + driver set) appears with `to_number`, vehicle, driver metadata. | P0 | Pass |
 | TC07 | Queue shows driver/vehicle dispatch eligibility | On dispatch queue rows, assert `data-dispatch-eligible` / block reason text distinguishes **Available** vs **Active on another TO** (FB-011 meta column). | P1 | Planned |
 
 ## Dispatch happy path & guards
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC02 | Dispatch TO when driver and vehicle are free | TO **Assigned**; driver/vehicle not serving another in-progress TO. Select TO → **Ready for dispatch** (bulk action or per-row confirm). Assert status **Ready for Dispatch** (`ready_for_dispatch`). | P0 | Planned |
+| TC02 | Dispatch TO when driver and vehicle are free | TO **Assigned**; driver/vehicle not serving another in-progress TO. Select TO → **Ready for dispatch** (bulk action or per-row confirm). Assert status **Ready for Dispatch** (`ready_for_dispatch`). | P0 | Pass |
 | TC03 | Block dispatch when driver active on another TO | Driver on TO-1 in yard/in-progress; TO-2 **Assigned** same driver. Attempt dispatch TO-2. Expected: blocked with message driver engaged on active TO. | P0 | Planned |
 | TC04 | Block dispatch when vehicle active on another TO | Same as TC03 for vehicle resource. | P0 | Planned |
 | TC05 | Dispatch allowed after prior TO closed | Complete TO-1 lifecycle to **Closed** (Sections 6–18). Retry dispatch TO-2 sharing resources — succeeds → **Ready for Dispatch**. | P1 | Planned |
@@ -38,8 +52,8 @@ Target runner: **Playwright MCP** against seeded Nourish tenant (`docs/guides/pl
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC08 | RBAC — only Driver Supervisor dispatches | As **Transport Planner**, open dispatch queue URL or TO **Ready for dispatch** control. Expected: permission denied / control hidden (`action_ready_for_dispatch` removed for planner). | P0 | Planned |
-| TC09 | Audit captures successful dispatch | After TC02, Tenant Admin TO **History** shows dispatch transition / log message. *Rewrite FG_DS_009 — admin History not tenant Audit Logs.* | P1 | Planned |
+| TC08 | RBAC — only Driver Supervisor dispatches | As **Transport Planner**, open dispatch queue URL or TO **Ready for dispatch** control. Expected: permission denied / control hidden (`action_ready_for_dispatch` removed for planner). | P0 | Pass |
+| TC09 | Audit captures successful dispatch | After TC02, Tenant Admin TO **History** shows dispatch transition / log message. *Rewrite FG_DS_009 — admin History not tenant Audit Logs.* | P1 | Pass |
 | TC10 | Blocked dispatch attempt observable | After TC03 failure, assert error message on screen; optional History note. *Rewrite FG_DS_010: blocked attempts may not write AuditLog — assert UI error only unless log confirmed.* | P2 | Planned |
 
 ## Implementation Notes

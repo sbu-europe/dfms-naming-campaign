@@ -2,10 +2,10 @@
 section: 09-testing/backend/e2e-scenarios/finished-goods-workflow
 title: Finished Goods Workflow — Playwright MCP Runbook
 version: 1.2
-last_updated: 2026-07-30
-last_mcp_run: 2026-07-30
-last_mcp_verdict: "Happy path NOT clean — blocked §16 UOM Tons vs Bag; Closed only after DB UOM fix (RUN_ID B9C11F92)"
-artifacts: tests/e2e/playwright-mcp/fg-happy-path-artifacts/
+last_updated: 2026-08-11
+last_mcp_run: 2026-08-11
+last_mcp_verdict: "Happy path Closed (RUN_ID BE16C49E / TO-20260811-0006). Full TC matrix not 158/158 — see section RESULTS."
+artifacts: tests/e2e/playwright-mcp/01-pr-artifacts/
 playwright_mcp: true
 ---
 
@@ -13,12 +13,13 @@ playwright_mcp: true
 
 How to execute the FG scenario plans (Sections 1–18) with **Playwright MCP** against Django Admin SSR on the seeded Nourish tenant.
 
-> **2026-07-30 — Happy path regression:** Full chain on `RUN_ID=B9C11F92` reached dest unload, then **failed** with `bag/unit count required for stock conversion` because PR/TR line UOM was **Tons** while product master is **Bag**. After correcting line UOM in DB, §§16–18 completed → TO **Closed**. See [`fg-happy-path-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/fg-happy-path-artifacts/RESULTS.md).
+> **2026-08-11 — Happy path Closed** on `RUN_ID=BE16C49E` / `TO-20260811-0006` with Bag UOM (no Tons workaround). Per-section RESULTS under `01-pr-artifacts` … `13-18-dest-yard-artifacts`. Multi-point / dispatch-conflict TCs left Planned. `stock-capacity-uom` not run this session.
 
 ### MCP run history
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
+| 2026-08-11 | **Closed** (`BE16C49E` / `TO-20260811-0006`) | Clean happy path (Bag UOM). §1 15/15 · §2 14/15 (TC03 past date) · §3 11/11 · §4 27/27 (+4 Planned) · yard happy path + RBAC 403. Details: `fg-chain-state.json`. |
 | 2026-07-30 | **Blocked §16** (Closed only with UOM workaround) | Happy path `B9C11F92` / `TO-20260730-0001`. Clean pass: **no**. Artifacts: `tests/e2e/playwright-mcp/fg-happy-path-artifacts/RESULTS.md`. |
 | 2026-07-20 | **18/18** (prior) | Prior full chain `6A8DCB50` → Closed (see suite RESULTS under `01-pr-artifacts` … `13-18-dest-yard-artifacts`). |
 

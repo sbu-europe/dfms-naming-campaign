@@ -1,559 +1,413 @@
 ---
 module: 06-poi-operations
-specification: QC Operations — Partial Fail + Unload Warning (Sprint 6 — FB-013)
-version: 2.0
+specification: QC Operations — Unified Admin UX (v3)
+version: 3.1
 phase: Phase 1
-sprint: Sprint 6 (FB-013)
-last_updated: 2026-07-07
-changelog: "v2.0 — FB-013: QC Fail no longer blocks unloading; expected failed-bag capture on Fail; non-blocking unload warning; mid-unload failed-bag edit. Amends baseline qc-operations-sprint4.md §0, §2.3, §3.2, §4.2, CC-01 eligibility, LD-01 warning surfaces. Phase 3 (scale-out / gate-out / stock) PO-gated."
-related_stories: QC-01 (amendment), CC-01 (amendment), LD-01 (amendment); downstream STK-01 / FB-012 (Phase 3)
-feedback_items: FB-013
-supersedes: qc-operations-sprint4.md §0 (Fail blocks unloading), §3.2 On Fail side effects, §4.2 Fail success message, §7 Decision recording downstream block, §9 CC-01 unlock row
+sprint: Sprint 8 (QC admin rework)
+status: implemented
+last_updated: 2026-08-10
+changelog: >
+  v3.1 — Document synced to implementation: per-sample sample_side (top/middle/bottom),
+  optional JPG/JPEG/PNG photo (max 10 MB), read-only QC Queue TO detail (TO + samples),
+  Add QC formset UX (remove row, horizontal scroll), multipart uploads, API sample_side/photo.
+  v3.0 — TO-centric QC Queue, unified Add QC form (multi-sample, moisture%, per-sample pass/fail,
+  auto-pass), resample after Pass (pre-unload + during unload), reinspect after Fail.
+  Builds on FB-013 (qc-operations-v2 §1–§13).
+supersedes_partial: qc-operations-v2 FB-013 admin/API sections (§6); replaces fragmented Samples + Decisions nav
 baseline_spec: qc-operations-sprint4.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
-jira_epic: DFS-072
+related_stories: QC-01 (v3 amendments)
 ---
 
-# QC Operations — Partial Fail & Unload Warning (FB-013)
+# QC Operations — Unified Admin UX (v3)
 
 ## Overview
 
-This document is the **Sprint 6 implementation plan v2** for [FB-013](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-013--qc-fail-does-not-block-unloading-capture-expected-failed-bags-and-warn-during-unload). It amends the baseline [QC Operations (Sprint 4)](./qc-operations-sprint4.md) specification and coordinates changes in [Command Center](./command-center-loading-sprint4.md) and LD-01 unload surfaces.
+This document is the **v3 implementation record** for RM inbound QC Checkpoint admin. It consolidates the fragmented Sprint 4 UX (separate **QC Queue** sample list, **New Sample**, and **Decisions** menus) into a single **TO-centric QC Queue** with an **Add QC** form.
 
-**Problem (client feedback — 2026-07-07):** When QC records **Fail**, the system today **fully blocks** Command Center unloading-point assignment and LD-01 unload. Operations need to **unload anyway** while knowing **how many bags are expected to fail**, surfaced as a **warning** to unloading personnel. The failed-bag count must be capturable at QC Fail time and **editable during unloading**.
+**Problem:** Inspectors work transport-order-first. Previously they navigated three admin screens and recorded samples and decisions in separate steps.
 
-**Solution (FB-013 scope):**
+**Solution (v3 — implemented):**
 
-1. On QC **Fail**, require **expected failed bag count** for the TO (`0 < failed_bags ≤ total expected bags`).
-2. **Unblock** CC bay assignment and LD unload when Fail is recorded (pending QC — `qc_passed is null` — still blocks).
-3. Show a **non-blocking warning** on unload admin/API with failed vs total expected bags.
-4. Allow **update failed bags** during active unloading (Phase 2).
+1. **QC Queue** — list TOs in the QC lifecycle and post-QC yard steps at destination.
+2. **TO detail (change)** — read-only: TO details + sample rows (not the TransportOrder edit form).
+3. **Add QC** — one form: select TO → TO details panel → multiple samples (analysis, remarks, moisture%, side, optional photo, pass/fail) → submit (rollup).
+4. **Auto-pass** — pass a TO without physical sampling (audit sample recorded).
+5. **Reinspect** — after Fail (no active bay assignment).
+6. **Resample** — after Pass, **before or during** CC bay assignment / unloading.
 
 **Primary module path:** `apps/quality/checkpoint/`  
-**Coordinated touch paths:** `apps/transport/models.py`, `apps/operations/command_center/`, `apps/operations/loading/`, `apps/core/dashboard_service.py`  
-**Phase 3 (PO confirm):** `apps/operations/scaling/services.py`, `apps/operations/gate/clearance.py`, `apps/transport/closure/`, `apps/operations/stock/services.py` (coordinate with [FB-012](./stock-operations-sprint5.md))
+**Coordinated touch paths:** `apps/transport/models.py`, `apps/operations/command_center/`, `apps/core/portal_navigation.py`  
+**FB-013 retained:** `qc_failed_quantity`, CC eligibility after Fail, LD unload warning — unchanged.
 
 ### Scope boundary
 
-| In scope (FB-013) | Out of scope / deferred |
-|-------------------|-------------------------|
-| `qc_failed_bags` capture on QC Fail (TO-level, Phase 1) | Per-`TOLineItem` failed bags (optional Phase 2+ — see §1.2) |
-| CC eligibility: `null` blocks, `False` allows assign | Changing QC to FG inbound or non-RM lanes |
-| LD warning banner + API handoff payload | New mobile unload app (admin + REST only, same as LD-01) |
-| `update_failed_bags` during unload (Phase 2) | Auto-split failed bags across multi-LUP visits ([FB-001](./command-center-multi-lup-assignment-fb001.md)) |
-| Amend reinspect / resample / override to clear or require `qc_failed_bags` | Legacy `apps/quality/models.py` (`QCEvent` / `GateEntry`) |
-| Unit + integration tests; E2E-01-3 fail branch amend | Phase 3 scale-out / gate-out / stock until PO signs §13 |
+| In scope (v3) | Out of scope / deferred |
+|---------------|-------------------------|
+| TO-centric QC Queue admin (proxy model) | Legacy `apps/quality/models.py` (`QCEvent`) |
+| Unified Add QC form + sample formset | Mobile QC app |
+| `moisture_pct`, `sample_side`, `photo` on samples | Lab test workflow / QR labels |
+| Per-sample pass/fail with worst-sample TO rollup | Per-line failed quantity |
+| Auto-pass with audit sample | Nutritional analysis fields |
+| Resample pre-unload + during unload | Phase 3 scale-out / stock (PO-gated) |
+| Reinspect after Fail (existing guard) | Hide Samples/Decisions from nav only |
+| Read-only QC Queue TO detail (TO + samples) | Editing TO fields from QC Queue |
 
-### Locked product decisions (2026-07-07)
+### Locked product decisions (2026-08-10)
 
 | Topic | Decision |
 |-------|----------|
-| Lane | **RM inbound only**, when `to_requires_qc_from_lines(to)` is True (unchanged) |
-| Fail → unload | **Fail does not block** CC assign or LD start/complete |
-| Pending QC | `qc_passed is null` **still blocks** CC until Pass or Fail is recorded |
-| Failed bag granularity (Phase 1) | **One integer per TO** — `TransportOrder.qc_failed_bags` |
-| Failed bag on Fail | **Required** when decision = Fail; must be `> 0` and `≤ to_total_bags(to)` |
-| Pass decision | Clears `qc_failed_bags` (set `0` or `null`) |
-| Unload warning | **Informational only** — never raises `ValidationError` on start/complete |
-| Reinspect after Fail | Still **pre-unload only** (no active `BayAssignment`); clears `qc_failed_bags` |
-| Resample / override during unload | Unchanged cancellation semantics; override-to-fail **requires** `failed_bags` (FB-013) |
-| Scale-out / gate-out on Fail | **TBD — Phase 3** (see §13) |
+| Lane | **RM inbound only**, when `to_requires_qc_from_lines(to)` is True |
+| Queue list | TOs in active QC sub-states **and** post-QC at yard (`qc_passed`, `qc_failed`, `waiting_cc`) |
+| Add QC TO picker | TOs in `{flagged_for_qc, sampling_started, resampling}` with no active decision |
+| Multi-sample | Min 1 sample per submit; physical analysis required per sample |
+| Moisture % | Optional, 0–100, stored on `QCCheckpointSample.moisture_pct` |
+| Sample side | **Required** on manual Add QC / qc-session: `top` \| `middle` \| `bottom` |
+| Photo | Optional JPG/JPEG/PNG, max 10 MB; stored on `QCCheckpointSample.photo` |
+| Per-sample decision | Required pass/fail per sample row in form |
+| TO rollup | **Worst sample wins** — any Fail → TO Fail; all Pass → TO Pass |
+| Fail quantity | Required when any sample is Fail (first failing sample's `failed_quantity`) |
+| Auto-pass | Creates audit sample + Pass decision; no moisture/side/photo required |
+| Resample | Active Pass decision; allowed **with or without** active bay assignment |
+| Resample pre-unload | Supersedes Pass, clears `qc_passed`, CC blocked until new decision |
+| Resample during unload | Also cancels bay assignment + in-progress unload |
+| Reinspect | Active Fail, **no** active bay (unchanged QC-01-16) |
+| QC Queue change | Read-only TO + samples detail (not TransportOrder field editor) |
+| FB-013 | Fail does not block CC assign; pending QC (`qc_passed is null`) still blocks |
 
 ---
 
-## 0. Yard chain — what changes vs what stays
-
-**Baseline (Sprint 4 / QC-01-16):**
-
-```
-Fail → unloading blocked → reinspect OR wait for Pass
-```
-
-**FB-013 (Phase 1):**
+## 0. Yard chain
 
 ```
 Scale-In → QueueEntry                              [unchanged]
-  └─► QC sample + decision                         [amended Fail path]
-        ├─► PASS: qc_passed=True, qc_failed_bags cleared
-        │     └─► CC assign unload → LD-01 → (scale-out TBD Phase 3)
+  └─► flagged_for_qc
+        ├─► Add QC (samples + rollup decision)
+        │     ├─► PASS → qc_passed
+        │     └─► FAIL → qc_failed + qc_failed_quantity
         │
-        ├─► FAIL: qc_passed=False, qc_failed_bags required
-        │     ├─► CC **may** assign unload point(s)     [NEW — was blocked]
-        │     ├─► LD start/complete with **warning**    [NEW]
-        │     └─► Reinspect still available if no BayAssignment yet
+        ├─► Auto-pass → PASS (audit sample)
         │
-        └─► PENDING (null): CC blocked until decision   [unchanged]
-
-During unloading (after Pass):
-  └─► Resample / override-to-fail                    [unchanged + override requires failed_bags]
+        ├─► Fail → Reinspect (no bay) → resampling → Add QC
+        │
+        └─► Pass → Resample (pre-unload OR during unload) → resampling → Add QC
+              └─► CC assign → LD-01 (FB-013 warning on fail)
 ```
 
 ---
 
-## 1. Data model amendments
+## 1. Data model
 
-### 1.1 TransportOrder — `qc_failed_bags`
+### 1.1 QCCheckpointSample — amendments
 
-Add denormalized field on `TransportOrder` (canonical for CC queue, LD warning, and Phase 3 stock):
-
-```python
-# apps/transport/models.py
-class TransportOrder(...):
-    requires_qc = models.BooleanField(default=False)      # existing
-    qc_passed = models.BooleanField(null=True, blank=True)  # existing tri-state
-    qc_failed_bags = models.PositiveIntegerField(null=True, blank=True)  # NEW — FB-013
-```
-
-| Value | Meaning |
-|-------|---------|
-| `null` | No fail recorded, or cleared by reinspect / resample / Pass |
-| `> 0` | Active Fail (or override-to-fail) — expected rejected bag count |
-
-**Optional audit (Phase 2):** `qc_failed_bags_updated_at`, `qc_failed_bags_updated_by` — only if mid-unload edits need explicit audit beyond `TOStatusTransitionLog` / timeline notes.
-
-### 1.2 QCCheckpointDecision — snapshot (optional)
-
-Phase 1 may keep failed bags **only** on `TransportOrder`. Optionally add `failed_bags` on `QCCheckpointDecision` as an immutable snapshot at decision time for audit:
+**File:** `apps/quality/checkpoint/models.py`  
+**Migrations:** `quality.0004_qc_v3_sample_fields_and_queue_proxy`, `quality.0005_qccheckpointsample_side_and_photo`
 
 ```python
-# apps/quality/checkpoint/models.py — optional Phase 1b
-class QCCheckpointDecision(...):
-    failed_bags = models.PositiveIntegerField(null=True, blank=True)  # set when decision='fail'
+class QCCheckpointSample(TenantAwareModel):
+    # existing: transport_order, sample_id, physical_analysis, remarks, sampled_at, created_by
+    moisture_pct = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    sample_decision = models.CharField(
+        max_length=5,
+        choices=SampleDecision.choices,  # pass | fail
+        blank=True,
+        default="",
+    )
+    sample_side = models.CharField(
+        max_length=10,
+        choices=SampleSide.choices,  # top | middle | bottom
+        blank=True,
+        default="",
+    )
+    photo = models.FileField(
+        upload_to="qc_checkpoint_samples/%Y/%m/",
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+    )
 ```
 
-If omitted, decision audit relies on TO field + TLS-01 payload.
+| Field | Validation / usage |
+|-------|--------------------|
+| `moisture_pct` | Optional; if set, 0 ≤ value ≤ 100 |
+| `sample_decision` | Set on Add QC / qc-session submit; per-sample audit verdict |
+| `sample_side` | Required for manual batch QC (`create_qc_with_samples`); blank OK for auto-pass audit sample |
+| `photo` | Optional; JPG/JPEG/PNG only; max 10 MB (`validate_qc_sample_photo`) |
 
-### 1.3 Per-line failed bags (deferred)
-
-If PO later requires per-product-line partial reject (aligns with [FB-005 per-line unload capture](./command-center-loading-sprint4.md#12-sprint-6-fb-005--per-line-loadunload-quantity-capture-ld-01-9)):
+### 1.2 QCQueueTransportOrder — proxy
 
 ```python
-class QCCheckpointDecisionLineItem(TenantAwareModel):
-    qc_decision = FK(QCCheckpointDecision)
-    to_line_item = FK(TOLineItem)
-    failed_bags = PositiveIntegerField()
+class QCQueueTransportOrder(TransportOrder):
+    class Meta:
+        proxy = True
+        verbose_name = "QC Queue"
+        verbose_name_plural = "QC Queue"
 ```
 
-**Phase 1 ships TO-level only.**
+Admin drives changelist, read-only TO detail (`change_view`), and Add QC custom view. Standard TransportOrder field editing is **not** exposed.
 
-### 1.4 Models unchanged
+### 1.3 Unchanged
 
-- `QCCheckpointSample` — no failed-bag field
-- `QueueEntry.qc_passed` — still synced from QC service; semantics amended (see §3.2)
-- `UnloadEvent` — no new persisted field; warning derived from TO at render time
-- `UnloadEvent.qc_sample_taken` — remains LD capture flag; **not** the FB-013 failed-bag source
-
-### 1.5 Bag total helper
-
-Reuse `to_total_bags(transport_order)` from `apps/transport/vehicle_capacity.py` — sums `TOLineItem.allocated_quantity` where UOM is bag-based.
-
-**Validation gate:** If `to_total_bags(to)` is `None` (weight-only TO), Fail with bag count is **rejected** with a clear message — unless PO approves `failed_weight_mt` in a later phase (§13 OQ-4).
+- `QCCheckpointDecision` — one `is_active=True` per TO; created on rollup submit
+- `TransportOrder.qc_failed_quantity` — FB-013 UOM-aware fail quantity
+- `QueueEntry.qc_passed` — tri-state sync from service layer
 
 ---
 
-## 2. Validation — `validate_failed_bags`
+## 2. Eligibility querysets
 
-New shared validator in `apps/quality/checkpoint/validation.py` (or `apps/transport/vehicle_capacity.py`):
+**File:** `apps/quality/checkpoint/eligibility.py`
 
-```python
-def validate_failed_bags(transport_order, failed_bags: int) -> None:
-    """
-  Raises ValidationError when:
-  - failed_bags < 1
-  - to_total_bags(to) is None (no bag-based lines)
-  - failed_bags > to_total_bags(to)
-    """
-```
+### 2.1 Display queue (`qc_queue_display_queryset`)
 
-Called from:
+RM inbound, `at_destination`, `requires_qc=True`, `sub_state` in:
 
-- `QCService.record_decision` (Fail)
-- `QCService.override_to_failed`
-- `QCService.update_failed_bags` (Phase 2)
+- `flagged_for_qc`, `sampling_started`, `resampling` — active QC
+- `qc_passed`, `qc_failed` — decided
+- `waiting_cc` — post-pass waiting for bay
+
+### 2.2 Add QC / Auto-pass (`qc_eligible_transport_orders_queryset`)
+
+Active states: `flagged_for_qc`, `sampling_started`, `resampling` + no active decision.  
+`transport_order_add_qc_eligible` / `transport_order_auto_pass_eligible` share that rule.
+
+### 2.3 Resample eligible (`transport_order_resample_eligible`)
+
+- Active Pass decision (`is_active=True`, `decision=pass`)
+- `sub_state == qc_passed` (or `qc_passed is True`)
+- Bay assignment **optional** (v3: pre-unload and during unload)  
+- `resample_context_for_transport_order` → `pre_unload` \| `during_unload`
+
+### 2.4 Reinspect eligible (`transport_order_reinspect_eligible`)
+
+Unchanged: active Fail, `qc_failed`, no active bay.
 
 ---
 
-## 3. Service layer amendments
+## 3. Service layer
 
-### 3.1 `QCService.record_decision` — Fail path (amended)
+**File:** `apps/quality/checkpoint/services.py`  
+**Validation helpers:** `apps/quality/checkpoint/validation.py` (`validate_qc_sample_side`, `validate_qc_sample_photo`)
 
-**File:** `apps/quality/checkpoint/services.py`
+### 3.1 `QCSampleInput`
 
 ```python
-def record_decision(
-    qc_sample: QCCheckpointSample,
-    *,
-    decision: str,
-    decided_by: User,
-    remarks: str | None = None,
-    failed_bags: int | None = None,  # NEW — required when decision='fail'
+@dataclass
+class QCSampleInput:
+    physical_analysis: str
+    remarks: str = ""
+    moisture_pct: Decimal | None = None
+    sample_side: str = ""
+    decision: str = ""
+    failed_quantity: Decimal | None = None
+    photo: object | None = None  # uploaded file; must be typed for dataclass __init__
+```
+
+### 3.2 `create_sample` — extended
+
+Accepts `moisture_pct`, `sample_decision`, `sample_side`, `photo` (optional). Photo validated before save when present.
+
+### 3.3 `create_qc_with_samples`
+
+```python
+def create_qc_with_samples(
+    cls, *, transport_order, samples: list[QCSampleInput], actor
 ) -> QCCheckpointDecision:
-```
-
-| Decision | `qc_passed` | `qc_failed_bags` | `QueueEntry` sync | CC assign |
-|----------|-------------|------------------|-------------------|-----------|
-| Pass | `True` | `null` or `0` | `qc_passed=True`, `status=waiting` | Allowed |
-| Fail | `False` | **required** `> 0` | `qc_passed=False`, `status=waiting` | **Allowed** (FB-013) |
-| (pending) | `null` | `null` | `qc_passed=null` | Blocked |
-
-**On Fail — remove downstream block language in docstring.** Emit `QC_FAILED` → TLS-01 with payload `{ ..., failed_bags }`.
-
-**On Pass — unchanged** except clear `qc_failed_bags`.
-
-### 3.2 `QCService.update_failed_bags` — NEW (Phase 2)
-
-```python
-@classmethod
-@transaction.atomic
-def update_failed_bags(
-    cls,
-    *,
-    transport_order: TransportOrder,
-    failed_bags: int,
-    actor: User,
-    remarks: str = "",
-) -> TransportOrder:
     """
-    Validates:
-    - flow_lane == RM_INBOUND, requires_qc=True
-    - qc_passed is False (active fail or override-to-fail)
-    - validate_failed_bags(to, failed_bags)
-    - Optional: active BayAssignment or in-progress UnloadEvent exists
-    Actions:
-    - transport_order.qc_failed_bags = failed_bags
-    - timeline note (source_module='qc_checkpoint')
-    Does NOT block LD operations.
+    - Validates ≥1 sample, no active decision
+    - Per sample: physical analysis, pass/fail, sample_side required;
+      moisture 0–100 if set; photo extension/size if set
+    - Creates each sample via create_sample
+    - Rollup (worst sample wins):
+        any Fail → record_decision(fail) on first failing sample (+ failed_quantity)
+        all Pass → record_decision(pass) on last sample
+    - record_decision sets to.qc_passed, qc_failed_quantity, sub_state
+      (qc_passed | qc_failed), syncs QueueEntry
     """
 ```
 
-Callable from LD admin save hook, dedicated QC admin action, or `PATCH` API.
+### 3.4 `auto_pass_transport_order`
 
-### 3.3 `QCService.trigger_reinspect_after_fail` — amended
+Creates audit sample (`physical_analysis="Auto-pass (no physical sample taken)."`) + Pass decision. Does **not** require sample side or photo.
 
-When reinspect starts (pre-unload):
+### 3.5 `trigger_resample` — amended (v3)
 
-- Set `transport_order.qc_failed_bags = null`
-- Existing: `qc_passed = null`, supersede Fail decision, `sub_state → resampling`
+**No** requirement for active bay assignment.
 
-**Guard unchanged:** raises if active `BayAssignment` exists (*"Use resample instead"*).
+| Context | Side effects |
+|---------|--------------|
+| Pre-unload (no bay) | Supersede Pass; `qc_passed=null`; `sub_state=resampling`; CC blocked |
+| During unload | Above + cancel bay assignments; `cancelled_by_resample` on unload events |
 
-### 3.4 `QCService.trigger_resample` — amended
+### 3.6 `record_decision`, `trigger_reinspect_after_fail`, `override_to_failed`
 
-When resample resets QC cycle during unload:
-
-- Set `transport_order.qc_failed_bags = null` (alongside `qc_passed = null`)
-
-### 3.5 `QCService.override_to_failed` — amended
-
-Add required `failed_bags: int` parameter:
-
-- `validate_failed_bags(to, failed_bags)`
-- Set `to.qc_failed_bags = failed_bags`
-- `to.qc_passed = False`
-- Cancel assignments / unload events (unchanged)
-
-**Note:** After override, CC **may** re-assign unload (FB-013) — amend baseline §3.4 note *"CC stays blocked"*.
-
-### 3.6 Read helper — `qc_unload_warning_context`
-
-**File:** `apps/quality/checkpoint/services.py` or `apps/operations/loading/services.py`
-
-```python
-def qc_unload_warning_context(transport_order) -> dict | None:
-    """
-    Returns None when no warning applies.
-    Otherwise:
-      {
-        "failed_bags": int,
-        "expected_bags": int,
-        "accepted_bags": int,  # expected - failed
-        "severity": "warning",
-        "message": "QC failed: 12 of 500 bags expected rejected.",
-      }
-    """
-```
-
-Used by LD admin, REST handoff, and optional CC bay-assign confirmation panel.
+Unchanged semantics (FB-013 + QC-01-16).
 
 ---
 
-## 4. Command Center integration (CC-01)
+## 4. QC Queue admin
 
-**Baseline:** `CCService.eligible_for_bay_assignment` requires `qc_passed is True` when `requires_qc=True`.
+**File:** `apps/quality/checkpoint/admin_queue.py`  
+**Templates:** `templates/admin/quality/checkpoint/qcqueue/`  
+**Static:** `static/admin/js/qc_add_qc_form.js`, QC section in `static/admin/css/custom.css`
 
-**FB-013:**
+### 4.1 Changelist
 
-```python
-def eligible_for_bay_assignment(queue_entry: QueueEntry) -> bool:
-    ...
-    if queue_entry.requires_qc and queue_entry.qc_passed is None:
-        return False  # pending decision — still blocked
-    return True       # True (pass) OR False (fail with bags) both allow
+| Column | Source |
+|--------|--------|
+| TO Number | `to_number` (links to read-only detail) |
+| Vehicle | registration |
+| Product | first line item |
+| Sub-state | badge |
+| QC outcome | pending / pass / fail |
+| Samples | count |
+| Actions | contextual links |
+
+**Toolbar:** **Add QC** → `/admin/quality/qcqueuetransportorder/add-qc/`  
+**Pagination:** extends `admin/dynamic_pagination_changelist.html`.
+
+**Row actions (when eligible):**
+
+| State | Actions |
+|-------|---------|
+| Active QC, no decision | Add QC, Auto-pass |
+| `qc_failed` + reinspect eligible | Reinspect |
+| `qc_passed` + resample eligible | Resample |
+| During unload + pass | Resample (Override → Fail remains on legacy Decisions admin) |
+
+### 4.2 TO detail (change view)
+
+`/admin/quality/qcqueuetransportorder/<uuid>/change/` is **not** a TransportOrder editor.
+
+Shows:
+
+1. Sub-state + QC outcome badges  
+2. TO details panel (`build_cc_assignment_to_details_html` when a queue entry exists, else `_to_context_html`)  
+3. Samples table (sample ID, side, analysis, remarks, moisture %, decision, photo link, sampled at)  
+4. Eligible action buttons (Add QC / Auto-pass / Resample / Reinspect)
+
+### 4.3 Add QC form
+
+Custom view `/admin/quality/qcqueuetransportorder/add-qc/` (`enctype=multipart/form-data`):
+
+```
+Transport Order [select — eligible TOs only]
+[Auto-pass TO] button (when eligible)
+
+TO Details [read-only — AJAX via to-details/<uuid>/]
+
+Samples (formset, min 1, max 10):
+  # | physical_analysis* | remarks | moisture% | sample_side* | photo | decision* | failed_qty | Remove
+
+[+] Add another sample
+
+[Cancel] [Submit QC]
 ```
 
-**`bay_assignable_queue_entries` filter:**
+- Horizontal scroll wrapper for wide sample table  
+- Remove row reindexes formset; last row clears instead of deleting  
+- Failed qty column shown when any row decision = Fail  
+- After resample/reinspect: TO pre-selected + amber banner (`?banner=resample|reinspect`)
 
-```python
-# Replace: Q(requires_qc=False) | Q(qc_passed=True)
-Q(requires_qc=False) | Q(qc_passed__isnull=False)
-```
+### 4.4 Resample / Reinspect confirmation
 
-**`_validate_for_assignment` error message:**
-
-- Pending: *"A QC decision is required before bay assignment."*
-- Remove: *"A passing QC decision is required…"*
-
-### 4.1 CC admin UX
-
-**File:** `apps/operations/command_center/admin.py`
-
-| Element | Current | FB-013 |
-|---------|---------|--------|
-| `cc_actions` when `qc_passed=False` | Badge "Awaiting QC" | Badge **"QC Failed"** + failed-bag count; show **Assign** link |
-| `qc_state_display` | "Failed" badge | Include `qc_failed_bags` in label e.g. `Failed (12 bags)` |
-| Bay assignment add form | — | Optional read-only warning panel when TO has fail |
-
-See [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) §3.4 — amend table row *"QC Fail recorded → Unloading blocked"*.
+Custom `action_confirm.html`; remarks optional for resample, required for reinspect; redirect to Add QC with `?transport_order=<id>`.
 
 ---
 
-## 5. Loading / Unloading integration (LD-01)
+## 5. Portal navigation
 
-**Baseline:** Unload blocked indirectly (no bay assignment on fail).
+**File:** `apps/core/portal_navigation.py`
 
-**FB-013:** LD service **does not** add QC pass/fail guards on `start_unloading` / `complete_unloading`. Warning only.
+| Before | After |
+|--------|-------|
+| QC Queue → sample changelist | QC Queue → `/admin/quality/qcqueuetransportorder/` |
+| New Sample | **Removed from nav** |
+| Decisions | **Removed from nav** (admin URL retained for audit) |
 
-### 5.1 Admin surfaces
+---
 
-**File:** `apps/operations/loading/admin.py`
-
-| Surface | Change |
-|---------|--------|
-| `to_details_panel` | Inject amber warning banner when `qc_unload_warning_context` is non-null |
-| New `qc_fail_warning` readonly field | Parallel to `resample_warning` (§CHANGE_FIELDSETS Bay fieldset) |
-| Unload queue table (`queue_rows_view`) | Optional badge on rows where TO `qc_passed=False` |
-| Phase 2: change form | Editable `qc_failed_bags` field (calls `QCService.update_failed_bags` on save) |
-
-**Warning copy (example):**
-
-> QC failed — **12** of **500** expected bags flagged as rejected. Unloading may proceed; segregate rejected quantity.
-
-### 5.2 REST API
-
-**File:** `apps/operations/loading/views.py`
-
-| Endpoint | Change |
-|----------|--------|
-| `GET .../unload-events/{pk}/qc-handoff/` | Add `qc_fail_warning` object from helper |
-| `PATCH` or complete payload (Phase 2) | Optional `qc_failed_bags` when TO in fail state |
+## 6. REST API amendments
 
 **File:** `apps/quality/checkpoint/views.py`
 
 | Endpoint | Change |
 |----------|--------|
-| `POST .../decisions/` | Body adds `failed_bags` (required if `decision=fail`) |
-| `PATCH .../transport-orders/{id}/failed-bags/` (Phase 2) | `{ failed_bags, remarks? }` |
+| `GET queue/` | `qc_queue_display_queryset`; flags `can_add_qc`, `can_resample`, `can_auto_pass`, `resample_context` |
+| `GET/POST samples/` | Read includes `sample_side`, `photo_url`; create accepts `moisture_pct`, `sample_decision`, `sample_side`, optional `photo` |
+| `POST transport-orders/<id>/auto-pass/` | Auto-pass (audit sample + Pass) |
+| `POST transport-orders/<id>/qc-session/` | Batch samples + rollup; each sample requires `sample_side` |
+| `POST decisions/<id>/resample/` | Works pre-unload and during unload |
 
 ---
 
-## 6. QC admin & API amendments
+## 7. FB-013 integration (unchanged)
 
-### 6.1 Decision add form
-
-**File:** `apps/quality/checkpoint/admin.py`
-
-- Add integer field **Expected failed bags** — visible/required when Decision = Fail
-- `clean()`: call `validate_failed_bags`
-- Success message on Fail: *"QC Failed. {n} bags flagged. Command Center may assign unloading; unloading personnel will see a warning."*
-
-### 6.2 Override intermediate form
-
-Collect `failed_bags` + `remarks` before `override_to_failed`.
-
-### 6.3 Queue / My Queue display
-
-- Rows with active Fail show failed-bag count in context panel
-- Reinspect-eligible rows unchanged (no assignment yet)
-
-### 6.4 API contract summary
-
-```http
-POST /api/v1/qc/checkpoint/decisions/
-  Body: {
-    qc_sample_id,
-    decision: "pass" | "fail",
-    remarks,           # required if fail
-    failed_bags        # required if fail (NEW)
-  }
-
-PATCH /api/v1/qc/checkpoint/transport-orders/{to_id}/failed-bags/   # Phase 2
-  Body: { failed_bags, remarks? }
-```
-
-Extend `GET .../queue/` items with `qc_failed_bags`, `expected_bags` when fail active.
+- Fail rollup sets `qc_failed_quantity` via `record_decision`
+- CC: pending blocks; Pass or Fail with quantity allows assign
+- LD: `qc_unload_warning_context` on fail TOs
 
 ---
 
-## 7. TLS-01 events (amended payloads)
+## 8. Implementation map (as built)
 
-| Action | Payload addition (FB-013) |
-|--------|---------------------------|
-| Fail recorded | `{ ..., failed_bags }` |
-| Override to failed | `{ ..., failed_bags }` |
-| Failed bags updated (Phase 2) | New event `QC_FAILED_BAGS_UPDATED` or timeline note only |
-| Reinspect / resample | `{ prior_failed_bags }` in notes |
+| Area | Location |
+|------|----------|
+| Models + proxy | `checkpoint/models.py` |
+| Migrations | `quality.0004_*`, `quality.0005_*` |
+| Eligibility | `checkpoint/eligibility.py` |
+| Services + `QCSampleInput` | `checkpoint/services.py` |
+| Validation | `checkpoint/validation.py` |
+| Queue admin | `checkpoint/admin_queue.py` |
+| Templates | `templates/admin/quality/checkpoint/qcqueue/` |
+| Static JS/CSS | `static/admin/js/qc_add_qc_form.js`, `static/admin/css/custom.css` |
+| API | `checkpoint/views.py`, `checkpoint/urls.py` |
+| Nav | `apps/core/portal_navigation.py` |
+| Tests | `tests/unit/test_quality/test_qc_v3.py`, `test_qc_reinspect.py` |
 
----
-
-## 8. Dashboard
-
-**File:** `apps/core/dashboard_service.py`
-
-Split RM inbound QC widgets:
-
-| Widget | Filter |
-|--------|--------|
-| Awaiting QC decision | `requires_qc=True`, `qc_passed__isnull=True` |
-| QC Failed (unloadable) | `requires_qc=True`, `qc_passed=False`, `qc_failed_bags__gt=0` |
-| Failed — reinspect eligible | Existing `qc_failed_reinspect_queryset` (no active bay) |
+**Local note:** Docker serves collected static from a volume; after static edits run `collectstatic` (or restart `make local`) so Add QC JS/CSS are not 404.
 
 ---
 
-## 9. Implementation phases & ordered steps
+## 9. Acceptance criteria
 
-### Phase 1 — Unblock unload + capture + warn (ship first)
+### Queue & form
 
-| Step | File(s) | Change |
-|------|---------|--------|
-| 1 | `apps/transport/models.py` + migration | Add `qc_failed_bags` |
-| 2 | `apps/quality/checkpoint/validation.py` | `validate_failed_bags()` |
-| 3 | `apps/quality/checkpoint/services.py` | Amend `record_decision` Fail; add `qc_unload_warning_context` |
-| 4 | `apps/operations/command_center/services.py` | Eligibility + `bay_assignable_queue_entries` |
-| 5 | `apps/operations/command_center/admin.py` | Assign on fail; display failed bags |
-| 6 | `apps/quality/checkpoint/admin.py` | Fail form field + messages |
-| 7 | `apps/quality/checkpoint/views.py` | `failed_bags` on POST decisions |
-| 8 | `apps/operations/loading/admin.py` | `qc_fail_warning` + `to_details_panel` banner |
-| 9 | `apps/operations/loading/views.py` | Handoff JSON |
-| 10 | `apps/core/dashboard_service.py` | Widget split |
-| 11 | Tests | `test_cc_qc_queue.py`, new `test_qc_failed_bags.py`, LD warning tests |
-| 12 | Docs cross-ref | This file + feedback-resolution FB-013 status |
+- [x] QC Queue lists TOs in active QC and post-QC yard states
+- [x] Add QC creates ≥1 sample with physical analysis, optional moisture%, required sample side, optional photo, per-sample decision
+- [x] Any sample Fail → TO Fail with required `failed_quantity`
+- [x] All samples Pass → TO Pass (`qc_passed=True`, `sub_state=qc_passed`)
+- [x] Auto-pass records audit sample and Pass decision
+- [x] TO details panel shown after TO selection (CC-style when queue entry exists)
+- [x] QC Queue TO change page shows TO details + samples only (no full TO edit form)
 
-### Phase 2 — Edit during unloading
+### Resample & reinspect
 
-| Step | File(s) | Change |
-|------|---------|--------|
-| 13 | `apps/quality/checkpoint/services.py` | `update_failed_bags()` |
-| 14 | `apps/quality/checkpoint/views.py` | PATCH failed-bags endpoint |
-| 15 | `apps/operations/loading/admin.py` | Editable field on unload change form |
-| 16 | `apps/quality/checkpoint/services.py` | Amend override / reinspect / resample to clear or set bags |
-| 17 | Tests | Mid-unload update; validation bounds |
+- [x] Resample available after Pass while **waiting for CC** (no bay)
+- [x] Resample available after Pass **during unloading** (cancels bay)
+- [x] Both resample paths redirect to Add QC with TO pre-selected
+- [x] Reinspect after Fail (no bay) unchanged; redirects to Add QC
 
-### Phase 3 — Downstream guards & stock (PO-gated)
+### FB-013 regression
 
-| Step | File(s) | Change |
-|------|---------|--------|
-| 18 | `apps/operations/scaling/services.py` | Relax or replace `_require_qc_passed` — see §13 OQ-1 |
-| 19 | `apps/operations/gate/clearance.py` | Align `_optional_qc_clearance` with scale-out decision |
-| 20 | `apps/transport/closure/closure_engine.py` | Checklist: `qc_decision_recorded` vs strict `qc_passed` |
-| 21 | `apps/operations/stock/services.py` | Credit `received − failed` per FB-012 — see §13 OQ-2 |
-| 22 | E2E-01-3 | Fail → assign → unload with warning → scale-out path |
+- [x] Fail rollup sets `qc_failed_quantity`; CC assign allowed after Fail
+- [x] Pending QC still blocks CC
+
+### API
+
+- [x] Queue payload includes eligibility flags
+- [x] Auto-pass and qc-session endpoints functional
+- [x] Sample payloads include `sample_side` / `photo_url` (create accepts photo multipart)
 
 ---
 
-## 10. Story mapping (amendments)
-
-### QC-01 amendments (FB-013)
-
-| Sub-task | Scope | Implementation focus |
-|----------|-------|----------------------|
-| QC-01-17 | Model + migration | `TransportOrder.qc_failed_bags` |
-| QC-01-18 | `validate_failed_bags` | Shared validator; bag-UOM gate |
-| QC-01-19 | `record_decision` Fail | Require `failed_bags`; sync TO + queue; amend docstring |
-| QC-01-20 | QC admin / API Fail | Form field + POST body |
-| QC-01-21 | `qc_unload_warning_context` | Read helper for LD/CC |
-| QC-01-22 | Override / reinspect / resample | Clear or require `qc_failed_bags` per §3.3–3.5 |
-| QC-01-23 | `update_failed_bags` | Phase 2 service + API + LD admin |
-| QC-01-24 | Tests + E2E | Phase 1–2 coverage; E2E-01-3 branch |
-
-### CC-01 amendments (FB-013)
-
-| Sub-task | Scope |
-|----------|-------|
-| CC-01-FB013-1 | `eligible_for_bay_assignment` + queryset filter |
-| CC-01-FB013-2 | Admin `cc_actions` + `qc_state_display` |
-
-### LD-01 amendments (FB-013)
-
-| Sub-task | Scope |
-|----------|-------|
-| LD-01-FB013-1 | Warning panel + `qc_fail_warning` |
-| LD-01-FB013-2 | REST handoff payload |
-| LD-01-FB013-3 | Phase 2 — edit failed bags on change form |
-
----
-
-## 11. Acceptance criteria (FB-013)
-
-### Phase 1
-
-- [ ] QC Fail without `failed_bags` is rejected
-- [ ] QC Fail with `failed_bags > to_total_bags` is rejected
-- [ ] QC Fail with valid `failed_bags` sets `qc_passed=False` and **allows** CC bay assignment
-- [ ] QC pending (`qc_passed null`) still blocks CC assignment
-- [ ] QC Pass clears `qc_failed_bags` and allows CC assign (unchanged)
-- [ ] Unload start/complete succeeds on failed TO with active bay assignment
-- [ ] Unload admin and qc-handoff API show warning with failed vs expected bags
-- [ ] Reinspect after Fail still requires no active bay assignment; clears `qc_failed_bags`
-- [ ] Resample during unload still cancels assignment; clears `qc_failed_bags`
-
-### Phase 2
-
-- [ ] Authorized user can update `qc_failed_bags` during active unload
-- [ ] Updated count reflected immediately in warning surfaces
-- [ ] Override-to-fail requires `failed_bags`
-
-### Phase 3 (after PO sign-off)
-
-- [ ] Scale-out / gate-out behaviour documented and implemented per §13
-- [ ] Destination stock credits accepted quantity only (if OQ-2 = yes)
-
----
-
-## 12. Distinction from related flows
-
-| Flow | When | FB-013 interaction |
-|------|------|-------------------|
-| **Initial Fail + unload** | After sample, before/during yard | Fail **unblocks** assign; warning on unload |
-| **Reinspect after Fail** | Fail recorded, **no** bay yet | Clears bags; back to sampling — unchanged guard |
-| **Resample** | During unload after **Pass** | Cancels unload; clears bags — unchanged |
-| **Override pass→fail** | During unload after Pass | Cancels unload; **requires** `failed_bags`; may re-assign per FB-013 |
-| **FB-001 multi-LUP** | Same visit, multiple points | Warning is **TO-level**; same failed-bag count at every point (Phase 1) |
-
----
-
-## 13. Open questions (PO — before Phase 3)
-
-| ID | Question | Default if silent |
-|----|----------|-------------------|
-| OQ-1 | After QC Fail + unload complete, may vehicle **scale-out** and **gate-out** without a subsequent Pass? | **Yes** — align guards with unload-unblocked policy |
-| OQ-2 | Destination **stock** credits `unloaded accepted` only (`received − qc_failed_bags`)? | **Yes** — coordinate with FB-012 trigger |
-| OQ-3 | **Per-line** failed bags vs TO-level aggregate? | Phase 1 = TO-level; per-line deferred |
-| OQ-4 | **Weight-only** TOs (no bag UOM) — support `failed_weight_mt` on Fail? | Fail bag capture **not allowed** until MT path defined |
-| OQ-5 | **Total reject** (`failed_bags == total`) — same unload flow or quarantine workflow? | Same flow with maximum warning |
-
----
-
-## 14. Cross-references
+## 10. Cross-references
 
 | Document | Relationship |
 |----------|--------------|
-| [qc-operations-sprint4.md](./qc-operations-sprint4.md) | Baseline spec — §0, §3.2, §4.2, §7, §9 amended by this v2 |
-| [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) | §2.3, §3.4 QC Fail row; CC eligibility |
-| [command-center-multi-lup-assignment-fb001.md](./command-center-multi-lup-assignment-fb001.md) | §Locked decisions QC gate row — amend to "after QC decision (Pass or Fail with bags)" |
-| [stock-operations-sprint5.md](./stock-operations-sprint5.md) | FB-012 stock trigger; Phase 3 net-good quantity |
-| [feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution/README.md) | FB-013 tracker |
-| [E2E-01](../../03-backlog/sprints/sprint-6/01-e2e-hardening/E2E-01-sprint3-to-5-e2e-coverage.md) | RM inbound fail branch |
+| [qc-operations-sprint4.md](./qc-operations-sprint4.md) | Baseline QC-01 service semantics |
+| [command-center-loading-sprint4.md](./command-center-loading-sprint4.md) | CC QC gate; TO details panel reuse |
+| FB-013 sections in prior v2 doc | Failed quantity + unload warning — still in force |
 
 ---
 
-**Last Updated**: 2026-07-07
+**Last Updated**: 2026-08-10 (v3.1 — synced to implementation)

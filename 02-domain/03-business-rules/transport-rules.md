@@ -36,10 +36,10 @@ tags: [business-rules, transport, rules]
 - **Validation**: System SHALL enforce single fleet type selection
 - **Impact**: TO creation
 
-**TOR-005: Fleet Type Immutable**
-- **Rule**: A TO cannot be handled by both fleet types simultaneously
-- **Validation**: System SHALL prevent fleet type change after assignment
-- **Impact**: TO execution
+**TOR-005: Fleet Type Immutable after Ready for Dispatch**
+- **Rule**: A TO cannot be handled by both fleet types simultaneously. Fleet type MAY be changed between Own and Vendor **before** Ready for Dispatch (FB-027); at/after Ready for Dispatch it is immutable.
+- **Validation**: System SHALL prevent fleet type change at/after Ready for Dispatch. Before RFD, Transport Planner MAY switch Vendor ↔ Own with status remapping and clearing of the opposite fleet’s assignment data.
+- **Impact**: TO planning / execution
 
 **TOR-006: Product Attributes Locked**
 - **Rule**: All product-related attributes inherited from TR are read-only in TO

@@ -53,19 +53,20 @@ total_story_points_estimated: "~13 SP (AUTH-01 carry-over) + FB-001–FB-014"
 | AUTH-01-7 | AUTH-01 | Audit, RBAC, delivery failure handling, regression (email path unchanged) | Medium |
 | AUTH-01-8 | AUTH-01 | Tests + manual/E2E coverage for phone invite → activate → login → phone 2FA | Medium |
 
-### Improvements carry-over (FB-001–FB-007) + new (FB-008–FB-014)
+### Improvements carry-over (FB-001–FB-007) + new (FB-008–FB-015)
 
 See [`improvements/`](./improvements/README.md). E2E plans: [`09-testing/.../e2e-scenarios/sprint-8/`](../../../09-testing/backend/e2e-scenarios/sprint-8/README.md).
 
 | ID | Area | Summary | Priority | Status |
 |----|------|---------|----------|--------|
-| FB-008 | Product Requisition | PR locked from edit after submission (Depot / Feed Mill / Commercial Officers) | High | Open |
-| FB-009 | Transport Requests | TR list: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | Medium | Open |
-| FB-010 | Transport Requests | TR details & line items: Total Weight (KG) + Total Quantity | Medium | Open |
-| FB-011 | Transport Planner | TR list: Remaining Weight (KG) for planning | High | Open |
-| FB-012 | Transport Planner | TO creation: Remaining Quantity on Allocated Quantity Per Product | High | Open |
+| FB-008 | Product Requisition | PR locked from edit after submission (Depot / Feed Mill / Commercial Officers) | High | Resolved |
+| FB-009 | Transport Requests | TR list: Total Weight (KG) instead of Total Quantity (DO / DM / PO) | Medium | Resolved |
+| FB-010 | Transport Requests | TR details & line items: Total Weight (KG) + Total Quantity | Medium | Resolved |
+| FB-011 | Transport Planner | TR list: Remaining Weight (KG) for planning | High | Resolved |
+| FB-012 | Transport Planner | TO creation: Remaining Quantity on Allocated Quantity Per Product | High | Resolved |
 | FB-013 | Transport Planner | TO details: PR line items table not showing after creation | High | Open |
 | FB-014 | Driver My Trips | Cargo table: Allocated Weight with Allocated Quantity | Medium | Open |
+| FB-015 | Transport Planner | TO creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
 
 ---
 

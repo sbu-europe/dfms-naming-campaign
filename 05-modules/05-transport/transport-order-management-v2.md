@@ -1,16 +1,16 @@
 ---
 module: 05-transport
-specification: Transport Order Management — Transport Planner Own-Fleet Assignment (Sprint 6 — FB-008)
-version: 2.1
+specification: Transport Order Management — Transport Planner Own-Fleet Assignment (Sprint 6 — FB-008) + Sprint 8 TO line UX
+version: 2.2
 phase: Phase 1
-sprint: Sprint 6 (FB-008)
-last_updated: 2026-07-03
-changelog: "v2.1 — Remove TR planning-inputs gate: Create TO available when TR is Available for Transport Planning; vehicle type captured at TO creation (FB-008). v2.0 — FB-008 initial implementation plan."
-related_stories: TO-01 (transport-order-management), TO-02 (trip-management), FB-006 (planned milestone times — amended)
-feedback_items: FB-008
+sprint: Sprint 6 (FB-008); Sprint 8 (FB-012, FB-013, FB-015)
+last_updated: 2026-08-07
+changelog: "v2.2 — Sprint 8 TO line allocation UX reconciled with code: create-from-tr Remaining Quantity + Allocating TO Load (FB-012/FB-015); TO details Line items inline with PR/TR product columns, live Remaining/TO Load on edit, RBAC view for Transport Planner / TDO Vendor Fleet (FB-013). v2.1 — Remove TR planning-inputs gate: Create TO available when TR is Available for Transport Planning; vehicle type captured at TO creation (FB-008). v2.0 — FB-008 initial implementation plan."
+related_stories: TO-01 (transport-order-management), TO-02 (trip-management), FB-006 (planned milestone times — amended), FB-012, FB-013, FB-015
+feedback_items: FB-008, FB-012, FB-013, FB-015
 supersedes: transport-order-management.md §1 (roles), §2 (model), §3 (status), §4 (creation); trip-management.md §1 (roles), §2.1 (assignment owner)
 baseline_spec: transport-order-management.md, trip-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
+feedback_tracker: ../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
 jira_epic: DFS-040
 ---
 
@@ -282,6 +282,7 @@ Extend `CreateTOForm`:
 - Vehicle autocomplete queryset: `Vehicle` master data filtered by selected `vehicle_type`, excluding under-maintenance and double-booked (same rules as assignment form).
 - Pass `vehicle_type` and optional `vehicle_id` into `TransportOrder(...)` and `TransportOrderBatchCreateService.create_multiple`.
 - Template `create_from_tr.html`: show fields when Fleet type = Own (JS toggle or server-side section); vehicle dropdown disabled until vehicle type selected.
+- **Sprint 8 (implemented):** Allocate Quantities per Product table also shows **Remaining Quantity** (FB-012) and live **Allocating TO Load** = Σ(allocate qty × wpu) × Number of TOs as `{mt} MT ({kg} kg)` (FB-015). See §5.7.
 
 ### 5.2 Fieldsets — merge creation + assignment for TP
 
@@ -325,6 +326,61 @@ Keep existing maintenance / double-booking exclusions. Same queryset rules apply
 | `apps/transport/admin_driver.py` | Remove `tdo_own_fleet` from driver POD read roles |
 | `apps/users/admin.py` | Remove `_is_tdo_own_fleet` restrictions on Driver/Helper admin (TP uses standard master-data read paths) |
 | `apps/fleet_supervisor/admin.py` | Remove `_ds_readonly_roles = ("tdo_own_fleet",)` entries |
+
+### 5.7 Sprint 8 — TO line allocation UX (**implemented**)
+
+Reconciled with codebase as of 2026-08-07. Tracker: [Sprint 8 Transport Planner improvements](../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md) (FB-012, FB-013, FB-015 **Resolved**).
+
+#### 5.7.1 Create TO from TR (`create_from_tr.html` + `create_from_tr_view`)
+
+| Column / element | Behaviour |
+|------------------|-----------|
+| Product | Item code + product name (PR line) |
+| Pack Size / UOM / TR Qty / Total Weight (kg) | From TR/PR line |
+| Already Allocated | Σ non-cancelled TO allocations on that TR line |
+| **Remaining Quantity** (FB-012) | TR qty − already allocated; live JS updates as allocate inputs / Number of TOs change |
+| Allocate for This TO / Allocate per TO | Per-line UOM input (multi-TO multiplies remaining deduction) |
+| **Allocating TO Load** (FB-015) | Footer: Σ(qty × wpu) × Number of TOs → `{mt} MT ({kg} kg)`; `—` when zero |
+
+Persistence: only lines with allocate qty `> 0` become `TOLineItem` rows (`admin.create_from_tr_view` / `TransportOrderBatchCreateService`).
+
+#### 5.7.2 TO details — Line items inline (FB-013)
+
+**Problem fixed:** Default `TabularInline` used Django model perms (`transport.view_tolinetem`), so DFMS RBAC users (Transport Planner, TDO Vendor Fleet) never saw the inline after create.
+
+**Implementation:**
+
+| Piece | Detail |
+|-------|--------|
+| Admin | `TOLineItemInline` on `TransportOrderAdmin` |
+| Template | `templates/admin/transport/transportorder/line_items_inline.html` |
+| View permission | Follows `TransportOrderAdmin.has_view_permission` (same pattern as `TOTimelineInline`) |
+| Change permission | Transport Planner / tenant admin / tenant super admin may edit **Allocated on this TO** when parent TO is editable; **TDO Vendor Fleet** view-only |
+| Rows | Existing `TOLineItem` on this TO (not full TR matrix of zero-skipped lines) |
+
+**Columns (post-create):**
+
+| Column | Notes |
+|--------|-------|
+| Product | `[item_code] name — category` + `— subcategory` when present (`apps/master_data/display.product_line_item_label*`) |
+| Pack Size | PR `type_of_packing` / product pack size |
+| UOM | Line UOM |
+| TR Qty | Parent TR line qty |
+| Total Weight (kg) | PR line `total_weight_kg` |
+| Already Allocated | Other TOs only (`exclude_to_id` = this TO) |
+| Remaining Quantity | Live when editing: remaining_base − current allocated input |
+| Allocated on this TO | `TOLineItem.allocated_quantity` |
+| **TO Load** (footer) | Live Σ(this TO line qty × wpu) as `{mt} MT ({kg} kg)`; `—` when zero |
+
+**Not on details:** multi-TO “Allocate per TO” wording; create-time × Number of TOs load formula.
+
+**Code anchors:**
+
+- `apps/transport/admin.py` — `TOLineItemInline`, `_stamp_to_line_item_row_meta`, `create_from_tr_view`
+- `apps/transport/services.py` — `TOLineAllocationService.remaining_for_tr_line` / `allocated_for_tr_line`
+- `templates/admin/transport/transportorder/line_items_inline.html`
+- `templates/admin/transport/transportorder/create_from_tr.html`
+- `tests/unit/test_transport/test_admin.py` — inline permission + display tests
 
 ---
 
@@ -484,7 +540,9 @@ apps/fleet_supervisor/views.py           expose planned_start_at in milestone pa
 apps/fleet_supervisor/admin.py           remove tdo_own readonly hacks
 apps/users/admin.py                      remove tdo_own fleet driver/helper locks
 templates/admin/transport/transportorder/create_from_tr.html
+templates/admin/transport/transportorder/line_items_inline.html   # FB-013 TO details line items
 tests/unit/test_transport/test_planned_milestones.py
+tests/unit/test_transport/test_admin.py                            # FB-013 inline RBAC + columns
 tests/unit/test_transport/                 new: test_tp_own_fleet_assignment_permissions (suggested)
 tests/integration/                         API permission + assignment regression (if not covered in unit)
 # tests/e2e/                               OUT OF SCOPE — no changes for FB-008
@@ -528,6 +586,7 @@ tests/integration/                         API permission + assignment regressio
 ## 13. Related documentation
 
 - **[FB-008 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)**
+- **[Sprint 8 — Transport Planner improvements](../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md)** — FB-011 Remaining Weight (TR list), FB-012 Remaining Quantity (create), FB-013 TO details line items, FB-015 Allocating TO Load
 - **[FB-006 — Planned milestone times](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta)** (amended by FB-008)
 - **[Transport Order Management (v1 — baseline)](./transport-order-management.md)** *(module README reference)*
 - **[Trip Management (v1 — baseline)](./trip-management.md)** *(module README reference)*
@@ -539,6 +598,8 @@ tests/integration/                         API permission + assignment regressio
 
 ## 14. Implementation TODOs
 
+### FB-008 (Sprint 6)
+
 - [ ] **FB-008-1** — Model + migration: `vehicle_type`, `planned_start_at`; backfill `vehicle_type`; expose existing `vehicle` FK on creation (no text field)
 - [ ] **FB-008-2** — `planned_milestones.py`: required sets (FG=5, RM=3), validation chain, suggestions
 - [ ] **FB-008-3** — `TransportOrderService` + `TransportOrderBatchCreateService`: creation validation & persistence
@@ -548,3 +609,9 @@ tests/integration/                         API permission + assignment regressio
 - [ ] **FB-008-7** — Satellite admins (`users`, `fleet_supervisor`, `admin_closure`, `admin_driver`): drop tdo_own branches
 - [ ] **FB-008-8** — Unit/integration tests only: planned milestones, creation, permissions, status transitions, vendor regression (no E2E)
 - [ ] **FB-008-9** — Rollout: user role migration + `seed_dfms_rbac` (no UAT/E2E persona updates in this story)
+
+### Sprint 8 TO line UX (status vs code)
+
+- [x] **FB-012** — Remaining Quantity on create-from-tr Allocate table
+- [x] **FB-015** — Allocating TO Load live sum on create-from-tr
+- [x] **FB-013** — TO details Line items table visible under DFMS RBAC; product/PR-TR columns; live Remaining + TO Load when editing allocated qty
