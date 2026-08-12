@@ -9,10 +9,10 @@
 | TC_102 | Tenant list displayed | Tenant Selection / directory shows available tenants. | High | Vendor App | Covered | `tenants/01_…` + `tenants/03_…` | **Passed 2026-07-22** |
 | TC_103 | Join request submit | Click Join for a tenant → request submitted. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
 | TC_104 | Join → Requested state | After Join, button changes to "Requested". | High | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
-| TC_105 | Locked before approval | Before approval, TOs/Bids/Trips blocked. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
+| TC_105 | Locked before approval | Before approval, TOs/Bids/Tracks blocked. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
 | TC_106 | Multiple tenant requests | Join A and B independently. | Low | Vendor App | Covered | `tenants/05_tenant_join_two_tenants.yaml` | **Passed 2026-07-22** (Nourish + Walton) |
 | TC_107 | Tenant data isolation | Vendor for Tenant A not visible in Tenant B admin. | Critical | Backend | Covered | Manual / DB check | **Passed 2026-07-22** — `vendor2` approved on `nourish` only; absent from `walton` approved set |
-| TC_117 | Full menu after approval | After approval, TOs/Bids/Trips/Tenants/Profile accessible. | Critical | Vendor App | Covered | `tenants/04_tenant_join_after_approve_full_menu.yaml` | **Passed 2026-07-22** (join→approve path) |
+| TC_117 | Full menu after approval | After approval, TOs/Bids/Tracks/Tenants/Profile accessible. | Critical | Vendor App | Covered | `tenants/04_tenant_join_after_approve_full_menu.yaml` | **Passed 2026-07-22** (join→approve path) |
 
 ## Full join loop (recommended)
 

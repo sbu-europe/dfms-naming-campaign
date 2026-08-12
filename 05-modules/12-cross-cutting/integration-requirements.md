@@ -198,7 +198,7 @@ Send notifications, alerts, and OTP codes to users.
 
 ### Providers
 
-**SMS:** Twilio, BulkSMS BD
+**SMS:** MiM SMS (Bangladesh) — `apps/notifications/sms.py`
 **Email:** SendGrid, AWS SES
 
 ### Use Cases

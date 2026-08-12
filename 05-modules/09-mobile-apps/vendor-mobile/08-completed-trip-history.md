@@ -2,7 +2,7 @@
 last_updated: 2026-05-13
 ---
 
-# Vendor Mobile — Trips: Completed Trip History
+# Vendor Mobile — Tracks: Completed Trip History
 
 > **Applies to:** Both Contractual and Non-Contractual vendors. Rate fields are rendered conditionally based on `assignment_type`.
 

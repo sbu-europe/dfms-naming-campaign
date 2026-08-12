@@ -116,9 +116,16 @@ MAPS_API_URL=https://maps.googleapis.com/maps/api
 MAPS_API_KEY=your-maps-api-key
 
 # SMS Gateway
-SMS_GATEWAY_URL=https://api.sms-provider.com
-SMS_GATEWAY_API_KEY=your-sms-api-key
-SMS_SENDER_ID=DFMS
+SMS_ENABLED=false
+SMS_PROVIDER=mimsms
+MIMSMS_BASE_URL=https://api.mimsms.com
+MIMSMS_API_KEY=your-mimsms-api-key
+MIMSMS_USERNAME=your-account@mimsms.com
+MIMSMS_SENDER_NAME=8809612444598
+MIMSMS_TRANSACTION_TYPE=T
+MIMSMS_REQUEST_TIMEOUT_SECONDS=10
+MIMSMS_CAMPAIGN_PREFIX=dfms
+MIMSMS_BULK_CHUNK_SIZE=100
 
 # Payment Gateway
 PAYMENT_GATEWAY_URL=https://api.payment-provider.com

@@ -483,7 +483,7 @@ Ensure vendors can access portal from **mobile devices** (smartphones, tablets) 
 **Dashboard (Mobile):**
 - Single-column card layout
 - Swipe gestures for navigation
-- Bottom navigation bar (Dashboard, Bids, Trips, Profile)
+- Bottom navigation bar (Dashboard, Bids, Tracks, Profile)
 
 **Bid Submission (Mobile):**
 - Simplified form fields

@@ -396,42 +396,50 @@ class MapsService:
 
 ## SMS Gateway Integration
 
-### SMS Gateway Service
+Provider: **[MiM SMS API V2](https://www.mimsms.com/api-documentation)**  
+Implementation: `nourish-backend/apps/notifications/sms.py`
+
+### Required Django Settings
 
 ```python
-# apps/notifications/services.py
-import requests
-from django.conf import settings
+# settings/base.py — values loaded from environment variables
+SMS_ENABLED = env.bool('SMS_ENABLED', default=False)
+SMS_PROVIDER = env('SMS_PROVIDER', default='mimsms')
 
-class SMSGatewayService:
-    """SMS gateway integration"""
-    
-    def __init__(self):
-        self.api_url = settings.SMS_GATEWAY_URL
-        self.api_key = settings.SMS_GATEWAY_API_KEY
-        self.sender_id = settings.SMS_SENDER_ID
-    
-    def send_sms(self, phone_number, message):
-        """Send SMS via gateway"""
-        payload = {
-            'to': phone_number,
-            'message': message,
-            'sender_id': self.sender_id,
-        }
-        
-        response = requests.post(
-            f'{self.api_url}/send',
-            json=payload,
-            headers={
-                'Authorization': f'Bearer {self.api_key}',
-                'Content-Type': 'application/json',
-            },
-            timeout=10
-        )
-        response.raise_for_status()
-        
-        return response.json()
+MIMSMS_BASE_URL = env('MIMSMS_BASE_URL', default='https://api.mimsms.com')
+MIMSMS_API_KEY = env('MIMSMS_API_KEY', default='')
+MIMSMS_USERNAME = env('MIMSMS_USERNAME', default='')
+MIMSMS_SENDER_NAME = env('MIMSMS_SENDER_NAME', default='')
+MIMSMS_TRANSACTION_TYPE = env('MIMSMS_TRANSACTION_TYPE', default='T')
 ```
+
+### Endpoints used by DFMS
+
+| Endpoint | Use case |
+|---|---|
+| `POST /api/V2/SMS` | Single transactional SMS (OTP, invite, reset, login) |
+| `POST /api/V2/DSMS` | Optional bulk import with per-recipient message bodies |
+
+### SMS Service (conceptual)
+
+```python
+# apps/notifications/sms.py
+from apps.notifications.sms import send_sms, send_staff_invitation_sms
+
+# Single transactional SMS
+send_sms(to_phone="+8801712345678", body="Your DFMS login code is 123456")
+
+# Staff phone invitation (builds message + campaign label)
+send_staff_invitation_sms(
+    to_phone="+8801712345678",
+    invited_by_name="Admin",
+    org_name="Nourish",
+    activation_url="https://tenant.dfms.com/activate/?token=...",
+    activation_otp="123456",
+)
+```
+
+When `SMS_ENABLED=false`, messages are logged to the server for local QA.
 
 ---
 

@@ -1,86 +1,77 @@
 # SMS Gateway Integration Contract
-# Contract for SMS gateway provider integration
+# Provider: MiM SMS API V2 (https://www.mimsms.com/api-documentation)
 
 openapi: 3.0.3
 info:
-  title: SMS Gateway Integration
+  title: MiM SMS Gateway Integration
   description: |
-    Integration contract for SMS gateway provider.
-    
-    This contract defines the interface for sending SMS notifications and tracking delivery status.
-  version: 1.0.0
+    Integration contract for MiM SMS API V2 used by DFMS for transactional SMS
+    (staff/driver invitations, login OTP, password reset, vendor phone OTP).
+
+    Backend implementation: `nourish-backend/apps/notifications/sms.py`
+  version: 2.0.0
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com
 
 servers:
-  - url: https://sms-gateway.example.com/api/v1
-    description: SMS Gateway API
+  - url: https://api.mimsms.com
+    description: MiM SMS API V2 production
 
 paths:
-  /sms/send:
+  /api/V2/SMS:
     post:
-      summary: Send SMS
-      operationId: sendSMS
+      summary: Send single transactional SMS
+      operationId: sendTransactionalSMS
+      description: |
+        Used by DFMS for OTP, invitations, password reset, and login codes.
+        `transactionType` must be `T` (transactional).
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                recipient:
-                  type: string
-                  pattern: '^\+?[0-9]{10,15}$'
-                  description: Recipient phone number
-                message:
-                  type: string
-                  maxLength: 160
-                  description: SMS message content
-                template_id:
-                  type: string
-                  nullable: true
-                  description: Template ID for templated messages
-                template_params:
-                  type: object
-                  nullable: true
-                  additionalProperties:
-                    type: string
-                  description: Template parameters
-                priority:
-                  type: string
-                  enum: [low, normal, high]
-                  default: normal
-                  description: Message priority
-              required:
-                - recipient
-                - message
+              $ref: '#/components/schemas/SingleSmsRequest'
       responses:
         '200':
-          description: SMS sent successfully
+          description: SMS accepted by MiM SMS
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message_id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    enum: [queued, sent, failed]
-                  queued_at:
-                    type: string
-                    format: date-time
+                $ref: '#/components/schemas/SmsSendResponse'
         '400':
           description: Invalid request
+        '401':
+          description: Invalid credentials
         '429':
           description: Rate limit exceeded
-  
-  /sms/batch:
+
+  /api/V2/DSMS:
     post:
-      summary: Send SMS batch
-      operationId: sendSMSBatch
+      summary: Send dynamic bulk SMS (personalized per recipient)
+      operationId: sendDynamicBulkSMS
+      description: |
+        Optional DFMS path for bulk user/driver import where each row has a
+        distinct message body (activation link + OTP).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkSmsRequest'
+      responses:
+        '200':
+          description: Bulk SMS accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsSendResponse'
+
+  /api/V2/DlrApi:
+    post:
+      summary: Delivery report lookup by tracking ID
+      operationId: getDeliveryReport
+      description: Not yet integrated in DFMS Phase 1 — reserved for future DLR polling.
       requestBody:
         required: true
         content:
@@ -88,119 +79,103 @@ paths:
             schema:
               type: object
               properties:
-                messages:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      recipient:
-                        type: string
-                      message:
-                        type: string
-                      template_id:
-                        type: string
-                        nullable: true
-                      template_params:
-                        type: object
-                        nullable: true
+                apiKey:
+                  type: string
+                userName:
+                  type: string
+                trackingId:
+                  type: string
               required:
-                - messages
+                - apiKey
+                - userName
+                - trackingId
       responses:
         '200':
-          description: Batch SMS sent
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  processed:
-                    type: integer
-                  failed:
-                    type: integer
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        message_id:
-                          type: string
-                        status:
-                          type: string
-  
-  /sms/{message_id}/status:
-    get:
-      summary: Get SMS delivery status
-      operationId: getSMSStatus
-      parameters:
-        - name: message_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: SMS delivery status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message_id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    enum: [queued, sent, delivered, failed, expired]
-                  sent_at:
-                    type: string
-                    format: date-time
-                    nullable: true
-                  delivered_at:
-                    type: string
-                    format: date-time
-                    nullable: true
-                  failure_reason:
-                    type: string
-                    nullable: true
-        '404':
-          description: Message not found
-  
-  /sms/templates:
-    get:
-      summary: List SMS templates
-      operationId: listSMSTemplates
-      responses:
-        '200':
-          description: List of SMS templates
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  templates:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        template_id:
-                          type: string
-                        name:
-                          type: string
-                        content:
-                          type: string
-                        parameters:
-                          type: array
-                          items:
-                            type: string
+          description: Delivery status
 
 components:
+  schemas:
+    SingleSmsRequest:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          description: MiM SMS API key (env `MIMSMS_API_KEY`)
+        userName:
+          type: string
+          format: email
+          description: Registered MiM account email (env `MIMSMS_USERNAME`)
+        senderName:
+          type: string
+          description: Approved sender ID or masking number (env `MIMSMS_SENDER_NAME`)
+        transactionType:
+          type: string
+          enum: [T, P]
+          description: DFMS uses `T` (transactional) for all auth/onboarding SMS
+        mobileNumber:
+          type: string
+          pattern: '^8801[3-9][0-9]{8}$'
+          description: Bangladesh mobile without leading `+` (e.g. `8801712345678`)
+        message:
+          type: string
+          description: SMS body (plain text)
+        campaignName:
+          type: string
+          description: Optional reporting label (e.g. `dfms-staff-invite`)
+      required:
+        - apiKey
+        - userName
+        - senderName
+        - transactionType
+        - mobileNumber
+        - message
+
+    BulkSmsRequest:
+      type: object
+      properties:
+        apiKey:
+          type: string
+        userName:
+          type: string
+          format: email
+        senderName:
+          type: string
+        smsData:
+          type: array
+          items:
+            type: object
+            properties:
+              mobNumber:
+                type: string
+                pattern: '^8801[3-9][0-9]{8}$'
+              message:
+                type: string
+            required:
+              - mobNumber
+              - message
+      required:
+        - apiKey
+        - userName
+        - senderName
+        - smsData
+
+    SmsSendResponse:
+      type: object
+      properties:
+        trackingId:
+          type: string
+          description: MiM tracking ID for DLR lookup
+        statusCode:
+          type: integer
+        smsCount:
+          type: integer
+
   securitySchemes:
-    apiKey:
+    apiKeyInBody:
       type: apiKey
-      in: header
-      name: X-API-Key
+      in: body
+      name: apiKey
+      description: MiM credentials are sent in the JSON request body (apiKey + userName).
 
 security:
-  - apiKey: []
-
+  - apiKeyInBody: []
