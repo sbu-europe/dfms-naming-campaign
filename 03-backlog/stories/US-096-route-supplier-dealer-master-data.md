@@ -67,7 +67,7 @@ Routes, Suppliers, and Dealers are foundational reference data required by multi
 ### AC-2: Supplier Master (per PRD 6.3.1)
 - [ ] System SHALL provide a **Suppliers** setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Supplier with:
-  - Supplier Name (required, unique within tenant)
+  - Supplier Name (required, not unique within tenant)
   - Supplier Code (required, unique)
   - Contact Person Name (optional)
   - Contact Phone (optional)
@@ -80,7 +80,7 @@ Routes, Suppliers, and Dealers are foundational reference data required by multi
 ### AC-3: Dealer Master (per PRD 6.3.1)
 - [ ] System SHALL provide a **Dealers** setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Dealer with:
-  - Dealer Name (required, unique within tenant)
+  - Dealer Name (required, not unique within tenant)
   - Dealer Code (required, unique)
   - Contact Person Name (optional)
   - Contact Phone (optional)

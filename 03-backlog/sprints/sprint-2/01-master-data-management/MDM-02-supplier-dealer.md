@@ -31,7 +31,7 @@ spec_file: ../../../../stories/US-096-supplier-dealer-master-data.md
 - [ ] System SHALL provide a Suppliers setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Supplier with:
   - Supplier Code (Text Input, required, unique)
-  - Supplier Name (Text Input, required, unique within tenant)
+  - Supplier Name (Text Input, required, not unique within tenant)
   - Contact Number (Text Input, required)
   - Email (Email format, optional)
   - Address (Text Input, required)
@@ -43,7 +43,7 @@ spec_file: ../../../../stories/US-096-supplier-dealer-master-data.md
 - [ ] System SHALL provide a Dealers setup menu under Master Data Configuration
 - [ ] Admin SHALL be able to create a Dealer with:
   - Dealer Code (Text Input, required, unique)
-  - Dealer Name (Text Input, required, unique within tenant)
+  - Dealer Name (Text Input, required, not unique within tenant)
   - Contact Number (Text Input, required)
   - Email (Email Format, optional)
   - Address (Text Input, required)
