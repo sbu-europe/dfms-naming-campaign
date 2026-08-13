@@ -93,6 +93,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Specifications
 - [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver profile, compliance, user account link
+- [optional-last-name-fb002.md](03-users/optional-last-name-fb002.md) — Sprint 8 FB-002: User & Driver last name optional
 - [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User
 
 #### Related User Stories
@@ -372,6 +373,7 @@ Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/trackin
 
 #### Specifications
 - [tenant-user-management.md](03-users/tenant-user-management.md) — Tenant Admin user & role management: invite, assign roles, lifecycle, deactivation, audit trail *(US-004, US-005, US-007, US-008, US-009)*
+- [optional-last-name-fb002.md](03-users/optional-last-name-fb002.md) — Sprint 8 FB-002: User & Driver last name optional *(US-005, US-057)*
 - [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver entity beyond User account: compliance, license, state tracking *(US-057)*
 - [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User, availability state machine, trip assignment *(US-061)*
 
