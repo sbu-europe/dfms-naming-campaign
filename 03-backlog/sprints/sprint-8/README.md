@@ -16,7 +16,8 @@ total_story_points_estimated: "~13 SP (AUTH-01 carry-over) + FB-001–FB-014"
 | **Carry-over from Sprint 7** | [AUTH-01](01-auth-phone-channel/AUTH-01-phone-login-2fa-sms-invitation.md) (13 SP); improvements [FB-001–FB-007](./improvements/README.md) |
 | **New Scope** | Workflow / display improvements [FB-008–FB-014](./improvements/README.md) (PR lock, TR weight columns, Transport Planner remaining qty/weight, Driver My Trips cargo weight) |
 | **Related prior work** | Sprint 7 VM-09 delivered; Sprint 7 feedback FB-001–FB-008 closed |
-| **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-007 (carry-over, Resolved); FB-008–FB-014 (new, Open) |
+| **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-007 (carry-over, Resolved); FB-008–FB-028 (new) |
+| **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) — client FB-001–FB-002 (Open) |
 
 ---
 
@@ -67,6 +68,15 @@ See [`improvements/`](./improvements/README.md). E2E plans: [`09-testing/.../e2e
 | FB-013 | Transport Planner | TO details: PR line items table not showing after creation | High | Open |
 | FB-014 | Driver My Trips | Cargo table: Allocated Weight with Allocated Quantity | Medium | Open |
 | FB-015 | Transport Planner | TO creation: Allocating TO Load live sum in MT (kg) | Medium | Resolved |
+
+### Client feedback (FB-001–FB-002)
+
+See [`feedback-resolution.md`](./feedback-resolution.md).
+
+| ID | Area | Summary | Priority | Status |
+|----|------|---------|----------|--------|
+| FB-001 | Master Data / Vehicles · TO assignment | Show wheel information beside vehicle capacity | Medium | Open |
+| FB-002 | Users / Drivers | last_name optional on user and driver | Medium | Open |
 
 ---
 
