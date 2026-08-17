@@ -17,7 +17,7 @@ total_story_points_estimated: "~13 SP (AUTH-01 carry-over) + FB-001–FB-014"
 | **New Scope** | Workflow / display improvements [FB-008–FB-014](./improvements/README.md) (PR lock, TR weight columns, Transport Planner remaining qty/weight, Driver My Trips cargo weight) |
 | **Related prior work** | Sprint 7 VM-09 delivered; Sprint 7 feedback FB-001–FB-008 closed |
 | **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-007 (carry-over, Resolved); FB-008–FB-028 (new) |
-| **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) — client FB-001–FB-002 (Open) |
+| **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) — client FB-001–FB-002 (Resolved) |
 
 ---
 
@@ -75,8 +75,8 @@ See [`feedback-resolution.md`](./feedback-resolution.md).
 
 | ID | Area | Summary | Priority | Status |
 |----|------|---------|----------|--------|
-| FB-001 | Master Data / Vehicles · TO assignment | Show wheel information beside vehicle capacity | Medium | Open |
-| FB-002 | Users / Drivers | last_name optional on user and driver | Medium | Open |
+| FB-001 | Master Data / Vehicles · TO assignment | Show wheel information beside vehicle capacity | Medium | Resolved |
+| FB-002 | Users / Drivers | last_name optional on user and driver — plan: [`optional-last-name-fb002.md`](../../../05-modules/03-users/optional-last-name-fb002.md) | Medium | Resolved |
 
 ---
 

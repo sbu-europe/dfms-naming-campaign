@@ -32,7 +32,7 @@ Product Master Data is the **foundational data** for the entire DFMS platform. B
 - [ ] Create, edit, view, and deactivate products (no hard delete)
 - [ ] Two product types: Finished Goods (FG) and Raw Materials (RM)
 - [ ] Unique Product Code/SKU per tenant
-- [ ] Unique Product Name per tenant
+- [ ] Unique Product Item Code per tenant
 - [ ] Activating/deactivating products preserves history
 - [ ] When creating a new product, category and sub-category must be selected from dropdown options and are required fields.
 
