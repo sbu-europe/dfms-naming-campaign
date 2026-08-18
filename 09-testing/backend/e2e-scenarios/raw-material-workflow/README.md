@@ -2,7 +2,9 @@
 section: 09-testing/backend/e2e-scenarios/raw-material-workflow
 title: Raw Materials Workflow — E2E Scenario Plans
 version: 1.0
-last_updated: 2026-08-10
+last_updated: 2026-08-17
+last_mcp_run: 2026-08-17
+last_mcp_verdict: "Happy-path chain Closed (RUN_ID=C4E217A8); §1 12/12 Pass; §2 TC04 Fail (past delivery date)"
 ---
 
 # Raw Materials (RM) Workflow — E2E Scenarios

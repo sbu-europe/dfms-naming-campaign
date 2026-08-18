@@ -5,12 +5,19 @@ version: 1.0
 phase: Phase 1
 related_stories: TO-02, TRQ-02
 source_spec: ../../../../../05-modules/05-transport/transport-order-management.md
-last_updated: 2026-07-21
+last_updated: 2026-08-17
 playwright_mcp: true
+last_mcp_run: 2026-08-17
+last_mcp_verdict: 10/11 Pass · 1 Planned
+artifacts: tests/e2e/playwright-mcp/rm-03-04-to-artifacts/
 ---
 
 # Raw Materials Workflow — Section 3 — Transport Planner — TO Creation (Port Consignment) — E2E Scenario Plan (Django Admin SSR)
 
+
+**Last MCP run:** 2026-08-17 · **10/11 Pass · 1 Planned** · `RUN_ID=C4E217A8`  
+**Chain:** `PS-PORT-20260817-0003` → `TR-PORT-20260817-0004` → `TO-20260817-0004` → **Closed**  
+**Artifacts:** [`tests/e2e/playwright-mcp/rm-03-04-to-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/rm-03-04-to-artifacts/RESULTS.md)  
 **Navigation:** Transport → **Live GPS** (3A) · **Transport orders → Add** → select Port TR (3B)
 
 Scope: **Transport Planner** creating RM / Port Consignment TOs against TRs in **Available for Transport Planning**. Own Fleet planning is §4.
@@ -19,22 +26,22 @@ Scope: **Transport Planner** creating RM / Port Consignment TOs against TRs in *
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | TP can access Live Map Dashboard | As **Transport Planner** (`transport.planner1.nourish@yopmail.com`), open **Transport → Live GPS** (`/admin/tracking/live-gps/`). Assert page loads with map container. *GPS marker fidelity depends on seed — assert page access.* | P1 | Planned |
-| TC02 | Live Map vehicle detail panel | On Live GPS, if markers exist, click a vehicle marker. Assert side panel shows vehicle id and status. *Demote to smoke if no GPS seed.* | P2 | Planned |
+| TC01 | TP can access Live Map Dashboard | As **Transport Planner** (`transport.planner1.nourish@yopmail.com`), open **Transport → Live GPS** (`/admin/tracking/live-gps/`). Assert page loads with map container. *GPS marker fidelity depends on seed — assert page access.* | P1 | Pass |
+| TC02 | Live Map vehicle detail panel | On Live GPS, if markers exist, click a vehicle marker. Assert side panel shows vehicle id and status. *Demote to smoke if no GPS seed.* | P2 | Pass |
 
 ## 3B — TO creation (Port Consignment)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC03 | TP selects Port TR for planning | With Port TR **Available for Transport Planning** (§2), as TP open **Transport orders → Add** → `/admin/transport/transportorder/select-tr/`, filter/select Port TR, **Continue**. Assert **Create Transport Order** at `create-from-tr/<tr_id>/` with port consignment header (B/L, LC, vessel, container, cargo qty) read-only. | P0 | Planned |
-| TC04 | TP creates single Own Fleet TO | **Number of TOs** = 1, **Fleet type** = **Own Fleet**, select **Vehicle type**, allocate full TR qty, future **Planned delivery date/time**, optional **C&F Clearance Note** if field present. Click **Create Transport Order**. Assert `to_number`; status **Created** (`created`); `flow_lane = rm_inbound`. | P0 | Planned |
+| TC03 | TP selects Port TR for planning | With Port TR **Available for Transport Planning** (§2), as TP open **Transport orders → Add** → `/admin/transport/transportorder/select-tr/`, filter/select Port TR, **Continue**. Assert **Create Transport Order** at `create-from-tr/<tr_id>/` with port consignment header (B/L, LC, vessel, container, cargo qty) read-only. | P0 | Pass |
+| TC04 | TP creates single Own Fleet TO | **Number of TOs** = 1, **Fleet type** = **Own Fleet**, select **Vehicle type**, allocate full TR qty, future **Planned delivery date/time**, optional **C&F Clearance Note** if field present. Click **Create Transport Order**. Assert `to_number`; status **Created** (`created`); `flow_lane = rm_inbound`. | P0 | Pass |
 | TC05 | TP creates multiple TOs (split quantity) | TR qty 100: **Number of TOs** = 2, allocate 60 and 40. Assert two TOs **Created** with correct quantities. | P0 | Planned |
-| TC06 | Sum of TO allocations cannot exceed TR quantity | TR remaining 50: attempt allocate 70. Expected: validation `exceeds remaining`; save blocked. | P0 | Planned |
-| TC07 | C&F Clearance Note captured at TO creation | Set **C&F Clearance Note** (Yes/No) on RM TO create form if exposed; save. Assert value on TO change view. *Drop if field not on admin create template — note in RESULTS.* | P1 | Planned |
-| TC08 | Fleet Type — Own Fleet or Vendor Fleet only | Open **Fleet type** dropdown. Assert only **Own Fleet** and **Vendor Fleet**. | P0 | Planned |
-| TC09 | Port consignment header fields read-only | Attempt to edit B/L or Vessel on create-from-TR. Assert display-only header; allocation table not free-text product entry. | P0 | Planned |
-| TC10 | TO status Created immediately after save | After successful save, assert badge **Created** — no Draft state on create path. | P0 | Planned |
-| TC11 | Mandatory field validation on TO creation | Leave **Fleet type** or **Number of TOs** blank; submit. Expected: field errors; no TO created. | P0 | Planned |
+| TC06 | Sum of TO allocations cannot exceed TR quantity | TR remaining 50: attempt allocate 70. Expected: validation `exceeds remaining`; save blocked. | P0 | Pass |
+| TC07 | C&F Clearance Note captured at TO creation | Set **C&F Clearance Note** (Yes/No) on RM TO create form if exposed; save. Assert value on TO change view. *Drop if field not on admin create template — note in RESULTS.* | P1 | Pass |
+| TC08 | Fleet Type — Own Fleet or Vendor Fleet only | Open **Fleet type** dropdown. Assert only **Own Fleet** and **Vendor Fleet**. | P0 | Pass |
+| TC09 | Port consignment header fields read-only | Attempt to edit B/L or Vessel on create-from-TR. Assert display-only header; allocation table not free-text product entry. | P0 | Pass |
+| TC10 | TO status Created immediately after save | After successful save, assert badge **Created** — no Draft state on create path. | P0 | Pass |
+| TC11 | Mandatory field validation on TO creation | Leave **Fleet type** or **Number of TOs** blank; submit. Expected: field errors; no TO created. | P0 | Pass |
 
 ## Implementation Notes
 
@@ -66,3 +73,9 @@ Scope: **Transport Planner** creating RM / Port Consignment TOs against TRs in *
 | RM_035 | TC09 | Keep |
 | RM_036 | TC10 | Keep |
 | RM_037 | TC11 | Keep |
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-08-17 | **10/11 Pass** | Playwright MCP; see `tests/e2e/playwright-mcp/rm-03-04-to-artifacts/RESULTS.md`. Happy-path chain on MCP sandbox. |
