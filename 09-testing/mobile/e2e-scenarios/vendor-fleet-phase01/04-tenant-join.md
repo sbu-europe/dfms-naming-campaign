@@ -4,6 +4,8 @@
 **Scope:** Vendor mobile app — **Maestro target**  
 **Last Maestro run:** 2026-07-22 (emulator-5554) — full join loop + multi-tenant
 
+> **Current UI rule (join-gate entry):** In the standalone tenant directory shown after onboarding, header action is **Profile** and logout appears as a red destructive button at the bottom. Inside the main app Tenants tab, this standalone logout chrome is not shown.
+
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
 | TC_102 | Tenant list displayed | Tenant Selection / directory shows available tenants. | High | Vendor App | Covered | `tenants/01_…` + `tenants/03_…` | **Passed 2026-07-22** |

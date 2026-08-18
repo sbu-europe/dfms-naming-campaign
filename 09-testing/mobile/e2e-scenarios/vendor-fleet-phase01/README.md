@@ -21,7 +21,7 @@ This folder documents **all vendor-fleet-related test cases from TC_075 through 
 
 | Wave | Result |
 |------|--------|
-| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants (+ empty search), profile hub/edit/logout, email login, register nav/validation, login mode switch **passed**. **OTP cases Skipped** (see `02-registration-auth.md`). Other failures: phone login (`phone_not_verified`), invalid-creds toast timing, change-password wrong-current assert. |
+| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants (+ empty search), profile hub/edit/logout, email login, register nav/validation, login mode switch **passed**. **OTP cases Skipped** (see `02-registration-auth.md`). Other failures: phone login (unverified phone), invalid-creds toast timing, change-password wrong-current assert. |
 | B — bids | List, empty search, **submit bid** **passed**. Open-details navigation **failed** (03). |
 | C — TOs | List, empty search, **TO details** **passed**. Post-award driver/vehicle validation **failed** (04). |
 | D — trips | All 4 trips flows **passed**. |
@@ -29,13 +29,13 @@ This folder documents **all vendor-fleet-related test cases from TC_075 through 
 
 ### OTP policy (current system)
 
-OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exists. Tracked in [`02-registration-auth.md`](./02-registration-auth.md): **TC_090–TC_094**, plus flows `auth/10_register_full_flow_with_stub_otp` and `auth/09_forgot_password_navigation_and_otp`.
+OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exists. Tracked in [`02-registration-auth.md`](./02-registration-auth.md): **TC_090–TC_094**, plus flows `auth/10_register_full_flow_with_stub_otp` and `auth/09_forgot_password_navigation_and_otp`. Registration completion now includes **email OTP → phone verification (step 3/3) → onboarding documents**.
 
 ### Failed flows (fix list — non-OTP)
 
 | Flow | Failure | Root cause / fix |
 |------|---------|------------------|
-| `auth/05_login_phone_password` | No authenticated landing | Backend `phone_not_verified` for test vendor — seed verified phone or assert error copy |
+| `auth/05_login_phone_password` | No authenticated landing | Backend rejects unverified phone — seed verified phone or assert error copy |
 | `auth/03_login_invalid_credentials` | Error not visible | Toast `Email/password is wrong` timing — assert faster or use snackbar id |
 | `bids/03_open_bid_details_from_list` | Bid details not reached | Align tap with `04` (Open filter + tile); 04 passed same session |
 | `tos/04_post_award_submission_validation` | Action-required TO not tapped | Use specific TO number (e.g. `TO-20260707-0001`) from seeded list |
