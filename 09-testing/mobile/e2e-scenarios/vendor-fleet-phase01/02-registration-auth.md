@@ -16,10 +16,10 @@
 | TC_088 | Password complexity | Weak password rejected; field masked. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/13_register_weak_password.yaml` | **Passed 2026-07-22** — `Password must.*`; masking is platform Password field |
 | TC_089 | Password mismatch | Confirm Password must match Password. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/08_register_password_mismatch.yaml` | **Passed** |
 | TC_090 | OTP sent | After form submit, 6-digit OTP sent to registered email. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_091 | Valid OTP | Correct OTP within validity completes email verification. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs |
+| TC_091 | Valid OTP | Correct OTP within validity completes email verification and routes to phone verification (step 3 of 3). | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs |
 | TC_092 | Expired OTP | Expired OTP rejected; Resend option offered. | High | Vendor App | Skipped | — | **Skipped** — OTP out of scope for current Maestro runs |
 | TC_093 | OTP lockout | Wrong OTP 3 times → temporary lockout. | High | Vendor App | Skipped | — | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_094 | Sign in after OTP | After OTP verification, sign in lands on Profile Completion. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — depends on OTP verification (TC_090–091) |
+| TC_094 | Sign in after OTP | After email OTP verification, vendor lands on Phone Verification first, then Profile Completion after successful phone OTP. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — depends on OTP verification (TC_090–091) |
 
 ## Supporting login flows (not in TC_075–215 range)
 
@@ -29,8 +29,8 @@
 | `auth/02_login_empty_fields_shows_toast.yaml` | **Passed** |
 | `auth/03_login_invalid_credentials.yaml` | **Failed** — toast `Email/password is wrong` not captured within timeout |
 | `auth/04_login_valid_email_lands_authenticated.yaml` | **Passed** |
-| `auth/05_login_phone_password.yaml` | **Failed** — backend returns `phone_not_verified` for `vendor2` phone login (403); use verified-phone vendor or seed phone verification |
-| `auth/09_forgot_password_navigation_and_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs (was Passed 2026-07-22; do not re-run as gate) |
+| `auth/05_login_phone_password.yaml` | **Failed** — backend rejects unverified phone login; use verified-phone vendor or seed phone verification |
+| `auth/09_forgot_password_navigation_and_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs; for phone input, unknown/unverified both return the same no-account message |
 | `auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs (was Failed 2026-07-22; excluded from suite gates) |
 
 ## Test data

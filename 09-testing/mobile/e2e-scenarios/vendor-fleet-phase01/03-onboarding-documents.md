@@ -8,6 +8,8 @@
 > Trade license, BIN certificate, TIN certificate, and **Truck Association reference** (file upload).
 > Backend: `VendorRegistrationService.MANDATORY_DOC_TYPES`. App: `VendorDocumentType.values` / `mandatoryDocumentsComplete`.
 > Legacy PDF treated Truck Association as a free-text field — that is **obsolete**; it is a document row on Completing your profile.
+>
+> **Current UI rule:** Header action is **Profile** (not Logout). Logout is shown as a red destructive button under Continue.
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
@@ -36,6 +38,7 @@
 - Asset: `.maestro/assets/maestro_doc.png` (Maestro `addMedia` + `/sdcard/Download` fallback).
 - Reset incomplete account between required-doc flows: delete `VendorDocument` rows for `onboarding.test@example.com` (do **not** run `make seed-vendor-dev` on that account).
 - Helpers: `helpers/login_onboarding.yaml`, `helpers/pick_compliance_png.yaml`.
+- Verify chrome during runs: top-right `Profile` opens vendor profile; `Logout` appears below Continue as destructive CTA.
 
 ## Test data
 
