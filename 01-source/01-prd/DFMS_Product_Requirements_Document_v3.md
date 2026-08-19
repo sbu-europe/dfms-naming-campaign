@@ -937,8 +937,7 @@ This section details the functional requirements organized by major system modul
 
 * Once authenticated, the user's session persists across requests without needing to re-authenticate for each action.
 * System tracks active sessions (IP, Device) per user
-* A session remains valid for 24 hours from last activity; each active request extends (refreshes) the expiry, creating a sliding 24-hour window.
-* A session remains valid for 24 hours from last activity; each active request extends (refreshes) the expiry, creating a sliding 24-hour window.
+* A session remains valid for 24 hours from login, after which it expires regardless of activity.
 * System display active sessions in Admin dashboard (where applicable)
 * System SHALL support session termination by Admin
 * System SHALL invalidate session on password change
@@ -949,8 +948,7 @@ This section details the functional requirements organized by major system modul
 
 * [Critical] System SHALL track all active user sessions with IP address and device identifier.
 * [Critical] Session cookie lifetime SHALL be set to 24 hours (86,400 seconds).
-* [Critical] Session expiry SHALL operate as a sliding window — each authenticated request SHALL refresh the session's expiry timestamp, so an actively used session does not expire mid-session.
-* [Critical] Session expiry today is time-based only (24-hour sliding window); there is no self-service or admin-assisted way to revoke a specific active session before it naturally expires.
+* [Critical] Session expiry today is time-based only (fixed 24 hours from login); there is no self-service or admin-assisted way to revoke a specific active session before it naturally expires.
 * [Critical] System SHALL support OTP (One-Time Password) delivery via email or SMS for MFA.
 
 ### Role-based Access Control (Role Hierarchy)

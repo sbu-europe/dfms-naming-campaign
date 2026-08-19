@@ -76,7 +76,7 @@
 | Item | Story | Jira Sub-task | Source | Priority |
 |------|-------|---------------|--------|----------|
 | Lock email field on activation page (read-only + server-side validation) | [CP-04](03-client-portal/CP-04-account-activation-invitation.md) | DFS-015-13 | Internal | High |
-| Extend session timeout to 24 hours (sliding window) | [INFRA-04](01-infra/INFRA-04-caching-session-storage.md) | DFS-004-6 | Client | Medium |
+| Extend session timeout to 24 hours | [INFRA-04](01-infra/INFRA-04-caching-session-storage.md) | DFS-004-6 | Client | Medium |
 | Trusted device cookie — skip OTP on known browser | [CP-03](03-client-portal/CP-03-2fa-email-otp-login.md), [PAP-03](02-platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) | DFS-014-10 | Client | High |
 | Configurable OTP channel per user (email \| SMS) | [CP-03](03-client-portal/CP-03-2fa-email-otp-login.md) | DFS-014-11 | Client | High |
 
@@ -90,7 +90,7 @@
 |---|----------|--------|---------|----------|--------|---------------|
 | FB-001 | Invitation email non-editable on activation page | Internal | [CP-04](03-client-portal/CP-04-account-activation-invitation.md) | High | Open | [CP-04-feedback.md](04-feedback/CP-04-feedback.md) |
 | FB-002 | Platform admin resend welcome email action | Internal | [PAP-05](02-platform-admin-portal/PAP-05-tenant-onboarding.md) | High | Open | [PAP-05-feedback.md](04-feedback/PAP-05-feedback.md) |
-| FB-003 | Session timeout 30 min → 24 hours (sliding window) | Client | [INFRA-04](01-infra/INFRA-04-caching-session-storage.md) | Medium | Open | [INFRA-04-feedback.md](04-feedback/INFRA-04-feedback.md) |
+| FB-003 | Session timeout 30 min → 24 hours | Client | [INFRA-04](01-infra/INFRA-04-caching-session-storage.md) | Medium | Open | [INFRA-04-feedback.md](04-feedback/INFRA-04-feedback.md) |
 | FB-004 | OTP skip for trusted device / known browser | Client | [CP-03](03-client-portal/CP-03-2fa-email-otp-login.md), [PAP-03](02-platform-admin-portal/PAP-03-platform-admin-2fa-otp.md) | High | Open | [CP-03-feedback.md](04-feedback/CP-03-feedback.md) |
 | FB-005 | OTP channel configurable per user (email or SMS) | Client | [CP-03](03-client-portal/CP-03-2fa-email-otp-login.md) | High | Open | [CP-03-feedback.md](04-feedback/CP-03-feedback.md) |
 

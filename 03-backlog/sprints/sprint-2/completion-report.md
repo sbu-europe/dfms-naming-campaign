@@ -75,7 +75,7 @@ branch: main (merged from sprint-2/*, feat/master-data-configuration, DFS-*)
 - Account deactivation & reactivation for tenant users (`DFS-24`, `DFS-26`)
 - Password reset and admin-assisted password change flows (forgot password, forced reset) (`DFS-25`, `fix(DFS-25)`)
 - User Activity & Audit Logs: login/logout, permission events with missing `id` columns fixed (`DFS-26`, `1fa0a36`)
-- Session timeout extended to 24 hours sliding window (`fix(DFS-25): fix session issue` — `6006b20`) — Sprint 1 FB-003 resolved
+- Session timeout extended to 24 hours fixed expiry (`fix(DFS-25): fix session issue` — `6006b20`) — Sprint 1 FB-003 resolved
 - Driver user profiles migrated to `apps/users` (`DFS-230`)
 
 ---
@@ -104,7 +104,7 @@ branch: main (merged from sprint-2/*, feat/master-data-configuration, DFS-*)
 | Resend invitation endpoint (regenerate token) | CP-04 | `sprint-1/resolve-feedback` PR #13 | `bfacfc2` |
 | Bulk CSV user invitation | CP-04 | `DFS-015-12` PR #14 | `9d21fd9` |
 | Email field read-only on activation page | CP-04 | Resolved in `sprint-2/resolve-feedback` | `8623d1f` |
-| Session timeout 30 min → 24h sliding window | INFRA-04 | Redis session cache TTL updated | `6006b20` |
+| Session timeout 30 min → 24h fixed expiry | INFRA-04 | Redis session cache TTL updated | `6006b20` |
 | 2FA (OTP) for admin/tenant login improvements | CP-03 | `fix(DFS-136): Implement 2FA authentication` | `84490cf` |
 | OTP skip for trusted device / known browser | CP-03 | `apps/users/trusted_device.py` scaffolded — signed cookie infrastructure built (`dfms_trusted_login`, 90-day TTL, `TRUSTED_DEVICE_LOGIN_ENABLED` flag); cookie is set after login but the bypass check in `initiate_login` is explicitly commented out (`"OTP must be required on every login; do not allow trusted-device bypass"`). **Not activated — deferred.** | — |
 
