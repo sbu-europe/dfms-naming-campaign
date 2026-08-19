@@ -9,7 +9,7 @@ epic: Tenant User Management
 status: Pending
 story_points: 5
 assignee: ~
-spec_file: ../../../../stories/US-008-password-account-reset.md
+spec_file: US-008-password-account-reset.md
 ---
 
 # TUM-04 — Password & Account Reset

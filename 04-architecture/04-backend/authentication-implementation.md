@@ -8,7 +8,7 @@
 
 - **[Security Architecture](../00-overview/architecture-summary.md#6-security-first)** - High-level security approach
 - **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md#41-authentication)** - Authentication requirements
-- **[User Story US-007](../../03-backlog/stories/README.md)** - User authentication requirements
+- **[User Story US-007](../../03-backlog/sprints/README.md)** - User authentication requirements
 
 This document provides **Django-specific authentication implementation** (code, configuration, middleware).
 

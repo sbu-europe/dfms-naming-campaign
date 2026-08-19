@@ -609,7 +609,7 @@ QCInspectionRejected(
 - [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-061](../../../03-backlog/stories/README.md)
+- [User Story: US-061](../../../03-backlog/sprints/README.md)
 - [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
 
 ### Other Workflows

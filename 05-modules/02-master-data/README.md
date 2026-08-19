@@ -100,7 +100,7 @@ Master data creation is integrated into workflow stories:
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
 
-**Location**: `../../03-backlog/stories/README.md`
+**Location**: `../../03-backlog/sprints/README.md`
 
 ---
 
@@ -212,7 +212,7 @@ See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`**
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Original PRD document
-- **[User Stories](../../03-backlog/stories/README.md)** - Implementation stories
+- **[User Stories](../../03-backlog/sprints/README.md)** - Implementation stories
 
 ---
 

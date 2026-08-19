@@ -166,7 +166,7 @@ Delivers via user’s email if present; otherwise SMS to phone. Justification st
 | Module overview | This file; [03-users README](./README.md) |
 | Foundation invite/reset | [user-tenant-management.md](../01-foundation/user-tenant-management.md) |
 | Auth | [authentication-security.md](../01-foundation/authentication-security.md) |
-| Stories | [US-005](../../03-backlog/stories/US-005-user-invitation-activation.md), [US-008](../../03-backlog/stories/US-008-password-account-reset.md) |
+| Stories | [US-005](../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md), [US-008](../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md) |
 | E2E plans | [invitation](../../09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-scenarios.md), [password reset](../../09-testing/backend/e2e-scenarios/users/password-account-reset-e2e-scenarios.md) |
 
 ---

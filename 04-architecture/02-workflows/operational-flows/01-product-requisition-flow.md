@@ -374,8 +374,8 @@ ProductRequisitionRejected(
 
 ### Business Context
 - [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
-- [User Story: US-009](../../../03-backlog/stories/README.md)
-- [User Story: US-011](../../../03-backlog/stories/US-011-distribution-approval.md)
+- [User Story: US-009](../../../03-backlog/sprints/README.md)
+- [User Story: US-011 (archived pre-Sprint-2 backlog)](../../../_meta/archive/backlog-stories-pre-sprint2/US-011-distribution-approval.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Next step after PR approval

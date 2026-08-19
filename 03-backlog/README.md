@@ -1,28 +1,19 @@
 # 03-backlog — Product Backlog
 
-> **User stories, epics, sprint plans, and phase organisation for DFMS implementation**
+> **User stories, sub-tasks, improvements, and feedback resolution, organised sprint-wise**
 
 ## Overview
 
-This folder contains the complete product backlog for DFMS:
-- **18 epics** — High-level feature themes
-- **104 user stories** — Detailed implementation tasks
-- **18 sprints** across Phase 1
+This folder contains the DFMS product backlog, organised by sprint. Each
+`sprints/sprint-N/` folder is self-contained: stories, sub-task tables, status,
+`improvements/` (UX/design polish work), and `feedback-resolution.md` (post-demo feedback
+tracking) all live together for that sprint.
 
 ## Structure
 
-### `stories/` — User Stories (Implementation Tasks)
-**104 user stories** in a single flat folder for easy access.
+### `sprints/` — Sprint-wise Backlog (current source of truth)
 
-**Format**: `US-XXX-feature-name.md`
-
-**Benefits of flat structure**:
-- Easy search: Find any story instantly
-- LLM-optimised: Shorter paths = fewer tokens
-- Simple references across documentation
-
-### `sprints/` — Sprint Breakdown
-Sprint-by-sprint backlog with stories, sub-tasks, status, and post-demo feedback.
+See [`sprints/README.md`](sprints/README.md) for the full sprint index (Sprint 1–9+).
 
 | Sprint | Folder | Focus |
 |--------|--------|-------|
@@ -30,22 +21,32 @@ Sprint-by-sprint backlog with stories, sub-tasks, status, and post-demo feedback
 | Sprint 2 | `sprints/sprint-2/` | Master Data, User Management, Vehicle Tracking |
 | Sprint 3 | `sprints/sprint-3/` | Requisition, Transport Requests & Orders |
 | Sprint 4 | `sprints/sprint-4/` | Trip Execution & Closure |
+| Sprint 5–9+ | `sprints/sprint-5/` … | See [`sprints/README.md`](sprints/README.md) for current scope |
 
 ### `phase-1-sprint-plan.md` — Phase 1 Sprint Overview
-High-level sprint-by-sprint table of all 18 sprints with epics, story IDs, and story points.
 
----
+High-level sprint-by-sprint table from the original Phase 1 plan. Treat as historical
+context — for current scope and status, use `sprints/sprint-N/README.md`.
+
+### Archived: `stories/` (flat pre-Sprint-2 backlog)
+
+The original flat `US-XXX` story list has been retired. It's archived at
+[`../_meta/archive/backlog-stories-pre-sprint2/`](../_meta/archive/backlog-stories-pre-sprint2/README.md)
+for historical reference only — do not use it as current source of truth. Sprint 2's
+breakdown still keeps nine of those stories alongside it (in `sprints/sprint-2/.../US-XXX-*.md`)
+because they hold the full data models/UI specs/test scenarios; everything else has either
+been superseded by a self-contained sprint story or has no Phase 1 equivalent yet.
 
 ## Quick Access
 
 | I need… | Go to… |
 |---------|--------|
-| A specific user story | `stories/US-XXX-*.md` |
-| Sprint 3 backlog | `sprints/sprint-3/README.md` |
-| Full sprint plan | `phase-1-sprint-plan.md` |
+| Current sprint story/status | `sprints/sprint-N/README.md` |
+| Sprint index | `sprints/README.md` |
+| Full sprint plan (historical) | `phase-1-sprint-plan.md` |
+| An old pre-Sprint-2 story (reference only) | `../_meta/archive/backlog-stories-pre-sprint2/US-XXX-*.md` |
 
 ---
 
-**Last Updated**: 2026-04-20
-**Total Stories**: 104
-**Total Sprints**: 18 (Phase 1)
+**Last Updated**: 2026-08-19
+**Total Sprints**: 9+ (Phase 1, in progress)

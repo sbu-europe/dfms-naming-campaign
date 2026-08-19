@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 3
 assignee: ~
-spec_file: ../../../../stories/US-096-supplier-dealer-master-data.md
+spec_file: US-096-route-supplier-dealer-master-data.md
 ---
 
 # MDM-02 — Supplier & Dealer Master Data Configuration

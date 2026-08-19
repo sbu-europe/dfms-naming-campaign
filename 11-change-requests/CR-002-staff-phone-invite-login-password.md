@@ -39,8 +39,8 @@ Phase 1 product context previously stated that staff users are invited and recov
 - `05-modules/01-foundation/authentication-security.md`
 - `05-modules/03-users/tenant-user-management.md`
 - `05-modules/03-users/tenant-user-management-v2.md`
-- `03-backlog/stories/US-005-user-invitation-activation.md`
-- `03-backlog/stories/US-008-password-account-reset.md`
+- `03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md`
+- `03-backlog/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md`
 - `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-scenarios.md`
 - `09-testing/backend/e2e-scenarios/users/password-account-reset-e2e-scenarios.md`
 
@@ -69,8 +69,8 @@ Phase 1 product context previously stated that staff users are invited and recov
 | `05-modules/01-foundation/authentication-security.md` | **UPDATE** | Forgot-password channel delivery |
 | `05-modules/03-users/tenant-user-management.md` | **UPDATE** | Activation summary |
 | `05-modules/03-users/tenant-user-management-v2.md` | **UPDATE** | Remove “SMS out of Phase 1” |
-| `03-backlog/stories/US-005-*.md` | **UPDATE** | Phase 1 phone invite scope |
-| `03-backlog/stories/US-008-*.md` | **UPDATE** | Single identifier + SMS |
+| `03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-*.md` | **UPDATE** | Phase 1 phone invite scope |
+| `03-backlog/sprints/sprint-2/02-tenant-user-management/US-008-*.md` | **UPDATE** | Single identifier + SMS |
 | `09-testing/.../user-invitation-*.md` | **UPDATE** | Phone invite in scope |
 | `09-testing/.../password-account-reset-*.md` | **UPDATE** | Phone reset in scope |
 

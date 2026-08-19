@@ -9,7 +9,7 @@ epic: Tenant User Management
 status: Pending
 story_points: 5
 assignee: ~
-spec_file: ../../../../stories/US-007-account-deactivation.md
+spec_file: US-007-account-deactivation.md
 ---
 
 # TUM-03 — Account Deactivation & Reactivation

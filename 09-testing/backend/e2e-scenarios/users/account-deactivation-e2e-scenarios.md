@@ -4,7 +4,7 @@ specification: Account Deactivation (US-007) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-007
-source_spec: ../../03-backlog/stories/US-007-account-deactivation.md
+source_spec: ../../../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-007-account-deactivation.md
 implementation_reference:
   - ../../../apps/users/account_deactivation_service.py
   - ../../../apps/users/admin.py (UserAdmin: bulk deactivate/reactivate actions)

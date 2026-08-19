@@ -43,8 +43,8 @@ DFMS-product-context/
 │   └── 05-industry-context/           # Industry context
 │
 ├── 03-backlog/                        # Product backlog (sprint-based)
-│   ├── sprints/                       # Sprint 1–4 tasks & completion reports
-│   └── stories/                       # Flat user story list (US-001 to US-098+)
+│   └── sprints/                       # Sprint-wise stories, sub-tasks, improvements & feedback (Sprint 1–9+)
+│                                       # (old flat stories/ folder archived to _meta/archive/backlog-stories-pre-sprint2/)
 │
 ├── 04-architecture/                   # System & implementation architecture
 │   ├── 00-overview/                   # Architecture summary & principles
@@ -151,10 +151,10 @@ Follow this sequence to understand the repository:
 ### **👔 Product Managers**
 - [Business Objectives](./02-domain/02-requirements/01-business-objectives/) - Goals and KPIs
 - [Sprint Plans](./03-backlog/sprints/) - Sprint-by-sprint task breakdown
-- [User Stories](./03-backlog/stories/) - Full user story list
+- [User Stories](./03-backlog/sprints/) - Full user story list
 
 ### **💻 Engineers**
-- [User Stories](./03-backlog/stories/) - Production-ready stories (flat list)
+- [User Stories](./03-backlog/sprints/) - Production-ready stories (sprint-wise)
 - [Module Specifications](./05-modules/) - Technical docs with data models & APIs
 - [Business Rules](./02-domain/03-business-rules/) - Validation rules
 - [API Contracts](./06-contracts/01-apis/) - OpenAPI 3.0 specs
@@ -164,11 +164,11 @@ Follow this sequence to understand the repository:
 
 ### **📊 Business Analysts**
 - [Functional Requirements](./02-domain/02-requirements/03-functional-requirements/) - High-level requirements
-- [User Stories](./03-backlog/stories/) - Detailed implementation stories
+- [User Stories](./03-backlog/sprints/) - Detailed implementation stories
 - [Business Processes](./02-domain/04-business-processes/) - End-to-end workflows
 
 ### **🧪 QA/Testers**
-- [User Stories](./03-backlog/stories/) - With acceptance criteria
+- [User Stories](./03-backlog/sprints/) - With acceptance criteria
 - [Business Rules](./02-domain/03-business-rules/) - Validation logic
 - [Non-Functional Requirements](./02-domain/02-requirements/04-non-functional-requirements/) - Performance, security
 - [Testing Strategy](09-testing/strategy/testing-strategy.md) - Overall test approach
@@ -196,14 +196,14 @@ Follow this sequence to understand the repository:
 
 ### **"I want to understand a specific feature"**
 
-1. Find related stories in [stories/](./03-backlog/stories/)
+1. Find related stories in [sprints/](./03-backlog/sprints/)
 2. Read module specification in [05-modules/](./05-modules/)
 3. Check business rules in [02-domain/03-business-rules/](./02-domain/03-business-rules/)
 
 **Example**: Understanding "Transport Order Management"
 ```bash
-# 1. Find stories (US-017, US-018, etc.)
-./03-backlog/stories/US-017-to-creation-multiple.md
+# 1. Find stories (US-017, US-018, etc. — archived pre-Sprint-2 backlog)
+./_meta/archive/backlog-stories-pre-sprint2/US-017-to-creation-multiple.md
 
 # 2. Read module spec
 ./05-modules/05-transport/transport-order-management.md
@@ -217,7 +217,7 @@ Follow this sequence to understand the repository:
 ### **"I want to implement a module"**
 
 1. **Read user stories** for that module
-   - Browse [03-backlog/stories/](./03-backlog/stories/)
+   - Browse [03-backlog/sprints/](./03-backlog/sprints/)
    - Each story has: User Story, Acceptance Criteria, Requirements, Business Rules
 
 2. **Read module specification**
@@ -232,9 +232,9 @@ Follow this sequence to understand the repository:
 
 **Example**: Implementing "Product Requisition"
 ```bash
-# 1. Read stories
-./03-backlog/stories/US-012-procurement-approval.md
-./03-backlog/stories/US-014-capacity-checking.md
+# 1. Read stories (archived pre-Sprint-2 backlog)
+./_meta/archive/backlog-stories-pre-sprint2/US-012-procurement-approval.md
+./_meta/archive/backlog-stories-pre-sprint2/US-014-capacity-checking.md
 
 # 2. Read module spec (data models, workflows, rules)
 ./05-modules/04-requisitions/product-requisition-management.md
@@ -276,8 +276,8 @@ Follow this sequence to understand the repository:
 
 **Example**: Tracing "Gate Management"
 ```bash
-# 1. Read story
-./03-backlog/stories/US-035-gate-in-source.md
+# 1. Read story (archived pre-Sprint-2 backlog)
+./_meta/archive/backlog-stories-pre-sprint2/US-035-gate-in-source.md
 # Check "Related PRD Sections" in frontmatter
 
 # 2. Read original PRD
@@ -310,10 +310,10 @@ import { DataModel } from './context/06-contracts/02-data-models/...'
 grep -r "transport order" 02-domain/ 05-modules/ 03-backlog/
 
 # Search user stories only
-grep -r "vendor" 03-backlog/stories/
+grep -r "vendor" 03-backlog/sprints/
 
 # Find files by name
-find 03-backlog/stories/ -name "*vendor*"
+find 03-backlog/sprints/ -name "*vendor*"
 ```
 
 **Or use your IDE's search** (Cmd+Shift+F / Ctrl+Shift+F)
@@ -324,7 +324,7 @@ find 03-backlog/stories/ -name "*vendor*"
 
 | Section | Status | Files |
 |---------|--------|-------|
-| **03-backlog** | ✅ Complete | 140+ files (98+ stories, 4 sprints) |
+| **03-backlog** | ✅ Complete | Sprint-wise backlog (`sprints/`), Sprints 1–9+; pre-Sprint-2 stories archived |
 | **04-architecture** | ✅ Complete | 90+ files (~12,000 lines) |
 | **05-modules** | ✅ Complete | 50+ files (~20,000 lines) |
 | **02-domain** | ✅ Complete | 50+ files (~15,000 lines) |
@@ -334,7 +334,7 @@ find 03-backlog/stories/ -name "*vendor*"
 | **09-testing** | ✅ Active | 17 files (strategy + e2e scenarios) |
 | **01-source** | ✅ Current | 20+ files |
 
-**Story counts**: **98+ stories**, 4 sprints completed.  
+**Story counts**: sprint-wise stories under `03-backlog/sprints/`, Sprints 1–9+ (see [`sprints/README.md`](./03-backlog/sprints/README.md)).  
 **For full metrics**, see [README.md](./README.md).
 
 ---

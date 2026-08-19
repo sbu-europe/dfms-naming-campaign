@@ -11,8 +11,9 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 
 # Sprint 3 — Requisition (FG), Port Shipments, Transport Requests & Transport Orders
 
-> Full sprint backlog with stories, sub-tasks, and status.
-> Source story specs: [`03-backlog/stories/`](../../stories/)
+> Full sprint backlog with stories, sub-tasks, and status — self-contained in this sprint's
+> story files (no external spec dependency). Superseded pre-Sprint-2 specs are archived at
+> [`_meta/archive/backlog-stories-pre-sprint2/`](../../../_meta/archive/backlog-stories-pre-sprint2/README.md).
 
 ## Sprint Summary
 

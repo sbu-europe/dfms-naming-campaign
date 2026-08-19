@@ -9,7 +9,7 @@ epic: Tenant User Management
 status: Pending
 story_points: 8
 assignee: ~
-spec_file: ../../../../stories/US-009-user-activity-audit-logs.md
+spec_file: US-009-user-activity-audit-logs.md
 ---
 
 # TUM-05 — User Activity & Audit Logs

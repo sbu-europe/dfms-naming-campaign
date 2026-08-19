@@ -39,7 +39,7 @@ Today, the one-time OTP verification step during invitation activation (click li
 
 **Affected Documents** (to be updated once implemented):
 - `05-modules/03-users/staff-invite-login-password-channels.md` — invite §2.1 OTP-type table (clarify onboarding OTP is now unconditional; §3.3 login 2FA unchanged)
-- `03-backlog/stories/US-005-user-invitation-activation.md` — OTP requirement scope
+- `03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md` — OTP requirement scope
 - `09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-scenarios.md` — add mandatory-onboarding-OTP scenarios
 
 ---

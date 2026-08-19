@@ -4,7 +4,7 @@ specification: User Invitation & Activation (US-005) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-005
-source_spec: ../../03-backlog/stories/US-005-user-invitation-activation.md
+source_spec: ../../../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md
 implementation_reference:
   - ../../../apps/users/admin.py (InviteUserAdmin)
   - ../../../apps/users/web_views.py (activate_account SSR)

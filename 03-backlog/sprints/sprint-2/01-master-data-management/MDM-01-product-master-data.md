@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 13
 assignee: ~
-spec_file: ../../../../stories/US-095-product-master-data-management.md
+spec_file: US-095-product-master-data-management.md
 ---
 
 # MDM-01 — Product Master Data Management (CRUD)

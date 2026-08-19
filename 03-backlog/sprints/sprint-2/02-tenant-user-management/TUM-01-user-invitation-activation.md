@@ -10,7 +10,7 @@ status: In Progress
 story_points: 5
 completion: ~70%
 assignee: ~
-spec_file: ../../../../stories/US-005-user-invitation-activation.md
+spec_file: US-005-user-invitation-activation.md
 ---
 
 # TUM-01 — User Invitation & Activation

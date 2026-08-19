@@ -73,7 +73,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 | ID | User Story | Priority | Story Points | Sprint | Status | Individual Story |
 |----|------------|----------|--------------|--------|--------|------------------|
-| US-001 | User Login & Account Lockout | Critical | 10 | Sprint 1 | Pending | [✅ Available](../../03-backlog/stories/US-001-user-login-account-lockout.md) |
+| US-001 | User Login & Account Lockout | Critical | 10 | Sprint 1 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-001-user-login-account-lockout.md) |
 | US-002 | Manage Driver Master Data | Critical | 5 | Sprint 1 | Pending | _Template Available_ |
 | US-003 | Manage Helper Master Data | Critical | 3 | Sprint 1 | Pending | _Template Available_ |
 | US-004 | Manage Vendor Master Data | Critical | 5 | Sprint 1 | Pending | _Template Available_ |
@@ -114,10 +114,10 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 |----|------------|----------|--------------|--------|--------|------------------|
 | US-015 | Transport Requisition (TR) Assessment by Transport Planner | Critical | 5 | Sprint 3 | Pending | _Template Available_ |
 | US-016 | Fleet Availability Validation | High | 3 | Sprint 3 | Pending | _Template Available_ |
-| US-017 | Transport Order (TO) Creation (Multiple TOs per TR) | Critical | 8 | Sprint 3 | Pending | [✅ Available](../../03-backlog/stories/US-018-to-creation-transport-planner.md) |
+| US-017 | Transport Order (TO) Creation (Multiple TOs per TR) | Critical | 8 | Sprint 3 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-018-to-creation-transport-planner.md) |
 | US-018 | TO Execution - Own Fleet (Vehicle/Driver Assignment) | Critical | 8 | Sprint 4 | Pending | _Template Available_ |
 | US-019 | TO Execution - Vendor Fleet (Direct Assignment) | Critical | 5 | Sprint 4 | Pending | _Template Available_ |
-| US-020 | TO Execution - Vendor Fleet (Bidding) | High | 8 | Sprint 5 | Pending | [✅ Available](../../03-backlog/stories/US-024-vendor-bidding-portal.md) |
+| US-020 | TO Execution - Vendor Fleet (Bidding) | High | 8 | Sprint 5 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-024-vendor-bidding-portal.md) |
 | US-021 | Trip Lifecycle Management (12 States, Sub-states) | Critical | 13 | Sprint 5 | Pending | _Template Available_ |
 | US-022 | Partial Delivery Handling | High | 5 | Sprint 6 | Pending | _Template Available_ |
 | US-023 | Incident Management | High | 5 | Sprint 6 | Pending | _Template Available_ |
@@ -140,7 +140,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 | US-027 | Vendor Registration Portal | High | 5 | Sprint 3 | Pending | _Template Available_ |
 | US-028 | Vendor Document Upload | High | 3 | Sprint 3 | Pending | _Template Available_ |
 | US-029 | Vendor Verification Workflow (Admin) | Critical | 5 | Sprint 4 | Pending | _Template Available_ |
-| US-030 | Vendor Bidding Portal (see US-020) | High | 8 | Sprint 5 | Pending | [✅ Available](../../03-backlog/stories/US-024-vendor-bidding-portal.md) |
+| US-030 | Vendor Bidding Portal (see US-020) | High | 8 | Sprint 5 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-024-vendor-bidding-portal.md) |
 | US-031 | Bid Evaluation and Winner Selection | High | 5 | Sprint 5 | Pending | _Template Available_ |
 | US-032 | Vendor TO Dashboard | High | 5 | Sprint 6 | Pending | _Template Available_ |
 | US-033 | Vendor Invoice Submission | High | 5 | Sprint 7 | Pending | _Template Available_ |
@@ -188,7 +188,7 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 | US-049 | Configurable QC Checklists | High | 5 | Sprint 8 | Pending | _Template Available_ |
 | US-050 | Sampling from Multiple Sides | High | 3 | Sprint 8 | Pending | _Template Available_ |
 | US-051 | Lab Test Request Creation | High | 3 | Sprint 8 | Pending | _Template Available_ |
-| US-052 | Lab Testing with QR Scan | Critical | 5 | Sprint 8 | Pending | [✅ Available](../../03-backlog/stories/US-044-qc-lab-testing.md) |
+| US-052 | Lab Testing with QR Scan | Critical | 5 | Sprint 8 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-044-qc-lab-testing.md) |
 | US-053 | Lab Report Upload | Critical | 3 | Sprint 8 | Pending | _Template Available_ |
 | US-054 | Lab Status Monitoring | High | 3 | Sprint 8 | Pending | _Template Available_ |
 | US-055 | QC Pass/Fail/Auto-Pass Decision | Critical | 5 | Sprint 9 | Pending | _Template Available_ |
@@ -235,9 +235,9 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 
 | ID | User Story | Priority | Story Points | Sprint | Status | Individual Story |
 |----|------------|----------|--------------|--------|--------|------------------|
-| US-052 | Driver Mobile Interface | High | 8 | Sprint 9 | Pending | [✅ Available](../../03-backlog/stories/US-052-driver-mobile-interface.md) |
+| US-052 | Driver Mobile Interface | High | 8 | Sprint 9 | Pending | [✅ Available](backlog-stories-pre-sprint2/US-052-driver-mobile-interface.md) |
 | US-062 | QC Supervisor Mobile Interface | High | 8 | Sprint 9 | Pending | _Template Available_ |
-| US-063 | Vendor Mobile Application (Flutter - Bidding & TO View) | High | 8 | Sprint 10 | Pending | [✅ Available](../../03-backlog/stories/README.md) |
+| US-063 | Vendor Mobile Application (Flutter - Bidding & TO View) | High | 8 | Sprint 10 | Pending | [✅ Available](backlog-stories-pre-sprint2/README.md) |
 
 **Module Dependencies**: 
 - Transport Management (for driver app)
@@ -392,11 +392,11 @@ Phase 1 establishes the **foundational platform** for distribution and fleet man
 The following **5 detailed user stories** demonstrate the format, depth, and structure that all 63 stories will follow:
 
 ### Available Samples (Detailed Documentation)
-1. **[US-001: User Login & Account Lockout](../../03-backlog/stories/US-001-user-login-account-lockout.md)** - System Foundation example
-2. **[US-018: Transport Order Creation](../../03-backlog/stories/US-018-to-creation-transport-planner.md)** - Complex workflow example
-3. **[US-024: Vendor Bidding Portal](../../03-backlog/stories/US-024-vendor-bidding-portal.md)** - Vendor ecosystem example
-4. **[US-044: QC Lab Testing](../../03-backlog/stories/US-044-qc-lab-testing.md)** - QC workflow example
-5. **[US-052: Driver Mobile Interface](../../03-backlog/stories/US-052-driver-mobile-interface.md)** - Mobile-responsive web interface example
+1. **[US-001: User Login & Account Lockout](backlog-stories-pre-sprint2/US-001-user-login-account-lockout.md)** - System Foundation example
+2. **[US-018: Transport Order Creation](backlog-stories-pre-sprint2/US-018-to-creation-transport-planner.md)** - Complex workflow example
+3. **[US-024: Vendor Bidding Portal](backlog-stories-pre-sprint2/US-024-vendor-bidding-portal.md)** - Vendor ecosystem example
+4. **[US-044: QC Lab Testing](backlog-stories-pre-sprint2/US-044-qc-lab-testing.md)** - QC workflow example
+5. **[US-052: Driver Mobile Interface](backlog-stories-pre-sprint2/US-052-driver-mobile-interface.md)** - Mobile-responsive web interface example
 
 ### Template for Remaining 58 Stories
 
