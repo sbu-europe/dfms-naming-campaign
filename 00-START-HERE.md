@@ -281,7 +281,7 @@ Follow this sequence to understand the repository:
 # Check "Related PRD Sections" in frontmatter
 
 # 2. Read original PRD
-./01-source/01-prd/PRD_DFMS_v1.0.md
+./01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 ```
 
 ---

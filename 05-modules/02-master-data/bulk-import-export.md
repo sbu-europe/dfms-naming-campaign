@@ -3,7 +3,7 @@ module: 02-master-data
 specification: Bulk Import & Export — Master Data
 version: 1.3
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.3.1, 6.3.2, 6.3.3
 last_updated: 2026-04-17
 related_stories: US-047, US-053, US-057, US-061, US-095, US-096
@@ -1755,4 +1755,4 @@ The recommended sequence ensures each layer is testable before the next builds o
 - US-095: Product Master Data Management (CRUD)
 - US-096: Route, Supplier & Dealer Master Data
 
-**Source**: PRD_DFMS_v1.0.md — Sections 6.3.1, 6.3.2, 6.3.3
+**Source**: DFMS_Product_Requirements_Document_v3.md — Sections 6.3.1, 6.3.2, 6.3.3

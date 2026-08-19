@@ -3,7 +3,7 @@ module: 02-master-data
 specification: Point of Interest (POI) Management & Geofencing
 version: 1.0
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.5.1-6.5.8
 last_updated: 2026-07-24
 related_stories: US-014
@@ -626,4 +626,4 @@ CREATE INDEX idx_poi_name_tenant ON pois(poi_name, tenant_id);  -- Unique constr
 **Related User Stories:**
 - US-014: Capacity Checking and Warnings
 
-**Source**: PRD_DFMS_v1.0.md - Sections 6.5.1-6.5.8
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections 6.5.1-6.5.8

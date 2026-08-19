@@ -2,7 +2,7 @@
 
 > Epic-level implementation breakdown for DFMS Phase 1 (MVP)
 
-**Source**: Based on `source-documents/04-wbs/epics-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/PRD_DFMS_v1.0.md`  
+**Source**: Based on `source-documents/04-wbs/epics-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md`  
 **Status**: Planned  
 **Total Epics**: 17  
 **Total Story Points**: 946 SP  

@@ -11,7 +11,7 @@ story_points: 13
 created: 2026-02-13
 updated: 2026-02-13
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 related_stories:
   - US-020-to-execution-own-fleet.md
   - US-021-to-execution-vendor-fleet.md

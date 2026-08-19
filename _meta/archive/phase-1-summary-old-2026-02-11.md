@@ -8,7 +8,7 @@ status: planned
 created: 2026-02-11
 updated: 2026-02-17
 source_documents:
-  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md
   - ../../../source-documents/03-sow/SOW Phase-1.md

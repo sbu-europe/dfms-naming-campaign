@@ -13,7 +13,7 @@ story_points: 5
 created: 2026-03-06
 updated: 2026-03-06
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 related_stories:
   - US-047-vendor-master-data.md
   - US-053-vehicle-registration-master-data.md

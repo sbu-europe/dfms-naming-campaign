@@ -56,7 +56,7 @@ Fleet administrators need to record the **SIM number** tied to each vehicle's tr
 |-------|-------|
 | **Source** | Client feedback — 2026-07-17 |
 | **Affected Stories** | POI management ([`poi-management.md`](../../../../05-modules/02-master-data/poi-management.md)); PRD §6.5.3 POI Classification |
-| **Reference docs** | [`PRD_DFMS_v1.0.md`](../../../../01-source/01-prd/PRD_DFMS_v1.0.md) §POI Classification (Inbound/Outbound/Neutral) |
+| **Reference docs** | [`DFMS_Product_Requirements_Document_v3.md`](../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) §POI Classification (Inbound/Outbound/Neutral) |
 | **Closing Sub-tasks** | FB-022-1 … FB-022-3 — TBD |
 | **AC Amendment** | POI create and update forms SHALL include **POI Classification Type** — a **required dropdown** with exactly three choices: **Inbound**, **Outbound**, **Neutral**. Persist on `POI` (e.g. `classification_type`). **No operational binding in this item** — the field is informational/master-data only; routing, gate, stock, and dashboard logic MUST NOT branch on it until a future story explicitly wires it. Optional: PRD-default suggestion by `poi_type` on add (admin may override). |
 | **Status** | Resolved |

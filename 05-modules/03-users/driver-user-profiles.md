@@ -3,7 +3,7 @@ module: 12-users
 specification: Driver Domain (User on Create)
 version: 1.4
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 related_stories: US-004, US-005, US-052, US-057
 last_updated: 2026-04-17
 ---

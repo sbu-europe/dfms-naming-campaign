@@ -67,7 +67,7 @@
 - [WBS Stories Table](../../so../../01-source/04-wbs/stories-table.md)
 - [Phase Backlog README](../../03-backlog/README.md)
 - [Module Specifications README](../../05-modules/README.md)
-- [PRD Document](../../so../../01-source/01-prd/PRD_DFMS_v1.0.md)
+- [PRD Document](../../so../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)
 
 ---
 

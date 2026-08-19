@@ -3,7 +3,7 @@ module: 02-master-data
 specification: Master Data Delete Operations (Django Admin)
 version: 1.2
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md §6.3.3 Master Tables (CRUD Operation) — DELETE
+source_document: DFMS_Product_Requirements_Document_v3.md §6.3.3 Master Tables (CRUD Operation) — DELETE
 last_updated: 2026-07-21
 changelog: >
   v1.2 — No-dependency hard delete requires a mandatory delete reason;
@@ -12,7 +12,7 @@ changelog: >
   Delete = hard delete with dependency gate and user-friendly validation messages.
   v1.0 — Initial Admin-first plan (superseded scope).
 related_stories: US-096, MDM-02, US-053
-related_prd: ../../01-source/01-prd/PRD_DFMS_v1.0.md
+related_prd: ../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 baseline_code: apps/master_data/admin.py (_reverse_reference_labels, MasterEntityHardDeleteAdminMixin, delete_permanently)
 ---
 
@@ -265,6 +265,6 @@ No ViewSet / API changes in this plan.
 
 | Doc | Path |
 |-----|------|
-| PRD §6.3.3 | [`../../01-source/01-prd/PRD_DFMS_v1.0.md`](../../01-source/01-prd/PRD_DFMS_v1.0.md) |
+| PRD §6.3.3 | [`../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md`](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) |
 | MDM-02 Supplier/Dealer | [`../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md`](../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md) |
 | Vehicle master | [`./vehicle-master-data.md`](./vehicle-master-data.md) |

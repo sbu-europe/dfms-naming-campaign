@@ -19,7 +19,7 @@ pending:
   - Full audit log writes on provisioning events
   - Trial auto-suspension
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ../../../05-modules/01-foundation/user-tenant-management.md
 related_stories:
   - US-001-user-login-account-lockout.md

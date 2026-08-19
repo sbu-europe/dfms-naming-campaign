@@ -99,7 +99,7 @@ Detailed work breakdown structure spreadsheet for Phase 1.
 
 - **[Implementation Plan](../../04-architecture/07-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Comprehensive implementation plan
 - **[Implementation Timeline](../../04-architecture/07-implementation/planning/IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
-- **[PRD](../01-prd/PRD_DFMS_v1.0.md)** - Product Requirements Document
+- **[PRD](../01-prd/DFMS_Product_Requirements_Document_v3.md)** - Product Requirements Document
 
 ---
 

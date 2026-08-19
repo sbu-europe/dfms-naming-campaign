@@ -3,7 +3,7 @@ module: 03-users
 specification: Tenant Operational User & Role Management
 version: 1.0
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 sprint: Sprint 2
 last_updated: 2026-04-22
 related_stories: US-004, US-005, US-007, US-008, US-009, DFS-024, DFS-026, DFS-027, DFS-028

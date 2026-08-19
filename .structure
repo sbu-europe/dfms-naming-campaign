@@ -7,8 +7,7 @@ DFMS-product-context/
 ├── 01-source/                                   # ✅ Source documents (do not modify)
 │   ├── README.md                                # Source documents guide
 │   ├── 01-prd/                                  # Product Requirements Documents
-│   │   ├── PRD_DFMS_v1.0.docx                  # Original PRD (Word)
-│   │   └── PRD_DFMS_v1.0.md                    # PRD (Markdown)
+│   │   └── DFMS_Product_Requirements_Document_v3.md    # PRD v3 (Markdown)
 │   │
 │   ├── 02-flow-diagram/                         # Operational flow diagrams
 │   │   ├── DFMS_End_to_End_Operational_Flow_FG_v1.5.png

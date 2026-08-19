@@ -2,7 +2,7 @@
 
 > Detailed sprint-by-sprint implementation timeline for DFMS Phase 1 (MVP)
 
-**Source**: Based on `source-documents/04-wbs/timeline-table.md`, `source-documents/04-wbs/release-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/PRD_DFMS_v1.0.md`  
+**Source**: Based on `source-documents/04-wbs/timeline-table.md`, `source-documents/04-wbs/release-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md`  
 **Status**: Planned  
 **Total Duration**: 26 weeks (baseline) + 2 weeks buffer = 28 weeks max  
 **Total Sprints**: 12 sprints (3 × 2-week + 7 × 3-week + 2 × 2-week)  

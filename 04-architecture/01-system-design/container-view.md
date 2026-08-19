@@ -641,7 +641,7 @@ Kubernetes Cluster (EKS)
 ## 📝 Source Documents
 
 This container view was created by analyzing:
-- `source-documents/requirements/PRD_DFMS_v1.0.docx`
+- `source-documents/requirements/DFMS_Product_Requirements_Document_v3.md`
 - `source-documents/business-proposal/BS23_Proposal_Nourish_LFMS_v1.3.1_No_Commercial.docx`
 - `02-domain/00-overview/project-summary.md`
 - Industry best practices for cloud-native architecture

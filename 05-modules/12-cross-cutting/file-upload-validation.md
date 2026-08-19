@@ -7,7 +7,7 @@ document_type: implementation_plan
 last_updated: 2026-08-03
 related_modules: [02-master-data, 03-users, 04-requisitions, 05-transport, 07-vendor-management, 09-mobile-apps]
 related_stories: []
-related_prd: ../../01-source/01-prd/PRD_DFMS_v1.0.md
+related_prd: ../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 source_constraints: >
   NFR — System SHALL support file uploads up to 10 MB;
   limitations.md — File upload size limited to 10 MB per file;

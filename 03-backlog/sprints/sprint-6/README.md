@@ -214,7 +214,7 @@ New cross-module journey scenarios (Sprint 3 coverage + integration paths):
 - [Sprint 5 Completion Report](../sprint-5/completion-report.md) — delivered scope, carry-forward list (23 E2E sub-tasks, GPS-01 Phase 1)
 - [GPS-01 Sprint 5 story (demo MVP)](../sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — demo MVP story
 - [GPS/VTS integration contract](../../06-contracts/04-integration/gps-vts-integration.yaml) — GPSWOX provider contract (adapter deferred)
-- [PRD §6.5.4–6.5.10, §6.8.2](../../01-source/01-prd/PRD_DFMS_v1.0.md) — map layer, GPS, geofencing, dwell, maintenance (Phase 2)
+- [PRD §6.5.4–6.5.10, §6.8.2](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) — map layer, GPS, geofencing, dwell, maintenance (Phase 2)
 - [Vendor Trip Lifecycle & Status Model](../sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md) — canonical TLS-01 flow consumed by vendor app
 - [TO Creation & Vendor Bidding Flow Revision](../sprint-5/08-vendor-management/TO-BID-FLOW-REVISION.md) — Bid bundle model the vendor app release must match
 

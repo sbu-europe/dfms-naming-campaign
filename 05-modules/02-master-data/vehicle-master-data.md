@@ -3,7 +3,7 @@ module: 02-master-data
 specification: Vehicle Master Data Management
 version: 1.2
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 last_updated: 2026-07-06
 related_stories: US-053
 ---
@@ -518,4 +518,4 @@ The testing strategy focuses on data integrity, complex validation rules, and bu
 - US-020: TO Execution - Own Fleet
 - US-025: Trip Lifecycle Management
 
-**Source**: PRD_DFMS_v1.0.md
+**Source**: DFMS_Product_Requirements_Document_v3.md

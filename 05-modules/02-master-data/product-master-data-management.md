@@ -3,7 +3,7 @@ module: 02-master-data
 specification: Product Master Data Management
 version: 1.1
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.4.1-6.4.3
 last_updated: 2026-04-17
 related_stories: US-095
@@ -581,4 +581,4 @@ To provide a seamless UX during Product creation where the `sub_category_id` dro
 **Related User Stories:**
 - Integrated in requisition and QC workflows (no dedicated story)
 
-**Source**: PRD_DFMS_v1.0.md - Sections 6.4.1-6.4.3
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections 6.4.1-6.4.3

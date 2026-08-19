@@ -384,7 +384,7 @@ ProductRequisitionRejected(
 
 ## 📝 Source Documents
 
-- [source-documents/01-prd/PRD_DFMS_v1.0.md](../../../01-source/01-prd/PRD_DFMS_v1.0.md) - Product requirements
+- [source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md](../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) - Product requirements
 - [source-documents/02-flow-diagram/](../../../01-source/README.md) - Flow diagrams
 - [02-domain/02-requirements/functional-requirements/](../../../02-domain/02-requirements/03-functional-requirements/README.md)
 

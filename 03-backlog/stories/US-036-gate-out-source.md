@@ -13,7 +13,7 @@ story_points: 3
 created: 2026-02-11
 updated: 2026-02-11
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ../../../05-modules/04-poi-operations/gate-management.md
   - ../../../source-documents/04-wbs/stories-table.md
   - ../../../source-documents/04-wbs/epics-table.md

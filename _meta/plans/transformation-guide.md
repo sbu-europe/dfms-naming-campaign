@@ -33,7 +33,7 @@ module: [module-id]
 specification: [Specification Title]
 version: 1.0
 phase: Phase X
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: [PRD section references]
 last_updated: 2026-02-26
 related_stories: [US-XXX, US-YYY]
@@ -94,7 +94,7 @@ related_stories: [US-XXX, US-YYY]
 - US-XXX: [Title]
 - US-YYY: [Title]
 
-**Source**: PRD_DFMS_v1.0.md - Sections [X.X.X]
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections [X.X.X]
 ```
 
 ---

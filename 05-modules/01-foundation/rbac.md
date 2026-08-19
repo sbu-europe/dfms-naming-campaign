@@ -3,7 +3,7 @@ module: 01-foundation
 specification: Role-Based Access Control (RBAC)
 version: 1.0
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.1.4, 6.1.5, 6.1.6
 last_updated: 2026-02-26
 related_stories: US-004
@@ -693,4 +693,4 @@ Every module checks permissions before operations:
 **Related User Stories:**
 - US-004: Role Hierarchy & RBAC
 
-**Source**: PRD_DFMS_v1.0.md - Sections 6.1.4, 6.1.5, 6.1.6
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections 6.1.4, 6.1.5, 6.1.6
