@@ -9,7 +9,7 @@ epic: Vehicle Tracking & Geofencing
 status: Pending
 story_points: 8
 assignee: ~
-spec_file: ../../../../stories/US-097-poi-management-geofencing.md
+spec_file: ../01-master-data-management/US-097-poi-management-geofencing.md
 note: POI CRUD and geofence radius configuration is in MDM-04. This story covers the runtime tracking engine.
 ---
 

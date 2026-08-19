@@ -64,8 +64,7 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### glossary.md
 **Primary Sources**:
-- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
-- `../../source-documents/01-prd/PRD_DFMS_v1.0.docx` (Word format)
+- `../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md` ✅ **Main source**
 
 > ✅ **Updated**: PRD moved from `requirements/` to `01-prd/`.
 
@@ -97,7 +96,7 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### business-objectives.md
 **Primary Sources**:
-- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
+- `../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md` ✅ **Main source**
 - `../../01-source/03-sow/SOW Phase-1.md` - Phase 1 objectives
 - `../../01-source/03-sow/SOW Phase-2.md` - Phase 2 objectives
 - `../../01-source/03-sow/SOW Phase-3.md` - Phase 3 objectives
@@ -119,7 +118,7 @@ This document provides a comprehensive mapping between all business-context docu
 
 #### user-personas.md
 **Primary Sources**:
-- `../../source-documents/01-prd/PRD_DFMS_v1.0.md` ✅ **Main source**
+- `../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md` ✅ **Main source**
 - `../../01-source/03-sow/user-roles.md` ✅ **Role definitions**
 - Historical: Meeting minutes and questionnaires (archived)
 
@@ -146,8 +145,7 @@ This document provides a comprehensive mapping between all business-context docu
 **Location**: `source-documents/01-prd/`
 
 **Files**:
-- `PRD_DFMS_v1.0.md` ⭐ **Most comprehensive** (Markdown format)
-- `PRD_DFMS_v1.0.docx` (Word format)
+- `DFMS_Product_Requirements_Document_v3.md` ⭐ **Most comprehensive** (Markdown format)
 
 **Used For**:
 - Detailed functional requirements (all modules)
@@ -296,7 +294,7 @@ This document provides a comprehensive mapping between all business-context docu
 
 ### For Engineers
 When implementing features, refer to:
-1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for detailed requirements
+1. **PRD** (`01-prd/DFMS_Product_Requirements_Document_v3.md`) for detailed requirements
 2. **SOW Documents** (`03-sow/SOW Phase-1.md`, etc.) for phase-specific features
 3. **Flow Diagrams** (`02-flow-diagram/`) for process understanding
 4. **WBS Stories** (`04-wbs/stories-table.md`) for story details and acceptance criteria
@@ -304,7 +302,7 @@ When implementing features, refer to:
 
 ### For Business Analysts
 When analyzing requirements, refer to:
-1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for comprehensive requirements
+1. **PRD** (`01-prd/DFMS_Product_Requirements_Document_v3.md`) for comprehensive requirements
 2. **SOW Documents** (`03-sow/`) for phase-specific scope
 3. **Feature List** (`03-sow/DFMS - Feature List version_1.xlsx`) for feature specifications
 4. **WBS Epics** (`04-wbs/epics-table.md`) for epic-level breakdown
@@ -320,7 +318,7 @@ When making decisions, refer to:
 
 ### For QA/Testers
 When creating test cases, refer to:
-1. **PRD** (`01-prd/PRD_DFMS_v1.0.md`) for acceptance criteria
+1. **PRD** (`01-prd/DFMS_Product_Requirements_Document_v3.md`) for acceptance criteria
 2. **WBS Stories** (`04-wbs/stories-table.md`) for detailed acceptance criteria
 3. **Flow Diagrams** (`02-flow-diagram/`) for test scenarios
 4. **User Roles** (`03-sow/user-roles.md`) for role-based testing
@@ -341,8 +339,7 @@ When planning and tracking, refer to:
 ### Most Current Documents (as of 2026-02-17)
 
 **Requirements**:
-- ✅ `01-prd/PRD_DFMS_v1.0.md` (Latest version - Markdown)
-- ✅ `01-prd/PRD_DFMS_v1.0.docx` (Latest version - Word)
+- ✅ `01-prd/DFMS_Product_Requirements_Document_v3.md` (Latest version - Markdown)
 
 **Statement of Work**:
 - ✅ `03-sow/SOW Phase-1.md` (MVP - P1)

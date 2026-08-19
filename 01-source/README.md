@@ -17,8 +17,7 @@ These documents represent requirements gathered from **Nourish**, our launch cli
 ### `01-prd/`
 Product Requirements Documents (PRD) and core specifications.
 
-- `PRD_DFMS_v1.0.docx` - Primary product requirements document (Word format)
-- `PRD_DFMS_v1.0.md` - Product requirements document (Markdown format)
+- `DFMS_Product_Requirements_Document_v3.md` - Primary product requirements document (Markdown format)
 
 > 📖 See [Module Specifications](../05-modules/) for structured technical documentation
 
@@ -95,7 +94,7 @@ All files follow a consistent naming pattern:
 Category_Description_Date/Version.extension
 
 Examples:
-- PRD_DFMS_v1.0.docx
+- DFMS_Product_Requirements_Document_v3.md
 - Transport_Operations_2025-09-29.docx
 - WBS_Phase_1_v1.0.xlsx
 ```
@@ -128,7 +127,7 @@ Key documentation milestones:
 - **MIS**: `meeting-minutes/2025-10/MIS_Operations_2025-10-08.docx`
 
 ### By Document Type
-- **Requirements**: `01-prd/PRD_DFMS_v1.0.md` or `.docx`
+- **Requirements**: `01-prd/DFMS_Product_Requirements_Document_v3.md`
 - **Process Flows**: `02-flow-diagram/` (latest: v1.6)
 - **Statement of Work**: 
   - Phase 1 (MVP): `03-sow/SOW Phase-1.md`
@@ -143,7 +142,7 @@ Key documentation milestones:
 
 | Document Type | Latest Version | Location | Status |
 |--------------|----------------|----------|--------|
-| PRD | v1.0 | `01-prd/` | Current |
+| PRD | v3.0 | `01-prd/` | Current |
 | Flow Diagrams | v1.6 | `02-flow-diagram/` | Latest |
 | SOW Phase 1 | v1 | `03-sow/SOW Phase-1.md` | Current |
 | SOW Phase 2 | v1 | `03-sow/SOW Phase-2.md` | Current |
@@ -256,7 +255,7 @@ for row in sheet.iter_rows(values_only=True):
 
 ```bash
 # 1. Get complete document content
-unzip -p "PRD_DFMS_v1.0.docx" word/document.xml 2>/dev/null | \
+unzip -p "filename.docx" word/document.xml 2>/dev/null | \
   grep -o '<w:t[^>]*>[^<]*</w:t>' | \
   sed 's/<[^>]*>//g' > full_content.txt
 

@@ -3,7 +3,7 @@ module: 04-requisitions
 specification: Product Requisition Management
 version: 1.1
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 sprint: Sprint 3
 last_updated: 2026-05-07
 related_stories: DFS-032 (PR-01), DFS-033 (PR-02)
@@ -908,4 +908,4 @@ PRStatusChanged {
 - DFS-033 — Port Shipment (Import) Registration
 - DFS-040 — Requisition Epic
 
-**Source**: PRD_DFMS_v1.0.md — Requisition module sections
+**Source**: DFMS_Product_Requirements_Document_v3.md — Requisition module sections

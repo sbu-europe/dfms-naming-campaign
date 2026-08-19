@@ -512,8 +512,8 @@ TripCreated(
 - [Module Interactions](../../01-system-design/modules/module-interactions.md)
 
 ### Business Context
-- [User Story: US-017](../../../03-backlog/stories/US-017-to-creation-multiple.md)
-- [User Story: US-018](../../../03-backlog/stories/US-018-to-creation-transport-planner.md)
+- [User Story: US-017](../../../_meta/archive/backlog-stories-pre-sprint2/US-017-to-creation-multiple.md)
+- [User Story: US-018](../../../_meta/archive/backlog-stories-pre-sprint2/US-018-to-creation-transport-planner.md)
 
 ### Other Workflows
 - [Product Requisition Flow](./01-product-requisition-flow.md) - Previous step

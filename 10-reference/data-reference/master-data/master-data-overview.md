@@ -6,7 +6,7 @@ created: 2026-02-11
 updated: 2026-02-11
 source_documents:
   - ../../../source-documents/discovery-phase/client-resources/master-data/
-  - ../../../source-documents/01-prd/PRD_DFMS_v1.0.docx
+  - ../../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md
 tags: [master-data, data-model, reference-data]
 ---
 

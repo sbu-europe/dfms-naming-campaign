@@ -9,7 +9,7 @@ epic: Tenant User Management
 status: Pending
 story_points: 5
 assignee: ~
-spec_file: ../../../../stories/US-006-otp-verification.md
+spec_file: US-006-otp-verification.md
 ---
 
 # TUM-02 — OTP Verification System

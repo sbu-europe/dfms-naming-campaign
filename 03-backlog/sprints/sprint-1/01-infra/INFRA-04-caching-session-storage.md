@@ -11,7 +11,7 @@ story_points: 1
 assignee: ~
 sub_tasks:
   - id: DFS-004-6
-    title: "FB-003: Extend session timeout from 30 min to 24 hours (sliding window)"
+    title: "FB-003: Extend session timeout from 30 min to 24 hours"
     status: Open
 feedback_file: ../04-feedback/INFRA-04-feedback.md
 ---
@@ -60,5 +60,4 @@ Django's default in-process or database-backed session store does not work well 
 
 ### FB-003 — Extend Session Timeout to 24 Hours
 - [ ] `SESSION_COOKIE_AGE = 86400` (24 hours) set in `config/settings/base.py`
-- [ ] `SESSION_SAVE_EVERY_REQUEST = True` to enable sliding window (session refreshes on activity)
-- [ ] Session expiry confirmed in testing: idle for 24 hours logs the user out; active use keeps session alive
+- [ ] Session expiry confirmed in testing: session expires 24 hours after login

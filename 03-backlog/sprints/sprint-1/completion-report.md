@@ -49,7 +49,7 @@ branch: main (merged from sprint-1/*, feat/*)
 - `scripts/seed_data.py` for local dev bootstrapping
 - Swagger / ReDoc API docs at `/api/docs/`
 - JWT authentication with tenant context embedded in token
-- Redis-backed session cache and OTP state (24-hour sliding window — see FB-003)
+- Redis-backed session cache and OTP state (24-hour fixed expiry — see FB-003)
 - Celery result backend on Redis DB 2 (avoids `django_celery_results` schema conflict in worker)
 
 ---
@@ -118,7 +118,7 @@ branch: main (merged from sprint-1/*, feat/*)
 | Resend invitation — regenerate token (CP-04) | CP-04 | High |
 | Bulk CSV user invitation | CP-04 | Medium |
 | Email read-only on activation page | CP-04 | High |
-| Session timeout → 24h sliding window | INFRA-04 | Medium |
+| Session timeout → 24h fixed expiry | INFRA-04 | Medium |
 | OTP skip for trusted device / known browser — infrastructure scaffolded, bypass not activated | CP-03, PAP-03 | Medium |
 | OTP channel configurable per user (email/SMS) — SMS scaffolded, not wired | CP-03 | Low |
 

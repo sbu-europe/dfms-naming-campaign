@@ -33,7 +33,7 @@ updated: 2026-02-11
 ### For QA
 1. **[Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/functional-requirements-summary.md)** - 91 user stories
 2. **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md)** - Performance, security, etc.
-3. **[User Stories](../../03-backlog/stories/README.md)** - Detailed acceptance criteria
+3. **[User Stories](../../03-backlog/sprints/README.md)** - Detailed acceptance criteria
 
 ---
 
@@ -256,7 +256,7 @@ TR → TO → Trip → QC
 
 ### Source Documents
 - Location: `../../source-documents/`
-- **PRD**: `source-documents/01-prd/PRD_DFMS_v1.0.md`
+- **PRD**: `source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md`
 - **SOW Documents**: `source-documents/03-sow/` (Phase 1, 2, 3)
 - **WBS Documents**: `source-documents/04-wbs/` (Epics, Stories, Timeline, Risks, Releases)
 - **Flow Diagrams**: `source-documents/02-flow-diagram/`

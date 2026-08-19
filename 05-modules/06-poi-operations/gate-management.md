@@ -1,5 +1,5 @@
 ---
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: Gate Management, Gate-In Entry, On Demand Third Party Supplier and Dealer Management At Gate-In, Gate-Out Entry
 extracted_date: 2026-02-13
 last_updated: 2026-02-26

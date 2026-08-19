@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 5
 assignee: ~
-spec_file: ../../../../stories/US-047-vendor-master-data.md
+spec_file: US-047-vendor-master-data.md
 ---
 
 # MDM-03 — Vendor Master Data Configuration (Admin CRUD & Bulk Upload)

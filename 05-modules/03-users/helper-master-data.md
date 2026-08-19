@@ -3,7 +3,7 @@ module: 12-users
 specification: Helper Master Data Management
 version: 1.3
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 last_updated: 2026-04-17
 related_stories: US-061
 ---
@@ -307,4 +307,4 @@ To ensure robustness and data integrity, the Helper Master Data Management modul
 **Related User Stories:**
 - US-061: Helper Profile (MDM-07)
 
-**Source**: PRD_DFMS_v1.0.md
+**Source**: DFMS_Product_Requirements_Document_v3.md

@@ -12,7 +12,10 @@ jira_board: https://your-org.atlassian.net/jira/software/projects/DFS/boards
 # Sprint 2 — Master Data, User Management & Vehicle Tracking
 
 > Full sprint backlog with stories, sub-tasks, and status.
-> Source story specs: [`03-backlog/stories/`](../../stories/)
+> Full-detail story specs (data models, UI specs, test scenarios) for MDM-01–04, VTG-01,
+> and TUM-01–05 live alongside their story files in this sprint's subfolders (e.g.
+> `01-master-data-management/US-095-*.md`). Older, now-superseded specs are archived at
+> [`_meta/archive/backlog-stories-pre-sprint2/`](../../../_meta/archive/backlog-stories-pre-sprint2/README.md).
 
 ## Sprint Summary
 

@@ -2,7 +2,7 @@
 
 > Development tasks for DFMS Phase 1 implementation, organized by Epic and Story
 
-**Source**: Based on `source-documents/04-wbs/epics-table.md`, `source-documents/04-wbs/stories-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/PRD_DFMS_v1.0.md`  
+**Source**: Based on `source-documents/04-wbs/epics-table.md`, `source-documents/04-wbs/stories-table.md`, `source-documents/03-sow/SOW Phase-1.md`, and `source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md`  
 **Status**: Planned  
 **Duration**: 26 weeks (12 sprints)
 

@@ -3,7 +3,7 @@ module: 01-foundation
 specification: Authentication & Security
 version: 1.0
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.1.1, 6.1.2, 6.1.3
 last_updated: 2026-07-28
 related_stories: US-001, US-002, US-003, US-005, US-007, US-008
@@ -705,4 +705,4 @@ When a temporarily suspended account is reactivated:
 - US-007: Account Deactivation
 - US-008: Password & Account Reset (scope consolidated into US-005)
 
-**Source**: PRD_DFMS_v1.0.md - Sections 6.1.1, 6.1.2, 6.1.3
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections 6.1.1, 6.1.2, 6.1.3

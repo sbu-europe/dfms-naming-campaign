@@ -1,7 +1,7 @@
 # PRD Alignment Report - Phase 1 User Stories
 
 **Date**: 2026-02-26  
-**PRD Document**: `source-documents/01-prd/PRD_DFMS_v1.0.md`  
+**PRD Document**: `source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md`  
 **Status**: ✅ **FULLY ALIGNED & REFERENCED**
 
 ---
@@ -27,7 +27,7 @@ All stories use the correct relative path in their frontmatter:
 
 ```yaml
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ../../../../source-documents/04-wbs/stories-table.md
   - ../../../../source-documents/04-wbs/epics-table.md
 ```
@@ -35,7 +35,7 @@ source_documents:
 Some stories also reference additional module specifications:
 ```yaml
 source_documents:
-  - ../../../../01-source/01-prd/PRD_DFMS_v1.0.md
+  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ../../../05-modules/03-operations/product-requisition-management.md
   - ../../../05-modules/03-operations/transport-requisition-management.md
 ```

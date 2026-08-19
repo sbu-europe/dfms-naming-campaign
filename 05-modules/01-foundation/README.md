@@ -94,7 +94,7 @@ None - This is the foundation layer
 | US-009 | User Activity & Audit Logs | Compliance |
 | US-061 | Helper Profile | Master data / identity bridge |
 
-**Location**: `../../03-backlog/stories/US-001-*.md` through `US-009-*.md`, and US-061 under sprint backlog MDM-07
+**Location**: US-001–US-004 archived at `../../_meta/archive/backlog-stories-pre-sprint2/US-00[1-4]-*.md`; US-005–US-009 under `../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-00[5-9]-*.md`; US-061 under sprint backlog MDM-07
 
 ---
 
@@ -244,8 +244,8 @@ PUT /api/v1/roles/{role_id}/permissions
 
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
-- **[Source PRD](../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Original PRD document
-- **[User Stories](../../03-backlog/stories/README.md)** - Implementation stories
+- **[Source PRD](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Original PRD document
+- **[User Stories](../../03-backlog/sprints/README.md)** - Implementation stories
 
 ---
 

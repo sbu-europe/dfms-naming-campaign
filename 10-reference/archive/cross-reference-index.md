@@ -156,7 +156,7 @@ business-context/
 
 | Source Document | Business Context Documents | Count |
 |----------------|---------------------------|-------|
-| **PRD_DFMS_v1.0.docx** | Functional Req, User Stories, Data Dictionary | 70+ references |
+| **DFMS_Product_Requirements_Document_v3.md** | Functional Req, User Stories, Data Dictionary | 70+ references |
 | **Business Proposal** | Project Summary, Business Objectives | 20+ references |
 | **Meeting Minutes** | Discovery Summary, Dept Insights, Pain Points | 50+ references |
 | **Questionnaires** | Expectations, User Personas | 30+ references |

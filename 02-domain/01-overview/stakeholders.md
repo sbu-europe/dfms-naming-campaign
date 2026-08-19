@@ -6,7 +6,7 @@ status: approved
 created: 2026-02-10
 updated: 2026-02-10
 source_documents:
-  - ../../source-documents/01-prd/PRD_DFMS_v1.0.md
+  - ../../source-documents/01-prd/DFMS_Product_Requirements_Document_v3.md
   - ./user-personas.md
   - ../../01-source/README.md
   - ../../source-documents/discovery-phase/

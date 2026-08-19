@@ -4,7 +4,7 @@ specification: Session Control (US-003) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-003
-source_spec: ../../03-backlog/stories/US-003-session-control.md
+source_spec: ../../../../_meta/archive/backlog-stories-pre-sprint2/US-003-session-control.md
 test_implementation_reference: ../../../tests/e2e/modules/01-foundation/test_session_control_us003_e2e.py
 last_updated: 2026-05-04
 ---

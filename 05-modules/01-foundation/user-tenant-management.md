@@ -3,7 +3,7 @@ module: 01-foundation
 specification: User & Tenant Management
 version: 1.0
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.2.1-6.2.8
 last_updated: 2026-07-28
 phase1_note: Staff users may be invited via email OR phone (BD mobile). Phone-invited users may have null email. Login and forgot-password use the same identifier channel. See 03-users/staff-invite-login-password-channels.md and CR-002.
@@ -745,7 +745,7 @@ async function resendOTP(userId: UUID): Promise<void> {
 
 ## 6. Account Deactivation
 
-> **Related Story**: [US-007: Account Deactivation](../../03-backlog/stories/US-007-account-deactivation.md)
+> **Related Story**: [US-007: Account Deactivation](../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-007-account-deactivation.md)
 
 ### 6.1 Deactivation Types
 
@@ -1352,4 +1352,4 @@ function validateTenantContext(userId: UUID, resourceTenantId: UUID): void {
 - US-008: Password & Account Reset (scope consolidated into US-005)
 - US-009: User Activity & Audit Logs
 
-**Source**: PRD_DFMS_v1.0.md - Sections 6.2.1-6.2.8
+**Source**: DFMS_Product_Requirements_Document_v3.md - Sections 6.2.1-6.2.8

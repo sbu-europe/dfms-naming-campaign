@@ -3,7 +3,7 @@ module: 12-users
 specification: Driver Domain (User on Create)
 version: 1.4
 phase: Phase 1
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 related_stories: US-004, US-005, US-052, US-057
 last_updated: 2026-04-17
 ---
@@ -224,7 +224,7 @@ See **[bulk-import-export.md](../02-master-data/bulk-import-export.md)** (shared
 - [User & Tenant Management](../01-foundation/user-tenant-management.md)
 - [RBAC](../01-foundation/rbac.md)
 - [Master Data Configuration](../02-master-data/master-data-configuration.md)
-- [US-057 — Driver story](../../03-backlog/stories/US-057-driver-master-data.md)
+- [US-057 — Driver story (archived pre-Sprint-2 backlog)](../../_meta/archive/backlog-stories-pre-sprint2/US-057-driver-master-data.md)
 - Invitation implementation (separate): tenant user management / TUM backlog
 
 ---

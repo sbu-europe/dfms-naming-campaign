@@ -221,7 +221,7 @@ If adjustments are needed, they should be based on:
 
 ## 🔗 Related Documents
 
-- **[PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)** - Section 7: Phase-wise Feature Structure
+- **[PRD](../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Section 7: Phase-wise Feature Structure
 - **[Implementation Plan](./IMPLEMENTATION_TIMELINE.md)** - Comprehensive implementation plan
 - **[Implementation Timeline](./IMPLEMENTATION_TIMELINE.md)** - Detailed week-by-week schedule
 - **[Phase Backlog](../../../03-backlog/README.md)** - User stories by phase

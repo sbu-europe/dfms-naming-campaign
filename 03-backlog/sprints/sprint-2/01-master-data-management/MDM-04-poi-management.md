@@ -9,7 +9,7 @@ epic: Master Data Management
 status: Pending
 story_points: 8
 assignee: ~
-spec_file: ../../../../stories/US-097-poi-management-geofencing.md
+spec_file: US-097-poi-management-geofencing.md
 note: Geofencing engine and vehicle arrival/departure detection is a separate story — see VTG-01
 ---
 

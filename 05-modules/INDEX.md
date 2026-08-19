@@ -11,7 +11,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - **Total Modules**: 11
 - **Total Specification Files**: 36 specification files + 11 README files = 47 markdown files (driver spec lives under `01-foundation/`; removed from `02-master-data/`)
 - **Module README Files**: 11 (one per module)
-- **Source**: PRD_DFMS_v1.0.md (5,362 lines)
+- **Source**: DFMS_Product_Requirements_Document_v3.md (5,362 lines)
 - **Related User Stories**: 98 stories in Phase-1 backlog (US-001 to US-098)
 
 ---
@@ -407,7 +407,7 @@ Use the dependency information in each module's README to understand:
 
 ### By User Story
 Use the "Related User Stories" sections to map stories to specifications.  
-All stories are located in: `../03-backlog/stories/README.md`
+All stories are located in: `../03-backlog/sprints/README.md`
 
 ### By Phase
 See `10-phases/` for phase-wise organization of features.

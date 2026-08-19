@@ -83,7 +83,7 @@ Technology choices and rationale:
 
 ### Source Documents
 - **[SOW Phase 1](../../../01-source/README.md)**
-- **[PRD](../../../01-source/01-prd/PRD_DFMS_v1.0.md)**
+- **[PRD](../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)**
 
 ---
 

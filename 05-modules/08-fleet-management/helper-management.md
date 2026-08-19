@@ -1,5 +1,5 @@
 ---
-source_document: PRD_DFMS_v1.0.md
+source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: Helper Profile, Helper Assignment
 extracted_date: 2026-02-13
 ---
