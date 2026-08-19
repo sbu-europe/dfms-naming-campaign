@@ -1,8 +1,8 @@
 ---
 section: 09-testing/mobile
 title: Mobile Testing — DFMS Vendor App (Maestro)
-version: 1.0
-last_updated: 2026-07-20
+version: 1.1
+last_updated: 2026-08-19
 implementation_reference: ../../../nourish-vendor-app/.maestro/
 ---
 
@@ -40,6 +40,21 @@ scenario docs.
 | Maestro helpers | `nourish-vendor-app/.maestro/helpers/` |
 | Local env template | `nourish-vendor-app/.maestro/.env.example` |
 | Flow runner README | `nourish-vendor-app/.maestro/README.md` |
+
+## One-command full suite (Cursor Skill)
+
+Run **all** Maestro + Playwright tests locally with a single command:
+
+```bash
+bash .cursor/skills/run-vendor-mobile-tests/scripts/run-all.sh
+```
+
+Skill: `.cursor/skills/run-vendor-mobile-tests/SKILL.md` — seeds backend,
+builds APK, runs full Maestro suite (51 flows), Playwright admin smoke, and
+the tenant join→approve→full-menu loop. Produces a JUnit XML report.
+
+Quick re-run (skip seed & build): `--skip-seed --skip-build`
+Single wave: `--wave bids`
 
 ## Workflow
 

@@ -8,32 +8,32 @@
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
 |-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
-| TC_143 | TDO view responded bids | TDO sees Responded bids. | High | TDO | **Pass** (Playwright) | `run-vendor-tos.mjs` | Bids Management detail + `/bids/` API |
-| TC_144 | Side-by-side comparison | Compare rates/vehicles. | Critical | TDO | **Pass** (Playwright) | same | Multi-vendor costs / min-avg-max |
-| TC_145 | Award any vendor | Award non-lowest OK. | Critical | TDO | **Pass** (Playwright) | same | Awarded higher-cost vendor A over B |
-| TC_146 | Award both TOs to one vendor | Award TO-002+003 together. | Critical | TDO | **Pass** (Playwright) | same | Both members → vendor A; session `awarded` |
-| TC_147 | Split awards | Different vendors per TO. | High | TDO | **Pass** (Playwright) | same | Split session: A + B |
-| TC_148 | Status after award | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | **Pass** (Playwright) | same | Winner TO list shows assigned TO |
-| TC_149 | Award locked | Cannot re-award. | Critical | TDO | **Pass** (Playwright) | same | Re-award blocked |
-| TC_150 | Only bidding vendors | Cannot award non-bidder. | High | TDO | **Pass** (Playwright) | same | Unknown `bid_id` rejected |
-| TC_151 | Close bid without award | Close open bid. | High | TDO | **Pass** (Playwright) | same | `POST …/bidding-sessions/{id}/cancel/` |
-| TC_152 | Bid winning log | Award logged. | High | TDO | **Skip** | — | PDF Skip |
-| TC_153 | Non-winner isolation | Non-winner does not see TO. | High | Vendor App | **Pass** (Playwright) | same | Vendor B list omits winner TO |
-| TC_154 | Winner sees awarded TOs | Action Required / Pending. | High | Vendor App | **Pass** (Maestro) | `tos/01`, `tos/03` | List filters + open TO details |
-| TC_155 | Individual TO confirm | Each TO confirmed separately. | Medium | Vendor App | **Pass** (Playwright) | `run-vendor-tos.mjs` | Per-TO `vehicle-driver` POST |
-| TC_156 | Vehicle Number required | Blank Vehicle Number blocked. | Critical | Vendor App | **Pass** (Maestro) | `tos/04_post_award_submission_validation.yaml` | Empty submit shows required errors |
-| TC_157 | Driver Name required | Blank Driver Name blocked. | Critical | Vendor App | **Pass** (Maestro) | same | Covered by empty-submit assert |
-| TC_158 | Driver Contact required | Blank/invalid phone blocked. | Critical | Vendor App | **Pass** (Maestro) | same | Covered by empty-submit assert |
-| TC_159 | Optional NID/Helper | Optional fields. | Low | Vendor App | **Pass** (Playwright) | `run-vendor-tos.mjs` | Confirm without NID/helpers |
-| TC_160 | Vehicle Capacity captured | Capacity stored. | Medium | Vendor App | **Pass** (Playwright) | same | `vehicle_capacity` accepted |
-| TC_161 | Status → Submitted | After confirm, Submitted. | Critical | Vendor App | **Pass** (Playwright) | same | Confirm 201 → execution confirmed |
-| TC_162 | No edit without reason | Post-confirm edit needs reason. | High | Vendor App | **Pass** (Playwright) | same | PATCH requires `reason`; with reason 200 |
-| TC_163 | Audit log | Confirmation logged. | Medium | Backend | **Skip** | — | PDF Skip |
-| TC_180 | Contractual vendor sees TO | TO-004 action prompt. | High | Vendor App | **Pass** (Playwright) | same | `contractual.test@example.com` list |
-| TC_181 | Contractual confirm fields | Driver+Vehicle mandatory. | Critical | Vendor App | **Pass** (Maestro) | `tos/04` | Same post-award form validation |
-| TC_182 | Contractual status Submitted | Status Submitted. | Critical | Vendor App | **Pass** (Playwright) | same | Contractual confirm 201 |
-| TC_193 | Contract type isolation | Cross-type TO not visible. | High | Vendor App | **Pass** (Playwright) | same | Contractual ↔ bidding lists isolated |
-| TC_213 | Partial award confirm | Only awarded TO confirmable. | Critical | Vendor App | **Pass** (Playwright) | same | Confirm on pending member blocked (422) |
+| TC_069 | TDO view responded bids | TDO sees Responded bids. | High | TDO | **Pass** (Playwright) | `run-vendor-tos.mjs` | Bids Management detail + `/bids/` API |
+| TC_070 | Side-by-side comparison | Compare rates/vehicles. | Critical | TDO | **Pass** (Playwright) | same | Multi-vendor costs / min-avg-max |
+| TC_071 | Award any vendor | Award non-lowest OK. | Critical | TDO | **Pass** (Playwright) | same | Awarded higher-cost vendor A over B |
+| TC_072 | Award both TOs to one vendor | Award TO-002+003 together. | Critical | TDO | **Pass** (Playwright) | same | Both members → vendor A; session `awarded` |
+| TC_073 | Split awards | Different vendors per TO. | High | TDO | **Pass** (Playwright) | same | Split session: A + B |
+| TC_074 | Status after award | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | **Pass** (Playwright) | same | Winner TO list shows assigned TO |
+| TC_075 | Award locked | Cannot re-award. | Critical | TDO | **Pass** (Playwright) | same | Re-award blocked |
+| TC_076 | Only bidding vendors | Cannot award non-bidder. | High | TDO | **Pass** (Playwright) | same | Unknown `bid_id` rejected |
+| TC_077 | Close bid without award | Close open bid. | High | TDO | **Pass** (Playwright) | same | `POST …/bidding-sessions/{id}/cancel/` |
+| TC_078 | Bid winning log | Award logged. | High | TDO | **Skip** | — | PDF Skip |
+| TC_079 | Non-winner isolation | Non-winner does not see TO. | High | Vendor App | **Pass** (Playwright) | same | Vendor B list omits winner TO |
+| TC_080 | Winner sees awarded TOs | Action Required / Pending. | High | Vendor App | **Pass** (Maestro) | `tos/01`, `tos/03` | List filters + open TO details |
+| TC_081 | Individual TO confirm | Each TO confirmed separately. | Medium | Vendor App | **Pass** (Playwright) | `run-vendor-tos.mjs` | Per-TO `vehicle-driver` POST |
+| TC_082 | Vehicle Number required | Blank Vehicle Number blocked. | Critical | Vendor App | **Pass** (Maestro) | `tos/04_post_award_submission_validation.yaml` | Empty submit shows required errors |
+| TC_083 | Driver Name required | Blank Driver Name blocked. | Critical | Vendor App | **Pass** (Maestro) | same | Covered by empty-submit assert |
+| TC_084 | Driver Contact required | Blank/invalid phone blocked. | Critical | Vendor App | **Pass** (Maestro) | same | Covered by empty-submit assert |
+| TC_085 | Optional NID/Helper | Optional fields. | Low | Vendor App | **Pass** (Playwright) | `run-vendor-tos.mjs` | Confirm without NID/helpers |
+| TC_086 | Vehicle Capacity captured | Capacity stored. | Medium | Vendor App | **Pass** (Playwright) | same | `vehicle_capacity` accepted |
+| TC_087 | Status → Submitted | After confirm, Submitted. | Critical | Vendor App | **Pass** (Playwright) | same | Confirm 201 → execution confirmed |
+| TC_088 | No edit without reason | Post-confirm edit needs reason. | High | Vendor App | **Pass** (Playwright) | same | PATCH requires `reason`; with reason 200 |
+| TC_089 | Audit log | Confirmation logged. | Medium | Backend | **Skip** | — | PDF Skip |
+| TC_106 | Contractual vendor sees TO | TO-004 action prompt. | High | Vendor App | **Pass** (Playwright) | same | `contractual.test@example.com` list |
+| TC_107 | Contractual confirm fields | Driver+Vehicle mandatory. | Critical | Vendor App | **Pass** (Maestro) | `tos/04` | Same post-award form validation |
+| TC_108 | Contractual status Submitted | Status Submitted. | Critical | Vendor App | **Pass** (Playwright) | same | Contractual confirm 201 |
+| TC_119 | Contract type isolation | Cross-type TO not visible. | High | Vendor App | **Pass** (Playwright) | same | Contractual ↔ bidding lists isolated |
+| TC_139 | Partial award confirm | Only awarded TO confirmable. | Critical | Vendor App | **Pass** (Playwright) | same | Confirm on pending member blocked (422) |
 
 ## Related Maestro flows (2026-07-24)
 
@@ -42,7 +42,7 @@
 | `tos/01_tos_list_search_and_filters.yaml` | **Passed** |
 | `tos/02_tos_search_empty_state.yaml` | **Passed** |
 | `tos/03_open_to_details_from_list.yaml` | **Passed** |
-| `tos/04_post_award_submission_validation.yaml` | **Passed** (search + point-tap TO card; empty submit validation) |
+| `tos/04_post_award_submission_validation.yaml` | **Passed** — uses `MAESTRO_TO_NUMBER` env var if set; falls back to first list item. Updated 2026-08-19. |
 
 ## How to run
 
@@ -81,9 +81,9 @@ maestro --device emulator-5554 test \
 
 ## Still blocked / skipped
 
-- **TC_152 / TC_163:** PDF Skip (audit).
+- **TC_078 / TC_089:** PDF Skip (audit).
 - **Maestro MCP `run`:** may fail with “Unable to launch app” on this emulator; CLI `maestro --device emulator-5554 test …` works.
-- **`tos/04` TO tap:** Flutter search focus keeps the keyboard up; flow taps the card by point after search.
+- **`tos/04` TO tap:** Flow uses `MAESTRO_TO_NUMBER` env var for targeted search (from `make seed-vendor-tos-pw` manifest). Without it, falls back to tapping the first list item. Set via `.maestro/.env.local` or `--env MAESTRO_TO_NUMBER=TO-…` on the CLI.
 
 ## Data note
 

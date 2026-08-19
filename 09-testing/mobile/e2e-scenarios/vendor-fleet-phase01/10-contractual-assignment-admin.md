@@ -8,16 +8,16 @@
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
 |-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
-| TC_173 | Assign TO-004 | TDO selects TO → Assign TO. | High | TDO | **Pass** (Playwright) | `run-vendor-contractual-assign.mjs` | Assign TO page (`create-bid/?to_ids=…`) for `TO-20260608-0002` |
-| TC_174 | Contractual option available | Contractual + Non-Contractual Bidding options. | High | TDO | **Pass** (Playwright) | same | Both tabs present on Assign TO |
-| TC_175 | Contractual vendor dropdown | Only Contractual vendors listed. | Critical | TDO | **Pass** (Playwright) | same | `/api/v1/vendors/contractual/` excludes `vendor2` |
-| TC_176 | Direct assign no bidding | Assign without bidding step. | Critical | TDO | **Pass** (Playwright) | same | `PATCH /api/v1/transport-orders/{id}/vendor/` |
-| TC_177 | Rate hidden from vendor | Rate not shown on vendor app. | Critical | Vendor App | **Pass** (Playwright + Maestro) | same + `tos/05_contractual_rate_hidden.yaml` | API strips rate; UI has no `1500` / Rate labels |
-| TC_178 | Status after assign | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | **Pass** (Playwright) | same | `status=assigned` after assign |
-| TC_179 | Audit log | Assignment logged. | Medium | TDO | **Skip** | — | PDF Skip |
-| TC_183 | Contractual confirm audit | Confirmation logged. | Low | Backend | **Skip** | — | PDF Skip |
-| TC_184 | Vendor Confirmed sub-state | After confirm, Vendor Confirmed. | High | TDO | **Pass** (Playwright) | same | Vendor `vehicle-driver` confirm 201 |
-| TC_185 | Ready for Dispatch contractual | Ready for Dispatch for TO. | Critical | TDO | **Pass** (Playwright) | same | `POST …/confirm-vendor/` → `ready_for_dispatch` |
+| TC_099 | Assign TO-004 | TDO selects TO → Assign TO. | High | TDO | **Pass** (Playwright) | `run-vendor-contractual-assign.mjs` | Assign TO page (`create-bid/?to_ids=…`) for `TO-20260608-0002` |
+| TC_100 | Contractual option available | Contractual + Non-Contractual Bidding options. | High | TDO | **Pass** (Playwright) | same | Both tabs present on Assign TO |
+| TC_101 | Contractual vendor dropdown | Only Contractual vendors listed. | Critical | TDO | **Pass** (Playwright) | same | `/api/v1/vendors/contractual/` excludes `vendor2` |
+| TC_102 | Direct assign no bidding | Assign without bidding step. | Critical | TDO | **Pass** (Playwright) | same | `PATCH /api/v1/transport-orders/{id}/vendor/` |
+| TC_103 | Rate hidden from vendor | Rate not shown on vendor app. | Critical | Vendor App | **Pass** (Playwright + Maestro) | same + `tos/05_contractual_rate_hidden.yaml` | API strips rate; UI has no `1500` / Rate labels |
+| TC_104 | Status after assign | Assigned / Awaiting Vendor Confirmation. | Critical | TDO | **Pass** (Playwright) | same | `status=assigned` after assign |
+| TC_105 | Audit log | Assignment logged. | Medium | TDO | **Skip** | — | PDF Skip |
+| TC_109 | Contractual confirm audit | Confirmation logged. | Low | Backend | **Skip** | — | PDF Skip |
+| TC_110 | Vendor Confirmed sub-state | After confirm, Vendor Confirmed. | High | TDO | **Pass** (Playwright) | same | Vendor `vehicle-driver` confirm 201 |
+| TC_111 | Ready for Dispatch contractual | Ready for Dispatch for TO. | Critical | TDO | **Pass** (Playwright) | same | `POST …/confirm-vendor/` → `ready_for_dispatch` |
 
 ## Related Maestro flows (2026-07-24)
 
@@ -60,11 +60,11 @@ maestro --device emulator-5554 test \
 
 ## Still blocked / skipped
 
-- **TC_179 / TC_183:** PDF Skip (audit).
+- **TC_105 / TC_109:** PDF Skip (audit).
 - Assign TO list checkbox → action is covered by direct `create-bid/?to_ids=` URL (same page as admin Assign TO action).
 
 ## Admin gate (Wave E)
 
-1. Approve Contractual vendor (TC_112) — precondition for seed.
-2. Direct-assign TO (TC_176) — covered above.
+1. Approve Contractual vendor (TC_038) — precondition for seed.
+2. Direct-assign TO (TC_102) — covered above.
 3. Downstream contractual TO/trip cases — see `08` / `09`.

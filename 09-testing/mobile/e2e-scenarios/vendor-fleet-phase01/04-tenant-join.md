@@ -8,13 +8,13 @@
 
 | TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
 |-------|----------|------------------|----------|-------|----------------|--------------|-----------|
-| TC_102 | Tenant list displayed | Tenant Selection / directory shows available tenants. | High | Vendor App | Covered | `tenants/01_…` + `tenants/03_…` | **Passed 2026-07-22** |
-| TC_103 | Join request submit | Click Join for a tenant → request submitted. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
-| TC_104 | Join → Requested state | After Join, button changes to "Requested". | High | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
-| TC_105 | Locked before approval | Before approval, TOs/Bids/Tracks blocked. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
-| TC_106 | Multiple tenant requests | Join A and B independently. | Low | Vendor App | Covered | `tenants/05_tenant_join_two_tenants.yaml` | **Passed 2026-07-22** (Nourish + Walton) |
-| TC_107 | Tenant data isolation | Vendor for Tenant A not visible in Tenant B admin. | Critical | Backend | Covered | Manual / DB check | **Passed 2026-07-22** — `vendor2` approved on `nourish` only; absent from `walton` approved set |
-| TC_117 | Full menu after approval | After approval, TOs/Bids/Tracks/Tenants/Profile accessible. | Critical | Vendor App | Covered | `tenants/04_tenant_join_after_approve_full_menu.yaml` | **Passed 2026-07-22** (join→approve path) |
+| TC_028 | Tenant list displayed | Tenant Selection / directory shows available tenants. | High | Vendor App | Covered | `tenants/01_…` + `tenants/03_…` | **Passed 2026-07-22** |
+| TC_029 | Join request submit | Click Join for a tenant → request submitted. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
+| TC_030 | Join → Requested state | After Join, button changes to "Requested". | High | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed 2026-07-22** |
+| TC_031 | Locked before approval | Before approval, TOs/Bids/Trips blocked. | Critical | Vendor App | Covered | `tenants/03_tenant_join_request_and_lock.yaml` | **Passed** — bottom nav tab 3 is now `Trips` (was `Tracks`; flow updated 2026-08-19) |
+| TC_032 | Multiple tenant requests | Join A and B independently. | Low | Vendor App | Covered | `tenants/05_tenant_join_two_tenants.yaml` | **Passed 2026-07-22** (Nourish + Walton) |
+| TC_033 | Tenant data isolation | Vendor for Tenant A not visible in Tenant B admin. | Critical | Backend | Covered | Manual / DB check | **Passed 2026-07-22** — `vendor2` approved on `nourish` only; absent from `walton` approved set |
+| TC_043 | Full menu after approval | After approval, TOs/Bids/Trips/Tenants/Profile accessible. | Critical | Vendor App | Covered | `tenants/04_tenant_join_after_approve_full_menu.yaml` | **Passed** — `Trips` tab assertion updated 2026-08-19 |
 
 ## Full join loop (recommended)
 
@@ -30,7 +30,7 @@ MAESTRO_JOIN_VENDOR_PASSWORD=Test@1234 \
 make seed-vendor-mobile
 # → creates join.test@… onboarded; clears ALL memberships each run
 
-# 2) Maestro: Join → Requested + locked (TC_102–105)
+# 2) Maestro: Join → Requested + locked (TC_028–105)
 cd ../nourish-vendor-app
 set -a && source .maestro/.env.local && set +a
 maestro --device emulator-5554 test \
@@ -43,7 +43,7 @@ maestro --device emulator-5554 test \
 cd ../nourish-backend
 make approve-vendor-join
 
-# 4) Maestro: full bottom nav (TC_117)
+# 4) Maestro: full bottom nav (TC_043)
 cd ../nourish-vendor-app
 set -a && source .maestro/.env.local && set +a
 maestro --device emulator-5554 test \
@@ -52,7 +52,7 @@ maestro --device emulator-5554 test \
   -e JOIN_VENDOR_PASSWORD="$JOIN_VENDOR_PASSWORD" \
   .maestro/flows/tenants/04_tenant_join_after_approve_full_menu.yaml
 
-# Optional TC_106 (re-seed first — clears memberships)
+# Optional TC_032 (re-seed first — clears memberships)
 cd ../nourish-backend && make seed-vendor-mobile …
 cd ../nourish-vendor-app
 maestro --device emulator-5554 test … .maestro/flows/tenants/05_tenant_join_two_tenants.yaml
@@ -73,5 +73,5 @@ Do **not** re-run `make seed-vendor-mobile` between steps 2–4 — it clears jo
 ## Test data
 
 - Approved vendor: `VENDOR_EMAIL` (`vendor2@gmail.com`, nourish membership approved) — Waves B–D / smoke
-- Join-ready vendor: `JOIN_VENDOR_EMAIL` (`join.test@example.com`) — TC_103–106 + join-path TC_117
+- Join-ready vendor: `JOIN_VENDOR_EMAIL` (`join.test@example.com`) — TC_029–106 + join-path TC_043
 - Approve helper: `make approve-vendor-join` (public `vendor_tenant_memberships` → Non-Contractual)
