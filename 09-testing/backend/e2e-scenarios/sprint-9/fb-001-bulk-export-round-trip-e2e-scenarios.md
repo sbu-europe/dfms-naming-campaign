@@ -1,12 +1,12 @@
 ---
 module: sprint-9
 specification: FB-001 — Bulk export must round-trip with import; no missing fields — Playwright E2E Scenario Plan
-version: 1.0
+version: 1.2
 phase: Phase 1
 related_stories: FB-001
 source_spec: ../../../../03-backlog/sprints/sprint-9/feedback-resolution.md
 implementation_reference:
-  - ../../../../../apps/master_data/import_configs.py (BaseImportConfig.get_csv_headers, get_export_row, IMPORT_REGISTRY)
+  - ../../../../../apps/master_data/import_configs.py (BaseImportConfig.get_export_row, _prepare_instance_for_clean, ProductImportConfig, VehicleImportConfig, IMPORT_REGISTRY)
   - ../../../../../apps/master_data/admin.py (BulkImportExportMixin)
   - ../../../../../apps/master_data/services.py (ExportService.generate)
   - ../../../../../apps/users/import_configs.py (UserImportConfig, DriverImportConfig, HelperImportConfig)
@@ -28,11 +28,28 @@ playwright_mcp: true
 1. **FB-001-1** — Export CSV headers SHALL match the downloadable import template (same names, same order) for every `IMPORT_REGISTRY` model.
 2. **FB-001-2** — Export cell values SHALL be import-legal (lookup codes / enum `.value`s / ISO dates / E.164 phones / `true`/`false`; not Django object reprs or empty FK-code columns).
 3. **FB-001-3** — Every importable field that has stored data SHALL be present and populated on the exported row.
-4. **FB-001-4** — An **unchanged** export file SHALL re-import as valid (preview **Invalid** = 0). Existing unique keys are **bulk updates** (Product SKU, Vehicle registration, Brand name, …). Import **column names/order** stay the same. Split identity (SKU + another product’s item code; registration + another vehicle’s chassis) remains invalid.
+4. **FB-001-4** — An **unchanged** export file SHALL re-import as valid (preview **Invalid** = 0).
+5. **Unique key exists = bulk update** — Importing a row whose identity already exists SHALL **update** that record (not “already exists”). Split identity remains invalid (Product SKU + another product’s item code; Vehicle registration + another vehicle’s chassis).
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).
 
-> **Run after implementation.** Export cells are import-legal; User export fills `role` / `invite_channel` / `otp_type` / `poi_code`; existing uniques upsert at preview.
+> **Run after implementation.** Export cells are import-legal; User export fills `role` / `invite_channel` / `otp_type` / `poi_code`; existing uniques upsert at preview and persist on confirm.
+
+**Identity keys (update vs reject):**
+
+| Model | Update when this matches an existing row | Still invalid |
+|-------|------------------------------------------|---------------|
+| Product | `product_sku_code` | New SKU + existing `product_item_code`; SKU-A + item code of SKU-B |
+| Vehicle | `registration_number` | Registration A + `chassis_number` of registration B |
+| Brand | `brand_name` | — (name is the only unique) |
+| Product Category | `category_code` | — |
+| Product Sub-Category | `sub_category_code` | Parent `category_code` must exist |
+| Supplier / Dealer | `supplier_code` / `dealer_code` | — |
+| POI | `poi_code` | — |
+| Loading/Unloading | `poi_code` + `short_code` | Changing `operation_type` on an existing bay |
+| User | `email` (or phone / `employee_id` when those match) | Secondary unique (`employee_id` / phone) on a **different** user |
+| Driver | `driving_license_number` | Contact / NID / email already on a **different** driver |
+| Helper | `employee_id` | Contact / NID already on a **different** active helper |
 
 ---
 
@@ -80,7 +97,8 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | Credentials | `docs/testing/playwright-mcp-credentials.yaml` |
 | Celery | Worker running (`validate_bulk_import`, `execute_bulk_import`, `generate_bulk_export`); restart if registry changed |
 | Catalog | Seed Nourish already has rows on every registry model. Round-trip TCs **re-upload the full unchanged export** (not a 1-row extract). Total rows must be ≤ 5,000. |
-| Wipe | Do **not** invent MCP rows unless a TC fails for lack of a populated optional FK (e.g. vehicle with `brand`). Prefer seed data. If a fixture is created, prefix `MCP-FB001-`. |
+| Upsert fixtures | For section B, create wipe-friendly rows prefixed `MCP-FB001-` (codes ≤ field max length: category/POI/supplier/dealer 20, SKU/item 50, registration 20). Do **not** reuse seed SKUs for split-identity negatives. User/Driver imports send invitations on **create**; the second CSV is the update. |
+| Wipe | Prefix `MCP-FB001-` / `MCP FB001`. Prefer seed data for section A. |
 | Shared flow | Changelist **Export** → wait **Export Complete** → **Download CSV**. Changelist **Import** → **Download CSV Template**. Re-import: **CSV File** (`#csv_file`) → **Upload and Validate** → **Import Preview** → **Valid** / **Invalid** stats. |
 
 **Shared assertions for every round-trip TC (TC01–TC12):**
@@ -108,12 +126,35 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | TC11 | Driver export round-trips with user fields | As **Tenant Admin**, open **Master Data → Drivers** (`/admin/users/driver/`). Download template and export. Assert headers match the Driver row. Assert a data row has `user_email` / `first_name` from the linked User (not blank when the driver has a user), `contact_number` import-legal, `driver_type` in {`permanent`,`temporary`,`own`,`vendor`}, `license_expiry_date` as `YYYY-MM-DD`. Re-upload unchanged export; **Invalid** = 0; confirm → **Import Complete**. | P0 | Planned |
 | TC12 | Helper export round-trips | As **Tenant Admin**, open **Master Data → Helpers** (`/admin/users/helper/`). Download template and export. Assert headers match the Helper row. Assert required `employee_id`, `full_name`, `contact_number` populated on a data row; `is_active` is `true`/`false`. Re-upload unchanged export; **Invalid** = 0; confirm → **Import Complete**. | P0 | Planned |
 
-## B — Guards (not closing AC)
+## B — Unique key exists = bulk update
+
+Create `MCP-FB001-` fixtures via **Add** (or a 1-row import), then import a CSV that **changes** a non-identity field on the same unique key. Assert preview **Valid** = 1, confirm, then changelist/change form shows the new value and **one** row for that key. TC13–TC16 are sequential on the same product SKU. Other section B cases are independent except where noted.
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC13 | Inactive records omitted from export (current default) | As **Tenant Admin**, pick a model that shows inactive rows in the changelist (e.g. Products with **Active** filter off, or a known inactive seed). **Export** → **Download CSV**. Assert the inactive record’s unique key is **absent** from the export (queryset is `is_active=True`). This documents current platform default; **do not** treat as FB-001 failure unless product later requires exporting inactive rows. | P1 | Planned |
-| TC14 | Non-admin cannot Users export | As **Depot Officer** (`depot.officer1.nourish@yopmail.com` / `Nourish@1234!`), open `/admin/users/user/export/` (POST if the changelist form is reachable). Assert no successful **Export Complete** / CSV download for Users; expect permission deny / redirect and message **You do not have permission to import users** (or export equivalent). Users bulk I/O is tenant/super admin only. | P1 | Planned |
+| TC13 | Product existing SKU updates name | As **Tenant Admin**, on **Master Data → Products**, **Add** (or import) product `product_sku_code=MCP-FB001-SKU`, `product_item_code=MCP-FB001-IT1`, `product_name=MCP FB001 Original`, valid category/`FinishedGoods`/`KG`. Then **Import** a 1-row CSV with the **same** `product_sku_code` and `product_item_code`, `product_name=MCP FB001 Updated`. After **Upload and Validate**, assert **Import Preview** **Valid** = 1, **Invalid** = 0 (no “already exists”). Click **Import 1 Valid Rows**. Wait for **Import Complete**. Search `#result_list` for `MCP-FB001-SKU`: **one** row; name is **MCP FB001 Updated**. | P0 | Planned |
+| TC14 | Product existing SKU may recode item code | As **Tenant Admin**, using the product from TC13 (`MCP-FB001-SKU` / `MCP-FB001-IT1`), import a 1-row CSV with same SKU, `product_item_code=MCP-FB001-IT2` (must not exist on any other product), `product_name=MCP FB001 Recoded`. Preview **Valid** = 1. Confirm import. Change form for `MCP-FB001-SKU` shows item code `MCP-FB001-IT2`. Search `MCP-FB001-IT1` finds **no** product. | P0 | Planned |
+| TC15 | Product split identity (SKU + other item) invalid | As **Tenant Admin**, ensure two products exist: `MCP-FB001-SKU` (item `MCP-FB001-IT2` after TC14) and a second product `MCP-FB001-SKB` / `MCP-FB001-ITB`. Import a 1-row CSV: `product_sku_code=MCP-FB001-SKU`, `product_item_code=MCP-FB001-ITB`, otherwise valid. After preview, assert **Invalid** = 1, Errors mention `product_item_code` (item belongs to a different product). **Import 0 Valid Rows** disabled. Neither product’s SKU/item swapped. | P0 | Planned |
+| TC16 | Product new SKU + existing item code invalid | As **Tenant Admin**, import a 1-row CSV with **new** `product_sku_code=MCP-FB001-SKC` and `product_item_code=MCP-FB001-IT2` (already on `MCP-FB001-SKU`). Preview **Invalid** = 1, Errors mention `product_item_code` already exists. Confirm disabled. No product created for `MCP-FB001-SKC`. | P0 | Planned |
+| TC17 | Vehicle existing registration updates model | As **Tenant Admin**, on **Master Data → Vehicles**, **Add** vehicle `registration_number=MCP-FB001-REG`, unique `chassis_number=MCP-FB001-CHS`, `model_name=MCP FB001 Old`, `vehicle_type=open_truck`. Import a 1-row CSV with the **same** registration and chassis, `model_name=MCP FB001 New`. Preview **Valid** = 1, no “already exists” on registration. Confirm **Import 1 Valid Rows**. Change form for `MCP-FB001-REG` shows **MCP FB001 New**; still **one** vehicle with that registration. | P0 | Planned |
+| TC18 | Vehicle chassis owned by another registration invalid | As **Tenant Admin**, add a second vehicle `registration_number=MCP-FB001-RG2`, `chassis_number=MCP-FB001-CH2`. Import a 1-row CSV: `registration_number=MCP-FB001-REG`, `chassis_number=MCP-FB001-CH2`, `model_name=MCP FB001 Steal`. Preview **Invalid** = 1, Errors mention `chassis_number` already exists. Confirm disabled. `MCP-FB001-REG` still has chassis `MCP-FB001-CHS`. | P0 | Planned |
+| TC19 | Brand existing name updates is_active | As **Tenant Admin**, on **Master Data → Vehicle Brands**, **Add** `brand_name=MCP-FB001-BR` (active). Import a 1-row CSV `brand_name=MCP-FB001-BR`, `is_active=false`. Preview **Valid** = 1. Confirm import. Changelist / change form for that brand shows inactive (`is_active` false). Still **one** brand with that name. | P0 | Planned |
+| TC20 | Category existing code updates name | As **Tenant Admin**, on **Master Data → Product Categories**, **Add** (or import) `category_code=MCP-FB001-CAT`, `category_name=MCP FB001 Cat Orig`, `product_type=FinishedGoods`. Import a 1-row CSV with the **same** `category_code`, `category_name=MCP FB001 Cat Updated`, same `product_type`. Preview **Valid** = 1, **Invalid** = 0 (no “already exists”). Confirm **Import 1 Valid Rows**. Search `MCP-FB001-CAT`: **one** row; name is **MCP FB001 Cat Updated**. | P0 | Planned |
+| TC21 | Sub-Category existing code updates name | As **Tenant Admin**, on **Master Data → Product Sub-category**, **Add** (or import) `sub_category_code=MCP-FB001-SUB`, `sub_category_name=MCP FB001 Sub Orig`, `category_code` = an existing seed category (or `MCP-FB001-CAT` from TC20). Import a 1-row CSV with the **same** `sub_category_code` and parent `category_code`, `sub_category_name=MCP FB001 Sub Updated`. Preview **Valid** = 1. Confirm import. Search `MCP-FB001-SUB`: **one** row; name is **MCP FB001 Sub Updated**. | P0 | Planned |
+| TC22 | Supplier existing code updates name | As **Tenant Admin**, on **Master Data → Suppliers**, **Add** (or import) `supplier_code=MCP-FB001-SUP`, `supplier_name=MCP FB001 Sup Orig`, required `contact_number` (E.164, e.g. `+8801711100001`), `address=MCP FB001 addr`. Import a 1-row CSV with the **same** `supplier_code` and contact, `supplier_name=MCP FB001 Sup Updated`. Preview **Valid** = 1. Confirm import. Search `MCP-FB001-SUP`: **one** row; name is **MCP FB001 Sup Updated**. | P0 | Planned |
+| TC23 | Dealer existing code updates name | As **Tenant Admin**, on **Master Data → Dealers**, **Add** (or import) `dealer_code=MCP-FB001-DLR`, `dealer_name=MCP FB001 Dlr Orig`, required `contact_number` (E.164, e.g. `+8801711100002`), `address=MCP FB001 addr`. Import a 1-row CSV with the **same** `dealer_code` and contact, `dealer_name=MCP FB001 Dlr Updated`. Preview **Valid** = 1. Confirm import. Search `MCP-FB001-DLR`: **one** row; name is **MCP FB001 Dlr Updated**. | P0 | Planned |
+| TC24 | POI existing code updates name | As **Tenant Admin**, on **Master Data → Points of Interest**, **Add** (or import) `poi_code=MCP-FB001-POI`, `name=MCP FB001 POI Orig`, `poi_type=depot`, `classification_type=neutral`. Import a 1-row CSV with the **same** `poi_code`, `name=MCP FB001 POI Updated`, same type/classification. Preview **Valid** = 1. Confirm import. Search `MCP-FB001-POI`: **one** row; name is **MCP FB001 POI Updated**. Do **not** assert `opening_stock_mt` changed (opening stock applies on create only). | P0 | Planned |
+| TC25 | LUP existing POI+short_code updates name | As **Tenant Admin**, on **Master Data → Loading/Unloading Points**, **Add** (or import) under an existing seed POI: `short_code=MCP-FB001-BAY`, `name=MCP FB001 Bay Orig`, `operation_type=LOAD`. Import a 1-row CSV with the **same** `poi_code` and `short_code`, `name=MCP FB001 Bay Updated`, `operation_type=LOAD` (must not change). Preview **Valid** = 1. Confirm import. Search `MCP-FB001-BAY`: **one** row for that POI; name is **MCP FB001 Bay Updated**. | P0 | Planned |
+| TC26 | User existing email updates first_name | As **Tenant Admin**, on **Users → Users**, import a 1-row CSV: `invite_channel=email`, `email=mcp.fb001.user@yopmail.com`, `employee_id=MCP-FB001-U1`, `first_name=MCP-FB001-Orig`, `role=transport_planner`. Confirm create. Then import a 1-row CSV with the **same** email and employee_id, `first_name=MCP-FB001-Updated`, same role. Preview **Valid** = 1 (action is update, not “already exists”). Confirm import. Change form for that email shows **MCP-FB001-Updated**; still **one** user. | P0 | Planned |
+| TC27 | Driver existing license updates address | As **Tenant Admin**, on **Master Data → Drivers**, **Add** (or import) driver `driving_license_number=MCP-FB001-LIC`, unique `contact_number` (e.g. `+8801711100003`), `first_name=MCP-FB001-Drv`, `driver_type=permanent`, required license fields, `address=MCP FB001 Old Addr`. Import a 1-row CSV with the **same** license and contact, `address=MCP FB001 New Addr`. Preview **Valid** = 1. Confirm import. Change form for `MCP-FB001-LIC` shows **MCP FB001 New Addr**; still **one** driver with that license. | P1 | Planned |
+| TC28 | Helper existing employee_id updates name | As **Tenant Admin**, on **Master Data → Helpers**, **Add** (or import) `employee_id=MCP-FB001-HLP`, `full_name=MCP FB001 Hlp Orig`, unique `contact_number` (e.g. `+8801711100004`). Import a 1-row CSV with the **same** `employee_id` and contact, `full_name=MCP FB001 Hlp Updated`. Preview **Valid** = 1. Confirm import. Search `MCP-FB001-HLP`: **one** active helper; name is **MCP FB001 Hlp Updated**. | P1 | Planned |
+
+## C — Guards (not closing AC)
+
+| Test Case ID | Test Scenario | Test Description | Priority | Status |
+|--------------|---------------|------------------|----------|--------|
+| TC29 | Inactive records omitted from export (current default) | As **Tenant Admin**, pick a model that shows inactive rows in the changelist (e.g. Products with **Active** filter off, or brand from TC19). **Export** → **Download CSV**. Assert the inactive record’s unique key is **absent** from the export (queryset is `is_active=True`). This documents current platform default; **do not** treat as FB-001 failure unless product later requires exporting inactive rows. | P1 | Planned |
+| TC30 | Non-admin cannot Users export | As **Depot Officer** (`depot.officer1.nourish@yopmail.com` / `Nourish@1234!`), open `/admin/users/user/export/` (POST if the changelist form is reachable). Assert no successful **Export Complete** / CSV download for Users; expect permission deny / redirect and message **You do not have permission to import users** (or export equivalent). Users bulk I/O is tenant/super admin only. | P1 | Planned |
 
 ---
 
@@ -121,8 +162,8 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 ### Scope guardrails
 
-- In scope: Django admin SSR **Export** (and re-upload of that file) on every `IMPORT_REGISTRY` model. Header identity, import-legal cells, completeness of stored importable fields. Unchanged export **re-imports** with **Invalid = 0**; existing unique keys upsert.
-- Out of scope: Changing import column names/order/`FieldConfig` required flags. REST `/api/v1/bulk-imports/` and `/bulk-exports/`; **Download Sample CSV** guidance rows; single-row Add/Edit CRUD uniqueness (manual Add still rejects duplicate SKU); invitation email/SMS; seat limits; exporting **inactive** rows (TC13).
+- In scope: Django admin SSR **Import** / **Export** on every `IMPORT_REGISTRY` model. Header identity, import-legal cells, completeness, unchanged-file round-trip (**Invalid** = 0). Section B: existing unique key **updates** a changed field; split-identity rows stay invalid.
+- Out of scope: Changing import column names/order. REST `/api/v1/bulk-imports/` / `/bulk-exports/`; **Download Sample CSV** guidance rows; manual **Add** uniqueness (Add still rejects duplicate SKU / registration); invitation email/SMS content; seat limits; exporting **inactive** rows (TC29).
 
 ### Role & environment fixtures
 
@@ -131,7 +172,7 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 | Tenant | `http://nourish.dev.dfms.local:8000` |
 | Login | `/admin/login/` |
 | Primary actor | `admin.nourish@yopmail.com` / `NourishAdmin@1234!` |
-| RBAC actor (TC14) | `depot.officer1.nourish@yopmail.com` / `Nourish@1234!` |
+| RBAC actor (TC30) | `depot.officer1.nourish@yopmail.com` / `Nourish@1234!` |
 | Credentials | `docs/testing/playwright-mcp-credentials.yaml` |
 | Celery | Required |
 
@@ -151,7 +192,8 @@ Master-data URL names: `admin:master_data_<model>_import_upload`, `admin:master_
 
 ### Status assertion note
 
-- Preview **Valid** / **Invalid** counts are the round-trip gate for **all** registry models including Product (TC03). Do not trust only the success toast.
+- Preview **Valid** / **Invalid** counts are the gate for round-trip (TC01–TC12) and upsert (TC13–TC28). After confirm, assert **changelist / change form**, not only **Import Complete**.
+- Manual **Add** still shows “already exists” for a **new** product with a duplicate SKU; that is not a bulk-import failure.
 - Enum cells must be **stored values** (`FinishedGoods`, `LOAD`, `pickup_van`, `permanent`), not admin list labels (**Finished Goods**, **Loading**, **Pickup Van**, **Permanent**).
 - Boolean cells must be `true`/`false` (import also accepts `1`/`0`/`yes`/`no`, but export should emit `true`/`false`).
 
@@ -159,8 +201,8 @@ Master-data URL names: `admin:master_data_<model>_import_upload`, `admin:master_
 
 - Template and export **already share** `config.get_csv_headers()` and UTF-8-SIG. Header mismatch in UAT is more likely empty/illegal **cells** than a second header list.
 - `BaseImportConfig.get_export_row` serializes import-legal scalars. CSV aliases that are not model attributes stay `""` unless the config overrides `get_export_row`. Overrides exist for Product, Vehicle, Sub-Category, Supplier/Dealer, POI, LUP, Driver, and **User** (`role`, `invite_channel`, `otp_type`, `poi_code`).
-- Existing unique keys are **updates**: Product SKU (item code must not belong to another SKU); Vehicle `registration_number` (chassis must not belong to another vehicle); Brand / Category / Supplier / Dealer / POI via `BaseImportConfig._prepare_instance_for_clean`. Split identity (SKU-A + item of SKU-B) stays invalid.
-- Export queryset defaults to `is_active=True` (TC13). Inactive admin rows are omitted; that is **not** FB-001-1…4 unless product expands the AC.
+- Existing unique keys are **updates**: Product SKU (item code must not belong to another SKU); Vehicle `registration_number` (chassis must not belong to another vehicle); Brand / Category / Sub-Category / Supplier / Dealer / POI via `BaseImportConfig._prepare_instance_for_clean`; LUP via `poi` + `short_code`; User `email`; Driver `driving_license_number`; Helper `employee_id`. Split identity (SKU-A + item of SKU-B; registration A + chassis of B) stays invalid.
+- Export queryset defaults to `is_active=True` (TC29). Inactive admin rows are omitted; that is **not** FB-001-1…4 unless product later requires exporting inactive rows.
 - POI `opening_stock_mt` export writes companion `stock.current_stock_mt`, and import applies opening stock **on create only**. Round-trip preview should still be valid; do not assert stock unchanged as opening balance.
 - Module spec `05-modules/02-master-data/bulk-import-export.md` is stale (omits POI, Product Sub-Category, User). Code registry wins.
 - Older plan `users/user-bulk-import-e2e-scenarios.md` lists template headers without `invite_channel` and marks `email`/`last_name` required; current `UserImportConfig` headers start with `invite_channel` and `email`/`last_name` are not `required=True`.
