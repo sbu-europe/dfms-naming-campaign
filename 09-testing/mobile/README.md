@@ -21,7 +21,7 @@ scenario docs.
 |------|----------|
 | [`maestro-setup-and-run.md`](./maestro-setup-and-run.md) | Install Maestro, seed (`make seed-vendor-mobile`), emulator, run commands |
 | [`e2e-scenarios/`](./e2e-scenarios/) | Vendor-app E2E scenario index |
-| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_075–TC_215 by feature + Maestro status |
+| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_001–TC_160 (UAT + admin) — master: [`00-all-test-cases.md`](./e2e-scenarios/vendor-fleet-phase01/00-all-test-cases.md) |
 
 ## Tooling
 

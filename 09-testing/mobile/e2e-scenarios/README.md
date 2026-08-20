@@ -1,8 +1,8 @@
 ---
 section: 09-testing/mobile/e2e-scenarios
 title: Mobile E2E Scenarios
-version: 1.0
-last_updated: 2026-07-20
+version: 2.0
+last_updated: 2026-08-20
 ---
 
 # Mobile E2E Scenarios
@@ -15,7 +15,7 @@ coverage, and run status.
 
 | Folder | App | TC range | Status |
 |--------|-----|----------|--------|
-| [`vendor-fleet-phase01/`](./vendor-fleet-phase01/) | Vendor Fleet (`nourish-vendor-app`) | TC_075–TC_215 | In progress |
+| [`vendor-fleet-phase01/`](./vendor-fleet-phase01/) | Vendor Fleet (`nourish-vendor-app`) | **TC_001–TC_160** (UAT 001–116 + admin extras) | In progress — see [`00-all-test-cases.md`](./vendor-fleet-phase01/00-all-test-cases.md) |
 
 ## Naming convention
 

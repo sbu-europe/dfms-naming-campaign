@@ -1,61 +1,15 @@
-# Tenant Approval (Admin Portal)
+# Tenant Approval — Admin (TC_043–TC_050)
 
-**Module:** Vendor Management — Vendor Approval (Tenant Admin)  
-**Scope:** Tenant admin SSR portal (`/vendors/`) + related TDO/mobile asserts  
-**Automation:** **Playwright** (admin/TDO) + **Maestro** (vendor app).  
-**Last run:** 2026-07-22 — Playwright `RUN_ID=A7F22E01`; Maestro `06`/`07` on `emulator-5554`
+**Source:** DFMS UAT Test Suite — Vendor Approval (Tenant Admin).
+**Automation:** Playwright + Maestro (`tenants/06`, `tenants/04`).
 
-| TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
-|-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
-| TC_034 | Pending join request visible | Tenant Admin sees vendor with Join Status = Pending. | High | Tenant Admin | **Pass** (Playwright) | `run-vendor-tenant-approval.mjs` | `make seed-vendor-approval-pw` |
-| TC_035 | Documents visible to admin | Trade License, BIN, TIN, Truck Association viewable. | High | Tenant Admin | **Pass** (Playwright pending re-run) | same | Portal Vendor details dialog shows Compliance documents with View file links |
-| TC_036 | Approval type options | Contractual and Non-Contractual options available. | Critical | Tenant Admin | **Pass** (Playwright) | same | Detail + bulk toolbar |
-| TC_037 | Approve Non-Contractual | Approve → Join Status = Approved; eligible for bidding. | Critical | Tenant Admin | **Pass** (Playwright) | same | Also `make seed-vendor-mobile` / `approve-vendor-join` for mobile fixtures |
-| TC_038 | Approve Contractual | Approve Contractual → directly assignable. | Critical | Tenant Admin | **Pass** (Playwright) | same | Type set on approve; assignability checked via TC_041 picker |
-| TC_039 | Reject with remarks | Reject requires remarks. | High | Tenant Admin | **Pass** (Playwright) | same | Toolbar Reject path (detail Reject overlay stacking — see RESULTS) |
-| TC_040 | Resubmit after rejection | Rejected vendor can update and resubmit. | High | Mixed | **Pass** (Playwright + Maestro) | PW TC_039 + `tenants/06_tenant_resubmit_after_reject.yaml` | Seed: `make seed-vendor-approval-gaps`. **Passed Maestro 2026-07-22** |
-| TC_041 | Non-Contractual no direct assign | Must go through bidding. | Critical | TDO | **Pass** (Playwright) | `run-vendor-tenant-approval.mjs` (TDO vendor-fleet) | Contractual picker lists contractual only; excludes `Vendor 2` |
-| TC_042 | Contractual no bidding UI | Rate applied from backend; hidden on vendor app. | Critical | Vendor App | **Pass** (Maestro) | `tenants/07_bids_hidden_for_contractual.yaml` | Asserts *Bids aren't available for contractual tenants.* **Passed 2026-07-22** |
-| TC_044 | Audit log | Approve/reject logged. | High | Tenant Admin | **Skip** | — | PDF Skip |
-
-## How to run
-
-### Playwright (TC_034–113, TC_041)
-
-```bash
-# nourish-backend — ADMIN_LOGIN_OTP_ENABLED=False
-make seed-vendor-approval-pw RUN_ID=A7F22E01
-make seed-vendor-approval-gaps   # contractual vendor for TC_041 picker
-
-cd tests/e2e/playwright-mcp/vendor-tenant-approval-artifacts
-RUN_ID=A7F22E01 E2E_ADMIN_EMAIL=admin@nourish.com \
-  E2E_C_VENDOR_MARKER='Maestro Contractual Vendor' \
-  E2E_NC_VENDOR_MARKER='Vendor 2' \
-  node run-vendor-tenant-approval.mjs
-```
-
-### Maestro (TC_040, TC_042)
-
-```bash
-# nourish-backend
-make seed-vendor-approval-gaps
-
-# nourish-vendor-app — set CONTRACTUAL_* in .maestro/.env.local
-cd ../nourish-vendor-app
-set -a && source .maestro/.env.local && set +a
-maestro --device emulator-5554 test \
-  -e APP_ID="$APP_ID" \
-  -e JOIN_VENDOR_EMAIL="$JOIN_VENDOR_EMAIL" \
-  -e JOIN_VENDOR_PASSWORD="$JOIN_VENDOR_PASSWORD" \
-  .maestro/flows/tenants/06_tenant_resubmit_after_reject.yaml
-
-maestro --device emulator-5554 test \
-  -e APP_ID="$APP_ID" \
-  -e CONTRACTUAL_VENDOR_EMAIL="$CONTRACTUAL_VENDOR_EMAIL" \
-  -e CONTRACTUAL_VENDOR_PASSWORD="$CONTRACTUAL_VENDOR_PASSWORD" \
-  .maestro/flows/tenants/07_bids_hidden_for_contractual.yaml
-```
-
-## Still blocked / skipped
-
-- **TC_044:** PDF Skip until audit surface is in scope.
+| TC ID | Title | Scenario | Scope | Status | Automation | Notes |
+|-------|-------|----------|-------|--------|------------|-------|
+| TC_043 | Pending visible admin | Admin sees Pending join | Tenant Admin | **Pass** | Playwright `run-vendor-tenant-approval.mjs` | Pass |
+| TC_044 | Docs visible admin | Admin sees all documents | Tenant Admin | **Pass** | Playwright | Pass |
+| TC_045 | Decision options | Approve Contractual / Non-Contractual / Reject | Tenant Admin | **Pass** | Playwright | Pass |
+| TC_046 | Approve Contractual | Approve as Contractual → Approved | Tenant Admin | **Pass** | Playwright | Pass |
+| TC_047 | Approve Non-Contractual | Approve as Non-Contractual → Approved | Tenant Admin | **Pass** | Playwright | Pass |
+| TC_048 | Reject join | Admin can Reject join request | Tenant Admin | **Pass** | Playwright | Pass |
+| TC_049 | Resubmit after reject | Rejected vendor can resubmit | Mixed | **Pass** | Playwright + `tenants/06_…` | Pass |
+| TC_050 | Full menu after approve | Full tabs after approval | Vendor App | **Covered** | `tenants/04_…` | Passed |
