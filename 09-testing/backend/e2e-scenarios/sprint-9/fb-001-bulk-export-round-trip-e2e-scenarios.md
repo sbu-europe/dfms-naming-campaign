@@ -28,13 +28,11 @@ playwright_mcp: true
 1. **FB-001-1** — Export CSV headers SHALL match the downloadable import template (same names, same order) for every `IMPORT_REGISTRY` model.
 2. **FB-001-2** — Export cell values SHALL be import-legal (lookup codes / enum `.value`s / ISO dates / E.164 phones / `true`/`false`; not Django object reprs or empty FK-code columns).
 3. **FB-001-3** — Every importable field that has stored data SHALL be present and populated on the exported row.
-4. **FB-001-4** — An **unchanged** export file SHALL re-import without **format** errors (headers, codes, enums, dates, booleans). Import **column set, validators, and identity rules stay as they are today** — do not change uniqueness / create-only behaviour to make round-trip pass.
+4. **FB-001-4** — An **unchanged** export file SHALL re-import as valid (preview **Invalid** = 0). Existing unique keys are **bulk updates** (Product SKU, Vehicle registration, Brand name, …). Import **column names/order** stay the same. Split identity (SKU + another product’s item code; registration + another vehicle’s chassis) remains invalid.
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).
 
-> **Constraint:** Fix **export only** (`get_export_row` / queryset serialization). Do **not** add, rename, reorder, or re-validate import columns; do **not** change `validate_row` uniqueness (Product remains create-only for existing SKU / item code).
->
-> **Run after implementation.** Current code is **Partial**: template and export both use `config.get_csv_headers()`, several configs already remap FK aliases, but **User** export omits virtual columns (`role`, `invite_channel`, `otp_type`, `poi_code`). Product full-file re-import still reports “already exists” — that is **existing import policy**, not an export-format failure (TC03).
+> **Run after implementation.** Export cells are import-legal; User export fills `role` / `invite_channel` / `otp_type` / `poi_code`; existing uniques upsert at preview.
 
 ---
 
@@ -89,9 +87,7 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 1. Template header row **equals** export header row (names + order). Same columns import already accepts — no remapping.
 2. At least one data row has import-legal values for required columns and for every optional column that has stored data on that record (no Django `<Model: …>` reprs; booleans `true`/`false`; dates `YYYY-MM-DD`; phones E.164 where the config coerces BD mobile).
-3. Re-upload the **unchanged** export file. After preview:
-   - **TC01, TC02, TC04–TC12:** **Invalid** = 0 and **Valid** = **Total Rows**, then **Import N Valid Rows** → **Import Complete**.
-   - **TC03 (Product):** existing SKU / item-code rows MAY be **Invalid** with “already exists” (import is create-only). Fail the TC if any error is a **format** problem (blank `category_code`, bad `product_type` / UOM, object repr). Do **not** confirm import of the full catalog.
+3. Re-upload the **unchanged** export file. After preview: **Invalid** = 0 and **Valid** = **Total Rows**. Then click **Import N Valid Rows**, wait for **Import Complete** (`completed`). Existing unique keys (SKU, registration, brand name, …) are **updates**, not errors.
 
 ---
 
@@ -101,7 +97,7 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 |--------------|---------------|------------------|----------|--------|
 | TC01 | Product Category export round-trips | As **Tenant Admin** (`admin.nourish@yopmail.com`), log in at `/admin/login/`. Open **Master Data → Product Categories** (`/admin/master_data/productcategory/`). Click **Import**, then **Download CSV Template**. Back on the changelist, click **Export**, wait for **Export Complete**, then **Download CSV**. Assert header rows are identical: `category_code,category_name,product_type,is_active`. Assert a data row uses `product_type` enum value `FinishedGoods` or `RawMaterial` (not a Python object repr) and `is_active` is `true`/`false`. Re-upload the unchanged export via **Upload and Validate**. Assert **Import Preview** **Invalid** = 0. Click **Import N Valid Rows**. Assert **Import Complete**. | P0 | Planned |
 | TC02 | Product Sub-Category export round-trips | As **Tenant Admin**, open **Master Data → Product Sub-category** (`/admin/master_data/productsubcategory/`). Download **Download CSV Template** and **Export** → **Download CSV**. Assert headers `sub_category_code,sub_category_name,category_code,is_active`. Assert a data row has non-empty `category_code` matching an existing category (not blank, not a category object repr). Re-upload unchanged export; assert **Invalid** = 0; confirm **Import N Valid Rows** → **Import Complete**. | P0 | Planned |
-| TC03 | Product export matches import columns (create-only identity unchanged) | As **Tenant Admin**, open **Master Data → Products** (`/admin/master_data/product/`). Download template and export. Assert headers match the Product row in the registry table above (same names and order as import — no extra/missing columns). Assert a data row has non-empty `category_code`, `product_type` in {`FinishedGoods`,`RawMaterial`}, `unit_of_measure` in {`Bag`,`Ton`,`KG`,`Liters`,`Pieces`,`Cartons`}, `requires_qc`/`is_active` as `true`/`false`, and `sub_category_code` populated when that product has a sub-category. Re-upload the **unchanged** export. Inspect preview errors: uniqueness (“already exists” on `product_sku_code` / `product_item_code`) is **allowed** (import stays create-only). Fail if errors mention missing/invalid `category_code`, `product_type`, UOM, or unreadable cell values. Do **not** click **Import N Valid Rows** for the full catalog. | P0 | Planned |
+| TC03 | Product export round-trips including existing SKUs | As **Tenant Admin**, open **Master Data → Products** (`/admin/master_data/product/`). Download template and export. Assert headers match the Product row in the registry table above. Assert a data row has non-empty `category_code`, `product_type` in {`FinishedGoods`,`RawMaterial`}, `unit_of_measure` in {`Bag`,`Ton`,`KG`,`Liters`,`Pieces`,`Cartons`}, `requires_qc`/`is_active` as `true`/`false`, and `sub_category_code` populated when that product has a sub-category. Re-upload the **unchanged** export. Assert **Import Preview** **Invalid** = 0 (existing `product_sku_code` / matching `product_item_code` is a **bulk update**, not “already exists”). Confirm import → **Import Complete**. | P0 | Planned |
 | TC04 | Brand export round-trips | As **Tenant Admin**, open **Master Data → Vehicle Brands** (`/admin/master_data/brand/`). Download template and export. Assert headers `brand_name,is_active`. Assert `is_active` is `true`/`false`. Re-upload unchanged export; **Invalid** = 0; **Import N Valid Rows** → **Import Complete**. | P0 | Planned |
 | TC05 | Vehicle export round-trips with brand and dates | As **Tenant Admin**, open **Master Data → Vehicles** (`/admin/master_data/vehicle/`). Download template and export. Assert headers match the Vehicle row in the registry table. On a row that has a brand in admin, assert `brand_name` is the brand’s name string (not blank, not `<Brand: …>`). Assert `vehicle_type` is an enum **value** (e.g. `pickup_van`, `open_truck`) not the label **Pickup Van**. Assert any populated `purchase_date` / `fitness_expiry_date` / `insurance_expiry_date` is `YYYY-MM-DD`. Assert `is_active` is `true`/`false`. Re-upload unchanged export; **Invalid** = 0; confirm → **Import Complete**. | P0 | Planned |
 | TC06 | Supplier export round-trips with site POI code | As **Tenant Admin**, open **Master Data → Suppliers** (`/admin/master_data/supplier/`). Download template and export. Assert headers match the Supplier row. Assert `contact_number` is import-legal BD mobile (E.164 `+880…` preferred). If a supplier has **Site POI** set in admin, assert that export row’s `site_poi_code` equals the POI code (not blank). Assert `is_active` is `true`/`false`. Re-upload unchanged export; **Invalid** = 0; confirm → **Import Complete**. | P0 | Planned |
@@ -125,8 +121,8 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 ### Scope guardrails
 
-- In scope: Django admin SSR **Export** (and re-upload of that file) on every `IMPORT_REGISTRY` model. Header identity, import-legal cells, completeness of stored importable fields. Re-import confirm only where today’s import already upserts.
-- Out of scope: Changing import columns, `FieldConfig` required/optional, validators, coercers, or uniqueness (Product create-only SKU/item-code stays). REST `/api/v1/bulk-imports/` and `/bulk-exports/`; **Download Sample CSV** guidance rows; single-row Add/Edit CRUD; invitation email/SMS; seat limits; exporting **inactive** rows (TC13).
+- In scope: Django admin SSR **Export** (and re-upload of that file) on every `IMPORT_REGISTRY` model. Header identity, import-legal cells, completeness of stored importable fields. Unchanged export **re-imports** with **Invalid = 0**; existing unique keys upsert.
+- Out of scope: Changing import column names/order/`FieldConfig` required flags. REST `/api/v1/bulk-imports/` and `/bulk-exports/`; **Download Sample CSV** guidance rows; single-row Add/Edit CRUD uniqueness (manual Add still rejects duplicate SKU); invitation email/SMS; seat limits; exporting **inactive** rows (TC13).
 
 ### Role & environment fixtures
 
@@ -155,15 +151,15 @@ Master-data URL names: `admin:master_data_<model>_import_upload`, `admin:master_
 
 ### Status assertion note
 
-- For upsert models (TC01–TC02, TC04–TC12), preview **Valid** / **Invalid** counts are the round-trip gate. For Product (TC03), uniqueness errors are import policy; only format/alias errors fail the TC.
+- Preview **Valid** / **Invalid** counts are the round-trip gate for **all** registry models including Product (TC03). Do not trust only the success toast.
 - Enum cells must be **stored values** (`FinishedGoods`, `LOAD`, `pickup_van`, `permanent`), not admin list labels (**Finished Goods**, **Loading**, **Pickup Van**, **Permanent**).
 - Boolean cells must be `true`/`false` (import also accepts `1`/`0`/`yes`/`no`, but export should emit `true`/`false`).
 
 ### Known implementation alignment (pre-fix)
 
 - Template and export **already share** `config.get_csv_headers()` and UTF-8-SIG. Header mismatch in UAT is more likely empty/illegal **cells** than a second header list.
-- `BaseImportConfig.get_export_row` uses `getattr(obj, field_cfg.name)`. CSV aliases that are not model attributes stay `""` unless the config overrides `get_export_row`. Overrides exist for Product (`category_code`, `sub_category_code`), Vehicle (`brand_name`), Sub-Category (`category_code`), Supplier/Dealer (`site_poi_code`), POI (`opening_stock_mt`), LUP (`poi_code`), Driver (user fields + `invite_channel`). **`UserImportConfig` has no `get_export_row` override** — `role` / `invite_channel` / `otp_type` / `poi_code` export blank today → TC10 fails until fixed.
-- `ProductImportConfig._validate_model_rules` rejects any existing `product_sku_code` / `product_item_code`. **Leave that import rule unchanged.** TC03 treats those uniqueness errors as expected; export must still emit import-legal `category_code` / enums so the only preview failures are identity collisions.
+- `BaseImportConfig.get_export_row` serializes import-legal scalars. CSV aliases that are not model attributes stay `""` unless the config overrides `get_export_row`. Overrides exist for Product, Vehicle, Sub-Category, Supplier/Dealer, POI, LUP, Driver, and **User** (`role`, `invite_channel`, `otp_type`, `poi_code`).
+- Existing unique keys are **updates**: Product SKU (item code must not belong to another SKU); Vehicle `registration_number` (chassis must not belong to another vehicle); Brand / Category / Supplier / Dealer / POI via `BaseImportConfig._prepare_instance_for_clean`. Split identity (SKU-A + item of SKU-B) stays invalid.
 - Export queryset defaults to `is_active=True` (TC13). Inactive admin rows are omitted; that is **not** FB-001-1…4 unless product expands the AC.
 - POI `opening_stock_mt` export writes companion `stock.current_stock_mt`, and import applies opening stock **on create only**. Round-trip preview should still be valid; do not assert stock unchanged as opening balance.
 - Module spec `05-modules/02-master-data/bulk-import-export.md` is stale (omits POI, Product Sub-Category, User). Code registry wins.
