@@ -7,4 +7,4 @@
 |-------|-------|----------|-------|--------|------------|-------|
 | TC_148 | Contractual assign TO | TDO direct-assign contractual vendor | TDO | **Pass** | Playwright | Pass |
 | TC_149 | Contractual dropdown only | Only contractual vendors in picker | TDO | **Pass** | Playwright | Pass |
-| TC_150 | Rate hidden from vendor | Contract rate not shown on vendor app | Vendor App | **Covered** | `tos/05_…` | Passed |
+| TC_150 | Rate hidden from vendor | Contract rate not shown on vendor app | Vendor App | **Pass** | `tos/05_…` | Passed |

@@ -236,6 +236,9 @@ maestro --device emulator-5554 test \
   .maestro
 ```
 
+Failure screenshots land in `.maestro/screenshots/` (`testOutputDir` in
+`.maestro/config.yaml`). Both `output/` and `screenshots/` are gitignored.
+
 Maestro Studio (selector inspection):
 
 ```bash

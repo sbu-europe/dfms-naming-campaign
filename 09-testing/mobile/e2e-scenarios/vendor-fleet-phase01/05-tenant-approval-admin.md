@@ -12,4 +12,4 @@
 | TC_047 | Approve Non-Contractual | Approve as Non-Contractual → Approved | Tenant Admin | **Pass** | Playwright | Pass |
 | TC_048 | Reject join | Admin can Reject join request | Tenant Admin | **Pass** | Playwright | Pass |
 | TC_049 | Resubmit after reject | Rejected vendor can resubmit | Mixed | **Pass** | Playwright + `tenants/06_…` | Pass |
-| TC_050 | Full menu after approve | Full tabs after approval | Vendor App | **Covered** | `tenants/04_…` | Passed |
+| TC_050 | Full menu after approve | Full tabs after approval | Vendor App | **Pass** | `tenants/04_…` | Passed |

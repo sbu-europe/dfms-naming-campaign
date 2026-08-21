@@ -4,7 +4,7 @@ title: Vendor Fleet Test Cases (TC_001–TC_160)
 version: 2.0
 source_document: DFMS UAT Test Suite.pdf (+ Phase01 admin extras)
 implementation_reference: ../../../../nourish-vendor-app/.maestro/
-last_updated: 2026-08-20
+last_updated: 2026-08-21
 ---
 
 # DFMS Vendor Fleet — Test Cases (TC_001–TC_160)
@@ -25,15 +25,19 @@ Older Phase01 IDs (formerly TC_075–215, then a temporary renumber) are **repla
 
 ## Status snapshot (2026-08-21)
 
-| Status | ~Count | Meaning |
-|--------|-------:|---------|
-| **Pass** / **Covered** | ~101 | Automated (Playwright and/or Maestro) |
-| **Partial** | **3** | Blockers only: TC_020, TC_032, TC_129 |
-| **Not Started** | ~29 | Still need new flows (esp. Won section TC_111–116) |
-| **Skipped** | ~15 | OTP or yard E2E out of current automation scope |
-| **N/A** / **Skip** | ~12 | Admin-only or audit/load skip |
+| Status | Count | Meaning |
+|--------|------:|---------|
+| **Pass** | **123** | Automated (Playwright and/or Maestro) and verified |
+| **Partial** | **4** | TC_020, TC_032, TC_066, TC_129 |
+| **Skipped** | **15** | OTP or yard E2E out of current automation scope |
+| **Skip** | **9** | Blocked / harness gaps |
+| **N/A** | **8** | Admin-only / out of vendor-mobile scope |
+| **Failed** | **1** | TC_008 |
+| **Not Started** | **0** | — |
 
-**2026-08-21:** Unblocked Partials moved to Pass/Covered via Maestro (`auth/07,14,15`, `tos/03,06`, `trips/02,03`, `bids/03,05,08`) + existing Playwright. Remaining Partial = product/spec blockers.
+> **Covered** was merged into **Pass** (single green status).
+
+**2026-08-21:** Unblocked Partials moved to Pass via Maestro + Playwright. Remaining Partial = product/spec blockers + flaky TC_066.
 
 ## Feature files
 
@@ -72,11 +76,10 @@ See also: [Maestro setup and run](../../maestro-setup-and-run.md).
 
 | Status | Meaning |
 |--------|---------|
-| **Covered** | Maestro flow implemented and passing |
-| **Pass** | Playwright (and/or Maestro) passing |
+| **Pass** | Automated (Playwright and/or Maestro) and verified |
 | **Partial** | Related flow exists; does not fully satisfy UAT |
 | **Not Started** | Documented from UAT; automation / assert not built yet |
 | **Skipped** | Intentionally not run (OTP, yard chain) |
-| **Manual** | Needs manual/admin steps |
+| **Failed** | Automation ran; assertion failed |
 | **N/A** | Out of scope for vendor mobile |
-| **Skip** | Audit/load — PDF skip |
+| **Skip** | Blocked / harness gap / PDF skip |
