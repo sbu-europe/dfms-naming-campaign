@@ -843,10 +843,12 @@ All templates extend `admin/base_site.html` and live in `templates/admin/master_
 ### 7.3 bulk_import_preview.html
 
 - Summary bar: `X valid rows | Y invalid rows | Z total rows`
-- Paginated table (20 rows/page) using Django's `Paginator` over `job.preview_data`
+- **Admin pagination (design system):** `resolve_admin_list_pagination` — `?p=` + `?per_page=` (`VALID_PER_PAGE` 15/25/50/100/200, default 25); footer `.dfms-pagination-parent` + **Rows per page:** (see [Data Display](../../07-design-system/02-components/data-display.md)). Replaces legacy fixed 20 / `?page=` on this SSR preview only.
+- Paginated table using Django's `Paginator` over filtered `job.preview_data`
 - Rows with `status = valid`: green left border
 - Rows with `status = invalid`: red left border + error messages in a collapsible cell
 - Columns: row number, all CSV field values, validation status, errors
+- **Status filter (Sprint 9 FB-004):** right sidebar `#changelist-filter` → **By status** → **All** / **Valid** / **Invalid** (`?status=valid|invalid`; omit for All). Summary counts stay job-global. Shared by Master Data, User, and Driver preview. Full plan: **[bulk-import-preview-status-filter-fb004.md](./bulk-import-preview-status-filter-fb004.md)**.
 - Two action buttons at top and bottom:
   - `<form method="POST" action="confirm/">` → "Import Valid Rows ({{ job.valid_rows }})"
   - `<a href="../../import/">` → "Fix & Re-upload" (sets job status to `cancelled` via GET handler)
