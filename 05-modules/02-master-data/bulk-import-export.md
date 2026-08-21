@@ -1,11 +1,11 @@
 ---
 module: 02-master-data
 specification: Bulk Import & Export — Master Data
-version: 1.3
+version: 1.4
 phase: Phase 1
 source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.3.1, 6.3.2, 6.3.3
-last_updated: 2026-04-17
+last_updated: 2026-08-21
 related_stories: US-047, US-053, US-057, US-061, US-095, US-096
 ---
 
@@ -349,6 +349,7 @@ IMPORT_REGISTRY: dict[str, BaseImportConfig] = {
 - Date fields (`YYYY-MM-DD` format): parseable by `datetime.date.fromisoformat`.
 - Boolean fields (`requires_qc`): `"true"/"false"/"1"/"0"/"yes"/"no"` (case-insensitive).
 - FK-by-code fields (e.g. `origin_poi_code` for `Route`): resolved to a DB object; error if the referenced code does not exist in the tenant's data.
+- Phone fields (`contact_number`, `phone_number`, `sim_number`, `contact_phone`, and model-specific aliases): BD mobile accepted as local (`01…`), national (`8801…`), or E.164 (`+8801…`); normalised on import via `normalize_bd_mobile` to E.164 `+8801XXXXXXXXX`. Leading tabs/spaces from Excel-safe export cells are stripped before validation.
 
 **Model-level validation**:
 - After field coercion, the config instantiates an in-memory model object (`instance = model(**cleaned_data)`) and calls `instance.full_clean()` to run any cross-field constraints, custom `clean()` logic, or `UniqueConstraint` checks defined on the model.
@@ -499,6 +500,22 @@ class ExportService:
         job.completed_at = now()
         job.save()
 ```
+
+### 4.3 Export cell formatting (phones & Excel-safe text)
+
+Implemented in `apps/master_data/import_configs.py` and applied from `BaseImportConfig.get_export_row()` (and subclasses that call `_normalize_export_phone_columns`).
+
+**BD phone columns** (`contact_number`, `phone_number`, `sim_number`, `contact_phone`):
+
+| Rule | Detail |
+|---|---|
+| Normalisation | `_format_export_phone` runs `normalize_bd_mobile` so exported values are E.164 **`+8801XXXXXXXXX`** (leading `+` is kept). |
+| Excel safety | The cell is then passed through `_excel_safe_text`, which prefixes a leading **tab** (`\t`) when the value matches a long numeric / E.164 pattern. That stops Excel from treating `+…` as a formula or converting digits to scientific notation. |
+| Round-trip | Import strips the tab via `str.strip()` / phone normalisers; `+8801…`, `8801…`, and `01…` remain valid import shapes. |
+
+**Other cells**: dates (`YYYY-MM-DD`) and other long digit strings also receive the same tab prefix when they would be auto-converted by Excel.
+
+Example exported phone cell (CSV): `\t+8801712345678` — opens in Excel as text `+8801712345678`; re-import stores E.164 `+8801712345678`.
 
 ---
 
@@ -1000,6 +1017,7 @@ pytestmark = [pytest.mark.django_db, pytest.mark.unit]
 | `TestExportServiceGenerate` | `test_csv_encoded_with_utf8_bom` | File bytes start with `b'\xef\xbb\xbf'` (UTF-8 BOM) |
 | `TestExportServiceGenerate` | `test_empty_queryset_produces_header_only_csv` | No records → CSV has exactly 1 line |
 | `TestExportServiceGenerate` | `test_status_set_to_completed` | `job.status == "completed"` after generate |
+| `TestExportPhoneFormatting` | `test_phone_columns_export_e164_with_plus_and_tab` | Phone columns export as `\t+8801…` (E.164 with `+`, Excel-safe tab); see §4.3 |
 
 ### 9.5 test_tasks.py — Celery Tasks
 
