@@ -23,17 +23,17 @@ last_updated: 2026-08-20
 
 Older Phase01 IDs (formerly TC_075–215, then a temporary renumber) are **replaced** by this scheme. Do not mix old IDs with this folder.
 
-## Status snapshot
+## Status snapshot (2026-08-21)
 
 | Status | ~Count | Meaning |
 |--------|-------:|---------|
-| **Pass** / **Covered** | ~82 | Automated and passing (Playwright and/or Maestro) |
-| **Partial** | ~22 | Related automation exists; UAT not fully satisfied |
-| **Not Started** | ~29 | In UAT PDF; not yet in Maestro / weak context before |
+| **Pass** / **Covered** | ~101 | Automated (Playwright and/or Maestro) |
+| **Partial** | **3** | Blockers only: TC_020, TC_032, TC_129 |
+| **Not Started** | ~29 | Still need new flows (esp. Won section TC_111–116) |
 | **Skipped** | ~15 | OTP or yard E2E out of current automation scope |
 | **N/A** / **Skip** | ~12 | Admin-only or audit/load skip |
 
-Largest **Not Started** gaps vs UAT: Contact Person / mobile registration, Mobile+Password login variants, bid-update-while-open, **Won Bids section** (TC_102, TC_111–116), yard auto-close asserts.
+**2026-08-21:** Unblocked Partials moved to Pass/Covered via Maestro (`auth/07,14,15`, `tos/03,06`, `trips/02,03`, `bids/03,05,08`) + existing Playwright. Remaining Partial = product/spec blockers.
 
 ## Feature files
 

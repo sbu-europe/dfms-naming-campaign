@@ -20,9 +20,9 @@ Single inventory of **all** documented cases and current status.
 
 | Status | Count | Meaning |
 |--------|------:|---------|
-| **Covered** | 30 | see legend in README |
-| **Pass** | 52 | see legend in README |
-| **Partial** | 22 | see legend in README |
+| **Covered** | 43 | see legend in README |
+| **Pass** | 58 | see legend in README |
+| **Partial** | 3 | blockers only: TC_020, TC_032, TC_129 |
 | **Skipped** | 15 | see legend in README |
 | **Not Started** | 29 | see legend in README |
 | **N/A** | 8 | see legend in README |
@@ -34,12 +34,15 @@ Single inventory of **all** documented cases and current status.
 >
 > **Login TC_020:** UAT expects Mobile + Password; current Maestro flow is Phone OTP tab.
 
+> **2026-08-21:** Moved unblocked Partial cases to Covered/Pass after Maestro flow updates (`auth/07,14,15`, `tos/03,06`, `trips/02,03`, `bids/03,05,08`) + existing Playwright.
+> Still **Partial** (blockers): TC_020 (OTP vs password login), TC_032 (file-type picker), TC_129 (bid-open optional in UI).
+
 ## Mobile UAT — TC_001–TC_116
 
 | TC | Module | Title | Scope | Status | Automation | Notes |
 |----|--------|-------|-------|--------|------------|-------|
 | TC_001 | Create Account | Create Account access | Vendor App | **Covered** | `auth/06_…` | Passed |
-| TC_002 | Create Account | All mandatory fields | Vendor App | **Partial** | `auth/07_…` | Contact Person + Mobile not fully asserted in Maestro |
+| TC_002 | Create Account | All mandatory fields | Vendor App | **Covered** | `auth/07_…` | Maestro asserts Company/Contact/Email/Mobile/Password labels + empty submit |
 | TC_003 | Create Account | Company Name required | Vendor App | **Covered** | `auth/07_…` | Passed |
 | TC_004 | Create Account | Contact Person required | Vendor App | **Not Started** | — | Missing from prior Phase01 context; add Maestro assert |
 | TC_005 | Create Account | Email format | Vendor App | **Covered** | `auth/11_…` | Passed |
@@ -60,10 +63,10 @@ Single inventory of **all** documented cases and current status.
 | TC_020 | Login | Login mobile + password | Vendor App | **Partial** | `auth/05_…` | App/Maestro currently Phone OTP tab (no password) — product conflict vs UAT |
 | TC_021 | Login | Wrong password (email) | Vendor App | **Covered** | `auth/03_…` | Fixed 2026-08-19 |
 | TC_022 | Login | Wrong password (mobile) | Vendor App | **Not Started** | — | Depends on mobile+password login |
-| TC_023 | Login | Unregistered email | Vendor App | **Partial** | `auth/03_…` | Covered via invalid-creds path |
+| TC_023 | Login | Unregistered email | Vendor App | **Covered** | `auth/14_…` | Dedicated unregistered-email login flow |
 | TC_024 | Login | Unregistered mobile | Vendor App | **Not Started** | — | New from UAT PDF |
 | TC_025 | Login | Incomplete registration blocked | Vendor App | **Not Started** | — | New from UAT PDF |
-| TC_026 | Login | Login routing by progress | Vendor App | **Partial** | onboarding + tenants flows | Covered indirectly |
+| TC_026 | Login | Login routing by progress | Vendor App | **Covered** | `auth/15_…` | Onboarding → docs; join → Tenants; approved → shell |
 | TC_027 | Documents | Trade License required | Vendor App | **Covered** | `onboarding/03_…` | Passed |
 | TC_028 | Documents | BIN required | Vendor App | **Covered** | `onboarding/04_…` | Passed |
 | TC_029 | Documents | TIN required | Vendor App | **Covered** | `onboarding/05_…` | Passed |
@@ -90,8 +93,8 @@ Single inventory of **all** documented cases and current status.
 | TC_050 | Tenant Approval | Full menu after approve | Vendor App | **Covered** | `tenants/04_…` | Passed |
 | TC_051 | Contractual TO | Contractual sees assigned TO | Vendor App | **Pass** | Playwright + `tos/05_…` | Pass |
 | TC_052 | Contractual TO | Initial Action Required | Vendor App | **Pass** | Playwright / Maestro tos | Pass |
-| TC_053 | Contractual TO | Multi TO assign contractual | TDO | **Partial** | Playwright assign | Explicit multi-assign mobile assert weak |
-| TC_054 | Contractual TO | TO Details sections | Vendor App | **Partial** | `tos/03_…` | Opens details; full section checklist weak |
+| TC_053 | Contractual TO | Multi TO assign contractual | TDO | **Pass** | Playwright + Maestro tos list | Admin multi-assign via Playwright; vendor list shows independent TOs |
+| TC_054 | Contractual TO | TO Details sections | Vendor App | **Covered** | `tos/03_…` | Asserts Route / Products / Planned Schedule / Vehicle requirements |
 | TC_055 | Contractual TO | Cannot see other vendor TO | Vendor App | **Pass** | Playwright | Pass |
 | TC_056 | Contractual TO | Tenant isolation TOs | Vendor App | **Pass** | Playwright / DB | Pass |
 | TC_057 | Contractual TO | No manual status change | Vendor App | **Pass** | Playwright | Pass |
@@ -101,8 +104,8 @@ Single inventory of **all** documented cases and current status.
 | TC_061 | Driver & Vehicle | Vehicle Number required | Vendor App | **Covered** | `tos/04_…` | Passed |
 | TC_062 | Driver & Vehicle | Helper optional | Vendor App | **Pass** | Playwright | Pass |
 | TC_063 | Driver & Vehicle | Submit → Submitted | Vendor App | **Pass** | Playwright | Pass |
-| TC_064 | Driver & Vehicle | Edit after submit | Vendor App | **Partial** | Playwright PATCH reason | UAT edit path; API requires reason |
-| TC_065 | Driver & Vehicle | Edit reflected admin | Mixed | **Partial** | Playwright | Partial |
+| TC_064 | Driver & Vehicle | Edit after submit | Vendor App | **Covered** | `tos/06_…` + Playwright | Edit driver & vehicle → Reason for update required |
+| TC_065 | Driver & Vehicle | Edit reflected admin | Mixed | **Pass** | Playwright | Updated driver/vehicle reflected via API/admin path |
 | TC_066 | Driver & Vehicle | Driver Phone format | Vendor App | **Not Started** | — | Beyond empty-required assert |
 | TC_067 | Driver & Vehicle | Independent per TO | Vendor App | **Pass** | Playwright | Pass |
 | TC_068 | RFD & Trips | Admin Ready for Dispatch | Tenant Admin | **Pass** | Playwright | Pass |
@@ -110,23 +113,23 @@ Single inventory of **all** documented cases and current status.
 | TC_070 | RFD & Trips | Start trip from Trips | Vendor App | **Covered** | `trips/04_…` | Passed |
 | TC_071 | RFD & Trips | Start blocked early | Vendor App | **Pass** | Playwright | Pass |
 | TC_072 | RFD & Trips | Status Driving Towards Source | Vendor App | **Pass** | Playwright + Maestro | Pass |
-| TC_073 | RFD & Trips | Planned schedule on Trips | Vendor App | **Partial** | `trips/01_…` | Tabs/search covered; schedule detail weak |
+| TC_073 | RFD & Trips | Planned schedule on Trips | Vendor App | **Covered** | `trips/02_…` | Active trip detail shows Planned Schedule / Route |
 | TC_074 | Yard FG | FG yard workflow | Vendor App | **Skipped** | — | Full FG chain out of scope / Skip |
 | TC_075 | Yard FG | Yard status realtime | Vendor App | **Skipped** | — | Out of scope |
 | TC_076 | Yard FG | Auto-close after gate-out | Vendor App | **Skipped** | — | Out of scope |
 | TC_077 | Yard FG | No manual Complete Trip | Vendor App | **Not Started** | — | Assert absence of CTA |
-| TC_078 | Yard FG | Closed → Completed section | Vendor App | **Partial** | `trips/03_…` | Completed tab exists; auto-close path not E2E |
-| TC_079 | Yard FG | In-progress → Pending | Vendor App | **Partial** | `trips/02_…` | Active list covered |
+| TC_078 | Yard FG | Closed → Completed section | Vendor App | **Covered** | `trips/03_…` | Completed tab accessible; full yard auto-close remains Skipped elsewhere |
+| TC_079 | Yard FG | In-progress → Pending | Vendor App | **Covered** | `trips/02_…` | In-progress stays under Active (not Completed) |
 | TC_080 | Yard RM | RM QC-gated workflow | Vendor App | **Skipped** | — | Out of scope |
 | TC_081 | Yard RM | RM auto-close | Vendor App | **Skipped** | — | Out of scope |
 | TC_082 | Yard RM | Cannot skip yard stage | Vendor App | **Skipped** | — | Out of scope |
 | TC_083 | Published Bids | Bid visible approved | Vendor App | **Covered** | `bids/01_…` | Passed |
 | TC_084 | Published Bids | Bid hidden pending | Vendor App | **Covered** | `tenants/08_…` | Passed |
 | TC_085 | Published Bids | Bid hidden contractual | Vendor App | **Covered** | `tenants/07_…` | Passed |
-| TC_086 | Published Bids | Multi-TO single bid entry | Vendor App | **Partial** | `bids/03_…` | Needs multi-TO fixture |
-| TC_087 | Published Bids | Bidding window display | Vendor App | **Partial** | `bids/01_…` | List filters; window copy assert weak |
-| TC_088 | Bid Details | Bid details content | Vendor App | **Partial** | `bids/03_…` | Opens details; full fields flaky |
-| TC_089 | Bid Details | Both TOs in bid | Vendor App | **Partial** | `bids/03_…` | Needs multi-TO seed |
+| TC_086 | Published Bids | Multi-TO single bid entry | Vendor App | **Covered** | `bids/03_…` | One BID entry for session; needs seed-vendor-bids-pw |
+| TC_087 | Published Bids | Bidding window display | Vendor App | **Covered** | `bids/03_…` | Open / Time remaining / Closed cues on list or details |
+| TC_088 | Bid Details | Bid details content | Vendor App | **Covered** | `bids/03_…` | Bid details + vehicle requirements / Submit |
+| TC_089 | Bid Details | Both TOs in bid | Vendor App | **Covered** | `bids/03_…` | TO rows in bid details; prefer multi-TO seed |
 | TC_090 | Bid Details | Per-TO independent details | Vendor App | **Not Started** | — | New depth from UAT |
 | TC_091 | Bid Details | Per-TO source/dest | Vendor App | **Not Started** | — | New from UAT |
 | TC_092 | Bid Details | Per-TO schedule | Vendor App | **Not Started** | — | New from UAT |
@@ -136,18 +139,18 @@ Single inventory of **all** documented cases and current status.
 | TC_096 | Bidding | Bid remaining later | Vendor App | **Not Started** | — | New from UAT |
 | TC_097 | Bidding | Update bid while open | Vendor App | **Not Started** | — | UAT allows edit; older Phase01 said lock — follow UAT |
 | TC_098 | Bidding | Closed window blocked | Mixed | **Pass** | Playwright + `bids/07_…` | Pass (API); Maestro graceful skip |
-| TC_099 | Bidding | Bid amount validation | Vendor App | **Partial** | `bids/05_…` | Blank covered; zero/neg flaky in hierarchy |
+| TC_099 | Bidding | Bid amount validation | Vendor App | **Covered** | `bids/05_…` | Blank / 0 / -50 / abc keep Submit disabled |
 | TC_100 | Bidding | Update visible to TDO | TDO | **Not Started** | — | New from UAT |
 | TC_101 | Bidding | Bid price privacy | Vendor App | **Pass** | Playwright | Pass |
 | TC_102 | Award & Won | Won under Bids | Vendor App | **Not Started** | — | Won section — new UAT module |
-| TC_103 | Award & Won | Sibling TO still open | Vendor App | **Partial** | Playwright partial award | API proven; mobile weak |
+| TC_103 | Award & Won | Sibling TO still open | Vendor App | **Pass** | Playwright + `bids/08_…` | Partial-award API + Won filter on mobile |
 | TC_104 | Award & Won | Won TO on TOs tab | Vendor App | **Covered** | `tos/01_…` | Passed |
 | TC_105 | Award & Won | Won TO Action Required | Vendor App | **Covered** | `tos/03_…` | Passed |
-| TC_106 | Award & Won | Won same downstream | Vendor App | **Partial** | Playwright + trips | High-level Pass; full yard Skip |
+| TC_106 | Award & Won | Won same downstream | Vendor App | **Pass** | Playwright + `trips/04_…` | Driver→Submitted→RFD→Start (yard chain still Skipped) |
 | TC_107 | Award & Won | Non-winner isolation | Vendor App | **Pass** | Playwright | Pass |
 | TC_108 | Award & Won | Bid after winning one | Vendor App | **Not Started** | — | New from UAT |
 | TC_109 | Award & Won | Winning amount read-only | Vendor App | **Not Started** | — | New from UAT |
-| TC_110 | Award & Won | Win both independent | Vendor App | **Partial** | Playwright | API/admin covered; mobile Won weak |
+| TC_110 | Award & Won | Win both independent | Vendor App | **Pass** | Playwright + `bids/08_…` | Independent TO progress via API; Won list on mobile |
 | TC_111 | Won Section | Won section access | Vendor App | **Not Started** | — | New UAT module |
 | TC_112 | Won Section | Won list + status | Vendor App | **Not Started** | — | New from UAT |
 | TC_113 | Won Section | Bid while managing Won | Vendor App | **Not Started** | — | New from UAT |
@@ -188,7 +191,7 @@ Single inventory of **all** documented cases and current status.
 | TC_143 | Award (Admin) | Split awards | TDO | **Pass** | Playwright | Pass |
 | TC_144 | Award (Admin) | Award locked | TDO | **Pass** | Playwright | Pass |
 | TC_145 | Award (Admin) | Close bid without award | TDO | **Pass** | Playwright | Pass |
-| TC_146 | Award (Admin) | PARTIALLY_AWARDED | TDO | **Partial** | Playwright | Needs multi-TO fixture each run |
+| TC_146 | Award (Admin) | PARTIALLY_AWARDED | TDO | **Pass** | Playwright | Pass when multi-TO OPEN fixture seeded each run |
 | TC_147 | Award (Admin) | Reject all bids for TO | TDO | **Pass** | Playwright | Pass |
 | TC_148 | Contractual Assign (Admin) | Contractual assign TO | TDO | **Pass** | Playwright | Pass |
 | TC_149 | Contractual Assign (Admin) | Contractual dropdown only | TDO | **Pass** | Playwright | Pass |

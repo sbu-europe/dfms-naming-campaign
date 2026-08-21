@@ -10,7 +10,7 @@
 | TC_143 | Split awards | Different vendors per TO | TDO | **Pass** | Playwright | Pass |
 | TC_144 | Award locked | Cannot re-award | TDO | **Pass** | Playwright | Pass |
 | TC_145 | Close bid without award | Cancel/close open bid | TDO | **Pass** | Playwright | Pass |
-| TC_146 | PARTIALLY_AWARDED | Session status after partial award | TDO | **Partial** | Playwright | Needs multi-TO fixture each run |
+| TC_146 | PARTIALLY_AWARDED | Session status after partial award | TDO | **Pass** | Playwright | Pass when multi-TO OPEN fixture seeded each run |
 | TC_147 | Reject all bids for TO | Reject all with reason | TDO | **Pass** | Playwright | Pass |
 | TC_151 | RFD gated on confirm | RFD only after Vendor Confirmed | TDO | **Pass** | Playwright | Pass |
 | TC_152 | Own Fleet TDO blocked | Own Fleet actor blocked from VF actions | TDO | **Pass** | Playwright | Pass |
