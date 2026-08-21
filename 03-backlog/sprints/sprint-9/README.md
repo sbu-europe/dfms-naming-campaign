@@ -5,7 +5,7 @@ phase: Phase 1
 dates: "2026-08-18 – TBD"
 status: In Progress
 carry_from: Sprint 8
-total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-003"
+total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
 ---
 
 # Sprint 9 — Vendor Mobile Auth & Onboarding UX Hardening
@@ -16,7 +16,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-003"
 | **Carry-over from Sprint 8** | AUTH-01 SMS invitation / URL shortener (deferred — not part of this sprint scope) |
 | **New Scope** | Vendor Mobile phone verification gate (VAPP-03); onboarding screen chrome restructure; forgot-password phone error unification |
 | **Related prior work** | Sprint 8 AUTH-01 (phone login/2FA admin portal); Sprint 6 VAPP-01–02 vendor app release readiness |
-| **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-003 (vendor mobile UX) |
+| **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-003 (vendor mobile UX); FB-004 (bulk import Valid/Invalid Status filter) |
 | **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) |
 
 ---
@@ -35,7 +35,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-003"
 |---|------|-------------|----|--------|
 | 01 | Vendor Mobile — Phone Verification Gate & Onboarding UX | [VAPP-03](01-vendor-mobile-auth/VAPP-03-phone-verification-onboarding-ux.md) | 8 | In Progress |
 
-**Total estimated**: ~8 SP (VAPP-03) + FB-001–FB-003 improvements
+**Total estimated**: ~8 SP (VAPP-03) + FB-001–FB-004 improvements
 
 ---
 
@@ -52,7 +52,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-003"
 | VAPP-03-5 | VAPP-03 | Forgot-password phone error unification — 404 and 403 map to single no-account message | Medium |
 | VAPP-03-6 | VAPP-03 | l10n, Maestro flow update, backend test alignment | Medium |
 
-### Improvements (FB-001–FB-003)
+### Improvements (FB-001–FB-004)
 
 See [`improvements/`](./improvements/README.md).
 
@@ -61,6 +61,7 @@ See [`improvements/`](./improvements/README.md).
 | FB-001 | Vendor Mobile — Onboarding chrome | Profile header + destructive Logout CTA on onboarding and standalone tenant-join screens | Medium | Resolved |
 | FB-002 | Vendor Mobile — Auth | Phone verification screen inserted after email OTP; `SessionDestination.phoneVerification` gate | High | Resolved |
 | FB-003 | Vendor Mobile — Auth | Forgot-password phone: unified no-account error for unknown + unverified phone | Medium | Resolved |
+| FB-004 | Master Data · Users · Drivers — Bulk I/O | Status filter Valid / Invalid on imported records after Excel / bulk import (clearable; Tenant Admin + Tenant Super Admin) | Medium | Open |
 
 ---
 

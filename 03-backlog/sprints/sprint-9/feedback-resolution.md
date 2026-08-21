@@ -13,7 +13,7 @@ Client feedback captured during Sprint 9.
 
 > **Resolution Status values**: `Open` → `In Progress` → `Resolved`
 
-> **Not in this tracker:** workflow / UX improvement items live in [`improvements/`](./improvements/README.md) (FB-001–FB-003).
+> **Not in this tracker:** workflow / UX improvement items live in [`improvements/`](./improvements/README.md) (FB-001–FB-004).
 
 ## All items
 
