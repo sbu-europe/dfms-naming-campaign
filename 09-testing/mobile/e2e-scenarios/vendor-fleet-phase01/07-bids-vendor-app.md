@@ -1,79 +1,41 @@
-# Bids — Vendor App (View, Submit, Visibility)
+# Bids, Award & Won Section (TC_083–TC_116)
 
-**Module:** Vendor Management — Vendor Bid Submission (Non-Contractual)  
-**Scope:** Vendor mobile app (**Maestro**) + TDO evaluation / API (**Playwright**)  
-**Automation:** **Maestro** + **Playwright**  
-**Last run:** 2026-07-23 — Playwright `RUN_ID=C7B23D01`; Maestro on `emulator-5554`  
-**Evidence:** `nourish-backend/tests/e2e/playwright-mcp/vendor-bids-artifacts/RESULTS.md`
+**Source:** DFMS UAT — Published Bids through Won Bid Section.
+**Gap focus:** Won section (TC_102, TC_111–116) and bid-update-while-open (TC_097).
 
-| TC ID | Scenario | Test description | Priority | Scope | Maestro/Playwright Status | Runner / evidence | Notes |
-|-------|----------|------------------|----------|-------|---------------------------|-------------------|-------|
-| TC_133 | Open bid & view TOs | Vendor opens published bid; sees TOs. | High | Vendor App | **Pass** (Maestro) | `bids/03_open_bid_details_from_list.yaml` | Opens Bid details; vehicle requirements + Submit CTA. TO checklist labels flaky in hierarchy |
-| TC_134 | Partial bid (single TO) | Bid on one TO only. | High | Mixed | **Pass** (Playwright) | `run-vendor-bids.mjs` | API single-TO `to_offers` submit 201. Maestro UI price field often not exposed |
-| TC_135 | Bid on all TOs | Bid both TOs together. | Critical | Mixed | **Pass** (Playwright) | same | Multi-TO when fixture has ≥2 members; this run used 1-TO open bid |
-| TC_136 | Bid price required | Blank price blocked. | Critical | Vendor App | **Pass** (Maestro) | `bids/05_bid_price_validation.yaml` | Submit bid stays **disabled** without valid price |
-| TC_137 | Invalid bid price | Zero/negative/non-numeric rejected. | High | Vendor App | **Partial** (Maestro) | `bids/05_bid_price_validation.yaml` | Blank covered; zero/negative path needs visible `Enter bid price` (TO tile not always in hierarchy) |
-| TC_138 | No edit after submit | Bid locked post-submission. | Critical | Mixed | **Partial** (Maestro + Playwright) | `bids/06_…yaml` + API | Maestro: Submit disabled until priced; withdraw UI optional. API submit upserts pending bid |
-| TC_139 | Closed bid window | After Close Date blocked. | Critical | Mixed | **Pass** (Playwright) | `run-vendor-bids.mjs` | API 422 on closed/awarded session. Maestro search of closed marker unreliable on Open tab |
-| TC_140 | No duplicate bid | Same vendor cannot bid twice. | High | Backend | **Pass** (Playwright) | same | Re-submit **upserts** same `VendorBid` id (no second row) |
-| TC_141 | Multiple vendors | Two vendors bid independently. | Critical | Mixed | **Pass** (Playwright) | same | `vendor2` + `vendor3` both 201 |
-| TC_142 | Audit log | Bid submission logged. | Medium | Backend | **Skip** | — | PDF Skip |
-| TC_192 | Bid price privacy | Vendor B cannot see Vendor A price. | Critical | Vendor App | **Pass** (Playwright) | same | Vendor B detail payload has no competitor costs |
-| TC_204 | Bid management navigation | TDO bid list → detail → evaluation. | High | TDO | **Pass** (Playwright) | same | `/admin/vendors/biddingsession/` → change form + Award UI |
-| TC_210 | One vehicle per TO offer | Max 1 vehicle per TO. | High | Backend | **Pass** (Playwright) | same | `offered_vehicle_count = len(to_offers)` |
-| TC_211 | PARTIALLY_AWARDED | Session status after partial award. | Critical | TDO | **Partial** (Playwright) | same | **Pass** earlier on multi-TO `BID-20260723-ECSQ7FCA` → `partially_awarded`. Latest seed only had 1-TO open bid |
-| TC_212 | Reject all bids for TO | Reject with reason. | High | TDO | **Pass** (Playwright) | same | `POST …/bids/reject-all/` with reason |
-
-## Related Maestro flows (2026-07-23)
-
-| Flow | Result |
-|------|--------|
-| `bids/01_bids_list_search_and_filters.yaml` | **Passed** |
-| `bids/02_bids_search_filters_list.yaml` | **Failed** — empty-search copy not matched (debounce / hierarchy) |
-| `bids/03_open_bid_details_from_list.yaml` | **Passed** (after wait-for-content fix) |
-| `bids/05_bid_price_validation.yaml` | **Passed** (Submit disabled) |
-| `bids/06_bid_submit_partial_or_all_and_withdraw.yaml` | **Passed** (disabled Submit gate; full price/withdraw optional) |
-| `bids/07_closed_bid_window.yaml` | **Failed** — closed/awarded bid not on Open list; covered by Playwright TC_139 |
-
-## How to run
-
-### Seed
-
-```bash
-# nourish-backend
-make seed-vendor-bids-pw RUN_ID=C7B23D01
-# Auto-publishes an OPEN bid if none exist; marks another session closed for TC_139
-```
-
-### Playwright (API + TDO)
-
-```bash
-cd tests/e2e/playwright-mcp/vendor-bids-artifacts
-RUN_ID=C7B23D01 node run-vendor-bids.mjs
-```
-
-### Maestro (vendor app)
-
-```bash
-cd ../nourish-vendor-app
-set -a && source .maestro/.env.local && set +a
-# vendor2 password in DB: Abc@123456
-
-maestro --device emulator-5554 test \
-  -e APP_ID="$APP_ID" -e VENDOR_EMAIL="$VENDOR_EMAIL" -e VENDOR_PASSWORD="$VENDOR_PASSWORD" \
-  .maestro/flows/bids/01_bids_list_search_and_filters.yaml \
-  .maestro/flows/bids/03_open_bid_details_from_list.yaml \
-  .maestro/flows/bids/05_bid_price_validation.yaml \
-  .maestro/flows/bids/06_bid_submit_partial_or_all_and_withdraw.yaml
-```
-
-## Still blocked / skipped
-
-- **TC_137 / TO tile hierarchy:** Flutter often omits `TO-*` / `Enter bid price` from Maestro tree until selection semantics improve.
-- **TC_211:** needs a multi-TO OPEN fixture to assert `partially_awarded` every run (proven once on `ECSQ7FCA`).
-- **TC_142:** PDF Skip.
-- **`bids/02` empty search:** copy/timing mismatch — not a product blocker for bid submit.
-
-## Data note
-
-`make seed-vendor-bids-pw` extends/creates an OPEN bid and forces a CLOSED/awarded peer for negative submit. Prefer ≥2 eligible same-TR TOs before seed when testing TC_135 / TC_211.
+| TC ID | Title | Scenario | Scope | Status | Automation | Notes |
+|-------|-------|----------|-------|--------|------------|-------|
+| TC_083 | Bid visible approved | Approved NC vendor sees published bid | Vendor App | **Pass** | `bids/01_…` | Passed |
+| TC_084 | Bid hidden pending | Pending vendor cannot see bids | Vendor App | **Pass** | `tenants/08_…` | Passed |
+| TC_085 | Bid hidden contractual | Contractual vendor no NC bids | Vendor App | **Pass** | `tenants/07_…` | Passed |
+| TC_086 | Multi-TO single bid entry | Two TOs published → one bid entry | Vendor App | **Pass** | `bids/03_…` | One BID entry for session; needs seed-vendor-bids-pw |
+| TC_087 | Bidding window display | Bids tab shows open/close window status | Vendor App | **Pass** | `bids/03_…` | Open / Time remaining / Closed cues on list or details |
+| TC_088 | Bid details content | Bid Details: TO, route, products, vehicle reqs | Vendor App | **Pass** | `bids/03_…` | Bid details + vehicle requirements / Submit |
+| TC_089 | Both TOs in bid | Bid with 2 TOs shows both | Vendor App | **Pass** | `bids/03_…` | TO rows in bid details; prefer multi-TO seed |
+| TC_090 | Per-TO independent details | Each TO shows own details | Vendor App | **Not Started** | — | New depth from UAT |
+| TC_091 | Per-TO source/dest | Source/Destination per TO | Vendor App | **Not Started** | — | New from UAT |
+| TC_092 | Per-TO schedule | Independent planned schedule per TO | Vendor App | **Not Started** | — | New from UAT |
+| TC_093 | Per-TO vehicle reqs | Vehicle requirements per TO not aggregate | Vendor App | **Not Started** | — | New from UAT |
+| TC_094 | Bid both TOs | Bid on both TOs in one submit | Vendor App | **Pass** | Playwright + Maestro partial | Pass (API); Maestro optional |
+| TC_095 | Bid single TO | Bid one TO leave other unbid | Vendor App | **Pass** | Playwright + Maestro | Pass |
+| TC_096 | Bid remaining later | Return later to bid remaining TO | Vendor App | **Not Started** | — | New from UAT |
+| TC_097 | Update bid while open | Update submitted bid while window open | Vendor App | **Not Started** | — | UAT allows edit; older Phase01 said lock — follow UAT |
+| TC_098 | Closed window blocked | Cannot bid/update after close | Mixed | **Pass** | Playwright + `bids/07_…` | Pass (API); Maestro graceful skip |
+| TC_099 | Bid amount validation | Amount mandatory; reject 0/neg/non-numeric | Vendor App | **Pass** | `bids/05_…` | Blank / 0 / -50 / abc keep Submit disabled |
+| TC_100 | Update visible to TDO | Bid update reflected in TDO comparison | TDO | **Not Started** | — | New from UAT |
+| TC_101 | Bid price privacy | Other vendor bid amount never visible | Vendor App | **Pass** | Playwright | Pass |
+| TC_102 | Won under Bids | Awarded TO shown as Won under Bids | Vendor App | **Not Started** | — | Won section — new UAT module |
+| TC_103 | Sibling TO still open | Other TOs in bid remain open after partial award | Vendor App | **Pass** | Playwright + `bids/08_…` | Partial-award API + Won filter on mobile |
+| TC_104 | Won TO on TOs tab | Winning TO appears under TOs | Vendor App | **Pass** | `tos/01_…` | Passed |
+| TC_105 | Won TO Action Required | Won TO initial status Action Required | Vendor App | **Pass** | `tos/03_…` | Passed |
+| TC_106 | Won same downstream | Won TO same lifecycle as contractual | Vendor App | **Pass** | Playwright + `trips/04_…` | Driver→Submitted→RFD→Start (yard chain still Skipped) |
+| TC_107 | Non-winner isolation | Non-winner does not see TO | Vendor App | **Pass** | Playwright | Pass |
+| TC_108 | Bid after winning one | Continue bidding other open TOs after win | Vendor App | **Not Started** | — | New from UAT |
+| TC_109 | Winning amount read-only | Winning bid amount read-only post-award | Vendor App | **Not Started** | — | New from UAT |
+| TC_110 | Win both independent | Win both TOs → independent progress | Vendor App | **Pass** | Playwright + `bids/08_…` | Independent TO progress via API; Won list on mobile |
+| TC_111 | Won section access | Access Won section under Bids | Vendor App | **Not Started** | — | New UAT module |
+| TC_112 | Won list + status | Won lists awarded TOs with status | Vendor App | **Not Started** | — | New from UAT |
+| TC_113 | Bid while managing Won | Bid open TOs while managing Won | Vendor App | **Not Started** | — | New from UAT |
+| TC_114 | Won independent metadata | Each Won TO independent status/bid/driver info | Vendor App | **Not Started** | — | New from UAT |
+| TC_115 | Second award independent | Later award independent of prior Won TO | Vendor App | **Not Started** | — | New from UAT |
+| TC_116 | Won realtime status | Won section realtime status updates | Vendor App | **Not Started** | — | New from UAT |

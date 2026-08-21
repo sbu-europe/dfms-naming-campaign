@@ -12,7 +12,7 @@ test_case_specs: ./e2e-scenarios/vendor-fleet-phase01/
 Operational guide for Maestro E2E tests on the **DFMS Vendor Flutter app**
 (`nourish-vendor-app`). Test-case specifications and **Maestro Status** tracking
 live in [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/)
-(TC_075–TC_215).
+(TC_001–TC_160; mobile UAT TC_001–TC_116).
 
 > Maestro is **not** installed through npm. Packages named `maestro` or
 > `maestro-cli` on npm are unrelated. Use the official CLI below.
@@ -235,6 +235,9 @@ maestro --device emulator-5554 test \
   --format junit --output .maestro/output/report.xml \
   .maestro
 ```
+
+Failure screenshots land in `.maestro/screenshots/` (`testOutputDir` in
+`.maestro/config.yaml`). Both `output/` and `screenshots/` are gitignored.
 
 Maestro Studio (selector inspection):
 

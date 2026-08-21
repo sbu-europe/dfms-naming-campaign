@@ -1,41 +1,35 @@
-# Registration & Authentication
+# Registration, Verification & Login (TC_001–TC_026)
 
-**Module:** Vendor Management — Vendor Registration (Mobile App)  
-**Scope:** Vendor mobile app — **Maestro target**  
-**Last Maestro run:** 2026-07-22 (emulator-5554, backend up, `vendor2@gmail.com`) — suite **26/32 flows Passed**
+**Source:** DFMS UAT Test Suite — Create Account, Email/Mobile Verification, Login.
+**Scope:** Vendor mobile app (Maestro).
+**OTP policy:** TC_011–TC_018 **Skipped** until stub OTP path is stable.
+**Product note:** UAT TC_020 expects Mobile + Password; current app Phone tab is OTP-oriented.
 
-> **OTP policy (current system):** All OTP-dependent Maestro cases are **Skipped**. Email/phone OTP delivery and verification are out of scope for automated runs until a stable stub/inbox path is available. Do not treat OTP flow failures as product regressions in the current suite.
-
-| TC ID | Scenario | Test description | Priority | Scope | Maestro Status | Maestro Flow | PDF Notes |
-|-------|----------|------------------|----------|-------|----------------|--------------|-----------|
-| TC_083 | Registration screen access | Open Vendor Fleet Mobile App without login. Registration option available. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/06_vendor_welcome_to_register_navigation.yaml` | **Passed** |
-| TC_084 | Mandatory fields present | Registration form shows Email, Company Name, Password, Confirm Password — all mandatory. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/07_register_validation_errors.yaml` | **Passed** |
-| TC_085 | Email format validation | Invalid formats rejected with clear errors. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/11_register_invalid_email.yaml` | **Passed 2026-07-22** — `Please enter a valid email` |
-| TC_086 | Duplicate email | Register with existing email blocked with duplicate error. | Critical | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/12_register_duplicate_email.yaml` | **Passed 2026-07-22** — API `already registered` (no OTP) |
-| TC_087 | Company name required | Blank Company Name blocked on submit. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/07_register_validation_errors.yaml` | Covered by empty-form validation |
-| TC_088 | Password complexity | Weak password rejected; field masked. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/13_register_weak_password.yaml` | **Passed 2026-07-22** — `Password must.*`; masking is platform Password field |
-| TC_089 | Password mismatch | Confirm Password must match Password. | High | Vendor App | Covered | `nourish-vendor-app/.maestro/flows/auth/08_register_password_mismatch.yaml` | **Passed** |
-| TC_090 | OTP sent | After form submit, 6-digit OTP sent to registered email. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_091 | Valid OTP | Correct OTP within validity completes email verification and routes to phone verification (step 3 of 3). | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_092 | Expired OTP | Expired OTP rejected; Resend option offered. | High | Vendor App | Skipped | — | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_093 | OTP lockout | Wrong OTP 3 times → temporary lockout. | High | Vendor App | Skipped | — | **Skipped** — OTP out of scope for current Maestro runs |
-| TC_094 | Sign in after OTP | After email OTP verification, vendor lands on Phone Verification first, then Profile Completion after successful phone OTP. | Critical | Vendor App | Skipped | `nourish-vendor-app/.maestro/flows/auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — depends on OTP verification (TC_090–091) |
-
-## Supporting login flows (not in TC_075–215 range)
-
-| Flow | Result 2026-07-22 / policy |
-|------|----------------------------|
-| `auth/01_login_mode_switch.yaml` | **Passed** (UI tab switch only; no OTP submit) |
-| `auth/02_login_empty_fields_shows_toast.yaml` | **Passed** |
-| `auth/03_login_invalid_credentials.yaml` | **Failed** — toast `Email/password is wrong` not captured within timeout |
-| `auth/04_login_valid_email_lands_authenticated.yaml` | **Passed** |
-| `auth/05_login_phone_password.yaml` | **Failed** — backend rejects unverified phone login; use verified-phone vendor or seed phone verification |
-| `auth/09_forgot_password_navigation_and_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs; for phone input, unknown/unverified both return the same no-account message |
-| `auth/10_register_full_flow_with_stub_otp.yaml` | **Skipped** — OTP out of scope for current Maestro runs (was Failed 2026-07-22; excluded from suite gates) |
-
-## Test data
-
-- Approved vendor: `VENDOR_EMAIL` / `VENDOR_PASSWORD` (`vendor2@gmail.com` / `Abc@123456`)
-- `NEW_VENDOR_*` for non-OTP registration form flows (refresh unique email/phone when re-enabling OTP)
-- `ONBOARDING_*` for profile-completion flows (not OTP-dependent once account exists)
-- `STUB_OTP` reserved for when OTP automation is re-enabled
+| TC ID | Title | Scenario | Scope | Status | Automation | Notes |
+|-------|-------|----------|-------|--------|------------|-------|
+| TC_001 | Create Account access | Verify vendor can access Create Account without login | Vendor App | **Pass** | `auth/06_…` | Passed |
+| TC_002 | All mandatory fields | Company Name, Contact Person, Email, Mobile, Password all mandatory | Vendor App | **Pass** | `auth/07_…` | Maestro asserts Company/Contact/Email/Mobile/Password labels + empty submit |
+| TC_003 | Company Name required | Company Name rejects blank | Vendor App | **Pass** | `auth/07_…` | Passed |
+| TC_004 | Contact Person required | Contact Person rejects blank | Vendor App | **Not Started** | — | Missing from prior Phase01 context; add Maestro assert |
+| TC_005 | Email format | Email format validated | Vendor App | **Pass** | `auth/11_…` | Passed |
+| TC_006 | Duplicate email | Duplicate email rejected | Vendor App | **Pass** | `auth/12_…` | Passed |
+| TC_007 | Mobile format | Mobile number format validated | Vendor App | **Not Started** | — | New from UAT PDF |
+| TC_008 | Duplicate mobile | Duplicate mobile rejected | Vendor App | **Not Started** | — | New from UAT PDF |
+| TC_009 | Password complexity | Password complexity + masked field | Vendor App | **Pass** | `auth/13_…` | Passed |
+| TC_010 | Email AND mobile required | Cannot submit with only email or only mobile | Vendor App | **Not Started** | — | UAT: both channels required (not OR) |
+| TC_011 | Send email verification code | Send Verification Code emails OTP + countdown | Vendor App | **Skipped** | `auth/10_…` | OTP automation out of scope |
+| TC_012 | Email before mobile | Cannot reach mobile verify before email verify | Vendor App | **Skipped** | — | OTP out of scope |
+| TC_013 | Email locked after code | Email not editable after code sent without restart | Vendor App | **Skipped** | — | OTP out of scope |
+| TC_014 | Nav to mobile after email | After email verify → Verify Mobile Number | Vendor App | **Skipped** | `auth/10_…` | OTP out of scope |
+| TC_015 | Send SMS OTP | Send OTP via SMS | Vendor App | **Skipped** | — | OTP out of scope |
+| TC_016 | Valid mobile OTP | Correct OTP completes mobile verify | Vendor App | **Skipped** | `auth/10_…` | OTP out of scope |
+| TC_017 | Cannot skip mobile verify | Registration blocked if mobile verify skipped | Vendor App | **Skipped** | — | OTP out of scope |
+| TC_018 | Both channels required | Registration complete only after email + mobile verify | Vendor App | **Skipped** | `auth/10_…` | OTP out of scope |
+| TC_019 | Login email + password | Fully registered vendor logs in with Email + Password | Vendor App | **Pass** | `auth/04_…` | Passed |
+| TC_020 | Login mobile + password | Login with Mobile Number + Password | Vendor App | **Partial** | `auth/05_…` | App/Maestro currently Phone OTP tab (no password) — product conflict vs UAT |
+| TC_021 | Wrong password (email) | Login fails with incorrect password (email) | Vendor App | **Pass** | `auth/03_…` | Fixed 2026-08-19 |
+| TC_022 | Wrong password (mobile) | Login fails with incorrect password (mobile) | Vendor App | **Not Started** | — | Depends on mobile+password login |
+| TC_023 | Unregistered email | Login fails with unregistered email | Vendor App | **Pass** | `auth/14_…` | Dedicated unregistered-email login flow |
+| TC_024 | Unregistered mobile | Login fails with unregistered mobile | Vendor App | **Not Started** | — | New from UAT PDF |
+| TC_025 | Incomplete registration blocked | Incomplete email/mobile verify cannot login | Vendor App | **Not Started** | — | New from UAT PDF |
+| TC_026 | Login routing by progress | Routes to Profile / Tenants / Home by onboarding state | Vendor App | **Pass** | `auth/15_…` | Onboarding → docs; join → Tenants; approved → shell |
