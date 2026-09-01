@@ -9,15 +9,16 @@ status: Pending
 story_points: 8
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Fleet Dashboard tab)
+design_ref: example-prototypes/fleet-operations.html (Fleet Overview tab)
 related_stories:
   - VR-01-reports-menu-vehicle-report-navigation.md
   - VR-03-vehicle-report-detail-view.md
   - FM-05-fuel-anomaly-baselines.md
   - WM-02-workshop-job-complete-and-part-installations.md
+  - FHI-04-inspection-alerts-on-vehicle-report.md
 source_docs:
   - ../../../../05-modules/11-reporting/vehicle-report.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/11-reporting/vehicle-report.md
 ---
 
@@ -31,11 +32,9 @@ module_spec: 05-modules/11-reporting/vehicle-report.md
 
 ## Business Context
 
-Implements the prototype **Fleet Dashboard** card grid under **Reports → Vehicle Report** — not inside Vehicle Planning.
+Implements the prototype **Fleet Overview** card grid under **Reports → Vehicle Report** — not inside Vehicle Planning.
 
-Aggregated via `VehicleReportService` ([`vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md)).
-
-Workshop job metrics (cost, downtime) excluded from Vehicle Report in Sprint 10 — shown in Garage Operations only.
+Per-vehicle metrics: last km/L, avg km/L, distance, fuel cost, ৳/km, fuel entries, maintenance cost, operational status, fuel anomaly chip, parts and inspection alert counts.
 
 ---
 
@@ -43,7 +42,7 @@ Workshop job metrics (cost, downtime) excluded from Vehicle Report in Sprint 10 
 
 ### AC-1: Fleet stats strip
 
-- [ ] Summary row: Own Fleet Vehicles, In Workshop (count), Fuel Entries (period), Fuel Anomalies, optional parts alert count.
+- [ ] Summary row: Own Fleet Vehicles, In Workshop, Fuel Entries (period), Fuel Anomalies, Inspection Overdue (optional).
 
 ### AC-2: Vehicle health cards
 
@@ -52,8 +51,10 @@ Each own-fleet vehicle card shows:
 - [ ] Registration, model, fuel type
 - [ ] Operational status badge
 - [ ] Assigned driver, odometer (km)
-- [ ] Last km/L (or N/A), fuel cost (period), fuel entry count
+- [ ] Last km/L, avg km/L, total distance (period), fuel cost, ৳/km
+- [ ] Fuel entry count; maintenance cost (footer)
 - [ ] Parts alert: “N expiring soon” / “N expired”
+- [ ] Inspection alert: overdue / due soon / failed checkpoint counts
 - [ ] Fuel anomaly chip when applicable
 
 ### AC-3: Interaction
@@ -102,13 +103,14 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 |------------|-----------|------|
 | VR-01 | Upstream | Menu + route |
 | FM-03, FM-05 | Upstream | Fuel metrics |
-| WM-02 | Upstream | Parts expiry counts (from workshop job installations) |
+| WM-02 | Upstream | Parts expiry counts |
+| FHI-04 | Upstream | Inspection alert counts |
 
 ---
 
 ## Definition of Done
 
-- [ ] Overview page matches prototype Fleet Dashboard card intent
+- [ ] Overview page matches prototype Fleet Overview card intent
 - [ ] Stats strip + card grid
 - [ ] List API performant
 

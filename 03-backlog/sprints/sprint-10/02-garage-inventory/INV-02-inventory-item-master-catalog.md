@@ -9,7 +9,7 @@ status: Pending
 story_points: 5
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (inventory item dropdowns)
+design_ref: example-prototypes/fleet-operations.html (inventory item dropdowns)
 related_stories:
   - INV-01-garage-poi-and-supervisor-scope.md
   - INV-03-garage-stock-and-movements.md

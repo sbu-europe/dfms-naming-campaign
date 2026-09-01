@@ -9,7 +9,7 @@ status: Pending
 story_points: 5
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Complete job + completion rules)
+design_ref: example-prototypes/fleet-operations.html (Complete job + completion rules)
 related_stories:
   - WM-01-workshop-job-with-parts-issuance.md
   - VR-03-vehicle-report-detail-view.md

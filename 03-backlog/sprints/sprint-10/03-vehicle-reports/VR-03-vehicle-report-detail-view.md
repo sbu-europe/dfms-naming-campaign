@@ -9,14 +9,15 @@ status: Pending
 story_points: 5
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Fleet Dashboard per-vehicle metrics + Fuel History)
+design_ref: example-prototypes/fleet-operations.html (Fleet Overview per-vehicle metrics + Fuel History)
 related_stories:
   - VR-02-vehicle-report-fleet-overview.md
   - FM-04-fuel-history-and-filters.md
   - WM-02-workshop-job-complete-and-part-installations.md
+  - FHI-04-inspection-alerts-on-vehicle-report.md
 source_docs:
   - ../../../../05-modules/11-reporting/vehicle-report.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/11-reporting/vehicle-report.md
 ---
 
@@ -41,7 +42,7 @@ Drill-down from VR-02 overview cards. Read-only report — operational entry poi
 ### AC-1: Vehicle header
 
 - [ ] Registration, model, fuel type, operational status, assigned driver, odometer.
-- [ ] Alert banners: fuel anomaly, expired/expiring parts, compliance issues.
+- [ ] Alert banners: fuel anomaly, expired/expiring parts, compliance issues, inspection overdue/failed.
 
 ### AC-2: Compliance section
 
@@ -50,21 +51,26 @@ Drill-down from VR-02 overview cards. Read-only report — operational entry poi
 
 ### AC-3: Fuel section (period-filtered)
 
-- [ ] Stats: entry count, total liters, total cost, avg km/L, last km/L
+- [ ] Stats: entry count, total liters, total cost, avg km/L, last km/L, total distance, ৳/km
 - [ ] Recent fuel entries table (link to full Fuel History for supervisors)
 - [ ] Anomaly entries highlighted
 
-### AC-4: Parts section
+### AC-4: Inspection section
+
+- [ ] Table of checkpoints: name, category, interval, last checked, next due, status chip, last result
+- [ ] Link to Conduct Inspection (Fleet Operations) for supervisors with permission
+
+### AC-5: Parts section
 
 - [ ] Table of active installations (from workshop job completions): item name, installed date, expires on, days/km remaining, status chip, source job ref
 - [ ] Separate highlight for expired and expiring soon
 
-### AC-5: API
+### AC-6: API
 
 - [ ] `GET /api/v1/reports/vehicles/{id}/?fuel_period_days=30`
 - [ ] Returns `VehicleReportDetail` DTO (see module spec).
 
-### AC-6: Separation from Vehicle Planning
+### AC-7: Separation from Vehicle Planning
 
 - [ ] No TO assignment UI on this page.
 - [ ] Optional link: “Open Vehicle Planning” → standard planning board (if user has permission).
@@ -92,7 +98,7 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| VR-03-1 | Detail UI | Compliance + fuel + parts sections | High | Not started |
+| VR-03-1 | Detail UI | Compliance + fuel + inspection + parts sections | High | Not started |
 | VR-03-2 | Detail API | `GET /api/v1/reports/vehicles/{id}/` | High | Not started |
 
 ---
@@ -104,6 +110,7 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 | VR-02 | Upstream | Card drill-down |
 | FM-04 | Upstream | Recent fuel entries |
 | WM-02 | Upstream | Parts status from `VehiclePartInstallation` |
+| FHI-04 | Upstream | Inspection checkpoint status |
 
 ---
 

@@ -9,14 +9,14 @@ status: Pending
 story_points: 8
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Log Fuel Entry — supervisor view)
+design_ref: example-prototypes/fleet-operations.html (Log Fuel Entry — supervisor view)
 related_stories:
   - FM-02-fuel-entry-driver-mobile.md
   - FM-03-fuel-consumption-calculations.md
   - MDM-05-vehicle-master-data.md (Sprint 2)
 source_docs:
   - ../../../../05-modules/08-fleet-management/fuel-management.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/fuel-management.md
 ---
 

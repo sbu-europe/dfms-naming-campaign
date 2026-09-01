@@ -6,7 +6,7 @@ phase: Phase 2
 sprint: Sprint 10
 last_updated: 2026-09-01
 related_stories: [INV-01, INV-02, INV-03, WM-01, WM-02]
-design_reference: ../../../../example-prototypes/fuel-management.html
+design_reference: ../../../../example-prototypes/fleet-operations.html
 supersedes: ../02-master-data/vehicle-part-catalog.md
 ---
 
@@ -271,7 +271,7 @@ Reports
 └── Vehicle Report               ← VR-01–03
 ```
 
-Prototype: [`fuel-management.html`](../../../../example-prototypes/fuel-management.html)
+Prototype: [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html)
 
 ---
 

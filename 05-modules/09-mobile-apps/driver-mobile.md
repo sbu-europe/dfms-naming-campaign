@@ -244,7 +244,7 @@ interface DeliveryPhoto {
 **Purpose:** Enable drivers to log refueling with minimal context entry — vehicle, time, location, and fuel type are captured automatically.
 
 **Spec:** [`fuel-management.md`](../08-fleet-management/fuel-management.md)  
-**Prototype:** `example-prototypes/fuel-management.html` (Log Fuel Entry — driver view)
+**Prototype:** `example-prototypes/fleet-operations.html` (Log Fuel Entry — driver view)
 
 #### Fuel Entry Workflow
 

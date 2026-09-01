@@ -9,7 +9,7 @@ status: Pending
 story_points: 3
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Garage POI selector)
+design_ref: example-prototypes/fleet-operations.html (Garage POI selector)
 related_stories:
   - INV-02-inventory-item-master-catalog.md
   - INV-03-garage-stock-and-movements.md

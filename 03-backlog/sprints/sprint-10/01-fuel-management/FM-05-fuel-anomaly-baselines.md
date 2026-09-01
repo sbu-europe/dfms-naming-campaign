@@ -9,7 +9,7 @@ status: Pending
 story_points: 5
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Validation Rules + Baselines table)
+design_ref: example-prototypes/fleet-operations.html (Validation Rules + Baselines table)
 related_stories:
   - FM-03-fuel-consumption-calculations.md
   - VR-03-vehicle-report-detail-view.md

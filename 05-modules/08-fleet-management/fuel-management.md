@@ -4,11 +4,11 @@ specification: Fuel Management
 version: 2.1
 phase: Phase 2
 sprint: Sprint 10
-source_document: example-prototypes/fuel-management.html
+source_document: example-prototypes/fleet-operations.html
 source_sections: Fuel Entry (Log), Fuel History, Fleet Dashboard (fuel metrics only)
 last_updated: 2026-08-31
 related_stories: [FM-01, FM-02, FM-03, FM-04, FM-05]
-design_reference: ../../../../example-prototypes/fuel-management.html
+design_reference: ../../../../example-prototypes/fleet-operations.html
 context_vs_prd:
   - "Roles: Driver + Driver Supervisor (not Workshop Supervisor per PRD §6.8.2)"
   - "Fuel quantity: gauge before/after (not direct liters input per PRD)"
@@ -26,7 +26,7 @@ Fuel Management tracks refueling events for **own-fleet vehicles** using a **gau
 - **Driver** — logs fuel via mobile app for **assigned vehicle only** (`DRIVER_ENTRY`). Vehicle, datetime, location (GPS), and fuel type are **auto-captured**; driver enters gauge readings, cost, odometer, and photos.
 - **Driver Supervisor** — logs fuel via admin portal during **pre-trip vehicle checks** (`SUPERVISOR_ENTRY`). Selects vehicle, manually enters refueling date and location, may update vehicle info (e.g. odometer), and enters all fuel intake data.
 
-**Design source of truth:** [`example-prototypes/fuel-management.html`](../../../../example-prototypes/fuel-management.html) — Fuel tabs only. Fleet Dashboard pattern is implemented under **Reports → Vehicle Report** ([`vehicle-report.md`](../11-reporting/vehicle-report.md)), not Vehicle Planning.
+**Design source of truth:** [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fuel tabs. Fleet Overview (fuel/distance/cost cards) maps to **Reports → Vehicle Report** ([`vehicle-report.md`](../11-reporting/vehicle-report.md)), not Vehicle Planning.
 
 ---
 

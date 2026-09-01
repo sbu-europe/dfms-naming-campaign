@@ -9,14 +9,14 @@ status: Pending
 story_points: 8
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Garage Stock + Receive Stock tabs)
+design_ref: example-prototypes/fleet-operations.html (Garage Stock + Receive Stock tabs)
 related_stories:
   - INV-01-garage-poi-and-supervisor-scope.md
   - INV-02-inventory-item-master-catalog.md
   - WM-01-workshop-job-with-parts-issuance.md
 source_docs:
   - ../../../../05-modules/08-fleet-management/inventory-management.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/inventory-management.md
 ---
 

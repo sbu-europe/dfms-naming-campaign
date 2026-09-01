@@ -9,13 +9,13 @@ status: Pending
 story_points: 3
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Fuel History tab)
+design_ref: example-prototypes/fleet-operations.html (Fuel History tab)
 related_stories:
   - FM-01-fuel-entry-driver-supervisor-admin.md
   - FM-05-fuel-anomaly-baselines.md
 source_docs:
   - ../../../../05-modules/08-fleet-management/fuel-management.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/fuel-management.md
 ---
 

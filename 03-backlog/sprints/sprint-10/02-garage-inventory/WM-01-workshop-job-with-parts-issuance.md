@@ -9,14 +9,14 @@ status: Pending
 story_points: 8
 assignee: ~
 phase: Phase 2
-design_ref: example-prototypes/fuel-management.html (Workshop Job Entry)
+design_ref: example-prototypes/fleet-operations.html (Workshop Job Entry)
 related_stories:
   - INV-03-garage-stock-and-movements.md
   - WM-02-workshop-job-complete-and-part-installations.md
   - MDM-05-vehicle-master-data.md (Sprint 2)
 source_docs:
   - ../../../../05-modules/08-fleet-management/inventory-management.md
-  - ../../../../example-prototypes/fuel-management.html
+  - ../../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/inventory-management.md
 ---
 
