@@ -203,17 +203,6 @@ Row: email=..., role=driver,gateman
 
 ---
 
-## Open Questions (for PO / client) — resolve before TUM-06-2
-
-1. **Allow-list vs any allowed combo?** If the real need is a few named dual-hats, use that list. Otherwise any combination of allowed roles (no cap).
-2. ~~Landing page when two roles have different defaults?~~ **Resolved:** landing follows the **working role** after Select Role (AC-3 / AC-4).
-3. **Cross-department** (e.g. Distribution Officer + Gateman) — allowed in v1 or not?
-4. ~~Should Tenant Admin as a target stay exclusive?~~ **Resolved:** Tenant Admin **may** hold additional operational roles. Only **Tenant Super Admin** (among admin roles) stays one-role-only.
-
-Until (1) is answered, implement any allowed combination with **no fixed cap**.
-
----
-
 ## Test Plan
 
 - [ ] User with one role: invite, edit, login — Select Role hidden; behaviour unchanged
