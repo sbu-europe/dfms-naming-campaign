@@ -9,7 +9,7 @@ related_stories: [VR-01, VR-02, VR-03]
 design_reference: ../../../../example-prototypes/fuel-management.html (Fleet Dashboard tab)
 aggregates_from:
   - ../08-fleet-management/fuel-management.md
-  - ../02-master-data/vehicle-part-catalog.md
+  - ../08-fleet-management/inventory-management.md
   - ../02-master-data/vehicle-master-data.md
 ---
 
@@ -59,7 +59,7 @@ class VehicleReportService:
     def build_detail(self, vehicle_id: UUID, fuel_period_days: int = 30) -> VehicleReportDetail: ...
 ```
 
-No new source of truth — aggregates `Vehicle`, `FuelEntry`, `VehiclePartInstallation`, compliance fields.
+No new source of truth — aggregates `Vehicle`, `FuelEntry`, `VehiclePartInstallation` (from workshop jobs), compliance fields.
 
 ---
 
@@ -145,7 +145,7 @@ Sections (read-only):
 1. **Header** — vehicle identity + alert banners  
 2. **Compliance** — fitness / insurance with status chips  
 3. **Fuel** — period stats + recent entries table (link to Fuel History admin for supervisors)  
-4. **Parts** — installations with expiry status  
+4. **Parts** — installations from completed workshop jobs with expiry status  
 
 Optional footer link: “Open Vehicle Planning” (if user has `MENU_VEHICLE_PLANNING_VIEW`) — navigates to standard planning board without embedding health data there.
 
@@ -162,7 +162,7 @@ GET /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 ## 7. Out of scope (Sprint 10)
 
-- Workshop jobs, maintenance cost, maintenance timeline
+- Garage stock levels, receive stock, workshop job entry (Garage Operations — INV/WM stories)
 - TO assignment on report pages
 - Export CSV/PDF (later reporting sprint)
 - Changes to Vehicle Planning landing or board templates
@@ -172,7 +172,7 @@ GET /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 ## 8. Related specs
 
 - [`fuel-management.md`](../08-fleet-management/fuel-management.md) — fuel entry source data
-- [`vehicle-part-catalog.md`](../02-master-data/vehicle-part-catalog.md) — parts source data
+- [`inventory-management.md`](../08-fleet-management/inventory-management.md) — parts installations source (workshop job complete)
 - [`vehicle-planning-view.md`](../05-transport/vehicle-planning-view.md) — TO assignment (unchanged)
 
 ---

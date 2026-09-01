@@ -13,7 +13,7 @@ design_ref: example-prototypes/fuel-management.html (Fleet Dashboard per-vehicle
 related_stories:
   - VR-02-vehicle-report-fleet-overview.md
   - FM-04-fuel-history-and-filters.md
-  - VP-03-part-expiry-status-and-alerts.md
+  - WM-02-workshop-job-complete-and-part-installations.md
 source_docs:
   - ../../../../05-modules/11-reporting/vehicle-report.md
   - ../../../../example-prototypes/fuel-management.html
@@ -30,7 +30,7 @@ module_spec: 05-modules/11-reporting/vehicle-report.md
 
 ## Business Context
 
-Drill-down from VR-02 overview cards. Read-only report — operational entry points link out to Fuel Entry (FM-01) or Vehicle admin (parts install) where permitted.
+Drill-down from VR-02 overview cards. Read-only report — operational entry points link out to Fuel Entry (FM-01) or Garage Operations (workshop jobs) where permitted.
 
 **Not** part of Vehicle Planning.
 
@@ -56,7 +56,7 @@ Drill-down from VR-02 overview cards. Read-only report — operational entry poi
 
 ### AC-4: Parts section
 
-- [ ] Table of active installations: part name, installed date, expires on, days/km remaining, status chip
+- [ ] Table of active installations (from workshop job completions): item name, installed date, expires on, days/km remaining, status chip, source job ref
 - [ ] Separate highlight for expired and expiring soon
 
 ### AC-5: API
@@ -103,7 +103,7 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 |------------|-----------|------|
 | VR-02 | Upstream | Card drill-down |
 | FM-04 | Upstream | Recent fuel entries |
-| VP-03 | Upstream | Parts status |
+| WM-02 | Upstream | Parts status from `VehiclePartInstallation` |
 
 ---
 

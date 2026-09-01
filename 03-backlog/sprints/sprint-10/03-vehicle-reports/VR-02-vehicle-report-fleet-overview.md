@@ -14,7 +14,7 @@ related_stories:
   - VR-01-reports-menu-vehicle-report-navigation.md
   - VR-03-vehicle-report-detail-view.md
   - FM-05-fuel-anomaly-baselines.md
-  - VP-03-part-expiry-status-and-alerts.md
+  - WM-02-workshop-job-complete-and-part-installations.md
 source_docs:
   - ../../../../05-modules/11-reporting/vehicle-report.md
   - ../../../../example-prototypes/fuel-management.html
@@ -35,7 +35,7 @@ Implements the prototype **Fleet Dashboard** card grid under **Reports → Vehic
 
 Aggregated via `VehicleReportService` ([`vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md)).
 
-Workshop metrics excluded (deferred).
+Workshop job metrics (cost, downtime) excluded from Vehicle Report in Sprint 10 — shown in Garage Operations only.
 
 ---
 
@@ -102,7 +102,7 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 |------------|-----------|------|
 | VR-01 | Upstream | Menu + route |
 | FM-03, FM-05 | Upstream | Fuel metrics |
-| VP-03 | Upstream | Parts expiry counts |
+| WM-02 | Upstream | Parts expiry counts (from workshop job installations) |
 
 ---
 

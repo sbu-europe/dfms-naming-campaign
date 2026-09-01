@@ -1,23 +1,24 @@
 ---
-title: Sprint 10 — Fuel Tracking, Vehicle Parts & Vehicle Reports
+title: Sprint 10 — Fuel Tracking, Garage Inventory & Vehicle Reports
 sprint: Sprint 10
-phase: Phase 2 (Fuel) + Master Data (Parts) + Reporting (Vehicle Report)
+phase: Phase 2 (Fuel) + Garage Inventory (Workshop) + Reporting (Vehicle Report)
 dates: TBD
 status: Planning
 carry_from: Sprint 9
-total_story_points_estimated: "~55 SP (FM-01–05 + VP-01–03 + VR-01–03)"
+total_story_points_estimated: "~60 SP (FM-01–05 + INV/WM + VR-01–03)"
 design_reference: example-prototypes/fuel-management.html
 ---
 
-# Sprint 10 — Fuel Tracking, Vehicle Parts & Vehicle Reports
+# Sprint 10 — Fuel Tracking, Garage Inventory & Vehicle Reports
 
 | | |
 |---|---|
 | **Sprint Dates** | TBD |
-| **Design reference** | [`example-prototypes/fuel-management.html`](../../../../example-prototypes/fuel-management.html) — Fuel tabs + Fleet Dashboard (Reports → Vehicle Report only) |
-| **Roles** | **Driver**, **Driver Supervisor** (fuel); **Transport Planner**, **Tenant Admin** (parts + reports); **Driver Supervisor** (reports) |
-| **Dependencies** | MDM-05 (Vehicle master), Driver assignment |
+| **Design reference** | [`example-prototypes/fuel-management.html`](../../../../example-prototypes/fuel-management.html) — Fuel + Garage Inventory + Workshop Jobs |
+| **Roles** | **Driver**, **Driver Supervisor** (fuel); **Workshop Supervisor** (garage stock + workshop jobs); **Transport Planner**, **Tenant Admin** (inventory master + reports) |
+| **Dependencies** | MDM-05 (Vehicle master), Garage POI type, Driver assignment |
 | **Vehicle Planning** | **Unchanged** — TO assignment only ([`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) v1) |
+| **Module spec (inventory)** | [`inventory-management.md`](../../../05-modules/08-fleet-management/inventory-management.md) |
 | **Previous** | [Sprint 9](../sprint-9/README.md) |
 
 ---
@@ -25,9 +26,9 @@ design_reference: example-prototypes/fuel-management.html
 ## Sprint Goals
 
 1. **Deliver gauge-based fuel entry** — Driver Supervisor (admin, pre-trip, manual date/location) + Driver mobile (auto vehicle, datetime, GPS, fuel type).
-2. **Deliver vehicle parts master data** — Part catalog + per-vehicle installations with date/mileage expiry tracking.
-3. **Deliver Vehicle Report** — New **Reports** menu section with **Vehicle Report** submenu; fleet overview + detail for fuel, parts, compliance (prototype Fleet Dashboard).
-4. **Keep Vehicle Planning separate** — No fuel/health panels on planning screens.
+2. **Deliver garage inventory** — Garage POI stock per location; inventory item master (parts, machinery, consumables); receive/issue via workshop jobs; vehicle → under maintenance during repair.
+3. **Deliver Vehicle Report** — **Reports** menu → **Vehicle Report**; fleet overview + detail for fuel, parts expiry, compliance.
+4. **Keep Vehicle Planning separate** — No fuel/health/inventory panels on planning screens.
 
 ---
 
@@ -36,10 +37,10 @@ design_reference: example-prototypes/fuel-management.html
 | # | Epic | Key Stories | Est. SP | Status |
 |---|------|-------------|---------|--------|
 | 01 | Fuel Management | [FM-01](01-fuel-management/FM-01-fuel-entry-driver-supervisor-admin.md) – [FM-05](01-fuel-management/FM-05-fuel-anomaly-baselines.md) | ~21 | Planning |
-| 02 | Vehicle Parts Master Data | [VP-01](02-vehicle-parts/VP-01-vehicle-part-catalog-master-data.md) – [VP-03](02-vehicle-parts/VP-03-part-expiry-status-and-alerts.md) | ~13 | Planning |
+| 02 | Garage Inventory & Workshop | [INV-01](02-garage-inventory/INV-01-garage-poi-and-supervisor-scope.md) – [WM-02](02-garage-inventory/WM-02-workshop-job-complete-and-part-installations.md) | ~29 | Planning |
 | 03 | Vehicle Reports | [VR-01](03-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](03-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
 
-**Total estimated**: ~55 SP
+**Total estimated**: ~66 SP
 
 ---
 
@@ -63,16 +64,18 @@ design_reference: example-prototypes/fuel-management.html
 | FM-05-1 | FM-05 | Vehicle-type fuel efficiency baselines + 20% anomaly flag | High |
 | FM-05-2 | FM-05 | Own-fleet-only enforcement on fuel entry | High |
 
-### Epic 02: Vehicle Parts Master Data
+### Epic 02: Garage Inventory & Workshop
 
 | Sub-task | Story | Description | Priority |
 |----------|-------|-------------|----------|
-| VP-01-1 | VP-01 | `VehiclePartType` catalog model + admin CRUD under Master Data | High |
-| VP-01-2 | VP-01 | Default lifespan (days / km) on catalog entries | High |
-| VP-02-1 | VP-02 | `VehiclePartInstallation` model — install/replace on vehicle | High |
-| VP-02-2 | VP-02 | Auto-calc expiry from catalog defaults on install | High |
-| VP-03-1 | VP-03 | Expiry status computation — valid / expiring soon / expired | High |
-| VP-03-2 | VP-03 | Vehicle admin parts panel + list filters | Medium |
+| INV-01-1 | INV-01 | `POIType.GARAGE` + Workshop Supervisor garage assignment | High |
+| INV-02-1 | INV-02 | `InventoryItem` master catalog (vehicle parts, machinery, consumables) | High |
+| INV-03-1 | INV-03 | `GarageStock` balance + `InventoryMovement` ledger | High |
+| INV-03-2 | INV-03 | Receive stock UI + stock adjustment | High |
+| WM-01-1 | WM-01 | Workshop job with part lines — issue from garage stock | High |
+| WM-01-2 | WM-01 | Vehicle → `under_maintenance` on job create | High |
+| WM-02-1 | WM-02 | Job complete → vehicle status restore + `VehiclePartInstallation` | High |
+| WM-02-2 | WM-02 | Part expiry from catalog defaults on job complete | High |
 
 ### Epic 03: Vehicle Reports
 
@@ -92,15 +95,17 @@ design_reference: example-prototypes/fuel-management.html
 
 | # | Decision | Sprint 10 default |
 |---|----------|-------------------|
-| D1 | Backend app for fuel + parts + report aggregation | `apps/vehicle_health/` (catalog in `master_data`) |
+| D1 | Backend app for fuel + inventory + report aggregation | `apps/vehicle_health/` (catalog in `master_data`) |
 | D2 | Fuel quantity override | Auto-calc `After − Before`; supervisor may override with audit note |
 | D3 | Parts expiry thresholds | Expiring soon: ≤ 30 days **or** ≤ 500 km |
 | D4 | Health/fuel visibility location | **Reports → Vehicle Report** — NOT Vehicle Planning |
 | D5 | Fuel period on vehicle report | Default 30 days; configurable query param |
-| D6 | Who installs parts | Transport Planner + Tenant Admin |
+| D6 | Who manages inventory | Workshop Supervisor (assigned garage); Tenant Admin / Transport Planner (catalog) |
 | D7 | Who views Vehicle Report | Transport Planner, Driver Supervisor, Tenant Admin |
 | D8 | Driver location fallback | GPS required; no manual location for drivers |
 | D9 | Supervisor pre-trip | May update vehicle odometer before fuel entry |
+| D10 | Stock issue on workshop job | Hard block if insufficient garage stock |
+| D11 | Parts expiry on vehicle | Created on workshop job **completion** from issued vehicle-part lines |
 
 ---
 
@@ -109,7 +114,6 @@ design_reference: example-prototypes/fuel-management.html
 | Item | Notes |
 |------|-------|
 | Vehicle Planning UI changes | Stays TO-assignment only |
-| Workshop maintenance / maintenance timeline | Deferred |
 | PRD updates | Handled outside this sprint |
 | Fuel budget tracking | Not in prototype |
 | GPS-based mileage for fuel performance | Odometer-based only |
@@ -119,13 +123,13 @@ design_reference: example-prototypes/fuel-management.html
 
 ## Reference Documents
 
-- [Story file template](./STORY-TEMPLATE.md) — per-story structure (matches Sprint 6 `VAPP-01` pattern)
 - [Fuel Management spec](../../../05-modules/08-fleet-management/fuel-management.md)
-- [Vehicle Part Catalog spec](../../../05-modules/02-master-data/vehicle-part-catalog.md)
+- [Garage Inventory & Workshop spec](../../../05-modules/08-fleet-management/inventory-management.md)
 - [Vehicle Report spec](../../../05-modules/11-reporting/vehicle-report.md)
 - [Vehicle Planning View v1 (unchanged)](../../../05-modules/05-transport/vehicle-planning-view.md)
 - [Driver Mobile — fuel logging](../../../05-modules/09-mobile-apps/driver-mobile.md)
 - [Prototype — fuel-management.html](../../../../example-prototypes/fuel-management.html)
+- Story file structure — follow [VAPP-01](../sprint-6/03-vendor-app/VAPP-01-release-readiness-live-api.md) pattern
 
 ---
 

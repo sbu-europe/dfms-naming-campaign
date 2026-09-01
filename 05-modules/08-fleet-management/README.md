@@ -22,6 +22,7 @@ Fleet, vehicle, driver, and helper lifecycle management
 | [vehicle-management.md](vehicle-management.md) | Fleet asset registry with comprehensive vehicle master data, vehicle type diversity (10+ types), identification tracking (registration/chassis/VIN), specifications (capacity/body/fuel types), ownership differentiation (Own/Vendor), compliance document tracking with expiry alerts, operational status management, mileage tracking, assignment rules (POI/driver/garage), trip assignment validation, utilization tracking | 6.6 | US-082, US-083, US-084, US-085, US-086 | 655 |
 | [helper-management.md](helper-management.md) | Helper registry with national ID and reference contacts, helper-driver-trip assignment management, availability tracking to prevent double-booking, many-to-one mapping (multiple helpers per driver), assignment history for accountability, status management (Available/On Trip/On Leave) | 6.6 | US-093, US-094 | 204 |
 | [fuel-management.md](fuel-management.md) | Fuel tracking (Phase 2, Sprint 10) — gauge before/after intake, Driver + Driver Supervisor entry, consumption calc, anomaly detection | Prototype | FM-01 – FM-05 | ~200 |
+| [inventory-management.md](inventory-management.md) | Garage inventory, stock movements, workshop jobs, part installations (Sprint 10) | Sprint 10 | INV-01 – WM-02 | ~250 |
 | [vehicle-report.md](../11-reporting/vehicle-report.md) | Vehicle Report under Reports menu — compliance, fuel, parts aggregation | Sprint 10 | VR-01 – VR-03 | ~150 |
 
 **Total Documentation**: ~1,600 lines of comprehensive technical specifications
@@ -57,4 +58,4 @@ Check individual specification files for detailed cross-module references.
 ---
 
 **Last Updated**: 2026-09-01  
-**Status**: Complete (fuel spec Sprint 10; vehicle-report spec under 11-reporting)
+**Status**: Complete (fuel + inventory specs Sprint 10; vehicle-report spec under 11-reporting)
