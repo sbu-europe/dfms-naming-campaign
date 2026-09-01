@@ -271,7 +271,7 @@ Reports
 └── Vehicle Report               ← VR-01–03
 ```
 
-Prototype: [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html)
+Prototype: [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Inventory + Workshop sections (unified view; Workshop Supervisor RBAC in production).
 
 ---
 

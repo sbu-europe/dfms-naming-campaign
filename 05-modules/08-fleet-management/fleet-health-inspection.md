@@ -25,7 +25,7 @@ Distinct from:
 - **Driver Supervisor** — inspection dashboard, conduct rounds
 - **Workshop Supervisor** — may conduct rounds at assigned garage (optional)
 
-**Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fleet Inspection section.
+**Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fleet Inspection section (unified view; Driver Supervisor RBAC in production).
 
 ---
 

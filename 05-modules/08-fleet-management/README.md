@@ -26,7 +26,7 @@ Fleet, vehicle, driver, and helper lifecycle management
 | [inventory-management.md](inventory-management.md) | Garage inventory, stock movements, workshop jobs, part installations (Sprint 10) | Sprint 10 | INV-01 – WM-02 | ~250 |
 | [vehicle-report.md](../11-reporting/vehicle-report.md) | Vehicle Report under Reports menu — fuel, inspection, parts, compliance | Sprint 10 | VR-01 – VR-03, FHI-04 | ~180 |
 
-**Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — unified Fleet Operations portal (fuel, inspection, inventory, workshop, fleet overview).
+**Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — single unified Fleet Operations view (no role switcher; RBAC documented in sprint README).
 
 **Total Documentation**: ~1,600 lines of comprehensive technical specifications
 

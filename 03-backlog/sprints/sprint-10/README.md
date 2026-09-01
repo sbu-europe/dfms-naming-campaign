@@ -14,7 +14,7 @@ design_reference: example-prototypes/fleet-operations.html
 | | |
 |---|---|
 | **Sprint Dates** | TBD |
-| **Design reference** | [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — unified Fleet Operations portal |
+| **Design reference** | [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — **single unified view** (all menus visible; RBAC in production) |
 | **Roles** | **Driver** (fuel mobile); **Driver Supervisor** (fuel, inspections); **Workshop Supervisor** (garage inventory, workshop jobs); **Transport Planner / Tenant Admin** (masters + reports) |
 | **Dependencies** | MDM-05 (Vehicle master), Garage POI type, Driver assignment |
 | **Vehicle Planning** | **Unchanged** — TO assignment only ([`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) v1) |
@@ -34,17 +34,28 @@ design_reference: example-prototypes/fleet-operations.html
 
 ## Portal structure (prototype → production)
 
+The prototype shows **one combined admin view** — all sections visible. Production enforces RBAC per role below.
+
 ```
-Fleet Operations (admin portal)
-├── Fleet Inspection        ← FHI-01 – FHI-03
-├── Fuel                    ← FM-01 – FM-05
-├── Garage Inventory        ← INV-01 – INV-03
-├── Workshop                ← WM-01 – WM-02
-└── Fleet Overview          ← prototype; production → Reports → Vehicle Report (VR-02)
+Fleet Operations (admin portal)          Who uses it (production)
+├── Fleet Inspection                     Driver Supervisor (+ Workshop Supervisor read)
+├── Fuel — Log / History                 Driver Supervisor (admin); Driver → mobile app
+├── Inventory / Workshop                 Workshop Supervisor
+└── Fleet Overview                       All report viewers → Reports → Vehicle Report (VR-02)
 
 Reports
-└── Vehicle Report          ← VR-01 – VR-03 (+ FHI-04 inspection section)
+└── Vehicle Report                       Transport Planner, Driver Supervisor, Tenant Admin
 ```
+
+### Role → activity matrix
+
+| Role | Fleet Operations screens | Notes |
+|------|--------------------------|-------|
+| **Driver** | — (mobile only) | FM-02 fuel entry on Driver Mobile |
+| **Driver Supervisor** | Fuel entry, Fuel history, Fleet Inspection, Fleet Overview | Pre-trip checks; may update odometer before fuel |
+| **Workshop Supervisor** | Garage stock, Receive stock, Workshop jobs, Maintenance timeline | Scoped to assigned Garage POI(s) |
+| **Transport Planner** | Checklist templates (master), Vehicle Report | Inventory item master with Tenant Admin |
+| **Tenant Admin** | All masters + all operations + reports | Full access |
 
 > `fuel-management.html` redirects to `fleet-operations.html`.
 

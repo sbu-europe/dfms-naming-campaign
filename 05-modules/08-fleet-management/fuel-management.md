@@ -26,7 +26,7 @@ Fuel Management tracks refueling events for **own-fleet vehicles** using a **gau
 - **Driver** — logs fuel via mobile app for **assigned vehicle only** (`DRIVER_ENTRY`). Vehicle, datetime, location (GPS), and fuel type are **auto-captured**; driver enters gauge readings, cost, odometer, and photos.
 - **Driver Supervisor** — logs fuel via admin portal during **pre-trip vehicle checks** (`SUPERVISOR_ENTRY`). Selects vehicle, manually enters refueling date and location, may update vehicle info (e.g. odometer), and enters all fuel intake data.
 
-**Design source of truth:** [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fuel tabs. Fleet Overview (fuel/distance/cost cards) maps to **Reports → Vehicle Report** ([`vehicle-report.md`](../11-reporting/vehicle-report.md)), not Vehicle Planning.
+**Design source of truth:** [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fuel tab shows **Driver Supervisor** admin entry. Driver mobile entry (FM-02) is separate. Prototype uses one combined view; production RBAC per sprint README role matrix.
 
 ---
 
