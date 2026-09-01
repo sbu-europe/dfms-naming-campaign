@@ -68,6 +68,8 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [product-master-data-management.md](02-master-data/product-master-data-management.md) - Product Master Data Management
 - [poi-management.md](02-master-data/poi-management.md) - POI Management & Geofencing
 - [vehicle-master-data.md](02-master-data/vehicle-master-data.md) - Vehicle Master Data Management
+- [bulk-import-export.md](02-master-data/bulk-import-export.md) — Canonical CSV bulk import/export
+- [bulk-import-preview-status-filter-fb004.md](02-master-data/bulk-import-preview-status-filter-fb004.md) — Sprint 9 FB-004: Import Preview Valid / Invalid Status filter
 
 #### Related User Stories
 - US-014: Capacity Checking and Warnings
