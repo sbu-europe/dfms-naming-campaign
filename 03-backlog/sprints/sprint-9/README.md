@@ -1,21 +1,21 @@
 ---
-title: Sprint 9 — Vendor Mobile Auth & Onboarding UX Hardening
+title: Sprint 9 — Vendor Mobile Auth, Onboarding UX Hardening & Multi-Role Assignment
 sprint: Sprint 9
 phase: Phase 1
 dates: "2026-08-18 – TBD"
 status: In Progress
 carry_from: Sprint 8
-total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
+total_story_points_estimated: "~8 SP (VAPP-03) + 13 SP (TUM-06) + FB-001–FB-004"
 ---
 
-# Sprint 9 — Vendor Mobile Auth & Onboarding UX Hardening
+# Sprint 9 — Vendor Mobile Auth, Onboarding UX Hardening & Multi-Role Assignment
 
 | | |
 |---|---|
 | **Sprint Dates** | 2026-08-18 – TBD |
 | **Carry-over from Sprint 8** | AUTH-01 SMS invitation / URL shortener (deferred — not part of this sprint scope) |
-| **New Scope** | Vendor Mobile phone verification gate (VAPP-03); onboarding screen chrome restructure; forgot-password phone error unification |
-| **Related prior work** | Sprint 8 AUTH-01 (phone login/2FA admin portal); Sprint 6 VAPP-01–02 vendor app release readiness |
+| **New Scope** | Vendor Mobile phone verification gate (VAPP-03); onboarding screen chrome restructure; forgot-password phone error unification; **multi-role assignment (TUM-06)** |
+| **Related prior work** | Sprint 8 AUTH-01 (phone login/2FA admin portal); Sprint 6 VAPP-01–02 vendor app release readiness; Sprint 2 TUM-01 / US-005 (invitation — shipped single-role) |
 | **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-003 (vendor mobile UX); FB-004 (bulk import Valid/Invalid Status filter) |
 | **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) — UAT FB-001 (Open) |
 
@@ -26,6 +26,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
 1. **Deliver VAPP-03** — Mandatory phone verification step inserted between email OTP and document onboarding; registration flow becomes 3-step (`Register → Email OTP → Phone OTP`).
 2. **Harden onboarding & tenant-join chrome** — Profile header action and destructive Logout CTA replace the previous inline logout icon on onboarding and standalone tenant-join screens.
 3. **Unify forgot-password phone error** — Unknown phone and unverified phone return the same no-account message; clients cannot enumerate verified vs unknown numbers.
+4. **Deliver TUM-06** — Tenant Super Admin and Tenant Admin can assign **multiple** roles to one user (no fixed cap; Tenant Admin may also hold operational roles); Tenant Super Admin stays one-role-only; permissions are the union; invite/edit/CSV support multi-assign. Do not reopen TUM-01.
 
 ---
 
@@ -34,8 +35,9 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
 | # | Epic | Key Stories | SP | Status |
 |---|------|-------------|----|--------|
 | 01 | Vendor Mobile — Phone Verification Gate & Onboarding UX | [VAPP-03](01-vendor-mobile-auth/VAPP-03-phone-verification-onboarding-ux.md) | 8 | In Progress |
+| 02 | Tenant User Management — Multi-Role Assignment | [TUM-06](02-tenant-user-management/TUM-06-multi-role-assignment.md) | 13 | Pending |
 
-**Total estimated**: ~8 SP (VAPP-03) + FB-001–FB-004 improvements
+**Total estimated**: ~8 SP (VAPP-03) + 13 SP (TUM-06) + FB-001–FB-004 improvements
 
 ---
 
@@ -51,6 +53,19 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
 | VAPP-03-4 | VAPP-03 | Onboarding & tenant-join header: Profile CTA (top-right) + red Logout button (bottom) | Medium |
 | VAPP-03-5 | VAPP-03 | Forgot-password phone error unification — 404 and 403 map to single no-account message | Medium |
 | VAPP-03-6 | VAPP-03 | l10n, Maestro flow update, backend test alignment | Medium |
+
+### Epic 02: Tenant User Management — Multi-Role Assignment (TUM-06)
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| TUM-06-1 | TUM-06 | Lock policy with PO; update `rbac.md` §3.1 and `tenant-user-management.md` | High |
+| TUM-06-2 | TUM-06 | Drop single-role unique constraint; `assign_role_to_user` adds instead of replace | High |
+| TUM-06-3 | TUM-06 | Invitation applies all `role_ids` (not only `[0]`) | High |
+| TUM-06-4 | TUM-06 | Admin invite/edit multi-select + per-role POI (Tenant Super Admin and Tenant Admin) | High |
+| TUM-06-5 | TUM-06 | CSV comma-separated roles + row-level forbidden-combo errors | Medium |
+| TUM-06-6 | TUM-06 | Union-safe `get_primary_role_code` / role-name admin branches | High |
+| TUM-06-7 | TUM-06 | Audit role set on assign/remove; permission-cache invalidation | Medium |
+| TUM-06-8 | TUM-06 | Unit tests: union, forbidden combos, no cap; both assigners; single-role regression | High |
 
 ### Improvements (FB-001–FB-004)
 
@@ -70,6 +85,7 @@ See [`improvements/`](./improvements/README.md).
 - SMS OTP gateway must be live in the dev environment to run the phone-verification flow end-to-end; Maestro phone-verify cases are **Skipped** until a stub/inbox path is available (same OTP policy as email OTP).
 - Existing phone-verified vendors (who completed onboarding before this sprint) are **not** forced through the phone-verification gate — gate is gated on `onboardingComplete == false`.
 - `PhoneNotVerifiedError` (403) is no longer raised by `request_password_reset_otp`; both unknown and unverified phone now raise `NotFoundError` (404).
+- **TUM-06:** PO must confirm allow-list vs any allowed combination (Open Question 1) before persistence work (TUM-06-2). v1 default: **no fixed cap**; **Tenant Super Admin and Tenant Admin** are the assigners. **Tenant Admin may hold operational roles too.** Only **Tenant Super Admin** stays one-role-only (Driver / Helper / Vendor also exclusive). Do not reopen TUM-01. Do not add a story under `01-source/01-prd/`.
 
 ---
 
@@ -78,6 +94,8 @@ See [`improvements/`](./improvements/README.md).
 - AUTH-01 URL shortener / SMS invitation for admin portal (Sprint 8 carry-over — tracked separately)
 - Vendor Mobile password change from profile (separate improvement)
 - TOTP / authenticator app; trusted device cookie
+- Tenant Super Admin + any other role; Driver/Helper/Vendor + staff combo; Dynamic Role Builder (Phase 2)
+- Rewriting or adding a story file under `01-source/01-prd/` (BA PRD delta is separate)
 
 ---
 
