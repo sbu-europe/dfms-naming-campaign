@@ -26,7 +26,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + 13 SP (TUM-06) + FB-001–FB-00
 1. **Deliver VAPP-03** — Mandatory phone verification step inserted between email OTP and document onboarding; registration flow becomes 3-step (`Register → Email OTP → Phone OTP`).
 2. **Harden onboarding & tenant-join chrome** — Profile header action and destructive Logout CTA replace the previous inline logout icon on onboarding and standalone tenant-join screens.
 3. **Unify forgot-password phone error** — Unknown phone and unverified phone return the same no-account message; clients cannot enumerate verified vs unknown numbers.
-4. **Deliver TUM-06** — Tenant Super Admin and Tenant Admin can assign **multiple** roles to one user (no fixed cap; Tenant Admin may also hold operational roles); Tenant Super Admin stays one-role-only; permissions are the union; invite/edit/CSV support multi-assign. Do not reopen TUM-01.
+4. **Deliver TUM-06** — Tenant Super Admin and Tenant Admin can assign **multiple** roles to one user (no fixed cap; Tenant Admin may also hold operational roles); Tenant Super Admin stays one-role-only; the user **Select Role**s like Select POI and operates as that role only (no permission union). Do not reopen TUM-01.
 
 ---
 
@@ -63,9 +63,9 @@ total_story_points_estimated: "~8 SP (VAPP-03) + 13 SP (TUM-06) + FB-001–FB-00
 | TUM-06-3 | TUM-06 | Invitation applies all `role_ids` (not only `[0]`) | High |
 | TUM-06-4 | TUM-06 | Admin invite/edit multi-select + per-role POI (Tenant Super Admin and Tenant Admin) | High |
 | TUM-06-5 | TUM-06 | CSV comma-separated roles + row-level forbidden-combo errors | Medium |
-| TUM-06-6 | TUM-06 | Union-safe `get_primary_role_code` / role-name admin branches | High |
-| TUM-06-7 | TUM-06 | Audit role set on assign/remove; permission-cache invalidation | Medium |
-| TUM-06-8 | TUM-06 | Unit tests: union, forbidden combos, no cap; both assigners; single-role regression | High |
+| TUM-06-6 | TUM-06 | Select Role switcher (like Select POI); session working role; admin/API use that role only | High |
+| TUM-06-7 | TUM-06 | Audit role set on assign/remove; acting working role on later events | Medium |
+| TUM-06-8 | TUM-06 | Unit tests: switcher, forbidden combos, no cap; both assigners; single-role hides switcher | High |
 
 ### Improvements (FB-001–FB-004)
 
