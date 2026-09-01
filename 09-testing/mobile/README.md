@@ -1,8 +1,8 @@
 ---
 section: 09-testing/mobile
 title: Mobile Testing — DFMS Vendor App (Maestro)
-version: 1.0
-last_updated: 2026-07-20
+version: 1.1
+last_updated: 2026-08-19
 implementation_reference: ../../../nourish-vendor-app/.maestro/
 ---
 
@@ -21,7 +21,7 @@ scenario docs.
 |------|----------|
 | [`maestro-setup-and-run.md`](./maestro-setup-and-run.md) | Install Maestro, seed (`make seed-vendor-mobile`), emulator, run commands |
 | [`e2e-scenarios/`](./e2e-scenarios/) | Vendor-app E2E scenario index |
-| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_075–TC_215 by feature + Maestro status |
+| [`e2e-scenarios/vendor-fleet-phase01/`](./e2e-scenarios/vendor-fleet-phase01/) | TC_001–TC_160 (UAT + admin) — master: [`00-all-test-cases.md`](./e2e-scenarios/vendor-fleet-phase01/00-all-test-cases.md) |
 
 ## Tooling
 
@@ -40,6 +40,21 @@ scenario docs.
 | Maestro helpers | `nourish-vendor-app/.maestro/helpers/` |
 | Local env template | `nourish-vendor-app/.maestro/.env.example` |
 | Flow runner README | `nourish-vendor-app/.maestro/README.md` |
+
+## One-command full suite (Cursor Skill)
+
+Run **all** Maestro + Playwright tests locally with a single command:
+
+```bash
+bash .cursor/skills/run-vendor-mobile-tests/scripts/run-all.sh
+```
+
+Skill: `.cursor/skills/run-vendor-mobile-tests/SKILL.md` — seeds backend,
+builds APK, runs full Maestro suite (51 flows), Playwright admin smoke, and
+the tenant join→approve→full-menu loop. Produces a JUnit XML report.
+
+Quick re-run (skip seed & build): `--skip-seed --skip-build`
+Single wave: `--wave bids`
 
 ## Workflow
 

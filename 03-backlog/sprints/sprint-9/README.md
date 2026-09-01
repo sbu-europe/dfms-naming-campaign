@@ -17,7 +17,7 @@ total_story_points_estimated: "~8 SP (VAPP-03) + FB-001–FB-004"
 | **New Scope** | Vendor Mobile phone verification gate (VAPP-03); onboarding screen chrome restructure; forgot-password phone error unification |
 | **Related prior work** | Sprint 8 AUTH-01 (phone login/2FA admin portal); Sprint 6 VAPP-01–02 vendor app release readiness |
 | **Improvements tracker** | [`improvements/`](./improvements/README.md) — FB-001–FB-003 (vendor mobile UX); FB-004 (bulk import Valid/Invalid Status filter) |
-| **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) |
+| **Feedback tracker** | [`feedback-resolution.md`](./feedback-resolution.md) — UAT FB-001 (Open) |
 
 ---
 

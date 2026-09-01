@@ -1,88 +1,85 @@
 ---
 section: 09-testing/mobile/e2e-scenarios/vendor-fleet-phase01
-title: Vendor Fleet Phase 01 Test Cases (TC_075–TC_215)
-version: 1.1
-source_document: DFMS-Sprint_Wise_Test_Cases_Phase01.pdf
+title: Vendor Fleet Test Cases (TC_001–TC_160)
+version: 2.0
+source_document: DFMS UAT Test Suite.pdf (+ Phase01 admin extras)
 implementation_reference: ../../../../nourish-vendor-app/.maestro/
-last_updated: 2026-07-22
+last_updated: 2026-08-21
 ---
 
-# DFMS Vendor App — Phase 01 Test Cases (TC_075–TC_215)
+# DFMS Vendor Fleet — Test Cases (TC_001–TC_160)
 
-Source document: `DFMS-Sprint_Wise_Test_Cases_Phase01.pdf`
+**Primary source (mobile):** `DFMS UAT Test Suite.pdf` → **TC_001–TC_116** (116 cases).  
+**Admin extras (not in UAT PDF):** Phase01 TDO/TP/RBAC → **TC_117–TC_160** (44 cases).
 
-This folder documents **all vendor-fleet-related test cases from TC_075 through TC_215**, grouped by feature. Use it as the specification baseline before implementing and running Maestro flows in `nourish-vendor-app/.maestro/`.
+> **Start here for the full list:** [`00-all-test-cases.md`](./00-all-test-cases.md) — every case + status in one file.
 
-## Execution snapshot (2026-07-22 — full suite, backend up, `emulator-5554`)
+## Numbering (2026-08-20)
 
-**Command:** `maestro --device emulator-5554 test .maestro` → **26 Passed / 6 Failed** (continueOnFailure).
+| Range | Content |
+|-------|---------|
+| **TC_001–TC_116** | Mobile UAT suite (aligned to UAT PDF serials) |
+| **TC_117–TC_160** | Admin / Playwright / RBAC extras kept from Phase01 |
 
-**Prep:** `make seed-vendor-dev` (onboarding completeness); extended `BID-20260707-JON84YZR` close date; reset `onboarding.test@example.com` mandatory docs for onboarding flow.
+Older Phase01 IDs (formerly TC_075–215, then a temporary renumber) are **replaced** by this scheme. Do not mix old IDs with this folder.
 
-| Wave | Result |
-|------|--------|
-| A — smoke / auth / onboarding / tenants / profile | Smoke, settings, onboarding checklist, tenants (+ empty search), profile hub/edit/logout, email login, register nav/validation, login mode switch **passed**. **OTP cases Skipped** (see `02-registration-auth.md`). Other failures: phone login (unverified phone), invalid-creds toast timing, change-password wrong-current assert. |
-| B — bids | List, empty search, **submit bid** **passed**. Open-details navigation **failed** (03). |
-| C — TOs | List, empty search, **TO details** **passed**. Post-award driver/vehicle validation **failed** (04). |
-| D — trips | All 4 trips flows **passed**. |
-| Admin-only files (`01`, `05`, `06`, `10`, `11`) | **Manual** / **N/A** for Maestro — not run on mobile. **`05` covered by Playwright** (`nourish-backend/tests/e2e/playwright-mcp/vendor-tenant-approval-artifacts/`, 2026-07-22). |
+## Status snapshot (2026-08-21)
 
-### OTP policy (current system)
+| Status | Count | Meaning |
+|--------|------:|---------|
+| **Pass** | **123** | Automated (Playwright and/or Maestro) and verified |
+| **Partial** | **4** | TC_020, TC_032, TC_066, TC_129 |
+| **Skipped** | **15** | OTP or yard E2E out of current automation scope |
+| **Skip** | **9** | Blocked / harness gaps |
+| **N/A** | **8** | Admin-only / out of vendor-mobile scope |
+| **Failed** | **1** | TC_008 |
+| **Not Started** | **0** | — |
 
-OTP-dependent Maestro cases are **Skipped** until a stable stub/inbox path exists. Tracked in [`02-registration-auth.md`](./02-registration-auth.md): **TC_090–TC_094**, plus flows `auth/10_register_full_flow_with_stub_otp` and `auth/09_forgot_password_navigation_and_otp`. Registration completion now includes **email OTP → phone verification (step 3/3) → onboarding documents**.
+> **Covered** was merged into **Pass** (single green status).
 
-### Failed flows (fix list — non-OTP)
-
-| Flow | Failure | Root cause / fix |
-|------|---------|------------------|
-| `auth/05_login_phone_password` | No authenticated landing | Backend rejects unverified phone — seed verified phone or assert error copy |
-| `auth/03_login_invalid_credentials` | Error not visible | Toast `Email/password is wrong` timing — assert faster or use snackbar id |
-| `bids/03_open_bid_details_from_list` | Bid details not reached | Align tap with `04` (Open filter + tile); 04 passed same session |
-| `tos/04_post_award_submission_validation` | Action-required TO not tapped | Use specific TO number (e.g. `TO-20260707-0001`) from seeded list |
-| `profile/03_change_password_validation` | Wrong-password error not shown | API/error toast copy mismatch — inspect change-password failure message |
+**2026-08-21:** Unblocked Partials moved to Pass via Maestro + Playwright. Remaining Partial = product/spec blockers + flaky TC_066.
 
 ## Feature files
 
-| File | Feature area | TC range | Primary scope |
-|------|--------------|----------|---------------|
-| [01-to-creation-vendor-fleet.md](./01-to-creation-vendor-fleet.md) | TO creation (Vendor Fleet, batch) | TC_075–TC_082, TC_202 | Admin / Transport Planner |
-| [02-registration-auth.md](./02-registration-auth.md) | Registration & auth (OTP **Skipped**) | TC_083–TC_094 | **Vendor mobile app** |
-| [03-onboarding-documents.md](./03-onboarding-documents.md) | Profile completion & documents | TC_095–TC_101 | **Vendor mobile app** |
-| [04-tenant-join.md](./04-tenant-join.md) | Tenant discovery & join request | TC_102–TC_107, TC_117 | **Vendor mobile app** |
-| [05-tenant-approval-admin.md](./05-tenant-approval-admin.md) | Tenant admin approval | TC_108–TC_118 | Tenant admin portal (**Playwright**) |
-| [06-bid-publishing-admin.md](./06-bid-publishing-admin.md) | Bid publishing (TDO) | TC_119–TC_132, TC_203–TC_209, TC_205–TC_208 | Vendor Fleet TDO |
-| [07-bids-vendor-app.md](./07-bids-vendor-app.md) | Bid visibility & submission | TC_128–TC_142, TC_192, TC_204, TC_210–TC_212 | **Vendor mobile app** (+ admin eval) |
-| [08-transport-orders-vendor-app.md](./08-transport-orders-vendor-app.md) | Awarded TO confirmation | TC_153–TC_163, TC_180–TC_182, TC_193, TC_213 | **Vendor mobile app** |
-| [09-trips-vendor-app.md](./09-trips-vendor-app.md) | Tracks, start, POD | TC_168–TC_172, TC_186–TC_187, TC_200, TC_215 | **Vendor mobile app** |
-| [10-contractual-assignment-admin.md](./10-contractual-assignment-admin.md) | Contractual TO assignment | TC_173–TC_179, TC_184–TC_185 | Vendor Fleet TDO |
-| [11-post-award-dispatch-rbac.md](./11-post-award-dispatch-rbac.md) | Ready for dispatch, RBAC, edge cases | TC_164–TC_167, TC_188–TC_201, TC_211, TC_214 | Admin + vendor (mixed) |
+| File | Feature area | TC range |
+|------|--------------|----------|
+| [**00-all-test-cases.md**](./00-all-test-cases.md) | **Master index (all cases + status)** | TC_001–TC_160 |
+| [01-to-creation-vendor-fleet.md](./01-to-creation-vendor-fleet.md) | TO creation (admin) | TC_117–TC_125 |
+| [02-registration-auth.md](./02-registration-auth.md) | Create account, verify, login | TC_001–TC_026 |
+| [03-onboarding-documents.md](./03-onboarding-documents.md) | Profile documents | TC_027–TC_035 |
+| [04-tenant-join.md](./04-tenant-join.md) | Tenant join | TC_036–TC_042 |
+| [05-tenant-approval-admin.md](./05-tenant-approval-admin.md) | Tenant approval | TC_043–TC_050 |
+| [06-bid-publishing-admin.md](./06-bid-publishing-admin.md) | Bid publish (TDO) | TC_126–TC_140 |
+| [07-bids-vendor-app.md](./07-bids-vendor-app.md) | Bids, award, Won section | TC_083–TC_116 |
+| [08-transport-orders-vendor-app.md](./08-transport-orders-vendor-app.md) | TO list + driver/vehicle | TC_051–TC_067 |
+| [09-trips-vendor-app.md](./09-trips-vendor-app.md) | RFD, Trips, yard | TC_068–TC_082, TC_157 |
+| [10-contractual-assignment-admin.md](./10-contractual-assignment-admin.md) | Contractual assign | TC_148–TC_150 |
+| [11-post-award-dispatch-rbac.md](./11-post-award-dispatch-rbac.md) | Award admin, RFD, RBAC | TC_141–TC_147, TC_151–TC_160 |
 
-## Column definitions
+## Product notes (UAT vs current app)
 
-| Column | Meaning |
-|--------|---------|
-| **Priority** | Critical / High / Medium / Low (from PDF) |
-| **Scope** | Where the case is verified: `Vendor App`, `TDO`, `Tenant Admin`, `TP`, `Backend`, or `Mixed` |
-| **Maestro Status** | Automation status on the vendor mobile app (updated after Maestro runs). Admin-portal rows use **Playwright Status** in the feature file instead. |
-| **Maestro Flow** | Planned or existing flow under `nourish-vendor-app/.maestro/flows/` |
-| **PDF Notes** | Original PDF flags such as `Skip` (audit-log cases) |
+1. **Tracks → Trips** — UAT PDF still says Tracks; app + Maestro use **Trips**.
+2. **OTP** — TC_011–018 Skipped in Maestro until stub OTP is reliable.
+3. **TC_020** — UAT: Mobile + Password; Maestro `auth/05` currently asserts Phone **OTP** tab.
+4. **TC_097** — UAT allows bid update while window open (follow UAT; older Phase01 “lock after submit” is obsolete for this suite).
 
-## Maestro status legend
+## Run automation
+
+```bash
+# Full local suite (Maestro + optional Playwright)
+bash .cursor/skills/run-vendor-mobile-tests/scripts/run-all.sh
+```
+
+See also: [Maestro setup and run](../../maestro-setup-and-run.md).
+
+## Status legend
 
 | Status | Meaning |
 |--------|---------|
-| **Not Started** | Documented only; no Maestro run yet |
-| **Partial** | A related flow exists but does not fully satisfy the TC |
-| **Covered** | Maestro flow implemented and passing |
-| **Failed** | Flow ran and failed (see feature file notes) |
-| **Skipped** | Intentionally not run in current system (e.g. OTP) — see feature-file notes |
-| **Manual** | Requires admin/backend seeding; not suitable for pure mobile automation |
-| **N/A** | Out of scope for the vendor mobile app |
-
-## Next steps
-
-1. From `nourish-backend`: ensure stack is up; `make seed-vendor-dev` for vendor onboarding gates.
-2. Extend or publish open bids when close dates lapse (mobile hides expired opportunities).
-3. Re-run: `maestro --device emulator-5554 test .maestro` from `nourish-vendor-app/`.
-4. Fix the 6 failed flows above; update **Maestro Status** in feature files.
-5. See [Maestro setup and run guide](../../maestro-setup-and-run.md).
+| **Pass** | Automated (Playwright and/or Maestro) and verified |
+| **Partial** | Related flow exists; does not fully satisfy UAT |
+| **Not Started** | Documented from UAT; automation / assert not built yet |
+| **Skipped** | Intentionally not run (OTP, yard chain) |
+| **Failed** | Automation ran; assertion failed |
+| **N/A** | Out of scope for vendor mobile |
+| **Skip** | Blocked / harness gap / PDF skip |
