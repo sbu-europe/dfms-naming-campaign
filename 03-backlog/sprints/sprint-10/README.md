@@ -1,11 +1,11 @@
 ---
-title: Sprint 10 — Fleet Operations (Fuel, Inventory, Inspection & Reports)
+title: Sprint 10 — Fleet Operations (Fuel, Inspection & Vehicle Reports)
 sprint: Sprint 10
 phase: Phase 2 — Fleet Operations
 dates: TBD
 status: Planning
 carry_from: Sprint 9
-total_story_points_estimated: "~87 SP (FM + INV/WM + FHI + VR)"
+total_story_points_estimated: "~58 SP (FM + FHI + VR)"
 design_reference: example-prototypes/fleet-operations.html
 ---
 
@@ -15,9 +15,10 @@ design_reference: example-prototypes/fleet-operations.html
 |---|---|
 | **Sprint Dates** | TBD |
 | **Design reference** | [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — **single unified view** (all menus visible; RBAC in production) |
-| **Roles** | **Driver** (fuel mobile); **Driver Supervisor** (fuel, inspections); **Workshop Supervisor** (garage inventory, workshop jobs); **Transport Planner / Tenant Admin** (masters + reports) |
-| **Dependencies** | MDM-05 (Vehicle master), Garage POI type, Driver assignment |
+| **Roles** | **Driver** (fuel mobile); **Driver Supervisor** (fuel, inspections); **Transport Planner / Tenant Admin** (masters + reports) |
+| **Dependencies** | MDM-05 (Vehicle master), Driver assignment |
 | **Vehicle Planning** | **Unchanged** — TO assignment only ([`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) v1) |
+| **Out of phase** | **Garage inventory / workshop jobs** — deferred (not in current phase) |
 | **Previous** | [Sprint 9](../sprint-9/README.md) |
 
 ---
@@ -25,22 +26,20 @@ design_reference: example-prototypes/fleet-operations.html
 ## Sprint Goals
 
 1. **Fuel** — Gauge-based entry (Driver Supervisor admin + Driver mobile); consumption, history, anomaly detection.
-2. **Garage inventory & workshop** — Per-garage stock; workshop jobs issue parts; vehicle under maintenance during repair.
-3. **Fleet Health Inspection** — Checklist templates per vehicle type; scheduled checkpoints; inspection rounds; due/overdue alerts.
-4. **Vehicle Report** — Reports menu → fleet overview + detail (fuel, inspection, parts expiry, compliance).
-5. **Vehicle Planning unchanged** — No fuel/health/inventory on planning screens.
+2. **Fleet Health Inspection** — Checklist templates per vehicle type; scheduled checkpoints; inspection rounds; due/overdue alerts.
+3. **Vehicle Report** — Reports menu → fleet overview + detail (fuel, inspection, compliance).
+4. **Vehicle Planning unchanged** — No fuel/health panels on planning screens.
 
 ---
 
 ## Portal structure (prototype → production)
 
-The prototype shows **one combined admin view** — all sections visible. Production enforces RBAC per role below.
+The prototype shows **one combined admin view** — all in-scope sections visible. Production enforces RBAC per role below.
 
 ```
 Fleet Operations (admin portal)          Who uses it (production)
-├── Fleet Inspection                     Driver Supervisor (+ Workshop Supervisor read)
+├── Fleet Inspection                     Driver Supervisor
 ├── Fuel — Log / History                 Driver Supervisor (admin); Driver → mobile app
-├── Inventory / Workshop                 Workshop Supervisor
 └── Fleet Overview                       All report viewers → Reports → Vehicle Report (VR-02)
 
 Reports
@@ -53,8 +52,7 @@ Reports
 |------|--------------------------|-------|
 | **Driver** | — (mobile only) | FM-02 fuel entry on Driver Mobile |
 | **Driver Supervisor** | Fuel entry, Fuel history, Fleet Inspection, Fleet Overview | Pre-trip checks; may update odometer before fuel |
-| **Workshop Supervisor** | Garage stock, Receive stock, Workshop jobs, Maintenance timeline | Scoped to assigned Garage POI(s) |
-| **Transport Planner** | Checklist templates (master), Vehicle Report | Inventory item master with Tenant Admin |
+| **Transport Planner** | Checklist templates (master), Vehicle Report | Masters with Tenant Admin |
 | **Tenant Admin** | All masters + all operations + reports | Full access |
 
 > `fuel-management.html` redirects to `fleet-operations.html`.
@@ -66,11 +64,10 @@ Reports
 | # | Epic | Key Stories | Est. SP | Status |
 |---|------|-------------|---------|--------|
 | 01 | Fuel Management | [FM-01](01-fuel-management/FM-01-fuel-entry-driver-supervisor-admin.md) – [FM-05](01-fuel-management/FM-05-fuel-anomaly-baselines.md) | ~21 | Planning |
-| 02 | Garage Inventory & Workshop | [INV-01](02-garage-inventory/INV-01-garage-poi-and-supervisor-scope.md) – [WM-02](02-garage-inventory/WM-02-workshop-job-complete-and-part-installations.md) | ~29 | Planning |
-| 03 | Vehicle Reports | [VR-01](03-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](03-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
-| 04 | Fleet Health Inspection | [FHI-01](04-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](04-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
+| 02 | Vehicle Reports | [VR-01](03-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](03-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
+| 03 | Fleet Health Inspection | [FHI-01](04-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](04-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
 
-**Total estimated**: ~87 SP
+**Total estimated**: ~58 SP
 
 ---
 
@@ -94,20 +91,7 @@ Reports
 | FM-05-1 | FM-05 | Vehicle-type fuel efficiency baselines + 20% anomaly flag | High |
 | FM-05-2 | FM-05 | Own-fleet-only enforcement on fuel entry | High |
 
-### Epic 02: Garage Inventory & Workshop
-
-| Sub-task | Story | Description | Priority |
-|----------|-------|-------------|----------|
-| INV-01-1 | INV-01 | `POIType.GARAGE` + Workshop Supervisor garage assignment | High |
-| INV-02-1 | INV-02 | `InventoryItem` master catalog (vehicle parts, machinery, consumables) | High |
-| INV-03-1 | INV-03 | `GarageStock` balance + `InventoryMovement` ledger | High |
-| INV-03-2 | INV-03 | Receive stock UI + stock adjustment | High |
-| WM-01-1 | WM-01 | Workshop job with part lines — issue from garage stock | High |
-| WM-01-2 | WM-01 | Vehicle → `under_maintenance` on job create | High |
-| WM-02-1 | WM-02 | Job complete → vehicle status restore + `VehiclePartInstallation` | High |
-| WM-02-2 | WM-02 | Part expiry from catalog defaults on job complete | High |
-
-### Epic 03: Vehicle Reports
+### Epic 02: Vehicle Reports
 
 | Sub-task | Story | Description | Priority |
 |----------|-------|-------------|----------|
@@ -116,10 +100,10 @@ Reports
 | VR-02-1 | VR-02 | `VehicleReportService.build_list()` aggregation | High |
 | VR-02-2 | VR-02 | Fleet overview — fuel, distance, cost cards (prototype Fleet Overview) | High |
 | VR-02-3 | VR-02 | `GET /api/v1/reports/vehicles/` | High |
-| VR-03-1 | VR-03 | Vehicle detail — compliance, fuel, parts, inspection sections | High |
+| VR-03-1 | VR-03 | Vehicle detail — compliance, fuel, inspection sections | High |
 | VR-03-2 | VR-03 | `GET /api/v1/reports/vehicles/{id}/` | High |
 
-### Epic 04: Fleet Health Inspection
+### Epic 03: Fleet Health Inspection
 
 | Sub-task | Story | Description | Priority |
 |----------|-------|-------------|----------|
@@ -137,20 +121,16 @@ Reports
 
 | # | Decision | Sprint 10 default |
 |---|----------|-------------------|
-| D1 | Backend app | `apps/vehicle_health/` (fuel, inspection, workshop; catalog in `master_data`) |
+| D1 | Backend app | `apps/vehicle_health/` (fuel, inspection; catalog in `master_data` as needed) |
 | D2 | Fuel quantity override | Auto-calc `After − Before`; supervisor may override with audit note |
-| D3 | Parts expiry thresholds | Expiring soon: ≤ 30 days **or** ≤ 500 km |
-| D4 | Health/fuel visibility | **Reports → Vehicle Report** — NOT Vehicle Planning |
-| D5 | Fuel period on vehicle report | Default 30 days; configurable query param |
-| D6 | Who manages inventory | Workshop Supervisor (assigned garage); Tenant Admin / Transport Planner (catalog) |
-| D7 | Who views Vehicle Report | Transport Planner, Driver Supervisor, Tenant Admin |
-| D8 | Driver location fallback | GPS required; no manual location for drivers |
-| D9 | Supervisor pre-trip | May update vehicle odometer before fuel entry |
-| D10 | Stock issue on workshop job | Hard block if insufficient garage stock |
-| D11 | Parts expiry on vehicle | Created on workshop job **completion** from issued vehicle-part lines |
-| D12 | Inspection intervals | Per checkpoint template (`interval_days`: 7, 30, 365, etc.) |
-| D13 | Inspection due soon | Within 2 days of `next_due` |
-| D14 | Who conducts inspections | Driver Supervisor; Workshop Supervisor optional |
+| D3 | Health/fuel visibility | **Reports → Vehicle Report** — NOT Vehicle Planning |
+| D4 | Fuel period on vehicle report | Default 30 days; configurable query param |
+| D5 | Who views Vehicle Report | Transport Planner, Driver Supervisor, Tenant Admin |
+| D6 | Driver location fallback | GPS required; no manual location for drivers |
+| D7 | Supervisor pre-trip | May update vehicle odometer before fuel entry |
+| D8 | Inspection intervals | Per checkpoint template (`interval_days`: 7, 30, 365, etc.) |
+| D9 | Inspection due soon | Within 2 days of `next_due` |
+| D10 | Who conducts inspections | Driver Supervisor |
 
 ---
 
@@ -158,6 +138,8 @@ Reports
 
 | Item | Notes |
 |------|-------|
+| **Garage inventory / workshop jobs** | Deferred — not in current phase |
+| Vehicle parts catalog / stock / installations | Deferred with inventory |
 | Vehicle Planning UI changes | Stays TO-assignment only |
 | PRD updates | Handled outside this sprint |
 | Fuel budget tracking | Not in prototype |
@@ -174,7 +156,6 @@ Reports
 |------|------|
 | Prototype | [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) |
 | Fuel Management | [`fuel-management.md`](../../../05-modules/08-fleet-management/fuel-management.md) |
-| Garage Inventory | [`inventory-management.md`](../../../05-modules/08-fleet-management/inventory-management.md) |
 | Fleet Health Inspection | [`fleet-health-inspection.md`](../../../05-modules/08-fleet-management/fleet-health-inspection.md) |
 | Vehicle Report | [`vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md) |
 | Vehicle Planning v1 | [`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) |

@@ -23,7 +23,6 @@ Distinct from:
 **Roles:**
 - **Tenant Admin / Transport Planner** — maintain checklist templates per vehicle type
 - **Driver Supervisor** — inspection dashboard, conduct rounds
-- **Workshop Supervisor** — may conduct rounds at assigned garage (optional)
 
 **Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fleet Inspection section (unified view; Driver Supervisor RBAC in production).
 
@@ -141,7 +140,6 @@ Fleet Operations
 │   ├── Conduct Inspection      ← round entry
 │   └── Checklist Templates     ← master (read for supervisors)
 ├── Fuel …
-├── Garage Inventory …
 └── Fleet Overview              ← fuel/distance/cost cards (prototype); production → Reports
 ```
 
@@ -182,7 +180,7 @@ Detail view: table of checkpoints with status chips (same as inspection dashboar
 | Code | Roles |
 |------|------|
 | `inspection.template.manage` | tenant_admin, transport_planner |
-| `inspection.round.create` | driver_supervisor, workshop_supervisor |
+| `inspection.round.create` | driver_supervisor |
 | `inspection.dashboard.view` | driver_supervisor, transport_planner, tenant_admin |
 
 ---
@@ -192,18 +190,17 @@ Detail view: table of checkpoints with status chips (same as inspection dashboar
 - Push/email notifications for overdue checkpoints
 - Driver mobile inspection (supervisor admin portal only)
 - Photo evidence per checkpoint
-- Auto-create workshop job from FAIL result
+- Garage inventory / workshop jobs (deferred — separate phase)
 
 ---
 
 ## 10. Related specs
 
 - [`fuel-management.md`](fuel-management.md)
-- [`inventory-management.md`](inventory-management.md)
 - [`vehicle-report.md`](../11-reporting/vehicle-report.md)
 - [`vehicle-master-data.md`](../02-master-data/vehicle-master-data.md) — vehicle type enum
 
 ---
 
-**Last Updated**: 2026-09-01  
+**Last Updated**: 2026-09-07  
 **Sprint**: Sprint 10 (FHI-01 – FHI-04)

@@ -1,15 +1,14 @@
 ---
 module: 11-reporting
 specification: Vehicle Report
-version: 1.0
+version: 1.1
 phase: Phase 2
 sprint: Sprint 10
-last_updated: 2026-09-01
+last_updated: 2026-09-07
 related_stories: [VR-01, VR-02, VR-03, FHI-04]
 design_reference: ../../../../example-prototypes/fleet-operations.html (Fleet Overview tab)
 aggregates_from:
   - ../08-fleet-management/fuel-management.md
-  - ../08-fleet-management/inventory-management.md
   - ../08-fleet-management/fleet-health-inspection.md
   - ../02-master-data/vehicle-master-data.md
 ---
@@ -18,7 +17,7 @@ aggregates_from:
 
 ## Overview
 
-**Vehicle Report** is a read-only reporting surface under the portal **Reports** menu. It shows fleet-wide and per-vehicle **health information**: operational status, compliance (fitness/insurance), fuel performance (km/L, distance, cost), **fleet health inspection** alerts, and parts expiry.
+**Vehicle Report** is a read-only reporting surface under the portal **Reports** menu. It shows fleet-wide and per-vehicle **health information**: operational status, compliance (fitness/insurance), fuel performance (km/L, distance, cost), and **fleet health inspection** alerts.
 
 **Separation of concerns:**
 
@@ -26,7 +25,7 @@ aggregates_from:
 |---------|---------|-----------|
 | **Transport → Vehicle Planning** | TO assignment (vehicle-centric board) | Unchanged — v1 spec only |
 | **Fleet Operations → Fleet Overview** | Prototype preview of VR-02 cards | [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) |
-| **Reports → Vehicle Report** | Production fuel, inspection, parts, compliance | VR-01 – VR-03, FHI-04 |
+| **Reports → Vehicle Report** | Production fuel, inspection, compliance | VR-01 – VR-03, FHI-04 |
 
 Prototype **Fleet Overview** (fuel, distance, ৳/km per vehicle) maps to **VR-02** in production — not embedded in Vehicle Planning.
 
@@ -61,7 +60,7 @@ class VehicleReportService:
     def build_detail(self, vehicle_id: UUID, fuel_period_days: int = 30) -> VehicleReportDetail: ...
 ```
 
-No new source of truth — aggregates `Vehicle`, `FuelEntry`, `VehiclePartInstallation` (workshop jobs), `VehicleCheckpointState` (inspections), compliance fields.
+No new source of truth — aggregates `Vehicle`, `FuelEntry`, `VehicleCheckpointState` (inspections), compliance fields.
 
 ---
 
@@ -94,10 +93,6 @@ interface VehicleReportSummary {
     due_soon_count: number;
     failed_count: number;
   };
-  parts: {
-    expired_count: number;
-    expiring_soon_count: number;
-  };
   compliance: {
     has_issue: boolean;  // any expired or expiring soon
   };
@@ -126,11 +121,6 @@ interface VehicleReportDetail extends VehicleReportSummary {
     anomaly_message?: string;
     recent_entries: FuelEntrySummary[];  // last N rows
   };
-  parts: {
-    expired: PartStatusItem[];
-    expiring_soon: PartStatusItem[];
-    valid: PartStatusItem[];
-  };
   inspection: {
     overdue: InspectionCheckpointItem[];
     due_soon: InspectionCheckpointItem[];
@@ -146,8 +136,8 @@ interface VehicleReportDetail extends VehicleReportSummary {
 
 Matches prototype **Fleet Overview** (VR-02):
 
-- **Stats strip:** own fleet count, in workshop, fuel entries (period), fuel anomalies, inspection overdue (optional)
-- **Card grid:** per-vehicle — last/avg km/L, distance, fuel cost, ৳/km, inspection alerts, parts alerts, anomaly chip
+- **Stats strip:** own fleet count, fuel entries (period), fuel anomalies, inspection overdue (optional)
+- **Card grid:** per-vehicle — last/avg km/L, distance, fuel cost, ৳/km, inspection alerts, anomaly chip
 - **Filters:** search, “has alerts”, fuel period (default 30 days)
 - **Click card** → detail view
 
@@ -161,7 +151,6 @@ Sections (read-only):
 2. **Compliance** — fitness / insurance with status chips  
 3. **Fuel** — period stats (km/L, distance, cost, ৳/km) + recent entries table  
 4. **Inspection** — checkpoint table with last checked, next due, status (FHI-04)  
-5. **Parts** — installations from completed workshop jobs with expiry status  
 
 Optional footer link: “Open Vehicle Planning” (if user has `MENU_VEHICLE_PLANNING_VIEW`) — navigates to standard planning board without embedding health data there.
 
@@ -178,7 +167,7 @@ GET /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 ## 7. Out of scope (Sprint 10)
 
-- Garage stock levels, receive stock, workshop job entry (Garage Operations — INV/WM stories)
+- Garage inventory, workshop jobs, parts expiry / installations (deferred)
 - TO assignment on report pages
 - Export CSV/PDF (later reporting sprint)
 - Changes to Vehicle Planning landing or board templates
@@ -189,10 +178,9 @@ GET /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 - [`fleet-health-inspection.md`](../08-fleet-management/fleet-health-inspection.md) — inspection checkpoint source data
 - [`fuel-management.md`](../08-fleet-management/fuel-management.md) — fuel entry source data
-- [`inventory-management.md`](../08-fleet-management/inventory-management.md) — parts installations source (workshop job complete)
 - [`vehicle-planning-view.md`](../05-transport/vehicle-planning-view.md) — TO assignment (unchanged)
 
 ---
 
-**Last Updated**: 2026-09-01  
+**Last Updated**: 2026-09-07  
 **Sprint**: Sprint 10 (VR-01 – VR-03, FHI-04)

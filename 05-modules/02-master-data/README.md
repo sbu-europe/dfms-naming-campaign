@@ -30,8 +30,7 @@ This module defines master data configuration and management for the DFMS platfo
 | [vehicle-master-data.md](vehicle-master-data.md) | Vehicle data model, creation workflow, **operational status (V2, TO-driven)** vs master data `is_active`, bulk upload, search/filtering, referential integrity | 6.3.1-6.3.4 | US-053 | 344 |
 | [product-master-data-management.md](product-master-data-management.md) | Product data model (FG/RM), catalogue management, transport configuration (vehicle compatibility, special handling), QC configuration (checklists, auto-pass), product lifecycle, search/filtering | 6.4.1-6.4.3 | Integrated in requisition workflows | 551 |
 | [loading-unloading-points.md](loading-unloading-points.md) | Loading/unloading points — POI sub-location master (bays/lines/docks). Model, admin (standalone + inline under POIAdmin), API, RBAC, seed data. Consumed by CC-01, LD-01, QC-01 | 6.5.1, 6.12.2, 6.13.1 | DFS-063 (LUP-01) — Sprint 4 | ~230 |
-| [inventory-management.md](../08-fleet-management/inventory-management.md) | Garage inventory, stock, workshop jobs, part installations — Sprint 10 | Sprint 10 | INV-01 – WM-02 | see spec |
-| [vehicle-part-catalog.md](vehicle-part-catalog.md) | **Superseded** — redirect to inventory-management | — | — | stub |
+| [vehicle-part-catalog.md](vehicle-part-catalog.md) | **Deferred** — garage inventory / parts not in current phase | — | — | stub |
 
 **Total Documentation**: ~2,030 lines of comprehensive technical specifications (driver compliance: see `03-users/driver-user-profiles.md`)
 

@@ -72,7 +72,7 @@ GET/PATCH  /api/v1/inspection-checkpoints/{id}/
 | Action | Role |
 |--------|------|
 | CRUD templates | `transport_planner`, `tenant_admin` |
-| View templates (read-only) | `driver_supervisor`, `workshop_supervisor` |
+| View templates (read-only) | `driver_supervisor` |
 
 **Permission codes (proposed):** `inspection.template.manage`, `inspection.template.view`
 

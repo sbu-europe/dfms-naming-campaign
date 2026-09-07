@@ -14,7 +14,6 @@ related_stories:
   - VR-01-reports-menu-vehicle-report-navigation.md
   - VR-03-vehicle-report-detail-view.md
   - FM-05-fuel-anomaly-baselines.md
-  - WM-02-workshop-job-complete-and-part-installations.md
   - FHI-04-inspection-alerts-on-vehicle-report.md
 source_docs:
   - ../../../../05-modules/11-reporting/vehicle-report.md
@@ -28,13 +27,13 @@ module_spec: 05-modules/11-reporting/vehicle-report.md
 
 **As a** Transport Planner or Driver Supervisor  
 **I want** a fleet overview showing each own-fleet vehicle’s health summary  
-**So that** I can monitor fuel performance, part expiry, and compliance without opening Vehicle Planning
+**So that** I can monitor fuel performance, inspection status, and compliance without opening Vehicle Planning
 
 ## Business Context
 
 Implements the prototype **Fleet Overview** card grid under **Reports → Vehicle Report** — not inside Vehicle Planning.
 
-Per-vehicle metrics: last km/L, avg km/L, distance, fuel cost, ৳/km, fuel entries, maintenance cost, operational status, fuel anomaly chip, parts and inspection alert counts.
+Per-vehicle metrics: last km/L, avg km/L, distance, fuel cost, ৳/km, fuel entries, operational status, fuel anomaly chip, and inspection alert counts.
 
 ---
 
@@ -42,7 +41,7 @@ Per-vehicle metrics: last km/L, avg km/L, distance, fuel cost, ৳/km, fuel entr
 
 ### AC-1: Fleet stats strip
 
-- [ ] Summary row: Own Fleet Vehicles, In Workshop, Fuel Entries (period), Fuel Anomalies, Inspection Overdue (optional).
+- [ ] Summary row: Own Fleet Vehicles, Fuel Entries (period), Fuel Anomalies, Inspection Overdue (optional).
 
 ### AC-2: Vehicle health cards
 
@@ -52,8 +51,7 @@ Each own-fleet vehicle card shows:
 - [ ] Operational status badge
 - [ ] Assigned driver, odometer (km)
 - [ ] Last km/L, avg km/L, total distance (period), fuel cost, ৳/km
-- [ ] Fuel entry count; maintenance cost (footer)
-- [ ] Parts alert: “N expiring soon” / “N expired”
+- [ ] Fuel entry count
 - [ ] Inspection alert: overdue / due soon / failed checkpoint counts
 - [ ] Fuel anomaly chip when applicable
 
@@ -92,7 +90,7 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
 | VR-02-1 | `VehicleReportService.build_list()` | Aggregation service | High | Not started |
-| VR-02-2 | Overview UI | Stats strip + health cards (prototype Fleet Dashboard) | High | Not started |
+| VR-02-2 | Overview UI | Stats strip + health cards (prototype Fleet Overview) | High | Not started |
 | VR-02-3 | List API | `GET /api/v1/reports/vehicles/` | High | Not started |
 
 ---
@@ -103,7 +101,6 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 |------------|-----------|------|
 | VR-01 | Upstream | Menu + route |
 | FM-03, FM-05 | Upstream | Fuel metrics |
-| WM-02 | Upstream | Parts expiry counts |
 | FHI-04 | Upstream | Inspection alert counts |
 
 ---
@@ -116,4 +113,4 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 
 ---
 
-*Epic: Vehicle Reports | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-01*
+*Epic: Vehicle Reports | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-07*

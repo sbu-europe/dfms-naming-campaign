@@ -1,22 +1,15 @@
 ---
 module: 02-master-data
-specification: Vehicle Part Catalog (SUPERSEDED)
-version: 1.0
-status: superseded
-superseded_by: ../08-fleet-management/inventory-management.md
-last_updated: 2026-09-01
+specification: Vehicle Part Catalog (OUT OF SCOPE — current phase)
+version: 1.1
+status: deferred
+last_updated: 2026-09-07
 ---
 
-# Vehicle Part Catalog — SUPERSEDED
+# Vehicle Part Catalog / Garage Inventory — Deferred
 
-> **This spec is superseded.** Use **[inventory-management.md](../08-fleet-management/inventory-management.md)** instead.
+> **Not in current phase (Sprint 10).** Garage inventory, workshop jobs, and vehicle part stock/installations are **out of scope**.
 
-Sprint 10 Epic 02 was revised from standalone vehicle parts catalog (VP-01–03) to **Garage Inventory & Workshop** (INV-01–03, WM-01–02).
+Sprint 10 covers **Fuel**, **Fleet Health Inspection**, and **Vehicle Reports** only.
 
-| Old concept | New concept |
-|-------------|-------------|
-| `VehiclePartType` catalog | `InventoryItem` (multi-type: parts, machinery, consumables) |
-| Manual part install on vehicle | Part install on **workshop job complete** |
-| No stock tracking | `GarageStock` per Garage POI |
-
-**Stories:** See [`02-garage-inventory/`](../../03-backlog/sprints/sprint-10/02-garage-inventory/) and [`inventory-management.md`](../08-fleet-management/inventory-management.md).
+See [`sprint-10/README.md`](../../03-backlog/sprints/sprint-10/README.md) → Out of Scope.
