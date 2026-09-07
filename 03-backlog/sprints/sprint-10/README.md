@@ -65,9 +65,9 @@ Reports
 | # | Epic | Key Stories | Est. SP | Status |
 |---|------|-------------|---------|--------|
 | 01 | Fuel Management | [FM-01](01-fuel-management/FM-01-fuel-entry-driver-supervisor-admin.md) – [FM-05](01-fuel-management/FM-05-fuel-anomaly-baselines.md) | ~21 | Planning |
-| 02 | Vehicle Reports | [VR-01](03-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](03-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
-| 03 | Fleet Health Inspection | [FHI-01](04-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](04-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
-| 04 | Vendor Rating System | [VRS-01](05-vendor-ratings/VRS-01-post-to-vendor-rating-admin.md) – [VRS-03](05-vendor-ratings/VRS-03-vendor-rating-visibility-admin.md) | ~16 | Planning |
+| 02 | Vehicle Reports | [VR-01](02-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](02-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
+| 03 | Fleet Health Inspection | [FHI-01](03-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](03-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
+| 04 | Vendor Rating System | [VRS-01](04-vendor-ratings/VRS-01-post-to-vendor-rating-admin.md) – [VRS-03](04-vendor-ratings/VRS-03-vendor-rating-visibility-admin.md) | ~16 | Planning |
 
 **Total estimated**: ~74 SP
 
