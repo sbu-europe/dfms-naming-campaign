@@ -1,15 +1,15 @@
 ---
-title: Sprint 10 — Fleet Operations (Fuel, Inspection & Vehicle Reports)
+title: Sprint 10 — Fleet Operations + Vendor Rating System
 sprint: Sprint 10
-phase: Phase 2 — Fleet Operations
+phase: Phase 2 — Fleet Operations & Vendor Intelligence
 dates: TBD
 status: Planning
 carry_from: Sprint 9
-total_story_points_estimated: "~58 SP (FM + FHI + VR)"
+total_story_points_estimated: "~74 SP (FM + FHI + VR + VRS)"
 design_reference: example-prototypes/fleet-operations.html
 ---
 
-# Sprint 10 — Fleet Operations
+# Sprint 10 — Fleet Operations + Vendor Rating System
 
 | | |
 |---|---|
@@ -29,6 +29,7 @@ design_reference: example-prototypes/fleet-operations.html
 2. **Fleet Health Inspection** — Checklist templates per vehicle type; scheduled checkpoints; inspection rounds; due/overdue alerts.
 3. **Vehicle Report** — Reports menu → fleet overview + detail (fuel, inspection, compliance).
 4. **Vehicle Planning unchanged** — No fuel/health panels on planning screens.
+5. **Vendor Rating System** — Bidirectional post-TO ratings: tenant rates vendor (3 criteria + Y/N questions); vendor rates tenant (mobile). Internal admin visibility; bid views wired up.
 
 ---
 
@@ -66,8 +67,9 @@ Reports
 | 01 | Fuel Management | [FM-01](01-fuel-management/FM-01-fuel-entry-driver-supervisor-admin.md) – [FM-05](01-fuel-management/FM-05-fuel-anomaly-baselines.md) | ~21 | Planning |
 | 02 | Vehicle Reports | [VR-01](03-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](03-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
 | 03 | Fleet Health Inspection | [FHI-01](04-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](04-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
+| 04 | Vendor Rating System | [VRS-01](05-vendor-ratings/VRS-01-post-to-vendor-rating-admin.md) – [VRS-03](05-vendor-ratings/VRS-03-vendor-rating-visibility-admin.md) | ~16 | Planning |
 
-**Total estimated**: ~58 SP
+**Total estimated**: ~74 SP
 
 ---
 
@@ -115,6 +117,26 @@ Reports
 | FHI-03-2 | FHI-03 | Conduct Inspection UI (prototype) | High |
 | FHI-04-1 | FHI-04 | Inspection counts on Vehicle Report (VR-02/VR-03) | High |
 
+### Epic 04: Vendor Rating System
+
+| Sub-task | Story | Description | Priority |
+|----------|-------|-------------|----------|
+| VRS-01-1 | VRS-01 | `VendorRating`, `VendorRatingCriterion`, `VendorRatingAnswer`, `RatingQuestion` models + migrations | High |
+| VRS-01-2 | VRS-01 | Seed default Y/N questions for each criterion (Product Delivery, Driver Behaviour, Vehicle) | High |
+| VRS-01-3 | VRS-01 | Admin rating form — 3-criterion panels, star selector, Y/N questions, comments, live avg | High |
+| VRS-01-4 | VRS-01 | Average calculation + rolling `Vendor.rating` + `rating_count` update on submit | High |
+| VRS-01-5 | VRS-01 | Submit + immutability + audit log (`VENDOR_RATING_SUBMITTED`) | High |
+| VRS-01-6 | VRS-01 | TO completion rating prompt ("Rate Vendor" CTA on completed TO detail) | Medium |
+| VRS-02-1 | VRS-02 | `TenantRating` model + migration + unique constraint | High |
+| VRS-02-2 | VRS-02 | Vendor mobile rating screen — post-TO acknowledgment → rating prompt → form → confirm | High |
+| VRS-02-3 | VRS-02 | Tenant rating API endpoints (POST vendor submit; GET summary for join flow; GET list admin) | High |
+| VRS-02-4 | VRS-02 | Tenant rating summary on Join Tenant flow (aggregate ★ + count on tenant card) | Medium |
+| VRS-03-1 | VRS-03 | Vendor profile — rating section (summary + per-criterion table + history list) | High |
+| VRS-03-2 | VRS-03 | Bid list — rating column + sort; populate `vendor_rating_at_award` on award | High |
+| VRS-03-3 | VRS-03 | Bid comparison — rating panel + "Highest Rating" highlight | Medium |
+| VRS-03-4 | VRS-03 | Vendor admin list — min-rating filter + rating column + sort | Medium |
+| VRS-03-5 | VRS-03 | TO detail — "Vendor Rated ★★★★" or "Rate this Vendor" CTA | Medium |
+
 ---
 
 ## Dependencies & Decisions
@@ -131,6 +153,12 @@ Reports
 | D8 | Inspection intervals | Per checkpoint template (`interval_days`: 7, 30, 365, etc.) |
 | D9 | Inspection due soon | Within 2 days of `next_due` |
 | D10 | Who conducts inspections | Driver Supervisor |
+| D11 | Vendor rating — backend app | `apps/vendor_management/` or `apps/ratings/` (TBD) |
+| D12 | Vendor rating — v1 criteria | 3 fixed criteria: Product Delivery, Driver Behaviour, Vehicle. Extensible model |
+| D13 | Vendor rating — internal only v1 | Vendor does NOT see their own rating from tenants in v1 |
+| D14 | Vendor rating — trigger | Post-TO `COMPLETED` state; one rating per TO per vendor |
+| D15 | Vendor → tenant rating — v1 scope | Overall 1–5 stars only; per-criterion deferred pending internal criteria discussion |
+| D16 | Min-rating bid gate | Referenced in bid spec but **not enforced in v1** — Phase 3+ |
 
 ---
 
@@ -147,6 +175,11 @@ Reports
 | Report export CSV/PDF | Later reporting sprint |
 | Inspection push notifications | Visual alerts only |
 | Driver mobile inspection | Admin portal only |
+| **Auto-calculated vendor rating** | Requires completed-trip metrics (on-time %, POD quality, claims) — Phase 3 |
+| **Configurable rating framework / weights** | Tenant Admin-defined criteria + weighting — Phase 3 |
+| **Min-rating bid gate** | `min_vendor_rating` threshold enforcement on bid visibility — Phase 3+ |
+| **Vendor sees own rating** | Internal only in v1; vendor-facing exposure deferred |
+| Per-criterion vendor → tenant rating | v1 is overall-star only; criteria TBD in internal discussion |
 
 ---
 
@@ -160,8 +193,15 @@ Reports
 | Vehicle Report | [`vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md) |
 | Vehicle Planning v1 | [`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) |
 | Driver Mobile (fuel) | [`driver-mobile.md`](../../../05-modules/09-mobile-apps/driver-mobile.md) |
+| **Vendor Rating System** | [`vendor-rating.md`](../../../05-modules/07-vendor-management/vendor-rating.md) |
+| Vendor Bidding (rating refs) | [`vendor-bidding.md`](../../../05-modules/07-vendor-management/vendor-bidding.md) |
+| Vendor Mobile | [`vendor-mobile.md`](../../../05-modules/09-mobile-apps/vendor-mobile.md) |
 | Story template | [VAPP-01](../sprint-6/03-vendor-app/VAPP-01-release-readiness-live-api.md) |
 
 ---
 
 **Previous**: [Sprint 9](../sprint-9/README.md)
+
+---
+
+*Sprint 10 | Phase 2 | Last Updated: 2026-09-07*
