@@ -67,9 +67,9 @@ Reports
 | 01 | Fuel Management | [FM-01](01-fuel-management/FM-01-fuel-entry-driver-supervisor-admin.md) – [FM-05](01-fuel-management/FM-05-fuel-anomaly-baselines.md) | ~21 | Planning |
 | 02 | Vehicle Reports | [VR-01](02-vehicle-reports/VR-01-reports-menu-vehicle-report-navigation.md) – [VR-03](02-vehicle-reports/VR-03-vehicle-report-detail-view.md) | ~16 | Planning |
 | 03 | Fleet Health Inspection | [FHI-01](03-fleet-health-inspection/FHI-01-inspection-checklist-templates.md) – [FHI-04](03-fleet-health-inspection/FHI-04-inspection-alerts-on-vehicle-report.md) | ~21 | Planning |
-| 04 | Vendor Rating System | [VRS-01](04-vendor-ratings/VRS-01-post-to-vendor-rating-admin.md) – [VRS-03](04-vendor-ratings/VRS-03-vendor-rating-visibility-admin.md) | ~16 | Planning |
+| 04 | Vendor Rating System | [VRS-01](04-vendor-ratings/VRS-01-post-to-vendor-rating-admin.md) – [VRS-03](04-vendor-ratings/VRS-03-vendor-rating-visibility-admin.md) | ~19 | Planning |
 
-**Total estimated**: ~74 SP
+**Total estimated**: ~77 SP
 
 ---
 
@@ -127,10 +127,13 @@ Reports
 | VRS-01-4 | VRS-01 | Average calculation + rolling `Vendor.rating` + `rating_count` update on submit | High |
 | VRS-01-5 | VRS-01 | Submit + immutability + audit log (`VENDOR_RATING_SUBMITTED`) | High |
 | VRS-01-6 | VRS-01 | TO completion rating prompt ("Rate Vendor" CTA on completed TO detail) | Medium |
-| VRS-02-1 | VRS-02 | `TenantRating` model + migration + unique constraint | High |
-| VRS-02-2 | VRS-02 | Vendor mobile rating screen — post-TO acknowledgment → rating prompt → form → confirm | High |
-| VRS-02-3 | VRS-02 | Tenant rating API endpoints (POST vendor submit; GET summary for join flow; GET list admin) | High |
-| VRS-02-4 | VRS-02 | Tenant rating summary on Join Tenant flow (aggregate ★ + count on tenant card) | Medium |
+| VRS-02-1 | VRS-02 | `TenantRating`, `TenantRatingCriterion`, `TenantRatingAnswer` models + `Tenant.vendor_rating` / `vendor_rating_count` fields | High |
+| VRS-02-2 | VRS-02 | Seed tenant-direction Y/N questions for all 3 criteria (Payment & Commercial, Load Readiness, Communication & Support) | High |
+| VRS-02-3 | VRS-02 | Vendor mobile rating screen — 3-criterion panels, star + Y/N questions + live avg + submit/confirm | High |
+| VRS-02-4 | VRS-02 | Rolling `Tenant.vendor_rating` + `vendor_rating_count` update on submit | High |
+| VRS-02-5 | VRS-02 | Submit + immutability — atomic persist, `is_submitted` flag, duplicate rejection | High |
+| VRS-02-6 | VRS-02 | Tenant rating summary in Join Tenant flow (aggregate ★ + count + per-criterion on tenant card) | Medium |
+| VRS-02-7 | VRS-02 | Admin portal — incoming vendor ratings list for tenant + summary card | Medium |
 | VRS-03-1 | VRS-03 | Vendor profile — rating section (summary + per-criterion table + history list) | High |
 | VRS-03-2 | VRS-03 | Bid list — rating column + sort; populate `vendor_rating_at_award` on award | High |
 | VRS-03-3 | VRS-03 | Bid comparison — rating panel + "Highest Rating" highlight | Medium |
@@ -157,7 +160,7 @@ Reports
 | D12 | Vendor rating — v1 criteria | 3 fixed criteria: Product Delivery, Driver Behaviour, Vehicle. Extensible model |
 | D13 | Vendor rating — internal only v1 | Vendor does NOT see their own rating from tenants in v1 |
 | D14 | Vendor rating — trigger | Post-TO `COMPLETED` state; one rating per TO per vendor |
-| D15 | Vendor → tenant rating — v1 scope | Overall 1–5 stars only; per-criterion deferred pending internal criteria discussion |
+| D15 | Vendor → tenant rating — v1 scope | **Full criteria** (Payment & Commercial, Load Readiness, Communication & Support) + Y/N questions + rolling avg — symmetric with VRS-01 |
 | D16 | Min-rating bid gate | Referenced in bid spec but **not enforced in v1** — Phase 3+ |
 
 ---
@@ -179,7 +182,7 @@ Reports
 | **Configurable rating framework / weights** | Tenant Admin-defined criteria + weighting — Phase 3 |
 | **Min-rating bid gate** | `min_vendor_rating` threshold enforcement on bid visibility — Phase 3+ |
 | **Vendor sees own rating** | Internal only in v1; vendor-facing exposure deferred |
-| Per-criterion vendor → tenant rating | v1 is overall-star only; criteria TBD in internal discussion |
+| Tenant-admin-defined custom criteria (vendor → tenant) | v1 criteria are fixed (3 seeded); configurable framework is Phase 3 |
 
 ---
 
