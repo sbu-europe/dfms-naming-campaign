@@ -15,10 +15,9 @@ prd_refs:
   - "05-modules/06-poi-operations/ (GT-01, SC-01, CC-01, LD-01)"
 phase: Phase 1
 related_stories:
-  - TO-01 — Transport Order creation (singleton TO still the default; wrapped in a plan)
-  - TO-02 — TDO own-fleet assignment (vehicle/driver now apply at plan level)
-  - FB-011 — planning-stage multi-TO on one vehicle; execution exclusivity moves from TO to plan
-  - YARD-01 / GT-01 / SC-01 / CC-01 / LD-01 — yard stays TO-status based; visit becomes vehicle + member TOs
+  - TO-01 — Transport Order creation (a new TO still starts on its own one-TO plan)
+  - TO-02 — Own-fleet assignment (vehicle and driver are set on the plan)
+  - YARD-01 / GT-01 / SC-01 / CC-01 / LD-01 — yard visit starts from the vehicle; each TO still keeps its own status
 ---
 
 # VP-01 — Own-Fleet Vehicle Plan (Multi-TO on One Vehicle)
@@ -26,24 +25,24 @@ related_stories:
 ## User Story
 
 **As a** Transport Planner  
-**I want to** put one or more Created own-fleet TOs onto a **vehicle plan** (the vehicle and which TOs are my decision)  
-**So that** one truck can carry TOs from the same or different TRs without inventing a fake single TO.
+**I want to** put one or more Created own-fleet transport orders onto a **vehicle plan** (I choose the vehicle and which orders go on it)  
+**So that** one truck can carry orders from the same requisition or from different requisitions, without pretending they are a single order.
 
 **As a** yard operator (Gate, Scale, Command Center, Loading/Unloading)  
-**I want to** start the visit by **selecting the vehicle**, then confirm which of that plan’s eligible TOs are in this visit  
-**So that** the truck is weighed once, Command Center assigns a loading/unloading point **per TO**, and each TO still keeps its own status.
+**I want to** start the visit by **selecting the vehicle**, then confirm which of that plan’s eligible orders are on this visit  
+**So that** the truck is weighed once, Command Center assigns a loading or unloading point **per order**, and each order still keeps its own status.
 
 ---
 
 ## Business Context
 
-Today every yard visit and dispatch slot is **one TO**. Planners can already hang the same vehicle on several TOs during planning (FB-011), but the truck can only **execute one TO at a time**, and gate-in is TO-first. That blocks a real split load: one vehicle, several TOs, one presence at a POI.
+Today every yard visit and dispatch is **one transport order**. Planners can already assign the same vehicle to several orders while planning, but the truck can only **run one order at a time**, and gate-in starts from the order, not the vehicle. That blocks a real split load: one vehicle, several orders, one presence at a site.
 
-This story adds a **Vehicle Plan**. Every own-fleet TO still exists and still has its own status, POD, QC, and lines. Creating a TO also creates a **default 1-TO plan**. The Transport Planner may add other **Created** TOs (any TR) onto a plan for a vehicle. Route mix is the planner’s call — the system does not force the same origin/destination.
+This story adds a **Vehicle Plan**. Every own-fleet order still exists and still has its own status, proof of delivery, quality check, and lines. Creating an order also creates a **default plan with that one order**. The Transport Planner may add other **Created** orders (from any requisition) onto a plan for a vehicle. Mix of origin and destination is the planner’s call — the system does not require the same route.
 
-At the yard the operator picks the **vehicle**. Eligible member TOs at that POI are listed, all on by default, uncheck allowed. One gate-in, one scale-in/out for the truck. After scale-in, Command Center assigns a loading/unloading point **per included TO**. Load/unload and QC stay per TO. Each TO’s `status` / `sub_state` still move on their own.
+At the yard the operator picks the **vehicle**. Eligible orders on that plan at this site are listed, all selected by default; the operator may uncheck. One gate-in, one weigh-in and weigh-out for the truck. After weigh-in, Command Center assigns a loading or unloading point **per included order**. Load, unload, and quality check stay per order. Each order’s status still moves on its own.
 
-**Vendor fleet is out of scope** (`TransportOrderBundle` stays N TOs / N vehicles).
+**Vendor fleet is out of scope** (vendor still uses one vehicle per order / existing vendor grouping).
 
 ---
 
@@ -51,133 +50,133 @@ At the yard the operator picks the **vehicle**. Eligible member TOs at that POI 
 
 | Topic | Decision |
 |---|---|
-| Plan membership / route | Transport Planner decides which Created TOs belong on a plan. No system rule that TOs must share origin, destination, or TR. |
-| Gate-in TO list | Show all eligible TOs for this vehicle at this POI; default all on; operator may uncheck. Visit membership is explicit. |
+| Plan membership / route | Transport Planner decides which Created orders belong on a plan. No system rule that they must share origin, destination, or requisition. |
+| Gate-in order list | Show all eligible orders for this vehicle at this site; default all selected; operator may uncheck. Which orders are on this visit is explicit. |
 | Fleet | Own fleet only. |
-| Scale vs load | Scale **once per visit** (vehicle). Then Command Center assigns loading/unloading point **per TO**. Load/unload/QC remain per TO. |
-| When TOs may join / leave a plan | Only TOs in **Created** are available for planning (add or remove). |
-| Different TRs | Yes — one plan may hold TOs from multiple TRs. |
+| Weigh vs load | Weigh **once per visit** (the truck). Then Command Center assigns a loading or unloading point **per order**. Load, unload, and quality check remain per order. |
+| When orders may join / leave a plan | Only orders in **Created** may be added or removed. |
+| Different requisitions | Yes — one plan may hold orders from more than one requisition. |
 
 ---
 
 ## Acceptance Criteria
 
-### AC-0 — Default plan (single TO unchanged)
+### AC-0 — Default plan (single order unchanged)
 
-- [ ] Creating an own-fleet TO **always** creates a Vehicle Plan with that TO as the only member (vehicle empty until assigned).
-- [ ] Today’s single-TO create → assign → dispatch → yard path still works; the plan is the container, not a second document the planner must fill in for one TO.
-- [ ] A TO belongs to **exactly one** plan at a time.
-- [ ] Vendor-fleet TO create/bundle/bid is unchanged.
+- [ ] Creating an own-fleet transport order **always** creates a Vehicle Plan with that order as the only member (no vehicle until one is assigned).
+- [ ] Today’s single-order path still works: create → assign → dispatch → yard. The plan is in the background; the planner does not fill in a second document for one order.
+- [ ] An order belongs to **exactly one** plan at a time.
+- [ ] Vendor-fleet create, grouping, and bid are unchanged.
 
-### AC-1 — Planner builds a multi-TO plan
+### AC-1 — Planner builds a multi-order plan
 
-- [ ] Transport Planner can create or open a Vehicle Plan, choose an **own-fleet vehicle**, and add **Created** TOs (same or different TRs).
-- [ ] Adding a TO **moves** it from its singleton (or previous draft) plan onto this plan; empty leftover draft plans are removed.
-- [ ] Planner can **remove** a Created TO from a multi-TO plan; that TO returns to a default 1-TO plan (still Created, vehicle cleared if it only came from this plan).
-- [ ] TOs that are not Created (Assigned, Ready for Dispatch, driving, yard, Closed, Cancelled, …) **cannot** be added or removed.
-- [ ] The system **does not** reject mixed origin, destination, or flow lane. Capacity vs vehicle may **warn**; it must not block the planner unless a later rule is added.
+- [ ] Transport Planner can create or open a Vehicle Plan, choose an **own-fleet vehicle**, and add **Created** orders (same or different requisitions).
+- [ ] Adding an order **moves** it off its old one-order plan onto this plan. Empty leftover plans are removed.
+- [ ] Planner can **remove** a Created order from a multi-order plan. That order goes back to a default one-order plan (still Created; vehicle cleared if it only came from this plan).
+- [ ] Orders that are not Created (Assigned, Ready for dispatch, on the road, in the yard, Closed, Cancelled, and so on) **cannot** be added or removed.
+- [ ] Mixed origin, destination, or load/unload pattern is **allowed**. Weight vs vehicle capacity may **warn**; it must not block the planner unless a later rule is added.
 
-### AC-2 — Assignment and dispatch are plan-scoped (own fleet)
+### AC-2 — Assignment and dispatch apply to the whole plan (own fleet)
 
-- [ ] Vehicle, driver, and helpers on a plan are the crew for **all** member TOs (`TransportOrder.vehicle` / driver remain denormalised for existing screens).
-- [ ] A vehicle executes **one plan at a time**. TOs on that plan may be in the yard together (`at_source` / `at_destination`); they are not treated as competing for the vehicle.
-- [ ] A second plan for the same vehicle cannot be dispatched while this plan is actively serving.
-- [ ] Supervisor / TDO dispatch releases the **plan**; all current members go to `ready_for_dispatch` together.
-- [ ] Driver start-trip on the plan fans out `driving_towards_source` (or the lane-correct first driving status) to **every member TO**.
+- [ ] Vehicle, driver, and helpers on a plan are the crew for **all** member orders. The same vehicle and driver also show on each order for existing screens.
+- [ ] A vehicle runs **one plan at a time**. Orders on that plan may be in the yard together (at origin to load, at destination to unload); they do not block each other for sharing the truck.
+- [ ] A second plan for the same vehicle cannot be dispatched while this plan is already dispatched, on the road, or in the yard.
+- [ ] Supervisor / TDO dispatch releases the **plan**. All current member orders become Ready for dispatch together.
+- [ ] When the driver starts the trip on the plan, **every member order** moves to its first on-the-road status (usually driving to origin; some inbound finished-goods orders drive to destination first).
 
-### AC-3 — Gate-in is vehicle-first
+### AC-3 — Gate-in starts from the vehicle
 
-- [ ] Gate-in starts by selecting the **vehicle** at the working POI (not TO-first).
-- [ ] System loads the vehicle’s **active plan** and lists member TOs **eligible at this POI** (TO status is the driving-towards status that matches this site as origin or destination).
-- [ ] All eligible TOs are **checked by default**; the gateman may uncheck. At least one TO must remain selected.
-- [ ] One `GateVisitSession` is created (still **one active visit per vehicle + POI**). Visit members are the selected TOs only.
-- [ ] Gate-in is recorded **once** for the vehicle. Each **selected** TO gets the existing gate-in status transition (`at_source` or `at_destination`). Unchecked TOs are **not** transitioned and are not visit members.
+- [ ] Gate-in starts by selecting the **vehicle** at this site (not by picking an order first).
+- [ ] The system loads that vehicle’s **active plan** and lists member orders **eligible at this site** (the order is on the way here to load or to unload).
+- [ ] All eligible orders are **selected by default**; the gateman may uncheck. At least one order must stay selected.
+- [ ] One visit is created for this vehicle at this site. Only the selected orders are on the visit. A vehicle cannot have a second open visit at the same site.
+- [ ] Gate-in is recorded **once** for the vehicle. Each **selected** order moves to at origin (to load) or at destination (to unload), as today. Unchecked orders are **not** moved and are not on this visit.
 
-### AC-4 — Scale once; CC assigns LUP per TO
+### AC-4 — Weigh once; Command Center assigns a bay per order
 
-- [ ] Scale-in and scale-out are **one weighing cycle per visit** (vehicle weights). They are not captured per TO.
-- [ ] After scale-in, Command Center sees **one queue row for the vehicle visit**, with the visit’s member TOs listed.
-- [ ] Command Center assigns a loading or unloading point **to each member TO** (not one point for the whole truck unless the officer chooses the same point on two assignments).
-- [ ] Load / unload events stay **per TO**. QC stays **per TO** when that TO’s lane/leg requires it.
-- [ ] Yard `sub_state` still lives on each TO. Shared steps (scale-in/out, gate-out) **fan out** to every visit member. TO-specific steps (LUP assigned, loading, QC) update **only that TO**.
+- [ ] Weigh-in and weigh-out are **one cycle per visit** (truck weights). They are not captured per order.
+- [ ] After weigh-in, Command Center sees **one queue row for the visit**, with the visit’s orders listed.
+- [ ] Command Center assigns a loading or unloading point **to each visit order** (the officer may pick the same bay for two orders if they choose).
+- [ ] Load / unload stay **per order**. Quality check stays **per order** when that order’s lane requires it.
+- [ ] Shared steps (weigh-in, weigh-out, gate-out) update **every order on the visit**. Order-specific steps (bay assigned, loading, quality check) update **only that order**.
 
-### AC-5 — Gate-out and individual TO status
+### AC-5 — Gate-out and individual order status
 
-- [ ] Gate-out is **once per visit** (vehicle).
-- [ ] Gate-out is blocked until **every visit member TO** has finished the work required for **this POI / leg** (load or unload complete; QC if required for that TO).
-- [ ] On source gate-out, each visit member TO gets the existing source gate-out transition (typically `driving_towards_destination`).
-- [ ] On destination gate-out, each visit member TO gets the existing dest close path (`closed`) if that TO’s dest work is complete.
-- [ ] A TO that was eligible but **unchecked** at gate-in is unchanged by this visit; it can only be served in a **later** visit after this one is closed.
-- [ ] Each TO keeps its own timeline, POD, QC outcome, and commercial close. Plan is **completed** when all member TOs are terminal (Closed / Cancelled).
+- [ ] Gate-out is **once per visit** (the vehicle).
+- [ ] Gate-out is blocked until **every order on this visit** has finished the work required **at this site** (load or unload complete; quality check if that order needs it).
+- [ ] On origin gate-out, each visit order moves to driving to destination (as today).
+- [ ] On destination gate-out, each visit order is Closed if its destination work is complete (as today).
+- [ ] An eligible order that was **unchecked** at gate-in is unchanged by this visit. It can only be served in a **later** visit after this one is closed.
+- [ ] Each order keeps its own timeline, proof of delivery, quality-check outcome, and commercial close. The plan is **completed** when all member orders are Closed or Cancelled.
 
 ### AC-6 — Audit
 
-- [ ] Plan create, add TO, remove TO, dispatch, and visit membership (which TOs were included at gate-in) are audited with actor and timestamp.
-- [ ] Existing TO status-transition logs remain the source of truth for each TO’s lifecycle.
+- [ ] Creating a plan, adding an order, removing an order, dispatch, and which orders were included at gate-in are audited with actor and timestamp.
+- [ ] Existing order status-change history remains the source of truth for each order’s lifecycle.
 
 ---
 
 ## Functional Flows
 
-Happy path and every branch implied by the locked decisions. Vendor-fleet / GT-02 multi-TO join remain out of scope (called out as rejects).
+Happy path and every branch implied by the locked decisions. Vendor fleet and gate-created on-demand orders joining a multi-order plan stay out of scope (called out as rejects).
 
 ---
 
 ### Planning
 
-#### Flow A — Single TO (default plan)
+#### Flow A — Single order (default plan)
 
 ```
-Transport Planner creates own-fleet TO-A
-  → Vehicle Plan P1 created with member TO-A (no vehicle yet)
-TDO assigns vehicle / driver / milestones on TO-A (writes through P1)
+Transport Planner creates own-fleet order TO-A
+  → Vehicle Plan P1 created with TO-A only (no vehicle yet)
+TDO assigns vehicle / driver / milestones on TO-A (saved on P1)
   → dispatch P1 → start trip
 Gate: select vehicle → only TO-A listed → gate-in
-  → scale once → CC assigns LUP for TO-A → load/unload TO-A → scale-out → gate-out
-TO-A status / sub_state behave as today
+  → weigh once → Command Center assigns a bay for TO-A → load/unload TO-A → weigh-out → gate-out
+TO-A status behaves as today
 ```
 
-#### Flow B — Same TR, two Created TOs on one vehicle
+#### Flow B — Same requisition, two Created orders on one vehicle
 
 ```
-Planner creates TO-A and TO-B from TR-1 (each gets a default plan)
+Planner creates TO-A and TO-B from requisition TR-1 (each gets a default plan)
 Planner opens a plan for vehicle V, adds TO-A and TO-B
-  → both members of one plan; empty leftover default plans removed
+  → both on one plan; empty leftover default plans removed
 TDO assigns driver, dispatch, start trip
-  → both members get the lane-correct first driving status
+  → both orders move to their first on-the-road status
 ```
 
-#### Flow C — Different TRs on one vehicle
+#### Flow C — Different requisitions on one vehicle
 
 ```
-TO-A (TR-1, Created) default plan P1
-TO-B (TR-2, Created) default plan P2
+TO-A (requisition TR-1, Created) default plan P1
+TO-B (requisition TR-2, Created) default plan P2
 Planner adds both to a plan for vehicle V
   → both members; P2 removed if empty
-Dispatch / start-trip fan-out to TO-A and TO-B independently (each keeps its own status)
+Dispatch / start trip update TO-A and TO-B separately (each keeps its own status)
 ```
 
-#### Flow D — Mixed origin / destination / lane (planner choice)
+#### Flow D — Mixed origin / destination (planner choice)
 
 ```
-TO-A origin=Depot-1 dest=Depot-2 (FG outbound, Created)
-TO-B origin=Depot-3 dest=Depot-1 (RM inbound, Created)
+TO-A origin=Depot-1 destination=Depot-2 (finished goods outbound, Created)
+TO-B origin=Depot-3 destination=Depot-1 (raw material inbound, Created)
 Planner puts both on vehicle V’s plan
   → accepted (no same-route rule)
-Capacity vs vehicle may warn; plan still saves
-Each TO still has its own origin, dest, flow_lane, and later yard eligibility
+Weight vs vehicle may warn; plan still saves
+Each order still has its own origin, destination, and later yard eligibility
 ```
 
-#### Flow E — Remove a Created TO from a multi-TO plan
+#### Flow E — Remove a Created order from a multi-order plan
 
 ```
 Plan P has members TO-A, TO-B (both Created)
 Planner removes TO-B
-  → TO-B gets a new default 1-TO plan (Created; vehicle cleared)
+  → TO-B gets a new default one-order plan (Created; vehicle cleared)
   → P remains with TO-A only
 ```
 
-#### Flow F — Move a Created TO from one draft plan to another
+#### Flow F — Move a Created order from one draft plan to another
 
 ```
 TO-A is on draft plan P1 (vehicle V1 or none)
@@ -186,14 +185,14 @@ Planner adds TO-A to plan P2 (vehicle V2)
   → TO-A is only on P2
 ```
 
-#### Flow G — Cancel a Created TO that is on a plan
+#### Flow G — Cancel a Created order that is on a plan
 
 ```
 Plan P members: TO-A, TO-B (Created)
 Planner / TDO cancels TO-B
   → TO-B Cancelled; removed from further planning
   → P continues with TO-A
-  → if TO-B was the last member, P is cancelled / completed with no remaining Created members
+  → if TO-B was the last member, P is closed with no remaining Created members
 ```
 
 ---
@@ -205,223 +204,222 @@ Planner / TDO cancels TO-B
 ```
 Plan P members TO-A, TO-B
 TDO sets vehicle V, driver D, helpers on P
-  → TO-A.vehicle = TO-B.vehicle = V (denormalised)
-  → same driver / helpers on both TOs
+  → both orders show vehicle V
+  → same driver / helpers on both orders
 ```
 
-#### Flow I — Dispatch and start-trip fan-out
+#### Flow I — Dispatch and start trip apply to every member
 
 ```
 Supervisor / TDO dispatches plan P
-  → every current member → ready_for_dispatch
+  → every current member → Ready for dispatch
 Driver starts trip on P
-  → every member gets lane-correct first driving status
-     (typically driving_towards_source; FG inbound may be driving_towards_destination)
+  → every member gets its first on-the-road status
+     (usually driving to origin; some inbound finished-goods orders drive to destination first)
 ```
 
-#### Flow J — Second plan on the same vehicle cannot dispatch while first is serving
+#### Flow J — Second plan on the same vehicle cannot dispatch while the first is in progress
 
 ```
-Plan P1 for vehicle V is ready_for_dispatch / driving / in yard (actively serving)
-Plan P2 also has vehicle V (draft, Created TOs)
+Plan P1 for vehicle V is Ready for dispatch, on the road, or in the yard
+Plan P2 also has vehicle V (draft, Created orders)
 TDO tries to dispatch P2
-  → rejected (one actively serving plan per vehicle)
-P2 can dispatch only after P1 is no longer actively serving (all members terminal or plan completed)
+  → rejected (one in-progress plan per vehicle)
+P2 can dispatch only after P1 is finished (all members Closed/Cancelled, or the plan completed)
 ```
 
-#### Flow K — Later plan may be drafted on the same vehicle
+#### Flow K — A later plan may be drafted on the same vehicle
 
 ```
 P1 is still Created/Assigned (not dispatched)
-Planner builds P2 on the same vehicle with other Created TOs
-  → allowed at planning
+Planner builds P2 on the same vehicle with other Created orders
+  → allowed while planning
 Only one of P1 / P2 may be dispatched at a time (Flow J)
 ```
 
 ---
 
-### Source yard (vehicle-first)
+### Origin yard (vehicle first)
 
-#### Flow L — Two TOs, same origin POI, both included
+#### Flow L — Two orders, same origin site, both included
 
 ```
 Gateman selects vehicle V at Depot-1
-  → eligible: TO-A, TO-B (origin = Depot-1, driving_towards_source)
-  → both checked; gateman leaves both on
-One gate-in → TO-A and TO-B → at_source
-One scale-in (vehicle)
-CC assigns LUP-1 to TO-A, LUP-2 to TO-B
-Loading officer loads TO-A then TO-B (each TO sub_state independent)
-One scale-out → fan-out scale_out_source to both visit members
-One gate-out → both driving_towards_destination
+  → eligible: TO-A, TO-B (origin = Depot-1, driving to origin)
+  → both selected; gateman leaves both on
+One gate-in → TO-A and TO-B at origin
+One weigh-in (vehicle)
+Command Center assigns bay 1 to TO-A, bay 2 to TO-B
+Loading officer loads TO-A then TO-B (each order’s yard progress independent)
+One weigh-out → both visit orders updated
+One gate-out → both driving to destination
 ```
 
-#### Flow M — Same loading point for two TOs
+#### Flow M — Same loading point for two orders
 
 ```
-After scale-in, CC assigns LUP-1 to TO-A and LUP-1 to TO-B
+After weigh-in, Command Center assigns the same bay to TO-A and TO-B
   → allowed (officer choice)
-Load events still per TO (TO-A complete vs TO-B in progress can differ)
-Gate-out still waits for both visit members
+Load events still per order (TO-A complete vs TO-B still loading can differ)
+Gate-out still waits for both visit orders
 ```
 
-#### Flow N — Operator unchecks a TO at gate-in
+#### Flow N — Operator unchecks an order at gate-in
 
 ```
 Eligible: TO-A, TO-B
 Gateman unchecks TO-B, confirms TO-A
-Visit members = {TO-A} only
-TO-A → at_source; TO-B stays driving_towards_source
-Yard work, scale-out, gate-out apply to TO-A only
-TO-B cannot start a second visit at this POI until this visit is closed
-  (uniq_active_gate_visit_vehicle_poi)
+Visit = TO-A only
+TO-A → at origin; TO-B stays driving to origin
+Yard work, weigh-out, gate-out apply to TO-A only
+TO-B cannot start another visit at this site until this visit is closed
 After gate-out, gateman selects V again → TO-B listed → new visit
 ```
 
-#### Flow O — Only one member is eligible at this POI
+#### Flow O — Only one member is eligible at this site
 
 ```
 Plan members: TO-A origin=Depot-1, TO-B origin=Depot-3
-Vehicle at Depot-1, both driving_towards_source
-Gate list shows TO-A only (TO-B not eligible here)
-Gate-in / scale / CC / load / gate-out apply to TO-A
-TO-B stays driving_towards_source until the vehicle visits Depot-3
+Vehicle at Depot-1, both driving to origin
+Gate list shows TO-A only (TO-B is not for this site)
+Gate-in / weigh / Command Center / load / gate-out apply to TO-A
+TO-B stays driving to origin until the vehicle visits Depot-3
 ```
 
 #### Flow P — Independent load progress; gate-out blocked
 
 ```
-Visit members TO-A, TO-B at source
-TO-A loading_completed; TO-B still loading_in_progress
+Visit members TO-A, TO-B at origin
+TO-A load complete; TO-B still loading
 Gateman tries gate-out
-  → blocked until TO-B (and any required QC for a member) is complete for this leg
-After TO-B loading_completed → scale-out (if not already) → gate-out allowed
-  → both driving_towards_destination
+  → blocked until TO-B (and any required quality check) is complete for this site
+After TO-B load complete → weigh-out (if not already) → gate-out allowed
+  → both driving to destination
 ```
 
-#### Flow Q — Uncheck all eligible TOs rejected
+#### Flow Q — Uncheck all eligible orders rejected
 
 ```
 Eligible: TO-A, TO-B
 Gateman unchecks both
-  → rejected; at least one TO must remain selected
-No visit created; no TO status change
+  → rejected; at least one order must remain selected
+No visit created; no order status change
 ```
 
 ---
 
 ### Destination yard
 
-#### Flow R — Both TOs drop at the same destination
+#### Flow R — Both orders drop at the same destination
 
 ```
-Vehicle at Depot-2; TO-A and TO-B dest = Depot-2, driving_towards_destination
+Vehicle at Depot-2; TO-A and TO-B destination = Depot-2, driving to destination
 Gateman selects V → both listed, both left on
-One gate-in → both at_destination
-One scale-in
-CC assigns unloading point per TO
-Unload (and QC if that TO’s lane/leg requires it) per TO
-One scale-out → fan-out to visit members
-One gate-out → each visit member closed (dest work complete)
-Plan completed when all members are Closed / Cancelled
+One gate-in → both at destination
+One weigh-in
+Command Center assigns an unloading point per order
+Unload (and quality check if that order requires it) per order
+One weigh-out → both visit orders updated
+One gate-out → each visit order Closed (destination work complete)
+Plan completed when all members are Closed or Cancelled
 ```
 
-#### Flow S — Milk-run drop: only some members dest at this POI
+#### Flow S — Drop at more than one destination: only some members unload here
 
 ```
-TO-A dest=Depot-2, TO-B dest=Depot-4; both driving_towards_destination
+TO-A destination=Depot-2, TO-B destination=Depot-4; both driving to destination
 Vehicle gates in at Depot-2
   → eligible: TO-A only
-Visit members = {TO-A}
-Unload / QC / dest gate-out close TO-A
-TO-B still driving_towards_destination until Depot-4
-Plan stays in progress until TO-B is also terminal
+Visit = TO-A
+Unload / quality check / destination gate-out close TO-A
+TO-B still driving to destination until Depot-4
+Plan stays in progress until TO-B is also Closed or Cancelled
 ```
 
-#### Flow T — RM dest QC per TO (pass)
+#### Flow T — Raw-material destination quality check per order (pass)
 
 ```
-Visit members include RM inbound TO-A at dest
-Scale-in → CC flags TO-A for QC; TO-B (FG) has no QC
-QC pass on TO-A → CC assigns unload point for TO-A
-Unload TO-A; unload TO-B (no QC)
-Gate-out after every visit member’s dest work is done
-  → each member follows dest close (typically closed)
+Visit members include raw-material inbound TO-A at destination
+Weigh-in → Command Center flags TO-A for quality check; TO-B (finished goods) has no quality check
+Quality check pass on TO-A → Command Center assigns unload point for TO-A
+Unload TO-A; unload TO-B (no quality check)
+Gate-out after every visit order’s destination work is done
+  → each member Closed (as today)
 ```
 
-#### Flow U — RM dest QC fail on one member
+#### Flow U — Raw-material destination quality check fail on one member
 
 ```
-Visit members TO-A (RM, QC required), TO-B (no QC)
-TO-B unloaded; TO-A QC failed / resampling
+Visit members TO-A (raw material, quality check required), TO-B (no quality check)
+TO-B unloaded; TO-A quality check failed / resampling
 Gate-out
-  → blocked while TO-A has not finished dest work required for this visit
-After QC pass + unload TO-A (or that TO is cancelled / otherwise cleared per existing QC rules)
+  → blocked while TO-A has not finished destination work for this visit
+After quality check pass + unload TO-A (or that order is cancelled / cleared per existing quality-check rules)
   → gate-out allowed for the visit
-TO-B status was already unload-complete; dest gate-out still fans out per remaining visit members
+TO-B was already unload-complete; destination gate-out still applies to remaining visit orders
 ```
 
 ---
 
-### Mixed-route visit at one POI
+### Mixed-route visit at one site
 
-#### Flow V — Load one TO and unload another at the same site
+#### Flow V — Load one order and unload another at the same site
 
 ```
-TO-A origin=Depot-1 (driving_towards_source)
-TO-B dest=Depot-1 (driving_towards_destination)
+TO-A origin=Depot-1 (driving to origin)
+TO-B destination=Depot-1 (driving to destination)
 Same plan, vehicle at Depot-1
 Gate list: TO-A and TO-B (both eligible), default both on
 One gate-in
-  → TO-A → at_source; TO-B → at_destination
-One scale-in (vehicle)
-CC assigns loading point to TO-A and unloading point to TO-B
-Load TO-A; unload TO-B (QC on TO-B if required)
-One scale-out
-Gate-out when both visit members have finished this POI’s required work
-  → TO-A → driving_towards_destination
-  → TO-B → closed (dest complete)
+  → TO-A at origin; TO-B at destination
+One weigh-in (vehicle)
+Command Center assigns a loading point to TO-A and an unloading point to TO-B
+Load TO-A; unload TO-B (quality check on TO-B if required)
+One weigh-out
+Gate-out when both visit orders have finished this site’s required work
+  → TO-A → driving to destination
+  → TO-B → Closed (destination complete)
 ```
 
-#### Flow W — Gateman includes only the load TO, not the dest TO
+#### Flow W — Gateman includes only the load order, not the destination order
 
 ```
 Same eligibility as Flow V
 Gateman unchecks TO-B, keeps TO-A
-Visit = {TO-A} only (source load)
-TO-B stays driving_towards_destination
+Visit = TO-A only (origin load)
+TO-B stays driving to destination
 After this visit closes, a new gate-in can include TO-B
 ```
 
 ---
 
-### Lane-specific (still per TO)
+### Load/unload pattern (still per order)
 
-#### Flow X — FG outbound member (source load, dest unload)
-
-```
-Member TO-A fg_outbound
-Source visit: load TO-A → source gate-out → driving_towards_destination
-Dest visit: unload TO-A → dest gate-out → closed
-Sibling members on the plan follow their own lanes in the same or later visits
-```
-
-#### Flow Y — FG inbound member (dest only)
+#### Flow X — Finished-goods outbound member (load at origin, unload at destination)
 
 ```
-Member TO-A fg_inbound: first driving status is driving_towards_destination
-Start-trip fans out that status (not driving_towards_source)
-First yard visit is dest: unload (no source load for this TO)
-Other members on the plan may still have a source leg
+Member TO-A finished-goods outbound
+Origin visit: load TO-A → origin gate-out → driving to destination
+Destination visit: unload TO-A → destination gate-out → Closed
+Other members on the plan follow their own pattern in the same or later visits
 ```
 
-#### Flow Z — RM inbound member (source load, dest unload + QC)
+#### Flow Y — Finished-goods inbound member (destination only)
 
 ```
-Member TO-A rm_inbound
-Source visit: load TO-A (no QC at source)
-Dest visit: QC then unload TO-A
-Sibling TOs keep independent QC flags
+Member TO-A finished-goods inbound: first on-the-road status is driving to destination
+Start trip applies that status (not driving to origin)
+First yard visit is destination: unload (no origin load for this order)
+Other members on the plan may still have an origin stop
+```
+
+#### Flow Z — Raw-material inbound member (load at origin, unload + quality check at destination)
+
+```
+Member TO-A raw-material inbound
+Origin visit: load TO-A (no quality check at origin)
+Destination visit: quality check then unload TO-A
+Sibling orders keep their own quality-check flags
 ```
 
 ---
@@ -433,57 +431,57 @@ Sibling TOs keep independent QC flags
 ```
 TO-C is Assigned or later
 Planner tries to add TO-C to a plan
-  → rejected; only Created TOs are available
-Planner tries to remove TO-A after dispatch (TO-A no longer Created)
+  → rejected; only Created orders are available
+Planner tries to remove TO-A after dispatch (TO-A is no longer Created)
   → rejected
 ```
 
-#### Flow AB — Vendor TO cannot join an own-fleet Vehicle Plan
+#### Flow AB — Vendor order cannot join an own-fleet Vehicle Plan
 
 ```
-Planner tries to add a vendor-fleet TO (or bundle child) to an own-fleet plan
+Planner tries to add a vendor-fleet order to an own-fleet plan
   → rejected
-Vendor bundle / bid path unchanged
+Vendor grouping / bid path unchanged
 ```
 
-#### Flow AC — GT-02 on-demand TO stays on its singleton plan
+#### Flow AC — Gate-created on-demand order stays on its one-order plan
 
 ```
-Gate creates an on-demand TO
-  → default 1-TO plan only
-Planner cannot add it to a multi-TO Vehicle Plan (out of scope)
+Gate creates an on-demand order
+  → default one-order plan only
+Planner cannot add it to a multi-order Vehicle Plan (out of scope)
 ```
 
-#### Flow AD — Vehicle with no eligible TOs at this POI
+#### Flow AD — Vehicle with no eligible orders at this site
 
 ```
 Gateman selects vehicle V
-Active plan exists but no member is in the driving-towards status for this POI
+Active plan exists but no member is on the way to this site to load or unload
   → empty eligible list; gate-in not allowed
 ```
 
-#### Flow AE — Second active visit for the same vehicle + POI
+#### Flow AE — Second open visit for the same vehicle + site
 
 ```
-Visit already ACTIVE for vehicle V at this POI
+A visit is already open for vehicle V at this site
 Gateman tries another gate-in for V
-  → rejected (unique active visit per vehicle + POI)
+  → rejected (one open visit per vehicle at a site)
 ```
 
-#### Flow AF — Gate-in before scale-out / work still open (existing yard order)
+#### Flow AF — Yard steps out of order (existing yard sequence)
 
 ```
 Visit members mid-load
-Scale-out or gate-out attempted out of order
-  → existing yard guards apply, evaluated against every visit member where the step is shared
+Weigh-out or gate-out attempted out of order
+  → existing yard sequence still applies, checked against every visit order where the step is shared
 ```
 
-#### Flow AG — TO cancel after visit membership (mid-yard)
+#### Flow AG — Order cancelled after it was included in a visit
 
 ```
 Visit members TO-A, TO-B; TO-B cancelled mid-visit (existing cancel rules if allowed)
   → TO-B no longer blocks gate-out
-  → remaining members must still complete this leg
+  → remaining members must still complete this site’s work
 ```
 
 ---
@@ -492,16 +490,16 @@ Visit members TO-A, TO-B; TO-B cancelled mid-visit (existing cancel rules if all
 
 | ID | Rule |
 |---|---|
-| BR-VP01-001 | Every own-fleet TO belongs to exactly one Vehicle Plan. TO create always opens a default 1-TO plan. |
-| BR-VP01-002 | Only **Created** TOs may be added to or removed from a plan. |
-| BR-VP01-003 | Transport Planner decides membership. Mixed origin / destination / TR / lane is allowed. |
-| BR-VP01-004 | Own fleet only. Vendor bundle and vendor TOs are not Vehicle Plans. |
-| BR-VP01-005 | One **actively serving plan** per vehicle (replaces one actively serving TO per vehicle for TOs on the same plan). |
-| BR-VP01-006 | Yard visit is one active session per vehicle + POI. Physical gate/scale are vehicle-level; commercial status stays on each TO. |
-| BR-VP01-007 | Visit membership is the TOs the gateman left checked. Unchecked eligible TOs are not transitioned. |
-| BR-VP01-008 | After scale-in, Command Center assigns loading/unloading point **per visit-member TO**. |
-| BR-VP01-009 | Gate-out requires every **visit member** TO to have completed this leg’s required yard work. |
-| BR-VP01-010 | TCR-003 remains: each TO keeps its own status, POD, and QC. TCR-001 / TCR-002 do **not** apply between members of the same plan; they apply **between plans** on the same vehicle. |
+| BR-VP01-001 | Every own-fleet order belongs to exactly one Vehicle Plan. Creating an order always opens a default one-order plan. |
+| BR-VP01-002 | Only **Created** orders may be added to or removed from a plan. |
+| BR-VP01-003 | Transport Planner decides membership. Mixed origin / destination / requisition / load-unload pattern is allowed. |
+| BR-VP01-004 | Own fleet only. Vendor grouping and vendor orders are not Vehicle Plans. |
+| BR-VP01-005 | One **in-progress plan** per vehicle. Orders on the **same** plan may share the truck in the yard; a second plan for that vehicle cannot start until the first is finished. |
+| BR-VP01-006 | Yard visit is one open visit per vehicle at a site. Gate and weigh are for the truck; commercial status stays on each order. |
+| BR-VP01-007 | Visit membership is the orders the gateman left selected. Unchecked eligible orders are not moved. |
+| BR-VP01-008 | After weigh-in, Command Center assigns a loading or unloading point **per visit order**. |
+| BR-VP01-009 | Gate-out requires every **visit order** to have completed this site’s required yard work. |
+| BR-VP01-010 | Each order keeps its own status, proof of delivery, and quality check. The “one truck, one active job” rule applies **between plans**, not between orders on the same plan. |
 
 ---
 
@@ -509,15 +507,15 @@ Visit members TO-A, TO-B; TO-B cancelled mid-visit (existing cancel rules if all
 
 | # | Sub-task | Description | Priority | Status |
 |---|---|---|---|---|
-| VP-01-1 | Specs | Update `transport-rules.md` TCR-001/002 (plan-scoped); note Vehicle Plan in TO-01 / TO-02 / gate-management | High | **Not done** |
-| VP-01-2 | Persistence | `VehiclePlan` + `VehiclePlanMember`; TO belongs to one plan; backfill one plan per existing own-fleet TO | High | **Not done** |
-| VP-01-3 | Default + membership | TO create → default plan; planner add/remove Created TOs; vehicle on plan; denormalise vehicle/driver onto members | High | **Not done** |
-| VP-01-4 | Exclusivity + dispatch | FB-011: one active **plan** per vehicle; dispatch and start-trip fan-out to members | High | **Not done** |
-| VP-01-5 | Gate-in | Vehicle-first; eligible TO checklist (default all on); visit members; fan-out gate-in status | High | **Not done** |
-| VP-01-6 | Scale + CC | One weigh cycle per visit; queue by visit; CC assigns LUP **per member TO**; fan-out scale sub-state | High | **Not done** |
-| VP-01-7 | LD + gate-out | Load/unload per TO; gate-out blocked until all visit members complete this leg; fan-out gate-out status | High | **Not done** |
-| VP-01-8 | Admin UX | Planner plan screen (vehicle → TO picker); gate add form vehicle then TO checklist; CC visit shows member TOs | High | **Not done** |
-| VP-01-9 | Audit + tests | Plan/visit membership audit; unit tests for default plan, mixed TR, Created-only, uncheck, per-TO LUP, gate-out block | High | **Not done** |
+| VP-01-1 | Specs | Update transport rules so one truck / one active job is per **plan**; note Vehicle Plan on order create, assignment, and gate | High | **Not done** |
+| VP-01-2 | Data | Store vehicle plans and which orders belong to them; each existing own-fleet order gets a one-order plan | High | **Not done** |
+| VP-01-3 | Default + membership | Order create → default plan; planner add/remove Created orders; vehicle on the plan also shows on each member | High | **Not done** |
+| VP-01-4 | One plan in progress + dispatch | One in-progress plan per vehicle; dispatch and start trip update all members | High | **Not done** |
+| VP-01-5 | Gate-in | Start from the vehicle; eligible order checklist (default all on); visit members; selected orders move to in-yard | High | **Not done** |
+| VP-01-6 | Weigh + Command Center | One weigh cycle per visit; queue by visit; Command Center assigns a bay **per member order**; weigh updates all visit orders | High | **Not done** |
+| VP-01-7 | Load/unload + gate-out | Load/unload per order; gate-out blocked until all visit orders complete this site; gate-out updates all visit orders | High | **Not done** |
+| VP-01-8 | Screens | Planner plan screen (vehicle → order picker); gate form is vehicle then order checklist; Command Center visit shows member orders | High | **Not done** |
+| VP-01-9 | Audit + tests | Plan and visit-membership audit; tests for default plan, mixed requisition, Created-only, uncheck, bay per order, gate-out block | High | **Not done** |
 
 ---
 
@@ -525,30 +523,30 @@ Visit members TO-A, TO-B; TO-B cancelled mid-visit (existing cancel rules if all
 
 | Dependency | Notes |
 |---|---|
-| TO-01 / `TransportOrder` | Keep TO as commercial unit; add required plan membership |
-| TO-02 / TDO own-fleet assignment | Vehicle/driver/helpers write through the plan |
-| FB-011 `assignment_availability.py` | Change actively-serving exclusivity from TO to plan |
-| `GateVisitSession` unique `(vehicle, poi)` while active | Keep; add plan + visit members |
-| SC-01 / CC-01 / LD-01 | Scale stays 1:1 with visit; bay assignment must be per TO |
-| TCR-001 / TCR-002 | Product text still says sequential single TO — VP-01-1 must supersede for same-plan members |
-| Vendor `TransportOrderBundle` | Do not reuse; different shape (N vehicles) |
+| TO-01 / Transport order | Keep the order as the commercial unit; every own-fleet order must sit on a plan |
+| TO-02 / Own-fleet assignment | Vehicle, driver, and helpers are set on the plan |
+| Current “one truck, one active job” check | Change from one **order** at a time to one **plan** at a time |
+| Open yard visit unique per vehicle + site | Keep; record the plan and which orders are on the visit |
+| Scale / Command Center / Load-unload | Weigh stays one per visit; bay assignment must be per order |
+| Existing conjoinment rules | Product text still says sequential single order — VP-01-1 must say that does not apply between members of the same plan |
+| Vendor order grouping | Do not reuse; vendor still maps many orders to many vehicles |
 
 ---
 
 ## Test Plan
 
-- [ ] Create one own-fleet TO → default plan with one member; single-TO yard still completes
-- [ ] Add two Created TOs from different TRs to one vehicle plan; both show as members
-- [ ] Mixed origin/dest TOs can sit on one plan (planner choice)
-- [ ] Cannot add an Assigned (or later) TO; cannot remove a member after it leaves Created
-- [ ] Removing a Created TO restores a singleton plan
-- [ ] Dispatch one plan; second plan on the same vehicle cannot dispatch while the first is actively serving
-- [ ] Start trip fans out driving status to all members
-- [ ] Gate-in by vehicle lists both eligible TOs, both checked; uncheck one → only the checked TO goes `at_source`
-- [ ] One scale-in for the visit; two CC LUP assignments (one per TO); two load events
-- [ ] Gate-out blocked while one member TO is still loading; allowed after both complete
-- [ ] Vendor TO / bundle path unchanged
-- [ ] Existing single-TO FB-011: vehicle still cannot serve two **different plans** at once
+- [ ] Create one own-fleet order → default plan with one member; single-order yard still completes
+- [ ] Add two Created orders from different requisitions to one vehicle plan; both show as members
+- [ ] Mixed origin/destination orders can sit on one plan (planner choice)
+- [ ] Cannot add an Assigned (or later) order; cannot remove a member after it leaves Created
+- [ ] Removing a Created order restores a one-order plan
+- [ ] Dispatch one plan; second plan on the same vehicle cannot dispatch while the first is in progress
+- [ ] Start trip moves every member to its first on-the-road status
+- [ ] Gate-in by vehicle lists both eligible orders, both selected; uncheck one → only the checked order goes to at origin
+- [ ] One weigh-in for the visit; two Command Center bay assignments (one per order); two load events
+- [ ] Gate-out blocked while one visit order is still loading; allowed after both complete
+- [ ] Vendor order / grouping path unchanged
+- [ ] A vehicle still cannot run two **different plans** at once
 
 ---
 
@@ -556,27 +554,27 @@ Visit members TO-A, TO-B; TO-B cancelled mid-visit (existing cancel rules if all
 
 - [ ] All acceptance criteria AC-0–AC-6 met
 - [ ] Sub-tasks VP-01-1 … VP-01-9 completed
-- [ ] Existing own-fleet TOs backfilled to default plans; single-TO happy path still green
-- [ ] Yard is vehicle-first; scale once; CC LUP per TO; individual TO status preserved
-- [ ] Unit tests cover default plan, multi-TR membership, Created-only window, visit uncheck, per-TO LUP, gate-out completeness
+- [ ] Existing own-fleet orders each have a default plan; single-order happy path still works
+- [ ] Yard starts from the vehicle; weigh once; Command Center bay per order; individual order status preserved
+- [ ] Tests cover default plan, multi-requisition membership, Created-only window, visit uncheck, bay per order, gate-out completeness
 - [ ] Story status updated for Sprint 9 tracking
 
 ---
 
 ## Out of scope
 
-- Vendor-fleet Vehicle Plans (bundle remains N TOs / N vehicles)
-- System-forced same-route validation (planner owns membership)
-- Splitting weighbridge net weight across TOs (billed qty stays on TO lines / load capture)
-- GT-02 on-demand TOs joining a multi-TO plan (they keep singleton default plans)
-- Replacing `Trip` with the plan (v1: still one trip per TO, same vehicle)
-- Changing TO canonical status names
+- Vendor-fleet Vehicle Plans (vendor grouping remains many orders / many vehicles)
+- System-forced same-route checks (planner owns membership)
+- Splitting weighbridge net weight across orders (billed quantity stays on order lines / load capture)
+- Gate-created on-demand orders joining a multi-order plan (they keep one-order default plans)
+- Replacing the trip record with the plan (v1: still one trip per order, same vehicle)
+- Renaming existing order status names
 
 ---
 
 ## Notes
 
 - **Capacity:** warn if allocated weight exceeds vehicle capacity; do not block in v1 (planner decides).
-- **Unchecked TOs:** cannot get a second active visit at the same POI until the current visit closes (`uniq_active_gate_visit_vehicle_poi`).
-- **Milk-run:** allowed as planner membership. A visit at POI X only lists members eligible **at X**. Dest gate-out closes only visit members whose dest work is done.
-- Suggested PRD / rules delta (BA, VP-01-1): TCR-001/002 apply per **plan**, not per TO inside a plan; TCR-003 unchanged.
+- **Unchecked orders:** cannot start a second open visit at the same site until the current visit closes.
+- **More than one drop:** allowed as planner membership. A visit at site X only lists members eligible **at X**. Destination gate-out closes only visit members whose destination work is done.
+- Suggested rules update (VP-01-1): “one truck, one active job” applies per **plan**, not per order inside a plan. Each order still keeps its own status, proof of delivery, and quality check.
