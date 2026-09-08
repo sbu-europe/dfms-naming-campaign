@@ -80,7 +80,7 @@ At the yard the operator picks the **vehicle**. Eligible member TOs at that POI 
 ### AC-2 — Assignment and dispatch are plan-scoped (own fleet)
 
 - [ ] Vehicle, driver, and helpers on a plan are the crew for **all** member TOs (`TransportOrder.vehicle` / driver remain denormalised for existing screens).
-- [ ] FB-011 exclusivity becomes **one actively serving plan per vehicle**, not one actively serving TO. Member TOs of the **same** plan may be `at_source` / `at_destination` together.
+- [ ] A vehicle executes **one plan at a time**. TOs on that plan may be in the yard together (`at_source` / `at_destination`); they are not treated as competing for the vehicle.
 - [ ] A second plan for the same vehicle cannot be dispatched while this plan is actively serving.
 - [ ] Supervisor / TDO dispatch releases the **plan**; all current members go to `ready_for_dispatch` together.
 - [ ] Driver start-trip on the plan fans out `driving_towards_source` (or the lane-correct first driving status) to **every member TO**.
