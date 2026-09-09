@@ -7,9 +7,9 @@ When a sprint picks one up, move it into `sprints/sprint-N/` and update that spr
 |-------|-------|----|--------|
 | [TUM-06](TUM-06-multi-role-assignment.md) | Tenant User — Assign Multiple Operational Roles to One User | 13 | Pending |
 | [VP-01](VP-01-own-fleet-vehicle-plan-multi-to.md) | Own-Fleet Vehicle Plan — Multi-TO on One Vehicle with Vehicle-First Yard | 21 | Pending |
-| [MDM-05](MDM-05-lab-test-master.md) | Lab Test Master — Tenant-Configured Test Catalog | 8 | Pending |
+| [MDM-05](MDM-05-lab-test-master.md) | Lab Test Master — Category, Lab UOM, Test & Standard Value | 13 | Pending |
 | [QC-02](QC-02-lab-test-execution.md) | QA Lab Technician — Receive Sample, Run Tests, File Results | 13 | Pending |
 
-**Total estimated**: 13 + 21 + 8 + 13 = 55 SP
+**Total estimated**: 13 + 21 + 13 + 13 = 60 SP
 
 MDM-05 should ship before QC-02-4 (lab execution picks tests from the catalog).
