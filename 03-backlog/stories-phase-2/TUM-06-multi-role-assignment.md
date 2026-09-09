@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 9"
+jira_sprint: ~
 story_id: TUM-06
 title: Tenant User — Assign Multiple Operational Roles to One User
 epic: Tenant User Management — Multi-Role Assignment
@@ -12,7 +12,7 @@ prd_refs:
   - "DFMS_Product_Requirements_Document_v3.md § User Invitation (one or more roles)"
   - "05-modules/01-foundation/rbac.md § 3.1 User-Role Assignment"
   - "05-modules/03-users/tenant-user-management.md"
-phase: Phase 1
+phase: Phase 2
 related_stories:
   - TUM-01 / US-005 (User Invitation & Activation) — shipped as single-role
   - US-004 (Role Hierarchy) — original spec used permission union; this story uses a working-role switcher instead
@@ -231,7 +231,7 @@ Row: email=..., role=driver,gateman
 - [ ] `assign_role_to_user` no longer deletes other allowed operational roles
 - [ ] Invitation no longer ignores `role_ids[1:]`
 - [ ] Unit tests cover Select Role switch, forbidden combos, no fixed cap, and single-role (no switcher)
-- [ ] Story status updated for Sprint 9 tracking
+- [ ] Story status updated for Phase 2 tracking
 
 ---
 

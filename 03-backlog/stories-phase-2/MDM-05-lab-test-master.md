@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 9"
+jira_sprint: ~
 story_id: MDM-05
 title: Lab Test Master — Tenant-Configured Test Catalog
 epic: Master Data — Lab Test Catalog
@@ -12,7 +12,7 @@ prd_refs:
   - "DFMS_Product_Requirements_Document_v3.md §6.3 Master Data — QC Checklist templates (not implemented; this catalog fills the lab-test gap)"
   - "DFMS_Product_Requirements_Document_v3.md §6.19 Lab Test Request — lab test names (PRD allows free text; this story replaces that with a tenant catalog)"
   - "05-modules/02-master-data/README.md"
-phase: Phase 1
+phase: Phase 2
 related_stories:
   - QC-01 — Raw-material sampling and Pass/Fail (physical checkpoint; does not configure tests)
   - QC-02 — Lab receive / run / file results (picks tests from this catalog)
@@ -228,11 +228,11 @@ QA Lab Technician **read** of active tests belongs with the later lab-execution 
 ## Definition of Done
 
 - [ ] All acceptance criteria AC-0–AC-5 met
-- [ ] Sub-tasks MDM-05-1 … MDM-05-5 and MDM-05-7 completed (MDM-05-6 if included in the sprint)
+- [ ] Sub-tasks MDM-05-1 … MDM-05-5 and MDM-05-7 completed (MDM-05-6 if included in scope)
 - [ ] Tenant Super Admin and Tenant Admin can maintain a tenant-specific lab test list
 - [ ] Operational QC roles cannot configure the catalog
 - [ ] Unit tests cover uniqueness, status, RBAC, and tenant isolation
-- [ ] Story status updated for Sprint 9 tracking
+- [ ] Story status updated for Phase 2 tracking
 
 ---
 

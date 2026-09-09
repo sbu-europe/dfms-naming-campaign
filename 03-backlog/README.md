@@ -1,6 +1,7 @@
 # 03-backlog — Product Backlog
 
 > **User stories, sub-tasks, improvements, and feedback resolution, organised sprint-wise**
+> (plus unscheduled Phase 2 planning stories)
 
 ## Overview
 
@@ -8,6 +9,9 @@ This folder contains the DFMS product backlog, organised by sprint. Each
 `sprints/sprint-N/` folder is self-contained: stories, sub-task tables, status,
 `improvements/` (UX/design polish work), and `feedback-resolution.md` (post-demo feedback
 tracking) all live together for that sprint.
+
+Unscheduled Phase 2 planning stories (not assigned to a sprint) live in
+[`stories-phase-2/`](stories-phase-2/README.md).
 
 ## Structure
 
@@ -22,6 +26,11 @@ See [`sprints/README.md`](sprints/README.md) for the full sprint index (Sprint 1
 | Sprint 3 | `sprints/sprint-3/` | Requisition, Transport Requests & Orders |
 | Sprint 4 | `sprints/sprint-4/` | Trip Execution & Closure |
 | Sprint 5–9+ | `sprints/sprint-5/` … | See [`sprints/README.md`](sprints/README.md) for current scope |
+
+### `stories-phase-2/` — Phase 2 planning (unscheduled)
+
+Stories that define Phase 2 scope but are not on a sprint board. See
+[`stories-phase-2/README.md`](stories-phase-2/README.md).
 
 ### `phase-1-sprint-plan.md` — Phase 1 Sprint Overview
 
@@ -43,10 +52,11 @@ been superseded by a self-contained sprint story or has no Phase 1 equivalent ye
 |---------|--------|
 | Current sprint story/status | `sprints/sprint-N/README.md` |
 | Sprint index | `sprints/README.md` |
+| Phase 2 planning stories (unscheduled) | `stories-phase-2/README.md` |
 | Full sprint plan (historical) | `phase-1-sprint-plan.md` |
 | An old pre-Sprint-2 story (reference only) | `../_meta/archive/backlog-stories-pre-sprint2/US-XXX-*.md` |
 
 ---
 
-**Last Updated**: 2026-08-19
+**Last Updated**: 2026-09-09
 **Total Sprints**: 9+ (Phase 1, in progress)

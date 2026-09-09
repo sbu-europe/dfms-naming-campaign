@@ -8,6 +8,8 @@ everything needed to understand what was planned and what actually shipped.
 > backlog) has been archived to
 > [`_meta/archive/backlog-stories-pre-sprint2/`](../../_meta/archive/backlog-stories-pre-sprint2/README.md).
 > Do not use it as a source of truth — use the sprint folder for the relevant module instead.
+>
+> **Unscheduled Phase 2 stories** live in [`../stories-phase-2/`](../stories-phase-2/README.md), not under a sprint.
 
 ## Sprint Index
 
@@ -21,7 +23,7 @@ everything needed to understand what was planned and what actually shipped.
 | Sprint 6 | E2E Hardening, GPS Maps Dashboard Phase 1, Vendor App Release & Phase 1 Readiness | Planning | [`sprint-6/`](sprint-6/README.md) |
 | Sprint 7 | Phone Login / Phone 2FA & SMS Invitation with URL Shortener | Planning | [`sprint-7/`](sprint-7/README.md) |
 | Sprint 8 | Phone Auth Carry-over & Workflow Improvements | Planning | [`sprint-8/`](sprint-8/README.md) |
-| Sprint 9 | Vendor Mobile Auth, Multi-Role, Vehicle Plan, Lab Test Master & Lab Execution | In Progress | [`sprint-9/`](sprint-9/README.md) |
+| Sprint 9 | Vendor Mobile Auth & Onboarding UX Hardening | In Progress | [`sprint-9/`](sprint-9/README.md) |
 
 Each sprint folder's `README.md` links to that sprint's story files, sub-task tables,
 `improvements/` (design/UX polish work), and `feedback-resolution.md` (post-demo feedback
@@ -29,5 +31,6 @@ tracking and resolution status).
 
 ## Related
 
+- [Phase 2 planning stories (unscheduled)](../stories-phase-2/README.md)
 - [Phase 1 Sprint Plan](../phase-1-sprint-plan.md) — original high-level sprint overview
 - [Backlog Overview](../README.md)

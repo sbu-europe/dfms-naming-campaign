@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 9"
+jira_sprint: ~
 story_id: QC-02
 title: QA Lab Technician — Receive Sample, Run Tests, File Results
 epic: QC Lab Execution
@@ -11,7 +11,7 @@ assignee: ~
 prd_refs:
   - "DFMS_Product_Requirements_Document_v3.md §6.19 Lab Test Request / Sample Labeling (QR) / Lab Estimated Completion / Lab Report Upload / Lab Status Monitoring"
   - "DFMS_Product_Requirements_Document_v3.md §4 QA Lab Technician"
-phase: Phase 1
+phase: Phase 2
 related_stories:
   - MDM-05 — Lab Test master (catalog the technician picks from)
   - QC-01 — Physical sampling and Pass/Fail (creates the sample; remains the yard quality gate)
@@ -279,7 +279,7 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 - [ ] Lab technician UI/API expose **no** TO or shipment context
 - [ ] Yard Pass/Fail and unloading remain QC-01 / CC-01
 - [ ] Unit tests cover QR/code open, blind payload, status machine, catalog-only tests, and denied yard actions
-- [ ] Story status updated for Sprint 9 tracking
+- [ ] Story status updated for Phase 2 tracking
 
 ---
 

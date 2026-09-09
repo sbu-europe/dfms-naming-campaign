@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 9"
+jira_sprint: ~
 story_id: VP-01
 title: Own-Fleet Vehicle Plan — Multi-TO on One Vehicle with Vehicle-First Yard
 epic: Own-Fleet Vehicle Plan (Multi-TO)
@@ -13,7 +13,7 @@ prd_refs:
   - "05-modules/05-transport/transport-order-management.md (TO-01)"
   - "05-modules/05-transport/trip-management.md (TO-02)"
   - "05-modules/06-poi-operations/ (GT-01, SC-01, CC-01, LD-01)"
-phase: Phase 1
+phase: Phase 2
 related_stories:
   - TO-01 — Transport Order creation (a new TO still starts on its own one-TO plan)
   - TO-02 — Own-fleet assignment (vehicle and driver are set on the plan)
@@ -187,7 +187,7 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 - [ ] Existing own-fleet orders each have a default plan; single-order happy path still works
 - [ ] Yard starts from the vehicle; weigh once; Command Center bay per order; individual order status preserved
 - [ ] Tests cover default plan, multi-requisition membership, Created-only window, visit uncheck, bay per order, gate-out completeness
-- [ ] Story status updated for Sprint 9 tracking
+- [ ] Story status updated for Phase 2 tracking
 
 ---
 
