@@ -13,3 +13,5 @@ When a sprint picks one up, move it into `sprints/sprint-N/` and update that spr
 **Total estimated**: 13 + 21 + 13 + 13 = 60 SP
 
 MDM-05 should ship before QC-02-4 (lab execution picks tests from the catalog).
+
+Team flow diagrams: [`lab-test-flow.md`](lab-test-flow.md) (MDM-05 + QC-02).
