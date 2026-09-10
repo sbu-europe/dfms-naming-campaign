@@ -2,13 +2,12 @@
 jira_key: ~
 jira_type: Story
 jira_sprint: ~
-story_id: "001"
+story_id: FVM-01
 title: Odometer-Based Vehicle Maintenance Tracking
 epic: Fleet & Vehicle Management — Maintenance
 status: Planning
 story_points: 8
 assignee: ~
-spec_file: US-odometer-based-vehicle-maintenance-tracking.md
 prd_refs:
   - "§6.5.10 GPS-Based Vehicle Maintenance Tracking"
 feature_list: "SOW Phase-2 row 104 — GPS-based Vehicle Maintenance Tracking"
@@ -21,7 +20,7 @@ implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
 ---
 
-# 001 — Odometer-Based Vehicle Maintenance Tracking
+# FVM-01 — Odometer-Based Vehicle Maintenance Tracking
 
 ## User Story
 
@@ -118,15 +117,15 @@ GPS continues to provide location and **idle vs movement** from speed. It does *
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| 001-1 | Requirements & story | This folder (accepted by PO) | High | In Progress |
-| 001-2 | Implementation context | `05-modules/` write-up after this story is accepted — do not start Django from this folder alone | High | Pending |
-| 001-3 | Meter entry | Driver Supervisor form: km, reading datetime, notes; history table | High | Pending |
-| 001-4 | Persist odometer | Monotonic write to `Vehicle.current_odometer_reading`; seed `initial_odometer_reading` on first reading | High | Pending |
-| 001-5 | Models | Tenant interval default, per-vehicle override, `VehicleServiceLog` | High | Pending |
-| 001-6 | Remaining km | Since-service / remaining formulas + Due soon / Overdue | High | Pending |
-| 001-7 | Usage indicators | Avg daily (readings), high-load Top 5 routes, idle vs movement (GPS &lt; 3 km/h), high-stress Top 5 vehicles by completed TO count | High | Pending |
-| 001-8 | Planner + supervisor UI | Planner list/detail/filters; supervisor entry; interval config | High | Pending |
-| 001-9 | Tests | Reject drop, monotonic write, formulas, unavailable, RBAC | High | Pending |
+| FVM-01-1 | Requirements & story | This file (accepted by PO) | High | In Progress |
+| FVM-01-2 | Implementation context | `05-modules/` write-up after this story is accepted — do not start Django from this file alone | High | Pending |
+| FVM-01-3 | Meter entry | Driver Supervisor form: km, reading datetime, notes; history table | High | Pending |
+| FVM-01-4 | Persist odometer | Monotonic write to `Vehicle.current_odometer_reading`; seed `initial_odometer_reading` on first reading | High | Pending |
+| FVM-01-5 | Models | Tenant interval default, per-vehicle override, `VehicleServiceLog` | High | Pending |
+| FVM-01-6 | Remaining km | Since-service / remaining formulas + Due soon / Overdue | High | Pending |
+| FVM-01-7 | Usage indicators | Avg daily (readings), high-load Top 5 routes, idle vs movement (GPS &lt; 3 km/h), high-stress Top 5 vehicles by completed TO count | High | Pending |
+| FVM-01-8 | Planner + supervisor UI | Planner list/detail/filters; supervisor entry; interval config | High | Pending |
+| FVM-01-9 | Tests | Reject drop, monotonic write, formulas, unavailable, RBAC | High | Pending |
 
 ## Definition of Done
 
@@ -134,7 +133,7 @@ GPS continues to provide location and **idle vs movement** from speed. It does *
 - [ ] Unit tests for meter entry, monotonic write, remaining-km formulas, Top 5 vehicles by completed TO count, RBAC
 - [ ] Vehicle with no reading never gets a fake remaining-km number from GPS
 - [ ] GPS ingest / Live GPS regression unchanged (no mileage decode)
-- [ ] `05-modules/` implementation context written (001-2) before merge of Django work
+- [ ] `05-modules/` implementation context written (FVM-01-2) before merge of Django work
 - [ ] Demo: Driver Supervisor enters meter km → Planner sees remaining km vs interval
 
 ## Dependencies

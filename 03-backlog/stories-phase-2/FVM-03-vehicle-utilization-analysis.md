@@ -2,27 +2,26 @@
 jira_key: ~
 jira_type: Story
 jira_sprint: ~
-story_id: "003"
+story_id: FVM-03
 title: Vehicle Utilization Analysis
 epic: Fleet & Vehicle Management — Utilization
 status: Planning
 story_points: 5
 assignee: ~
-spec_file: US-vehicle-utilization-analysis.md
 prd_refs:
   - "§6.6.7 Vehicle Utilization Analytics"
 feature_list: "SOW Phase-2 row 100 — Vehicle Utilization Analytics"
 phase: Phase 2
 related_stories:
-  - "001 (GPS idle vs movement — different clock; Top 5 vehicles by TO count is a ranking, not this analysis)"
-  - "002 (snapshot availability cards — not period hours)"
+  - FVM-01 (GPS idle vs movement — different clock; Top 5 vehicles by TO count is a ranking, not this analysis)
+  - FVM-02 (snapshot availability cards — not period hours)
   - MDM-05 (Vehicle master)
   - AD-05 (later fleet utilization report consumes these clocks)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
 ---
 
-# 003 — Vehicle Utilization Analysis
+# FVM-03 — Vehicle Utilization Analysis
 
 ## User Story
 
@@ -45,7 +44,7 @@ In DFMS:
 - **Active** = **serving** time (Start Trip → TO terminal), clipped to the period. Overlapping TO windows on the same vehicle are **merged** (union), so Multi-TO overlap is not double-counted.
 - **Idle** = **No-TO** time (calendar period minus serving). Includes Scheduled (assigned, not started), No Active TO, and time outside any started TO.
 
-**Not** GPS &lt; 3 km/h (001 idle vs movement). **Not** 002’s five status cards (those are “now”).
+**Not** GPS &lt; 3 km/h (FVM-01 idle vs movement). **Not** FVM-02’s five status cards (those are “now”).
 
 ## Business Context
 
@@ -75,7 +74,7 @@ Period [start, end]
 
 - [ ] Per vehicle, **serving hours** (active) and **No-TO hours** (idle) for the period
 - [ ] Serving = union of [Start Trip, TO terminal] windows overlapping the period (merge concurrent TOs on the same Plan / vehicle)
-- [ ] Idle = **available hours** minus serving (not GPS &lt; 3 km/h). Available hours = calendar − **004 downtime** hours (if no 004 rows, downtime = 0)
+- [ ] Idle = **available hours** minus serving (not GPS &lt; 3 km/h). Available hours = calendar − **FVM-04 downtime** hours (if no FVM-04 rows, downtime = 0)
 - [ ] Planner sees a **per-vehicle chart** (stacked or two bars): serving vs No-TO
 - [ ] Utilization % = serving / **available** hours in the period (0 if available is 0)
 
@@ -91,23 +90,23 @@ Period [start, end]
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| 003-1 | Requirements & story | This folder (accepted by PO) | High | In Progress |
-| 003-2 | Implementation context | `05-modules/` write-up after this story is accepted — do not start Django from this folder alone | High | Pending |
-| 003-3 | Trips per vehicle | Completed **Plan** count in period (single-TO or Multi-TO) | High | Pending |
-| 003-4 | Serving vs No-TO hours | Clip Start Trip → terminal to period; idle = calendar − serving | High | Pending |
-| 003-5 | Planner UI | List, sort, depot filter, per-vehicle serving vs No-TO chart | High | Pending |
-| 003-6 | Tests | Trip count, hour clip, still-in-transit, scheduled=idle, GPS unused, RBAC | High | Pending |
+| FVM-03-1 | Requirements & story | This file (accepted by PO) | High | In Progress |
+| FVM-03-2 | Implementation context | `05-modules/` write-up after this story is accepted — do not start Django from this file alone | High | Pending |
+| FVM-03-3 | Trips per vehicle | Completed **Plan** count in period (single-TO or Multi-TO) | High | Pending |
+| FVM-03-4 | Serving vs No-TO hours | Clip Start Trip → terminal to period; idle = calendar − serving | High | Pending |
+| FVM-03-5 | Planner UI | List, sort, depot filter, per-vehicle serving vs No-TO chart | High | Pending |
+| FVM-03-6 | Tests | Trip count, hour clip, still-in-transit, scheduled=idle, GPS unused, RBAC | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-3 checked against code (not against this markdown)
 - [ ] Unit tests for completed-Plan count, overlapping Multi-TO union (not sum), interval clipping, in-progress TO, Scheduled not counted as serving
-- [ ] GPS ingest / 001 idle-vs-movement / 002 cards unchanged
-- [ ] `05-modules/` implementation context written (003-2) before merge of Django work
+- [ ] GPS ingest / FVM-01 idle-vs-movement / FVM-02 cards unchanged
+- [ ] `05-modules/` implementation context written (FVM-03-2) before merge of Django work
 - [ ] Demo: Planner picks 30 days, sees trips + serving vs No-TO per vehicle, sorts low utilization to the top
 
 ## Dependencies
 
-- **Depends on:** own-fleet TOs + trip start milestones + terminal statuses (exist); **004** downtime hours (0 until logs exist)
-- **Does not replace:** 002 availability cards, 001 GPS idle vs movement, DS-01 inspection path, 004 downtime form
+- **Depends on:** own-fleet TOs + trip start milestones + terminal statuses (exist); **FVM-04** downtime hours (0 until logs exist)
+- **Does not replace:** FVM-02 availability cards, FVM-01 GPS idle vs movement, DS-01 inspection path, FVM-04 downtime form
 
