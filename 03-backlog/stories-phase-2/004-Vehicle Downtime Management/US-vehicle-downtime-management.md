@@ -6,13 +6,13 @@ module: Fleet & Vehicle Management
 priority: High
 status: Planning
 epic: Fleet & Vehicle Management
-sprint: Sprint 10
+sprint: ~
 story_points: 5
 created: 2026-09-08
 updated: 2026-09-08
 source_documents:
-  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
-  - ../../../../01-source/03-sow/SOW Phase-2.md
+  - ../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
+  - ../../../01-source/03-sow/SOW Phase-2.md
 prd_section: "Vehicle Downtime Management (after §6.6.7)"
 feature_list: "SOW Phase-2 row 101"
 related_stories:
@@ -20,7 +20,7 @@ related_stories:
   - 003-Vehicle Utilization Analysis
   - 002-Vehicle Tracking and Dashboard
   - 001-Odometer-Based Vehicle Maintenance Tracking
-tags: [phase-2, sprint-10, fleet, downtime, driver-supervisor]
+tags: [phase-2, fleet, downtime, driver-supervisor]
 ---
 
 # US — Vehicle Downtime Management

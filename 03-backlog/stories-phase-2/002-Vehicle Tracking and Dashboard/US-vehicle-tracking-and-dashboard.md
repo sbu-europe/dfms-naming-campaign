@@ -6,20 +6,20 @@ module: Fleet & Vehicle Management
 priority: High
 status: Planning
 epic: Fleet & Vehicle Management
-sprint: Sprint 10
+sprint: ~
 story_points: 8
 created: 2026-09-08
 updated: 2026-09-08
 source_documents:
-  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
-  - ../../../../01-source/03-sow/SOW Phase-2.md
+  - ../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
+  - ../../../01-source/03-sow/SOW Phase-2.md
 prd_section: "§6.6.4"
 feature_list: "SOW Phase-2 row 99"
 related_stories:
   - 001-Odometer-Based Vehicle Maintenance Tracking
   - MDM-05-vehicle-master-data.md
   - DS-01
-tags: [phase-2, sprint-10, fleet, dashboard, transport-planner]
+tags: [phase-2, fleet, dashboard, transport-planner]
 ---
 
 # US — Vehicle Tracking and Dashboard
@@ -294,7 +294,7 @@ Do **not** overload `GET /api/v1/fleet/availability` — that API stays assignab
 
 **Does not depend on:** GPS map, AD-02 hour charts, GPS mileage.
 
-**Blocks:** nothing in Sprint 10 until 002-2 (`05-modules/`) exists. Fuel card can ship as unavailable without AD-04.
+**Blocks:** nothing until 002-2 (`05-modules/`) exists. Fuel card can ship as unavailable without AD-04.
 
 **Out of scope:** new statuses, SOW v1 labels, writing status, Live GPS, utilization hours, FuelEntry form, 001 meter entry, Phase 3 workshop, vendor trucks.
 

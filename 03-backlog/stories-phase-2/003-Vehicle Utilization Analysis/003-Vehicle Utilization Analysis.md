@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: "003"
 title: Vehicle Utilization Analysis
 epic: Fleet & Vehicle Management — Utilization

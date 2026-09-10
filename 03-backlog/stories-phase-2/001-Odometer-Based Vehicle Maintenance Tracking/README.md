@@ -1,6 +1,6 @@
 ---
-title: Sprint 10 — 001 Odometer-Based Vehicle Maintenance Tracking
-sprint: Sprint 10
+title: Phase 2 — 001 Odometer-Based Vehicle Maintenance Tracking
+sprint: ~
 phase: Phase 2
 status: Planning
 prd: "§6.5.10 GPS-Based Vehicle Maintenance Tracking"
@@ -17,4 +17,4 @@ PRD §6.5.10, delivered as **odometer-based** remaining-km from a **Vehicle Supe
 
 **Module implementation context** (`05-modules/`) is the next step after this story is accepted.
 
-**Sprint index:** [../README.md](../README.md)
+**Phase 2 index:** [../README.md](../README.md)

@@ -6,20 +6,20 @@ module: Fleet & Vehicle Management
 priority: High
 status: Planning
 epic: Fleet & Vehicle Management
-sprint: Sprint 10
+sprint: ~
 story_points: 8
 created: 2026-09-08
 updated: 2026-09-08
 source_documents:
-  - ../../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
-  - ../../../../01-source/03-sow/SOW Phase-2.md
+  - ../../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
+  - ../../../01-source/03-sow/SOW Phase-2.md
 prd_section: "§6.5.10"
 feature_list: "SOW Phase-2 row 104"
 related_stories:
   - MDM-05-vehicle-master-data.md
   - DS-01
   - GPS-01
-tags: [phase-2, sprint-10, fleet, maintenance, odometer, driver-supervisor]
+tags: [phase-2, fleet, maintenance, odometer, driver-supervisor]
 ---
 
 # US — Odometer-Based Vehicle Maintenance Tracking
@@ -420,7 +420,7 @@ When `odometer_available` is false, odometer fields are `null` (not `0`).
 
 **Does not depend on:** GPS mileage decode, Redis `odometer_km`.
 
-**Blocks:** nothing in Sprint 10 until 001-2 (`05-modules/`) exists.
+**Blocks:** nothing until 001-2 (`05-modules/`) exists.
 
 **Out of scope:** GPS device mileage, truck fill-factor (weight/capacity) as high-load, workshop jobs, fuel, auto maintenance status, haversine remaining-km, meter photos, new Vehicle Supervisor role, TO serving vs No-TO as idle vs movement (that is AD-02).
 

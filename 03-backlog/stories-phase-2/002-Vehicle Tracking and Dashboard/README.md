@@ -1,6 +1,6 @@
 ---
-title: Sprint 10 — 002 Vehicle Tracking and Dashboard
-sprint: Sprint 10
+title: Phase 2 — 002 Vehicle Tracking and Dashboard
+sprint: ~
 phase: Phase 2
 status: Planning
 prd: "§6.6.4 Vehicle Tracking & Dashboard"
@@ -19,4 +19,4 @@ Previously planned as **AD-01**.
 
 **Module implementation context** (`05-modules/`) is the next step after this story is accepted.
 
-**Sprint index:** [../README.md](../README.md)
+**Phase 2 index:** [../README.md](../README.md)

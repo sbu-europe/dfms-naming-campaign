@@ -1,6 +1,6 @@
 ---
-title: Sprint 10 — 004 Vehicle Downtime Management
-sprint: Sprint 10
+title: Phase 2 — 004 Vehicle Downtime Management
+sprint: ~
 phase: Phase 2
 status: Planning
 prd: "Vehicle Downtime Management (after §6.6.7)"
@@ -17,4 +17,4 @@ PRD downtime story for **Driver Supervisor**. Log **reason + start & end**. Open
 
 **Module implementation context** (`05-modules/`) is the next step after this story is accepted.
 
-**Sprint index:** [../README.md](../README.md)
+**Phase 2 index:** [../README.md](../README.md)

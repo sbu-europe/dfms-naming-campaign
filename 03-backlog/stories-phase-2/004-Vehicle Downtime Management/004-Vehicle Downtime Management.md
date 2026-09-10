@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: "004"
 title: Vehicle Downtime Management
 epic: Fleet & Vehicle Management — Downtime

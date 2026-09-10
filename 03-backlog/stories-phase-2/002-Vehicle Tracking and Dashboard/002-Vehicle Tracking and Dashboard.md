@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: "002"
 title: Vehicle Tracking and Dashboard
 epic: Fleet & Vehicle Management — Health Dashboard
