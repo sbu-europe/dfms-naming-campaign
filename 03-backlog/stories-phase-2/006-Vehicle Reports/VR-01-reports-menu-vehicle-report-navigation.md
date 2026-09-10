@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: VR-01
 title: Reports Menu — Vehicle Report Navigation & RBAC
 epic: Vehicle Reports
@@ -13,7 +13,7 @@ related_stories:
   - VR-02-vehicle-report-fleet-overview.md
   - VR-03-vehicle-report-detail-view.md
 source_docs:
-  - ../../../../05-modules/11-reporting/vehicle-report.md
+  - ../../../05-modules/11-reporting/vehicle-report.md
 module_spec: 05-modules/11-reporting/vehicle-report.md
 ---
 
@@ -64,7 +64,7 @@ Fuel, compliance, and parts visibility moves to **Reports → Vehicle Report** �
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -90,4 +90,4 @@ Fuel, compliance, and parts visibility moves to **Reports → Vehicle Report** �
 
 ---
 
-*Epic: Vehicle Reports | Phase: 2 | Sprint 10: 3 SP | Last Updated: 2026-09-01*
+*Epic: Vehicle Reports | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-09-01*

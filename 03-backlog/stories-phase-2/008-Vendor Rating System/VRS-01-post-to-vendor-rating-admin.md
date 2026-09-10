@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: VRS-01
 title: Post-TO Vendor Rating — Tenant Admin / TDO (Admin Portal)
 epic: Vendor Rating System
@@ -14,7 +14,7 @@ related_stories:
   - VRS-02-vendor-rates-tenant-mobile.md
   - VRS-03-vendor-rating-visibility-admin.md
 source_docs:
-  - ../../../../05-modules/07-vendor-management/vendor-rating.md
+  - ../../../05-modules/07-vendor-management/vendor-rating.md
 module_spec: 05-modules/07-vendor-management/vendor-rating.md
 ---
 
@@ -177,7 +177,7 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -210,8 +210,8 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 - [ ] Rating immutable after submission; audit log entry created
 - [ ] Vendor portal / mobile does **not** expose vendor's own rating in v1
 - [ ] Unit tests: average calculation, idempotency, immutability
-- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/sprint-10/`
+- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/` (when scheduled)
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-07*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-07*

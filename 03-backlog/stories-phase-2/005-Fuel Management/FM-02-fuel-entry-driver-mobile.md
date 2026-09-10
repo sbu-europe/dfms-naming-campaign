@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: FM-02
 title: Fuel Entry — Driver (Mobile)
 epic: Fuel Management
@@ -19,8 +19,8 @@ dependencies:
   - Driver assigned to vehicle
   - Device location permission (GPS)
 source_docs:
-  - ../../../../05-modules/09-mobile-apps/driver-mobile.md
-  - ../../../../05-modules/08-fleet-management/fuel-management.md
+  - ../../../05-modules/09-mobile-apps/driver-mobile.md
+  - ../../../05-modules/08-fleet-management/fuel-management.md
 module_spec: 05-modules/09-mobile-apps/driver-mobile.md
 ---
 
@@ -59,7 +59,7 @@ Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobil
 - [ ] **Refueling datetime:** set automatically to **submit timestamp** (device time, synced to server); not editable by driver.
 - [ ] **Location:** captured from **device GPS** at submit (`latitude`, `longitude`); optional reverse-geocoded `location_label` for display; driver does not type location manually.
 - [ ] **Fuel type:** auto-filled from vehicle master `fuel_type`; **read-only** on form.
-- [ ] Location permission requested on first use; if denied, entry blocked with message to enable location (Sprint 10 — no manual location fallback for drivers).
+- [ ] Location permission requested on first use; if denied, entry blocked with message to enable location (v1 — no manual location fallback for drivers).
 
 ### AC-2: Driver-entered fields
 
@@ -109,13 +109,13 @@ Request body includes: `refueling_datetime`, `latitude`, `longitude`, `location_
 | Log fuel entry | `driver` (assigned vehicle only) |
 | View own fuel history | `driver` |
 | Select vehicle other than assignment | **Denied** |
-| Manual location text entry | **Denied** (Sprint 10) |
+| Manual location text entry | **Denied** (v1) |
 
 **Permission codes (proposed):** `fuel.entry.create`, `fuel.entry.view_own`
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -145,4 +145,4 @@ Request body includes: `refueling_datetime`, `latitude`, `longitude`, `location_
 
 ---
 
-*Epic: Fuel Management | Phase: 2 | Sprint 10: 5 SP | Last Updated: 2026-09-01*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-01*

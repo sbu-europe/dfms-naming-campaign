@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: VRS-02
 title: Vendor Rates Tenant — Post-TO Structured Rating (Vendor Mobile App)
 epic: Vendor Rating System
@@ -14,8 +14,8 @@ related_stories:
   - VRS-01-post-to-vendor-rating-admin.md
   - VRS-03-vendor-rating-visibility-admin.md
 source_docs:
-  - ../../../../05-modules/07-vendor-management/vendor-rating.md
-  - ../../../../05-modules/09-mobile-apps/vendor-mobile.md
+  - ../../../05-modules/07-vendor-management/vendor-rating.md
+  - ../../../05-modules/09-mobile-apps/vendor-mobile.md
 module_spec: 05-modules/07-vendor-management/vendor-rating.md
 ---
 
@@ -227,7 +227,7 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -263,8 +263,8 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 - [ ] Tenant aggregate rating (avg + count + per-criterion) shown in Join Tenant flow
 - [ ] Tenant Admin can view incoming vendor ratings in admin portal
 - [ ] Unit tests: average calculation, rolling update, idempotency, star range (1–5)
-- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/sprint-10/`
+- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/` (when scheduled)
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-08*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-08*

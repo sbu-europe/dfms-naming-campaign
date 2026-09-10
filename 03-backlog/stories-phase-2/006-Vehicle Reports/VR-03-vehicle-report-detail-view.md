@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: VR-03
 title: Vehicle Report — Detail View (Fuel, Inspection, Compliance)
 epic: Vehicle Reports
@@ -15,8 +15,8 @@ related_stories:
   - FM-04-fuel-history-and-filters.md
   - FHI-04-inspection-alerts-on-vehicle-report.md
 source_docs:
-  - ../../../../05-modules/11-reporting/vehicle-report.md
-  - ../../../../example-prototypes/fleet-operations.html
+  - ../../../05-modules/11-reporting/vehicle-report.md
+  - ../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/11-reporting/vehicle-report.md
 ---
 
@@ -88,7 +88,7 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -115,4 +115,4 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 ---
 
-*Epic: Vehicle Reports | Phase: 2 | Sprint 10: 5 SP | Last Updated: 2026-09-07*
+*Epic: Vehicle Reports | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-07*

@@ -8,8 +8,8 @@ last_updated: 2026-09-07
 
 # Vehicle Part Catalog / Garage Inventory — Deferred
 
-> **Not in current phase (Sprint 10).** Garage inventory, workshop jobs, and vehicle part stock/installations are **out of scope**.
+> **Not in current Phase 2 fleet-ops scope.** Garage inventory, workshop jobs, and vehicle part stock/installations are **out of scope**.
 
-Sprint 10 covers **Fuel**, **Fleet Health Inspection**, and **Vehicle Reports** only.
+Phase 2 fleet ops (unscheduled) covers **Fuel** (005), **Fleet Health Inspection** (007), and **Vehicle Reports** (006) only.
 
-See [`sprint-10/README.md`](../../03-backlog/sprints/sprint-10/README.md) → Out of Scope.
+See [`stories-phase-2/README.md`](../../03-backlog/stories-phase-2/README.md) (005–008).

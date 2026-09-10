@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: FM-05
 title: Fuel Efficiency Baselines & Anomaly Detection
 epic: Fuel Management
@@ -14,7 +14,7 @@ related_stories:
   - FM-03-fuel-consumption-calculations.md
   - VR-03-vehicle-report-detail-view.md
 source_docs:
-  - ../../../../05-modules/08-fleet-management/fuel-management.md
+  - ../../../05-modules/08-fleet-management/fuel-management.md
 module_spec: 05-modules/08-fleet-management/fuel-management.md
 ---
 
@@ -37,7 +37,7 @@ module_spec: 05-modules/08-fleet-management/fuel-management.md
 | Heavy Truck (15–20 t) | 4–6 (avg 5) | < 4.0 km/L |
 
 - [ ] Baseline derived from vehicle type mapping on `Vehicle.vehicle_type`.
-- [ ] Configurable per tenant in future; hard-coded defaults for Sprint 10.
+- [ ] Configurable per tenant in future; hard-coded defaults for v1.
 
 ### AC-2: Anomaly flag
 
@@ -66,11 +66,11 @@ Anomaly flag set on `POST /api/v1/fuel-entries/` response and included in fuel h
 | Action | Role |
 |--------|------|
 | View anomaly flag on entries | Same as fuel history (FM-04) |
-| Override / clear anomaly | Out of scope Sprint 10 |
+| Override / clear anomaly | Out of scope (v1) |
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -96,4 +96,4 @@ Anomaly flag set on `POST /api/v1/fuel-entries/` response and included in fuel h
 
 ---
 
-*Epic: Fuel Management | Phase: 2 | Sprint 10: 5 SP | Last Updated: 2026-09-01*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-01*

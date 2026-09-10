@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: VRS-03
 title: Vendor Rating Visibility — Admin Portal (Profile + Bid Views)
 epic: Vendor Rating System
@@ -14,8 +14,8 @@ related_stories:
   - VRS-01-post-to-vendor-rating-admin.md
   - VRS-02-vendor-rates-tenant-mobile.md
 source_docs:
-  - ../../../../05-modules/07-vendor-management/vendor-rating.md
-  - ../../../../05-modules/07-vendor-management/vendor-bidding.md
+  - ../../../05-modules/07-vendor-management/vendor-rating.md
+  - ../../../05-modules/07-vendor-management/vendor-bidding.md
 module_spec: 05-modules/07-vendor-management/vendor-rating.md
 ---
 
@@ -122,7 +122,7 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -158,4 +158,4 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 | Sprint 10: 3 SP | Last Updated: 2026-09-07*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-09-07*

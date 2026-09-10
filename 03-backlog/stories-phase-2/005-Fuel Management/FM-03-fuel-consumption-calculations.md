@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: FM-03
 title: Fuel Consumption Calculations & Odometer Validation
 epic: Fuel Management
@@ -14,7 +14,7 @@ related_stories:
   - FM-02-fuel-entry-driver-mobile.md
   - FM-05-fuel-anomaly-baselines.md
 source_docs:
-  - ../../../../05-modules/08-fleet-management/fuel-management.md
+  - ../../../05-modules/08-fleet-management/fuel-management.md
 module_spec: 05-modules/08-fleet-management/fuel-management.md
 ---
 
@@ -72,7 +72,7 @@ Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoi
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -98,4 +98,4 @@ Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoi
 
 ---
 
-*Epic: Fuel Management | Phase: 2 | Sprint 10: 5 SP | Last Updated: 2026-09-01*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-01*

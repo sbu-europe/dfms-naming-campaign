@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: FHI-03
 title: Conduct Inspection Round
 epic: Fleet Health Inspection
@@ -14,8 +14,8 @@ related_stories:
   - FHI-01-inspection-checklist-templates.md
   - FHI-02-inspection-dashboard-alerts.md
 source_docs:
-  - ../../../../05-modules/08-fleet-management/fleet-health-inspection.md
-  - ../../../../example-prototypes/fleet-operations.html
+  - ../../../05-modules/08-fleet-management/fleet-health-inspection.md
+  - ../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/fleet-health-inspection.md
 ---
 
@@ -79,7 +79,7 @@ GET    /api/v1/vehicles/{id}/checkpoint-states/
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -108,4 +108,4 @@ GET    /api/v1/vehicles/{id}/checkpoint-states/
 
 ---
 
-*Epic: Fleet Health Inspection | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-01*
+*Epic: Fleet Health Inspection | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-01*

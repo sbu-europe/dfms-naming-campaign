@@ -1,7 +1,7 @@
 ---
 jira_key: ~
 jira_type: Story
-jira_sprint: "Sprint 10"
+jira_sprint: ~
 story_id: FM-01
 title: Fuel Entry — Driver Supervisor (Admin Portal)
 epic: Fuel Management
@@ -15,8 +15,8 @@ related_stories:
   - FM-03-fuel-consumption-calculations.md
   - MDM-05-vehicle-master-data.md (Sprint 2)
 source_docs:
-  - ../../../../05-modules/08-fleet-management/fuel-management.md
-  - ../../../../example-prototypes/fleet-operations.html
+  - ../../../05-modules/08-fleet-management/fuel-management.md
+  - ../../../example-prototypes/fleet-operations.html
 module_spec: 05-modules/08-fleet-management/fuel-management.md
 ---
 
@@ -32,7 +32,7 @@ module_spec: 05-modules/08-fleet-management/fuel-management.md
 
 Driver Supervisors use fuel entry as part of **pre-trip / pre-execution vehicle checks** — before a TO moves to dispatch, the supervisor may verify the vehicle, **update vehicle information** (e.g. odometer on the vehicle record), and **manually enter all fuel intake data** for the selected vehicle.
 
-Sprint 10 uses a **gauge before/after** model from the approved prototype. Supervisor entries are logged from the admin portal (Fleet operations).
+v1 uses a **gauge before/after** model from the approved prototype. Supervisor entries are logged from the admin portal (Fleet operations).
 
 **Entry type:** `SUPERVISOR_ENTRY` — distinct from driver mobile entries for audit.
 
@@ -124,7 +124,7 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 
 ---
 
-## Sub-tasks — Sprint 10
+## Sub-tasks
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
@@ -155,8 +155,8 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 - [ ] Live preview updates on input
 - [ ] Supervisor on-behalf entry persisted with correct entry_type
 - [ ] Unit tests for validation rules
-- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/sprint-10/`
+- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/` (when scheduled)
 
 ---
 
-*Epic: Fuel Management | Phase: 2 | Sprint 10: 8 SP | Last Updated: 2026-09-01*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-01*
