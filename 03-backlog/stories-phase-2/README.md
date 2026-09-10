@@ -16,19 +16,18 @@ MDM-05 should ship before QC-02-4 (lab execution picks tests from the catalog).
 
 Team flow diagrams: [`lab-test-flow.md`](lab-test-flow.md) (MDM-05 + QC-02).
 
-## Fleet analytics (001–004)
-
-Each story is a folder: story file (AC / sub-tasks / DoD) plus companion `US-*.md` spec.
-Do not start Django until that story has a `05-modules/` write-up.
+## Fleet & vehicle management (FVM)
 
 | Story | Title | SP | Status |
 |-------|-------|----|--------|
-| [001](001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/README.md) | Odometer-Based Vehicle Maintenance Tracking | 8 | Planning |
-| [002](002-Vehicle%20Tracking%20and%20Dashboard/README.md) | Vehicle Tracking and Dashboard | 8 | Planning |
-| [003](003-Vehicle%20Utilization%20Analysis/README.md) | Vehicle Utilization Analysis | 5 | Planning |
-| [004](004-Vehicle%20Downtime%20Management/README.md) | Vehicle Downtime Management | 5 | Planning |
+| [FVM-01](FVM-01-odometer-based-vehicle-maintenance-tracking.md) | Odometer-Based Vehicle Maintenance Tracking | 8 | Planning |
+| [FVM-02](FVM-02-vehicle-tracking-and-dashboard.md) | Vehicle Tracking and Dashboard | 8 | Planning |
+| [FVM-03](FVM-03-vehicle-utilization-analysis.md) | Vehicle Utilization Analysis | 5 | Planning |
+| [FVM-04](FVM-04-vehicle-downtime-management.md) | Vehicle Downtime Management | 5 | Planning |
 
-**001–004 estimated**: 26 SP. Later (unwritten): fuel analytics, operational reports + CSV/Excel, map KPI layer.
+**FVM-01–04 estimated**: 26 SP.
+
+Do not start Django until that story has a `05-modules/` write-up.
 
 ### Clocks (do not mix)
 
@@ -36,23 +35,14 @@ Nourish GPS trackers are **not** odometer-capable. Remaining km uses Driver Supe
 
 | Clock | Use for | Do not use for |
 |---|---|---|
-| Supervisor odometer (`Vehicle.current_odometer_reading`) | 001 remaining km, daily km; 002 km card | TO map path; GPS mileage |
-| GPS speed &lt; 3 km/h | 001 idle vs movement | Remaining km; utilization hours |
-| `Vehicle.operational_status` (now) | 002 five-status cards | Period hours; GPS idle |
-| TO Start Trip → terminal | 003 serving vs No-TO hours | 002 cards |
-| `VehicleDowntime` `[start_at, end_at)` | 004 log; 003 available hours | 001 remaining km |
+| Supervisor odometer (`Vehicle.current_odometer_reading`) | FVM-01 remaining km, daily km; FVM-02 km card | TO map path; GPS mileage |
+| GPS speed &lt; 3 km/h | FVM-01 idle vs movement | Remaining km; utilization hours |
+| `Vehicle.operational_status` (now) | FVM-02 five-status cards | Period hours; GPS idle |
+| TO Start Trip → terminal | FVM-03 serving vs No-TO hours | FVM-02 cards |
+| `VehicleDowntime` `[start_at, end_at)` | FVM-04 log; FVM-03 available hours | FVM-01 remaining km |
 
-### PRD / SOW
-
-| PRD | User story | Story | SOW |
-|-----|------------|-------|-----|
-| §6.5.10 | GPS-based maintenance (delivered as odometer meter entry) | [001](001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking.md) | P2 row 104 |
-| §6.6.4 | Dashboard showing vehicle availability | [002](002-Vehicle%20Tracking%20and%20Dashboard/002-Vehicle%20Tracking%20and%20Dashboard.md) | P2 row 99 |
-| §6.6.7 | Analyze vehicle utilization | [003](003-Vehicle%20Utilization%20Analysis/003-Vehicle%20Utilization%20Analysis.md) | P2 row 100 |
-| Vehicle Downtime Management | Track vehicle downtime | [004](004-Vehicle%20Downtime%20Management/004-Vehicle%20Downtime%20Management.md) | P2 row 101 |
-
-**Delivery order:** 002 cards and 003 hours do not need 001. 004 downtime hours feed 003 available-hours.
+**Delivery order:** FVM-02 cards and FVM-03 hours do not need FVM-01. FVM-04 downtime hours feed FVM-03 available-hours.
 
 ---
 
-**Total estimated (this folder)**: 60 SP (TUM/VP/MDM/QC) + 26 SP (001–004) = **86 SP**
+**Total estimated (this folder)**: 60 SP (TUM/VP/MDM/QC) + 26 SP (FVM) = **86 SP**
