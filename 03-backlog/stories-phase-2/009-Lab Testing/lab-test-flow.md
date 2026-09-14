@@ -22,7 +22,7 @@ flowchart LR
 |------|-----|----------------|
 | 1 | Tenant Admin | Create categories, units, and tests (with a reference number, e.g. `20 ppb`) |
 | 2 | Inspector | Sample is already on the truck (QC-01). They **send it to lab** and **stick a QR on the bag** |
-| 3 | Lab technician | Scan the QR **or** pick the code. They never see the truck, TO, or product |
+| 3 | Lab technician | Scan the QR **or** pick the code. They never see the truck, TO, or product. Tenant Super Admin / Tenant Admin can do the same Lab Queue work after selecting **Working site**. |
 | 4 | Inspector | Sees lab status on **their** QC screen. Command Center still waits for **Pass** |
 
 ---
@@ -114,7 +114,7 @@ flowchart TB
   end
 ```
 
-Inspector **does** see the TO. Blindness is for the lab role only.
+Inspector **does** see the TO. Blindness is for Lab Queue (technician, and Tenant Super Admin / Tenant Admin when covering lab). Catalog setup stays admin-only (MDM-05).
 
 ---
 

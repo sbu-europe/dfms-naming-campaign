@@ -1,7 +1,7 @@
 ---
 module: 06-poi-operations
 specification: QC-02 QA Lab Technician — Receive Sample, Run Tests, File Results — Playwright E2E Scenario Plan
-version: 1.0
+version: 1.1
 phase: Phase 2
 related_stories: QC-02, MDM-05, QC-01
 source_spec: ../../../../../03-backlog/stories-phase-2/009-Lab Testing/QC-02-lab-test-execution.md
@@ -19,7 +19,7 @@ playwright_mcp: true
 **Story:** [QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results](../../../../../03-backlog/stories-phase-2/009-Lab%20Testing/QC-02-lab-test-execution.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
-Credentials: `qc.inspector.physical1.nourish@yopmail.com`, `qa.lab.technician1.nourish@yopmail.com`.
+Credentials: `qc.inspector.physical1.nourish@yopmail.com`, `qa.lab.technician1.nourish@yopmail.com`, `admin.nourish@yopmail.com`, `superadmin.nourish@yopmail.com`.
 
 Depends on **MDM-05** (active catalog tests) and **QC-01** (checkpoint sample on a flagged RM inbound TO).  
 Sibling: [rm-qc-inspector-checkpoint-e2e-scenarios.md](../../raw-material-workflow/14-qc-checkpoint/rm-qc-inspector-checkpoint-e2e-scenarios.md).
@@ -33,7 +33,8 @@ Sibling: [rm-qc-inspector-checkpoint-e2e-scenarios.md](../../raw-material-workfl
 | Item | Notes |
 |------|--------|
 | Inspector | **QC Inspector – Physical** at destination working site (`Working site` in profile) |
-| Lab tech | **QA Lab Technician** assigned to the **same** QC site as the sample (and a second site user for TC19) |
+| Lab tech | **QA Lab Technician** assigned to the **same** QC site as the sample (and a second site user for TC10) |
+| Tenant Admin / Super Admin | `admin.nourish@yopmail.com` / `superadmin.nourish@yopmail.com`. For lab write, select the sample’s QC site as **Working site**. Fail-closed if none selected. |
 | Catalog | ≥2 **active** MDM-05 tests (e.g. Moisture, Protein) and ≥1 **inactive** test — see [mdm-05-lab-test-master-e2e-scenarios.md](./mdm-05-lab-test-master-e2e-scenarios.md) |
 | Sample | RM inbound TO flagged for QC with at least one submitted QC-01 checkpoint sample (QC Queue TO detail **Samples** table). Wipe prefix `MCP-QC02-` |
 | Yard control | Same TO must **not** auto-unlock Command Center from lab Complete |
@@ -85,8 +86,8 @@ Sibling: [rm-qc-inspector-checkpoint-e2e-scenarios.md](../../raw-material-workfl
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | TC18 | Lab screens have no yard controls | As lab technician on the lab sample (including Completed), assert **no** Pass/Fail, unloading point, start/cancel unload, scale-out, gate-out, or accept-stock controls. | P0 | Planned |
-| TC19 | Lab Complete does not unlock Command Center | After TC16 Completed, as **Command Center Officer**, assert the TO is still gated by **QC-01 Pass/Fail** (not by lab Complete). Pending QC still blocks bay assignment per QC-01. | P0 | Planned |
-| TC20 | Lab technician cannot configure MDM-05 or QC-01 Pass | As lab technician, open Lab Test master add URLs and QC **Add QC** / Pass-Fail. Assert denied. | P0 | Planned |
+| TC19 | Lab Complete does not unlock Command Center | After TC16 Completed, as **Command Center Officer**, assert the TO is still gated by physical **Add QC** / **Submit QC** Pass or Fail (not by lab Complete). A TO still **Pending** on **QC Queue** still blocks **Bay Assignments**. | P0 | Planned |
+| TC20 | Lab technician cannot set up the catalog or record physical Pass/Fail | As lab technician, open **Master Data → Test Categories / Lab UOM / Lab Tests** add or change URLs, and **QC Checkpoint → Add QC** / **Submit QC**. Assert forbidden. Assert no Pass/Fail, **Bay Assignments**, unload start/stop, or stock accept on lab screens. | P0 | Planned |
 | TC21 | Gate / Loading / Unloading unchanged by lab status | As **Gateman** / loading / unloading on the same TO, assert queues and actions match QC-01 / yard rules; lab status does not change eligibility. | P1 | Planned |
 
 ## G — Tenant isolation & audit (AC-7, AC-8)
@@ -94,13 +95,23 @@ Sibling: [rm-qc-inspector-checkpoint-e2e-scenarios.md](../../raw-material-workfl
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | TC22 | Other tenant cannot use this queue or QR | If a second tenant session exists, assert they cannot see this Lab Queue row or redeem this QR. Otherwise skip with note. | P1 | Planned |
-| TC23 | Audit lab request, open, attach, file | After the happy path, as Tenant Admin open **Audit Logs**. Assert events for lab request/QR, open (code vs QR if both), test attach, ETA change, report upload, completion — who, when, sample code, test. Lab technician UI must still not show TO even if audit stores it internally. | P1 | Planned |
+| TC23 | Audit lab request, open, attach, file | After the happy path, as Tenant Admin open **Audit Logs**. Assert events for lab request/QR, open (code vs QR if both), test attach, ETA change, report upload, completion — who, when, sample code, test. Lab Queue UI must still not show TO even if audit stores it internally. | P1 | Planned |
+
+## H — Tenant Admin / Super Admin Lab Queue (AC-0, AC-7, BR-QC02-011)
+
+| Test Case ID | Test Scenario | Test Description | Priority | Status |
+|--------------|---------------|------------------|----------|--------|
+| TC24 | Tenant Admin with Working site can run lab execution | As **Tenant Admin**, select the sample’s QC site as **Working site**. Open Lab Queue. Open a sent sample by code, attach an active catalog test + ETA, upload a report, and complete. Assert the same Lab Queue actions as QA Lab Technician. | P0 | Planned |
+| TC25 | Tenant Super Admin with Working site can run lab execution | As **Tenant Super Admin**, select the sample’s QC site as **Working site**. Repeat the Lab Queue open / attach / file path from TC24. Assert success. | P0 | Planned |
+| TC26 | No Working site blocks lab write | As Tenant Admin (and Super Admin), clear or leave **Working site** unselected. Open Lab Queue or attempt lab write. Assert blocked until a site is selected. | P0 | Planned |
+| TC27 | Admin Lab Queue is still code-only | During TC24, on Lab Queue and sample detail assert **no** TO number, vehicle, product, supplier, origin, destination, or weights in `#content-main`. Admin may still see those fields on **QC Queue**. | P0 | Planned |
+| TC28 | Admin Lab Queue is site-scoped to Working site | As Tenant Admin with Working site B (not the sample’s QC site), open Lab Queue. Assert they do **not** receive the TC03 sample code. | P1 | Planned |
 
 ## Implementation Notes (Playwright + Django Admin SSR)
 
 - Admin SSR only. Do not assert REST serializers except as a follow-up; story requires lab-tech APIs omit shipment fields — Playwright MCP stays on HTML.
 - **QR scan:** P0 path is **select code** on Lab Queue. Treat camera scan as out of scope; optional paste-payload is TC06.
-- Role fixtures: inspector vs lab tech must be distinct users. Lab tech needs a POI assignment at the sample’s QC site.
+- Role fixtures: inspector vs lab tech must be distinct users. Lab tech needs a POI assignment at the sample’s QC site. Tenant Admin / Super Admin lab write uses **Working site** (same fail-closed pattern as QC Queue).
 - Proposed URLs (confirm after `get_urls()`): inspector action on `/admin/quality/qcqueuetransportorder/<uuid>/change/`; lab queue e.g. `/admin/quality/labqueue/`; QR download on the lab request.
 - Selectors: `#content-main`, `#result_list`, `.messagelist`. Blindness assertions are **absence** of TO/vehicle/product text on lab pages.
 - **Known drift:** No lab request button on QC Queue templates. Legacy `quality.LabTestRequest` is QCEvent-linked, not QC-01 checkpoint samples. Do not test that model as QC-02.
