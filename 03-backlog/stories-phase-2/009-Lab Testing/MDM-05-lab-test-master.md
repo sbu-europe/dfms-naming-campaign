@@ -63,7 +63,7 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
 | Product mapping | **Not in v1.** One spec per test, not per product. Mapping tests to product is a later story. |
 | Lab UOM vs Product UOM | **Separate catalogs.** Do not reuse Product UOM (`Bag`, `Ton`, `KG`, …). |
 | Lab execution | **Not in this story.** Catalog only. QC-02 may later show name + standard + UOM as read-only when attaching a test. |
-| Delete | **Deactivate**, do not hard-delete. Inactive rows stay in history and cannot be chosen for new work. |
+| Delete | **Hard delete** is allowed only when there are **no dependencies**, and requires a **mandatory delete reason** (same pattern as other Master Data). Referenced rows cannot be hard-deleted — **deactivate** instead. Inactive rows stay in history and cannot be chosen for new work. |
 
 ---
 
@@ -73,15 +73,15 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
 
 - [ ] **Given** a Tenant Super Admin or Tenant Admin  
   **When** they manage Test Categories, Lab UOMs, or Lab Tests  
-  **Then** they can create, view, edit, and deactivate/reactivate all three catalogs.
+  **Then** they can create, view, edit, deactivate/reactivate, and hard-delete unreferenced rows (with a mandatory reason) on all three catalogs.
 
 - [ ] **Given** a user who is neither Tenant Super Admin nor Tenant Admin  
-  **When** they attempt to create, edit, or change status of any of the three (admin or API)  
+  **When** they attempt to create, edit, change status, or hard-delete any of the three (admin or API)  
   **Then** the action is denied.
 
 - [ ] **Given** a QA Lab Technician  
   **When** they use the portal  
-  **Then** they have no catalog setup access (no create/edit/deactivate, and no Master Data write menu for these screens).
+  **Then** they have no catalog setup access (no create/edit/deactivate/hard-delete, and no Master Data write menu for these screens).
 
 ### AC-1 — Test Category
 
@@ -97,9 +97,13 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
   **When** they open the category list  
   **Then** they can list, search/filter by code, name, and status, and deactivate or reactivate a category.
 
-- [ ] **Given** a Test Category, including one referenced by tests  
+- [ ] **Given** a Test Category that is **not** referenced by any lab test  
+  **When** they hard-delete it  
+  **Then** they must enter a **mandatory delete reason**; on confirm the category is removed. Without a reason, delete is blocked.
+
+- [ ] **Given** a Test Category referenced by tests  
   **When** they attempt to hard-delete it, or select an inactive category on a new or edited test  
-  **Then** hard delete is not allowed; inactive categories remain on existing tests and cannot be selected for a new or edited test.
+  **Then** hard delete is blocked; they may deactivate instead. Inactive categories remain on existing tests and cannot be selected for a new or edited test.
 
 ### AC-2 — Lab Unit of Measure
 
@@ -115,9 +119,13 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
   **When** they open the UOM list  
   **Then** they can list, search/filter by code, name, and status, and deactivate or reactivate a UOM.
 
-- [ ] **Given** a Lab UOM, including one referenced by tests  
+- [ ] **Given** a Lab UOM that is **not** referenced by any lab test  
+  **When** they hard-delete it  
+  **Then** they must enter a **mandatory delete reason**; on confirm the UOM is removed. Without a reason, delete is blocked.
+
+- [ ] **Given** a Lab UOM referenced by tests  
   **When** they attempt to hard-delete it, or select an inactive UOM on a new or edited test  
-  **Then** hard delete is not allowed; inactive UOMs remain on existing tests and cannot be selected for a new or edited test.
+  **Then** hard delete is blocked; they may deactivate instead. Inactive UOMs remain on existing tests and cannot be selected for a new or edited test.
 
 - [ ] **Given** Product UOM values (Bag, Ton, KG, …) exist for logistics  
   **When** they manage Lab UOM or create a Lab Test  
@@ -149,9 +157,13 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
   **When** they view the list or detail  
   **Then** the standard is shown with the UOM symbol (e.g. `12.5 %`, `20 ppb`) and there is no standard-rule field.
 
-- [ ] **Given** an existing Lab Test  
+- [ ] **Given** a Lab Test that is **not** referenced by lab work (no QC-02 attach / history)  
+  **When** they hard-delete it  
+  **Then** they must enter a **mandatory delete reason**; on confirm the test is removed. Without a reason, delete is blocked.
+
+- [ ] **Given** a Lab Test referenced by lab work  
   **When** they attempt to hard-delete it  
-  **Then** hard delete is not allowed.
+  **Then** hard delete is blocked; they may deactivate instead.
 
 ### AC-4 — Active vs inactive
 
@@ -194,8 +206,8 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
 ### AC-7 — Audit
 
 - [ ] **Given** a category, lab UOM, or lab test  
-  **When** it is created, edited, deactivated, or reactivated  
-  **Then** the change is audit-logged (who, when, what changed).
+  **When** it is created, edited, deactivated, reactivated, or hard-deleted  
+  **Then** the change is audit-logged (who, when, what changed; delete includes the reason).
 
 ---
 
@@ -249,10 +261,10 @@ QA Lab Technician logs in
 | ID | Rule |
 |---|---|
 | BR-MDM05-001 | All three masters are tenant-scoped. Codes are unique within a tenant and immutable after create. |
-| BR-MDM05-002 | Only Tenant Super Admin and Tenant Admin may create, edit, or change status. |
+| BR-MDM05-002 | Only Tenant Super Admin and Tenant Admin may create, edit, change status, or hard-delete (unreferenced, with reason). |
 | BR-MDM05-003 | QA Lab Technician (and QC Inspector – Physical) do not configure any of the three. |
 | BR-MDM05-004 | Inactive tests cannot be selected for new lab work; history is preserved. Inactive category/UOM cannot be selected on create/edit. |
-| BR-MDM05-005 | No hard delete. Deactivate / reactivate only. Referenced category/UOM cannot be hard-deleted. |
+| BR-MDM05-005 | Hard delete is allowed only when there are no dependencies, and requires a mandatory delete reason. Referenced category / UOM / lab test cannot be hard-deleted — deactivate / reactivate instead. |
 | BR-MDM05-006 | Tests are not mapped to product. One standard value per test for the tenant. |
 | BR-MDM05-007 | This catalog is for **lab tests** only, not physical inspection checklists. |
 | BR-MDM05-008 | Lab UOM is not Product UOM. Logistics units (Bag, Ton, KG, …) are not used here. |
@@ -301,15 +313,15 @@ Displayed as `{standard value} {symbol}` (e.g. `12.5 %`). No standard-rule colum
 
 | # | Sub-task | Description | Priority | Status |
 |---|---|---|---|---|
-| MDM-05-1 | Test Category | Model + migration; admin/API CRUD; unique code per tenant; deactivate | High | Not done |
-| MDM-05-2 | Lab UOM | Model + migration; admin/API CRUD; code, name, symbol; unique code per tenant; deactivate | High | Not done |
+| MDM-05-1 | Test Category | Model + migration; admin/API CRUD; unique code per tenant; deactivate; hard delete with reason if unreferenced | High | Not done |
+| MDM-05-2 | Lab UOM | Model + migration; admin/API CRUD; code, name, symbol; unique code per tenant; deactivate; hard delete with reason if unreferenced | High | Not done |
 | MDM-05-3 | Lab Test model | Lab Test with FKs to category and UOM; standard value; unique test code per tenant | High | Not done |
-| MDM-05-4 | Lab Test admin CRUD | List / add / change / deactivate; filters; cannot save without active category + UOM | High | Not done |
+| MDM-05-4 | Lab Test admin CRUD | List / add / change / deactivate; filters; cannot save without active category + UOM; hard delete with reason if unreferenced | High | Not done |
 | MDM-05-5 | Portal + RBAC | Three Master Data screens for Tenant Super Admin / Tenant Admin only | High | Not done |
 | MDM-05-6 | API | REST for categories, lab UOMs, and tests (create/list/retrieve/update/status) | High | Not done |
-| MDM-05-7 | Audit | Create / update / status-change on all three | Medium | Not done |
+| MDM-05-7 | Audit | Create / update / status-change / hard-delete (with reason) on all three | Medium | Not done |
 | MDM-05-8 | Bulk CSV | Import/export on the Brand pattern (optional if timeboxed) | Medium | Not done |
-| MDM-05-9 | Tests | Uniqueness; FK required; `%` 0–100; inactive not selectable; non-admin write denied; tenant isolation; Product UOM unused | High | Not done |
+| MDM-05-9 | Tests | Uniqueness; FK required; `%` 0–100; inactive not selectable; hard delete blocked with deps and without reason; non-admin write denied; tenant isolation; Product UOM unused | High | Not done |
 
 ---
 
@@ -321,21 +333,24 @@ GET    /api/v1/lab-test-categories?search=&status=&page=&per_page=
 GET    /api/v1/lab-test-categories/{id}
 PUT    /api/v1/lab-test-categories/{id}
 PATCH  /api/v1/lab-test-categories/{id}/status
+DELETE /api/v1/lab-test-categories/{id}
 
 POST   /api/v1/lab-uoms
 GET    /api/v1/lab-uoms?search=&status=&page=&per_page=
 GET    /api/v1/lab-uoms/{id}
 PUT    /api/v1/lab-uoms/{id}
 PATCH  /api/v1/lab-uoms/{id}/status
+DELETE /api/v1/lab-uoms/{id}
 
 POST   /api/v1/lab-tests
 GET    /api/v1/lab-tests?search=&status=&category=&uom=&page=&per_page=
 GET    /api/v1/lab-tests/{id}
 PUT    /api/v1/lab-tests/{id}
 PATCH  /api/v1/lab-tests/{id}/status
+DELETE /api/v1/lab-tests/{id}
 ```
 
-Lab Test create/update body includes `category_id`, `uom_id`, and `standard_value`. Codes are accepted on write only at create.
+Lab Test create/update body includes `category_id`, `uom_id`, and `standard_value`. Codes are accepted on write only at create. Hard delete requires `delete_reason` and is rejected when the row is referenced.
 
 ---
 
@@ -345,6 +360,7 @@ Lab Test create/update body includes `category_id`, `uom_id`, and `standard_valu
 |---|---|---|---|---|
 | View Test Categories / Lab UOM / Lab Tests | Yes | Yes | No (this story) | No |
 | Create / edit / deactivate any of the three | Yes | Yes | No | No |
+| Hard delete (unreferenced, mandatory reason) | Yes | Yes | No | No |
 | Run lab tests / upload reports | Out of scope | Out of scope | Out of scope | Out of scope |
 
 QA Lab Technician **read** of active tests (name, standard value, UOM) belongs with QC-02, not this setup story.
@@ -375,10 +391,12 @@ Playwright admin E2E: [mdm-05-lab-test-master-e2e-scenarios.md](../../../09-test
 - [ ] Edit name, category, UOM, standard value; test code stays stable
 - [ ] Standard value negative is rejected; `%` UOM with 105 is rejected; `%` UOM with 12.5 is accepted
 - [ ] Inactive category/UOM cannot be selected on a new or edited test
+- [ ] Unreferenced category / UOM / lab test can be hard-deleted only with a mandatory **Delete reason**; blank reason is blocked
+- [ ] Referenced category / UOM / lab test cannot be hard-deleted (deactivate instead)
 - [ ] Deactivate test → still listed as inactive; not eligible for new work
 - [ ] Reactivate test → eligible again
 - [ ] QA Lab Technician / QC Inspector – Physical / Gateman cannot create or edit any of the three
-- [ ] Audit trail on create, edit, deactivate for all three
+- [ ] Audit trail on create, edit, deactivate, and hard delete (with reason) for all three
 - [ ] Tenant A cannot see Tenant B’s categories, UOMs, or tests
 - [ ] Product UOM values are not offered on Lab Test
 
@@ -406,7 +424,7 @@ Playwright admin E2E: [mdm-05-lab-test-master-e2e-scenarios.md](../../../09-test
 - [ ] Sub-tasks MDM-05-1 … MDM-05-6 and MDM-05-9 completed (MDM-05-7 / MDM-05-8 if included in scope)
 - [ ] Tenant Super Admin and Tenant Admin can maintain Test Categories, Lab UOMs, and Lab Tests (with required standard value)
 - [ ] Operational QC roles cannot configure the catalogs
-- [ ] Unit tests cover uniqueness, required FKs, standard-value bounds, status, RBAC, tenant isolation, and no Product UOM reuse
+- [ ] Unit tests cover uniqueness, required FKs, standard-value bounds, status, hard-delete with reason / blocked with deps, RBAC, tenant isolation, and no Product UOM reuse
 - [ ] Story status updated for Phase 2 tracking
 
 ---
