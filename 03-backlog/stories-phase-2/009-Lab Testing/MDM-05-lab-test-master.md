@@ -67,55 +67,131 @@ This story is **catalog management only**. Sending a sample to the lab, scanning
 
 ### AC-0 — Who may manage
 
-- [ ] **Tenant Super Admin** and **Tenant Admin** can create, view, edit, and deactivate/reactivate Test Categories, Lab UOMs, and Lab Tests.
-- [ ] A user who is neither Tenant Super Admin nor Tenant Admin cannot create, edit, or change status of any of the three (admin + API).
-- [ ] **QA Lab Technician** has **no** catalog setup access (no create/edit/deactivate, no Master Data write menu for these screens).
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they manage Test Categories, Lab UOMs, or Lab Tests  
+  **Then** they can create, view, edit, and deactivate/reactivate all three catalogs.
+
+- [ ] **Given** a user who is neither Tenant Super Admin nor Tenant Admin  
+  **When** they attempt to create, edit, or change status of any of the three (admin or API)  
+  **Then** the action is denied.
+
+- [ ] **Given** a QA Lab Technician  
+  **When** they use the portal  
+  **Then** they have no catalog setup access (no create/edit/deactivate, and no Master Data write menu for these screens).
 
 ### AC-1 — Test Category
 
-- [ ] Tenant Super Admin / Tenant Admin can **create** a category with: category code, category name, optional description, active (default on).
-- [ ] They can **edit** name and description. **Code** is unique per tenant and immutable after create. Duplicate code is rejected with a clear error.
-- [ ] They can list, search/filter by code, name, and status; **deactivate** and **reactivate**.
-- [ ] There is **no hard delete**. A category referenced by tests cannot be hard-deleted. Inactive categories remain on existing tests and **cannot** be selected for a new or edited test.
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they create a Test Category  
+  **Then** they can save category code, category name, optional description, and active status (default on).
+
+- [ ] **Given** an existing Test Category  
+  **When** they edit it or submit a duplicate code  
+  **Then** they can change name and description; the code stays unique per tenant and immutable after create; a duplicate code is rejected with a clear error.
+
+- [ ] **Given** Test Categories exist  
+  **When** they open the category list  
+  **Then** they can list, search/filter by code, name, and status, and deactivate or reactivate a category.
+
+- [ ] **Given** a Test Category, including one referenced by tests  
+  **When** they attempt to hard-delete it, or select an inactive category on a new or edited test  
+  **Then** hard delete is not allowed; inactive categories remain on existing tests and cannot be selected for a new or edited test.
 
 ### AC-2 — Lab Unit of Measure
 
-- [ ] Tenant Super Admin / Tenant Admin can **create** a lab UOM with: UOM code, UOM name, symbol (short label shown next to the standard value, e.g. `%`, `ppb`), active (default on).
-- [ ] They can **edit** name and symbol. **Code** is unique per tenant and immutable after create. Duplicate code is rejected with a clear error.
-- [ ] They can list, search/filter by code, name, and status; **deactivate** and **reactivate**.
-- [ ] There is **no hard delete**. A UOM referenced by tests cannot be hard-deleted. Inactive UOMs remain on existing tests and **cannot** be selected for a new or edited test.
-- [ ] This catalog is **lab-only**. It is not Product UOM and is not used for logistics.
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they create a Lab UOM  
+  **Then** they can save UOM code, UOM name, symbol (short label shown next to the standard value, e.g. `%`, `ppb`), and active status (default on).
+
+- [ ] **Given** an existing Lab UOM  
+  **When** they edit it or submit a duplicate code  
+  **Then** they can change name and symbol; the code stays unique per tenant and immutable after create; a duplicate code is rejected with a clear error.
+
+- [ ] **Given** Lab UOMs exist  
+  **When** they open the UOM list  
+  **Then** they can list, search/filter by code, name, and status, and deactivate or reactivate a UOM.
+
+- [ ] **Given** a Lab UOM, including one referenced by tests  
+  **When** they attempt to hard-delete it, or select an inactive UOM on a new or edited test  
+  **Then** hard delete is not allowed; inactive UOMs remain on existing tests and cannot be selected for a new or edited test.
+
+- [ ] **Given** Product UOM values (Bag, Ton, KG, …) exist for logistics  
+  **When** they manage Lab UOM or create a Lab Test  
+  **Then** the Lab UOM catalog is lab-only — it is not Product UOM and is not used for logistics.
 
 ### AC-3 — Lab Test
 
-- [ ] A lab test **cannot** be created until at least one **active** Test Category and one **active** Lab UOM exist.
-- [ ] Tenant Super Admin / Tenant Admin can **create** a lab test with: test code, test name, category (required, active only), lab UOM (required, active only), standard value (required decimal ≥ 0), optional description, active (default on).
-- [ ] If the selected UOM symbol is `%`, standard value must be between **0 and 100** inclusive. Other UOMs: standard value ≥ 0 only.
-- [ ] They can **edit** name, category, UOM, standard value, and description. **Test code** is unique per tenant and immutable after create. Duplicate code is rejected with a clear error.
-- [ ] They can list tests, search/filter by code, name, category, UOM, and status; **deactivate** and **reactivate**.
-- [ ] List and detail show the standard with the UOM symbol (e.g. `12.5 %`, `20 ppb`). There is **no** standard-rule field.
-- [ ] There is **no hard delete**.
+- [ ] **Given** there is no active Test Category or no active Lab UOM  
+  **When** a Tenant Super Admin or Tenant Admin tries to create a Lab Test  
+  **Then** creation is blocked until at least one active Test Category and one active Lab UOM exist.
+
+- [ ] **Given** at least one active Test Category and one active Lab UOM exist  
+  **When** a Tenant Super Admin or Tenant Admin creates a Lab Test  
+  **Then** they can save test code, test name, category (required, active only), lab UOM (required, active only), standard value (required decimal ≥ 0), optional description, and active status (default on).
+
+- [ ] **Given** a Lab Test whose selected UOM symbol is `%`  
+  **When** they save a standard value  
+  **Then** the value must be between **0 and 100** inclusive; for other UOMs the standard value must be ≥ 0 only.
+
+- [ ] **Given** an existing Lab Test  
+  **When** they edit it or submit a duplicate test code  
+  **Then** they can change name, category, UOM, standard value, and description; the test code stays unique per tenant and immutable after create; a duplicate code is rejected with a clear error.
+
+- [ ] **Given** Lab Tests exist  
+  **When** they open the test list  
+  **Then** they can list tests, search/filter by code, name, category, UOM, and status, and deactivate or reactivate a test.
+
+- [ ] **Given** a Lab Test with a standard value and UOM  
+  **When** they view the list or detail  
+  **Then** the standard is shown with the UOM symbol (e.g. `12.5 %`, `20 ppb`) and there is no standard-rule field.
+
+- [ ] **Given** an existing Lab Test  
+  **When** they attempt to hard-delete it  
+  **Then** hard delete is not allowed.
 
 ### AC-4 — Active vs inactive
 
-- [ ] Only **active** tests are eligible for new lab work (when QC-02 is built). Inactive tests remain visible in the master list and on historical records.
-- [ ] Deactivating a test, category, or UOM does not rewrite or hide past references.
+- [ ] **Given** Lab Tests that are active and inactive  
+  **When** new lab work is created (when QC-02 is built)  
+  **Then** only **active** tests are eligible; inactive tests remain visible in the master list and on historical records.
+
+- [ ] **Given** a test, category, or UOM that is referenced historically  
+  **When** it is deactivated  
+  **Then** past references are not rewritten or hidden.
 
 ### AC-5 — Tenant isolation
 
-- [ ] Each tenant sees and manages **only** its own categories, lab UOMs, and tests.
-- [ ] The same code may exist in two tenants; it must not collide across tenants.
+- [ ] **Given** two tenants each with their own catalogs  
+  **When** a user in Tenant A manages categories, lab UOMs, or tests  
+  **Then** they see and manage **only** Tenant A’s records.
+
+- [ ] **Given** Tenant A and Tenant B  
+  **When** both use the same category, UOM, or test code  
+  **Then** the codes do not collide across tenants.
 
 ### AC-6 — Portal / Master Data
 
-- [ ] Master Data includes three screens, same pattern as Brands / Product Categories: **Test Categories**, **Lab UOM**, **Lab Tests**.
-- [ ] Lab Tests create/edit requires picking category and UOM from those masters (no free-typed category or UOM).
-- [ ] The screens are available to Tenant Super Admin and Tenant Admin.
-- [ ] Operational QC roles do not get setup screens for these catalogs.
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they open Master Data  
+  **Then** they see three screens in the same pattern as Brands / Product Categories: **Test Categories**, **Lab UOM**, and **Lab Tests**.
+
+- [ ] **Given** they are creating or editing a Lab Test  
+  **When** they choose category and UOM  
+  **Then** they must pick those values from the masters (no free-typed category or UOM).
+
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they use the portal  
+  **Then** the three Master Data screens are available to them.
+
+- [ ] **Given** an operational QC role  
+  **When** they use the portal  
+  **Then** they do not get setup screens for these catalogs.
 
 ### AC-7 — Audit
 
-- [ ] Create, edit, deactivate, and reactivate of category, lab UOM, and lab test are audit-logged (who, when, what changed).
+- [ ] **Given** a category, lab UOM, or lab test  
+  **When** it is created, edited, deactivated, or reactivated  
+  **Then** the change is audit-logged (who, when, what changed).
 
 ---
 

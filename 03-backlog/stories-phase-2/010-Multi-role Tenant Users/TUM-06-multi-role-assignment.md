@@ -47,55 +47,141 @@ This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multip
 
 ### AC-0 — Who may assign
 
-- [ ] **Tenant Super Admin** can assign multiple roles to a user, including **Tenant Admin plus operational roles** (invite, user edit, CSV).
-- [ ] **Tenant Admin** can assign multiple **operational** roles to a user (invite, user edit, CSV), including adding operational roles to a user who already is Tenant Admin.
-- [ ] A user who is neither Tenant Super Admin nor Tenant Admin (nor platform Super Admin) cannot assign roles.
-- [ ] Tenant Admin still cannot assign Tenant Super Admin or Super Admin. Tenant Admin still cannot grant the Tenant Admin role (existing delegation: Tenant Super Admin only).
+- [ ] **Given** a Tenant Super Admin  
+  **When** they invite, edit, or CSV-import a user  
+  **Then** they can assign multiple roles, including **Tenant Admin plus operational roles**.
+
+- [ ] **Given** a Tenant Admin  
+  **When** they invite, edit, or CSV-import a user  
+  **Then** they can assign multiple **operational** roles, including adding operational roles to a user who already is Tenant Admin.
+
+- [ ] **Given** a user who is neither Tenant Super Admin nor Tenant Admin (nor platform Super Admin)  
+  **When** they attempt to assign roles  
+  **Then** the action is denied.
+
+- [ ] **Given** a Tenant Admin  
+  **When** they try to assign Tenant Super Admin, Super Admin, or the Tenant Admin role  
+  **Then** those grants are denied (existing delegation: Tenant Super Admin only may grant Tenant Admin).
 
 ### AC-1 — Cardinality & assignment
 
-- [ ] A user may hold **multiple** roles at once. There is **no fixed cap**. The set is whatever the admin assigns (invite, edit, or CSV), as long as each role is allowed.
-- [ ] **Tenant Super Admin** may hold **only one** role.
-- [ ] **Tenant Admin** may be combined with operational roles.
-- [ ] Assigning an additional allowed role **adds** a `UserRole` row; it does not delete the previous one.
-- [ ] Removing a role deletes that assignment only; other roles remain.
-- [ ] Duplicate role on the same user is rejected (keep `unique(user, role)`).
-- [ ] Exclusive-role combinations (BR-TUM06-005) are rejected with a clear validation error (admin + API + CSV).
+- [ ] **Given** an allowed set of roles  
+  **When** a Tenant Super Admin or Tenant Admin assigns them via invite, edit, or CSV  
+  **Then** the user may hold **multiple** roles at once with **no fixed cap**; the set is whatever the admin assigns, as long as each role is allowed.
+
+- [ ] **Given** a Tenant Super Admin account  
+  **When** anyone tries to add a second role to it  
+  **Then** Tenant Super Admin may hold **only one** role; the extra assignment is rejected.
+
+- [ ] **Given** a user who is (or will be) Tenant Admin  
+  **When** operational roles are also assigned  
+  **Then** Tenant Admin may be combined with those operational roles.
+
+- [ ] **Given** a user who already has an allowed role  
+  **When** an additional allowed role is assigned  
+  **Then** a `UserRole` row is **added**; the previous assignment is not deleted.
+
+- [ ] **Given** a user with more than one assigned role  
+  **When** one role is removed  
+  **Then** only that assignment is deleted; other roles remain.
+
+- [ ] **Given** a user who already has a given role  
+  **When** the same role is assigned again  
+  **Then** the duplicate is rejected (`unique(user, role)` is kept).
+
+- [ ] **Given** an exclusive-role combination (BR-TUM06-005)  
+  **When** it is submitted via admin, API, or CSV  
+  **Then** it is rejected with a clear validation error.
 
 ### AC-2 — Invite, edit, CSV
 
-- [ ] Invite User and User Edit replace the single Role dropdown with multi-select (still department-filtered; Super Admin hidden). The form is usable by **Tenant Super Admin** and **Tenant Admin**.
-- [ ] Invitation applies **all** selected `role_ids` on activation — not only `role_ids[0]`.
-- [ ] CSV accepts multiple role codes on one row (comma-separated `role` / `role_code`); a forbidden combo fails that row with a reason.
-- [ ] Existing single-role invites, edits, and CSV rows keep working (one role is still valid).
+- [ ] **Given** a Tenant Super Admin or Tenant Admin  
+  **When** they open Invite User or User Edit  
+  **Then** the single Role dropdown is replaced with multi-select (still department-filtered; Super Admin hidden).
+
+- [ ] **Given** an invitation with more than one selected `role_ids`  
+  **When** the user activates  
+  **Then** the system applies **all** selected `role_ids` — not only `role_ids[0]`.
+
+- [ ] **Given** a CSV row with comma-separated `role` / `role_code` values  
+  **When** it is imported  
+  **Then** multiple role codes on one row are accepted; a forbidden combo fails that row with a reason.
+
+- [ ] **Given** existing single-role invites, edits, and CSV rows  
+  **When** they are processed after this change  
+  **Then** they keep working (one role is still valid).
 
 ### AC-3 — Working role (no permission union)
 
-- [ ] There is **no union** of permissions across assigned roles.
-- [ ] If the user has **more than one** assigned role, the portal shows a **Select Role** control modelled on **Select POI** (profile / header switcher).
-- [ ] The user picks one assigned role as the **working role**. Menus, landing page, queues, fieldsets, and API/admin checks follow **that role only**.
-- [ ] Switching working role immediately applies that role’s screens and permissions (no second login).
-- [ ] If the user has **one** role, Select Role is hidden (or disabled); that role is the working role.
-- [ ] Working role is remembered for the session (same persistence idea as working POI). If the admin removes the current working role, the session falls back to a remaining assigned role.
-- [ ] Self-approval is still denied when `created_by == request.user`, even after switching role.
+- [ ] **Given** a user with more than one assigned role  
+  **When** they use the portal or APIs  
+  **Then** there is **no union** of permissions across assigned roles.
+
+- [ ] **Given** a user with **more than one** assigned role  
+  **When** they are in the portal  
+  **Then** the portal shows a **Select Role** control modelled on **Select POI** (profile / header switcher).
+
+- [ ] **Given** a user with multiple assigned roles  
+  **When** they pick one as the **working role**  
+  **Then** menus, landing page, queues, fieldsets, and API/admin checks follow **that role only**.
+
+- [ ] **Given** a user already logged in with a working role  
+  **When** they switch to another assigned role  
+  **Then** that role’s screens and permissions apply immediately (no second login).
+
+- [ ] **Given** a user with **one** role  
+  **When** they use the portal  
+  **Then** Select Role is hidden (or disabled) and that role is the working role.
+
+- [ ] **Given** a working role stored for the session (same persistence idea as working POI)  
+  **When** the admin removes the current working role  
+  **Then** the session falls back to a remaining assigned role.
+
+- [ ] **Given** a request where `created_by == request.user`  
+  **When** the user switches working role and tries to approve it  
+  **Then** self-approval is still denied.
 
 ### AC-4 — Portal follows the working role
 
-- [ ] `get_primary_role_code` / equivalent checks use the **working role**, not “first assigned”.
-- [ ] While working as role A, role B’s menus and actions are **not** shown.
-- [ ] After the user selects role B, they see B’s landing and can only perform B’s operations.
-- [ ] If the working role is POI-scoped, Select POI still applies for that role’s site.
+- [ ] **Given** `get_primary_role_code` / equivalent checks  
+  **When** they resolve the user’s role  
+  **Then** they use the **working role**, not “first assigned”.
+
+- [ ] **Given** the user is working as role A  
+  **When** they view menus and actions  
+  **Then** role B’s menus and actions are **not** shown.
+
+- [ ] **Given** the user selects role B  
+  **When** the portal refreshes to that working role  
+  **Then** they see B’s landing and can only perform B’s operations.
+
+- [ ] **Given** the working role is POI-scoped  
+  **When** the user needs a site  
+  **Then** Select POI still applies for that role’s site.
 
 ### AC-5 — POI per local role
 
-- [ ] Each POI-scoped role still requires its own site assignment.
-- [ ] A user may have different POIs for different local roles.
-- [ ] A global operational role must not require a POI; leftover POI rows for a role that is no longer POI-scoped are cleared for **that role only**.
+- [ ] **Given** a POI-scoped role assigned to a user  
+  **When** that role is saved  
+  **Then** it still requires its own site assignment.
+
+- [ ] **Given** a user with more than one local role  
+  **When** POIs are assigned  
+  **Then** they may have different POIs for different local roles.
+
+- [ ] **Given** a global operational role (not POI-scoped)  
+  **When** leftover POI rows exist for that role  
+  **Then** the role must not require a POI, and leftover POI rows are cleared for **that role only**.
 
 ### AC-6 — Audit
 
-- [ ] Invite / assign / remove logs the **set** of role codes (added, removed, resulting), actor, and timestamp.
-- [ ] Subsequent audited actions record the **working role** at event time (the role the user had selected), not the full assigned set.
+- [ ] **Given** an invite, assign, or remove of roles  
+  **When** the change is saved  
+  **Then** the audit log records the **set** of role codes (added, removed, resulting), actor, and timestamp.
+
+- [ ] **Given** a subsequent audited action  
+  **When** it is logged  
+  **Then** it records the **working role** at event time (the role the user had selected), not the full assigned set.
 
 ---
 

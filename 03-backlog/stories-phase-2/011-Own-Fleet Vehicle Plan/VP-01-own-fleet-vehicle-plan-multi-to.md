@@ -63,56 +63,145 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 
 ### AC-0 — Default plan (single order unchanged)
 
-- [ ] Creating an own-fleet transport order **always** creates a Vehicle Plan with that order as the only member (no vehicle until one is assigned).
-- [ ] Today’s single-order path still works: create → assign → dispatch → yard. The plan is in the background; the planner does not fill in a second document for one order.
-- [ ] An order belongs to **exactly one** plan at a time.
-- [ ] Vendor-fleet create, grouping, and bid are unchanged.
+- [ ] **Given** an own-fleet transport order being created  
+  **When** the order is saved  
+  **Then** the system **always** creates a Vehicle Plan with that order as the only member (no vehicle until one is assigned).
+
+- [ ] **Given** a single-order own-fleet path (create → assign → dispatch → yard)  
+  **When** the planner works that order  
+  **Then** today’s path still works; the plan is in the background and the planner does not fill in a second document for one order.
+
+- [ ] **Given** any transport order  
+  **When** it is on a Vehicle Plan  
+  **Then** it belongs to **exactly one** plan at a time.
+
+- [ ] **Given** vendor-fleet create, grouping, and bid  
+  **When** those flows run after Vehicle Plan exists  
+  **Then** they are unchanged.
 
 ### AC-1 — Planner builds a multi-order plan
 
-- [ ] Transport Planner can create or open a Vehicle Plan, choose an **own-fleet vehicle**, and add **Created** orders (same or different requisitions).
-- [ ] Adding an order **moves** it off its old one-order plan onto this plan. Empty leftover plans are removed.
-- [ ] Planner can **remove** a Created order from a multi-order plan. That order goes back to a default one-order plan (still Created; vehicle cleared if it only came from this plan).
-- [ ] Orders that are not Created (Assigned, Ready for dispatch, on the road, in the yard, Closed, Cancelled, and so on) **cannot** be added or removed.
-- [ ] Mixed origin, destination, or load/unload pattern is **allowed**. Weight vs vehicle capacity may **warn**; it must not block the planner unless a later rule is added.
+- [ ] **Given** a Transport Planner  
+  **When** they create or open a Vehicle Plan  
+  **Then** they can choose an **own-fleet vehicle** and add **Created** orders (same or different requisitions).
+
+- [ ] **Given** an order on its default one-order plan  
+  **When** the planner adds it to another plan  
+  **Then** the order **moves** off its old one-order plan onto this plan, and empty leftover plans are removed.
+
+- [ ] **Given** a Created order on a multi-order plan  
+  **When** the planner removes it  
+  **Then** that order goes back to a default one-order plan (still Created; vehicle cleared if it only came from this plan).
+
+- [ ] **Given** orders that are not Created (Assigned, Ready for dispatch, on the road, in the yard, Closed, Cancelled, and so on)  
+  **When** the planner tries to add or remove them  
+  **Then** add and remove are blocked.
+
+- [ ] **Given** orders with mixed origin, destination, or load/unload pattern, including weight vs vehicle capacity  
+  **When** the planner puts them on one plan  
+  **Then** mixed membership is **allowed**; weight vs capacity may **warn** and must not block the planner unless a later rule is added.
 
 ### AC-2 — Assignment and dispatch apply to the whole plan (own fleet)
 
-- [ ] Vehicle, driver, and helpers on a plan are the crew for **all** member orders. The same vehicle and driver also show on each order for existing screens.
-- [ ] A vehicle runs **one plan at a time**. Orders on that plan may be in the yard together (at origin to load, at destination to unload); they do not block each other for sharing the truck.
-- [ ] A second plan for the same vehicle cannot be dispatched while this plan is already dispatched, on the road, or in the yard.
-- [ ] Supervisor / TDO dispatch releases the **plan**. All current member orders become Ready for dispatch together.
-- [ ] When the driver starts the trip on the plan, **every member order** moves to its first on-the-road status (usually driving to origin; some inbound finished-goods orders drive to destination first).
+- [ ] **Given** vehicle, driver, and helpers set on a plan  
+  **When** member orders are viewed  
+  **Then** that crew applies to **all** member orders, and the same vehicle and driver also show on each order for existing screens.
+
+- [ ] **Given** a vehicle with one in-progress plan  
+  **When** member orders are in the yard together (at origin to load, at destination to unload)  
+  **Then** the vehicle runs **one plan at a time**; those orders do not block each other for sharing the truck.
+
+- [ ] **Given** a plan already dispatched, on the road, or in the yard  
+  **When** a second plan for the same vehicle is dispatched  
+  **Then** that second dispatch is blocked.
+
+- [ ] **Given** a plan with current member orders  
+  **When** Supervisor / TDO dispatches  
+  **Then** they release the **plan** and all current member orders become Ready for dispatch together.
+
+- [ ] **Given** a dispatched plan  
+  **When** the driver starts the trip on the plan  
+  **Then** **every member order** moves to its first on-the-road status (usually driving to origin; some inbound finished-goods orders drive to destination first).
 
 ### AC-3 — Gate-in starts from the vehicle
 
-- [ ] Gate-in starts by selecting the **vehicle** at this site (not by picking an order first).
-- [ ] The system loads that vehicle’s **active plan** and lists member orders **eligible at this site** (the order is on the way here to load or to unload).
-- [ ] All eligible orders are **selected by default**; the gateman may uncheck. At least one order must stay selected.
-- [ ] One visit is created for this vehicle at this site. Only the selected orders are on the visit. A vehicle cannot have a second open visit at the same site.
-- [ ] Gate-in is recorded **once** for the vehicle. Each **selected** order moves to at origin (to load) or at destination (to unload), as today. Unchecked orders are **not** moved and are not on this visit.
+- [ ] **Given** a gateman at a site  
+  **When** they start gate-in  
+  **Then** they select the **vehicle** at this site (not by picking an order first).
+
+- [ ] **Given** a selected vehicle with an active plan  
+  **When** the system loads gate-in  
+  **Then** it lists member orders **eligible at this site** (the order is on the way here to load or to unload).
+
+- [ ] **Given** eligible orders for this vehicle at this site  
+  **When** the gateman sees the checklist  
+  **Then** all eligible orders are **selected by default**; the gateman may uncheck; at least one order must stay selected.
+
+- [ ] **Given** a vehicle at this site with selected orders  
+  **When** gate-in is confirmed  
+  **Then** one visit is created for this vehicle at this site; only the selected orders are on the visit; a vehicle cannot have a second open visit at the same site.
+
+- [ ] **Given** eligible orders some of which are unchecked  
+  **When** gate-in is recorded  
+  **Then** gate-in is recorded **once** for the vehicle; each **selected** order moves to at origin (to load) or at destination (to unload), as today; unchecked orders are **not** moved and are not on this visit.
 
 ### AC-4 — Weigh once; Command Center assigns a bay per order
 
-- [ ] Weigh-in and weigh-out are **one cycle per visit** (truck weights). They are not captured per order.
-- [ ] After weigh-in, Command Center sees **one queue row for the visit**, with the visit’s orders listed.
-- [ ] Command Center assigns a loading or unloading point **to each visit order** (the officer may pick the same bay for two orders if they choose).
-- [ ] Load / unload stay **per order**. Quality check stays **per order** when that order’s lane requires it.
-- [ ] Shared steps (weigh-in, weigh-out, gate-out) update **every order on the visit**. Order-specific steps (bay assigned, loading, quality check) update **only that order**.
+- [ ] **Given** an open visit for a vehicle  
+  **When** weigh-in or weigh-out is captured  
+  **Then** they are **one cycle per visit** (truck weights) and are not captured per order.
+
+- [ ] **Given** weigh-in has been completed  
+  **When** Command Center opens the queue  
+  **Then** they see **one queue row for the visit**, with the visit’s orders listed.
+
+- [ ] **Given** a visit with more than one order  
+  **When** Command Center assigns a loading or unloading point  
+  **Then** they assign it **to each visit order** (the officer may pick the same bay for two orders if they choose).
+
+- [ ] **Given** orders on a visit  
+  **When** load, unload, or quality check is performed  
+  **Then** load / unload stay **per order**, and quality check stays **per order** when that order’s lane requires it.
+
+- [ ] **Given** shared steps (weigh-in, weigh-out, gate-out) and order-specific steps (bay assigned, loading, quality check)  
+  **When** those events occur  
+  **Then** shared steps update **every order on the visit**, and order-specific steps update **only that order**.
 
 ### AC-5 — Gate-out and individual order status
 
-- [ ] Gate-out is **once per visit** (the vehicle).
-- [ ] Gate-out is blocked until **every order on this visit** has finished the work required **at this site** (load or unload complete; quality check if that order needs it).
-- [ ] On origin gate-out, each visit order moves to driving to destination (as today).
-- [ ] On destination gate-out, each visit order is Closed if its destination work is complete (as today).
-- [ ] An eligible order that was **unchecked** at gate-in is unchanged by this visit. It can only be served in a **later** visit after this one is closed.
-- [ ] Each order keeps its own timeline, proof of delivery, quality-check outcome, and commercial close. The plan is **completed** when all member orders are Closed or Cancelled.
+- [ ] **Given** an open visit  
+  **When** gate-out is recorded  
+  **Then** it is **once per visit** (the vehicle).
+
+- [ ] **Given** at least one visit order that has not finished the work required **at this site** (load or unload complete; quality check if that order needs it)  
+  **When** the gateman attempts gate-out  
+  **Then** gate-out is blocked until **every order on this visit** has finished that work.
+
+- [ ] **Given** a visit at origin with all required site work complete  
+  **When** gate-out is recorded  
+  **Then** each visit order moves to driving to destination (as today).
+
+- [ ] **Given** a visit at destination with destination work complete  
+  **When** gate-out is recorded  
+  **Then** each visit order is Closed if its destination work is complete (as today).
+
+- [ ] **Given** an eligible order that was **unchecked** at gate-in  
+  **When** this visit proceeds and later closes  
+  **Then** that order is unchanged by this visit and can only be served in a **later** visit after this one is closed.
+
+- [ ] **Given** member orders on a plan  
+  **When** they move through yard, proof of delivery, quality check, and commercial close  
+  **Then** each order keeps its own timeline, proof of delivery, quality-check outcome, and commercial close; the plan is **completed** when all member orders are Closed or Cancelled.
 
 ### AC-6 — Audit
 
-- [ ] Creating a plan, adding an order, removing an order, dispatch, and which orders were included at gate-in are audited with actor and timestamp.
-- [ ] Existing order status-change history remains the source of truth for each order’s lifecycle.
+- [ ] **Given** creating a plan, adding an order, removing an order, dispatch, or choosing which orders were included at gate-in  
+  **When** the event is saved  
+  **Then** it is audited with actor and timestamp.
+
+- [ ] **Given** existing order status-change history  
+  **When** an order’s lifecycle is reviewed  
+  **Then** that history remains the source of truth for each order’s lifecycle.
 
 ---
 
