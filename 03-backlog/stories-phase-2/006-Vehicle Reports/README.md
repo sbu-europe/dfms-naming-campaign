@@ -13,14 +13,20 @@ Reports menu → Vehicle Report fleet overview + per-vehicle detail (fuel, inspe
 
 Previously planned under Sprint 10 (`03-backlog/sprints/sprint-10/02-vehicle-reports/`). Moved to Phase 2 unscheduled backlog.
 
-| File | Role |
-|------|------|
-| [VR-01](./VR-01-reports-menu-vehicle-report-navigation.md) | Story — Reports Menu — Vehicle Report Navigation & RBAC (3 SP) |
-| [VR-02](./VR-02-vehicle-report-fleet-overview.md) | Story — Vehicle Report — Fleet Overview (Health Cards) (8 SP) |
-| [VR-03](./VR-03-vehicle-report-detail-view.md) | Story — Vehicle Report — Detail View (Fuel, Inspection, Compliance) (5 SP) |
+| File | Role | TDD test cases |
+|------|------|----------------|
+| [VR-01](./VR-01-reports-menu-vehicle-report-navigation.md) | Story — Reports Menu — Vehicle Report Navigation & RBAC (3 SP) | [VR-01 TDD](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-navigation-tdd-test-cases.md) |
+| [VR-02](./VR-02-vehicle-report-fleet-overview.md) | Story — Vehicle Report — Fleet Overview (Health Cards) (8 SP) | [VR-02 TDD](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-02-fleet-overview-tdd-test-cases.md) |
+| [VR-03](./VR-03-vehicle-report-detail-view.md) | Story — Vehicle Report — Detail View (Fuel, Inspection, Compliance) (5 SP) | [VR-03 TDD](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-03-vehicle-report-detail-tdd-test-cases.md) |
 
 **Module spec:** [`05-modules/11-reporting/vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md)  
 **Design reference:** [`example-prototypes/fleet-operations.html`](../../../example-prototypes/fleet-operations.html)
+
+**Story AC format:** Given–When–Then + gherkin `AC-N.x` + Edge Cases.
+
+**TDD test catalogs:**  
+- Feature folder: [`09-testing/stories-phase-2/006-Vehicle Reports/`](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/)  
+- Master index: [`00-all-test-cases.md`](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md)
 
 **Stories:** VR-01 – VR-03 · **Estimated:** ~16 SP
 
