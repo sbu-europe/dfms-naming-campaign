@@ -36,7 +36,7 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Transport Planner or Driver Supervisor  
+**As a** Tenant Super Admin, Tenant Admin, Transport Planner, or Driver Supervisor  
 **I want** a detailed vehicle report with fuel, inspection, and compliance sections  
 **So that** I can investigate a specific vehicle’s health and history in one place
 
@@ -229,7 +229,7 @@ GET    /api/v1/reports/vehicles/{id}/?fuel_period_days=30
 
 | Action | Role |
 |--------|------|
-| View vehicle report detail | `transport_planner`, `driver_supervisor`, `tenant_admin` |
+| View vehicle report detail | `tenant_super_admin`, `tenant_admin`, `transport_planner`, `driver_supervisor` |
 | Link to Vehicle Planning | Requires `MENU_VEHICLE_PLANNING_VIEW` |
 
 ---

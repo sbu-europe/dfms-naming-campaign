@@ -37,7 +37,7 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Transport Planner or Driver Supervisor  
+**As a** Tenant Super Admin, Tenant Admin, Transport Planner, or Driver Supervisor  
 **I want** a fleet overview showing each own-fleet vehicle’s health summary  
 **So that** I can monitor fuel performance, inspection status, and compliance without opening Vehicle Planning
 
@@ -194,7 +194,7 @@ GET    /api/v1/reports/vehicles/?fuel_period_days=30&page=1&has_alerts=true
 
 | Action | Role |
 |--------|------|
-| View fleet overview | `transport_planner`, `driver_supervisor`, `tenant_admin` |
+| View fleet overview | `tenant_super_admin`, `tenant_admin`, `transport_planner`, `driver_supervisor` |
 | Drill down to detail | Same roles |
 
 ---

@@ -33,13 +33,11 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Transport Planner or Driver Supervisor  
+**As a** Tenant Super Admin, Tenant Admin, Transport Planner, or Driver Supervisor  
 **I want** a **Reports** section in the portal menu with a **Vehicle Report** submenu  
 **So that** fuel, health, and parts information is separate from Vehicle Planning (TO assignment)
 
 ## Business Context
-
-**Vehicle Planning** remains unchanged — TO-centric assignment only ([`vehicle-planning-view.md`](../../../05-modules/05-transport/vehicle-planning-view.md) v1).
 
 Fuel, compliance, and parts visibility moves to **Reports → Vehicle Report** — a dedicated read-only reporting surface (prototype Fleet Dashboard pattern).
 
@@ -63,7 +61,7 @@ then a **Reports** section exposes **Vehicle Report**, and Vehicle Planning stay
 
 ```gherkin
 Scenario: AC-1.1 - Reports → Vehicle Report menu exists
-  Given a transport_planner is logged into the admin portal
+  Given a tenant_super_admin, tenant_admin, transport_planner, or driver_supervisor is logged into the admin portal
   When they open the portal navigation
   Then a top-level Reports section is visible
   And Vehicle Report navigates to /admin/reports/vehicle-report/ (or equivalent)
@@ -84,14 +82,14 @@ when they load the portal menu,
 then only granted roles see Reports → Vehicle Report.
 
 - [ ] New permission: `MENU_VEHICLE_REPORT_VIEW`.
-- [ ] Granted to: `transport_planner`, `driver_supervisor`, `tenant_admin`.
+- [ ] Granted to: `tenant_super_admin`, `tenant_admin`, `transport_planner`, `driver_supervisor`.
 - [ ] Other roles do not see Reports → Vehicle Report unless explicitly granted.
 
 **Test Scenarios (AC-2):**
 
 ```gherkin
-Scenario: AC-2.1 - TP, DS, tenant_admin see Vehicle Report
-  Given users with transport_planner, driver_supervisor, or tenant_admin
+Scenario: AC-2.1 - TSA, TA, TP, DS see Vehicle Report
+  Given users with tenant_super_admin, tenant_admin, transport_planner, or driver_supervisor
   When each opens the portal
   Then Reports → Vehicle Report is visible
 
@@ -140,7 +138,7 @@ Scenario: AC-3.2 - Detail breadcrumbs include registration
 
 | Action | Role |
 |--------|------|
-| See Reports → Vehicle Report menu | `transport_planner`, `driver_supervisor`, `tenant_admin` |
+| See Reports → Vehicle Report menu | `tenant_super_admin`, `tenant_admin`, `transport_planner`, `driver_supervisor` |
 | Vehicle Planning (unchanged) | `transport_planner` (`MENU_VEHICLE_PLANNING_VIEW`) |
 
 **Permission codes (proposed):** `MENU_VEHICLE_REPORT_VIEW`
@@ -152,7 +150,7 @@ Scenario: AC-3.2 - Detail breadcrumbs include registration
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
 | VR-01-1 | Reports menu section | `PORTAL_NAV_SECTIONS` + Vehicle Report item | High | Not started |
-| VR-01-2 | Permission seed | `MENU_VEHICLE_REPORT_VIEW` for TP, DS, tenant admin | High | Not started |
+| VR-01-2 | Permission seed | `MENU_VEHICLE_REPORT_VIEW` for TSA, TA, TP, DS | High | Not started |
 | VR-01-3 | Tests | Cover AC-1…AC-3 + Edge Cases (RBAC) | High | Not started |
 
 ---

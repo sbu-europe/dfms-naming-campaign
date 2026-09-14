@@ -16,7 +16,7 @@ Previously planned under Sprint 10 (`03-backlog/sprints/sprint-10/01-fuel-manage
 | File | Role | TDD test cases |
 |------|------|----------------|
 | [FM-01](./FM-01-fuel-entry-driver-supervisor-admin.md) | Story — Fuel Entry — Driver Supervisor (Admin Portal) (8 SP) | [FM-01 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-admin-tdd-test-cases.md) |
-| [FM-02](./FM-02-fuel-entry-driver-mobile.md) | Story — Fuel Entry — Driver (Mobile) (5 SP) | [FM-02 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md) |
+| [FM-02](./FM-02-fuel-entry-driver-mobile.md) | Story — Fuel Entry — Driver (Mobile Web Interface) (5 SP) | [FM-02 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md) |
 | [FM-03](./FM-03-fuel-consumption-calculations.md) | Story — Fuel Consumption Calculations & Odometer Validation (5 SP) | [FM-03 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations-tdd-test-cases.md) |
 | [FM-04](./FM-04-fuel-history-and-filters.md) | Story — Fuel History & Filters (3 SP) | [FM-04 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters-tdd-test-cases.md) |
 | [FM-05](./FM-05-fuel-anomaly-baselines.md) | Story — Fuel Efficiency Baselines & Anomaly Detection (5 SP) | [FM-05 TDD](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines-tdd-test-cases.md) |

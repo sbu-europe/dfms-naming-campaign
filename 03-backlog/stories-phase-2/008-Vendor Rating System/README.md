@@ -15,7 +15,7 @@ Previously planned under Sprint 10 (`03-backlog/sprints/sprint-10/04-vendor-rati
 
 | File | Role | TDD test cases |
 |------|------|----------------|
-| [VRS-01](./VRS-01-post-to-vendor-rating-admin.md) | Story — Post-TO Vendor Rating — Tenant Admin / TDO (Admin Portal) (8 SP) | [VRS-01 TDD](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md) |
+| [VRS-01](./VRS-01-post-to-vendor-rating-admin.md) | Story — Post-TO Vendor Rating — Tenant Super Admin / Tenant Admin / TDO (Admin Portal) (8 SP) | [VRS-01 TDD](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md) |
 | [VRS-02](./VRS-02-vendor-rates-tenant-mobile.md) | Story — Vendor Rates Tenant — Post-TO Structured Rating (Vendor Mobile App) (8 SP) | [VRS-02 TDD](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md) |
 | [VRS-03](./VRS-03-vendor-rating-visibility-admin.md) | Story — Vendor Rating Visibility — Admin Portal (Profile + Bid Views) (3 SP) | [VRS-03 TDD](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin-tdd-test-cases.md) |
 

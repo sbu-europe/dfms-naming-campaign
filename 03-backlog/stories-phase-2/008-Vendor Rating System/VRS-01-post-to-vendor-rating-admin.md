@@ -3,7 +3,7 @@ jira_key: ~
 jira_type: Story
 jira_sprint: ~
 story_id: VRS-01
-title: Post-TO Vendor Rating — Tenant Admin / TDO (Admin Portal)
+title: Post-TO Vendor Rating — Tenant Super Admin / Tenant Admin / TDO (Admin Portal)
 epic: Vendor Rating System
 status: Pending
 story_points: 8
@@ -20,7 +20,7 @@ tdd_test_cases: ../../../09-testing/stories-phase-2/008-Vendor Rating System/VRS
 tdd_index: ../../../09-testing/stories-phase-2/008-Vendor Rating System/00-all-test-cases.md
 ---
 
-# VRS-01 — Post-TO Vendor Rating — Tenant Admin / TDO (Admin Portal)
+# VRS-01 — Post-TO Vendor Rating — Tenant Super Admin / Tenant Admin / TDO (Admin Portal)
 
 ## TDD Test Cases
 
@@ -34,13 +34,13 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Tenant Admin or Transport Dispatcher/Officer (TDO)  
+**As a** Tenant Super Admin, Tenant Admin, or Transport Distribution Officer (TDO)  
 **I want to** rate a vendor on completion of a Transport Order across standardised criteria  
 **So that** vendor performance is tracked internally and informs future bid/award decisions
 
 ## Business Context
 
-When a Transport Order (TO) is marked `COMPLETED`, the system prompts the responsible Tenant Admin or TDO to provide a structured rating for the vendor. Ratings are **internal only** — not visible to vendors in v1.
+When a Transport Order (TO) is marked `COMPLETED`, the system prompts the responsible Tenant Super Admin, Tenant Admin, or TDO to provide a structured rating for the vendor. Ratings are **internal only** — not visible to vendors in v1.
 
 Rating is structured around **three core criteria**:
 
@@ -72,7 +72,7 @@ when the system processes the status change (and an authorized admin opens the c
 then a pending `VendorRating` exists for that TO/vendor, and only one rating per TO is allowed.
 
 - [ ] When a TO status transitions to `COMPLETED`, the system creates a **pending** `VendorRating` record for that TO (linked to TO and vendor).
-- [ ] Tenant Admin / TDO with `vendor.rating.create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
+- [ ] Tenant Super Admin / Tenant Admin / TDO with `vendor.rating.create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
 - [ ] Only **one rating per TO** is allowed — re-opening the prompt shows the existing (submitted or draft) rating.
 - [ ] Rating prompt is also accessible from **Vendor Profile → Rating History → Rate** (for past unrated TOs).
 
@@ -87,7 +87,7 @@ Scenario: AC-1.1 - COMPLETED TO creates pending VendorRating
 
 Scenario: AC-1.2 - Rate Vendor CTA on completed TO detail
   Given a completed TO with a pending VendorRating
-  And a Tenant Admin with vendor.rating.create permission
+  And a Tenant Super Admin, Tenant Admin, or TDO with vendor.rating.create permission
   When the admin opens the completed TO detail view
   Then a "Rate Vendor" button or prompt is shown
 
@@ -243,10 +243,10 @@ Given vendor users access portal or mobile APIs,
 
 when they request their own vendor rating data,
 
-then access is denied in v1; only Tenant Admin, TDO, and Transport Planner see ratings via internal admin views.
+then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Transport Planner see ratings via internal admin views.
 
 - [ ] Vendor portal and vendor mobile app do **not** expose the vendor's own rating in v1.
-- [ ] Rating data is accessible only to Tenant Admin, TDO, and Transport Planner via internal admin views.
+- [ ] Rating data is accessible only to Tenant Super Admin, Tenant Admin, TDO, and Transport Planner via internal admin views.
 
 **Test Scenarios (AC-6):**
 
@@ -258,7 +258,7 @@ Scenario: AC-6.1 - Vendor cannot read own rating via API
 
 Scenario: AC-6.2 - Admin roles can view rating
   Given a submitted VendorRating
-  When a tenant_admin, tdo, or transport_planner requests rating history
+  When a tenant_super_admin, tenant_admin, tdo, or transport_planner requests rating history
   Then the rating is returned
 ```
 
@@ -345,7 +345,7 @@ class RatingQuestion(TenantScopedModel):
 ## API Endpoints
 
 ```
-POST   /api/v1/transport-orders/{id}/vendor-rating/     # submit rating (Tenant Admin / TDO)
+POST   /api/v1/transport-orders/{id}/vendor-rating/     # submit rating (Tenant Super Admin / Tenant Admin / TDO)
 GET    /api/v1/transport-orders/{id}/vendor-rating/     # get rating for TO (admin only)
 GET    /api/v1/vendors/{id}/ratings/                    # paginated rating history (admin only)
 GET    /api/v1/vendors/{id}/rating-summary/             # avg, count, per-criterion avgs (admin only)
@@ -358,10 +358,10 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 
 | Action | Role |
 |--------|------|
-| Submit vendor rating (post-TO) | `tenant_admin`, `tdo` |
-| View vendor rating history | `tenant_admin`, `tdo`, `transport_planner` |
-| View rating in bid/award views | `tenant_admin`, `tdo`, `transport_planner` |
-| Configure / add rating questions | `tenant_admin` |
+| Submit vendor rating (post-TO) | `tenant_super_admin`, `tenant_admin`, `tdo` |
+| View vendor rating history | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
+| View rating in bid/award views | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
+| Configure / add rating questions | `tenant_super_admin`, `tenant_admin` |
 | View own vendor rating (as vendor) | **Denied in v1** |
 
 **Permission codes (proposed):** `vendor.rating.create`, `vendor.rating.view`, `vendor.rating.configure`

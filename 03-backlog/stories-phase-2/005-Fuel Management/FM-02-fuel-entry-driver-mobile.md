@@ -3,7 +3,7 @@ jira_key: ~
 jira_type: Story
 jira_sprint: ~
 story_id: FM-02
-title: Fuel Entry — Driver (Mobile)
+title: Fuel Entry — Driver (Mobile Web Interface)
 epic: Fuel Management
 status: Pending
 story_points: 5
@@ -26,7 +26,7 @@ tdd_test_cases: ../../../09-testing/stories-phase-2/005-Fuel Management/FM-02-fu
 tdd_index: ../../../09-testing/stories-phase-2/005-Fuel Management/00-all-test-cases.md
 ---
 
-# FM-02 — Fuel Entry — Driver (Mobile)
+# FM-02 — Fuel Entry — Driver (Mobile Web Interface)
 
 ## TDD Test Cases
 
@@ -41,14 +41,14 @@ Write failing tests from the catalog **before** implementation.
 ## User Story
 
 **As a** Driver  
-**I want to** log a refueling event from my mobile app immediately after filling up with minimal manual input  
+**I want to** log a refueling event from the **mobile web interface** immediately after filling up with minimal manual input  
 **So that** fuel tracking stays accurate without re-selecting my vehicle or entering date/location manually
 
 ## Business Context
 
-Drivers use the same **gauge before/after** data model as the supervisor portal (FM-01) but with a **streamlined mobile UX**: the assigned vehicle, refueling timestamp, location, and fuel type are **captured automatically** where possible. The driver only enters gauge readings, cost, odometer, and photos.
+Drivers use the same **gauge before/after** data model as the supervisor portal (FM-01) but with a **streamlined mobile web UX** (responsive driver portal — **not** a separate native mobile app): the assigned vehicle, refueling timestamp, location, and fuel type are **captured automatically** where possible. The driver only enters gauge readings, cost, odometer, and photos.
 
-Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobile sync patterns.
+Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobile-interface sync patterns.
 
 ### Driver vs Supervisor entry (field behaviour)
 
@@ -66,13 +66,13 @@ Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobil
 
 ### AC-1: Auto-captured fields (driver)
 
-Given a Driver with an assigned vehicle opens Log Fuel Entry on mobile,
+Given a Driver with an assigned vehicle opens Log Fuel Entry on the mobile web interface,
 
 when the form loads (and on submit for datetime/GPS),
 
 then vehicle, fuel type, refueling datetime, and location are auto-captured and not manually editable.
 
-- [ ] Menu item: **Log Fuel Entry** in driver mobile app.
+- [ ] Menu item: **Log Fuel Entry** in the driver **mobile web interface**.
 - [ ] **Vehicle:** pre-selected from driver’s current assignment; displayed read-only (no picker).
 - [ ] **Refueling datetime:** set automatically to **submit timestamp** (device time, synced to server); not editable by driver.
 - [ ] **Location:** captured from **device GPS** at submit (`latitude`, `longitude`); optional reverse-geocoded `location_label` for display; driver does not type location manually.
@@ -117,30 +117,47 @@ Given the auto-captured context is loaded,
 
 when the driver enters gauge, cost, odometer, and photos,
 
-then required intake fields are enforced and Fuel Filled is After − Before.
+then required vs optional fields are enforced and Fuel Filled is After − Before.
 
-- [ ] Fuel Amount Before Intake (L) * + gauge photo *
-- [ ] Fuel Amount After Intake (L) * + gauge photo *
-- [ ] Fuel Filled (auto: After − Before)
-- [ ] Fuel Cost (BDT) *
-- [ ] Current Odometer (km) *
-- [ ] Receipt photo, odometer photo (supporting)
-- [ ] Notes (optional)
+**Required (must be provided to submit):**
+- [ ] **Fuel Amount Before Intake (L)** — numeric *
+- [ ] **Gauge photo — before intake** *
+- [ ] **Fuel Amount After Intake (L)** — numeric *
+- [ ] **Gauge photo — after intake** *
+- [ ] **Fuel Cost (BDT)** *
+- [ ] **Current Odometer (km)** *
+
+**Auto-calculated (not entered by driver):**
+- [ ] **Fuel Filled (L)** = After − Before (display-only / server-computed)
+
+**Optional (submit allowed without these):**
+- [ ] **Fuel Receipt Photo upload** — **optional**; not required to create the entry.
+- [ ] **Odometer photo** — **optional** (supporting).
+- [ ] **Notes** — **optional** (free text).
 
 **Test Scenarios (AC-2):**
 
 ```gherkin
-Scenario: AC-2.1 - Happy path driver entry fields
+Scenario: AC-2.1 - Happy path with required fields only (no receipt)
   Given assigned vehicle context is loaded
   When the driver enters Before=15, After=55, Cost=4500, Odometer=13000
   And uploads gauge before and after photos
+  And does not upload a Fuel Receipt Photo
+  And omits odometer photo and notes
   Then Fuel Filled shows 40
-  And receipt/odometer photos remain optional
+  And submit is allowed
+  And Fuel Receipt Photo is null / unset
 
 Scenario: AC-2.2 - Missing required gauge photo blocks submit
-  Given numeric fields are valid
+  Given numeric required fields are valid
   When gauge after photo is missing
   Then submit is blocked with a required-photo error
+
+Scenario: AC-2.3 - Optional Fuel Receipt Photo accepted when provided
+  Given all required fields and gauge photos are valid
+  When the driver uploads a Fuel Receipt Photo (and optionally odometer photo + notes)
+  Then submit succeeds
+  And the receipt image URL is stored on the FuelEntry
 ```
 
 ### AC-3: Validation
@@ -219,9 +236,10 @@ Given a fuel entry sync/save succeeds,
 
 when the driver receives confirmation,
 
-then a success message is shown and an informational anomaly flag may appear without blocking save.
+then a success message is shown, the entry is audit-logged, and an informational anomaly flag may appear without blocking save.
 
 - [ ] Success message: “Fuel entry logged!”
+- [ ] **Audit log:** successful fuel entry create is audit-logged in the system (see AC-6).
 - [ ] Anomaly flag shown if efficiency >20% below baseline (informational, entry still saved).
 
 **Test Scenarios (AC-5):**
@@ -230,7 +248,7 @@ then a success message is shown and an informational anomaly flag may appear wit
 Scenario: AC-5.1 - Success confirmation
   Given a valid online submit
   When the server accepts the entry
-  Then the app shows “Fuel entry logged!”
+  Then the UI shows “Fuel entry logged!”
 
 Scenario: AC-5.2 - Anomaly is informational only
   Given calculated km/L is more than 20% below the vehicle-type baseline (FM-05)
@@ -238,6 +256,34 @@ Scenario: AC-5.2 - Anomaly is informational only
   Then anomaly_flag is true
   And the entry remains saved
   And the UI shows an informational anomaly indicator
+```
+
+### AC-6: Audit log
+
+Given a driver fuel entry is successfully created (online submit or offline sync),
+
+when persistence succeeds,
+
+then the fuel entry is **audit-logged** in the system.
+
+- [ ] Every successful `FuelEntry` create writes an audit log (`FUEL_ENTRY_CREATED`, or equivalent existing audit action pattern).
+- [ ] Audit payload includes at least: `fuel_entry_id`, `vehicle_id`, `created_by` (driver user), `entry_type=DRIVER_ENTRY`, `submitted_at` / timestamp.
+- [ ] Offline sync that creates the server record also writes the audit log (once per created entry; idempotent with the entry).
+- [ ] Failed / blocked submits do **not** create a success audit log for a fuel entry.
+
+**Test Scenarios (AC-6):**
+
+```gherkin
+Scenario: AC-6.1 - Audit log on successful driver fuel entry
+  Given a valid online driver fuel entry submit
+  When the server persists the FuelEntry
+  Then an audit log entry with action FUEL_ENTRY_CREATED exists
+  And it references the fuel entry, vehicle, driver, and DRIVER_ENTRY
+
+Scenario: AC-6.2 - Audit log on offline sync create
+  Given a queued offline fuel entry syncs successfully
+  When the server creates the FuelEntry
+  Then exactly one FUEL_ENTRY_CREATED audit log exists for that entry
 ```
 
 ---
@@ -253,7 +299,7 @@ Scenario: AC-5.2 - Anomaly is informational only
 - Reverse-geocode failure: still save lat/lng; `location_label` may be empty.
 
 ### Offline & sync
-- Photos queued offline: follow existing driver mobile media sync; entry must not mark complete until required gauge photos sync succeeds (or fail with retry).
+- Photos queued offline: follow existing driver mobile-interface media sync; entry must not mark complete until required gauge photos sync succeeds (or fail with retry).
 - Server validation fails on sync (e.g. odometer raced ahead): surface error on device; keep/retry per existing sync error UX — do not silently drop.
 
 ### Validation boundaries
@@ -294,7 +340,8 @@ Request body includes: `refueling_datetime`, `latitude`, `longitude`, `location_
 | FM-02-1 | Auto vehicle + fuel type | Assigned vehicle read-only; fuel type from master | High | Not started |
 | FM-02-2 | Auto datetime + GPS | Submit timestamp + device coordinates | High | Not started |
 | FM-02-3 | Offline queue | Preserve timestamp/GPS at queue time; sync on reconnect | Medium | Not started |
-| FM-02-4 | Tests | Cover AC-1…AC-5 scenarios + Edge Cases (GPS deny, offline idempotency, assignment) | High | Not started |
+| FM-02-4 | Audit log | `FUEL_ENTRY_CREATED` on successful create (online + offline sync) | High | Not started |
+| FM-02-5 | Tests | Cover AC-1…AC-6 scenarios + Edge Cases (GPS deny, offline idempotency, assignment, audit) | High | Not started |
 
 ---
 
@@ -303,19 +350,21 @@ Request body includes: `refueling_datetime`, `latitude`, `longitude`, `location_
 | Dependency | Direction | Note |
 |------------|-----------|------|
 | FM-03 calculations | Upstream | km/L computed server-side on sync |
-| DM-01 driver mobile | Upstream | Navigation shell, offline patterns |
+| DM-01 driver mobile interface | Upstream | Navigation shell, offline patterns (mobile web) |
 | Device GPS permission | External | Required; no manual location fallback |
 
 ---
 
 ## Definition of Done
 
-- [ ] Driver mobile fuel screen with auto vehicle, datetime, location, fuel type
+- [ ] Driver **mobile web** fuel screen with auto vehicle, datetime, location, fuel type
+- [ ] Required vs optional fields enforced (gauge values + gauge photos required; receipt/odometer photos and notes optional)
 - [ ] GPS permission flow and location capture on submit
 - [ ] Offline queue + sync with preserved timestamp/location
-- [ ] Tests for scenarios AC-1.1…AC-5.2 — see [FM-02 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md)
+- [ ] Audit log written on successful fuel entry create
+- [ ] Tests for scenarios AC-1.1…AC-6.2 — see [FM-02 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md)
 - [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
-- [ ] Maestro / integration test stub
+- [ ] Maestro / integration test stub (mobile web)
 - [ ] l10n EN + BN for fuel entry labels
 
 ---
