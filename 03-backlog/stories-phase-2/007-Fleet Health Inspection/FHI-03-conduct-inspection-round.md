@@ -222,7 +222,7 @@ GET    /api/v1/vehicles/{id}/checkpoint-states/
 | Action | Role |
 |--------|------|
 | Conduct inspection round | `driver_supervisor` |
-| View round history | `driver_supervisor`, `transport_planner`, `tenant_admin` |
+| View round history | `driver_supervisor`, `transport_planner`, `tenant_super_admin`, `tenant_admin` |
 
 **Permission codes (proposed):** `inspection.round.create`, `inspection.round.view`
 

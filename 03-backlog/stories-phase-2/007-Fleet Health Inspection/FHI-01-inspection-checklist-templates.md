@@ -35,7 +35,7 @@ Write failing model/API tests from the catalog **before** implementation (recomm
 
 ## User Story
 
-**As a** Transport Planner or Tenant Admin  
+**As a** Transport Planner, Tenant Super Admin, or Tenant Admin  
 **I want to** define inspection checkpoints and recurrence intervals per vehicle type  
 **So that** each vehicle in the fleet is checked on the correct schedule for engine, fuel, safety, and accessories
 
@@ -86,21 +86,21 @@ Scenario: AC-1.4 - Templates are per vehicle_type not per vehicle
 
 ### AC-2: Admin CRUD
 
-Given Transport Planner or Tenant Admin opens Checklist Templates,
+Given Transport Planner, Tenant Super Admin, or Tenant Admin opens Checklist Templates,
 
 when they filter, create, update, or reorder checkpoints for a vehicle type,
 
-then the admin UI under Master Data or Fleet Operations supports CRUD with write RBAC limited to `transport_planner` and `tenant_admin`.
+then the admin UI under Master Data or Fleet Operations supports CRUD with write RBAC limited to `transport_planner`, `tenant_super_admin`, and `tenant_admin`.
 
 - [ ] **Checklist Templates** under Master Data or Fleet Operations.
 - [ ] Filter by vehicle type; reorder checkpoints within type.
-- [ ] RBAC: `transport_planner`, `tenant_admin`.
+- [ ] RBAC: `transport_planner`, `tenant_super_admin`, `tenant_admin`.
 
 **Test Scenarios (AC-2):**
 
 ```gherkin
-Scenario: AC-2.1 - Planner can CRUD templates in admin
-  Given user role is transport_planner or tenant_admin
+Scenario: AC-2.1 - Planner / admin can CRUD templates
+  Given user role is transport_planner, tenant_super_admin, or tenant_admin
   When they open Checklist Templates and create/update a checkpoint
   Then the change is persisted and listed for that vehicle_type
 
@@ -189,7 +189,7 @@ Scenario: AC-4.3 - Cross-tenant access denied
 
 ### RBAC & tenancy
 - Unauthorized role (e.g. plain driver) → no manage, no silent create.
-- Driver Supervisor view-only; write reserved for `transport_planner`, `tenant_admin`.
+- Driver Supervisor view-only; write reserved for `transport_planner`, `tenant_super_admin`, `tenant_admin`.
 
 ### Ordering
 - Reorder only within the same `vehicle_type`; cross-type sort_order collisions are allowed and must not break filters.
@@ -209,7 +209,7 @@ GET/PATCH  /api/v1/inspection-checkpoints/{id}/
 
 | Action | Role |
 |--------|------|
-| CRUD templates | `transport_planner`, `tenant_admin` |
+| CRUD templates | `transport_planner`, `tenant_super_admin`, `tenant_admin` |
 | View templates (read-only) | `driver_supervisor` |
 
 **Permission codes (proposed):** `inspection.template.manage`, `inspection.template.view`

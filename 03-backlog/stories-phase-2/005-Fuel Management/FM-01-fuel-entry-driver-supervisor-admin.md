@@ -66,7 +66,7 @@ v1 uses a **gauge before/after** model from the approved prototype. Supervisor e
 
 ### AC-1: Pre-trip vehicle selection & vehicle info
 
-Given a Driver Supervisor (or Tenant Admin) opens Log Fuel Entry in the admin portal,
+Given a Driver Supervisor, Tenant Super Admin, or Tenant Admin opens Log Fuel Entry in the admin portal,
 
 when they select a vehicle from the own-fleet picker,
 
@@ -251,7 +251,7 @@ Scenario: AC-6.3 - Missing refueling date or location is rejected
   Then save is blocked with required-field errors
 
 Scenario: AC-6.4 - Unauthorized role cannot create supervisor entry
-  Given a user without driver_supervisor or tenant_admin fuel permissions
+  Given a user without driver_supervisor, tenant_super_admin, or tenant_admin fuel permissions
   When the user attempts to open or POST a supervisor fuel entry
   Then access is denied
 ```
@@ -299,10 +299,10 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 
 | Action | Role |
 |--------|------|
-| Open fuel entry form | `driver_supervisor`, `tenant_admin` |
-| Select any own-fleet vehicle | `driver_supervisor`, `tenant_admin` |
-| Update vehicle odometer on vehicle record | `driver_supervisor`, `tenant_admin` |
-| View fuel history (all vehicles) | `driver_supervisor`, `tenant_admin` |
+| Open fuel entry form | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
+| Select any own-fleet vehicle | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
+| Update vehicle odometer on vehicle record | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
+| View fuel history (all vehicles) | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
 | Log fuel for vendor fleet | **Denied** — own fleet only |
 
 **Permission codes (proposed):** `fuel.entry.create`, `fuel.history.view`

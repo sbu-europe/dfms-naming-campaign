@@ -40,7 +40,7 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Driver  
+**As a** Driver, Tenant Super Admin, or Tenant Admin  
 **I want to** log a refueling event from the **mobile web interface** immediately after filling up with minimal manual input  
 **So that** fuel tracking stays accurate without re-selecting my vehicle or entering date/location manually
 
@@ -48,7 +48,9 @@ Write failing tests from the catalog **before** implementation.
 
 Drivers use the same **gauge before/after** data model as the supervisor portal (FM-01) but with a **streamlined mobile web UX** (responsive driver portal — **not** a separate native mobile app): the assigned vehicle, refueling timestamp, location, and fuel type are **captured automatically** where possible. The driver only enters gauge readings, cost, odometer, and photos.
 
-Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobile-interface sync patterns.
+**Tenant Super Admin** and **Tenant Admin** also have access to this mobile Log Fuel Entry surface (same auto-capture rules when a vehicle assignment applies; otherwise use FM-01 admin entry for any own-fleet vehicle).
+
+Entries are tagged `DRIVER_ENTRY` when submitted from this mobile flow. Offline support follows existing driver mobile-interface sync patterns.
 
 ### Driver vs Supervisor entry (field behaviour)
 
@@ -66,13 +68,13 @@ Entries are tagged `DRIVER_ENTRY`. Offline support follows existing driver mobil
 
 ### AC-1: Auto-captured fields (driver)
 
-Given a Driver with an assigned vehicle opens Log Fuel Entry on the mobile web interface,
+Given a Driver, Tenant Super Admin, or Tenant Admin with an assigned vehicle opens Log Fuel Entry on the mobile web interface,
 
 when the form loads (and on submit for datetime/GPS),
 
 then vehicle, fuel type, refueling datetime, and location are auto-captured and not manually editable.
 
-- [ ] Menu item: **Log Fuel Entry** in the driver **mobile web interface**.
+- [ ] Menu item: **Log Fuel Entry** in the **mobile web interface** (Driver, Tenant Super Admin, Tenant Admin).
 - [ ] **Vehicle:** pre-selected from driver’s current assignment; displayed read-only (no picker).
 - [ ] **Refueling datetime:** set automatically to **submit timestamp** (device time, synced to server); not editable by driver.
 - [ ] **Location:** captured from **device GPS** at submit (`latitude`, `longitude`); optional reverse-geocoded `location_label` for display; driver does not type location manually.
@@ -292,7 +294,8 @@ Scenario: AC-6.2 - Audit log on offline sync create
 
 ### Assignment & permissions
 - Assignment changes after form open but before submit: server must re-check assigned vehicle; reject if no longer assigned.
-- Helper or non-driver role: no access to Log Fuel Entry.
+- Helper or other roles without fuel permission: no access to Log Fuel Entry.
+- `tenant_super_admin` and `tenant_admin` **have access** to Log Fuel Entry on this mobile surface.
 
 ### GPS & location
 - GPS fix unavailable despite permission granted: block submit with retry guidance (v1 — no manual fallback).
@@ -311,7 +314,7 @@ Scenario: AC-6.2 - Audit log on offline sync create
 ## API Endpoints
 
 ```
-POST   /api/v1/fuel-entries/          # driver session; DRIVER_ENTRY
+POST   /api/v1/fuel-entries/          # DRIVER_ENTRY (driver / tenant_super_admin / tenant_admin)
 GET    /api/v1/drivers/me/assignment/ # assigned vehicle for pre-fill
 POST   /api/v1/uploads/               # gauge/receipt/odometer images
 ```
@@ -324,9 +327,9 @@ Request body includes: `refueling_datetime`, `latitude`, `longitude`, `location_
 
 | Action | Role |
 |--------|------|
-| Log fuel entry | `driver` (assigned vehicle only) |
-| View own fuel history | `driver` |
-| Select vehicle other than assignment | **Denied** |
+| Log fuel entry (mobile web) | `driver` (assigned vehicle only), `tenant_super_admin`, `tenant_admin` |
+| View own fuel history | `driver`, `tenant_super_admin`, `tenant_admin` |
+| Select vehicle other than assignment | **Denied** for `driver`; admins without assignment use FM-01 |
 | Manual location text entry | **Denied** (v1) |
 
 **Permission codes (proposed):** `fuel.entry.create`, `fuel.entry.view_own`

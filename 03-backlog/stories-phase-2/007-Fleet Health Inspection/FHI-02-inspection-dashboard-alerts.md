@@ -195,7 +195,7 @@ GET    /api/v1/fleet-inspections/dashboard/
 
 | Action | Role |
 |--------|------|
-| View inspection dashboard | `driver_supervisor`, `transport_planner`, `tenant_admin` |
+| View inspection dashboard | `driver_supervisor`, `transport_planner`, `tenant_super_admin`, `tenant_admin` |
 
 **Permission codes (proposed):** `inspection.dashboard.view`
 

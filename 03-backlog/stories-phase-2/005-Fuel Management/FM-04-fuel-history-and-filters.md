@@ -191,7 +191,7 @@ GET    /api/v1/fuel-entries/stats/?vehicle_id={id}   # optional aggregated stats
 
 | Action | Role |
 |--------|------|
-| View all own-fleet fuel history | `driver_supervisor`, `tenant_admin` |
+| View all own-fleet fuel history | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
 | View own entries (assigned vehicle) | `driver` |
 | Export (CSV/PDF) | Out of scope (v1) |
 

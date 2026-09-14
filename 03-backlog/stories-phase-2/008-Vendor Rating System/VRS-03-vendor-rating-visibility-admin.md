@@ -35,7 +35,7 @@ Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
-**As a** Tenant Admin or Transport Planner  
+**As a** Tenant Super Admin, Tenant Admin, or Transport Planner  
 **I want to** see a vendor's current rating, criterion breakdown, and full rating history across the admin portal  
 **So that** I can make well-informed decisions when awarding bids, managing vendor relationships, and filtering the vendor pool
 
@@ -91,7 +91,7 @@ then overall stars, count, per-criterion averages, paginated history, Rate Vendo
 ```gherkin
 Scenario: AC-1.1 - Profile shows summary and per-criterion averages
   Given vendor "V-ACME" has 12 submitted ratings averaging 4.2
-  When Tenant Admin opens the vendor profile Performance Rating section
+  When a tenant_super_admin or tenant_admin opens the vendor profile Performance Rating section
   Then overall 4.2 / 5.0 and "Based on 12 ratings" are shown
   And Product Delivery, Driver Behaviour, and Vehicle averages are listed
 
@@ -282,9 +282,9 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 | Action | Role |
 |--------|------|
-| View vendor rating profile section | `tenant_admin`, `tdo`, `transport_planner` |
-| View rating in bid list / comparison | `tenant_admin`, `tdo`, `transport_planner` |
-| Filter vendor list by minimum rating | `tenant_admin`, `tdo`, `transport_planner` |
+| View vendor rating profile section | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
+| View rating in bid list / comparison | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
+| Filter vendor list by minimum rating | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
 | View own rating (vendor role) | **Denied in v1** |
 
 ---
