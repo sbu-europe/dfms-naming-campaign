@@ -41,9 +41,9 @@ e2e_scenarios:
 
 Smaller sites often need one person to cover two jobs — for example Gate and Scale at the same depot, or a Distribution Officer who can also approve when the manager is away. Today DFMS allows **only one role per user**. Admins either create a second login or keep changing that person’s role. That is slow, easy to get wrong, and it hides who actually did the work.
 
-This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multiple** roles — as many as they need, with no fixed cap. That includes a **Tenant Admin** who also holds operational jobs (for example Tenant Admin + Gateman). After login, the user **selects one working role** (same pattern as Select POI). Until they switch, they only see and do what that role can do. They still cannot approve their own requests.
+This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multiple operational** roles — as many as they need, with no fixed cap. After login, that user **selects one working role** (same pattern as Select POI). Until they switch, they only see and do what that role can do. They still cannot approve their own requests.
 
-**Tenant Super Admin** is the exception: that account stays **one role only**. Driver, Helper, and Vendor also stay single-role. Invitation already shipped as one role per person; this is new capability, not unfinished invite work.
+**Tenant Super Admin** and **Tenant Admin** stay **one role only** — they are administrators, not dual-hats. Driver, Helper, and Vendor also stay single-role. Invitation already shipped as one role per person; this is new capability, not unfinished invite work.
 
 ---
 
@@ -53,11 +53,11 @@ This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multip
 
 - [ ] **Given** a Tenant Super Admin  
   **When** they invite, edit, or CSV-import a user  
-  **Then** they can assign multiple roles, including **Tenant Admin plus operational roles**.
+  **Then** they can assign multiple **operational** roles, or assign **Tenant Admin** alone. They cannot combine Tenant Admin (or Tenant Super Admin) with any other role.
 
 - [ ] **Given** a Tenant Admin  
   **When** they invite, edit, or CSV-import a user  
-  **Then** they can assign multiple **operational** roles, including adding operational roles to a user who already is Tenant Admin.
+  **Then** they can assign multiple **operational** roles. They cannot add a second role to a Tenant Admin or Tenant Super Admin.
 
 - [ ] **Given** a user who is neither Tenant Super Admin nor Tenant Admin (nor platform Super Admin)  
   **When** they attempt to assign roles  
@@ -71,15 +71,15 @@ This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multip
 
 - [ ] **Given** an allowed set of roles  
   **When** a Tenant Super Admin or Tenant Admin assigns them via invite, edit, or CSV  
-  **Then** the user may hold **multiple** roles at once with **no fixed cap**; the set is whatever the admin assigns, as long as each role is allowed.
+  **Then** the user may hold **multiple operational** roles at once with **no fixed cap**; the set is whatever the admin assigns, as long as each role is allowed and none is exclusive (BR-TUM06-005).
 
 - [ ] **Given** a Tenant Super Admin account  
   **When** anyone tries to add a second role to it  
   **Then** Tenant Super Admin may hold **only one** role; the extra assignment is rejected.
 
-- [ ] **Given** a user who is (or will be) Tenant Admin  
-  **When** operational roles are also assigned  
-  **Then** Tenant Admin may be combined with those operational roles.
+- [ ] **Given** a Tenant Admin account  
+  **When** anyone tries to add a second role to it  
+  **Then** Tenant Admin may hold **only one** role; the extra assignment is rejected.
 
 - [ ] **Given** a user who already has an allowed role  
   **When** an additional allowed role is assigned  
@@ -214,33 +214,25 @@ User has Distribution Officer only
   → User switches to Distribution Manager → can approve others’ TRs; cannot approve own
 ```
 
-### Flow C — Tenant Admin plus an operational role (allowed)
+### Flow C — Forbidden: administrator plus anything
 
 ```
-Tenant Super Admin invites or edits a user
-  → Roles: Tenant Admin + Gateman
-  → Both assignments saved
-  → Select Role: Tenant Admin | Gateman
-  → Working as Tenant Admin → admin screens only
-  → Switch to Gateman → gate operations only
-```
+Anyone tries Tenant Admin + Gateman (or a second role on a Tenant Admin)
+  → Validation error; no rows written
 
-Tenant Admin may add Gateman to a user who **already** is Tenant Admin. Tenant Admin may **not** grant the Tenant Admin role itself.
-
-### Flow D — Forbidden: Tenant Super Admin plus anything
-
-```
 Anyone tries Tenant Super Admin + Gateman (or a second role on a Tenant Super Admin)
   → Validation error; no rows written
 ```
 
-### Flow E — CSV
+Tenant Admin may **not** grant the Tenant Admin role itself (existing delegation). Tenant Super Admin may grant Tenant Admin **alone**.
+
+### Flow D — CSV
 
 ```
 Row: email=..., role=gateman,scaling_operator, poi_code=DEPOT-01
   → Two assignments on activate/import
-Row: email=..., role=tenant_admin,gateman   (imported by Tenant Super Admin)
-  → Two assignments
+Row: email=..., role=tenant_admin,gateman
+  → Row fails; other rows unaffected
 Row: email=..., role=tenant_super_admin,gateman
   → Row fails; other rows unaffected
 Row: email=..., role=driver,gateman
@@ -253,15 +245,15 @@ Row: email=..., role=driver,gateman
 
 | ID | Rule |
 |---|---|
-| BR-TUM06-001 | No fixed cap. A user may hold multiple allowed roles. Duplicate role on the same user is still rejected. **Tenant Super Admin** is the exception (one role only). |
+| BR-TUM06-001 | No fixed cap on **operational** roles. Duplicate role on the same user is still rejected. **Tenant Super Admin** and **Tenant Admin** stay one role only (administrators). |
 | BR-TUM06-002 | No permission union. The user operates as the **working role** they selected. Permissions, menus, and landing match that role only. |
 | BR-TUM06-003 | Self-approval prevention applies in the working role; switching role does not let a user approve their own request |
 | BR-TUM06-004 | Super Admin is never assignable via invite/edit/CSV |
-| BR-TUM06-005 | As **targets**, these roles stay exclusive (cannot combine with any other role): **Tenant Super Admin**, Driver, Helper, Vendor. **Tenant Admin may be combined** with operational roles. |
+| BR-TUM06-005 | As **targets**, these roles stay exclusive (cannot combine with any other role): **Tenant Super Admin**, **Tenant Admin**, Driver, Helper, Vendor. |
 | BR-TUM06-006 | POI-scoped roles require a site **per role** |
 | BR-TUM06-007 | Removing a role does not deactivate the user account |
 | BR-TUM06-008 | `assign_role_to_user` must not delete other allowed operational assignments |
-| BR-TUM06-009 | **Tenant Super Admin** and **Tenant Admin** may assign multiple roles as in AC-0. Operational users may not. Only Tenant Super Admin may grant the Tenant Admin role. Tenant Admin may not grant Tenant Admin or Tenant Super Admin. |
+| BR-TUM06-009 | **Tenant Super Admin** and **Tenant Admin** may assign multiple **operational** roles as in AC-0. Operational users may not. Only Tenant Super Admin may grant the Tenant Admin role (alone). Tenant Admin may not grant Tenant Admin or Tenant Super Admin. |
 
 ---
 
@@ -305,9 +297,9 @@ Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../0
 - [ ] Edit: add second operational role → first role remains; Select Role appears
 - [ ] Edit: remove one of two roles → remaining role is working role; switcher hides if only one left
 - [ ] Edit: add a third allowed role → all three listed in Select Role
-- [ ] Tenant Super Admin + Gateman rejected; Driver + Gateman rejected
-- [ ] Tenant Super Admin assigns Tenant Admin + Gateman → Select Role lists both; each mode is role-scoped
-- [ ] Tenant Admin adds Gateman to an existing Tenant Admin user → same
+- [ ] Tenant Super Admin + Gateman rejected; Tenant Admin + Gateman rejected; Driver + Gateman rejected
+- [ ] Tenant Super Admin assigns Tenant Admin **alone** → Select Role hidden; admin screens only
+- [ ] Adding Gateman to an existing Tenant Admin is rejected
 - [ ] Tenant Admin cannot grant the Tenant Admin role to someone else
 - [ ] User with DO + DM: as DO cannot approve; switch to DM can approve others’ TRs; cannot approve own
 - [ ] CSV comma-separated roles success; forbidden combo row fails
@@ -332,4 +324,5 @@ Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../0
 - Removing the unique constraint without TUM-06-6 is a regression: the DB will allow two roles while the UI still has no way to pick the working role.
 - `InvitationSerializer.role_ids` `max_length=5` is leftover from a draft cap — lift it so all selected allowed roles are applied.
 - Archived US-004 described multi-role **union**; this story **does not** use union. The user works as one selected role at a time.
+- **Tenant Super Admin** and **Tenant Admin** are administrators: they may **assign** multiple operational roles to others, but they themselves may hold **only one** role.
 - Suggested PRD delta (BA, later): a person may be assigned multiple catalog roles; runtime access is the selected working role, same idea as working POI.
