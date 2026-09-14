@@ -15,6 +15,8 @@ phase: Phase 2
 related_stories:
   - MDM-05 — Lab Test master (catalog the technician picks from)
   - QC-01 — Physical sampling and Pass/Fail (creates the sample; remains the yard quality gate)
+e2e_scenarios:
+  - "../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab Testing/qc-02-lab-test-execution-e2e-scenarios.md"
 ---
 
 # QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results
@@ -28,6 +30,8 @@ related_stories:
 **As a** QA Lab Technician  
 **I want a** lab queue of sample codes, and to open a sample either by **scanning the QR** or by **selecting the code**, then attach the tests that sample needs  
 **So that** I work a standard lab process: code in, tests on, report out — with **no** visibility of the transport order or other yard details.
+
+**E2E scenarios:** [qc-02-lab-test-execution-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/qc-02-lab-test-execution-e2e-scenarios.md)
 
 ---
 
@@ -331,6 +335,8 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 ---
 
 ## Test Plan
+
+Playwright admin E2E: [qc-02-lab-test-execution-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/qc-02-lab-test-execution-e2e-scenarios.md)
 
 - [ ] Inspector creates lab request → To-Do; QR available for that sample code
 - [ ] Technician opens via QR → In progress; receive time ≥ send time

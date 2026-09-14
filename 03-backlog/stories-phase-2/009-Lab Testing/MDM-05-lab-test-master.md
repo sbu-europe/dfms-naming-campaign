@@ -17,6 +17,8 @@ related_stories:
   - QC-01 — Raw-material sampling and Pass/Fail (physical checkpoint; does not configure tests)
   - QC-02 — Lab receive / run / file results (picks tests from this catalog)
   - MDM-01 — Product master (requires_qc flag only; Product UOM is logistics — not reused here)
+e2e_scenarios:
+  - "../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab Testing/mdm-05-lab-test-master-e2e-scenarios.md"
 ---
 
 # MDM-05 — Lab Test Master (Category, Lab UOM, Test & Standard Value)
@@ -26,6 +28,8 @@ related_stories:
 **As a** Tenant Super Admin or Tenant Admin  
 **I want to** maintain the organisation’s lab test categories, lab units of measure, and lab tests (each with a standard value)  
 **So that** each tenant defines the tests they actually run, with a shared category, unit, and reference spec — instead of typing test names ad hoc.
+
+**E2E scenarios:** [mdm-05-lab-test-master-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/mdm-05-lab-test-master-e2e-scenarios.md)
 
 ---
 
@@ -360,6 +364,8 @@ QA Lab Technician **read** of active tests (name, standard value, UOM) belongs w
 ---
 
 ## Test Plan
+
+Playwright admin E2E: [mdm-05-lab-test-master-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/mdm-05-lab-test-master-e2e-scenarios.md)
 
 - [ ] Tenant Admin creates category Contaminant and UOM `ppb` → both listed as active
 - [ ] Duplicate category code or UOM code in the same tenant is rejected; same codes in another tenant are allowed

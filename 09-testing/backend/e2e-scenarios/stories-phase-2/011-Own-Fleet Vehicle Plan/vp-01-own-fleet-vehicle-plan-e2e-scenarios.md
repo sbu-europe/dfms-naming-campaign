@@ -17,6 +17,8 @@ playwright_mcp: true
 
 # VP-01 — Own-Fleet Vehicle Plan (Multi-TO) — E2E Scenario Plan (Django Admin SSR)
 
+**Story:** [VP-01 — Own-Fleet Vehicle Plan](../../../../../03-backlog/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/VP-01-own-fleet-vehicle-plan-multi-to.md)
+
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: Transport Planner, Driver Supervisor, Gateman, Scaling Operator, Command Center Officer, Loading Personnel.
 

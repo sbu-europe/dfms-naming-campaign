@@ -18,6 +18,8 @@ related_stories:
   - TO-01 — Transport Order creation (a new TO still starts on its own one-TO plan)
   - TO-02 — Own-fleet assignment (vehicle and driver are set on the plan)
   - YARD-01 / GT-01 / SC-01 / CC-01 / LD-01 — yard visit starts from the vehicle; each TO still keeps its own status
+e2e_scenarios:
+  - "../../../09-testing/backend/e2e-scenarios/stories-phase-2/011-Own-Fleet Vehicle Plan/vp-01-own-fleet-vehicle-plan-e2e-scenarios.md"
 ---
 
 # VP-01 — Own-Fleet Vehicle Plan (Multi-TO on One Vehicle)
@@ -31,6 +33,8 @@ related_stories:
 **As a** yard operator (Gate, Scale, Command Center, Loading/Unloading)  
 **I want to** start the visit by **selecting the vehicle**, then confirm which of that plan’s eligible orders are on this visit  
 **So that** the truck is weighed once, Command Center assigns a loading or unloading point **per order**, and each order still keeps its own status.
+
+**E2E scenarios:** [vp-01-own-fleet-vehicle-plan-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/vp-01-own-fleet-vehicle-plan-e2e-scenarios.md)
 
 ---
 
@@ -253,6 +257,8 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 ---
 
 ## Test Plan
+
+Playwright admin E2E: [vp-01-own-fleet-vehicle-plan-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/vp-01-own-fleet-vehicle-plan-e2e-scenarios.md)
 
 - [ ] Create one own-fleet order → default plan with one member; single-order yard still completes
 - [ ] Add two Created orders from different requisitions to one vehicle plan; both show as members

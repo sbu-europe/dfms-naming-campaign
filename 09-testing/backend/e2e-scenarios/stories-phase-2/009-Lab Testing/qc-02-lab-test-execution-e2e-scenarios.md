@@ -16,6 +16,8 @@ playwright_mcp: true
 
 # QC-02 — Lab Test Execution — E2E Scenario Plan (Django Admin SSR)
 
+**Story:** [QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results](../../../../../03-backlog/stories-phase-2/009-Lab%20Testing/QC-02-lab-test-execution.md)
+
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `qc.inspector.physical1.nourish@yopmail.com`, `qa.lab.technician1.nourish@yopmail.com`.
 

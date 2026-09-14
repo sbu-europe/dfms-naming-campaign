@@ -20,6 +20,8 @@ playwright_mcp: true
 
 # TUM-06 — Multi-role Assignment — E2E Scenario Plan (Django Admin SSR)
 
+**Story:** [TUM-06 — Assign Multiple Operational Roles to One User](../../../../../03-backlog/stories-phase-2/010-Multi-role%20Tenant%20Users/TUM-06-multi-role-assignment.md)
+
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
 

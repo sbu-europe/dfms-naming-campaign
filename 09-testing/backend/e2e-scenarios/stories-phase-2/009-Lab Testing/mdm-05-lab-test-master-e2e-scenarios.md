@@ -15,6 +15,8 @@ playwright_mcp: true
 
 # MDM-05 — Lab Test Master — E2E Scenario Plan (Django Admin SSR)
 
+**Story:** [MDM-05 — Lab Test Master](../../../../../03-backlog/stories-phase-2/009-Lab%20Testing/MDM-05-lab-test-master.md)
+
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
 
