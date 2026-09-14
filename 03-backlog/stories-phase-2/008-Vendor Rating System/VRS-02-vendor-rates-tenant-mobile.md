@@ -17,9 +17,21 @@ source_docs:
   - ../../../05-modules/07-vendor-management/vendor-rating.md
   - ../../../05-modules/09-mobile-apps/vendor-mobile.md
 module_spec: 05-modules/07-vendor-management/vendor-rating.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/008-Vendor Rating System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/008-Vendor Rating System/00-all-test-cases.md
 ---
 
 # VRS-02 — Vendor Rates Tenant — Post-TO Structured Rating (Vendor Mobile App)
+
+## TDD Test Cases
+
+| Link | What |
+|------|------|
+| [VRS-02 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md) | `VRS-02-TC01`…`TC19` + edge cases (`AC-N.x` mapped) |
+| [Vendor Rating System TDD index](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/00-all-test-cases.md) | All VRS-01…VRS-03 test cases |
+| [Feature TDD folder](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/README.md) | README + recommended TDD order |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -82,12 +94,51 @@ Questions stored in `RatingQuestion` with `rating_type = "TENANT"`, `is_active =
 
 ### AC-1: Rating Trigger — Mobile
 
+Given the vendor has acknowledged trip completion on mobile,
+
+when the completed-trip confirmation flow continues,
+
+then a skippable **"Rate this Tenant"** step is shown, with later access from trip detail while pending, and one rating per TO.
+
 - [ ] After the vendor acknowledges trip completion on the completed trip confirmation screen, a **"Rate this Tenant"** screen / bottom sheet is presented as the next step.
 - [ ] Prompt is **skippable** (dismiss button visible) — vendor is never forced to rate.
 - [ ] If skipped, a **"Rate Tenant"** action is accessible from completed trip detail at any time (while rating is still pending submission).
 - [ ] One rating per TO per vendor — idempotent (re-opening shows existing draft or read-only submitted rating).
 
+**Test Scenarios (AC-1):**
+
+```gherkin
+Scenario: AC-1.1 - Rate this Tenant after ACK
+  Given the vendor has acknowledged trip completion for TO "TO-2026-010"
+  When the completed trip confirmation screen advances
+  Then a "Rate this Tenant" screen or bottom sheet is shown
+
+Scenario: AC-1.2 - Rating prompt is skippable
+  Given the Rate this Tenant prompt is visible
+  When the vendor taps dismiss / skip
+  Then the rating is not submitted
+  And the vendor can continue without rating
+
+Scenario: AC-1.3 - Rate Tenant from trip detail after skip
+  Given the vendor skipped the post-ACK rating prompt
+  And the tenant rating is still unsubmitted
+  When the vendor opens completed trip detail
+  Then a "Rate Tenant" action is available
+
+Scenario: AC-1.4 - One rating per TO — reopen shows existing
+  Given a TenantRating already exists for this TO and vendor
+  When the vendor re-opens Rate Tenant
+  Then the existing draft or read-only submitted rating is shown
+  And no second TenantRating row is created
+```
+
 ### AC-2: Rating Form — 3 Criterion Panels
+
+Given the vendor opens the tenant rating form,
+
+when the form renders and they enter scores,
+
+then three panels (Payment & Commercial · Load Readiness · Communication & Support) require 1–5 stars, support Y/N + comments, show live average, and keep submit disabled until all three scores are set.
 
 - [ ] Form shows **3 criterion panels**: Payment & Commercial · Load Readiness · Communication & Support.
 - [ ] Each panel contains:
@@ -99,12 +150,59 @@ Questions stored in `RatingQuestion` with `rating_type = "TENANT"`, `is_active =
 - [ ] **Live running average** displayed as vendor fills in criteria scores (e.g. "Current average: ⭐ 3.7").
 - [ ] Submit button remains disabled until all 3 criterion star scores are selected.
 
+**Test Scenarios (AC-2):**
+
+```gherkin
+Scenario: AC-2.1 - Three tenant-direction criterion panels
+  Given the Rate Tenant form is open
+  When the form renders
+  Then panels Payment & Commercial, Load Readiness, and Communication & Support are shown
+  And each has stars 1–5, Y/N toggles, and optional comment
+
+Scenario: AC-2.2 - Submit disabled until all three scores
+  Given only two criterion star scores are selected
+  When the vendor views the form
+  Then the submit button remains disabled
+
+Scenario: AC-2.3 - Live running average
+  Given scores 5, 4, and 3 are selected
+  When the third score is set
+  Then the live average shows round((5+4+3)/3, 2) = 4.00
+```
+
 ### AC-3: Predefined Questions Loaded from API
+
+Given the mobile form needs Y/N questions,
+
+when it fetches rating questions for `rating_type=TENANT`,
+
+then questions populate per criterion, and empty results collapse gracefully.
 
 - [ ] Form populates Y/N questions by fetching `GET /api/v1/rating-questions/?rating_type=TENANT&criterion=<X>` per criterion.
 - [ ] If no questions returned for a criterion, the panel still renders (questions section collapses gracefully).
 
+**Test Scenarios (AC-3):**
+
+```gherkin
+Scenario: AC-3.1 - Questions loaded from API by criterion
+  Given active RatingQuestion rows with rating_type TENANT
+  When the form requests questions for each criterion
+  Then Y/N questions populate for Payment & Commercial, Load Readiness, and Communication & Support
+
+Scenario: AC-3.2 - Empty questions section collapses
+  Given no active questions for criterion LOAD_READINESS
+  When the form loads that panel
+  Then the panel still renders with star selector
+  And the questions section is collapsed / hidden
+```
+
 ### AC-4: Submission & Immutability
+
+Given the vendor submits a complete valid tenant rating,
+
+when the API persists the rating,
+
+then records are atomic, averages update, submission is immutable, duplicates return 400, and a success screen shows.
 
 - [ ] On submit, `TenantRating` + 3 `TenantRatingCriterion` records + per-criterion `TenantRatingAnswer` records are persisted atomically.
 - [ ] `average_rating` computed and stored on `TenantRating`.
@@ -113,7 +211,41 @@ Questions stored in `RatingQuestion` with `rating_type = "TENANT"`, `is_active =
 - [ ] Duplicate protection: second submission for same TO is rejected (`400 Bad Request`).
 - [ ] Success screen: "Thank you for your rating!" with average displayed.
 
+**Test Scenarios (AC-4):**
+
+```gherkin
+Scenario: AC-4.1 - Atomic persist with average and rolling update
+  Given valid scores 5, 4, 4 and Y/N answers
+  When the vendor submits POST /api/v1/transport-orders/{id}/tenant-rating/
+  Then TenantRating + 3 criteria + answers are stored
+  And average_rating is 4.33
+  And Tenant.vendor_rating and vendor_rating_count are updated
+
+Scenario: AC-4.2 - Duplicate submission returns 400
+  Given a submitted TenantRating already exists for this TO and vendor
+  When the vendor POSTs tenant-rating again
+  Then the response is 400 Bad Request
+  And no second rating is created
+
+Scenario: AC-4.3 - Submitted rating immutable
+  Given a submitted TenantRating
+  When the vendor attempts to change scores
+  Then the change is rejected
+  And stored values remain unchanged
+
+Scenario: AC-4.4 - Success screen shows average
+  Given a successful submit with average_rating 4.00
+  When the response is shown on mobile
+  Then "Thank you for your rating!" is displayed with the average
+```
+
 ### AC-5: Tenant Rating Visibility — Join Tenant Flow
+
+Given a vendor browses tenants to request membership,
+
+when tenant cards / detail load,
+
+then aggregate vendor-submitted rating, count, and per-criterion averages are shown (or "No ratings yet").
 
 - [ ] When a vendor browses tenants to request membership (Join Tenant screen), each **tenant card** shows:
   - Aggregate vendor-submitted rating: e.g. ⭐⭐⭐⭐ 4.2 / 5.0
@@ -121,21 +253,108 @@ Questions stored in `RatingQuestion` with `rating_type = "TENANT"`, `is_active =
   - Per-criterion averages (expandable or shown in detail view): Payment & Commercial · Load Readiness · Communication & Support
 - [ ] If no ratings yet: "No ratings yet" displayed (not hidden).
 
+**Test Scenarios (AC-5):**
+
+```gherkin
+Scenario: AC-5.1 - Join Tenant card shows aggregate rating
+  Given tenant "Nourish Foods" has vendor_rating 4.20 and vendor_rating_count 8
+  When the vendor opens Join Tenant discovery
+  Then the tenant card shows aggregate 4.2 / 5.0 and "Based on 8 vendor ratings"
+  And per-criterion averages are available in expand/detail
+
+Scenario: AC-5.2 - No ratings yet is explicit
+  Given a tenant with vendor_rating_count 0
+  When the vendor views that tenant card
+  Then "No ratings yet" is displayed
+```
+
 ### AC-6: Vendor Views Own Submitted Rating
+
+Given the vendor has submitted a tenant rating for a TO,
+
+when they open completed trip detail,
+
+then their own rating is shown read-only with scores, answers, comments, date, and average.
 
 - [ ] After submission, vendor can view their own submitted rating on the completed trip detail (read-only).
 - [ ] Shows: per-criterion scores, Y/N answers, comments, submitted date, average.
 
+**Test Scenarios (AC-6):**
+
+```gherkin
+Scenario: AC-6.1 - Own submitted rating read-only on trip detail
+  Given the vendor submitted a TenantRating for TO "TO-2026-010"
+  When the vendor opens completed trip detail
+  Then per-criterion scores, Y/N answers, comments, submitted_at, and average are shown read-only
+```
+
 ### AC-7: Tenant Admin — View Incoming Ratings
+
+Given vendors have submitted tenant ratings,
+
+when Tenant Admin opens the incoming ratings view,
+
+then a list and summary card show vendor, TO, scores, average, comments, and aggregates.
 
 - [ ] Tenant Admin can view a **list of all vendor-submitted ratings** for their tenant in the admin portal.
 - [ ] Displays: vendor name, TO reference, per-criterion scores, average, comments, submitted date.
 - [ ] Summary card at top: overall aggregate average, total count, per-criterion averages.
 
+**Test Scenarios (AC-7):**
+
+```gherkin
+Scenario: AC-7.1 - Admin list of incoming vendor ratings
+  Given multiple submitted TenantRating rows for the tenant
+  When Tenant Admin opens GET /api/v1/tenants/{id}/vendor-ratings/
+  Then each row shows vendor name, TO reference, per-criterion scores, average, comments, submitted_at
+
+Scenario: AC-7.2 - Summary card aggregates
+  Given submitted tenant ratings exist
+  When Tenant Admin opens the incoming ratings view
+  Then the summary card shows overall aggregate average, total count, and per-criterion averages
+```
+
 ### AC-8: No Automated Decision Impact (v1)
+
+Given a tenant has a low or high vendor-submitted rating,
+
+when approval, bid, or access decisions run in v1,
+
+then tenant rating is informational only and does not gate those decisions.
 
 - [ ] Tenant rating does **not** gate any approval, bid, or access decision in v1.
 - [ ] Used for **informational/display purposes only** in v1.
+
+**Test Scenarios (AC-8):**
+
+```gherkin
+Scenario: AC-8.1 - Low tenant rating does not block join or bid flows
+  Given a tenant with a low vendor_rating
+  When a vendor requests to join or participates in bid/access flows
+  Then no automated rejection is applied based on tenant rating in v1
+```
+
+---
+
+## Edge Cases
+
+### Trigger & skip
+- Vendor ACKs offline then syncs: rating prompt should appear after successful ACK sync (or from trip detail).
+- Skip then submit later: pending draft may be created on first open; must not update `Tenant.vendor_rating` until submit.
+
+### Validation
+- Star outside 1–5: API rejects.
+- Comment length over limits: rejected.
+- Vendor not assigned on the TO: submit denied.
+- TO not completed / ACK not done: TODO(PO) — confirm whether submit is allowed only after ACK.
+
+### Duplicates & concurrency
+- Double-tap submit: second request returns 400; only one row; rolling count increments once.
+- Unique constraint `(transport_order, vendor)` enforces one rating.
+
+### Join Tenant display
+- Partial criterion data should not appear — summary endpoint returns complete aggregates only from submitted ratings.
+- Very large rating_count: copy still "Based on N vendor ratings".
 
 ---
 
@@ -238,6 +457,7 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 | VRS-02-5 | Submit + immutability | Atomic persist; `is_submitted` flag; duplicate rejection | High | Not started |
 | VRS-02-6 | Tenant rating summary in Join Tenant flow | Aggregate ★ + count + per-criterion avgs on tenant card (mobile) | Medium | Not started |
 | VRS-02-7 | Admin portal — incoming ratings view | List of vendor ratings for tenant + summary card | Medium | Not started |
+| VRS-02-8 | Tests | Cover AC-1…AC-8 scenarios + Edge Cases (skip, duplicate 400, Join Tenant) | High | Not started |
 
 ---
 
@@ -262,9 +482,9 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 - [ ] Submission immutable; duplicate submission rejected
 - [ ] Tenant aggregate rating (avg + count + per-criterion) shown in Join Tenant flow
 - [ ] Tenant Admin can view incoming vendor ratings in admin portal
-- [ ] Unit tests: average calculation, rolling update, idempotency, star range (1–5)
-- [ ] E2E scenario stub in `09-testing/backend/e2e-scenarios/` (when scheduled)
+- [ ] Unit/API/Maestro tests for scenarios AC-1.1…AC-8.1 (and listed edge cases in scope) — see [VRS-02 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated (`Planned` → `Failing` → `Passing`) for P0 rows
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-08*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-14*

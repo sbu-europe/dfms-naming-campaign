@@ -18,11 +18,14 @@ Test cases written **before** implementation (TDD). Each catalog maps 1:1 to sto
 
 ## Feature index
 
-| # | Feature | Catalog | Stories | TC count (approx.) |
-|---|---------|---------|---------|-------------------|
-| 005 | [Fuel Management](./005-Fuel%20Management/README.md) | FM-01…FM-05 | [backlog](../../03-backlog/stories-phase-2/005-Fuel%20Management/) | ~60 + edge rows |
+| # | Feature | Catalog | Stories | Notes |
+|---|---------|---------|---------|-------|
+| 005 | [Fuel Management](./005-Fuel%20Management/README.md) | FM-01…FM-05 | [backlog](../../03-backlog/stories-phase-2/005-Fuel%20Management/) | Unit-first: FM-03 → FM-05 |
+| 006 | [Vehicle Reports](./006-Vehicle%20Reports/README.md) | VR-01…VR-03 | [backlog](../../03-backlog/stories-phase-2/006-Vehicle%20Reports/) | Nav → list service → detail |
+| 007 | [Fleet Health Inspection](./007-Fleet%20Health%20Inspection/README.md) | FHI-01…FHI-04 | [backlog](../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/) | Templates → round → dashboard → VR |
+| 008 | [Vendor Rating System](./008-Vendor%20Rating%20System/README.md) | VRS-01…VRS-03 | [backlog](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/) | Avg/immutability → mobile → surfaces |
 
-Other Phase 2 features (001–004, 006–011) — add folders here when their story ACs are GWT-ready.
+Other Phase 2 features (001–004, 009–011) — add folders here when their story ACs are GWT-ready.
 
 ## Related
 
