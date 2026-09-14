@@ -1,7 +1,7 @@
 ---
 module: 05-transport
 specification: VP-01 Own-Fleet Vehicle Plan — Multi-TO on One Vehicle with Vehicle-First Yard — Playwright E2E Scenario Plan
-version: 1.0
+version: 1.1
 phase: Phase 2
 related_stories: VP-01, TO-01, TO-02, GT-01, SC-01, CC-01, LD-01
 source_spec: ../../../../../03-backlog/stories-phase-2/011-Own-Fleet Vehicle Plan/VP-01-own-fleet-vehicle-plan-multi-to.md
@@ -20,7 +20,7 @@ playwright_mcp: true
 **Story:** [VP-01 — Own-Fleet Vehicle Plan](../../../../../03-backlog/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/VP-01-own-fleet-vehicle-plan-multi-to.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
-Credentials: Transport Planner, Driver Supervisor, Gateman, Scaling Operator, Command Center Officer, Loading Personnel.
+Credentials: Transport Planner, Tenant Super Admin, Tenant Admin, Driver Supervisor, Gateman, Scaling Operator, Command Center Officer, Loading Personnel.
 
 **Out of scope:** Vendor-fleet Vehicle Plans; splitting weighbridge net across orders; gate-created on-demand TOs joining a multi-order plan; driver mobile trip start (admin **My trips** / supervisor dispatch only if those screens exist); REST APIs.
 
@@ -31,6 +31,7 @@ Credentials: Transport Planner, Driver Supervisor, Gateman, Scaling Operator, Co
 | Item | Notes |
 |------|--------|
 | Planner | `transport.planner1.nourish@yopmail.com` |
+| Tenant Admin / Super Admin | `admin.nourish@yopmail.com` / `superadmin.nourish@yopmail.com` — same Vehicle Plan membership write as Transport Planner |
 | Yard | Gateman / Scaling / CC / Loading at the same working site (`Working site`) |
 | Orders | ≥2 **Created** own-fleet TOs from **different** requisitions, mixed origin/destination allowed; plus one Assigned/later TO for negative add; wipe `MCP-VP01-` |
 | Vehicle | One own-fleet vehicle with capacity; a second plan/vehicle for the “one in-progress plan” block |
@@ -50,6 +51,7 @@ Credentials: Transport Planner, Driver Supervisor, Gateman, Scaling Operator, Co
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | TC04 | Planner builds a multi-order plan (mixed requisitions) | As Transport Planner, open **Vehicle Plan** (proposed; do not confuse with **Vehicle planning**). Choose an **own-fleet vehicle**. Add two **Created** orders from different requisitions. Assert both listed as members. Mixed origin/destination is allowed. | P0 | Planned |
+| TC04a | Tenant Admin / Super Admin can build the same plan | As **Tenant Admin**, then as **Tenant Super Admin**, open **Vehicle Plan**. Choose an own-fleet vehicle and add **Created** orders. Assert the same membership write as Transport Planner (AC-1). | P0 | Planned |
 | TC05 | Capacity may warn but not block | If allocated weight exceeds vehicle capacity, assert a **warning**; **Save** still succeeds (v1). | P1 | Planned |
 | TC06 | Adding an order moves it off its default plan | Add a Created one-order TO onto the multi-order plan. Assert it leaves the old plan; empty leftover plans are gone. | P0 | Planned |
 | TC07 | Remove Created order restores one-order plan | Remove one Created member. Assert it returns to a default one-order plan, still **Created**; vehicle cleared if it only came from this plan. | P0 | Planned |
@@ -98,7 +100,7 @@ Credentials: Transport Planner, Driver Supervisor, Gateman, Scaling Operator, Co
 
 ## Implementation Notes (Playwright + Django Admin SSR)
 
-- Admin SSR only. Cross-role: planner membership → supervisor dispatch → gateman → scaling → CC → loading → gateman out. Use distinct seeded users.
+- Admin SSR only. Cross-role: planner or Tenant Super Admin / Tenant Admin membership → supervisor dispatch → gateman → scaling → CC → loading → gateman out. Use distinct seeded users.
 - **Do not** use **Vehicle planning** (`/admin/transport/vehicle-planning/`) as the Vehicle Plan membership screen unless implementation explicitly extends it — today it is TO assignment.
 - Current gate-in: `/admin/operations/gatein/add/` field **transport_order**. After VP-01 the add form must start from **vehicle** then an eligible-order checklist (default all on).
 - Other URLs: `/admin/operations/scalein/add/`, `/admin/operations/scaleout/add/`, Command Center **Bay Assignments**, `/admin/operations/gateout/add/`.

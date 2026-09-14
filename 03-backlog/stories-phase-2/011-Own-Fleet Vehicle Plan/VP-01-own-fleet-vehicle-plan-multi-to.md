@@ -26,7 +26,7 @@ e2e_scenarios:
 
 ## User Story
 
-**As a** Transport Planner  
+**As a** Transport Planner, Tenant Super Admin, or Tenant Admin  
 **I want to** put one or more Created own-fleet transport orders onto a **vehicle plan** (I choose the vehicle and which orders go on it)  
 **So that** one truck can carry orders from the same requisition or from different requisitions, without pretending they are a single order.
 
@@ -42,7 +42,7 @@ e2e_scenarios:
 
 Today every yard visit and dispatch is **one transport order**. Planners can already assign the same vehicle to several orders while planning, but the truck can only **run one order at a time**, and gate-in starts from the order, not the vehicle. That blocks a real split load: one vehicle, several orders, one presence at a site.
 
-This story adds a **Vehicle Plan**. Every own-fleet order still exists and still has its own status, proof of delivery, quality check, and lines. Creating an order also creates a **default plan with that one order**. The Transport Planner may add other **Created** orders (from any requisition) onto a plan for a vehicle. Mix of origin and destination is the planner’s call — the system does not require the same route.
+This story adds a **Vehicle Plan**. Every own-fleet order still exists and still has its own status, proof of delivery, quality check, and lines. Creating an order also creates a **default plan with that one order**. The Transport Planner, Tenant Super Admin, or Tenant Admin may add other **Created** orders (from any requisition) onto a plan for a vehicle. Mix of origin and destination is the planner’s call — the system does not require the same route.
 
 At the yard the operator picks the **vehicle**. Eligible orders on that plan at this site are listed, all selected by default; the operator may uncheck. One gate-in, one weigh-in and weigh-out for the truck. After weigh-in, Command Center assigns a loading or unloading point **per included order**. Load, unload, and quality check stay per order. Each order’s status still moves on its own.
 
@@ -54,7 +54,7 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 
 | Topic | Decision |
 |---|---|
-| Plan membership / route | Transport Planner decides which Created orders belong on a plan. No system rule that they must share origin, destination, or requisition. |
+| Plan membership / route | Transport Planner, Tenant Super Admin, and Tenant Admin decide which Created orders belong on a plan. No system rule that they must share origin, destination, or requisition. |
 | Gate-in order list | Show all eligible orders for this vehicle at this site; default all selected; operator may uncheck. Which orders are on this visit is explicit. |
 | Fleet | Own fleet only. |
 | Weigh vs load | Weigh **once per visit** (the truck). Then Command Center assigns a loading or unloading point **per order**. Load, unload, and quality check remain per order. |
@@ -72,8 +72,8 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
   **Then** the system **always** creates a Vehicle Plan with that order as the only member (no vehicle until one is assigned).
 
 - [ ] **Given** a single-order own-fleet path (create → assign → dispatch → yard)  
-  **When** the planner works that order  
-  **Then** today’s path still works; the plan is in the background and the planner does not fill in a second document for one order.
+  **When** the planner or Tenant Super Admin / Tenant Admin works that order  
+  **Then** today’s path still works; the plan is in the background and they do not fill in a second document for one order.
 
 - [ ] **Given** any transport order  
   **When** it is on a Vehicle Plan  
@@ -85,25 +85,25 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 
 ### AC-1 — Planner builds a multi-order plan
 
-- [ ] **Given** a Transport Planner  
+- [ ] **Given** a Transport Planner, Tenant Super Admin, or Tenant Admin  
   **When** they create or open a Vehicle Plan  
   **Then** they can choose an **own-fleet vehicle** and add **Created** orders (same or different requisitions).
 
 - [ ] **Given** an order on its default one-order plan  
-  **When** the planner adds it to another plan  
+  **When** they add it to another plan  
   **Then** the order **moves** off its old one-order plan onto this plan, and empty leftover plans are removed.
 
 - [ ] **Given** a Created order on a multi-order plan  
-  **When** the planner removes it  
+  **When** they remove it  
   **Then** that order goes back to a default one-order plan (still Created; vehicle cleared if it only came from this plan).
 
 - [ ] **Given** orders that are not Created (Assigned, Ready for dispatch, on the road, in the yard, Closed, Cancelled, and so on)  
-  **When** the planner tries to add or remove them  
+  **When** they try to add or remove them  
   **Then** add and remove are blocked.
 
 - [ ] **Given** orders with mixed origin, destination, or load/unload pattern, including weight vs vehicle capacity  
-  **When** the planner puts them on one plan  
-  **Then** mixed membership is **allowed**; weight vs capacity may **warn** and must not block the planner unless a later rule is added.
+  **When** they put them on one plan  
+  **Then** mixed membership is **allowed**; weight vs capacity may **warn** and must not block unless a later rule is added.
 
 ### AC-2 — Assignment and dispatch apply to the whole plan (own fleet)
 
@@ -215,7 +215,7 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 |---|---|
 | BR-VP01-001 | Every own-fleet order belongs to exactly one Vehicle Plan. Creating an order always opens a default one-order plan. |
 | BR-VP01-002 | Only **Created** orders may be added to or removed from a plan. |
-| BR-VP01-003 | Transport Planner decides membership. Mixed origin / destination / requisition / load-unload pattern is allowed. |
+| BR-VP01-003 | Transport Planner, Tenant Super Admin, and Tenant Admin decide membership. Mixed origin / destination / requisition / load-unload pattern is allowed. |
 | BR-VP01-004 | Own fleet only. Vendor grouping and vendor orders are not Vehicle Plans. |
 | BR-VP01-005 | One **in-progress plan** per vehicle. Orders on the **same** plan may share the truck in the yard; a second plan for that vehicle cannot start until the first is finished. |
 | BR-VP01-006 | Yard visit is one open visit per vehicle at a site. Gate and weigh are for the truck; commercial status stays on each order. |
@@ -232,12 +232,12 @@ At the yard the operator picks the **vehicle**. Eligible orders on that plan at 
 |---|---|---|---|---|
 | VP-01-1 | Specs | Update transport rules so one truck / one active job is per **plan**; note Vehicle Plan on order create, assignment, and gate | High | **Not done** |
 | VP-01-2 | Data | Store vehicle plans and which orders belong to them; each existing own-fleet order gets a one-order plan | High | **Not done** |
-| VP-01-3 | Default + membership | Order create → default plan; planner add/remove Created orders; vehicle on the plan also shows on each member | High | **Not done** |
+| VP-01-3 | Default + membership | Order create → default plan; planner / Tenant Super Admin / Tenant Admin add/remove Created orders; vehicle on the plan also shows on each member | High | **Not done** |
 | VP-01-4 | One plan in progress + dispatch | One in-progress plan per vehicle; dispatch and start trip update all members | High | **Not done** |
 | VP-01-5 | Gate-in | Start from the vehicle; eligible order checklist (default all on); visit members; selected orders move to in-yard | High | **Not done** |
 | VP-01-6 | Weigh + Command Center | One weigh cycle per visit; queue by visit; Command Center assigns a bay **per member order**; weigh updates all visit orders | High | **Not done** |
 | VP-01-7 | Load/unload + gate-out | Load/unload per order; gate-out blocked until all visit orders complete this site; gate-out updates all visit orders | High | **Not done** |
-| VP-01-8 | Screens | Planner plan screen (vehicle → order picker); gate form is vehicle then order checklist; Command Center visit shows member orders | High | **Not done** |
+| VP-01-8 | Screens | Planner / Tenant Super Admin / Tenant Admin plan screen (vehicle → order picker); gate form is vehicle then order checklist; Command Center visit shows member orders | High | **Not done** |
 | VP-01-9 | Audit + tests | Plan and visit-membership audit; tests for default plan, mixed requisition, Created-only, uncheck, bay per order, gate-out block | High | **Not done** |
 
 ---
@@ -262,6 +262,7 @@ Playwright admin E2E: [vp-01-own-fleet-vehicle-plan-e2e-scenarios.md](../../../0
 
 - [ ] Create one own-fleet order → default plan with one member; single-order yard still completes
 - [ ] Add two Created orders from different requisitions to one vehicle plan; both show as members
+- [ ] Tenant Super Admin and Tenant Admin can build the same Vehicle Plan membership as Transport Planner
 - [ ] Mixed origin/destination orders can sit on one plan (planner choice)
 - [ ] Cannot add an Assigned (or later) order; cannot remove a member after it leaves Created
 - [ ] Removing a Created order restores a one-order plan
@@ -289,7 +290,7 @@ Playwright admin E2E: [vp-01-own-fleet-vehicle-plan-e2e-scenarios.md](../../../0
 ## Out of scope
 
 - Vendor-fleet Vehicle Plans (vendor grouping remains many orders / many vehicles)
-- System-forced same-route checks (planner owns membership)
+- System-forced same-route checks (planner / Tenant Super Admin / Tenant Admin owns membership)
 - Splitting weighbridge net weight across orders (billed quantity stays on order lines / load capture)
 - Gate-created on-demand orders joining a multi-order plan (they keep one-order default plans)
 - Replacing the trip record with the plan (v1: still one trip per order, same vehicle)
