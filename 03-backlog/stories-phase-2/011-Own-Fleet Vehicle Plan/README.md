@@ -16,6 +16,7 @@ Vehicle Planning stays TO-assignment only for fleet ops features (005–007). Fu
 | File | Role |
 |------|------|
 | [VP-01](./VP-01-own-fleet-vehicle-plan-multi-to.md) | Story — Own-Fleet Vehicle Plan — Multi-TO on One Vehicle with Vehicle-First Yard (21 SP) |
+| [VP-01 E2E](../../../09-testing/backend/e2e-scenarios/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/vp-01-own-fleet-vehicle-plan-e2e-scenarios.md) | Playwright admin scenarios for VP-01 |
 
 **Stories:** VP-01 · **Estimated:** 21 SP
 

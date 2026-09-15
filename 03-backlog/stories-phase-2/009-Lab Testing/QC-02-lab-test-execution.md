@@ -15,6 +15,8 @@ phase: Phase 2
 related_stories:
   - MDM-05 — Lab Test master (catalog the technician picks from)
   - QC-01 — Physical sampling and Pass/Fail (creates the sample; remains the yard quality gate)
+e2e_scenarios:
+  - "../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab Testing/qc-02-lab-test-execution-e2e-scenarios.md"
 ---
 
 # QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results
@@ -28,6 +30,12 @@ related_stories:
 **As a** QA Lab Technician  
 **I want a** lab queue of sample codes, and to open a sample either by **scanning the QR** or by **selecting the code**, then attach the tests that sample needs  
 **So that** I work a standard lab process: code in, tests on, report out — with **no** visibility of the transport order or other yard details.
+
+**As a** Tenant Super Admin or Tenant Admin  
+**I want** the same Lab Queue actions as a QA Lab Technician once I have selected a **Working site**  
+**So that** I can cover lab execution at that site without a separate lab login. Lab Queue stays code-only.
+
+**E2E scenarios:** [qc-02-lab-test-execution-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/qc-02-lab-test-execution-e2e-scenarios.md)
 
 ---
 
@@ -55,7 +63,7 @@ The lab technician does **not** assign a bay, start unloading, accept stock, or 
 | Test names | Pick from **active MDM-05** tests. No typing a new test name. No product-to-test mapping (same lock as MDM-05). |
 | Queue status | **To-Do** = sent, not opened in lab. **In progress** = opened (QR or code), not all selected tests filed. **Completed** = every selected test has a report and completion time. |
 | Yard gate | **Unchanged.** Lab Complete does **not** unlock unloading. QC-01 Pass/Fail still does. |
-| Site | Lab technician is still **local** (only codes for samples at their site). Site is enforced in the backend; it is **not** shown as shipment context. |
+| Site | Lab technician is still **local** (only codes for samples at their assigned POIs). Tenant Super Admin and Tenant Admin lab write is scoped to the **Working site** selected in the profile dropdown, and is denied until a site is selected. Site is enforced in the backend; it is **not** shown as shipment context. |
 
 ---
 
@@ -63,64 +71,165 @@ The lab technician does **not** assign a bay, start unloading, accept stock, or 
 
 ### AC-0 — Who does what
 
-- [ ] **QC Inspector – Physical** can create a **lab request** / send a QC-01 sample (one open request per sample).
-- [ ] **QA Lab Technician** can open a sample (QR or code), attach tests, enter ETA, upload reports, and complete tests — at their site only.
-- [ ] QA Lab Technician **cannot** create/edit MDM-05 tests, record QC-01 Pass/Fail, assign an unloading point, start/stop unloading, or change stock.
-- [ ] Command Center / Loading / Unloading / Gate behaviour is unchanged by lab status.
+- [ ] **Given** a QC Inspector – Physical and a physical sample already recorded on **QC Queue**  
+  **When** they create a lab request / send the sample  
+  **Then** they can send it (one open request per sample).
+
+- [ ] **Given** a QA Lab Technician at their assigned site  
+  **When** they work a sample  
+  **Then** they can open it (QR or code), attach tests, enter ETA, upload reports, and complete tests — at their site only.
+
+- [ ] **Given** a Tenant Super Admin or Tenant Admin with a **Working site** selected  
+  **When** they work Lab Queue for samples at that site  
+  **Then** they can open (QR or code), attach tests, enter ETA, upload reports, and complete tests — the same lab actions as a QA Lab Technician. Lab Queue remains code-only.
+
+- [ ] **Given** a Tenant Super Admin or Tenant Admin with no **Working site** selected  
+  **When** they open Lab Queue or attempt lab write  
+  **Then** they are blocked until they select a site from the Working site dropdown.
+
+- [ ] **Given** a QA Lab Technician  
+  **When** they try any of: **Add** / **Change** / **Delete** on **Test Categories**, **Lab UOM**, or **Lab Tests**; **Add QC** / **Submit QC** (Pass or Fail); **Bay Assignments** (loading/unloading point); start or stop unloading; or accept stock  
+  **Then** those screens and actions are denied.
+
+- [ ] **Given** a TO with lab status To-Do, In progress, or Completed  
+  **When** Command Center, Loading, Unloading, or Gate operators work that TO  
+  **Then** their behaviour is unchanged by lab status.
 
 ### AC-1 — Lab request + QR (inspector)
 
-- [ ] Inspector can create a lab request only for a sample that already exists on a flagged RM inbound TO (QC-01).
-- [ ] Creating the request records **sent at** and **sent by**.
-- [ ] The system **generates a QR** for that sample / lab-request code. The inspector can **view, download, and print** it to attach to the physical sample.
-- [ ] After send, the sample code appears on the lab queue as **To-Do**.
-- [ ] Inspector can still see lab status (To-Do / In progress / Completed) **with** their usual QC-01 shipment context (TO, vehicle, and so on). Blindness applies to the **lab technician**, not the inspector.
+- [ ] **Given** a QC Inspector – Physical  
+  **When** they create a lab request  
+  **Then** they can do so only for a physical sample that already exists on a flagged RM inbound TO (**QC Queue** Samples table).
+
+- [ ] **Given** a valid physical sample on **QC Queue**  
+  **When** the inspector creates the lab request  
+  **Then** the system records **sent at** and **sent by**.
+
+- [ ] **Given** a newly created lab request  
+  **When** the inspector needs to label the physical sample  
+  **Then** the system generates a QR for that sample / lab-request code and the inspector can view, download, and print it.
+
+- [ ] **Given** the inspector has sent the sample  
+  **When** the lab queue is opened  
+  **Then** the sample code appears as **To-Do**.
+
+- [ ] **Given** the inspector’s usual **QC Queue** shipment context (TO, vehicle, and so on)  
+  **When** they view lab status  
+  **Then** they still see To-Do / In progress / Completed with that context; blindness applies to the lab technician, not the inspector.
 
 ### AC-2 — Open sample (QR or code)
 
-- [ ] Technician opens a sample by **scanning the QR** **or** by **selecting the code** from the queue.
-- [ ] Either action attaches subsequent tests to **that** sample / lab request.
-- [ ] First open records **received at** / **lab start** and **received by**. That time is the official start.
-- [ ] Open is rejected if the sample was not sent, or if the code/QR is unknown.
-- [ ] Opening an already In-progress or Completed sample shows that record (does not reset times).
-- [ ] On first open, status becomes **In progress**.
-- [ ] Send time and receive time are kept for handover traceability. The technician may see those times against the **code**, not against a TO.
+- [ ] **Given** a sent sample on the lab queue  
+  **When** the technician scans the QR **or** selects the code from the queue  
+  **Then** they open that sample.
+
+- [ ] **Given** the technician has opened a sample by QR or by code  
+  **When** they attach tests  
+  **Then** those tests are attached to **that** sample / lab request.
+
+- [ ] **Given** a To-Do sample that has never been opened  
+  **When** the technician opens it for the first time  
+  **Then** the system records **received at** / **lab start** and **received by**; that time is the official start; status becomes **In progress**.
+
+- [ ] **Given** a sample that was not sent, or a code/QR that is unknown  
+  **When** the technician attempts to open it  
+  **Then** the open is rejected.
+
+- [ ] **Given** a sample that is already In progress or Completed  
+  **When** the technician opens it again  
+  **Then** the existing record is shown and times are not reset.
+
+- [ ] **Given** send time and receive time on a lab record  
+  **When** the technician views the sample  
+  **Then** those times are kept for handover traceability and may be shown against the **code**, not against a TO.
 
 ### AC-3 — Lab queue (code only)
 
-- [ ] Technician sees a queue of **sample / lab-request codes** for their site, filterable by status (To-Do, In progress, Completed).
-- [ ] Each row shows **code**, **status**, and lab timestamps (sent / received / completed as applicable).
-- [ ] Queue and detail **must not** show TO number, vehicle, product, supplier, origin, destination, weights, or other shipment fields.
-- [ ] Lab APIs used by this role **must not** return those fields either.
+- [ ] **Given** a QA Lab Technician at their site, or a Tenant Super Admin / Tenant Admin with a Working site selected  
+  **When** they open the lab queue  
+  **Then** they see **sample / lab-request codes** for that site, filterable by status (To-Do, In progress, Completed).
+
+- [ ] **Given** a queue row  
+  **When** the technician views it  
+  **Then** it shows **code**, **status**, and lab timestamps (sent / received / completed as applicable).
+
+- [ ] **Given** the technician’s queue or detail screen  
+  **When** they view a sample  
+  **Then** it must not show TO number, vehicle, product, supplier, origin, destination, weights, or other shipment fields.
+
+- [ ] **Given** lab APIs used by the QA Lab Technician role  
+  **When** those APIs return a payload  
+  **Then** they must not return those shipment fields either.
 
 ### AC-4 — Attach tests and ETA
 
-- [ ] After opening a sample (QR or selected code), the technician attaches **one or more** tests from the tenant’s **active** MDM-05 list.
-- [ ] Inactive MDM-05 tests cannot be selected.
-- [ ] For each attached test they enter an **expected finish time**.
-- [ ] They cannot invent a test name that is not on the catalog.
-- [ ] Completing the lab sample is blocked until **at least one** test is attached.
+- [ ] **Given** a sample opened by QR or selected code  
+  **When** the technician attaches tests  
+  **Then** they attach one or more tests from the tenant’s **active Lab Test catalog** (Master Data → **Lab Tests**).
+
+- [ ] **Given** inactive Lab Tests exist in the catalog  
+  **When** the technician picks tests for the sample  
+  **Then** inactive tests cannot be selected.
+
+- [ ] **Given** one or more tests attached to the sample  
+  **When** the technician records timing  
+  **Then** they enter an **expected finish time** for each attached test.
+
+- [ ] **Given** the technician tries to type a test name that is not on the catalog  
+  **When** they attempt to save it  
+  **Then** the name is rejected; they must pick from the catalog.
+
+- [ ] **Given** a lab sample with no tests attached  
+  **When** the technician tries to complete it  
+  **Then** completion is blocked until **at least one** test is attached.
 
 ### AC-5 — File result and complete
 
-- [ ] For each attached test the technician uploads a **report** (PDF or PNG/JPG) and records **test completion time**.
-- [ ] Completion time cannot be before lab start for that sample.
-- [ ] When **every** attached test has a report and completion time, status becomes **Completed**.
-- [ ] Partial filing leaves status **In progress**.
+- [ ] **Given** an attached test on an opened sample  
+  **When** the technician files the result  
+  **Then** they upload a **report** (PDF or PNG/JPG) and record **test completion time**.
+
+- [ ] **Given** a test completion time  
+  **When** it is before lab start for that sample  
+  **Then** the completion time is rejected.
+
+- [ ] **Given** every attached test has a report and completion time  
+  **When** the last result is filed  
+  **Then** status becomes **Completed**.
+
+- [ ] **Given** some but not all attached tests have been filed  
+  **When** the technician saves a partial result  
+  **Then** status remains **In progress**.
 
 ### AC-6 — What lab does not do
 
-- [ ] Lab screens have **no** control to Pass/Fail the TO, assign a loading/unloading point, start or cancel unload, scale-out, gate-out, or accept stock.
-- [ ] A Completed lab sample does **not** by itself mark the TO QC-passed or unblock Command Center.
+- [ ] **Given** lab screens (QA Lab Technician, or Tenant Super Admin / Tenant Admin on Lab Queue)  
+  **When** they work a sample  
+  **Then** there is **no** control to Pass/Fail the TO, assign a loading/unloading point, start or cancel unload, scale-out, gate-out, or accept stock.
+
+- [ ] **Given** a lab sample whose status is Completed  
+  **When** yard / Command Center evaluates the TO  
+  **Then** Completed lab does **not** by itself mark the TO QC-passed or unblock Command Center.
 
 ### AC-7 — Site and tenant
 
-- [ ] Technician only receives codes for samples whose QC site is a POI they are assigned to (enforced; site is not presented as shipment context).
-- [ ] Tenant A cannot see Tenant B’s lab queue, QR payload for another tenant, or reports.
+- [ ] **Given** a QA Lab Technician assigned to specific POIs  
+  **When** they receive the lab queue  
+  **Then** they only receive codes for samples whose QC site is a POI they are assigned to (enforced; site is not presented as shipment context).
+
+- [ ] **Given** a Tenant Super Admin or Tenant Admin with **Working site** A selected  
+  **When** they receive the lab queue  
+  **Then** they only receive codes for samples whose QC site is Working site A.
+
+- [ ] **Given** Tenant A and Tenant B  
+  **When** a Tenant A technician uses the lab queue, a QR payload, or reports  
+  **Then** they cannot see Tenant B’s lab queue, QR payload, or reports.
 
 ### AC-8 — Audit
 
-- [ ] Lab request/QR generate, open (QR vs code), test attach, ETA change, report upload, and completion are audit-logged (who, when, sample code, test). Audit stored against the lab record may include TO internally for the inspector/admin trail; the **lab technician UI/API must still not expose TO**.
+- [ ] **Given** lab request/QR generate, open (QR vs code), test attach, ETA change, report upload, or completion  
+  **When** the event occurs  
+  **Then** it is audit-logged (who, when, sample code, test). Audit stored against the lab record may include TO internally for the inspector/admin trail; the **Lab Queue UI/API must still not expose TO**.
 
 ---
 
@@ -181,7 +290,8 @@ Technician tries to type "Aflatoxin" instead of picking the catalog
 | BR-QC02-007 | At least one test must be attached before the sample can be Completed. |
 | BR-QC02-008 | QA Lab Technician does not Pass/Fail, assign a bay, unload, or accept stock. |
 | BR-QC02-009 | Lab Complete does not replace QC-01 Pass as the unloading / stock gate. |
-| BR-QC02-010 | Lab technician is site-local (backend). Completion time per test must not precede lab start. |
+| BR-QC02-010 | Lab technician is site-local (assigned POIs). Completion time per test must not precede lab start. |
+| BR-QC02-011 | Tenant Super Admin and Tenant Admin have the same Lab Queue write as QA Lab Technician when a **Working site** is selected. Without a Working site, lab write is denied. Lab Queue stays code-only for those sessions. |
 
 ---
 
@@ -194,7 +304,7 @@ Technician tries to type "Aflatoxin" instead of picking the catalog
 | QC-02-3 | Blind queue | Site-scoped list of **codes + status + lab times only**; no TO/vehicle/product in UI or lab-tech API | High | Not done |
 | QC-02-4 | Attach tests + ETA | Select active MDM-05 tests on the opened sample; expected finish per test | High | Not done |
 | QC-02-5 | Report + complete | Upload PDF/PNG per test; completion time; Completed when all tests filed | High | Not done |
-| QC-02-6 | RBAC + guards | Lab write for QA Lab Technician; deny Pass/Fail, LUP, unload, stock, and TO fields; inspector send + QR + view status | High | Not done |
+| QC-02-6 | RBAC + guards | Lab write for QA Lab Technician and for Tenant Super Admin / Tenant Admin with Working site (fail-closed if none); deny Pass/Fail, LUP, unload, stock, and TO fields on Lab Queue; inspector send + QR + view status | High | Not done |
 | QC-02-7 | Audit | Lab request/QR, open, attach, file — sample code on lab-tech events | Medium | Not done |
 | QC-02-8 | Tests | QR on send; scan vs select-code; blind serializer; status machine; catalog-only tests; yard denied | High | Not done |
 
@@ -218,12 +328,16 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 
 ## Access & Permissions
 
-| Action | QA Lab Technician | QC Inspector – Physical | Tenant Admin | Command Center |
+When **Working site** is selected in the profile dropdown, Tenant Super Admin and Tenant Admin may perform every **QA Lab Technician** Lab Queue action for samples at that site. Lab write is denied until a site is selected. Lab Queue remains code-only. Inspector send + QR stays QC Inspector – Physical unless that user is also working as inspector.
+
+| Action | QA Lab Technician | QC Inspector – Physical | Tenant Super Admin / Tenant Admin | Command Center |
 |---|---|---|---|---|
 | Create lab request + QR | No | Yes | No (unless also working as inspector) | No |
-| See TO / vehicle / product on the lab sample | **No** | Yes (QC-01 screens) | Yes (admin) | Yes (their TO views) |
-| Open by QR or select code; attach tests; file report | Yes (own site) | No | No | No |
-| View lab status | Yes (code + status only) | Yes (with QC-01 context) | Yes | View-only on TO if already allowed |
+| See TO / vehicle / product on **Lab Queue** | **No** | n/a (uses QC Queue) | **No** (same as technician) | n/a |
+| See TO / vehicle / product on **QC Queue** / admin TO | No | Yes (QC-01 screens) | Yes | Yes (their TO views) |
+| Open by QR or select code; attach tests; file report | Yes (assigned POIs) | No | **Yes** at selected **Working site**; denied if none selected | No |
+| View lab status on Lab Queue | Yes (code + status only) | n/a | Yes (code + status only, Working site) | n/a |
+| View lab status on QC Queue | No | Yes (with QC-01 context) | Yes (with QC-01 context) | View-only on TO if already allowed |
 | MDM-05 create/edit | No | No | Yes (MDM-05) | No |
 | QC-01 Pass/Fail | No | Yes (QC-01) | No | No |
 | Assign unloading point | No | No | No | Yes (CC-01, after QC-01 Pass) |
@@ -243,6 +357,8 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 
 ## Test Plan
 
+Playwright admin E2E: [qc-02-lab-test-execution-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/009-Lab%20Testing/qc-02-lab-test-execution-e2e-scenarios.md)
+
 - [ ] Inspector creates lab request → To-Do; QR available for that sample code
 - [ ] Technician opens via QR → In progress; receive time ≥ send time
 - [ ] Technician opens via selecting the same code → same lab record (no duplicate)
@@ -254,6 +370,8 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 - [ ] Technician cannot Pass/Fail or assign LUP
 - [ ] Completed lab does not set `qc_passed` or unblock CC
 - [ ] Technician at site A does not receive site B codes
+- [ ] Tenant Super Admin / Tenant Admin with Working site selected can open, attach, and file on Lab Queue (same as technician); Lab Queue stays code-only
+- [ ] Tenant Super Admin / Tenant Admin with no Working site selected cannot write Lab Queue
 - [ ] Other tenant cannot see this queue or redeem this QR
 
 ---
@@ -276,7 +394,8 @@ Exact paths may follow existing QC-01 style; behaviour above is what matters. La
 - [ ] Sub-tasks QC-02-1 … QC-02-6 and QC-02-8 completed (QC-02-7 if included)
 - [ ] Inspector lab request generates a QR for the physical sample
 - [ ] Lab technician opens by QR **or** by selecting the code, attaches catalog tests, files reports
-- [ ] Lab technician UI/API expose **no** TO or shipment context
+- [ ] Tenant Super Admin / Tenant Admin with Working site can perform the same Lab Queue actions; without a site they cannot
+- [ ] Lab technician UI/API (and Lab Queue for Tenant Super Admin / Tenant Admin) expose **no** TO or shipment context
 - [ ] Yard Pass/Fail and unloading remain QC-01 / CC-01
 - [ ] Unit tests cover QR/code open, blind payload, status machine, catalog-only tests, and denied yard actions
 - [ ] Story status updated for Phase 2 tracking
