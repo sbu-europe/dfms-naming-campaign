@@ -21,9 +21,23 @@ related_stories:
   - AD-06 / GPS-01 (map — not this dashboard)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/002-Vehicle Tracking and Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/002-Vehicle Tracking and Dashboard/00-all-test-cases.md
 ---
 
 # FVM-02 — Vehicle Tracking and Dashboard
+
+## Test cases
+
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FVM-02 TDD catalog** (`AC-N.x` mapped) | [FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) |
+| **Vehicle Tracking TDD index** | [00-all-test-cases.md](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/README.md) |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -63,6 +77,8 @@ Transport Planner — Fleet Health Dashboard
 ```
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FVM-02 TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) · [Vehicle Tracking index](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/00-all-test-cases.md)
 
 ### AC-1 — Status cards (availability)
 
@@ -225,12 +241,13 @@ then planners and admins get the full dashboard, supervisors may view the same f
 | FVM-02-6 | Maintenance + links | Service log + DS-01 history; current TO / trip / driver | High | Pending |
 | FVM-02-7 | Fuel intake | Consume FuelEntry when AD-04 exists; else unavailable | Medium | Pending |
 | FVM-02-8 | Planner UI | Dashboard + vehicle detail | High | Pending |
-| FVM-02-9 | Tests | Card counts vs status, filters, unavailable km/fuel, RBAC, assignment still blocked for Under Maintenance | High | Pending |
+| FVM-02-9 | Tests | Card counts vs status, filters, unavailable km/fuel, RBAC, assignment still blocked for Under Maintenance — [TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-6 checked against code (not against this markdown)
-- [ ] Unit tests for status counts, depot filter, odometer unavailable, fuel unavailable without FuelEntry
+- [ ] Unit tests for status counts, depot filter, odometer unavailable, fuel unavailable without FuelEntry — scenarios AC-1.1…AC-6.3 — see [FVM-02 TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] Existing TDO assignment exclusion for Under Maintenance / Inactive unchanged
 - [ ] Live GPS behaviour unchanged
 - [ ] `05-modules/` implementation context written (FVM-02-2) before merge of Django work

@@ -19,9 +19,23 @@ related_stories:
   - AD-05 (later fleet utilization report consumes these clocks)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/003-Vehicle Utilization Analysis/FVM-03-vehicle-utilization-analysis-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/003-Vehicle Utilization Analysis/00-all-test-cases.md
 ---
 
 # FVM-03 — Vehicle Utilization Analysis
+
+## Test cases
+
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FVM-03 TDD catalog** (`AC-N.x` mapped) | [FVM-03-vehicle-utilization-analysis-tdd-test-cases.md](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis-tdd-test-cases.md) |
+| **Vehicle Utilization TDD index** | [00-all-test-cases.md](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/README.md) |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -62,6 +76,8 @@ Period [start, end]
 
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FVM-03 TDD catalog](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis-tdd-test-cases.md) · [Vehicle Utilization index](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/00-all-test-cases.md)
 
 ### AC-1 — Trips per vehicle
 
@@ -191,12 +207,13 @@ then they can view the list, chart, date range, and depot filter, and sort — a
 | FVM-03-3 | Trips per vehicle | Completed **Plan** count in period (single-TO or Multi-TO) | High | Pending |
 | FVM-03-4 | Serving hours + idle vs movement | Clip Start Trip → finish to period; idle vs movement from GPS movement status (speed &lt; 3 km/h = idle), not trip | High | Pending |
 | FVM-03-5 | Planner UI | List, sort, depot filter, per-vehicle moving vs idle/stopped chart | High | Pending |
-| FVM-03-6 | Tests | Trip count, hour clip, GPS idle vs movement, no trip tagging, unavailable without GPS, RBAC | High | Pending |
+| FVM-03-6 | Tests | Trip count, hour clip, GPS idle vs movement, no trip tagging, unavailable without GPS, RBAC — [TDD catalog](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis-tdd-test-cases.md) | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-3 checked against code (not against this markdown)
-- [ ] Unit tests for completed-Plan count, overlapping Multi-TO union (not sum), interval clipping, GPS idle vs movement (speed below 3 km/h), idle not taken from “no trip”
+- [ ] Unit tests for completed-Plan count, overlapping Multi-TO union (not sum), interval clipping, GPS idle vs movement (speed below 3 km/h), idle not taken from “no trip” — scenarios AC-1.1…AC-3.4 — see [FVM-03 TDD catalog](../../../09-testing/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] GPS ingest / FVM-02 cards unchanged; idle vs movement uses the same GPS movement status as Live GPS / FVM-01
 - [ ] `05-modules/` implementation context written (FVM-03-2) before merge of Django work
 - [ ] Demo: Planner picks 30 days, sees trips + moving vs idle/stopped per vehicle from GPS, sorts low utilization to the top
