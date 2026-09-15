@@ -57,7 +57,7 @@ Do not start Django until that story has a `05-modules/` write-up.
 
 ## 003. Vehicle utilization analysis
 
-Serving vs No-TO hours from TO windows. Downtime hours from **004** feed available-hours.
+Serving hours from trips. Idle vs movement from GPS (stopped below 3 km/h). Downtime hours from **004** feed available-hours.
 
 | Story | Title | SP | Status |
 |-------|-------|----|--------|
@@ -86,9 +86,9 @@ SOW P2 row 101
 | Clock | Use for | Do not use for |
 |---|---|---|
 | Supervisor odometer (`Vehicle.current_odometer_reading`) | FVM-01 remaining km, daily km; FVM-02 km card | TO map path; GPS mileage |
-| GPS speed &lt; 3 km/h | FVM-01 idle vs movement | Remaining km; utilization hours |
+| GPS speed &lt; 3 km/h (GPS movement status) | FVM-01 and FVM-03 idle vs movement | Remaining km; trip count |
 | `Vehicle.operational_status` (now) | FVM-02 five-status cards | Period hours; GPS idle |
-| TO Start Trip → terminal | FVM-03 serving vs No-TO hours | FVM-02 cards |
+| TO Start Trip → finish | FVM-03 serving hours and trip count | FVM-02 cards; idle vs movement |
 | `VehicleDowntime` `[start_at, end_at)` | FVM-04 log; FVM-03 available hours | FVM-01 remaining km |
 
 **Delivery order:** FVM-02 cards and FVM-03 hours do not need FVM-01. FVM-04 downtime hours feed FVM-03 available-hours.

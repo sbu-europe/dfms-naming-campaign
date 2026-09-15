@@ -9,7 +9,7 @@ story_points_estimated: 5
 
 # 003 — Vehicle Utilization Analysis
 
-Serving vs No-TO hours from TO windows. Downtime hours from **004** feed available-hours.
+Serving hours from trips. Idle vs movement from GPS (stopped below 3 km/h). Downtime hours from **004** feed available-hours.
 
 | File | Role |
 |------|------|

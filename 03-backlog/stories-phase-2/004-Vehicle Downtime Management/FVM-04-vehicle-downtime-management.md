@@ -67,39 +67,148 @@ Driver Supervisor
 
 ### AC-1 — Log downtime
 
-- [ ] Driver Supervisor logs downtime: vehicle, **reason**, **start** datetime, **end** datetime (optional if still down)
-- [ ] Each log stored with who entered it
-- [ ] `end_at` < `start_at` rejected
-- [ ] Second **open** downtime on the same vehicle rejected
-- [ ] Supervisor can list downtime for a vehicle (newest first) and close an open log by setting end
+Given a Driver Supervisor records downtime for an own-fleet vehicle,
+when they enter a reason and start time (and end time if already back in service),
+then the system keeps the log with who entered it, rejects invalid or duplicate open logs, and lets them list and close open logs.
 
-### AC-2 — Status → Under Maintenance
+- [ ] **Log downtime with reason and times**  
+  **Given** a Driver Supervisor is logging downtime  
+  **When** they enter the vehicle, **reason**, **start** date and time, and **end** date and time (optional if the vehicle is still down)  
+  **Then** the downtime log is accepted
 
-- [ ] When a log **covers now** (started, not yet ended): `operational_status = under_maintenance` (`is_active` stays true)
-- [ ] Assigned (not started) TOs on that vehicle follow existing DS-01 unassign (Under Planning, vehicle cleared)
-- [ ] In-transit vehicle: start **rejected** with a clear error
-- [ ] FVM-01 service log still does **not** set this status
+- [ ] **Who entered it is recorded**  
+  **Given** a Driver Supervisor saves an accepted downtime log  
+  **When** the save completes  
+  **Then** the log shows who entered it
 
-### AC-3 — Availability adjusted automatically
+- [ ] **End before start is rejected**  
+  **Given** the end date and time is earlier than the start date and time  
+  **When** the supervisor saves  
+  **Then** the log is rejected with a clear error
 
-- [ ] While Under Maintenance from FVM-04: vehicle **absent** from TDO `GET /vehicles/available` (existing rule)
-- [ ] FVM-02 Under Maintenance card includes these vehicles (reads status)
-- [ ] When the last covering log ends and `is_active`: status → **No Active TO**; vehicle assignable again
-- [ ] Inactive master-data vehicle: ending a log does **not** set No Active TO (same block as DS-01 clearance)
+- [ ] **Second open downtime is rejected**  
+  **Given** a vehicle already has an **open** downtime log (started, not yet ended)  
+  **When** the supervisor tries to start another open downtime on the same vehicle  
+  **Then** the second log is rejected
 
-### AC-4 — Reduce availability metrics (FVM-03)
+- [ ] **List and close open logs**  
+  **Given** downtime logs exist for a vehicle  
+  **When** the supervisor views downtime for that vehicle  
+  **Then** logs appear newest first  
+  **And** they can close an open log by entering an end date and time
 
-- [ ] For a period, `downtime_hours` = overlap of `[start_at, end_at or now]` with the period
-- [ ] FVM-03 **available hours** = calendar hours − downtime hours
-- [ ] FVM-03 idle (No-TO) = available hours − serving hours (not GPS)
-- [ ] FVM-03 utilization % uses **available hours** as denominator (not raw calendar)
+### AC-2 — Status becomes Under Maintenance
 
-### AC-5 — Surfaces & RBAC
+Given a downtime log that covers the current time,
+when it is saved,
+then the vehicle becomes Under Maintenance (unless it is already in transit, which is rejected), transport orders that were assigned but not started are unassigned, and logging a completed service still does not put the vehicle Under Maintenance.
 
-- [ ] **Driver Supervisor** (+ Tenant Admin): create / close / list downtime
-- [ ] Transport Planner: **view** logs (planning); cannot create
-- [ ] Not Phase 3 workshop cost/parts; not FVM-01 remaining-km
+- [ ] **Open downtime sets Under Maintenance**  
+  **Given** a downtime log that **covers now** (started, not yet ended)  
+  **When** the log is saved  
+  **Then** the vehicle’s availability status is **Under Maintenance**  
+  **And** the vehicle stays active in the fleet (not marked inactive)
 
+- [ ] **Assigned but not started orders are unassigned**  
+  **Given** the vehicle has transport orders that are assigned but not started  
+  **When** downtime that covers now is saved  
+  **Then** those orders go back to Under Planning and the vehicle is cleared from them (same as today’s maintenance flow)
+
+- [ ] **In-transit start is rejected**  
+  **Given** the vehicle is in transit  
+  **When** the supervisor tries to start downtime  
+  **Then** the start is **rejected** with a clear error
+
+- [ ] **Logging a service does not set Under Maintenance**  
+  **Given** a Driver Supervisor records a completed service (date and meter km)  
+  **When** the service is saved  
+  **Then** that service still does **not** change the vehicle to Under Maintenance
+
+### AC-3 — Availability adjusts automatically
+
+Given a vehicle is Under Maintenance because of an open downtime log,
+when someone assigns vehicles or views the Health Dashboard,
+then the vehicle is not available to assign, it appears on the Under Maintenance card, and it returns to No Active TO only when the last open downtime is ended and the vehicle is still active in the fleet.
+
+- [ ] **Not available to assign**  
+  **Given** a vehicle is Under Maintenance because of downtime  
+  **When** someone looks for a vehicle to assign to a new transport order  
+  **Then** that vehicle is **not** in the available list
+
+- [ ] **Under Maintenance card includes the vehicle**  
+  **Given** a vehicle is Under Maintenance because of downtime  
+  **When** a Transport Planner views the Health Dashboard  
+  **Then** that vehicle is included in the Under Maintenance count
+
+- [ ] **Ending the last downtime restores No Active TO**  
+  **Given** the last open downtime is ended and the vehicle is still active in the fleet  
+  **When** the log is closed  
+  **Then** status becomes **No Active TO**  
+  **And** the vehicle can be assigned again
+
+- [ ] **Inactive vehicle stays inactive after downtime ends**  
+  **Given** a vehicle has been deactivated in master data  
+  **When** a downtime log is ended  
+  **Then** status does **not** become No Active TO (same as today’s inspection-clearance rule)
+
+### AC-4 — Downtime reduces utilization hours
+
+Given utilization is shown for a date range,
+when downtime overlaps that range,
+then available hours go down by the downtime hours, and utilization % is based on available hours (not the full calendar). Idle vs movement stays GPS-based (stopped when speed is below 3 km/h) and is **not** “available minus serving”.
+
+- [ ] **Only overlapping downtime is counted**  
+  **Given** a downtime log with a start time and an end time (or still open, so “now”)  
+  **When** utilization is shown for a date range  
+  **Then** downtime hours are only the part of that log that falls inside the date range
+
+- [ ] **Available hours subtract downtime**  
+  **Given** the hours in the date range and downtime hours in that range  
+  **When** available hours are shown  
+  **Then** available hours are:
+
+  > **Available hours = Hours in the period − Downtime hours**
+
+- [ ] **Idle vs movement is GPS, not downtime remainder**  
+  **Given** GPS movement status already stored from the vehicle’s GPS device  
+  **When** idle vs movement is shown on utilization  
+  **Then** idle means the vehicle was stopped (speed **below 3 km/h**)  
+  **And** moving means speed **3 km/h or above**  
+  **And** idle is **not**:
+
+  > **Available hours − Serving hours**
+
+- [ ] **Utilization % uses available hours**  
+  **Given** serving hours and available hours  
+  **When** utilization % is shown  
+  **Then** utilization % is:
+
+  > **Utilization % = Serving hours ÷ Available hours**
+
+  **And** this uses available hours, not the full calendar
+
+### AC-5 — Who can see and do what
+
+Given Driver Supervisor, Tenant Admin, or Transport Planner users,
+when they open downtime,
+then supervisors and admins can create, close, and list logs; planners can view only; and this is not workshop costing or remaining-km tracking.
+
+- [ ] **Supervisor and Tenant Admin can record downtime**  
+  **Given** a user is a Driver Supervisor or Tenant Admin  
+  **When** they open downtime  
+  **Then** they can create, close, and list downtime
+
+- [ ] **Transport Planner can view only**  
+  **Given** a user is a Transport Planner  
+  **When** they open downtime logs  
+  **Then** they can **view** logs for planning  
+  **And** they cannot create a log
+
+- [ ] **Out of scope**  
+  **Given** this is downtime tracking  
+  **When** a user records or views a log  
+  **Then** this is not workshop job costing or parts  
+  **And** this is not remaining-km / service-due tracking
 
 ## Sub-tasks
 
