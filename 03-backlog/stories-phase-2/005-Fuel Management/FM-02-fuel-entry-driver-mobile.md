@@ -28,15 +28,18 @@ tdd_index: ../../../09-testing/stories-phase-2/005-Fuel Management/00-all-test-c
 
 # FM-02 — Fuel Entry — Driver (Mobile Web Interface)
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FM-02 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md) | `FM-02-TC01`…`TC15` + edge cases (`AC-N.x` mapped) |
-| [Fuel Management TDD index](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md) | All FM-01…FM-05 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/005-Fuel%20Management/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FM-02 TDD catalog** (`AC-N.x` mapped) | [FM-02-fuel-entry-driver-mobile-tdd-test-cases.md](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md) |
+| **Fuel Management TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/005-Fuel%20Management/README.md) |
 
 Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -66,6 +69,8 @@ Entries are tagged `DRIVER_ENTRY` when submitted from this mobile flow. Offline 
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [FM-02 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile-tdd-test-cases.md) · [Fuel Management index](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md)
+
 ### AC-1: Auto-captured fields (driver)
 
 Given a Driver, Tenant Super Admin, or Tenant Admin with an assigned vehicle opens Log Fuel Entry on the mobile web interface,
@@ -80,38 +85,6 @@ then vehicle, fuel type, refueling datetime, and location are auto-captured and 
 - [ ] **Location:** captured from **device GPS** at submit (`latitude`, `longitude`); optional reverse-geocoded `location_label` for display; driver does not type location manually.
 - [ ] **Fuel type:** auto-filled from vehicle master `fuel_type`; **read-only** on form.
 - [ ] Location permission requested on first use; if denied, entry blocked with message to enable location (v1 — no manual location fallback for drivers).
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Form pre-fills assigned vehicle and fuel type
-  Given driver "drv.ahmed" is assigned to own-fleet vehicle "DHK-1234" with fuel_type DIESEL
-  When the driver opens Log Fuel Entry
-  Then vehicle "DHK-1234" is shown read-only
-  And fuel type DIESEL is shown read-only
-  And no vehicle picker is available
-
-Scenario: AC-1.2 - Submit captures datetime and GPS
-  Given the driver has granted location permission
-  And all required gauge fields and photos are valid
-  When the driver submits the entry
-  Then refueling_datetime is set from the submit timestamp
-  And latitude/longitude are stored from device GPS
-  And location_source is DEVICE_GPS
-
-Scenario: AC-1.3 - Location permission denied blocks entry
-  Given the driver has denied (or revoked) location permission
-  When the driver attempts to submit a fuel entry
-  Then submission is blocked
-  And a message instructs the driver to enable location
-  And no manual location text field is offered
-
-Scenario: AC-1.4 - No vehicle assignment blocks entry
-  Given the driver has no current vehicle assignment
-  When the driver opens Log Fuel Entry
-  Then the form cannot be submitted
-  And a clear message indicates no assigned vehicle
-```
 
 ### AC-2: Driver-entered fields
 
@@ -137,31 +110,6 @@ then required vs optional fields are enforced and Fuel Filled is After − Befor
 - [ ] **Odometer photo** — **optional** (supporting).
 - [ ] **Notes** — **optional** (free text).
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Happy path with required fields only (no receipt)
-  Given assigned vehicle context is loaded
-  When the driver enters Before=15, After=55, Cost=4500, Odometer=13000
-  And uploads gauge before and after photos
-  And does not upload a Fuel Receipt Photo
-  And omits odometer photo and notes
-  Then Fuel Filled shows 40
-  And submit is allowed
-  And Fuel Receipt Photo is null / unset
-
-Scenario: AC-2.2 - Missing required gauge photo blocks submit
-  Given numeric required fields are valid
-  When gauge after photo is missing
-  Then submit is blocked with a required-photo error
-
-Scenario: AC-2.3 - Optional Fuel Receipt Photo accepted when provided
-  Given all required fields and gauge photos are valid
-  When the driver uploads a Fuel Receipt Photo (and optionally odometer photo + notes)
-  Then submit succeeds
-  And the receipt image URL is stored on the FuelEntry
-```
-
 ### AC-3: Validation
 
 Given the driver submits a fuel entry,
@@ -175,30 +123,6 @@ then the system validates consistently with FM-01/FM-03 and stamps `location_sou
 - [ ] `location_source = DEVICE_GPS` on saved entry.
 - [ ] Driver cannot select another vehicle or enter manual location (v1).
 
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - After not greater than Before is rejected
-  Given the fuel form is open
-  When Before=40 and After=40 (or After < Before)
-  Then submit is blocked with a gauge validation error
-
-Scenario: AC-3.2 - Odometer not greater than last reading is rejected
-  Given last recorded odometer for the assigned vehicle is 13000
-  When the driver enters odometer 13000 or less
-  Then submit is blocked with an odometer validation error
-
-Scenario: AC-3.3 - Live preview when prior entry exists
-  Given a prior fuel entry exists for the assigned vehicle
-  When the driver enters valid gauge, cost, and higher odometer
-  Then live preview shows km/L and cost/km where calculable
-
-Scenario: AC-3.4 - API rejects vehicle other than assignment
-  Given driver session for assigned vehicle A
-  When the client POSTs a fuel entry for vehicle B
-  Then the request is rejected
-```
-
 ### AC-4: Offline
 
 Given the device is offline,
@@ -210,27 +134,6 @@ then the entry is queued locally with GPS/timestamp at queue time and synced onc
 - [ ] Entry queued locally when offline; GPS coordinates captured at queue time.
 - [ ] Synced on reconnect with original captured timestamp preserved.
 - [ ] Duplicate submission prevented via client idempotency key.
-
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - Offline queue preserves timestamp and GPS
-  Given the device is offline and location permission is granted
-  When the driver submits a valid fuel entry
-  Then the entry is stored in the local queue
-  And queued payload includes GPS at queue time and captured refueling_datetime
-
-Scenario: AC-4.2 - Sync on reconnect preserves original capture
-  Given a queued offline fuel entry exists
-  When connectivity is restored and sync runs
-  Then the server stores the original captured timestamp and coordinates
-  And entry_type is DRIVER_ENTRY
-
-Scenario: AC-4.3 - Duplicate submit uses idempotency key
-  Given the client already queued/submitted entry with idempotency key K
-  When the same payload is submitted again with key K
-  Then only one FuelEntry is created
-```
 
 ### AC-5: Confirmation
 
@@ -244,22 +147,6 @@ then a success message is shown, the entry is audit-logged, and an informational
 - [ ] **Audit log:** successful fuel entry create is audit-logged in the system (see AC-6).
 - [ ] Anomaly flag shown if efficiency >20% below baseline (informational, entry still saved).
 
-**Test Scenarios (AC-5):**
-
-```gherkin
-Scenario: AC-5.1 - Success confirmation
-  Given a valid online submit
-  When the server accepts the entry
-  Then the UI shows “Fuel entry logged!”
-
-Scenario: AC-5.2 - Anomaly is informational only
-  Given calculated km/L is more than 20% below the vehicle-type baseline (FM-05)
-  When the entry is saved
-  Then anomaly_flag is true
-  And the entry remains saved
-  And the UI shows an informational anomaly indicator
-```
-
 ### AC-6: Audit log
 
 Given a driver fuel entry is successfully created (online submit or offline sync),
@@ -272,21 +159,6 @@ then the fuel entry is **audit-logged** in the system.
 - [ ] Audit payload includes at least: `fuel_entry_id`, `vehicle_id`, `created_by` (driver user), `entry_type=DRIVER_ENTRY`, `submitted_at` / timestamp.
 - [ ] Offline sync that creates the server record also writes the audit log (once per created entry; idempotent with the entry).
 - [ ] Failed / blocked submits do **not** create a success audit log for a fuel entry.
-
-**Test Scenarios (AC-6):**
-
-```gherkin
-Scenario: AC-6.1 - Audit log on successful driver fuel entry
-  Given a valid online driver fuel entry submit
-  When the server persists the FuelEntry
-  Then an audit log entry with action FUEL_ENTRY_CREATED exists
-  And it references the fuel entry, vehicle, driver, and DRIVER_ENTRY
-
-Scenario: AC-6.2 - Audit log on offline sync create
-  Given a queued offline fuel entry syncs successfully
-  When the server creates the FuelEntry
-  Then exactly one FUEL_ENTRY_CREATED audit log exists for that entry
-```
 
 ---
 

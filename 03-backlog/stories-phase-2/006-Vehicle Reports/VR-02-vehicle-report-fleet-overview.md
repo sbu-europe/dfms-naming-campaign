@@ -25,15 +25,18 @@ tdd_index: ../../../09-testing/stories-phase-2/006-Vehicle Reports/00-all-test-c
 
 # VR-02 — Vehicle Report — Fleet Overview (Health Cards)
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [VR-02 TDD catalog](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-02-fleet-overview-tdd-test-cases.md) | `VR-02-TC##` ↔ `AC-N.x` |
-| [Vehicle Reports TDD index](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md) | All VR-01…VR-03 |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/README.md) | README + TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **VR-02 TDD catalog** (`AC-N.x` mapped) | [VR-02-fleet-overview-tdd-test-cases.md](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-02-fleet-overview-tdd-test-cases.md) |
+| **Vehicle Reports TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/README.md) |
 
 Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -51,6 +54,8 @@ Per-vehicle metrics: last km/L, avg km/L, distance, fuel cost, ৳/km, fuel entr
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [VR-02 TDD catalog](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-02-fleet-overview-tdd-test-cases.md) · [Vehicle Reports index](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md)
+
 ### AC-1: Fleet stats strip
 
 Given an authorized user opens Vehicle Report overview,
@@ -60,16 +65,6 @@ when the page loads for the selected fuel period,
 then a summary strip shows fleet-level counts.
 
 - [ ] Summary row: Own Fleet Vehicles, Fuel Entries (period), Fuel Anomalies, Inspection Overdue (optional).
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Stats strip shows own-fleet aggregates
-  Given own-fleet vehicles and fuel/inspection data exist for the default period
-  When the user opens Reports → Vehicle Report
-  Then the strip shows Own Fleet Vehicles, Fuel Entries (period), and Fuel Anomalies
-  And Inspection Overdue is shown when inspection data is available
-```
 
 ### AC-2: Vehicle health cards
 
@@ -87,23 +82,6 @@ then each card shows identity, fuel metrics, and alert chips (own-fleet only).
 - [ ] Inspection alert: overdue / due soon / failed checkpoint counts
 - [ ] Fuel anomaly chip when applicable
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Card shows required fields for own-fleet vehicle
-  Given own-fleet vehicle DHK-1234 with fuel and inspection data in period
-  When the overview loads
-  Then a card shows registration, model, fuel type, status, driver, odometer
-  And fuel metrics and entry count for the period
-  And inspection overdue/due-soon/failed counts
-  And fuel anomaly chip when anomaly_flag entries exist
-
-Scenario: AC-2.2 - Vendor fleet vehicles excluded
-  Given vendor-fleet vehicles exist
-  When the overview loads
-  Then no vendor-fleet vehicle cards are shown
-```
-
 ### AC-3: Interaction
 
 Given the overview is visible,
@@ -116,30 +94,6 @@ then the list updates and detail opens (VR-03).
 - [ ] Search/filter by registration; filter “has alerts”.
 - [ ] Fuel period selector (default 30 days).
 
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Click card opens detail
-  Given overview cards are shown
-  When the user clicks the DHK-1234 card
-  Then Vehicle Report detail for DHK-1234 opens (VR-03)
-
-Scenario: AC-3.2 - Search by registration
-  Given multiple vehicles
-  When the user searches registration fragment "DHK"
-  Then only matching cards remain
-
-Scenario: AC-3.3 - Filter has alerts
-  Given some vehicles with fuel anomalies or inspection alerts
-  When has_alerts filter is applied
-  Then only vehicles with alerts are shown
-
-Scenario: AC-3.4 - Default fuel period is 30 days
-  Given the overview loads with no period query
-  When stats and cards render
-  Then fuel_period_days defaults to 30
-```
-
 ### AC-4: API
 
 Given API clients request the fleet report list,
@@ -151,25 +105,6 @@ then `VehicleReportService.build_list()` returns paginated own-fleet cards witho
 - [ ] `GET /api/v1/reports/vehicles/?fuel_period_days=30&page=1`
 - [ ] Uses `VehicleReportService.build_list()` — no N+1.
 - [ ] Supports `has_alerts=true`.
-
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - List API returns paginated own-fleet cards
-  Given MENU_VEHICLE_REPORT_VIEW user
-  When GET /api/v1/reports/vehicles/?fuel_period_days=30&page=1
-  Then response is paginated own-fleet vehicle report cards
-  And query count is bounded (no N+1 per vehicle)
-
-Scenario: AC-4.2 - has_alerts query filter
-  When GET .../reports/vehicles/?has_alerts=true
-  Then only vehicles with fuel anomaly or inspection alerts are returned
-
-Scenario: AC-4.3 - Unauthorized denied
-  Given a user without MENU_VEHICLE_REPORT_VIEW
-  When GET /api/v1/reports/vehicles/
-  Then access is denied
-```
 
 ---
 

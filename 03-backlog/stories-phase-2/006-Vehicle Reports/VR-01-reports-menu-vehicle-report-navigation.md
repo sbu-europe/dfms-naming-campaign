@@ -21,15 +21,18 @@ tdd_index: ../../../09-testing/stories-phase-2/006-Vehicle Reports/00-all-test-c
 
 # VR-01 — Reports Menu — Vehicle Report Navigation & RBAC
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [VR-01 TDD catalog](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-navigation-tdd-test-cases.md) | `VR-01-TC##` ↔ `AC-N.x` |
-| [Vehicle Reports TDD index](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md) | All VR-01…VR-03 |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/README.md) | README + TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **VR-01 TDD catalog** (`AC-N.x` mapped) | [VR-01-reports-menu-navigation-tdd-test-cases.md](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-navigation-tdd-test-cases.md) |
+| **Vehicle Reports TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/README.md) |
 
 Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -45,6 +48,8 @@ Fuel, compliance, and parts visibility moves to **Reports → Vehicle Report** �
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [VR-01 TDD catalog](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-navigation-tdd-test-cases.md) · [Vehicle Reports index](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/00-all-test-cases.md)
+
 ### AC-1: Portal navigation
 
 Given an authorized user opens the admin portal,
@@ -56,22 +61,6 @@ then a **Reports** section exposes **Vehicle Report**, and Vehicle Planning stay
 - [ ] New top-level portal section: **Reports** (folder/drawer).
 - [ ] Submenu item: **Vehicle Report** → `/admin/reports/vehicle-report/` (or equivalent).
 - [ ] **Vehicle Planning** under Transport section is **unchanged** (no fuel/health panels added).
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Reports → Vehicle Report menu exists
-  Given a tenant_super_admin, tenant_admin, transport_planner, or driver_supervisor is logged into the admin portal
-  When they open the portal navigation
-  Then a top-level Reports section is visible
-  And Vehicle Report navigates to /admin/reports/vehicle-report/ (or equivalent)
-
-Scenario: AC-1.2 - Vehicle Planning unchanged
-  Given Vehicle Planning exists under Transport
-  When the Reports menu is added
-  Then Vehicle Planning still has no fuel/health panels
-  And TO assignment UX is unchanged
-```
 
 ### AC-2: RBAC
 
@@ -85,21 +74,6 @@ then only granted roles see Reports → Vehicle Report.
 - [ ] Granted to: `tenant_super_admin`, `tenant_admin`, `transport_planner`, `driver_supervisor`.
 - [ ] Other roles do not see Reports → Vehicle Report unless explicitly granted.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - TSA, TA, TP, DS see Vehicle Report
-  Given users with tenant_super_admin, tenant_admin, transport_planner, or driver_supervisor
-  When each opens the portal
-  Then Reports → Vehicle Report is visible
-
-Scenario: AC-2.2 - Ungranted role cannot see menu
-  Given a role without MENU_VEHICLE_REPORT_VIEW
-  When the user opens the portal
-  Then Reports → Vehicle Report is not shown
-  And direct URL access is denied (403) unless permission is later granted
-```
-
 ### AC-3: Breadcrumbs
 
 Given the user is on Vehicle Report overview or detail,
@@ -109,20 +83,6 @@ when the page renders,
 then breadcrumbs follow Home → Reports → Vehicle Report [→ registration].
 
 - [ ] Home → Reports → Vehicle Report (and detail: → `{registration}`).
-
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Overview breadcrumbs
-  Given the user opens Vehicle Report overview
-  When the page loads
-  Then breadcrumbs are Home → Reports → Vehicle Report
-
-Scenario: AC-3.2 - Detail breadcrumbs include registration
-  Given the user opens detail for vehicle DHK-1234
-  When the page loads
-  Then breadcrumbs are Home → Reports → Vehicle Report → DHK-1234
-```
 
 ---
 

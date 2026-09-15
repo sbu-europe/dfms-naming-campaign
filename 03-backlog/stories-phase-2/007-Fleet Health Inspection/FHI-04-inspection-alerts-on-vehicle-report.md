@@ -24,15 +24,18 @@ tdd_index: ../../../09-testing/stories-phase-2/007-Fleet Health Inspection/00-al
 
 # FHI-04 — Inspection Alerts on Vehicle Report
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FHI-04 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report-tdd-test-cases.md) | `FHI-04-TC01`… + edge cases (**aggregation via InspectionStatusService**) |
-| [Fleet Health Inspection TDD index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) | All FHI-01…FHI-04 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
 
-Implement after FHI-02 status service exists; assert `VehicleReportService` calls `InspectionStatusService` with **no duplicate** schedule logic.
+| Navigate | Link |
+|----------|------|
+| **FHI-04 TDD catalog** (`AC-N.x` mapped) | [FHI-04-inspection-alerts-on-vehicle-report-tdd-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report-tdd-test-cases.md) |
+| **Fleet Health Inspection TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) |
+
+Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -43,6 +46,8 @@ Implement after FHI-02 status service exists; assert `VehicleReportService` call
 ---
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FHI-04 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report-tdd-test-cases.md) · [Fleet Health Inspection index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md)
 
 ### AC-1: Fleet overview (VR-02)
 
@@ -55,20 +60,6 @@ then each card includes overdue / due soon / failed inspection counts, with opti
 - [ ] Each vehicle card includes inspection alert summary: overdue / due soon / failed counts.
 - [ ] Optional fleet stats strip: total overdue checkpoints.
 
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Card shows inspection alert counts
-  Given a vehicle with overdue=2, due_soon=1, failed=1 per InspectionStatusService
-  When fleet overview loads
-  Then the vehicle card shows overdue, due soon, and failed counts
-
-Scenario: AC-1.2 - Optional fleet overdue strip
-  Given multiple vehicles with overdue checkpoints
-  When overview stats strip is shown
-  Then total overdue checkpoints across fleet is displayed (if strip enabled)
-```
-
 ### AC-2: Vehicle detail (VR-03)
 
 Given Vehicle Report detail (VR-03),
@@ -80,22 +71,6 @@ then a read-only checkpoint table shows last checked, next due, status chip, and
 - [ ] **Inspection** section: checkpoint table with last checked, next due, status chip, last result.
 - [ ] Read-only — link to Conduct Inspection for supervisors with permission.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Detail inspection section rows
-  Given checkpoint states for the vehicle
-  When GET report detail / VR-03 Inspection section renders
-  Then each row shows last checked, next due, status chip, and last result
-  And fields are read-only
-
-Scenario: AC-2.2 - Link to Conduct Inspection when permitted
-  Given viewer has inspection.round.create (driver_supervisor)
-  When detail Inspection section is shown
-  Then a link/action to Conduct Inspection is available
-  And users without create permission do not get a write affordance
-```
-
 ### AC-3: Aggregation
 
 Given report DTOs need inspection data,
@@ -106,26 +81,6 @@ then it calls `InspectionStatusService` only (no duplicated due/overdue math) an
 
 - [ ] `VehicleReportService` calls `InspectionStatusService` — no duplicate logic.
 - [ ] Included in `GET /api/v1/reports/vehicles/` and detail endpoint.
-
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Report service delegates to InspectionStatusService
-  Given VehicleReportService builds inspection counts
-  When unit/integration test spies or stubs InspectionStatusService
-  Then report aggregation uses that service
-  And no parallel next_due calculation exists in the report layer
-
-Scenario: AC-3.2 - List endpoint includes inspection counts
-  Given authenticated report viewer
-  When GET /api/v1/reports/vehicles/
-  Then each vehicle summary includes inspection alert counts
-
-Scenario: AC-3.3 - Detail endpoint includes inspection section
-  Given authenticated report viewer
-  When GET /api/v1/reports/vehicles/{id}/
-  Then response includes inspection checkpoint section payload
-```
 
 ---
 

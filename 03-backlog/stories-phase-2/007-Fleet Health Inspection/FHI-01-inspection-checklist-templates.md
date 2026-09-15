@@ -23,15 +23,18 @@ tdd_index: ../../../09-testing/stories-phase-2/007-Fleet Health Inspection/00-al
 
 # FHI-01 — Inspection Checklist Templates per Vehicle Type
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FHI-01 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates-tdd-test-cases.md) | `FHI-01-TC01`… + edge cases (**model/API-first**) |
-| [Fleet Health Inspection TDD index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) | All FHI-01…FHI-04 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
 
-Write failing model/API tests from the catalog **before** implementation (recommended TDD start for Fleet Health Inspection).
+| Navigate | Link |
+|----------|------|
+| **FHI-01 TDD catalog** (`AC-N.x` mapped) | [FHI-01-inspection-checklist-templates-tdd-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates-tdd-test-cases.md) |
+| **Fleet Health Inspection TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) |
+
+Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -47,6 +50,8 @@ Templates are tenant master data — not per vehicle. When a vehicle is inspecte
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [FHI-01 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates-tdd-test-cases.md) · [Fleet Health Inspection index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md)
+
 ### AC-1: Model `InspectionCheckpointTemplate`
 
 Given a tenant maintains inspection master data,
@@ -57,32 +62,6 @@ then required fields, categories, and positive `interval_days` are enforced as t
 
 - [ ] Fields: `vehicle_type` *, `category` *, `name` *, `description`, `interval_days` * (positive integer), `sort_order`, `is_active`, tenant FK.
 - [ ] Categories: Engine, Fuel, Safety, Electrical, Body, Accessories (configurable enum).
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Required fields persist on create
-  Given a tenant admin with template manage permission
-  When POST creates a checkpoint with vehicle_type, category, name, and interval_days=7
-  Then the template is stored with tenant FK and is_active default true
-  And sort_order may be set or defaulted
-
-Scenario: AC-1.2 - Categories are the defined enum set
-  Given a template create/update payload
-  When category is one of Engine, Fuel, Safety, Electrical, Body, Accessories
-  Then save succeeds
-  And other category values are rejected
-
-Scenario: AC-1.3 - interval_days must be a positive integer
-  Given a template create/update payload
-  When interval_days is 0, negative, or non-integer
-  Then save is rejected with a validation error
-
-Scenario: AC-1.4 - Templates are per vehicle_type not per vehicle
-  Given templates exist for light truck
-  When a specific vehicle id is not supplied on the template
-  Then the template applies to all vehicles of that vehicle_type in the tenant
-```
 
 ### AC-2: Admin CRUD
 
@@ -96,31 +75,6 @@ then the admin UI under Master Data or Fleet Operations supports CRUD with write
 - [ ] Filter by vehicle type; reorder checkpoints within type.
 - [ ] RBAC: `transport_planner`, `tenant_super_admin`, `tenant_admin`.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Planner / admin can CRUD templates
-  Given user role is transport_planner, tenant_super_admin, or tenant_admin
-  When they open Checklist Templates and create/update a checkpoint
-  Then the change is persisted and listed for that vehicle_type
-
-Scenario: AC-2.2 - Filter by vehicle type
-  Given templates exist for light truck and medium truck
-  When the user filters by light truck
-  Then only light truck checkpoints are shown
-
-Scenario: AC-2.3 - Reorder within vehicle type
-  Given two checkpoints for the same vehicle_type
-  When sort_order is updated
-  Then list order reflects the new sort_order
-
-Scenario: AC-2.4 - Driver Supervisor may view but not write
-  Given user role is driver_supervisor
-  When they open templates or call write APIs
-  Then read-only view is allowed
-  And POST/PATCH is denied (403)
-```
-
 ### AC-3: Seed examples
 
 Given a new tenant (or seed command) needs default checklists,
@@ -132,22 +86,6 @@ then light truck and medium truck example checkpoints match the module spec inte
 - [ ] Light truck: engine oil (7d), coolant (7d), fuel lines (30d), brakes (30d), tyres (7d), lights (30d), fire extinguisher (365d).
 - [ ] Medium truck: variant set per module spec.
 
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Light truck seed checkpoints
-  Given seed runs for a tenant
-  When light truck templates are loaded
-  Then engine oil and coolant and tyres have interval_days=7
-  And fuel lines, brakes, and lights have interval_days=30
-  And fire extinguisher has interval_days=365
-
-Scenario: AC-3.2 - Medium truck seed variant exists
-  Given seed runs for a tenant
-  When medium truck templates are loaded
-  Then a variant checkpoint set exists per module spec
-```
-
 ### AC-4: API
 
 Given clients manage templates via API,
@@ -158,25 +96,6 @@ then list/create and retrieve/update work with tenant isolation and RBAC.
 
 - [ ] `GET/POST /api/v1/inspection-checkpoints/?vehicle_type=`
 - [ ] `GET/PATCH /api/v1/inspection-checkpoints/{id}/`
-
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - List filtered by vehicle_type
-  Given templates for multiple vehicle types
-  When GET /api/v1/inspection-checkpoints/?vehicle_type=light_truck
-  Then only matching templates for the caller tenant are returned
-
-Scenario: AC-4.2 - Create and patch by id
-  Given transport_planner authentication
-  When POST creates a template and PATCH updates name or interval_days
-  Then GET by id returns the updated record
-
-Scenario: AC-4.3 - Cross-tenant access denied
-  Given a template id belonging to another tenant
-  When GET or PATCH is attempted
-  Then the API returns 404 or 403 (tenant isolation)
-```
 
 ---
 

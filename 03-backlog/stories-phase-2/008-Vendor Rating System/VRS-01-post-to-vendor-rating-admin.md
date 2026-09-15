@@ -22,15 +22,18 @@ tdd_index: ../../../09-testing/stories-phase-2/008-Vendor Rating System/00-all-t
 
 # VRS-01 — Post-TO Vendor Rating — Tenant Super Admin / Tenant Admin / TDO (Admin Portal)
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [VRS-01 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md) | `VRS-01-TC01`…`TC17` + edge cases (`AC-N.x` mapped) |
-| [Vendor Rating System TDD index](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/00-all-test-cases.md) | All VRS-01…VRS-03 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **VRS-01 TDD catalog** (`AC-N.x` mapped) | [VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md) |
+| **Vendor Rating System TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/README.md) |
 
 Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -63,6 +66,8 @@ The system computes the **average rating** across all three criteria and updates
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [VRS-01 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md) · [Vendor Rating System index](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/00-all-test-cases.md)
+
 ### AC-1: Rating Trigger
 
 Given a Transport Order transitions to `COMPLETED`,
@@ -75,33 +80,6 @@ then a pending `VendorRating` exists for that TO/vendor, and only one rating per
 - [ ] Tenant Super Admin / Tenant Admin / TDO with `vendor.rating.create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
 - [ ] Only **one rating per TO** is allowed — re-opening the prompt shows the existing (submitted or draft) rating.
 - [ ] Rating prompt is also accessible from **Vendor Profile → Rating History → Rate** (for past unrated TOs).
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - COMPLETED TO creates pending VendorRating
-  Given a Transport Order assigned to vendor "V-ACME" is in progress
-  When the TO status transitions to COMPLETED
-  Then a pending VendorRating exists linked to that TO and vendor
-  And is_submitted is false
-
-Scenario: AC-1.2 - Rate Vendor CTA on completed TO detail
-  Given a completed TO with a pending VendorRating
-  And a Tenant Super Admin, Tenant Admin, or TDO with vendor.rating.create permission
-  When the admin opens the completed TO detail view
-  Then a "Rate Vendor" button or prompt is shown
-
-Scenario: AC-1.3 - One rating per TO — reopen shows existing
-  Given a VendorRating already exists for TO "TO-2026-001"
-  When the admin opens the Rate Vendor prompt again
-  Then the existing draft or submitted rating is shown
-  And no second VendorRating row is created
-
-Scenario: AC-1.4 - Rate from Vendor Profile for past unrated TOs
-  Given a completed TO for vendor "V-ACME" with a pending (unsubmitted) rating
-  When the admin opens Vendor Profile → Rating History → Rate
-  Then the rating form for that TO is accessible
-```
 
 ### AC-2: Rating Form — Criteria Panels
 
@@ -119,28 +97,6 @@ then three panels (Product Delivery · Driver Behaviour · Vehicle) require 1–
 - [ ] A global **overall comment** field (optional, max 1 000 chars) at the bottom of the form.
 - [ ] Live preview: running average shown as the user fills in criteria scores.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Three criterion panels with required stars
-  Given the vendor rating form is open for a completed TO
-  When the form renders
-  Then panels Product Delivery, Driver Behaviour, and Vehicle are shown
-  And each has a 1–5 star selector and optional comment (max 500)
-  And an overall comment field (max 1000) is shown
-
-Scenario: AC-2.2 - Submit blocked until all three scores set
-  Given the form is open
-  When only two criterion star scores are selected
-  Then submit remains blocked
-  And a clear validation indicates all three scores are required
-
-Scenario: AC-2.3 - Live average preview updates
-  Given scores Product Delivery=5, Driver Behaviour=4, Vehicle unset
-  When the admin sets Vehicle=3
-  Then the live preview shows average round((5+4+3)/3, 2) = 4.00
-```
-
 ### AC-3: Predefined Questions — v1 Seed Data
 
 Given the rating form loads questions for each criterion,
@@ -153,20 +109,6 @@ then the v1 default Y/N questions for Product Delivery, Driver Behaviour, and Ve
 - [ ] **Driver Behaviour:** "Was the driver professional and courteous?", "Did the driver follow safety protocols?", "Did the driver communicate proactively during the trip?"
 - [ ] **Vehicle:** "Was the vehicle in roadworthy condition?", "Was the vehicle clean and appropriate for the load type?", "Did the vehicle arrive on time for loading?"
 - [ ] Questions stored in `RatingQuestion` model — seeded, admin-configurable in a future sprint.
-
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Seed questions load per criterion
-  Given RatingQuestion seed data for rating_type VENDOR
-  When the admin opens the rating form
-  Then Product Delivery, Driver Behaviour, and Vehicle each show their three default Y/N questions
-
-Scenario: AC-3.2 - Questions come from RatingQuestion model
-  Given an active RatingQuestion for criterion VEHICLE
-  When GET /api/v1/rating-questions/?criterion=VEHICLE is called
-  Then the active question text is returned for form population
-```
 
 ### AC-4: Average Calculation & Vendor Rating Update
 
@@ -181,29 +123,6 @@ then `average_rating = round((s1+s2+s3)/3, 2)` and `Vendor.rating` / `rating_cou
   `new_avg = ((current_rating × rating_count) + new_average) / (rating_count + 1)`.
 - [ ] `Vendor.rating_count` (or computed aggregate) incremented on each submission.
 
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - Average rounds to two decimal places
-  Given criterion scores 5, 4, and 3
-  When the rating is submitted
-  Then average_rating is 4.00
-
-Scenario: AC-4.2 - Rolling Vendor.rating update
-  Given Vendor.rating is 4.00 with rating_count 1
-  And a new submitted average_rating of 5.00
-  When the rolling update runs
-  Then Vendor.rating becomes 4.50
-  And rating_count becomes 2
-
-Scenario: AC-4.3 - First submitted rating sets Vendor.rating
-  Given Vendor.rating_count is 0
-  And a new average_rating of 3.67
-  When the rating is submitted
-  Then Vendor.rating is 3.67
-  And rating_count is 1
-```
-
 ### AC-5: Submission & Immutability
 
 Given an admin submits a complete valid rating,
@@ -216,27 +135,6 @@ then the `VendorRating` stores all fields, becomes immutable, and an audit log e
 - [ ] Submission is **immutable** — rating cannot be edited after submit (consistent with bid immutability pattern).
 - [ ] Audit log entry created on submission (`VENDOR_RATING_SUBMITTED` action).
 
-**Test Scenarios (AC-5):**
-
-```gherkin
-Scenario: AC-5.1 - Submit persists full rating payload
-  Given a valid three-criterion rating with Y/N answers and comments
-  When the admin submits
-  Then VendorRating is submitted with rated_by, submitted_at, average_rating, and overall_comment
-  And three VendorRatingCriterion rows and answers are stored
-
-Scenario: AC-5.2 - Submitted rating cannot be edited
-  Given a submitted VendorRating for TO "TO-2026-001"
-  When the admin attempts to PATCH or re-submit changed scores
-  Then the change is rejected
-  And stored scores remain unchanged
-
-Scenario: AC-5.3 - Audit log on submission
-  Given a valid rating submit
-  When persistence succeeds
-  Then an audit log entry with action VENDOR_RATING_SUBMITTED exists
-```
-
 ### AC-6: Not Visible to Vendor (v1)
 
 Given vendor users access portal or mobile APIs,
@@ -247,20 +145,6 @@ then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Tra
 
 - [ ] Vendor portal and vendor mobile app do **not** expose the vendor's own rating in v1.
 - [ ] Rating data is accessible only to Tenant Super Admin, Tenant Admin, TDO, and Transport Planner via internal admin views.
-
-**Test Scenarios (AC-6):**
-
-```gherkin
-Scenario: AC-6.1 - Vendor cannot read own rating via API
-  Given a submitted VendorRating for vendor "V-ACME"
-  When a vendor-authenticated user GET vendor rating history or TO vendor-rating
-  Then the response is 403
-
-Scenario: AC-6.2 - Admin roles can view rating
-  Given a submitted VendorRating
-  When a tenant_super_admin, tenant_admin, tdo, or transport_planner requests rating history
-  Then the rating is returned
-```
 
 ---
 

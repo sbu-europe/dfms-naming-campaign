@@ -24,7 +24,7 @@ Previously planned under Sprint 10 (`03-backlog/sprints/sprint-10/01-fuel-manage
 **Module spec:** [`05-modules/08-fleet-management/fuel-management.md`](../../../05-modules/08-fleet-management/fuel-management.md)  
 **Design reference:** [`example-prototypes/fleet-operations.html`](../../../example-prototypes/fleet-operations.html)
 
-**Story AC format:** Each story uses **Given–When–Then** acceptance criteria, numbered **gherkin test scenarios** (`AC-N.x`), and an **Edge Cases** section (aligned with sprint-2 story style).
+**Story AC format:** Each story uses **Given–When–Then** acceptance criteria and an **Edge Cases** section. **Gherkin / TDD scenarios** (`AC-N.x`) live in `09-testing` (linked from each story) — not inline under AC.
 
 **TDD test catalogs:**  
 - Feature folder: [`09-testing/stories-phase-2/005-Fuel Management/`](../../../09-testing/stories-phase-2/005-Fuel%20Management/)  

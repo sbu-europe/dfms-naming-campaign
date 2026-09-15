@@ -23,15 +23,18 @@ tdd_index: ../../../09-testing/stories-phase-2/007-Fleet Health Inspection/00-al
 
 # FHI-03 — Conduct Inspection Round
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FHI-03 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round-tdd-test-cases.md) | `FHI-03-TC01`… + edge cases (**submit/API after FHI-01**) |
-| [Fleet Health Inspection TDD index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) | All FHI-01…FHI-04 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
 
-Write failing API/service tests for round submit and `VehicleCheckpointState` updates **before** UI polish.
+| Navigate | Link |
+|----------|------|
+| **FHI-03 TDD catalog** (`AC-N.x` mapped) | [FHI-03-conduct-inspection-round-tdd-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round-tdd-test-cases.md) |
+| **Fleet Health Inspection TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) |
+
+Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -43,6 +46,8 @@ Write failing API/service tests for round submit and `VehicleCheckpointState` up
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [FHI-03 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round-tdd-test-cases.md) · [Fleet Health Inspection index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md)
+
 ### AC-1: Round entry form
 
 Given a Driver Supervisor starts Conduct Inspection,
@@ -53,21 +58,6 @@ then the checklist loads from that vehicle’s `vehicle_type` template with curr
 
 - [ ] Select vehicle (own fleet); inspection date; optional odometer; round notes.
 - [ ] Load checklist from vehicle type template with current status per row.
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Own-fleet vehicle loads type checklist
-  Given vehicle DHK-1234 is own-fleet light truck with active templates
-  When supervisor selects DHK-1234 and an inspection date
-  Then checklist rows match light truck active templates
-  And each row shows current status from VehicleCheckpointState when present
-
-Scenario: AC-1.2 - Optional odometer and round notes accepted
-  Given a valid vehicle selection
-  When odometer and round notes are provided or omitted
-  Then both shapes are accepted (odometer optional)
-```
 
 ### AC-2: Per-checkpoint result
 
@@ -81,25 +71,6 @@ then every row requires Pass / Needs attention / Fail, allows optional notes, an
 - [ ] Optional notes per checkpoint.
 - [ ] Show interval, last checked, current status on each row.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Result enum values accepted
-  Given a checklist row
-  When result is Pass, Needs attention, or Fail
-  Then the value is accepted for submit
-
-Scenario: AC-2.2 - Optional per-checkpoint notes
-  Given a result is set
-  When notes are omitted or provided
-  Then submit stores notes when present and null/empty when omitted
-
-Scenario: AC-2.3 - Row context columns visible
-  Given templates with interval_days and prior state
-  When the form renders
-  Then interval, last checked, and current status are shown per row
-```
-
 ### AC-3: On submit
 
 Given all checkpoints have results,
@@ -112,28 +83,6 @@ then `InspectionRound` + `InspectionRoundLine` are created, `VehicleCheckpointSt
 - [ ] Update `VehicleCheckpointState` — `last_checked_date`, `last_result`, `next_due` recalculated.
 - [ ] Audit: `entered_by` = current supervisor.
 
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Round and lines persisted
-  Given a complete checklist submission for an own-fleet vehicle
-  When POST inspection-rounds succeeds
-  Then one InspectionRound and one line per template checkpoint exist
-  And entered_by is the authenticated supervisor
-
-Scenario: AC-3.2 - VehicleCheckpointState updated
-  Given prior state or no prior state for a checkpoint
-  When round submits with inspected_at date D and result Pass
-  Then last_checked_date = D
-  And last_result = PASS
-  And next_due = D + interval_days
-
-Scenario: AC-3.3 - Fail and attention update last_result
-  Given submit includes Fail and Needs attention lines
-  When state is updated
-  Then last_result reflects FAIL and ATTENTION respectively
-```
-
 ### AC-4: Validation
 
 Given a submit attempt,
@@ -145,20 +94,6 @@ then the API rejects the request.
 - [ ] All template checkpoints must have a result before submit.
 - [ ] Own-fleet vehicles only.
 
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - Missing checkpoint result blocked
-  Given active templates for the vehicle type
-  When submit omits a result for any required checkpoint
-  Then save is rejected and no round is created
-
-Scenario: AC-4.2 - Vendor or non-own-fleet vehicle rejected
-  Given a vendor-fleet vehicle id
-  When POST inspection-rounds is attempted
-  Then request is rejected
-```
-
 ### AC-5: API
 
 Given clients create and list rounds,
@@ -169,25 +104,6 @@ then POST create and GET history (and checkpoint-states) work for permitted role
 
 - [ ] `POST /api/v1/vehicles/{id}/inspection-rounds/`
 - [ ] `GET /api/v1/vehicles/{id}/inspection-rounds/` (history)
-
-**Test Scenarios (AC-5):**
-
-```gherkin
-Scenario: AC-5.1 - POST creates round for supervisor
-  Given driver_supervisor with permission inspection.round.create
-  When POST /api/v1/vehicles/{id}/inspection-rounds/ with valid payload
-  Then 201/200 and round body returned
-
-Scenario: AC-5.2 - GET history returns prior rounds
-  Given existing rounds for the vehicle
-  When GET /api/v1/vehicles/{id}/inspection-rounds/
-  Then rounds are listed newest-first or per API convention
-
-Scenario: AC-5.3 - Unauthorized create denied
-  Given a user without round create permission
-  When POST is attempted
-  Then 403 is returned
-```
 
 ---
 

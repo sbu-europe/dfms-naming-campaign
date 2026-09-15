@@ -23,15 +23,18 @@ tdd_index: ../../../09-testing/stories-phase-2/005-Fuel Management/00-all-test-c
 
 # FM-04 — Fuel History & Filters
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FM-04 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters-tdd-test-cases.md) | `FM-04-TC01`…`TC10` + edge cases (`AC-N.x` mapped) |
-| [Fuel Management TDD index](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md) | All FM-01…FM-05 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/005-Fuel%20Management/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FM-04 TDD catalog** (`AC-N.x` mapped) | [FM-04-fuel-history-and-filters-tdd-test-cases.md](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters-tdd-test-cases.md) |
+| **Fuel Management TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/005-Fuel%20Management/README.md) |
 
 Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -40,6 +43,8 @@ Write failing tests from the catalog **before** implementation.
 **So that** I can review consumption patterns and investigate anomalies
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FM-04 TDD catalog](../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters-tdd-test-cases.md) · [Fuel Management index](../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md)
 
 ### AC-1: History table
 
@@ -53,26 +58,6 @@ then a newest-first table shows the prototype columns and supports vehicle filte
 - [ ] Sorted newest first.
 - [ ] Vehicle filter dropdown (All Vehicles + per-vehicle).
 
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - History lists newest first with required columns
-  Given multiple fuel entries exist across vehicles
-  When the supervisor opens Fuel History with All Vehicles
-  Then rows are ordered by refueling_datetime descending
-  And each row shows the required columns including Entry Type and Status
-
-Scenario: AC-1.2 - Filter by single vehicle
-  Given entries for vehicles A and B
-  When the supervisor selects vehicle A in the filter
-  Then only entries for vehicle A are shown
-
-Scenario: AC-1.3 - Empty history state
-  Given no fuel entries match the current filter
-  When the history view loads
-  Then an empty state is shown (no error)
-```
-
 ### AC-2: Stats strip (updates with filter)
 
 Given the history filter changes,
@@ -82,24 +67,6 @@ when the filtered set is applied,
 then the stats strip recalculates for that set only.
 
 - [ ] Total Entries, Total Liters, Total Cost (BDT), Avg km/L, Anomalies Flagged.
-
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - Stats match filtered entries
-  Given vehicle A has 2 entries (40 L + 60 L, costs 4000 + 6000, one anomaly)
-  When the supervisor filters to vehicle A
-  Then Total Entries is 2
-  And Total Liters is 100
-  And Total Cost is 10000
-  And Anomalies Flagged is 1
-  And Avg km/L uses only entries where km/L is non-null
-
-Scenario: AC-2.2 - Stats for All Vehicles
-  Given entries across multiple vehicles
-  When filter is All Vehicles
-  Then stats aggregate across all visible own-fleet entries
-```
 
 ### AC-3: Access
 
@@ -112,27 +79,6 @@ then supervisors/admins see all own-fleet entries and drivers see only their ass
 - [ ] Driver Supervisor: all own-fleet entries.
 - [ ] Driver (mobile): own entries for assigned vehicle only.
 
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Supervisor sees all own-fleet entries
-  Given entries for vehicles A and B (own fleet)
-  When a Driver Supervisor requests fuel history
-  Then both vehicles' entries are returned
-
-Scenario: AC-3.2 - Driver sees only assigned vehicle entries
-  Given the driver is assigned to vehicle A
-  And entries exist for A and B
-  When the driver requests fuel history
-  Then only entries for vehicle A entered by/relevant to that driver scope are returned
-  And vehicle B entries are not returned
-
-Scenario: AC-3.3 - Unauthorized role denied
-  Given a user without fuel.history.view / fuel.entry.view_own
-  When they request fuel history
-  Then access is denied
-```
-
 ### AC-4: Admin + API
 
 Given backend and admin surfaces are implemented,
@@ -144,20 +90,6 @@ then Django admin (and optional custom view) and list APIs support vehicle filte
 - [ ] Django admin changelist with filters; optional custom Fuel History view matching prototype.
 - [ ] `GET /api/v1/vehicles/{id}/fuel-history/` and `GET /api/v1/fuel-entries/?vehicle_id=`
 - [ ] Export CSV/PDF is out of scope (v1).
-
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - List API filters by vehicle_id and orders newest first
-  Given entries for vehicle A
-  When GET /api/v1/fuel-entries/?vehicle_id=A&ordering=-refueling_datetime
-  Then only vehicle A entries are returned newest first
-
-Scenario: AC-4.2 - Vehicle fuel-history endpoint
-  Given entries for vehicle A
-  When GET /api/v1/vehicles/A/fuel-history/
-  Then the response includes those entries with computed fields and anomaly_flag
-```
 
 ---
 

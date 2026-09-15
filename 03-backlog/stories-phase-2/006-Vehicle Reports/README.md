@@ -22,7 +22,7 @@ Previously planned under Sprint 10 (`03-backlog/sprints/sprint-10/02-vehicle-rep
 **Module spec:** [`05-modules/11-reporting/vehicle-report.md`](../../../05-modules/11-reporting/vehicle-report.md)  
 **Design reference:** [`example-prototypes/fleet-operations.html`](../../../example-prototypes/fleet-operations.html)
 
-**Story AC format:** Given–When–Then + gherkin `AC-N.x` + Edge Cases.
+**Story AC format:** Given–When–Then + Edge Cases. **Gherkin / TDD scenarios** (`AC-N.x`) live in `09-testing` (linked from each story) — not inline under AC.
 
 **TDD test catalogs:**  
 - Feature folder: [`09-testing/stories-phase-2/006-Vehicle Reports/`](../../../09-testing/stories-phase-2/006-Vehicle%20Reports/)  

@@ -24,15 +24,18 @@ tdd_index: ../../../09-testing/stories-phase-2/007-Fleet Health Inspection/00-al
 
 # FHI-02 — Inspection Dashboard — Due & Overdue Alerts
 
-## TDD Test Cases
+## Test cases
 
-| Link | What |
-|------|------|
-| [FHI-02 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts-tdd-test-cases.md) | `FHI-02-TC01`… + edge cases (**unit status math after FHI-03**) |
-| [Fleet Health Inspection TDD index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) | All FHI-01…FHI-04 test cases |
-| [Feature TDD folder](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) | README + recommended TDD order |
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
 
-Prefer unit tests for `InspectionStatusService` (2-day due-soon window) once FHI-01 templates and FHI-03 state updates exist.
+| Navigate | Link |
+|----------|------|
+| **FHI-02 TDD catalog** (`AC-N.x` mapped) | [FHI-02-inspection-dashboard-alerts-tdd-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts-tdd-test-cases.md) |
+| **Fleet Health Inspection TDD index** (all stories) | [00-all-test-cases.md](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/README.md) |
+
+Write failing tests from the catalog **before** implementation.
+
 
 ## User Story
 
@@ -44,6 +47,8 @@ Prefer unit tests for `InspectionStatusService` (2-day due-soon window) once FHI
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [FHI-02 TDD catalog](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts-tdd-test-cases.md) · [Fleet Health Inspection index](../../../09-testing/stories-phase-2/007-Fleet%20Health%20Inspection/00-all-test-cases.md)
+
 ### AC-1: Stats strip
 
 Given a Driver Supervisor (or planner/admin) opens the Inspection Dashboard,
@@ -53,22 +58,6 @@ when own-fleet checkpoint states are aggregated,
 then the stats strip shows vehicle count and due-soon / overdue / failed-last-round counts.
 
 - [ ] Own fleet vehicle count, checkpoints due soon, overdue, failed last round.
-
-**Test Scenarios (AC-1):**
-
-```gherkin
-Scenario: AC-1.1 - Stats strip counts own-fleet only
-  Given own-fleet vehicles with mixed checkpoint statuses
-  And vendor-fleet vehicles also exist
-  When the dashboard loads
-  Then stats include own-fleet vehicle count
-  And due soon, overdue, and failed last-round counts exclude vendor fleet
-
-Scenario: AC-1.2 - Failed last round counted separately
-  Given a checkpoint with last_result FAIL still within interval
-  When stats are computed
-  Then failed last-round count includes that checkpoint
-```
 
 ### AC-2: Checkpoint table
 
@@ -83,38 +72,6 @@ then each row shows vehicle, type, checkpoint, interval, last checked, next due,
 - [ ] Failed/Attention flag from last round result.
 - [ ] Filter: all vehicles / alerts only.
 
-**Test Scenarios (AC-2):**
-
-```gherkin
-Scenario: AC-2.1 - OK when next_due is more than 2 days away
-  Given last_checked + interval_days is more than 2 days after today
-  And last_result is PASS
-  When status is computed
-  Then status chip is OK (valid)
-
-Scenario: AC-2.2 - Due soon within 2-day window
-  Given next_due is today or within the next 2 days inclusive of DUE_SOON_DAYS=2
-  And today is not after next_due
-  When status is computed
-  Then status chip is Due soon
-
-Scenario: AC-2.3 - Overdue when today is after next_due or never checked
-  Given last_checked is null OR today > next_due
-  When status is computed
-  Then status chip is Overdue
-
-Scenario: AC-2.4 - Failed / attention from last round
-  Given last_result is FAIL or Needs attention (ATTENTION)
-  When the row is rendered
-  Then Failed/Attention flag is shown in addition to schedule status
-
-Scenario: AC-2.5 - alerts_only filter
-  Given a mix of OK and alert rows (due soon, overdue, failed/attention)
-  When GET dashboard with alerts_only=true
-  Then OK-only rows are excluded
-  And alert rows remain
-```
-
 ### AC-3: Quick action
 
 Given a dashboard row for a vehicle,
@@ -124,15 +81,6 @@ when the supervisor clicks **Inspect**,
 then Conduct Inspection opens with that vehicle pre-selected.
 
 - [ ] **Inspect** button → Conduct Inspection tab with vehicle pre-selected.
-
-**Test Scenarios (AC-3):**
-
-```gherkin
-Scenario: AC-3.1 - Inspect navigates with vehicle pre-selected
-  Given a dashboard row for vehicle DHK-1234
-  When the user clicks Inspect
-  Then Conduct Inspection opens with DHK-1234 selected
-```
 
 ### AC-4: API
 
@@ -144,25 +92,6 @@ then responses are produced via unit-tested `InspectionStatusService`.
 
 - [ ] `GET /api/v1/fleet-inspections/dashboard/?alerts_only=true`
 - [ ] Uses `InspectionStatusService` — unit tested.
-
-**Test Scenarios (AC-4):**
-
-```gherkin
-Scenario: AC-4.1 - Dashboard API returns rows and stats
-  Given authenticated driver_supervisor with own-fleet data
-  When GET /api/v1/fleet-inspections/dashboard/
-  Then response includes stats strip fields and checkpoint rows
-
-Scenario: AC-4.2 - alerts_only query param
-  Given mixed statuses
-  When GET .../dashboard/?alerts_only=true
-  Then only alert rows are returned
-
-Scenario: AC-4.3 - Status service is the single computation path
-  Given InspectionStatusService unit fixtures for OK / due_soon / overdue / failed
-  When the dashboard API builds rows
-  Then it delegates status to InspectionStatusService (no duplicated schedule math)
-```
 
 ---
 
