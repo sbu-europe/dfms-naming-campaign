@@ -19,9 +19,23 @@ related_stories:
   - FVM-03 (availability metrics subtract FVM-04 downtime hours)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/004-Vehicle Downtime Management/FVM-04-vehicle-downtime-management-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/004-Vehicle Downtime Management/00-all-test-cases.md
 ---
 
 # FVM-04 — Vehicle Downtime Management
+
+## Test cases
+
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FVM-04 TDD catalog** (`AC-N.x` mapped) | [FVM-04-vehicle-downtime-management-tdd-test-cases.md](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management-tdd-test-cases.md) |
+| **Vehicle Downtime TDD index** | [00-all-test-cases.md](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/README.md) |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -64,6 +78,8 @@ Driver Supervisor
 
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FVM-04 TDD catalog](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management-tdd-test-cases.md) · [Vehicle Downtime index](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/00-all-test-cases.md)
 
 ### AC-1 — Log downtime
 
@@ -219,12 +235,13 @@ then supervisors and admins can create, close, and list logs; planners can view 
 | FVM-04-3 | Downtime model + supervisor form | Reason, start, end; one open log; history | High | Pending |
 | FVM-04-4 | Status | Open covering now → UM via `mark_vehicle_under_maintenance`; end → No Active TO | High | Pending |
 | FVM-04-5 | Availability | Assignment + FVM-02 follow status; FVM-03 subtracts downtime hours | High | Pending |
-| FVM-04-6 | Tests | Validation, in-transit reject, picker exclusion, FVM-03 denominator, RBAC, DS-01 inspection path unchanged | High | Pending |
+| FVM-04-6 | Tests | Validation, in-transit reject, picker exclusion, FVM-03 denominator, RBAC, DS-01 inspection path unchanged — [TDD catalog](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management-tdd-test-cases.md) | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-5 checked against code
-- [ ] Unit tests for open/close, overlap reject, in-transit reject, status, FVM-03 hour clip
+- [ ] Unit tests for open/close, overlap reject, in-transit reject, status, FVM-03 hour clip — scenarios AC-1.1…AC-5.3 — see [FVM-04 TDD catalog](../../../09-testing/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] DS-01 inspection-fail clearance still required when there is no FVM-04 log
 - [ ] FVM-01 service log still does not set UM
 - [ ] `05-modules/` written (FVM-04-2) before Django merge

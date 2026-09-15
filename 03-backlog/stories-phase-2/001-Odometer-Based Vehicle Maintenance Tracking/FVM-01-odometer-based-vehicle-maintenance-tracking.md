@@ -18,9 +18,23 @@ related_stories:
   - GPS-01 (Live GPS speed — idle vs movement; not remaining km)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/00-all-test-cases.md
 ---
 
 # FVM-01 — Odometer-Based Vehicle Maintenance Tracking
+
+## Test cases
+
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FVM-01 TDD catalog** (`AC-N.x` mapped) | [FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md) |
+| **Odometer Maintenance TDD index** | [00-all-test-cases.md](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/README.md) |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -64,6 +78,8 @@ Vehicle Supervisor (Driver Supervisor)
 GPS continues to provide location and **idle vs movement** from speed. It does **not** write odometer.
 
 ## Acceptance Criteria
+
+> **Test scenarios:** see [FVM-01 TDD catalog](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md) · [Odometer Maintenance index](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/00-all-test-cases.md)
 
 ### AC-1 — Supervisor meter entry
 
@@ -299,12 +315,13 @@ then each role can only do the actions listed below.
 | FVM-01-6 | Remaining km | Since-service / remaining formulas + Due soon / Overdue | High | Pending |
 | FVM-01-7 | Usage indicators | Avg daily (readings), high-load Top 5 routes, idle vs movement (GPS &lt; 3 km/h), high-stress Top 5 vehicles by completed TO count | High | Pending |
 | FVM-01-8 | Planner + supervisor UI | Planner list/detail/filters; supervisor entry; interval config | High | Pending |
-| FVM-01-9 | Tests | Reject drop, monotonic write, formulas, unavailable, RBAC | High | Pending |
+| FVM-01-9 | Tests | Reject drop, monotonic write, formulas, unavailable, RBAC — [TDD catalog](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md) | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-6 checked against code (not against this markdown)
-- [ ] Unit tests for meter entry, monotonic write, remaining-km formulas, Top 5 vehicles by completed TO count, RBAC
+- [ ] Unit tests for meter entry, monotonic write, remaining-km formulas, Top 5 vehicles by completed TO count, RBAC — scenarios AC-1.1…AC-6.6 — see [FVM-01 TDD catalog](../../../09-testing/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] Vehicle with no reading never gets a fake remaining-km number from GPS
 - [ ] GPS ingest / Live GPS regression unchanged (no mileage decode)
 - [ ] `05-modules/` implementation context written (FVM-01-2) before merge of Django work
