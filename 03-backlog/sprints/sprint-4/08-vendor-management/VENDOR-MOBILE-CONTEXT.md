@@ -3,7 +3,7 @@ area: vendor-management
 artifact: mobile-app-context
 sprint: Sprint 4
 source_of_truth:
-  - ../../../../05-modules/09-mobile-apps/vendor-mobile/
+  - ../../../../05-modules/15-mobile-apps/vendor-mobile/
 last_updated: 2026-05-13
 ---
 
@@ -11,7 +11,7 @@ last_updated: 2026-05-13
 
 This page is the **sprint-folder entrypoint** into Vendor Mobile work, while keeping the **source-of-truth specs** in:
 
-- `DFMS-product-context/05-modules/09-mobile-apps/vendor-mobile/`
+- `DFMS-product-context/05-modules/15-mobile-apps/vendor-mobile/`
 
 It also documents the **two end-to-end flows** every Vendor Mobile screen must respect:
 
@@ -20,20 +20,20 @@ It also documents the **two end-to-end flows** every Vendor Mobile screen must r
 
 ## Where to read the full Vendor Mobile App specs (source of truth)
 
-- **Vendor Mobile App index**: [`vendor-mobile/README.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/README.md)
-- **00 — Navigation & IA**: [`00-navigation-and-information-architecture.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md)
-- **01 — Onboarding & verification**: [`01-onboarding-and-verification.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md)
-- **02 — Tenant membership**: [`02-tenant-membership.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md)
-- **03 — Bid opportunities list**: [`03-bid-opportunities-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md)
-- **04 — Bid submission**: [`04-bid-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md)
-- **05 — Assigned TOs list**: [`05-assigned-tos-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/05-assigned-tos-list.md)
-- **06 — Post-award driver/vehicle submission**: [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md)
-- **07 — Active trip tracking**: [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md)
-- **08 — Completed trip history**: [`08-completed-trip-history.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/08-completed-trip-history.md)
-- **09 — Profile management**: [`09-profile-management.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/09-profile-management.md)
-- **10 — Security & access control**: [`10-security-and-access-control.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md)
-- **11 — Integration & design decisions**: [`11-integration-and-design-decisions.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/11-integration-and-design-decisions.md)
-- **12 — Contractual vs Non-Contractual user journeys**: [`12-vendor-type-flows.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/12-vendor-type-flows.md)
+- **Vendor Mobile App index**: [`vendor-mobile/README.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/README.md)
+- **00 — Navigation & IA**: [`00-navigation-and-information-architecture.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md)
+- **01 — Onboarding & verification**: [`01-onboarding-and-verification.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/01-onboarding-and-verification.md)
+- **02 — Tenant membership**: [`02-tenant-membership.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/02-tenant-membership.md)
+- **03 — Bid opportunities list**: [`03-bid-opportunities-list.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/03-bid-opportunities-list.md)
+- **04 — Bid submission**: [`04-bid-submission.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/04-bid-submission.md)
+- **05 — Assigned TOs list**: [`05-assigned-tos-list.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/05-assigned-tos-list.md)
+- **06 — Post-award driver/vehicle submission**: [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md)
+- **07 — Active trip tracking**: [`07-active-trip-tracking.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/07-active-trip-tracking.md)
+- **08 — Completed trip history**: [`08-completed-trip-history.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/08-completed-trip-history.md)
+- **09 — Profile management**: [`09-profile-management.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/09-profile-management.md)
+- **10 — Security & access control**: [`10-security-and-access-control.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/10-security-and-access-control.md)
+- **11 — Integration & design decisions**: [`11-integration-and-design-decisions.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/11-integration-and-design-decisions.md)
+- **12 — Contractual vs Non-Contractual user journeys**: [`12-vendor-type-flows.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/12-vendor-type-flows.md)
 
 ---
 
@@ -179,14 +179,14 @@ Backlog files are numbered **VM-01 … VM-08** in delivery order (see [`README.m
 
 | Sprint item | Sprint 4 file | Applies to | Vendor Mobile App context file(s) |
 |---|---|---|---|
-| VM-01 Vendor mobile onboarding (docs/profile) | [`VM-01-vendor-mobile-onbiorading.md`](VM-01-vendor-mobile-onbiorading.md) | Both | [`01-onboarding-and-verification.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/01-onboarding-and-verification.md), [`09-profile-management.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/09-profile-management.md) |
-| VM-02 Vendor ↔ tenant join + tenant sets vendor_type | [`VM-02-vendor-tenant-join-and-approval.md`](VM-02-vendor-tenant-join-and-approval.md) | Both (decides fork) | [`02-tenant-membership.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/02-tenant-membership.md) |
-| VM-03 Vendor portal views (per-tenant gating) | [`VM-03-vendor-portal-views.md`](VM-03-vendor-portal-views.md) | Both (gated by type per tenant) | [`03-bid-opportunities-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md), [`05-assigned-tos-list.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/05-assigned-tos-list.md), [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`08-completed-trip-history.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/08-completed-trip-history.md) |
+| VM-01 Vendor mobile onboarding (docs/profile) | [`VM-01-vendor-mobile-onbiorading.md`](VM-01-vendor-mobile-onbiorading.md) | Both | [`01-onboarding-and-verification.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/01-onboarding-and-verification.md), [`09-profile-management.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/09-profile-management.md) |
+| VM-02 Vendor ↔ tenant join + tenant sets vendor_type | [`VM-02-vendor-tenant-join-and-approval.md`](VM-02-vendor-tenant-join-and-approval.md) | Both (decides fork) | [`02-tenant-membership.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/02-tenant-membership.md) |
+| VM-03 Vendor portal views (per-tenant gating) | [`VM-03-vendor-portal-views.md`](VM-03-vendor-portal-views.md) | Both (gated by type per tenant) | [`03-bid-opportunities-list.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/03-bid-opportunities-list.md), [`05-assigned-tos-list.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/05-assigned-tos-list.md), [`07-active-trip-tracking.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`08-completed-trip-history.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/08-completed-trip-history.md) |
 | VM-04 TDO publish TO to bidding portal | [`VM-04-tdo-publish-to-bidding-portal.md`](VM-04-tdo-publish-to-bidding-portal.md) | **Non-Contractual only** | *(admin/TDO surface; mobile consumes publish via bid opportunities)* |
-| VM-05 Bid submission | [`VM-05-bid-submission.md`](VM-05-bid-submission.md) | **Non-Contractual only** | [`04-bid-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md) |
+| VM-05 Bid submission | [`VM-05-bid-submission.md`](VM-05-bid-submission.md) | **Non-Contractual only** | [`04-bid-submission.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/04-bid-submission.md) |
 | VM-06 Bid evaluation (TDO surface) | [`VM-06-bid-evaluation.md`](VM-06-bid-evaluation.md) | **Non-Contractual only** | *(mobile sees outcomes via status changes in lists/details)* |
-| VM-07 Bid/TO requirements + vehicle–driver confirmation | [`VM-07-vehicle-driver-submission.md`](VM-07-vehicle-driver-submission.md) | **Both** | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
-| VM-08 Real-time TO updates | [`VM-08-realtime-to-updates.md`](VM-08-realtime-to-updates.md) | **Both** | [`07-active-trip-tracking.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`10-security-and-access-control.md`](../../../../05-modules/09-mobile-apps/vendor-mobile/10-security-and-access-control.md) |
+| VM-07 Bid/TO requirements + vehicle–driver confirmation | [`VM-07-vehicle-driver-submission.md`](VM-07-vehicle-driver-submission.md) | **Both** | [`06-post-award-driver-vehicle-submission.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/06-post-award-driver-vehicle-submission.md) |
+| VM-08 Real-time TO updates | [`VM-08-realtime-to-updates.md`](VM-08-realtime-to-updates.md) | **Both** | [`07-active-trip-tracking.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/07-active-trip-tracking.md), [`10-security-and-access-control.md`](../../../../05-modules/15-mobile-apps/vendor-mobile/10-security-and-access-control.md) |
 
 ---
 

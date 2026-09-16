@@ -61,7 +61,7 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
              │
              ▼
         06-poi-operations (Gate, QC, Scaling)
-        09-mobile-apps    (Driver mobile)
+        15-mobile-apps    (Driver mobile)
 ```
 
 ---
@@ -135,7 +135,7 @@ Sidebar (Driver)
 
 ### Downstream
 - `06-poi-operations`: Gate entry/exit, QC, Scaling — triggered by Trip state transitions
-- `09-mobile-apps`: Driver mobile view of assigned TOs and Trip state updates
+- `15-mobile-apps`: Driver mobile view of assigned TOs and Trip state updates
 - `11-reporting`: Trip costing KPIs, fulfilment performance, vendor billing reports
 
 ---

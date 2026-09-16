@@ -182,3 +182,10 @@ ASSIGNED ──(VM-07 confirm vehicle/driver/helpers)──> READY_FOR_DISPATCH
 - **Type change** (Contractual ↔ Non-Contractual within same tenant) — not in Phase 1; controlled Tenant Admin action only. Mobile would show updated chip on next sync; in-flight bids would need a policy decision (out of scope).
 - **Hybrid auctions** (contractual fallback when no acceptable bid) — out of scope for Phase 1.
 - **Vendor self-service vendor-type request** — out of scope; type remains Tenant-Admin-controlled.
+
+## Code map
+
+| Concern | Code |
+|---------|------|
+| Tenant vendor type / tab visibility | session + tenant scope helpers; Bids tab for non-contractual |
+| Architecture tenancy | [`../../../04-architecture/09-mobile/03-backend-integration/tenancy-and-vendor-types.md`](../../../04-architecture/09-mobile/03-backend-integration/tenancy-and-vendor-types.md) |

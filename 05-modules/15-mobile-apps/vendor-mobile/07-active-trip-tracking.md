@@ -90,3 +90,11 @@ interface ActiveTrip {
 - Trip status via polling (~30 seconds on active trip detail)
 - List refresh on tab switch (VM-03-10) and foreground (VM-08-3)
 - Vendor does not push intermediate status changes — yard/driver/system advance TLS-01
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Active trip tracking | `lib/presentation/feature/trips/` | `.../transport-orders/` + `advance-status/` |
+
+Maestro: `.maestro/flows/trips/`.

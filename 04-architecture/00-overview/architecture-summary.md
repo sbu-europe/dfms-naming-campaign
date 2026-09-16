@@ -260,12 +260,13 @@ DFMS architecture evolves through distinct phases to balance cost, complexity, a
 **See**: [ADR-005: Phase 1 Frontend Approach](../03-decisions/adr-005-phase-1-frontend-approach.md)
 
 #### **Mobile Applications**
-- **Technology**: Flutter (iOS + Android)
-- **Purpose**: Field operations
-- **Apps**:
-  - **Driver App**: Trip management, navigation, status updates
-  - **QC Supervisor App**: Inspections, photo/video capture, reports
-  - **Vendor App**: Bidding, trip management, invoicing
+- **Technology**: Flutter (iOS + Android) for Vendor Mobile
+- **Purpose**: Vendor field/ops client (Phase 1)
+- **Apps / surfaces**:
+  - **Vendor App** (`nourish-vendor-app`): **Implemented** — bidding, assigned TOs, trips, tenant membership, profile
+  - **Driver**: Phase 1 = responsive Django Admin (not Flutter)
+  - **QC Supervisor**: Spec/future — no Flutter app in Phase 1
+- **Architecture**: [`../09-mobile/`](../09-mobile/)
 
 #### **API Gateway**
 - **Phase 1**: Nginx reverse proxy (basic routing, SSL termination)

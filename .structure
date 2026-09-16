@@ -255,7 +255,10 @@ DFMS-product-context/
 ├── 05-modules/                                  # ✅ Technical module specifications
 │   ├── README.md                                # Module specifications overview
 │   ├── INDEX.md                                 # Full module index
+│   ├── SPRINT-4-IMPLEMENTATION-OVERVIEW.md
+│   ├── testing-plan/                            # Module testing helpers
 │   │
+│   ├── 01-core/                                 # Stray/legacy (role dashboard KPIs)
 │   ├── 01-foundation/                           # Auth, RBAC, user mgmt
 │   │   ├── README.md
 │   │   ├── admin-schema-access-control.md
@@ -313,11 +316,10 @@ DFMS-product-context/
 │   │   ├── helper-management.md
 │   │   └── vehicle-management.md
 │   │
-│   ├── 09-mobile-apps/                          # Mobile applications
+│   ├── 09-tracking/                             # GPS / Live GPS / geofence / dwell
 │   │   ├── README.md
-│   │   ├── driver-mobile.md
-│   │   ├── qc-mobile.md
-│   │   └── vendor-mobile.md
+│   │   └── providers/
+│   │       └── README.md
 │   │
 │   ├── 10-audit/                                # Audit & logging
 │   │   └── entity-audit-log-implementation-plan.md
@@ -339,9 +341,30 @@ DFMS-product-context/
 │   │   ├── phase-2.md
 │   │   └── phase-3.md
 │   │
-│   └── 14-reference/                            # Reference
+│   ├── 14-reference/                            # Reference
+│   │   ├── README.md
+│   │   └── glossary.md
+│   │
+│   └── 15-mobile-apps/                          # Vendor Mobile SSOT + Driver/QC status
 │       ├── README.md
-│       └── glossary.md
+│       ├── driver-mobile.md                     # Aspirational (Phase 1 = admin UI)
+│       ├── qc-mobile.md                         # Aspirational
+│       ├── vendor-mobile.md                     # Deprecated monolith → vendor-mobile/
+│       └── vendor-mobile/                       # Product SSOT (split specs)
+│           ├── README.md
+│           ├── 00-navigation-and-information-architecture.md
+│           ├── 01-onboarding-and-verification.md
+│           ├── 02-tenant-membership.md
+│           ├── 03-bid-opportunities-list.md
+│           ├── 04-bid-submission.md
+│           ├── 05-assigned-tos-list.md
+│           ├── 06-post-award-driver-vehicle-submission.md
+│           ├── 07-active-trip-tracking.md
+│           ├── 08-completed-trip-history.md
+│           ├── 09-profile-management.md
+│           ├── 10-security-and-access-control.md
+│           ├── 11-integration-and-design-decisions.md
+│           └── 12-vendor-type-flows.md
 │
 ├── 06-contracts/                                # ✅ Integration contracts
 │   ├── README.md
@@ -552,11 +575,11 @@ DFMS-product-context/
 - **02-domain**: 50+ files (~15,000 lines)
 - **03-backlog**: 140+ files (98+ stories, 4 sprints, sprint tasks)
 - **04-architecture**: 90+ files (~12,000 lines) — system design, ADRs, deployment, Django arch
-- **05-modules**: 50+ files, 14 modules (~20,000 lines)
+- **05-modules**: 50+ files, modules `01`–`15` including `09-tracking` + `15-mobile-apps` (~20,000 lines)
 - **06-contracts**: 25+ files (API/event contracts, meeting notes)
 - **07-design-system**: 12 files (design tokens, components, patterns, platforms)
-- **08-development-guides**: 46 files (~8,000 lines) — backend implementation runbooks
-- **09-testing**: 17 files (strategy, backend e2e scenarios, mobile placeholder)
+- **08-development-guides**: backend (`01-backend`) + mobile (`02-mobile`) runbooks
+- **09-testing**: strategy, backend e2e scenarios, Vendor Mobile Maestro docs
 - **10-reference**: 10+ files (data dictionaries, reference materials)
 - **11-change-requests**: 5 files
 - **_meta**: 22+ files (1 archive, 5 plans, 16 reports, 3 tracking)
@@ -564,13 +587,13 @@ DFMS-product-context/
 ### Key Metrics:
 - **User Stories**: 98+ (US-001 to US-098+)
 - **Sprints**: 4 (sprint-1 to sprint-4, phase 1)
-- **Module Specifications**: 14 modules
+- **Module Specifications**: `01-foundation` … `15-mobile-apps` (`09-tracking` kept; mobile is `15-`)
 - **API Contracts**: 14 OpenAPI specs + integration contracts
 - **ADRs**: 7 architecture decision records
 - **E2E Test Scenarios**: 14 files across 3 categories
 
 ---
 
-**Last Updated**: May 8, 2026
+**Last Updated**: 2026-09-16
 **Structure**: Optimized for LLM efficiency and human navigation
 **Organization**: Numbered folders (01-11) + _meta suffix, double-digit prefixes

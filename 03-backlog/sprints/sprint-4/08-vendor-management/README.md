@@ -17,7 +17,7 @@ last_updated: 2026-05-12
 ## Mobile app context (quick entrypoint)
 
 - Sprint 4 entrypoint (this folder): [`VENDOR-MOBILE-CONTEXT.md`](VENDOR-MOBILE-CONTEXT.md)
-- Source-of-truth specs: [`05-modules/09-mobile-apps/vendor-mobile/`](../../../../05-modules/09-mobile-apps/README.md)
+- Source-of-truth specs: [`05-modules/15-mobile-apps/vendor-mobile/`](../../../../05-modules/15-mobile-apps/README.md)
 
 ## Sprint Goal (Vendor Management)
 

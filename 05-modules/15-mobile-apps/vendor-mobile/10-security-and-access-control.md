@@ -46,3 +46,13 @@ The app keeps the session valid transparently — the vendor should never see a 
 - Post-award driver/vehicle submissions
 - Profile updates
 
+
+## Code map
+
+| Concern | Code |
+|---------|------|
+| JWT + refresh | `data/.../api_client.dart`, `vendor_token_refresher.dart` |
+| Host tenancy | `DFMS_TENANT_HOST` via `ApiClient` |
+| Session prefs | SharedPreferences session entities |
+
+Architecture: [`../../../04-architecture/09-mobile/03-backend-integration/`](../../../04-architecture/09-mobile/03-backend-integration/).

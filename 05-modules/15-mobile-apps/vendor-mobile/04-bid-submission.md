@@ -89,3 +89,11 @@ interface VendorBidSubmission {
 
 - VM-05 (bid submission), VM-04 (publish parameters), VM-06 (evaluation).
 - Feature context: [TEVF-02](../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md).
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Bid submit / confirm | `lib/presentation/feature/bids/` | `.../bids/`, `.../bidding-sessions/{id}/bids/` |
+
+Maestro: `.maestro/flows/bids/`.

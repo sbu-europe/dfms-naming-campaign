@@ -226,8 +226,8 @@ BidTransportOrder {            # Join table
 
 Update when implementing:
 
-- `05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md` — list keyed by Bid ID
-- `05-modules/09-mobile-apps/vendor-mobile/04-bid-submission.md` — multi-TO checklist + selective participation
+- `05-modules/15-mobile-apps/vendor-mobile/03-bid-opportunities-list.md` — list keyed by Bid ID
+- `05-modules/15-mobile-apps/vendor-mobile/04-bid-submission.md` — multi-TO checklist + selective participation
 
 ---
 
@@ -362,7 +362,7 @@ Revise **Sub-Path A Step 4–6** when implementing:
 - [VM-05 — Bid Submission](VM-05-bid-submission.md)
 - [VM-06 — Bid Evaluation](VM-06-bid-evaluation.md)
 - [TEVF-02 — Non-Contractual Bidding](../09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md)
-- [Vendor Mobile — Bid Opportunities](../../../05-modules/09-mobile-apps/vendor-mobile/03-bid-opportunities-list.md)
+- [Vendor Mobile — Bid Opportunities](../../../05-modules/15-mobile-apps/vendor-mobile/03-bid-opportunities-list.md)
 - [Sprint 5 Feedback Resolution](../feedback-resolution.md)
 
 ---

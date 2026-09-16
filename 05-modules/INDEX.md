@@ -205,7 +205,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 
 #### Cross-References
 - **Depends on**: `05-transport/` (TO entity), `02-master-data/` (Vendor master)
-- **Integrates with**: `09-mobile-apps/` (Vendor mobile app)
+- **Integrates with**: `15-mobile-apps/` (Vendor mobile app)
 - **Provides**: Vendor bidding, TO assignment, vendor performance tracking
 
 ---
@@ -261,29 +261,6 @@ Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/trackin
 - **Depends on**: `02-master-data/` (POI radius, `gps_tracker_id`), `05-transport/` (TO origin/destination, Trip)
 - **Related ops dwell**: `06-poi-operations/` (gate dwell ≠ geofence dwell)
 - **Provides**: Live GPS map, geofence events, dwell timeline, GPS trail/history APIs
-
----
-
-### [09-mobile-apps/](09-mobile-apps/README.md) - Mobile Interfaces
-**Purpose**: Mobile applications for drivers, vendors, and QC supervisors  
-**PRD Sections**: 11, 12  
-**Phase**: Phase 1 (High)  
-**Dependencies**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`
-
-#### Specifications
-- [driver-mobile.md](09-mobile-apps/driver-mobile.md) - Driver Mobile Interface
-- [qc-mobile.md](09-mobile-apps/qc-mobile.md) - QC Supervisor Mobile Interface
-- [vendor-mobile.md](09-mobile-apps/vendor-mobile.md) - Vendor Mobile Application
-
-#### Related User Stories
-- US-052: Driver Mobile Interface
-- US-092: Trip Management Driver Interface
-- US-093: QC Interface
-- US-094: Vendor Application Access
-
-#### Cross-References
-- **Depends on**: `05-transport/` (Trip), `06-poi-operations/` (QC, Gate), `07-vendor-management/` (Vendor TO)
-- **Provides**: Mobile access for field users
 
 ---
 
@@ -419,6 +396,31 @@ Each specification file includes PRD section references in frontmatter.
 
 ---
 
+### [15-mobile-apps/](15-mobile-apps/README.md) - Mobile Interfaces
+**Purpose**: Mobile applications for drivers, vendors, and QC supervisors  
+**PRD Sections**: 11, 12  
+**Phase**: Phase 1 (High)  
+**Dependencies**: `03-operations/`, `04-poi-operations/`, `05-vendor-management/`
+
+#### Specifications
+- [driver-mobile.md](15-mobile-apps/driver-mobile.md) - Driver Mobile Interface
+- [qc-mobile.md](15-mobile-apps/qc-mobile.md) - QC Supervisor Mobile Interface
+- [vendor-mobile.md](15-mobile-apps/vendor-mobile.md) - Vendor Mobile Application
+
+#### Related User Stories
+- US-052: Driver Mobile Interface
+- US-092: Trip Management Driver Interface
+- US-093: QC Interface
+- US-094: Vendor Application Access
+
+#### Cross-References
+- **Depends on**: `05-transport/` (Trip), `06-poi-operations/` (QC, Gate), `07-vendor-management/` (Vendor TO)
+- **Provides**: Mobile access for field users
+
+---
+
+---
+
 ## 📊 Dependency Matrix
 
 | Module | Depends On | Required By | Sprint |
@@ -431,12 +433,12 @@ Each specification file includes PRD section references in frontmatter.
 | 06-poi-operations | 05 | 11 | Sprint 4 |
 | 07-vendor-management | 02, 05 | 09, 11 | Sprint 4 |
 | 08-fleet-management | 02, 03 | 05, 11 | Sprint 4 |
-| 09-mobile-apps | 05, 06, 07 | — | Sprint 5 |
 | 10-audit | Cross-cutting | All | Sprint 2+ |
 | 11-reporting | All operational | — | Phase 2 |
 | 12-cross-cutting | Cross-cutting | All | All phases |
 | 13-phases | All (organizational) | — | Reference |
 | 14-reference | None | All | Reference |
+| 15-mobile-apps | 05, 06, 07 | — | Sprint 5 |
 
 ---
 

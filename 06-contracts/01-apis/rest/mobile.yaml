@@ -1,17 +1,27 @@
 openapi: 3.0.3
 info:
-  title: DFMS Mobile APIs
+  title: DFMS Mobile APIs (LEGACY SKETCH)
   description: |
-    API contract for Mobile Applications.
-    
-    Handles driver, QC supervisor, and vendor mobile app APIs.
-  version: 1.0.0
+    DEPRECATED as the Vendor Mobile contract.
+
+    This file is a historical placeholder with example.com hosts and
+    `/mobile/driver|qc|vendor/...` paths that do **not** match the live
+    Vendor Flutter app.
+
+    Use instead:
+    - Architecture endpoint map: `04-architecture/09-mobile/03-backend-integration/endpoint-map.md`
+    - Implementation: `nourish-vendor-app` → `data/lib/remote/api_client/api_end_points.dart`
+    - Backend: `nourish-backend` vendor APIs under `/api/v1/vendor/`
+
+    Driver/QC Flutter mobile APIs are not implemented in Phase 1.
+  version: 0.0.0-legacy
   contact:
     name: DFMS Technical Team
     email: Mahfuzur.rahman@brainstation-23.com
 
 servers:
   - url: https://api.dfms.example.com/v1
+    description: LEGACY PLACEHOLDER — do not use for Vendor Mobile
 
 tags:
   - name: Driver Mobile

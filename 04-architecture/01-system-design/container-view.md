@@ -86,27 +86,28 @@ DFMS consists of the following containers:
 
 ### 2. Mobile Applications
 
-**Technology**: Flutter (iOS + Android)
+**Technology**: Flutter (iOS + Android) for **Vendor Mobile** (implemented). Driver/QC Flutter apps are **not** Phase 1 deliverables.
 
-**Apps**:
-1. **Driver App**
-2. **QC Supervisor App**
-3. **Vendor App**
+**Apps / surfaces**:
+1. **Vendor App** (`nourish-vendor-app`) — **implemented**; bids, assigned TOs, trips, membership, profile via `/api/v1/vendor/*`
+2. **Driver** — Phase 1 = **mobile-responsive Django Admin** (not Flutter). See `05-modules/03-users/driver-interface-sprint4.md`
+3. **QC Supervisor** — PRD/spec aspirational; **no implemented Flutter app** in Phase 1
 
-**Responsibilities**:
-- Native mobile UI
-- Offline capability (Phase 2)
-- Camera/GPS access
-- Push notifications
-- Background location tracking (Driver App)
+**Vendor Mobile responsibilities** (current):
+- Native Flutter UI (MVVM; `lib` / `domain` / `data`)
+- Vendor JWT + Host-header tenancy
+- Camera/file pick for documents; location for trip context
+- Offline/seed mode via `USE_LIVE_API=false` (prototype); rich offline sync is later
 
 **Communication**:
-- **→ API Gateway**: HTTPS REST calls
-- **→ Push Notification Service**: FCM/APNS
+- **→ API Server**: HTTPS REST (`/api/v1/vendor/...`)
+- **→ Push Notification Service**: FCM/APNS (planned; not fully wired)
 
 **Deployment**:
-- iOS: App Store
-- Android: Google Play Store
+- iOS: App Store (when released)
+- Android: Google Play Store (when released)
+
+**Architecture SSOT**: [`../09-mobile/`](../09-mobile/)
 
 ---
 

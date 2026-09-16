@@ -55,7 +55,8 @@ DFMS-product-context/
 │   ├── 05-diagrams/                   # Technical diagrams (sequences, ERD, states)
 │   ├── 06-deployment/                 # AWS deployment strategy & environments
 │   ├── 07-implementation/             # Implementation planning & phase breakdown
-│   └── 08-reference/                  # Cross-reference index & version history
+│   ├── 08-reference/                  # Cross-reference index & version history
+│   └── 09-mobile/                     # Flutter Vendor Mobile architecture (nourish-vendor-app)
 │
 ├── 05-modules/                        # Technical module specifications (~20,000 lines)
 │   ├── 01-foundation/                 # Auth, RBAC, user management
@@ -66,12 +67,13 @@ DFMS-product-context/
 │   ├── 06-poi-operations/             # Gate, scaling, QC, command center
 │   ├── 07-vendor-management/          # Vendor onboarding, bidding, portal
 │   ├── 08-fleet-management/           # Vehicles, drivers, fuel
-│   ├── 09-mobile-apps/                # Driver, QC, vendor mobile apps
+│   ├── 09-tracking/                   # GPS tracking
 │   ├── 10-audit/                      # Audit & logging
 │   ├── 11-reporting/                  # Reports & analytics
 │   ├── 12-cross-cutting/              # NFRs, security, integrations
 │   ├── 13-phases/                     # Phase planning
-│   └── 14-reference/                  # Glossary & reference
+│   ├── 14-reference/                  # Glossary & reference
+│   └── 15-mobile-apps/                # Vendor Mobile SSOT + Driver/QC status notes
 │
 ├── 06-contracts/                      # Integration contracts
 │   ├── 01-apis/                       # REST API specs (OpenAPI 3.0)
@@ -86,20 +88,13 @@ DFMS-product-context/
 │   └── 04-platforms/                  # Web/mobile design guidance
 │
 ├── 08-development-guides/             # Implementation guides & runbooks
-│   └── 01-backend/                    # Django/Python implementation
-│       ├── 01-setup/                  # Dev environment setup
-│       ├── 02-api/                    # DRF guide
-│       ├── 03-database/               # ORM & migrations
-│       ├── 04-security/               # Auth & encryption
-│       ├── 05-services/               # Background tasks & caching
-│       ├── 06-testing/                # Backend testing how-to
-│       ├── 07-deployment/             # Docker, AWS, env vars, monitoring
-│       └── 08-guides/                 # Code style, contributing, troubleshooting
+│   ├── 01-backend/                    # Django/Python implementation
+│   └── 02-mobile/                     # Flutter Vendor Mobile setup & contribution
 │
 ├── 09-testing/                        # Cross-platform test documentation
 │   ├── strategy/                      # Overall testing strategy
 │   ├── backend/e2e-scenarios/         # Backend E2E test scenarios
-│   └── mobile/                        # Mobile test scenarios (upcoming)
+│   └── mobile/                        # Vendor Maestro setup + E2E scenarios
 │
 ├── 10-reference/                      # Reference materials
 │   ├── archive/                       # Archived documents

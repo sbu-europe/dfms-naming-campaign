@@ -114,3 +114,11 @@ interface PostAwardAssignment {
 - VM-07 (vehicle/driver confirmation, updates with reason, audit, POD/GRN/invoice gating).
 - VM-08 (lifecycle status that gates invoice upload).
 - Feature context: [TEVF-03](../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Post-award vehicle/driver | `lib/presentation/feature/assigned_tos/` (post-award screens) | `.../transport-orders/{toId}/vehicle-driver/` |
+
+Maestro: `.maestro/flows/tos/`.
