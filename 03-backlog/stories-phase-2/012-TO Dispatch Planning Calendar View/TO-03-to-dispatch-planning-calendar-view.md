@@ -71,7 +71,7 @@ Predecessor: archived [US-071](../../../_meta/archive/backlog-stories-pre-sprint
 
 ### AC-1 — Shell, views, navigation
 
-- [ ] **Given**: a Transport Planner or Tenant Admin is logged in  
+- [ ] **Given**: a Transport Planner, Tenant Admin, or Tenant Super Admin is logged in  
   **When**: they open **Transport → TO dispatch planning**  
   **Then**:
   - Breadcrumb is Home › Transport › TO dispatch planning
@@ -156,7 +156,7 @@ Predecessor: archived [US-071](../../../_meta/archive/backlog-stories-pre-sprint
 
 ### AC-5 — Read-only and RBAC
 
-- [ ] **Given**: a user with Transport Planner or Tenant Admin  
+- [ ] **Given**: a user with Transport Planner, Tenant Admin, or Tenant Super Admin  
   **When**: they use the portal  
   **Then**: they see **TO dispatch planning**  
   **And**: other roles do not see the item unless explicitly granted
@@ -194,7 +194,7 @@ Predecessor: archived [US-071](../../../_meta/archive/backlog-stories-pre-sprint
 | TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, pagination, stacked bars, idle gaps, today mark | High     | **Not done** |
 | TO-03-4 | Filters + KPIs + legend | Search and the five filter selects; five stat cards; legend                                            | High     | **Not done** |
 | TO-03-5 | Drawer                  | Read-only drawer + Open TO / Open TR                                                                   | High     | **Not done** |
-| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner and Tenant Admin                    | High     | **Not done** |
+| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Not done** |
 | TO-03-7 | Tests                   | Unassigned omitted from lanes but counted; bar window; overlap stack; filters; RBAC; no writes         | High     | **Not done** |
 
 
@@ -226,7 +226,7 @@ Predecessor: archived [US-071](../../../_meta/archive/backlog-stories-pre-sprint
 - [ ] Filter by urgency, fleet, transfer type, assignment, vehicle type, and search; Clear restores
 - [ ] Click bar opens drawer; Open TO detail / Open parent TR; calendar does not change status
 - [ ] Vendor TO with no `Vehicle` never draws a bar
-- [ ] Non-planner roles do not see the menu
+- [ ] Roles other than Transport Planner, Tenant Admin, and Tenant Super Admin do not see the menu
 
 ---
 
