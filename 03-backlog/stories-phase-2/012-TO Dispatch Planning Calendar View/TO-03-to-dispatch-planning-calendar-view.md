@@ -49,7 +49,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Layout                     | **Vehicle-first only.** Daily, weekly, and monthly are the same resource calendar (vehicles left, time across). No separate TO month-grid. No vehicle-wise toggle.                                            |
 | Timeline bars              | Only TOs with an own-fleet `Vehicle` FK. **Unassigned TOs are omitted from the timeline** (they still count in KPIs / result count / filters).                                                                |
-| Bar window                 | `planned_start_at` → `planned_destination_arrival_at`. A TO is in the visible period if that window overlaps the range. Missing either datetime → no bar.                                                     |
+| Bar window                 | `planned_start_at` to `planned_destination_arrival_at`.                                                                                              |
 | Daily / weekly / monthly   | Daily = 24 hour ticks labelled in **12-hour** time (12 AM … 11 AM, 12 PM … 11 PM). Weekly = 7 day columns. Monthly = one column per day of the month (bars snap to days).                                      |
 | Click                      | Read-only **drawer**. Footer: Open TO detail, Open parent TR. Calendar itself never writes.                                                                                                                   |
 | Bar chrome                 | On the lane: **TO number + start–end time**. Full fields in tooltip and drawer. Critical urgency = red outline. Own vs vendor = left-border color.                                                            |
@@ -94,7 +94,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   **When**: the planner views the calendar  
   **Then**:
   - Own-fleet vehicles are paginated rows (registration, vehicle type, capacity)
-  - That TO is a bar on its vehicle from planned start to dest. arrival
+  - That TO is a bar on its vehicle from `planned_start_at` to `planned_destination_arrival_at`
   - The bar shows TO number and start–end time
   - Own-fleet vs vendor-fleet bars are visually distinct
   - Critical urgency is outlined
@@ -171,7 +171,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | BR-TO03-001 | Period set = planning-eligible, non-cancelled TOs whose `[planned_start_at, planned_destination_arrival_at]` overlaps the visible range.               |
 | BR-TO03-002 | Timeline draws only period TOs that have an own-fleet `Vehicle`. Unassigned TOs count in KPIs and filters only.                                        |
-| BR-TO03-003 | Bar geometry is planned start → planned destination arrival. Monthly view snaps that window to calendar days.                                          |
+| BR-TO03-003 | Bar window is `planned_start_at` to `planned_destination_arrival_at`. Monthly view snaps that window to calendar days.                                |
 | BR-TO03-004 | Calendar never mutates a TO. Assignment and status stay on existing screens.                                                                           |
 | BR-TO03-005 | Own vs vendor is visual only on bars. Vendor TOs without a `Vehicle` have no lane.                                                                     |
 | BR-TO03-006 | Idle gap = empty time between that vehicle’s bars in the visible range.                                                                                |
