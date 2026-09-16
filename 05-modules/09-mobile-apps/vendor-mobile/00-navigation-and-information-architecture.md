@@ -246,3 +246,13 @@ flowchart LR
 
 ---
 
+
+## Code map
+
+| Concern | Code |
+|---------|------|
+| Splash / gate | `lib/presentation/feature/splash/`, `session_navigation_gate.dart` |
+| Shell tabs | `lib/presentation/feature/main_shell/` |
+| Routes | `lib/presentation/navigation/route_path.dart` |
+
+See also [`../../../04-architecture/09-mobile/01-application-structure/navigation-and-session-gating.md`](../../../04-architecture/09-mobile/01-application-structure/navigation-and-session-gating.md).

@@ -69,16 +69,16 @@ DFMS-frontend/
 ├── src/
 └── package.json
 
-# Mobile repo structure
-DFMS-mobile/
-├── domain/  (git submodule → DFMS-product-context)
-│   ├── 06-contracts/
-│   ├── 07-design-system/
-│   └── 05-modules/
-├── src/
-└── app.json
+# Mobile repo structure (actual)
+nourish-vendor-app/
+├── DFMS-product-context/   (git submodule in nourish-vendor-app → this repo)
+├── lib/                    # Flutter presentation
+├── domain/
+├── data/
+└── .maestro/
 ```
 
+> Historical placeholder names `DFMS-backend` / `DFMS-frontend` / `DFMS-mobile` above may still appear in older examples. **Current repos:** `nourish-backend`, `nourish-vendor-app` (Vendor Flutter). There is no separate Driver/QC Flutter repo in Phase 1.
 ### How Implementation Repos Use This
 
 ```typescript

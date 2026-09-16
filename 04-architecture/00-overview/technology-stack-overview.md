@@ -203,10 +203,12 @@ This document outlines the high-level technology direction for DFMS. **Note**: T
 - ✅ Hot reload for rapid development
 - ✅ Growing ecosystem
 
-**Apps**:
-1. **Driver App**: Trip management, navigation, status updates
-2. **QC Supervisor App**: Inspections, photo/video capture, reports
-3. **Vendor App**: Bidding, trip management, invoicing
+**Implemented app**:
+1. **Vendor App** (`nourish-vendor-app`, Flutter **3.35.4**): bidding, assigned TOs, trips, membership, profile — see [`../09-mobile/`](../09-mobile/)
+
+**Not Flutter in Phase 1**:
+2. **Driver**: mobile-responsive Django Admin
+3. **QC Supervisor**: aspirational mobile/tablet specs only
 
 **Alternatives Considered**:
 - React Native (less performant)

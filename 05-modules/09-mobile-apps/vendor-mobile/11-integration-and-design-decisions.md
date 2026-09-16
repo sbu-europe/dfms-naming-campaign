@@ -58,3 +58,11 @@ last_updated: 2026-06-09
 - Mixed vendors (NC for some tenants, C for others) still get the tab, filtered to their NC tenants.
 - Implemented based on **any approved membership with `vendor_type=NON_CONTRACTUAL`** — re-evaluated on every membership change.
 
+
+## Code map
+
+| Concern | Doc / code |
+|---------|------------|
+| Endpoint map | [`../../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md`](../../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md) |
+| Feature map | [`../../../04-architecture/09-mobile/04-feature-map.md`](../../../04-architecture/09-mobile/04-feature-map.md) |
+| ApiEndpoints | `nourish-vendor-app/data/lib/remote/api_client/api_end_points.dart` |

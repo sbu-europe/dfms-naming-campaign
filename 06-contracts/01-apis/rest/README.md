@@ -83,10 +83,10 @@ This directory contains OpenAPI 3.0 specifications for all DFMS REST API endpoin
     - Reports
     - KPIs
 
-13. **[Mobile APIs](./mobile.yaml)**
-    - Driver mobile APIs
-    - QC mobile APIs
-    - Vendor mobile APIs
+13. **[Mobile APIs](./mobile.yaml)** ⚠️ **Legacy sketch — not Vendor Mobile SSOT**
+    - Historical placeholder paths (`/mobile/driver|qc|vendor/...`)
+    - **Live Vendor Mobile contract:** [`../../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md`](../../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md) + `nourish-backend` `/api/v1/vendor/*`
+    - Do not implement new clients against `mobile.yaml` alone
 
 14. **[Notifications](./notifications.yaml)**
     - Notification management

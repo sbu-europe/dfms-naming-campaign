@@ -102,3 +102,11 @@ interface CompletedTrip {
 ### Backlog refs
 
 - VM-03 (visibility scoping), VM-07 (POD/GRN/Invoice upload contract — **all three gated to Completed**), VM-08 (status terminal `COMPLETED`/`CLOSED` that opens the upload gate).
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Completed history/details | `lib/presentation/feature/trips/` | `.../transport-orders/` (lifecycle filters) |
+
+Maestro: `.maestro/flows/trips/`.

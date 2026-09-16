@@ -97,3 +97,11 @@ Phase 1 vendor mobile has **no notifications**. Vendors see newly assigned TOs (
 ### Backlog refs
 
 - VM-03 (visibility), VM-06 (award → BID_WON), TEVF-01 (CONTRACTUAL), VM-07 (next-step gate), VM-08 (status updates).
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Assigned TOs / bundles | `lib/presentation/feature/assigned_tos/` | `.../transport-orders/`, `.../transport-order-bundles/{id}/` |
+
+Maestro: `.maestro/flows/tos/`.

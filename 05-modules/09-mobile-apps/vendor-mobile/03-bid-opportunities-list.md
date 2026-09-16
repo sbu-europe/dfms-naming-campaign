@@ -124,3 +124,11 @@ TDO is allowed to update the **bidding window timeline only** for an active sess
 
 - VM-03 (portal views), VM-04 (TDO publish), VM-05 (bid submission).
 - Feature context: [TEVF-02](../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md).
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Opportunities list | `lib/presentation/feature/bids/` | `vendor/tenants/{schema}/bid-opportunities/` |
+
+Maestro: `.maestro/flows/bids/`.

@@ -72,11 +72,19 @@ Technical diagrams (37 diagrams)
 - ✅ ER diagram
 - ✅ _Django diagrams moved to 05-backend-architecture/diagrams/_
 
-### 10-reference/
-Cross-references & version history (4 files)
-- ✅ Cross-reference index
-- ✅ Source document mapping
-- ✅ Version history
+### 08-reference/
+Cross-references & version history
+
+### 09-mobile/
+Flutter Vendor Mobile implementation architecture (`nourish-vendor-app`)
+- ✅ Purpose, stack, package boundaries
+- ✅ Navigation / session gating, DI
+- ✅ Flavors / env keys
+- ✅ Vendor API client + endpoint map
+- ✅ Feature map ↔ product specs ↔ Maestro
+- ✅ Mobile ADRs (M-001–M-005)
+
+See [`09-mobile/README.md`](09-mobile/README.md). Also: Django backend architecture in [`04-backend/`](04-backend/).
 
 ---
 

@@ -1,81 +1,55 @@
 # Development Guides
 
-> Implementation guides and knowledge bases for all DFMS implementations
+> Implementation guides and knowledge bases for DFMS implementations
 
-## 📖 Overview
+## Overview
 
-This folder contains **implementation-specific development guides** organized by technology stack. Each implementation (backend, frontend, mobile) has its own subfolder with setup guides, code examples, best practices, and deployment instructions.
+Implementation-specific development guides organized by technology stack.
 
-## 🎯 Purpose
-
-**What's here**:
-- ✅ Development setup and environment configuration
-- ✅ Code implementation guides and patterns
-- ✅ Testing strategies and examples
-- ✅ Deployment configurations and scripts
-- ✅ Developer workflows and best practices
-
-**What's NOT here** (see other folders):
-- ❌ High-level architecture → See `04-architecture/`
-- ❌ Business requirements → See `02-domain/`
-- ❌ API contracts → See `06-contracts/`
-- ❌ User stories → See `03-backlog/`
-
-## 📁 Structure
+## Structure
 
 ### 01-backend/ (Django/Python)
-Complete Django implementation guides:
-- **01-setup/** - Development environment setup
-- **02-api/** - Django REST Framework implementation
-- **03-database/** - PostgreSQL, Django ORM, migrations
-- **04-security/** - Authentication, authorization, encryption
-- **05-services/** - Background tasks, caching, integrations
-- **06-testing/** - Unit, integration, E2E tests
-- **07-deployment/** - Docker, AWS, monitoring
-- **08-guides/** - Contributing, code style, troubleshooting
-- **09-reference/** - Quick reference materials
 
-### 02-frontend/ (Future)
-Frontend implementation guides (React/Vue/Angular)
+Complete Django implementation guides (setup, API, database, security, services, testing, deployment, contributing).
 
-### 03-mobile/ (Future)
-Mobile implementation guides (Flutter/React Native)
+### 02-mobile/ (Flutter — Vendor Mobile)
 
-## 📊 Documentation Hierarchy
+Vendor Mobile how-to for `nourish-vendor-app`:
+
+- [README](./02-mobile/README.md)
+- [Development setup](./02-mobile/01-setup/development-setup.md)
+- [Local backend](./02-mobile/01-setup/local-backend.md)
+- [Contributing](./02-mobile/02-guides/contributing.md)
+- [Live vs seed](./02-mobile/02-guides/live-vs-seed.md)
+- [Maestro](./02-mobile/03-testing/maestro.md)
+
+Architecture SSOT: [`../04-architecture/09-mobile/`](../04-architecture/09-mobile/).
+
+> No `02-frontend` folder for now. Frontend guides can be added later under a new index if needed.
+
+## Documentation hierarchy
 
 ```
 02-domain/               → Business domain knowledge
-05-modules/→ Technical specifications (what to build)
+05-modules/              → Technical specifications (what to build)
 04-architecture/         → System & implementation architecture
 06-contracts/            → API/Event contracts
 08-development-guides/   → HOW to implement (this folder)
 ```
 
-## 🔗 Quick Links
+## Quick links
 
-### Backend Developers
-- **[Development Setup](./01-backend/01-setup/development-setup.md)** - Get started with Django development
-- **[Django Architecture](../04-architecture/04-backend/)** - Understand Django structure
-- **[API Implementation](./01-backend/02-api/)** - DRF guides
-- **[Contributing Guide](./01-backend/08-guides/contributing.md)** - How to contribute
+### Backend
 
-### DevOps Engineers
-- **[Docker Setup](./01-backend/07-deployment/docker.md)** - Container configuration
-- **[AWS Deployment](./01-backend/07-deployment/aws-setup.md)** - Cloud deployment
-- **[Monitoring](./01-backend/07-deployment/monitoring.md)** - Observability setup
+- [Development Setup](./01-backend/01-setup/development-setup.md)
+- [Django Architecture](../04-architecture/04-backend/)
 
-### QA Engineers
-- **[Testing Strategy](../09-testing/strategy/testing-strategy.md)** - Overall testing approach
-- **[Test Implementation](./01-backend/06-testing/)** - Unit, integration, E2E tests
+### Mobile (Vendor)
 
-## 💡 Key Principles
-
-1. **Single Source of Truth**: Each implementation maintains its own knowledge base
-2. **Reference High-Level**: Always link back to product context for "what" and "why"
-3. **Focus on "How"**: Code examples, configurations, and practical guides
-4. **Technology-Specific**: Each folder contains stack-specific best practices
+- [Mobile setup](./02-mobile/01-setup/development-setup.md)
+- [Flutter Architecture](../04-architecture/09-mobile/)
+- [Maestro testing](../09-testing/mobile/)
 
 ---
 
-**Last Updated**: February 27, 2026  
-**Total Guides**: 46 files (Backend: 46, Frontend: 0, Mobile: 0)
+**Last Updated**: 2026-09-16

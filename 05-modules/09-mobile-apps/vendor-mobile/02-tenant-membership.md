@@ -42,3 +42,11 @@ The **Bids** tab is shown in the bottom tab bar as long as the vendor has **at l
 
 - **VM-02** — [`VM-02-vendor-tenant-join-and-approval.md`](../../../03-backlog/sprints/sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-approval.md).
 - The `vendor_type` field is stored on the membership record `(vendor_id, tenant_id, status, vendor_type)`; required when `status=APPROVED`.
+
+## Code map
+
+| Concern | Code | APIs |
+|---------|------|------|
+| Tenant directory / join | `lib/presentation/feature/tenant_directory/` | `vendor/tenants/available/`, `vendor/memberships/`, `vendor/tenants/{schema}/join-requests/` |
+
+Maestro: `.maestro/flows/tenants/`.
