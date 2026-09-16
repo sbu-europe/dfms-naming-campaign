@@ -71,8 +71,8 @@ DFMS-frontend/
 
 # Mobile repo structure (actual)
 nourish-vendor-app/
-├── DFMS-product-context/   (git submodule in nourish-vendor-app → this repo)
-├── lib/                    # Flutter presentation
+├── DFMS-product-context/   (git submodule in nourish-vendor-app)
+├── lib/                    
 ├── domain/
 ├── data/
 └── .maestro/
