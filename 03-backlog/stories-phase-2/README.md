@@ -3,7 +3,7 @@
 Planning backlog for Phase 2. Stories here are **not** assigned to a sprint.
 When a sprint picks one up, move it into `sprints/sprint-N/` and update that sprint's README.
 
-**Total estimated:** 168 SP
+**Total estimated:** 181 SP
 
 ---
 
@@ -22,6 +22,7 @@ When a sprint picks one up, move it into `sprints/sprint-N/` and update that spr
 | 009 | [Lab testing](009-Lab%20Testing/README.md) | MDM-05, QC-02 | 26 | Pending |
 | 010 | [Multi-role tenant users](010-Multi-role%20Tenant%20Users/README.md) | TUM-06 | 13 | Pending |
 | 011 | [Own-fleet vehicle plan (multi-TO)](011-Own-Fleet%20Vehicle%20Plan/README.md) | VP-01 | 21 | Pending |
+| 012 | [TO dispatch planning calendar](012-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | TO-03 | 13 | Pending |
 
 ---
 
@@ -197,4 +198,18 @@ Vehicle Planning stays TO-assignment only for fleet ops features (005–007). Fu
 
 ---
 
-**Total estimated:** 26 (001–004) + 26 (005) + 16 (006) + 21 (007) + 19 (008) + 26 (009) + 13 (010) + 21 (011) = **168 SP**
+## 012. TO dispatch planning (calendar view)
+
+Read-only vehicle-lane calendar (daily 12-hour ticks / weekly / monthly): assigned TO bars from planned start to dest. arrival, idle gaps, KPI cards, drawer. Unassigned TOs count in stats but are omitted from the timeline. Does not replace Transport orders or Vehicle planning.
+
+| Story | Title | SP | Status |
+|-------|-------|----|--------|
+| [TO-03](012-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | TO Dispatch Planning — Calendar View | 13 | Pending |
+
+PRD § TO Dispatch Planning (Calendar View) · predecessor US-071 (archived)
+
+**Folder:** [012-TO Dispatch Planning Calendar View](012-TO%20Dispatch%20Planning%20Calendar%20View/README.md) · **Estimated:** 13 SP
+
+---
+
+**Total estimated:** 26 (001–004) + 26 (005) + 16 (006) + 21 (007) + 19 (008) + 26 (009) + 13 (010) + 21 (011) + 13 (012) = **181 SP**
