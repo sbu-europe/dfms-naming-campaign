@@ -56,7 +56,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | Assignment filter          | `unassigned` = no `vehicle`. `assigned` = vehicle set, status not yet Ready for dispatch. `confirmed` = `ready_for_dispatch` or later among planning-eligible rows.                                           |
 | Planning-eligible statuses | `created`, `under_planning`, `assigned`, `ready_for_dispatch`. Exclude `cancelled` and execution/closed statuses.                                                                                             |
 | Vendor fleet               | No vendor vehicle rows. Vendor TOs without a `Vehicle` never draw a bar (same as unassigned).                                                                                                                 |
-| Vehicle rows               | Paginated own-fleet `Vehicle` list (prototype: 6 per page). Empty / under-maintenance vehicles still appear. Overlapping TOs **stack** on extra lanes; label shows `N TO(s)` and `M concurrent` when stacked. |
+| Vehicle rows               | Paginated own-fleet `Vehicle` list using the existing portal list pagination (not a fixed 6-per-page). Empty / under-maintenance vehicles still appear. Overlapping TOs **stack** on extra lanes; label shows `N TO(s)` and `M concurrent` when stacked. |
 | Idle gaps                  | Dashed “idle” span between that vehicle’s bars in the visible range. Not GPS idle, not FVM-03 hours.                                                                                                          |
 | VP-01                      | Not required.                                                                                                                                                                                                 |
 
@@ -93,7 +93,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 - [ ] **Given**: an own-fleet TO with a `Vehicle`, `planned_start_at`, and `planned_destination_arrival_at` overlapping the visible period  
   **When**: the planner views the calendar  
   **Then**:
-  - Own-fleet vehicles are paginated rows (registration, vehicle type, capacity)
+  - Own-fleet vehicles are paginated rows (registration, vehicle type, capacity) using the existing portal list pagination
   - That TO is a bar on its vehicle from `planned_start_at` to `planned_destination_arrival_at`
   - The bar shows TO number and start–end time
   - Own-fleet vs vendor-fleet bars are visually distinct
@@ -187,7 +187,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | ------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------------ |
 | TO-03-1 | Specs                   | `05-modules/` write-up from this story + the HTML prototype — do not start Django from this file alone | High     | **Not done** |
 | TO-03-2 | Query                   | Period overlap on planned start/dest arrival; planning-eligible statuses; KPI aggregations             | High     | **Not done** |
-| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, pagination, stacked bars, idle gaps, today mark | High     | **Not done** |
+| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars, idle gaps, today mark | High     | **Not done** |
 | TO-03-4 | Filters + KPIs + legend | Search and the five filter selects; five stat cards; legend                                            | High     | **Not done** |
 | TO-03-5 | Drawer                  | Read-only drawer + Open TO / Open TR                                                                   | High     | **Not done** |
 | TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Not done** |
