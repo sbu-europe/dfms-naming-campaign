@@ -51,4 +51,4 @@ Tenant scope uses persisted `selectedTenantId` / approved memberships from sessi
 | Trips | `/activeTripTracking`, `/completedTripHistory`, `/completedTripDetails` |
 | Profile | `/vendorProfile`, `/vendorProfileDetails`, `/vendorProfileEdit`, `/setting` |
 
-Product IA: [`../../../05-modules/09-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md`](../../../05-modules/09-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md).
+Product IA: [`../../../05-modules/15-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md`](../../../05-modules/15-mobile-apps/vendor-mobile/00-navigation-and-information-architecture.md).

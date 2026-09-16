@@ -507,7 +507,7 @@ GET   /api/v1/transport-orders/{to_id}
 | `02-master-data` — MDM-02 (Routes) | Route duration for ETA pre-suggestion |
 | `07-vendor-management` | Contractual vendor list and pre-agreed rates |
 | `06-poi-operations` — Gate, QC, Scaling | Triggered by Trip state transitions (`gate_in_source`, `qc_in_progress`, `scale_in`, etc.) in Sprint 4 |
-| `09-mobile-apps` | Driver mobile view of assigned TOs and Trip state updates |
+| `15-mobile-apps` | Driver mobile view of assigned TOs and Trip state updates |
 
 ### Related documentation (Sprint 3)
 

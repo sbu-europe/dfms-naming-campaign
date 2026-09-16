@@ -1421,7 +1421,7 @@ python manage.py seed_dfms_rbac --reset
 ### Downstream
 
 - `05-transport`: TDO assignment guards (`vehicle.operational_status`, `driver.current_state`), execution guards (TLS-01), TO status transitions
-- `09-mobile-apps`: Checklist reference display, driver state visibility via `current_state` (DM-01)
+- `15-mobile-apps`: Checklist reference display, driver state visibility via `current_state` (DM-01)
 
 ---
 

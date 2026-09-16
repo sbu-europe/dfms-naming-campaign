@@ -40,5 +40,5 @@ Screens typically expose `*AdaptiveUi` variants for phone vs tablet within the s
 
 ## Product mapping
 
-Screen-level product rules: [`../../../05-modules/09-mobile-apps/vendor-mobile/`](../../../05-modules/09-mobile-apps/vendor-mobile/).  
+Screen-level product rules: [`../../../05-modules/15-mobile-apps/vendor-mobile/`](../../../05-modules/15-mobile-apps/vendor-mobile/).  
 Code ↔ spec table: [`../04-feature-map.md`](../04-feature-map.md).

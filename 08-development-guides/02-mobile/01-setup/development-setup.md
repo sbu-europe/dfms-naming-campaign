@@ -34,4 +34,4 @@ Critical keys: `API_BASE_URL`, `DFMS_TENANT_HOST`, `USE_LIVE_API`, optional `STU
 ## Architecture reading order
 
 1. [`../../../04-architecture/09-mobile/README.md`](../../../04-architecture/09-mobile/README.md)
-2. Product IA: [`../../../05-modules/09-mobile-apps/vendor-mobile/`](../../../05-modules/09-mobile-apps/vendor-mobile/)
+2. Product IA: [`../../../05-modules/15-mobile-apps/vendor-mobile/`](../../../05-modules/15-mobile-apps/vendor-mobile/)

@@ -29,7 +29,7 @@ Vendor type (**Contractual** vs **Non-Contractual**) is set by **Tenant Admin on
 | Non-Contractual | Yes | Yes (after award) |
 | Contractual | Hidden / N/A | Yes (direct assignment) |
 
-Canonical journey map: [`../../../05-modules/09-mobile-apps/vendor-mobile/12-vendor-type-flows.md`](../../../05-modules/09-mobile-apps/vendor-mobile/12-vendor-type-flows.md).
+Canonical journey map: [`../../../05-modules/15-mobile-apps/vendor-mobile/12-vendor-type-flows.md`](../../../05-modules/15-mobile-apps/vendor-mobile/12-vendor-type-flows.md).
 
 ## Isolation rules
 

@@ -28,8 +28,6 @@ Real-time vehicle location, POI geofencing, arrival/departure, and dwell — so 
 
 DFMS is **not** a GPS hardware vendor. Vehicles carry a tracker; DFMS receives location and uses it on Live GPS and related surfaces.
 
-> Folder note: `09-tracking/` and `09-mobile-apps/` both use module number 09. Tracking is Django app `apps/tracking`; mobile apps are separate.
-
 ---
 
 ## Documents

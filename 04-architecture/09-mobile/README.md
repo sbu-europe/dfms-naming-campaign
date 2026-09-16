@@ -16,7 +16,7 @@ This folder documents **how** DFMS mobile clients are built. It complements tech
 |-------|----------|------|
 | C4 system design | [`../01-system-design/`](../01-system-design/) | What containers exist |
 | **This folder** | `09-mobile/` | Flutter packages, session gating, API client, flavors |
-| Product UX / flows | [`../../05-modules/09-mobile-apps/vendor-mobile/`](../../05-modules/09-mobile-apps/vendor-mobile/) | Screen IA and business rules |
+| Product UX / flows | [`../../05-modules/15-mobile-apps/vendor-mobile/`](../../05-modules/15-mobile-apps/vendor-mobile/) | Screen IA and business rules |
 | How-to guides | [`../../08-development-guides/02-mobile/`](../../08-development-guides/02-mobile/) | Setup, Maestro, contribution |
 | Backend APIs | [`../04-backend/`](../04-backend/) + vendor endpoints | Server implementation |
 
@@ -28,7 +28,7 @@ This folder documents **how** DFMS mobile clients are built. It complements tech
 |--------|------------------|----------------|
 | **Vendor Mobile** | Implemented Flutter | `nourish-vendor-app` |
 | **Driver** | Responsive Django Admin (not Flutter) | See [`../../05-modules/03-users/driver-interface-sprint4.md`](../../05-modules/03-users/driver-interface-sprint4.md) |
-| **QC** | Spec / future; not an implemented Flutter app | [`../../05-modules/09-mobile-apps/qc-mobile.md`](../../05-modules/09-mobile-apps/qc-mobile.md) (aspirational) |
+| **QC** | Spec / future; not an implemented Flutter app | [`../../05-modules/15-mobile-apps/qc-mobile.md`](../../05-modules/15-mobile-apps/qc-mobile.md) (aspirational) |
 
 > Do not treat Driver/QC PRD Flutter docs as current implementation SSOT.
 
@@ -79,6 +79,6 @@ This folder documents **how** DFMS mobile clients are built. It complements tech
 
 ## Related
 
-- Product SSOT: [`vendor-mobile/`](../../05-modules/09-mobile-apps/vendor-mobile/)
+- Product SSOT: [`vendor-mobile/`](../../05-modules/15-mobile-apps/vendor-mobile/)
 - Testing: [`../../09-testing/mobile/`](../../09-testing/mobile/)
 - Contracts note: [`../../06-contracts/01-apis/rest/README.md`](../../06-contracts/01-apis/rest/README.md) (vendor APIs — prefer endpoint-map + backend)

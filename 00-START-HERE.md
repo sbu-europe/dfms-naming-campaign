@@ -67,13 +67,13 @@ DFMS-product-context/
 │   ├── 06-poi-operations/             # Gate, scaling, QC, command center
 │   ├── 07-vendor-management/          # Vendor onboarding, bidding, portal
 │   ├── 08-fleet-management/           # Vehicles, drivers, fuel
-│   ├── 09-mobile-apps/                # Vendor Mobile SSOT + Driver/QC status notes
-│   ├── 09-tracking/                   # GPS tracking (numbering collision with 09-mobile-apps — documented)
+│   ├── 09-tracking/                   # GPS tracking
 │   ├── 10-audit/                      # Audit & logging
 │   ├── 11-reporting/                  # Reports & analytics
 │   ├── 12-cross-cutting/              # NFRs, security, integrations
 │   ├── 13-phases/                     # Phase planning
-│   └── 14-reference/                  # Glossary & reference
+│   ├── 14-reference/                  # Glossary & reference
+│   └── 15-mobile-apps/                # Vendor Mobile SSOT + Driver/QC status notes
 │
 ├── 06-contracts/                      # Integration contracts
 │   ├── 01-apis/                       # REST API specs (OpenAPI 3.0)

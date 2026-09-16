@@ -1,4 +1,4 @@
-# 09-mobile-apps — Mobile Interfaces
+# 15-mobile-apps — Mobile Interfaces
 
 ## Module Overview
 
@@ -8,8 +8,6 @@ Mobile and field interfaces for DFMS users.
 **Phase**: Phase 1 — Vendor Mobile active  
 **Architecture**: [`../../04-architecture/09-mobile/`](../../04-architecture/09-mobile/)  
 **Dev guides**: [`../../08-development-guides/02-mobile/`](../../08-development-guides/02-mobile/)
-
-> **Numbering note:** This folder shares the `09-` prefix with [`../09-tracking/`](../09-tracking/). Treat paths as authoritative; renumber later if desired.
 
 ---
 

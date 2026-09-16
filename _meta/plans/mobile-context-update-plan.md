@@ -20,7 +20,7 @@ Most architectural folders in this repo are mature for the backend. Mobile-relat
 | C4 / system design    | `04-architecture/01-system-design/` | Shared; mobile listed as a container only                                       |
 | Stack architecture    | `04-architecture/04-backend/`       | **Missing** — no `09-mobile` (next free index after `08-reference`)             |
 | Development guides    | `08-development-guides/01-backend/` | Marked **Future** — use next free slot `02-mobile` (no frontend guides for now) |
-| Domain / module specs | Rich `05-modules/*`                 | Vendor screens in `09-mobile-apps/vendor-mobile/` only                          |
+| Domain / module specs | Rich `05-modules/*`                 | Vendor screens in `15-mobile-apps/vendor-mobile/` only                          |
 | API contracts         | Real REST YAML                      | `06-contracts/.../mobile.yaml` is a sketch                                      |
 | Testing docs          | `09-testing/backend/`               | Vendor Maestro exists; indexes still say “upcoming”                             |
 
@@ -53,7 +53,7 @@ Most architectural folders in this repo are mature for the backend. Mobile-relat
 
 | Concern                             | Lives in                                                      |
 | ----------------------------------- | ------------------------------------------------------------- |
-| Product UX / flows / business rules | `05-modules/09-mobile-apps/vendor-mobile/`                    |
+| Product UX / flows / business rules | `05-modules/15-mobile-apps/vendor-mobile/`                    |
 | Flutter system architecture         | **New** `04-architecture/09-mobile/`                          |
 | Setup / flavors / how-to            | **New** `08-development-guides/02-mobile/`                    |
 | API contract                        | `06-contracts` (+ endpoint map from real `/api/v1/vendor/*`)  |
@@ -64,7 +64,7 @@ Most architectural folders in this repo are mature for the backend. Mobile-relat
 Backend domain modules remain SSOT for transport/vendor/fleet rules. Mobile docs **link** to them instead of re-owning backend rules.
 
 ```text
-Product truth (what/why)      →  05-modules/09-mobile-apps/vendor-mobile/
+Product truth (what/why)      →  05-modules/15-mobile-apps/vendor-mobile/
 System truth (how built)      →  04-architecture/09-mobile/     ← main gap
 How-to (run / dev / test)     →  08-development-guides/02-mobile/
 API truth                     →  06-contracts (+ endpoint-map)
@@ -88,11 +88,11 @@ Code                          →  nourish-vendor-app
 1. **No mobile system context** — No `09-mobile/` Flutter package/MVVM/flavors/JWT+Host tenancy docs.
 2. **No mobile development guides** — create `02-mobile/` (next free after `01-backend`).
 3. **Product vs code drift** — Thin onboarding/profile specs; Sprint 9 auth/phone gate only partly reflected.
-4. **Stale duplicates** — Monolithic `vendor-mobile.md` vs folder SSOT; `09-mobile-apps/README` still titled “07-mobile-interfaces”.
+4. **Stale duplicates** — Monolithic `vendor-mobile.md` vs folder SSOT; `15-mobile-apps/README` still titled “07-mobile-interfaces”.
 5. **Driver/QC overstated** — Specs claim Flutter; Phase 1 driver is responsive Django Admin (`driver-interface-sprint4.md`).
 6. `**mobile.yaml` unusable** — Generic paths; real surface is `/api/v1/vendor/`*.
 7. **Index debt** — Start-here / testing READMEs still call mobile testing “upcoming”.
-8. **Numbering collision** — `09-mobile-apps` vs `09-tracking` (document; fix later if desired).
+8. **Renumbered to `15-mobile-apps` (was colliding with `09-tracking`).
 
 ---
 
@@ -164,7 +164,7 @@ Wire from `08-development-guides/README.md` and `00-START-HERE.md`.
 
 ### Phase 3 — Sync product module specs
 
-Under `05-modules/09-mobile-apps/`:
+Under `05-modules/15-mobile-apps/`:
 
 1. Fix index README (name, links, SSOT = `vendor-mobile/`).
 2. Deprecate or redirect monolithic `vendor-mobile.md` → `vendor-mobile/`.
@@ -190,7 +190,7 @@ Under `05-modules/09-mobile-apps/`:
 ### Phase 5 — Hygiene (can run anytime)
 
 - Fix “mobile testing upcoming” in `00-START-HERE` and testing READMEs.
-- Document (or later fix) `09-mobile-apps` vs `09-tracking` numbering collision.
+- ~~Document (or later fix) `09-mobile-apps` vs `09-tracking` numbering collision.~~ **Done:** mobile module is `15-mobile-apps/`.
 - Optional: align stale boilerplate in `nourish-vendor-app/docs/` so it does not contradict context SSOT.
 
 ---
@@ -228,7 +228,7 @@ Use this as the baseline for Phase 1–3 content (verify against code when writi
 
 Product IA already started in:
 
-`05-modules/09-mobile-apps/vendor-mobile/`
+`05-modules/15-mobile-apps/vendor-mobile/`
 
 ---
 

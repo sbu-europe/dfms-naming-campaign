@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Practical setup, contribution, and testing guidance. Architecture SSOT: [`../../04-architecture/09-mobile/`](../../04-architecture/09-mobile/). Product UX SSOT: [`../../05-modules/09-mobile-apps/vendor-mobile/`](../../05-modules/09-mobile-apps/vendor-mobile/).
+Practical setup, contribution, and testing guidance. Architecture SSOT: [`../../04-architecture/09-mobile/`](../../04-architecture/09-mobile/). Product UX SSOT: [`../../05-modules/15-mobile-apps/vendor-mobile/`](../../05-modules/15-mobile-apps/vendor-mobile/).
 
 ## Contents
 

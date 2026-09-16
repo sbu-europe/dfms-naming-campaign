@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 document_type: implementation_plan
 last_updated: 2026-08-03
-related_modules: [02-master-data, 03-users, 04-requisitions, 05-transport, 07-vendor-management, 09-mobile-apps]
+related_modules: [02-master-data, 03-users, 04-requisitions, 05-transport, 07-vendor-management, 15-mobile-apps]
 related_stories: []
 related_prd: ../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md
 source_constraints: >
