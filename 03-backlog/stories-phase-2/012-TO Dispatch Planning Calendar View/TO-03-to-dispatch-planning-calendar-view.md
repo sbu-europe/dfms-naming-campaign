@@ -40,10 +40,6 @@ Planners already create TOs (TO-01) and assign vehicle, driver, helpers, and pla
 
 This story adds **Transport → TO dispatch planning**: a **read-only resource calendar**. Vehicles are rows; time is the axis; each assigned TO is a bar on its vehicle. It does not create, assign, or change status or quantity. Assignment stays on TO detail and Vehicle Planning.
 
-**UI contract:** `[docs/prototypes/to-dispatch-planning-calendar.html](../../../../docs/prototypes/to-dispatch-planning-calendar.html)`. Where this story and the PRD disagree (TO grid vs vehicle lanes; unassigned blocks on the calendar), **the prototype wins**.
-
-Predecessor: archived [US-071](../../../_meta/archive/backlog-stories-pre-sprint2/US-071-to-dispatch-planning-calendar-view.md) (historical only).
-
 ---
 
 ## Locked decisions (PO)
