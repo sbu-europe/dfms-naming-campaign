@@ -21,9 +21,23 @@ related_stories:
   - AD-06 / GPS-01 (map — not this dashboard)
 implementation_docs:
   - DFMS-product-context/05-modules/02-master-data/vehicle-master-data.md
+tdd_test_cases: ../../../09-testing/stories-phase-2/002-Vehicle Tracking and Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md
+tdd_index: ../../../09-testing/stories-phase-2/002-Vehicle Tracking and Dashboard/00-all-test-cases.md
 ---
 
 # FVM-02 — Vehicle Tracking and Dashboard
+
+## Test cases
+
+Gherkin / TDD scenarios live under `09-testing` (not inline in this story).
+
+| Navigate | Link |
+|----------|------|
+| **FVM-02 TDD catalog** (`AC-N.x` mapped) | [FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) |
+| **Vehicle Tracking TDD index** | [00-all-test-cases.md](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/00-all-test-cases.md) |
+| **Feature TDD folder** | [README](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/README.md) |
+
+Write failing tests from the catalog **before** implementation.
 
 ## User Story
 
@@ -64,45 +78,156 @@ Transport Planner — Fleet Health Dashboard
 
 ## Acceptance Criteria
 
+> **Test scenarios:** see [FVM-02 TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) · [Vehicle Tracking index](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/00-all-test-cases.md)
+
 ### AC-1 — Status cards (availability)
 
-- [ ] Planner sees five counts for the current filter: **No Active TO**, **Scheduled**, **In-transit**, **Under Maintenance**, **Inactive**
-- [ ] Counts match `Vehicle.operational_status` for own-fleet rows (no derived SOW labels)
-- [ ] Clicking a card filters the vehicle list to that status
-- [ ] In-transit includes all started-TO execution (not only “driving” GPS motion)
+Given a Transport Planner opens the fleet Health Dashboard,
+when they view availability for the current filter,
+then they see five counts that match each vehicle’s availability status, and clicking a card filters the vehicle list.
+
+- [ ] **Five status counts**  
+  **Given** a Transport Planner is on the fleet Health Dashboard  
+  **When** they view availability for the current filter  
+  **Then** they see five counts: **No Active TO**, **Scheduled**, **In-transit**, **Under Maintenance**, **Inactive**
+
+- [ ] **Counts match the vehicle’s real status**  
+  **Given** own-fleet vehicles each have an availability status  
+  **When** the dashboard shows the five cards  
+  **Then** the counts match those statuses for own-fleet vehicles  
+  **And** the cards do not use different or made-up status names
+
+- [ ] **Clicking a card filters the list**  
+  **Given** the five status cards are visible  
+  **When** the planner clicks a card  
+  **Then** the vehicle list shows only vehicles with that status
+
+- [ ] **In-transit includes any started trip**  
+  **Given** a vehicle is already on a started transport order (towards origin or destination, including yard movement)  
+  **When** the cards are counted  
+  **Then** that vehicle is counted as **In-transit**  
+  **And** the GPS does not need to show the vehicle as moving
 
 ### AC-2 — Filters
 
-- [ ] Filter by depot (`assigned_poi`)
-- [ ] Ownership: own-fleet default
-- [ ] Optional: vehicle type, search by registration
-- [ ] Cards and list use the same filters
+Given a Transport Planner applies dashboard filters,
+when they change depot, ownership, type, or registration search,
+then the status cards and the vehicle list use the same filters.
+
+- [ ] **Depot filter**  
+  **Given** vehicles assigned to different depots  
+  **When** the planner filters by depot  
+  **Then** cards and list include only vehicles for that depot
+
+- [ ] **Own-fleet default**  
+  **Given** the planner opens the dashboard without choosing an ownership filter  
+  **When** the page loads  
+  **Then** it defaults to own-fleet vehicles
+
+- [ ] **Optional type and registration search**  
+  **Given** the planner is on the dashboard  
+  **When** they filter by vehicle type and/or search by registration  
+  **Then** cards and list match that type and/or registration
+
+- [ ] **Cards and list use the same filters**  
+  **Given** depot, ownership, type, and search filters are applied  
+  **When** the planner views the cards and the vehicle list  
+  **Then** both use the same filters
 
 ### AC-3 — Per-vehicle kilometers
 
-- [ ] List/detail show `current_odometer_reading` when FVM-01 has a reading
-- [ ] No reading → **odometer unavailable** (not 0, not haversine)
-- [ ] Dashboard does **not** write odometer (FVM-01 / Driver Supervisor owns entry)
+Given a vehicle may or may not have a supervisor meter reading,
+when a planner views the vehicle list or details,
+then they see the current km or **odometer unavailable**, and they cannot enter a meter reading from this dashboard.
+
+- [ ] **Show current km when a reading exists**  
+  **Given** a supervisor meter reading exists for the vehicle  
+  **When** the planner opens the list or vehicle details  
+  **Then** they see the current km
+
+- [ ] **No reading shows odometer unavailable**  
+  **Given** the vehicle has no meter reading  
+  **When** the planner opens the list or vehicle details  
+  **Then** they see **odometer unavailable**  
+  **And** the screen does not show 0 km or a GPS/map distance
+
+- [ ] **Dashboard cannot change the meter reading**  
+  **Given** a Transport Planner is on the dashboard  
+  **When** they view kilometers  
+  **Then** they cannot enter or change the meter reading  
+  **And** only the Driver Supervisor enters meter km (on the meter-entry screen)
 
 ### AC-4 — Fuel intake
 
-- [ ] When AD-04 `FuelEntry` exists: show period/lifetime liters (and optional cost) for that vehicle
-- [ ] Until AD-04: fuel intake **unavailable** — no fake liters
-- [ ] FVM-02 does not add a fuel-entry form
+Given fuel figures come from fuel entries (when that feature exists),
+when a planner views a vehicle,
+then they see liters for the period and lifetime if fuel entries exist, otherwise **unavailable** — never made-up liters, and no fuel-entry form on this dashboard.
 
-### AC-5 — Maintenance history & operational lifecycle
+- [ ] **Fuel liters when entries exist**  
+  **Given** fuel entries exist for the vehicle  
+  **When** the planner views fuel intake  
+  **Then** they see liters for the period and lifetime (and cost, if recorded) for that vehicle
 
-- [ ] Vehicle detail shows current **operational_status** (lifecycle now)
-- [ ] If assigned: current TO number, TO status, driver (and trip if one exists)
-- [ ] Maintenance history: FVM-01 service logs (date + odometer) when FVM-01 exists; DS-01 last inspection / under-maintenance / clearance when present
-- [ ] Under Maintenance vehicles stay blocked from new TDO assignment (existing rule — regression)
+- [ ] **Fuel unavailable until fuel entries exist**  
+  **Given** no fuel entries exist yet  
+  **When** the planner views fuel intake  
+  **Then** fuel intake is **unavailable**  
+  **And** no made-up liters are shown
 
-### AC-6 — Surfaces & RBAC
+- [ ] **No fuel-entry form on this dashboard**  
+  **Given** a planner is on the Health Dashboard  
+  **When** they open a vehicle  
+  **Then** they cannot enter fuel from this screen
 
-- [ ] **Transport Planner** (+ Tenant Admin): full dashboard
-- [ ] Driver Supervisor may view (same fleet) but this is not the DS-01 maintenance **queue**
-- [ ] Not the Live GPS map; no new map layer (AD-06)
+### AC-5 — Maintenance history & current assignment
 
+Given a planner opens vehicle details,
+when the vehicle is assigned and/or has maintenance history,
+then they see current availability status, transport order / driver / trip, and service or inspection history, and Under Maintenance vehicles still cannot be assigned to a new transport order.
+
+- [ ] **Current availability status**  
+  **Given** a vehicle has an availability status  
+  **When** the planner opens vehicle details  
+  **Then** they see the current status (what the vehicle is doing now)
+
+- [ ] **Current transport order, driver, and trip**  
+  **Given** the vehicle is assigned to a transport order  
+  **When** the planner opens vehicle details  
+  **Then** they see the current transport order number, order status, driver, and trip if one exists
+
+- [ ] **Maintenance history**  
+  **Given** service records and/or inspection, under-maintenance, or clearance history exist  
+  **When** the planner opens vehicle details  
+  **Then** they see service records (date and meter km) when those exist  
+  **And** last inspection / under maintenance / clearance when those exist
+
+- [ ] **Under Maintenance still cannot be assigned**  
+  **Given** a vehicle is **Under Maintenance**  
+  **When** someone looks for a vehicle to assign to a new transport order  
+  **Then** that vehicle is still not available to assign
+
+### AC-6 — Who can see and do what
+
+Given Transport Planner, Tenant Admin, or Driver Supervisor users,
+when they open the fleet Health Dashboard,
+then planners and admins get the full dashboard, supervisors may view the same fleet, and this is not the maintenance work queue or the live GPS map.
+
+- [ ] **Planner and Tenant Admin get the full dashboard**  
+  **Given** a user is a Transport Planner or Tenant Admin  
+  **When** they open the fleet Health Dashboard  
+  **Then** they have the full dashboard
+
+- [ ] **Driver Supervisor may view**  
+  **Given** a user is a Driver Supervisor  
+  **When** they open the dashboard for the same fleet  
+  **Then** they may view it  
+  **And** this is not the Driver Supervisor maintenance **work queue**
+
+- [ ] **Not the live GPS map**  
+  **Given** the planner is on the Health Dashboard  
+  **When** they view fleet health  
+  **Then** this is not the live GPS map  
+  **And** no map is added on this screen
 
 ## Sub-tasks
 
@@ -116,12 +241,13 @@ Transport Planner — Fleet Health Dashboard
 | FVM-02-6 | Maintenance + links | Service log + DS-01 history; current TO / trip / driver | High | Pending |
 | FVM-02-7 | Fuel intake | Consume FuelEntry when AD-04 exists; else unavailable | Medium | Pending |
 | FVM-02-8 | Planner UI | Dashboard + vehicle detail | High | Pending |
-| FVM-02-9 | Tests | Card counts vs status, filters, unavailable km/fuel, RBAC, assignment still blocked for Under Maintenance | High | Pending |
+| FVM-02-9 | Tests | Card counts vs status, filters, unavailable km/fuel, RBAC, assignment still blocked for Under Maintenance — [TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md) | High | Pending |
 
 ## Definition of Done
 
 - [ ] AC-1…AC-6 checked against code (not against this markdown)
-- [ ] Unit tests for status counts, depot filter, odometer unavailable, fuel unavailable without FuelEntry
+- [ ] Unit tests for status counts, depot filter, odometer unavailable, fuel unavailable without FuelEntry — scenarios AC-1.1…AC-6.3 — see [FVM-02 TDD catalog](../../../09-testing/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] Existing TDO assignment exclusion for Under Maintenance / Inactive unchanged
 - [ ] Live GPS behaviour unchanged
 - [ ] `05-modules/` implementation context written (FVM-02-2) before merge of Django work
