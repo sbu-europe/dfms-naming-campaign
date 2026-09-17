@@ -62,8 +62,8 @@ last_updated: 2026-09-15
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
 | FVM-01-TC08 | AC-2.1 | Unit | Distance since last service | Fixture: current 14500, last service 10000. Assert since-service = **Current KM − KM at last service** = 4500. | P0 | Planned |
 | FVM-01-TC09 | AC-2.2 | Unit | Remaining km formula | Fixture: last service 10000, interval 5000, current 14500. Assert remaining = **last service + interval − current** = 500. Current 15100 → remaining = −100 (overdue meaning). | P0 | Planned |
-| FVM-01-TC10 | AC-2.3 | Unit | No last service uses starting km | No service log; starting km 10000; current 12000; interval 5000. Assert since-service = 2000; remaining = **starting + interval − current** = 3000. | P0 | Planned |
-| FVM-01-TC11 | AC-2.4 | Unit / E2E | Remaining unknown without starting point | No service log and no starting km. Assert remaining km unknown (not invented); becomes known only after first service **or** starting km. | P0 | Planned |
+| FVM-01-TC10 | AC-2.3 | Unit / E2E | No last service → no service record | No service log; starting km 10000; current 12000; interval 5000. Assert display **No service record available**; since-service and remaining are not calculated from starting km; Due soon / Overdue not shown. | P0 | Planned |
+| FVM-01-TC11 | AC-2.4 | Unit / E2E | Remaining unknown without a service record | No service log and no starting km. Assert remaining km unknown (not invented); becomes known only after first service is logged — starting km alone is not enough. | P0 | Planned |
 | FVM-01-TC12 | AC-2.5 | Unit / E2E | Due soon flag | Remaining 500, interval 5000 (10% = 500), remaining &gt; 0. Assert **Due soon**. Remaining 501 → not Due soon. | P0 | Planned |
 | FVM-01-TC13 | AC-2.6 | Unit / E2E | Overdue flag | Remaining 0 or negative. Assert **Overdue** (not Due soon). | P0 | Planned |
 | FVM-01-TC14 | AC-2.7 | API | Service log does not change availability | As Driver Supervisor or Tenant Admin, record completed service (date, meter km, optional notes). Assert service stored; `operational_status` unchanged. | P0 | Planned |

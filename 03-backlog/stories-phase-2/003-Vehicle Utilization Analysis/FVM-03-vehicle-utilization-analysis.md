@@ -47,13 +47,13 @@ Write failing tests from the catalog **before** implementation.
 
 System SHALL calculate:
 
-- **Trips per vehicle (Plan: single-TO or Multi-TO)**
+- **TOs per vehicle (Plan: single-TO or Multi-TO)**
 - **Active vs idle time**
 
 In DFMS:
 
 - A **Plan** groups work for **one vehicle**: **one TO** (single-TO Plan) or **several TOs together** (Multi-TO Plan).
-- A **trip** (this metric) = a **Plan** that completed in the period. A Multi-TO Plan counts as **one** trip, not one per TO.
+- A **TO** (this metric) = a **Plan** that completed in the period. A Multi-TO Plan counts as **one** trip, not one per TO.
 - A vehicle **may serve multiple TOs at once** when they belong to the same Plan. Own-fleet “one TO at a time” exclusivity is **not** a business rule.
 - **Active / moving** = time the GPS shows the vehicle **moving** (speed **3 km/h or above**). Taken from the GPS movement status already stored from the vehicle’s GPS device — **not** from whether it has a trip.
 - **Idle / stopped** = time the GPS shows the vehicle **stopped** (speed **below 3 km/h**). Same GPS movement status. Includes parked. **Not** “no trip”.
@@ -173,7 +173,7 @@ then serving hours still come from trips, and **idle vs movement** comes from GP
 
 ### AC-3 — Who can see and do what
 
-Given Transport Planner, Tenant Admin, or Driver Supervisor users,
+Given Transport Planner, Tenant Admin, Tenant Super Admin or Driver Supervisor users,
 when they open utilization analysis,
 then they can view the list, chart, date range, and depot filter, and sort — and they cannot change transport orders, trips, or vehicle availability from this screen.
 

@@ -62,8 +62,6 @@ System computes vehicle usage indicators:
 
 ## Business Context
 
-Vehicle master has `initial_odometer_reading` / `current_odometer_reading`, but Phase 1 made them **read-only and never written** — they are not on the vehicle create/edit form.
-
 A **Vehicle Supervisor** reads the physical odometer and enters the km. In DFMS that actor is the existing **Driver Supervisor** role (fleet operations / DS-01) — not a new role, and not GPS ingest.
 
 ```
@@ -149,21 +147,19 @@ then the system calculates km since last service and remaining km from meter rea
 
   **And** a negative remaining km means the vehicle is overdue
 
-- [ ] **No last service uses starting km**  
+- [ ] **No last service shows no service record**  
   **Given** a vehicle has never had a service logged, but a starting km exists  
   **When** a Transport Planner views remaining km  
-  **Then** km since last service is:
+  **Then** they see **No service record available**  
+  **And** km since last service is not calculated from starting km  
+  **And** remaining km is not calculated from starting km  
+  **And** Due soon / Overdue are not shown from starting km
 
-  > **Distance since last service = Current KM − Starting KM**
-
-  **And** remaining km uses starting km in place of km at last service:
-
-  > **Remaining KM = Starting KM + Service interval − Current KM**
-
-- [ ] **Remaining km unknown without a starting point**  
+- [ ] **Remaining km unknown without a service record**  
   **Given** a vehicle has no service logged and no starting km  
   **When** a Transport Planner views remaining km  
-  **Then** remaining km is unknown until the first service is logged **or** a starting km is entered
+  **Then** remaining km is unknown until the first service is logged  
+  **And** a starting km alone does not make remaining km known
 
 - [ ] **Due soon flag**  
   **Given** remaining km meets:
@@ -268,7 +264,7 @@ then the list is the Top 5 own-fleet vehicles by number of completed transport o
 
 ### AC-6 — Who can see and do what
 
-Given users with Driver Supervisor, Transport Planner, or Tenant Admin roles,
+Given users with Driver Supervisor, Transport Planner, Tenant Admin or Tenant Super Admin roles,
 when they open meter reading or maintenance screens,
 then each role can only do the actions listed below.
 

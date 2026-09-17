@@ -205,7 +205,7 @@ then available hours go down by the downtime hours, and utilization % is based o
 
 ### AC-5 — Who can see and do what
 
-Given Driver Supervisor, Tenant Admin, or Transport Planner users,
+Given Driver Supervisor, Tenant Admin,Tenant Super Admin or Transport Planner users,
 when they open downtime,
 then supervisors and admins can create, close, and list logs; planners can view only; and this is not workshop costing or remaining-km tracking.
 
