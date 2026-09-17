@@ -1,7 +1,7 @@
 ---
 section: 09-testing/stories-phase-2/008-Vendor Rating System
 specification: VRS-03 Vendor Rating Visibility — Admin Portal — TDD test cases
-version: 1.0
+version: 1.1
 phase: Phase 2
 tdd: true
 related_stories: VRS-03
@@ -11,14 +11,14 @@ suggested_impl:
   api: GET /api/v1/vendors/{id}/rating-summary/; GET /api/v1/vendors/{id}/ratings/; BidAward.vendor_rating_at_award
   e2e: Playwright admin — profile, bid list/comparison, vendor list filter, TO detail
   maestro: Vendor mobile — confirm own rating not shown
-last_updated: 2026-09-14
+last_updated: 2026-09-17
 ---
 
 # VRS-03 — Vendor Rating Visibility (Admin) — TDD test cases
 
 **Story:** [VRS-03](../../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)  
 **Approach:** API summary/history + award snapshot → admin E2E surfaces → vendor 403/UI denial → mark Passing.  
-**Depends on:** VRS-01 submitted `VendorRating` data + rating APIs.
+**Depends on:** VRS-01 submitted `VendorRating` data + rating APIs (single score + 3 answers).
 
 ## Seed prerequisites (when implementing)
 
@@ -34,8 +34,8 @@ last_updated: 2026-09-14
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-03-TC01 | AC-1.1 | E2E / API | Profile summary + criterion avgs | Open Performance Rating. Assert overall stars/numeric, count, Product Delivery / Driver Behaviour / Vehicle averages. | P0 | Planned |
-| VRS-03-TC02 | AC-1.2 | E2E / API | History newest first | Multiple ratings. Assert paginated history newest first with TO, rated by, scores, avg, comment. | P0 | Planned |
+| VRS-03-TC01 | AC-1.1 | E2E / API | Profile summary (overall only) | Open Performance Rating. Assert overall stars/numeric + count. Assert **no** per-criterion average table. | P0 | Planned |
+| VRS-03-TC02 | AC-1.2 | E2E / API | History newest first | Multiple ratings. Assert paginated history newest first with TO, rated by, score, Y/N answers, comment. | P0 | Planned |
 | VRS-03-TC03 | AC-1.3 | E2E | Rate Vendor for unrated TO | Completed TO without submitted rating. Assert Rate Vendor links to VRS-01 form. | P1 | Planned |
 | VRS-03-TC04 | AC-1.4 | E2E | Empty state | Zero submitted ratings. Assert "No ratings yet — complete a transport order to rate this vendor." | P1 | Planned |
 
@@ -51,7 +51,7 @@ last_updated: 2026-09-14
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-03-TC08 | AC-3.1 | E2E | Highest rating highlight | Ratings 3.5, 4.8, 4.1. Assert each shows rating; 4.8 marked "Highest rating". | P0 | Planned |
+| VRS-03-TC08 | AC-3.1 | E2E | Highest rating highlight (all ties) | Ratings 3.5, 4.8, 4.8. Assert both 4.8 marked "Highest rating". | P0 | Planned |
 
 ## D — Vendor admin list (AC-4)
 
@@ -64,7 +64,7 @@ last_updated: 2026-09-14
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-03-TC11 | AC-5.1 | E2E | Rated TO summary | Submitted avg 4.3. Assert "Vendor Rated" + View Rating. | P0 | Planned |
+| VRS-03-TC11 | AC-5.1 | E2E | Rated TO summary | Submitted score 4. Assert "Vendor Rated" + View Rating (score + 3 answers). | P0 | Planned |
 | VRS-03-TC12 | AC-5.2 | E2E | Unrated TO CTA | No submitted rating. Assert "Rate this Vendor" CTA to VRS-01. | P0 | Planned |
 
 ## F — Vendor denied (AC-6)
@@ -81,10 +81,9 @@ last_updated: 2026-09-14
 | Test Case ID | Layer | Scenario | Assert | Priority | Status |
 |--------------|-------|----------|--------|----------|--------|
 | VRS-03-EC01 | API | Award snapshot immutable to later rating changes | After award, Vendor.rating changes; `vendor_rating_at_award` unchanged | P0 | Planned |
-| VRS-03-EC02 | E2E | All vendors unrated in comparison | Ratings show "–"; no Highest rating highlight (or none eligible) | P1 | Planned |
+| VRS-03-EC02 | E2E | All vendors unrated in comparison | Ratings show "–"; no Highest rating highlight | P1 | Planned |
 | VRS-03-EC03 | E2E / API | Min filter excludes unrated when ≥ 1.0 | Unrated not listed under ≥ 1.0; included under Any | P0 | Planned |
 | VRS-03-EC04 | API | Role without vendor.rating.view | 403 / section hidden | P0 | Planned |
-| VRS-03-EC05 | — | Tie for highest rating highlight | TODO(PO) — Blocked until PO decides | P2 | Blocked (PO) |
 
 ---
 

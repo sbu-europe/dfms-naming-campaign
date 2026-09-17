@@ -39,23 +39,23 @@ Write failing tests from the catalog **before** implementation.
 ## User Story
 
 **As a** Tenant Super Admin, Tenant Admin, or Transport Planner  
-**I want to** see a vendor's current rating, criterion breakdown, and full rating history across the admin portal  
+**I want to** see a vendor's current overall rating and full rating history across the admin portal  
 **So that** I can make well-informed decisions when awarding bids, managing vendor relationships, and filtering the vendor pool
 
 ## Business Context
 
-Once `VendorRating` records exist (from VRS-01), they must be surfaced in the relevant admin views. The `vendor-bidding.md` spec already references vendor rating in bid tables, bid comparison, and bid award — this story wires those references to live data.
+Once `VendorRating` records exist (from VRS-01), they must be surfaced in the relevant admin views. Each rating is a **single overall score (1–5)** plus three Yes/No answers — there is **no per-criterion star breakdown** to display.
 
 Rating visibility surfaces in **four places**:
 
 | Location | What is shown |
 |----------|---------------|
-| **Vendor Profile page** | Star summary, per-criterion averages, rating history table |
-| **Bid List / Comparison view** | Rating column alongside bid rate |
+| **Vendor Profile page** | Star summary (avg + count), rating history (score, answers, comment) |
+| **Bid List / Comparison view** | Rating column / panel (overall only) |
 | **Vendor Admin List** | Rating column + filter by minimum rating |
 | **Completed TO Detail** | Rating summary or "Rate this vendor" CTA |
 
-Rating is **internal only** — vendor portal and vendor mobile app do **not** expose the vendor's own rating in v1.
+All surfaces reuse the **existing admin portal theme**. Rating is **internal only** — vendor portal and vendor mobile do **not** expose the vendor's own rating in v1.
 
 ---
 
@@ -69,27 +69,20 @@ Given an authorized admin opens a vendor profile,
 
 when the Performance Rating section loads,
 
-then overall stars, count, per-criterion averages, paginated history, Rate Vendor for unrated completed TOs, and an empty state when no ratings exist are shown.
+then overall stars, count, paginated history (score + Y/N answers + comment), Rate Vendor for unrated completed TOs, and an empty state when no ratings exist are shown.
 
 - [ ] Vendor admin profile page has a **"Performance Rating"** section showing:
   - Overall star display: e.g. ⭐⭐⭐⭐ 4.2 / 5.0
   - Rating count: "Based on 12 ratings"
-  - Per-criterion averages table:
-
-    | Criterion | Average | Ratings |
-    |-----------|---------|---------|
-    | Product Delivery | ⭐⭐⭐⭐⭐ 4.6 | 12 |
-    | Driver Behaviour | ⭐⭐⭐⭐ 4.1 | 12 |
-    | Vehicle | ⭐⭐⭐⭐ 3.9 | 12 |
-
   - **Rating History** table (paginated, newest first):
 
-    | Date | Transport Order | Rated By | Prod. Del. | Driver Beh. | Vehicle | Avg | Comment |
-    |------|----------------|----------|-----------|------------|---------|-----|---------|
-    | ... | TO-2026-001 | Jane D. | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 4.3 | Good service |
+    | Date | Transport Order | Rated By | Score | Answers (Y/N) | Comment |
+    |------|----------------|----------|-------|---------------|---------|
+    | ... | TO-2026-001 | Jane D. | ⭐⭐⭐⭐ 4 | Q1 Yes · Q2 No · Q3 Yes | Good service |
 
-- [ ] **"Rate Vendor"** button shown for any completed TO that has no rating yet (links to VRS-01 rating form).
+- [ ] **"Rate Vendor"** button shown for any completed TO that has no rating yet (links to VRS-01 form: `/vendors/<id>/rate/<to_id>/`).
 - [ ] If vendor has no ratings: "No ratings yet — complete a transport order to rate this vendor."
+- [ ] No per-criterion average table (not applicable in v1).
 
 ### AC-2: Bid List — Rating Column
 
@@ -99,10 +92,10 @@ when the bid list renders and an award is made,
 
 then a sortable Rating column shows stars + value (or "–"), and `vendor_rating_at_award` is populated from `Vendor.rating` at award time.
 
-- [ ] Bid submission table (Transport Planner / TDO view) includes a **Rating** column showing star display + numeric value (e.g. ⭐⭐⭐⭐ 4.2).
+- [ ] Bid submission table includes a **Rating** column (star + numeric).
 - [ ] Column sortable ascending/descending.
-- [ ] If vendor has no rating: shows "–" (unrated).
-- [ ] `vendor_rating_at_award` field on `BidAward` record is **populated** from `Vendor.rating` at the time of award (wires up the existing field referenced in `vendor-bidding.md`).
+- [ ] If vendor has no rating: shows "–".
+- [ ] `vendor_rating_at_award` populated from `Vendor.rating` at award time.
 
 ### AC-3: Bid Comparison View — Rating Panel
 
@@ -112,8 +105,8 @@ when vendors with ratings are compared,
 
 then each vendor shows star + numeric rating and the highest rating is highlighted.
 
-- [ ] Side-by-side bid comparison shows each vendor's star rating with numeric value.
-- [ ] Comparison highlights: "Highest rating" highlighted in gold (alongside lowest rate / fastest submission).
+- [ ] Side-by-side comparison shows each vendor's overall star rating with numeric value.
+- [ ] "Highest rating" highlighted (highlight **all** ties).
 
 ### AC-4: Vendor Admin List — Rating Filter & Column
 
@@ -123,8 +116,8 @@ when rating column and minimum-rating filter are used,
 
 then star + numeric display, sort by rating, and min-rating filter options work.
 
-- [ ] Vendor admin list table shows a **Rating** column (star + numeric).
-- [ ] **Filter by minimum rating** available: dropdown (Any / ≥ 1.0 / ≥ 2.0 / ≥ 3.0 / ≥ 4.0 / ≥ 4.5).
+- [ ] Vendor admin list shows a **Rating** column.
+- [ ] **Filter by minimum rating**: Any / ≥ 1.0 / ≥ 2.0 / ≥ 3.0 / ≥ 4.0 / ≥ 4.5.
 - [ ] Vendor list sortable by rating.
 
 ### AC-5: Completed TO Detail — Rating Summary
@@ -135,9 +128,8 @@ when the TO has or has not been rated,
 
 then either "Vendor Rated" with View Rating, or "Rate this Vendor" CTA, is shown.
 
-- [ ] Completed TO detail view shows:
-  - If rated: "Vendor Rated: ⭐⭐⭐⭐ 4.3" with a **"View Rating"** link.
-  - If not yet rated: **"Rate this Vendor"** CTA (links to VRS-01 form).
+- [ ] If rated: "Vendor Rated: ⭐⭐⭐⭐ 4" with **"View Rating"** (score + 3 Y/N answers + comment).
+- [ ] If not yet rated: **"Rate this Vendor"** CTA (links to VRS-01 form).
 
 ### AC-6: Not Visible to Vendor (v1 Enforcement)
 
@@ -149,21 +141,20 @@ then the response is 403 and vendor portal/mobile UI does not expose own rating.
 
 - [ ] Vendor portal (web) does **not** expose the vendor's own rating in v1.
 - [ ] Vendor mobile app does **not** show the vendor their own rating in v1.
-- [ ] All rating endpoints are protected — vendor authentication returns `403` on vendor rating history / profile rating section.
+- [ ] Vendor authentication returns `403` on vendor rating history / summary endpoints.
 
 ---
 
 ## Edge Cases
 
 ### Profile & history
-- Only pending (unsubmitted) ratings: profile empty state still applies for submitted aggregates; Rate Vendor remains for those TOs.
+- Only pending (unsubmitted) ratings: profile empty state for submitted aggregates; Rate Vendor remains for those TOs.
 - Pagination beyond last page: empty page, not error.
-- Deleted/archived TO reference: history still shows TO id/reference per existing TO retention rules.
 
 ### Bid & award
 - Vendor.rating changes after award: `vendor_rating_at_award` remains the snapshot at award time.
-- All compared vendors unrated: no "Highest rating" highlight (or none eligible — show ratings as "–").
-- Tie for highest rating: TODO(PO) — highlight all tied or first only.
+- All compared vendors unrated: no "Highest rating" highlight.
+- Tie for highest rating: highlight **all** tied vendors.
 
 ### List filter
 - Unrated vendors (`rating_count` 0): excluded when min filter ≥ 1.0; included under Any.
@@ -176,9 +167,12 @@ then the response is 403 and vendor portal/mobile UI does not expose own rating.
 
 ## API Endpoints
 
+> Actual endpoints implemented in `apps/vendors/urls.py` (VRS-01 APIs consumed here):
+
 ```
-GET    /api/v1/vendors/{id}/rating-summary/     # overall avg, count, per-criterion avgs (admin only)
-GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admin only)
+GET    /api/v1/vendors/<vendor_id>/rating-summary/    # overall avg + count (Vendor.Rating.View)
+GET    /api/v1/vendors/<vendor_id>/ratings/           # paginated rating history (Vendor.Rating.View)
+GET    /api/v1/vendor-ratings/                        # admin list of all VendorRatings (Vendor.Rating.View)
 ```
 
 *(Endpoints defined in VRS-01 — this story adds the UI surfaces that consume them.)*
@@ -200,12 +194,12 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| VRS-03-1 | Vendor profile — rating section | Star summary, per-criterion table, rating history list | High | Not started |
-| VRS-03-2 | Bid list — rating column + sort | Rating column on bid submission table; populate `vendor_rating_at_award` on award | High | Not started |
-| VRS-03-3 | Bid comparison — rating highlight | Rating in side-by-side comparison; "Highest rating" highlight | Medium | Not started |
+| VRS-03-1 | Vendor profile — rating section | Star summary + history (score / answers / comment); portal theme | High | Not started |
+| VRS-03-2 | Bid list — rating column + sort | Rating column; populate `vendor_rating_at_award` on award | High | Not started |
+| VRS-03-3 | Bid comparison — rating highlight | Overall rating panel; highlight all highest ties | Medium | Not started |
 | VRS-03-4 | Vendor admin list — rating filter + column | Min-rating filter + rating column + sort | Medium | Not started |
 | VRS-03-5 | TO detail — rating CTA / summary | "Vendor Rated" or "Rate this Vendor" on completed TO | Medium | Not started |
-| VRS-03-6 | Tests | Cover AC-1…AC-6 scenarios + Edge Cases (surfaces, award snapshot, vendor 403) | High | Not started |
+| VRS-03-6 | Tests | Cover AC-1…AC-6 + edge cases | High | Not started |
 
 ---
 
@@ -223,15 +217,15 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 ## Definition of Done
 
-- [ ] Vendor profile page shows rating section (summary + per-criterion + history table)
+- [ ] Vendor profile shows rating section (summary + history; no criterion table)
 - [ ] Bid list shows rating column; bid comparison shows rating panel
 - [ ] Vendor admin list filterable by minimum rating
 - [ ] TO detail shows "Vendor Rated" or "Rate this Vendor"
 - [ ] `vendor_rating_at_award` populated on bid award
 - [ ] Vendor portal / mobile confirmed to **not** expose vendor's own rating
-- [ ] API/E2E tests for scenarios AC-1.1…AC-6.2 (and listed edge cases in scope) — see [VRS-03 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin-tdd-test-cases.md)
-- [ ] TDD catalog statuses updated (`Planned` → `Failing` → `Passing`) for P0 rows
+- [ ] API/E2E tests for AC-1…AC-6 — see [VRS-03 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-09-14*
+*Epic: Vendor Rating System | Phase: 2 | 3 SP | Status: Pending | Last Updated: 2026-09-17*
