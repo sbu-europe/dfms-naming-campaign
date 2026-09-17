@@ -125,7 +125,7 @@ when it fetches rating questions for `rating_type=TENANT`,
 
 then exactly three random active questions are returned (or loaded via GET tenant-rating pending payload).
 
-- [ ] Form populates from `GET /api/v1/transport-orders/{id}/tenant-rating/` (locked set) and/or `GET /api/v1/rating-questions/?rating_type=TENANT&random=3`.
+- [ ] Form populates from `GET /api/v1/vendor/transport-orders/<to_id>/rate-tenant/form/` (locked set; returns pending `TenantRating` + 3 locked questions) and/or `GET /api/v1/vendor/tenants/<schema>/rating-questions/`.
 - [ ] If active pool &lt; 3, show a clear error / empty state (cannot submit).
 
 ### AC-4: Submission & Immutability
@@ -137,7 +137,7 @@ when the API persists the rating,
 then records are atomic, rolling average updates, submission is immutable, duplicates return 400, and a success screen shows.
 
 - [ ] On submit, `TenantRating` + exactly 3 `TenantRatingAnswer` rows persisted atomically.
-- [ ] `score` / `average_rating` stored; `Tenant.vendor_rating` + `vendor_rating_count` updated.
+- [ ] `score` / `average_rating` stored; `Tenant.vendor_rating` + `vendor_rating_count` updated (via `schema_context` to public schema).
 - [ ] Submission **immutable**; duplicate submit → `400`.
 - [ ] Success screen: "Thank you for your rating!" with score displayed.
 
@@ -212,12 +212,21 @@ then tenant rating is informational only and does not gate those decisions.
 
 ## API Endpoints
 
+> Actual endpoints implemented in `apps/vendors/vendor_portal_urls.py`:
+
 ```
-POST   /api/v1/transport-orders/{id}/tenant-rating/
-GET    /api/v1/transport-orders/{id}/tenant-rating/
-GET    /api/v1/tenants/{id}/vendor-rating-summary/        # aggregate avg + count
-GET    /api/v1/tenants/{id}/vendor-ratings/               # admin list
-GET    /api/v1/rating-questions/?rating_type=TENANT&random=3
+# Vendor mobile (JWT auth)
+GET    /api/v1/vendor/transport-orders/<to_id>/rate-tenant/form/     # init / return pending TenantRating + locked 3 Qs
+POST   /api/v1/vendor/transport-orders/<to_id>/rate-tenant/submit/   # submit score + answers
+GET    /api/v1/vendor/transport-orders/<to_id>/rate-tenant/          # read own submitted rating
+GET    /api/v1/vendor/tenants/<schema>/rating-summary/               # tenant aggregate avg + count
+GET    /api/v1/vendor/tenants/<schema>/rating-questions/             # TENANT pool sample (mobile form)
+
+# Multi-tenant scoped variants also available:
+GET/POST /api/v1/vendor/tenants/<schema>/transport-orders/<to_id>/rate-tenant/...
+
+# Admin API (tenant-scoped)
+GET    /api/v1/tenant-ratings/    # all incoming vendor ratings (Tenant.Rating.AdminView)
 ```
 
 ---
@@ -231,7 +240,8 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&random=3
 | View tenant aggregate rating summary | `vendor` (any — during join flow) |
 | View all vendor-submitted ratings for tenant | `tenant_super_admin`, `tenant_admin` |
 
-**Permission codes (proposed):** `tenant.rating.create`, `tenant.rating.view_own`, `tenant.rating.view_summary`, `tenant.rating.admin_view`
+**Permission codes:** `Tenant.Rating.Create`, `Tenant.Rating.ViewOwn`, `Tenant.Rating.ViewSummary`, `Tenant.Rating.AdminView`  
+*(defined in `apps/core/constants_rbac.py`; seeded via `apps/core/role_seed_data.py`)*
 
 ---
 
@@ -276,4 +286,4 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&random=3
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-17*
+*Epic: Vendor Rating System | Phase: 2 | 8 SP | Status: Pending | Last Updated: 2026-09-17*

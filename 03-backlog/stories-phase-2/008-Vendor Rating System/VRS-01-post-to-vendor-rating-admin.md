@@ -73,7 +73,7 @@ when the system processes the status change (and an authorized admin opens the c
 then a pending `VendorRating` exists for that TO/vendor, and only one rating per TO is allowed.
 
 - [ ] When a TO status transitions to `COMPLETED` / `closed`, the system creates a **pending** `VendorRating` record for that TO (linked to TO and vendor).
-- [ ] Tenant Super Admin / Tenant Admin / TDO with `vendor.rating.create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
+- [ ] Tenant Super Admin / Tenant Admin / TDO with `Vendor.Rating.Create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
 - [ ] Only **one rating per TO** is allowed — re-opening the prompt shows the existing (submitted or draft) rating.
 - [ ] Rating prompt is also accessible from **Vendor Profile → Rating History → Rate** (for past unrated TOs).
 
@@ -127,7 +127,7 @@ then the `VendorRating` stores all fields, becomes immutable, and an audit log e
 
 - [ ] On submit, `VendorRating` persisted with: `to_id`, `vendor_id`, `tenant_id`, `rated_by`, `submitted_at`, `score`, three Y/N answers, `average_rating`, `overall_comment`.
 - [ ] Submission is **immutable** — cannot be edited after submit.
-- [ ] Audit log entry created (`VENDOR_RATING_SUBMITTED`).
+- [ ] Audit log entry created (`AuditEventType.CREATE` / `action="VendorRating.Submit"`).
 
 ### AC-6: Not Visible to Vendor (v1)
 
@@ -167,15 +167,22 @@ then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Tra
 
 ## API Endpoints
 
+> Actual endpoints implemented in `apps/vendors/urls.py` and `apps/core/web_urls.py`:
+
 ```
-POST   /api/v1/transport-orders/{id}/vendor-rating/     # submit rating (Tenant Super Admin / Tenant Admin / TDO)
-GET    /api/v1/transport-orders/{id}/vendor-rating/     # get rating for TO (admin only; includes locked questions)
-GET    /api/v1/vendors/{id}/ratings/                    # paginated rating history (admin only)
-GET    /api/v1/vendors/{id}/rating-summary/             # avg + count (admin only)
-GET    /api/v1/rating-questions/?rating_type=VENDOR&random=3
+# Admin API (DRF)
+GET    /api/v1/vendors/<vendor_id>/rate/<to_id>/form/    # init/return pending rating + 3 locked questions
+POST   /api/v1/vendors/<vendor_id>/rate/<to_id>/submit/  # submit score + answers
+GET    /api/v1/vendors/<vendor_id>/ratings/              # paginated rating history
+GET    /api/v1/vendors/<vendor_id>/rating-summary/       # overall avg + count
+GET    /api/v1/rating-questions/?type=VENDOR&random=3    # active VENDOR pool sample
+
+# Admin Portal (Django SSR)
+GET/POST  /vendors/<vendor_id>/rate/<to_id>/    # rate_vendor.html (Bootstrap 5 + Alpine.js)
+GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 ```
 
-**Submit body:** `{ "score": 1-5, "overall_comment": "...", "answers": [{ "question_id", "answer": true|false }, ×3] }`
+**Submit body:** `{ "transport_order_id": "<uuid>", "score": 1-5, "overall_comment": "...", "answers": [{ "question_id": "<uuid>", "answer": true|false } ×3] }`
 
 ---
 
@@ -183,13 +190,14 @@ GET    /api/v1/rating-questions/?rating_type=VENDOR&random=3
 
 | Action | Role |
 |--------|------|
-| Submit vendor rating (post-TO) | `tenant_super_admin`, `tenant_admin`, `tdo` |
-| View vendor rating history | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
-| View rating in bid/award views | `tenant_super_admin`, `tenant_admin`, `tdo`, `transport_planner` |
+| Submit vendor rating (post-TO) | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet` |
+| View vendor rating history | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet`, `transport_planner` |
+| View rating in bid/award views | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet`, `transport_planner` |
 | Configure / add rating questions | `tenant_super_admin`, `tenant_admin` |
 | View own vendor rating (as vendor) | **Denied in v1** |
 
-**Permission codes (proposed):** `vendor.rating.create`, `vendor.rating.view`, `vendor.rating.configure`
+**Permission codes:** `Vendor.Rating.Create`, `Vendor.Rating.View`, `Vendor.Rating.Configure`  
+*(defined in `apps/core/constants_rbac.py`; seeded via `apps/core/role_seed_data.py`)*
 
 ---
 
@@ -201,8 +209,8 @@ GET    /api/v1/rating-questions/?rating_type=VENDOR&random=3
 | VRS-01-2 | Seed rating question pool | 9 VENDOR Yes/No questions | High | Not started |
 | VRS-01-3 | Rating form (admin portal) | Single star + 3 random Y/N radios + comment; existing portal theme | High | Not started |
 | VRS-01-4 | Score + Vendor.rating update | Rolling average on submit; `rating_count` increment | High | Not started |
-| VRS-01-5 | Submit + immutability + audit log | `is_submitted` flag; audit `VENDOR_RATING_SUBMITTED` | High | Not started |
-| VRS-01-6 | TO completion rating prompt | "Rate Vendor" CTA on completed TO detail view | Medium | Not started |
+| VRS-01-5 | Submit + immutability + audit log | `is_submitted` flag; audit `action="VendorRating.Submit"` | High | Not started |
+| VRS-01-6 | TO completion rating prompt | `VendorRatingService.ensure_pending_on_to_terminal()` hook in `transition_service.py` | Medium | Not started |
 | VRS-01-7 | Tests | Cover AC-1…AC-6 + edge cases | High | Not started |
 
 ---
@@ -231,4 +239,4 @@ GET    /api/v1/rating-questions/?rating_type=VENDOR&random=3
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-17*
+*Epic: Vendor Rating System | Phase: 2 | 8 SP | Status: Pending | Last Updated: 2026-09-17*

@@ -80,7 +80,7 @@ then overall stars, count, paginated history (score + Y/N answers + comment), Ra
     |------|----------------|----------|-------|---------------|---------|
     | ... | TO-2026-001 | Jane D. | ⭐⭐⭐⭐ 4 | Q1 Yes · Q2 No · Q3 Yes | Good service |
 
-- [ ] **"Rate Vendor"** button shown for any completed TO that has no rating yet (links to VRS-01 form).
+- [ ] **"Rate Vendor"** button shown for any completed TO that has no rating yet (links to VRS-01 form: `/vendors/<id>/rate/<to_id>/`).
 - [ ] If vendor has no ratings: "No ratings yet — complete a transport order to rate this vendor."
 - [ ] No per-criterion average table (not applicable in v1).
 
@@ -167,9 +167,12 @@ then the response is 403 and vendor portal/mobile UI does not expose own rating.
 
 ## API Endpoints
 
+> Actual endpoints implemented in `apps/vendors/urls.py` (VRS-01 APIs consumed here):
+
 ```
-GET    /api/v1/vendors/{id}/rating-summary/     # overall avg + count (admin only)
-GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admin only)
+GET    /api/v1/vendors/<vendor_id>/rating-summary/    # overall avg + count (Vendor.Rating.View)
+GET    /api/v1/vendors/<vendor_id>/ratings/           # paginated rating history (Vendor.Rating.View)
+GET    /api/v1/vendor-ratings/                        # admin list of all VendorRatings (Vendor.Rating.View)
 ```
 
 *(Endpoints defined in VRS-01 — this story adds the UI surfaces that consume them.)*
@@ -225,4 +228,4 @@ GET    /api/v1/vendors/{id}/ratings/            # paginated rating history (admi
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-09-17*
+*Epic: Vendor Rating System | Phase: 2 | 3 SP | Status: Pending | Last Updated: 2026-09-17*
