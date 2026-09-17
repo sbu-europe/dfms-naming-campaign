@@ -38,29 +38,25 @@ Write failing tests from the catalog **before** implementation.
 ## User Story
 
 **As a** Tenant Super Admin, Tenant Admin, or Transport Distribution Officer (TDO)  
-**I want to** rate a vendor on completion of a Transport Order across standardised criteria  
+**I want to** rate a vendor on completion of a Transport Order with a single score and a few quick Yes/No questions  
 **So that** vendor performance is tracked internally and informs future bid/award decisions
 
 ## Business Context
 
-When a Transport Order (TO) is marked `COMPLETED`, the system prompts the responsible Tenant Super Admin, Tenant Admin, or TDO to provide a structured rating for the vendor. Ratings are **internal only** — not visible to vendors in v1.
+When a Transport Order (TO) is marked completed/closed, the system prompts the responsible Tenant Super Admin, Tenant Admin, or TDO to rate the vendor. Ratings are **internal only** — not visible to vendors in v1.
 
-Rating is structured around **three core criteria**:
+Rating shape (v1):
 
-| Criterion | Description |
-|-----------|-------------|
-| **Product Delivery** | Was the product delivered correctly, on time, and intact? |
-| **Driver Behaviour** | Was the driver professional and route-compliant? |
-| **Vehicle** | Was the vehicle in suitable, roadworthy condition? |
+| Element | Rule |
+|---------|------|
+| **Overall score** | One required **1–5 star** rating |
+| **Questions** | Exactly **3 randomly selected** Yes/No questions from the VENDOR question pool |
+| **Answer UI** | **Radio buttons** (Yes / No) — portal theme |
+| **Comment** | Optional overall comment (max 1 000 chars) |
 
-Each criterion has:
-- A **1–5 star score** (required)
-- **Predefined Yes/No questions** (configurable; seeded defaults in v1)
-- An optional **comment** (max 500 chars)
+There are **no separate star ratings per topic** (no Product Delivery / Driver Behaviour / Vehicle score panels). Qualitative coverage comes only from the three random questions.
 
-The system computes the **average rating** across all three criteria and updates the vendor's rolling overall rating field (`Vendor.rating`).
-
-> **Note:** Criteria set may grow based on internal discussion — the model is designed to be criterion-agnostic via `VendorRatingCriterion` records.
+The submitted score updates the vendor’s rolling overall rating (`Vendor.rating`).
 
 ---
 
@@ -70,58 +66,56 @@ The system computes the **average rating** across all three criteria and updates
 
 ### AC-1: Rating Trigger
 
-Given a Transport Order transitions to `COMPLETED`,
+Given a Transport Order transitions to `COMPLETED` (or live terminal `closed`),
 
 when the system processes the status change (and an authorized admin opens the completed TO or Vendor Profile rating entry),
 
 then a pending `VendorRating` exists for that TO/vendor, and only one rating per TO is allowed.
 
-- [ ] When a TO status transitions to `COMPLETED`, the system creates a **pending** `VendorRating` record for that TO (linked to TO and vendor).
+- [ ] When a TO status transitions to `COMPLETED` / `closed`, the system creates a **pending** `VendorRating` record for that TO (linked to TO and vendor).
 - [ ] Tenant Super Admin / Tenant Admin / TDO with `vendor.rating.create` permission sees a **"Rate Vendor"** button or prompt on the completed TO detail view.
 - [ ] Only **one rating per TO** is allowed — re-opening the prompt shows the existing (submitted or draft) rating.
 - [ ] Rating prompt is also accessible from **Vendor Profile → Rating History → Rate** (for past unrated TOs).
 
-### AC-2: Rating Form — Criteria Panels
+### AC-2: Rating Form — Single Score + Random Questions
 
 Given an authorized admin opens the vendor rating form for a completed TO,
 
-when they fill criterion panels,
+when the form renders,
 
-then three panels (Product Delivery · Driver Behaviour · Vehicle) require 1–5 stars each, show Y/N questions and optional comments, and display a live average preview.
+then it shows one 1–5 star control, exactly three Yes/No radio questions, and an optional overall comment — using existing portal theme/components.
 
-- [ ] Form shows **3 criterion panels**: Product Delivery · Driver Behaviour · Vehicle.
-- [ ] Each panel contains:
-  - A **1–5 star selector** (required — form cannot submit without all 3 scores).
-  - **Predefined Yes/No question list** for that criterion (min 1; from `RatingQuestion` seed).
-  - An optional **comment** field (max 500 chars).
-- [ ] A global **overall comment** field (optional, max 1 000 chars) at the bottom of the form.
-- [ ] Live preview: running average shown as the user fills in criteria scores.
+- [ ] Form shows a **single 1–5 star selector** (required — cannot submit without a score).
+- [ ] Form shows **exactly 3 Yes/No questions**, randomly selected from the active VENDOR `RatingQuestion` pool and locked for this pending rating (refresh does not reshuffle mid-fill).
+- [ ] Each question uses a **radio button** group: **Yes** · **No** (mutually exclusive; both options required to answer before submit).
+- [ ] An optional **overall comment** field (max 1 000 chars).
+- [ ] UI reuses **existing admin portal** layout, controls, spacing, and star display patterns — no new visual language.
 
-### AC-3: Predefined Questions — v1 Seed Data
+### AC-3: Predefined Questions — v1 Seed Pool
 
-Given the rating form loads questions for each criterion,
+Given the rating form loads questions,
 
 when seed data is present,
 
-then the v1 default Y/N questions for Product Delivery, Driver Behaviour, and Vehicle are available from `RatingQuestion`.
+then the VENDOR Yes/No pool is available and the form samples three of them.
 
-- [ ] **Product Delivery:** "Was the product delivered on time?", "Was the product delivered in full quantity?", "Was the product in good condition on arrival?"
-- [ ] **Driver Behaviour:** "Was the driver professional and courteous?", "Did the driver follow safety protocols?", "Did the driver communicate proactively during the trip?"
-- [ ] **Vehicle:** "Was the vehicle in roadworthy condition?", "Was the vehicle clean and appropriate for the load type?", "Did the vehicle arrive on time for loading?"
-- [ ] Questions stored in `RatingQuestion` model — seeded, admin-configurable in a future sprint.
+- [ ] Seed pool includes the nine default VENDOR questions (delivery, driver, vehicle topics) listed in [`vendor-rating.md`](../../../05-modules/07-vendor-management/vendor-rating.md).
+- [ ] Questions stored in `RatingQuestion` with `rating_type=VENDOR` — seeded; admin-configurable in a future sprint.
+- [ ] Form / API returns **3 random active** questions for the pending rating (not all nine at once).
 
-### AC-4: Average Calculation & Vendor Rating Update
+### AC-4: Score Persistence & Vendor Rating Update
 
-Given all three criterion scores are submitted,
+Given a valid overall score is submitted,
 
 when the rating is persisted,
 
-then `average_rating = round((s1+s2+s3)/3, 2)` and `Vendor.rating` / `rating_count` update as a rolling average.
+then `average_rating` mirrors the score and `Vendor.rating` / `rating_count` update as a rolling average.
 
-- [ ] `average_rating = round((product_delivery_score + driver_behaviour_score + vehicle_score) / 3, 2)`.
-- [ ] `Vendor.rating` updated to reflect **rolling average** across all submitted ratings:  
-  `new_avg = ((current_rating × rating_count) + new_average) / (rating_count + 1)`.
-- [ ] `Vendor.rating_count` (or computed aggregate) incremented on each submission.
+- [ ] `score` ∈ [1, 5]; `average_rating = Decimal(score)` (e.g. `4.00`).
+- [ ] `Vendor.rating` updated as rolling average:  
+  `new_avg = ((current_rating × rating_count) + score) / (rating_count + 1)` (rounded to 2 dp).
+- [ ] `Vendor.rating_count` incremented on each submission.
+- [ ] Exactly three `VendorRatingAnswer` rows persisted with boolean Yes/No values.
 
 ### AC-5: Submission & Immutability
 
@@ -131,9 +125,9 @@ when persistence succeeds,
 
 then the `VendorRating` stores all fields, becomes immutable, and an audit log entry is written.
 
-- [ ] On submit, `VendorRating` record persisted with: `to_id`, `vendor_id`, `tenant_id`, `rated_by` (user), `submitted_at`, per-criterion scores + Y/N answers + comments, `average_rating`, `overall_comment`.
-- [ ] Submission is **immutable** — rating cannot be edited after submit (consistent with bid immutability pattern).
-- [ ] Audit log entry created on submission (`VENDOR_RATING_SUBMITTED` action).
+- [ ] On submit, `VendorRating` persisted with: `to_id`, `vendor_id`, `tenant_id`, `rated_by`, `submitted_at`, `score`, three Y/N answers, `average_rating`, `overall_comment`.
+- [ ] Submission is **immutable** — cannot be edited after submit.
+- [ ] Audit log entry created (`VENDOR_RATING_SUBMITTED`).
 
 ### AC-6: Not Visible to Vendor (v1)
 
@@ -151,19 +145,20 @@ then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Tra
 ## Edge Cases
 
 ### Trigger & uniqueness
-- TO completed with no assigned vendor: TODO(PO) — confirm whether pending rating is skipped or blocked.
+- TO completed with no assigned vendor: skip pending rating (no row).
 - Re-complete / status flicker: creating pending rating must be idempotent (unique on TO+vendor+tenant).
 - Draft abandoned: pending `VendorRating` remains until submitted; does not update `Vendor.rating`.
 
 ### Form & validation
 - Star score outside 1–5: rejected.
-- Criterion comment > 500 chars or overall comment > 1000: rejected.
-- Missing Y/N answers: TODO(PO) — confirm whether all seeded questions are required or optional in v1.
-- Inactive `RatingQuestion` rows: not shown on form; already-answered inactive questions remain on historical ratings.
+- Overall comment > 1000: rejected.
+- Missing any of the 3 radio answers: rejected (all three required).
+- Wrong / extra question IDs (not the locked set): rejected.
+- Inactive `RatingQuestion` rows: not sampled for new forms; already-answered inactive questions remain on historical ratings.
+- Active pool size &lt; 3: form/API returns a clear business error until pool is restored.
 
 ### Average & rolling update
-- Non-terminating decimal (e.g. 5, 4, 4 → 4.33): must use `round(..., 2)` consistently in unit and API.
-- Concurrent submits for different TOs on same vendor: rolling average must not lose increments (transaction / lock strategy).
+- Concurrent submits for different TOs on same vendor: rolling average must not lose increments (`select_for_update`).
 
 ### Visibility
 - Vendor user with dual tenant role: still must not see vendor-direction ratings via vendor-scoped endpoints in v1.
@@ -174,11 +169,13 @@ then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Tra
 
 ```
 POST   /api/v1/transport-orders/{id}/vendor-rating/     # submit rating (Tenant Super Admin / Tenant Admin / TDO)
-GET    /api/v1/transport-orders/{id}/vendor-rating/     # get rating for TO (admin only)
+GET    /api/v1/transport-orders/{id}/vendor-rating/     # get rating for TO (admin only; includes locked questions)
 GET    /api/v1/vendors/{id}/ratings/                    # paginated rating history (admin only)
-GET    /api/v1/vendors/{id}/rating-summary/             # avg, count, per-criterion avgs (admin only)
-GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions for form population
+GET    /api/v1/vendors/{id}/rating-summary/             # avg + count (admin only)
+GET    /api/v1/rating-questions/?rating_type=VENDOR&random=3
 ```
+
+**Submit body:** `{ "score": 1-5, "overall_comment": "...", "answers": [{ "question_id", "answer": true|false }, ×3] }`
 
 ---
 
@@ -200,13 +197,13 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| VRS-01-1 | Data models + migrations | `VendorRating`, `VendorRatingCriterion`, `VendorRatingAnswer`, `RatingQuestion` | High | Not started |
-| VRS-01-2 | Seed rating questions | Default Y/N questions for each of the 3 criteria | High | Not started |
-| VRS-01-3 | Rating form (admin portal) | 3-criterion panels, star selector, Y/N questions, comments, live avg preview | High | Not started |
-| VRS-01-4 | Average calculation + Vendor.rating update | Rolling average on submit; `rating_count` increment | High | Not started |
+| VRS-01-1 | Data models + migrations | `VendorRating`, `VendorRatingAnswer`, `RatingQuestion` (no criterion score models) | High | Not started |
+| VRS-01-2 | Seed rating question pool | 9 VENDOR Yes/No questions | High | Not started |
+| VRS-01-3 | Rating form (admin portal) | Single star + 3 random Y/N radios + comment; existing portal theme | High | Not started |
+| VRS-01-4 | Score + Vendor.rating update | Rolling average on submit; `rating_count` increment | High | Not started |
 | VRS-01-5 | Submit + immutability + audit log | `is_submitted` flag; audit `VENDOR_RATING_SUBMITTED` | High | Not started |
 | VRS-01-6 | TO completion rating prompt | "Rate Vendor" CTA on completed TO detail view | Medium | Not started |
-| VRS-01-7 | Tests | Cover AC-1…AC-6 scenarios + Edge Cases (avg, immutability, RBAC) | High | Not started |
+| VRS-01-7 | Tests | Cover AC-1…AC-6 + edge cases | High | Not started |
 
 ---
 
@@ -214,7 +211,7 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 
 | Dependency | Direction | Note |
 |------------|-----------|------|
-| Transport Order (`COMPLETED` status) | Upstream | Rating triggered on TO completion |
+| Transport Order (`COMPLETED` / `closed` status) | Upstream | Rating triggered on TO terminal status |
 | Vendor model (`rating` + `rating_count` fields) | Upstream | Existing `rating` field updated; add `rating_count` |
 | Audit log service | Upstream | Existing pattern |
 | `RatingQuestion` seed | Internal | Required before form can render |
@@ -223,15 +220,15 @@ GET    /api/v1/rating-questions/?criterion=VEHICLE      # fetch active questions
 
 ## Definition of Done
 
-- [ ] `VendorRating` and related models created with migrations
-- [ ] Seed data for default rating questions per criterion (3 × 3 min)
-- [ ] Admin rating form renders all 3 criterion panels, submits correctly
-- [ ] Average rating calculated and `Vendor.rating` + `rating_count` updated on submit
+- [ ] `VendorRating` + `VendorRatingAnswer` + `RatingQuestion` created with migrations
+- [ ] Seed data: VENDOR question pool (≥ 9, show 3 random)
+- [ ] Admin rating form: single 1–5 score, 3 Yes/No radios, optional comment; portal theme
+- [ ] Score persisted; `Vendor.rating` + `rating_count` updated on submit
 - [ ] Rating immutable after submission; audit log entry created
 - [ ] Vendor portal / mobile does **not** expose vendor's own rating in v1
-- [ ] Unit/API tests for scenarios AC-1.1…AC-6.2 (and listed edge cases in scope) — see [VRS-01 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md)
+- [ ] Unit/API tests for AC-1…AC-6 — see [VRS-01 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md)
 - [ ] TDD catalog statuses updated (`Planned` → `Failing` → `Passing`) for P0 rows
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-14*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-17*

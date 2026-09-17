@@ -39,57 +39,49 @@ Write failing tests from the catalog **before** implementation.
 ## User Story
 
 **As a** Vendor (via the Vendor Mobile App)  
-**I want to** rate the tenant across structured criteria with Yes/No questions after completing a Transport Order  
-**So that** my experience working with this tenant is properly documented and helps other vendors make informed decisions when requesting to join that tenant
+**I want to** rate the tenant with a single score and a few Yes/No questions after completing a Transport Order  
+**So that** my experience working with this tenant is documented and helps other vendors decide when requesting to join that tenant
 
 ## Business Context
 
-The rating system is fully **symmetric**. Both directions use the same structural pattern: criteria-based rating (1–5 stars per criterion), predefined Yes/No questions per criterion, optional comments, and a computed average.
+The rating system is fully **symmetric (vice versa)**. Both directions use the same shape:
 
-| Direction | Who rates | What is rated | Criteria | Trigger |
-|-----------|-----------|---------------|----------|---------|
-| **Tenant → Vendor** (VRS-01) | Tenant Super Admin / Tenant Admin / TDO | Vendor performance | Product Delivery · Driver Behaviour · Vehicle | TO → `COMPLETED` (admin portal) |
-| **Vendor → Tenant** (VRS-02) | Vendor (mobile) | Tenant experience | Payment & Commercial · Load Readiness · Communication & Support | Vendor ACKs completed trip (mobile) |
+**1 overall score (1–5) + 3 randomly selected Yes/No questions (radio) + optional comment.**
+
+| Direction | Who rates | What is rated | Trigger |
+|-----------|-----------|---------------|---------|
+| **Tenant → Vendor** (VRS-01) | Tenant Super Admin / Tenant Admin / TDO | Vendor performance | TO completed/closed (admin portal) |
+| **Vendor → Tenant** (VRS-02) | Vendor (mobile) | Tenant experience | Vendor ACKs completed trip (mobile) |
+
+There are **no multi-criterion star panels** (no Payment / Load / Communication separate scores). Qualitative coverage comes from the three random questions.
 
 **Tenant ratings serve two purposes:**
-1. **Internal self-assessment** — Tenant Super Admin / Tenant Admin sees their own aggregate rating from all vendors.
-2. **Vendor join-decision tool** — When a vendor discovers a new tenant and considers requesting membership, they see the tenant's aggregate rating before joining.
+1. **Internal self-assessment** — Tenant Super Admin / Tenant Admin sees aggregate rating from vendors.
+2. **Vendor join-decision tool** — Join Tenant discovery shows tenant aggregate ★ + count.
 
 ---
 
-## Rating Criteria (Vendor → Tenant)
+## Rating Shape (Vendor → Tenant)
 
-Three criteria assess the tenant's quality as a business partner. Each criterion gets:
-- A **1–5 star score** (required)
-- **Predefined Yes/No questions** (from `RatingQuestion` seed, `rating_type = "TENANT"`)
-- An **optional comment** (max 500 chars)
+| Element | Rule |
+|---------|------|
+| **Overall score** | Required **1–5 star** selector (single) |
+| **Questions** | Exactly **3 random** Yes/No questions from TENANT pool |
+| **Answer UI** | **Radio buttons** Yes / No (existing app theme) |
+| **Comment** | Optional overall comment (max 1 000 chars) |
 
-| # | Criterion | What it measures |
-|---|-----------|-----------------|
-| 1 | **Payment & Commercial** | Was payment released on time? Were agreed rates and terms honoured? |
-| 2 | **Load Readiness** | Was the load ready on schedule? Were documents correct? Was product properly prepared? |
-| 3 | **Communication & Support** | Was the tenant's team responsive? Were instructions clear? Were issues resolved promptly? |
-
-### Average Calculation
+### Rolling update
 
 ```
-average_rating = round((payment_commercial_score + load_readiness_score + communication_support_score) / 3, 2)
-
 Tenant.vendor_rating (rolling) =
-    ((current_vendor_rating × vendor_rating_count) + new_average) / (vendor_rating_count + 1)
+    ((current_vendor_rating × vendor_rating_count) + score) / (vendor_rating_count + 1)
 ```
 
 ---
 
-## Predefined Yes/No Questions — v1 Seed (Vendor → Tenant)
+## Predefined Yes/No Questions — v1 Seed Pool (Vendor → Tenant)
 
-| Criterion | Questions |
-|-----------|-----------|
-| **Payment & Commercial** | "Was payment released within the agreed timeline?" · "Were the agreed rates and commercial terms honoured?" · "Were payment-related documents (invoice, receipt) processed without issues?" |
-| **Load Readiness** | "Was the load ready for pickup at the scheduled time?" · "Were all required shipping documents provided correctly?" · "Was the product properly packaged and prepared for transport?" |
-| **Communication & Support** | "Was the tenant's coordination team reachable and responsive?" · "Were trip instructions and route details clearly communicated?" · "Were any issues or delays resolved promptly by the tenant's team?" |
-
-Questions stored in `RatingQuestion` with `rating_type = "TENANT"`, `is_active = True`. Seeded at deployment.
+Nine-question pool (`rating_type=TENANT`); form shows **3 random** per rating attempt. Full list in [`vendor-rating.md`](../../../05-modules/07-vendor-management/vendor-rating.md) (payment, load readiness, communication topics — pool only, not separate star criteria).
 
 ---
 
@@ -105,28 +97,25 @@ when the completed-trip confirmation flow continues,
 
 then a skippable **"Rate this Tenant"** step is shown, with later access from trip detail while pending, and one rating per TO.
 
-- [ ] After the vendor acknowledges trip completion on the completed trip confirmation screen, a **"Rate this Tenant"** screen / bottom sheet is presented as the next step.
-- [ ] Prompt is **skippable** (dismiss button visible) — vendor is never forced to rate.
-- [ ] If skipped, a **"Rate Tenant"** action is accessible from completed trip detail at any time (while rating is still pending submission).
-- [ ] One rating per TO per vendor — idempotent (re-opening shows existing draft or read-only submitted rating).
+- [ ] After the vendor acknowledges trip completion, a **"Rate this Tenant"** screen / bottom sheet is presented as the next step.
+- [ ] Prompt is **skippable** — vendor is never forced to rate.
+- [ ] If skipped, a **"Rate Tenant"** action remains on completed trip detail while pending.
+- [ ] One rating per TO per vendor — idempotent.
 
-### AC-2: Rating Form — 3 Criterion Panels
+### AC-2: Rating Form — Single Score + Random Radios
 
 Given the vendor opens the tenant rating form,
 
-when the form renders and they enter scores,
+when the form renders,
 
-then three panels (Payment & Commercial · Load Readiness · Communication & Support) require 1–5 stars, support Y/N + comments, show live average, and keep submit disabled until all three scores are set.
+then it shows one 1–5 star control, exactly three Yes/No radio questions, optional comment, and submit disabled until score + all three answers are set — matching existing Vendor App theme.
 
-- [ ] Form shows **3 criterion panels**: Payment & Commercial · Load Readiness · Communication & Support.
-- [ ] Each panel contains:
-  - Panel header with criterion name and brief description.
-  - **1–5 star selector** (required — all 3 must be filled to submit).
-  - **Predefined Yes/No question list** for that criterion (tappable toggle: Yes / No per question).
-  - An optional **comment** field (max 500 chars).
-- [ ] A global **overall comment** field (optional, max 1 000 chars) at the bottom.
-- [ ] **Live running average** displayed as vendor fills in criteria scores (e.g. "Current average: ⭐ 3.7").
-- [ ] Submit button remains disabled until all 3 criterion star scores are selected.
+- [ ] **Single 1–5 star selector** (required).
+- [ ] **Exactly 3 Yes/No questions** randomly selected from TENANT pool; locked for this pending rating.
+- [ ] Each question: **radio** group Yes / No (mutually exclusive).
+- [ ] Optional overall comment (max 1 000 chars).
+- [ ] Submit disabled until score and all 3 radio answers are selected.
+- [ ] UI reuses existing Vendor App theme tokens, typography, colors, and shared controls — no new visual language.
 
 ### AC-3: Predefined Questions Loaded from API
 
@@ -134,10 +123,10 @@ Given the mobile form needs Y/N questions,
 
 when it fetches rating questions for `rating_type=TENANT`,
 
-then questions populate per criterion, and empty results collapse gracefully.
+then exactly three random active questions are returned (or loaded via GET tenant-rating pending payload).
 
-- [ ] Form populates Y/N questions by fetching `GET /api/v1/rating-questions/?rating_type=TENANT&criterion=<X>` per criterion.
-- [ ] If no questions returned for a criterion, the panel still renders (questions section collapses gracefully).
+- [ ] Form populates from `GET /api/v1/transport-orders/{id}/tenant-rating/` (locked set) and/or `GET /api/v1/rating-questions/?rating_type=TENANT&random=3`.
+- [ ] If active pool &lt; 3, show a clear error / empty state (cannot submit).
 
 ### AC-4: Submission & Immutability
 
@@ -145,14 +134,12 @@ Given the vendor submits a complete valid tenant rating,
 
 when the API persists the rating,
 
-then records are atomic, averages update, submission is immutable, duplicates return 400, and a success screen shows.
+then records are atomic, rolling average updates, submission is immutable, duplicates return 400, and a success screen shows.
 
-- [ ] On submit, `TenantRating` + 3 `TenantRatingCriterion` records + per-criterion `TenantRatingAnswer` records are persisted atomically.
-- [ ] `average_rating` computed and stored on `TenantRating`.
-- [ ] `Tenant.vendor_rating` rolling average updated; `Tenant.vendor_rating_count` incremented.
-- [ ] Submission is **immutable** — no editing after submit.
-- [ ] Duplicate protection: second submission for same TO is rejected (`400 Bad Request`).
-- [ ] Success screen: "Thank you for your rating!" with average displayed.
+- [ ] On submit, `TenantRating` + exactly 3 `TenantRatingAnswer` rows persisted atomically.
+- [ ] `score` / `average_rating` stored; `Tenant.vendor_rating` + `vendor_rating_count` updated.
+- [ ] Submission **immutable**; duplicate submit → `400`.
+- [ ] Success screen: "Thank you for your rating!" with score displayed.
 
 ### AC-5: Tenant Rating Visibility — Join Tenant Flow
 
@@ -160,13 +147,10 @@ Given a vendor browses tenants to request membership,
 
 when tenant cards / detail load,
 
-then aggregate vendor-submitted rating, count, and per-criterion averages are shown (or "No ratings yet").
+then aggregate vendor-submitted rating and count are shown (or "No ratings yet").
 
-- [ ] When a vendor browses tenants to request membership (Join Tenant screen), each **tenant card** shows:
-  - Aggregate vendor-submitted rating: e.g. ⭐⭐⭐⭐ 4.2 / 5.0
-  - Rating count: "Based on 8 vendor ratings"
-  - Per-criterion averages (expandable or shown in detail view): Payment & Commercial · Load Readiness · Communication & Support
-- [ ] If no ratings yet: "No ratings yet" displayed (not hidden).
+- [ ] Tenant card shows aggregate ★ avg + "Based on N vendor ratings" (overall only — no per-criterion breakdown).
+- [ ] If no ratings yet: "No ratings yet" displayed.
 
 ### AC-6: Vendor Views Own Submitted Rating
 
@@ -174,10 +158,10 @@ Given the vendor has submitted a tenant rating for a TO,
 
 when they open completed trip detail,
 
-then their own rating is shown read-only with scores, answers, comments, date, and average.
+then their own rating is shown read-only with score, three Yes/No answers, comment, date.
 
-- [ ] After submission, vendor can view their own submitted rating on the completed trip detail (read-only).
-- [ ] Shows: per-criterion scores, Y/N answers, comments, submitted date, average.
+- [ ] Read-only view on completed trip detail after submit.
+- [ ] Shows: overall score, 3 Y/N answers, comment, submitted date.
 
 ### AC-7: Tenant Super Admin / Tenant Admin — View Incoming Ratings
 
@@ -185,11 +169,12 @@ Given vendors have submitted tenant ratings,
 
 when Tenant Super Admin or Tenant Admin opens the incoming ratings view,
 
-then a list and summary card show vendor, TO, scores, average, comments, and aggregates.
+then a list and summary card show vendor, TO, score, answers, comment, and aggregates.
 
-- [ ] Tenant Super Admin / Tenant Admin can view a **list of all vendor-submitted ratings** for their tenant in the admin portal.
-- [ ] Displays: vendor name, TO reference, per-criterion scores, average, comments, submitted date.
-- [ ] Summary card at top: overall aggregate average, total count, per-criterion averages.
+- [ ] Admin portal list of all vendor-submitted ratings for the tenant.
+- [ ] Displays: vendor name, TO reference, overall score, Y/N answers, comment, submitted date.
+- [ ] Summary card: overall aggregate average + total count.
+- [ ] Portal UI uses existing admin theme/components.
 
 ### AC-8: No Automated Decision Impact (v1)
 
@@ -200,28 +185,27 @@ when approval, bid, or access decisions run in v1,
 then tenant rating is informational only and does not gate those decisions.
 
 - [ ] Tenant rating does **not** gate any approval, bid, or access decision in v1.
-- [ ] Used for **informational/display purposes only** in v1.
 
 ---
 
 ## Edge Cases
 
 ### Trigger & skip
-- Vendor ACKs offline then syncs: rating prompt should appear after successful ACK sync (or from trip detail).
-- Skip then submit later: pending draft may be created on first open; must not update `Tenant.vendor_rating` until submit.
+- Vendor ACKs offline then syncs: rating prompt after successful ACK sync (or from trip detail).
+- Skip then submit later: must not update `Tenant.vendor_rating` until submit.
 
 ### Validation
 - Star outside 1–5: API rejects.
-- Comment length over limits: rejected.
+- Comment length over limit: rejected.
+- Missing radio answers: reject.
 - Vendor not assigned on the TO: submit denied.
-- TO not completed / ACK not done: TODO(PO) — confirm whether submit is allowed only after ACK.
+- TO not completed / ACK not done: allow submit when TO is `closed`/`completed` and vendor is assigned (mobile prompt after ACK).
 
 ### Duplicates & concurrency
-- Double-tap submit: second request returns 400; only one row; rolling count increments once.
+- Double-tap submit: second request returns 400; rolling count increments once.
 - Unique constraint `(transport_order, vendor)` enforces one rating.
 
 ### Join Tenant display
-- Partial criterion data should not appear — summary endpoint returns complete aggregates only from submitted ratings.
 - Very large rating_count: copy still "Based on N vendor ratings".
 
 ---
@@ -229,16 +213,11 @@ then tenant rating is informational only and does not gate those decisions.
 ## API Endpoints
 
 ```
-# Vendor submits / views their rating for a completed TO
-POST   /api/v1/transport-orders/{id}/tenant-rating/       # vendor submits tenant rating
-GET    /api/v1/transport-orders/{id}/tenant-rating/       # vendor views own submitted rating
-
-# Join Tenant discovery flow
-GET    /api/v1/tenants/{id}/vendor-rating-summary/        # aggregate avg, count, per-criterion avgs (any authed vendor)
-
-# Admin views
-GET    /api/v1/tenants/{id}/vendor-ratings/               # paginated list of all vendor ratings (tenant_super_admin, tenant_admin)
-GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # fetch questions for form
+POST   /api/v1/transport-orders/{id}/tenant-rating/
+GET    /api/v1/transport-orders/{id}/tenant-rating/
+GET    /api/v1/tenants/{id}/vendor-rating-summary/        # aggregate avg + count
+GET    /api/v1/tenants/{id}/vendor-ratings/               # admin list
+GET    /api/v1/rating-questions/?rating_type=TENANT&random=3
 ```
 
 ---
@@ -251,7 +230,6 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 | View own submitted rating | `vendor` (own submission only) |
 | View tenant aggregate rating summary | `vendor` (any — during join flow) |
 | View all vendor-submitted ratings for tenant | `tenant_super_admin`, `tenant_admin` |
-| View per-criterion rating breakdown in admin | `tenant_super_admin`, `tenant_admin` |
 
 **Permission codes (proposed):** `tenant.rating.create`, `tenant.rating.view_own`, `tenant.rating.view_summary`, `tenant.rating.admin_view`
 
@@ -261,14 +239,14 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| VRS-02-1 | Data models + migrations | `TenantRating`, `TenantRatingCriterion`, `TenantRatingAnswer` + `Tenant.vendor_rating` fields | High | Not started |
-| VRS-02-2 | Seed tenant rating questions | Default Y/N questions for Payment & Commercial, Load Readiness, Communication & Support | High | Not started |
-| VRS-02-3 | Vendor mobile — rating screen | 3-criterion panels, star selectors, Y/N questions, comments, live avg, submit + confirm | High | Not started |
-| VRS-02-4 | Average calculation + Tenant.vendor_rating update | Rolling average on submit; `vendor_rating_count` increment | High | Not started |
-| VRS-02-5 | Submit + immutability | Atomic persist; `is_submitted` flag; duplicate rejection | High | Not started |
-| VRS-02-6 | Tenant rating summary in Join Tenant flow | Aggregate ★ + count + per-criterion avgs on tenant card (mobile) | Medium | Not started |
-| VRS-02-7 | Admin portal — incoming ratings view | List of vendor ratings for tenant + summary card | Medium | Not started |
-| VRS-02-8 | Tests | Cover AC-1…AC-8 scenarios + Edge Cases (skip, duplicate 400, Join Tenant) | High | Not started |
+| VRS-02-1 | Data models + migrations | `TenantRating`, `TenantRatingAnswer` + `Tenant.vendor_rating` fields | High | Not started |
+| VRS-02-2 | Seed tenant rating question pool | 9 TENANT Yes/No questions | High | Not started |
+| VRS-02-3 | Vendor mobile — rating screen | Single star + 3 Y/N radios + comment; existing app theme | High | Not started |
+| VRS-02-4 | Score + Tenant.vendor_rating update | Rolling average on submit | High | Not started |
+| VRS-02-5 | Submit + immutability | Atomic persist; duplicate rejection | High | Not started |
+| VRS-02-6 | Tenant rating summary in Join Tenant flow | Aggregate ★ + count on tenant card | Medium | Not started |
+| VRS-02-7 | Admin portal — incoming ratings view | List + summary card (portal theme) | Medium | Not started |
+| VRS-02-8 | Tests | Cover AC-1…AC-8 + edge cases | High | Not started |
 
 ---
 
@@ -276,26 +254,26 @@ GET    /api/v1/rating-questions/?rating_type=TENANT&criterion=LOAD_READINESS  # 
 
 | Dependency | Direction | Note |
 |------------|-----------|------|
-| Transport Order (`COMPLETED` state + vendor ACK screen) | Upstream | UI trigger point |
-| `RatingQuestion` model + seed (VRS-01) | Sibling | Shared model — tenant questions use `rating_type = "TENANT"` |
+| Transport Order (`COMPLETED`/`closed` + vendor ACK screen) | Upstream | UI trigger point |
+| `RatingQuestion` model + seed (VRS-01) | Sibling | Shared model — `rating_type=TENANT` |
 | Join Tenant flow (vendor mobile) | Downstream | Tenant aggregate rating surfaced here |
-| Tenant model | Upstream | Add `vendor_rating` + `vendor_rating_count` fields |
+| Tenant model | Upstream | Add `vendor_rating` + `vendor_rating_count` |
 
 ---
 
 ## Definition of Done
 
-- [ ] `TenantRating`, `TenantRatingCriterion`, `TenantRatingAnswer` models created with migrations
-- [ ] Seed data: 3 Y/N questions per criterion (9 total for tenant direction)
-- [ ] `Tenant.vendor_rating` + `vendor_rating_count` fields added with migration
-- [ ] Vendor mobile rating screen: 3-criterion panels, Y/N questions, live average, submit
-- [ ] Rolling `Tenant.vendor_rating` updated correctly on each submission
-- [ ] Submission immutable; duplicate submission rejected
-- [ ] Tenant aggregate rating (avg + count + per-criterion) shown in Join Tenant flow
-- [ ] Tenant Super Admin / Tenant Admin can view incoming vendor ratings in admin portal
-- [ ] Unit/API/Maestro tests for scenarios AC-1.1…AC-8.1 (and listed edge cases in scope) — see [VRS-02 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md)
-- [ ] TDD catalog statuses updated (`Planned` → `Failing` → `Passing`) for P0 rows
+- [ ] `TenantRating` + `TenantRatingAnswer` models created with migrations
+- [ ] Seed data: TENANT question pool (≥ 9, show 3 random)
+- [ ] `Tenant.vendor_rating` + `vendor_rating_count` fields added
+- [ ] Vendor mobile rating screen: single score, 3 Yes/No radios, comment; app theme
+- [ ] Rolling `Tenant.vendor_rating` updated on submit
+- [ ] Submission immutable; duplicate rejected
+- [ ] Tenant aggregate (avg + count) shown in Join Tenant flow
+- [ ] Tenant Super Admin / Tenant Admin can view incoming ratings in admin portal
+- [ ] Tests for AC-1…AC-8 — see [VRS-02 TDD catalog](../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md)
+- [ ] TDD catalog statuses updated for P0 rows
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-14*
+*Epic: Vendor Rating System | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-17*
