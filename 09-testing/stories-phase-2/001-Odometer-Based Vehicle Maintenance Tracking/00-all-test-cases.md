@@ -23,8 +23,8 @@ Master index. Detail + asserts live in per-story files. Status defaults to **Pla
 | FVM-01-TC07 | AC-1.7 | API | Live GPS unchanged | P0 | Planned |
 | FVM-01-TC08 | AC-2.1 | Unit | Distance since last service | P0 | Planned |
 | FVM-01-TC09 | AC-2.2 | Unit | Remaining km formula | P0 | Planned |
-| FVM-01-TC10 | AC-2.3 | Unit | No last service uses starting km | P0 | Planned |
-| FVM-01-TC11 | AC-2.4 | Unit/E2E | Remaining unknown without starting point | P0 | Planned |
+| FVM-01-TC10 | AC-2.3 | Unit/E2E | No last service → no service record | P0 | Planned |
+| FVM-01-TC11 | AC-2.4 | Unit/E2E | Remaining unknown without a service record | P0 | Planned |
 | FVM-01-TC12 | AC-2.5 | Unit/E2E | Due soon flag | P0 | Planned |
 | FVM-01-TC13 | AC-2.6 | Unit/E2E | Overdue flag | P0 | Planned |
 | FVM-01-TC14 | AC-2.7 | API | Service log does not change availability | P0 | Planned |

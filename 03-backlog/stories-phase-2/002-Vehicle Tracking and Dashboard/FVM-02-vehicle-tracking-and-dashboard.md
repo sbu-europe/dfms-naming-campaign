@@ -43,7 +43,7 @@ Write failing tests from the catalog **before** implementation.
 
 **As a** Transport Planner  
 **I want** a dashboard showing vehicle availability  
-**So that** I can plan trips effectively.
+**So that** I can plan TO's effectively.
 
 ## Feature (PRD §6.6.4)
 
@@ -114,11 +114,6 @@ Given a Transport Planner applies dashboard filters,
 when they change depot, ownership, type, or registration search,
 then the status cards and the vehicle list use the same filters.
 
-- [ ] **Depot filter**  
-  **Given** vehicles assigned to different depots  
-  **When** the planner filters by depot  
-  **Then** cards and list include only vehicles for that depot
-
 - [ ] **Own-fleet default**  
   **Given** the planner opens the dashboard without choosing an ownership filter  
   **When** the page loads  
@@ -130,7 +125,7 @@ then the status cards and the vehicle list use the same filters.
   **Then** cards and list match that type and/or registration
 
 - [ ] **Cards and list use the same filters**  
-  **Given** depot, ownership, type, and search filters are applied  
+  **Given** depot, type, and search filters are applied  
   **When** the planner views the cards and the vehicle list  
   **Then** both use the same filters
 
@@ -212,8 +207,8 @@ Given Transport Planner, Tenant Admin, or Driver Supervisor users,
 when they open the fleet Health Dashboard,
 then planners and admins get the full dashboard, supervisors may view the same fleet, and this is not the maintenance work queue or the live GPS map.
 
-- [ ] **Planner and Tenant Admin get the full dashboard**  
-  **Given** a user is a Transport Planner or Tenant Admin  
+- [ ] **Planner,Tenant Admin and Tenant Super Admin get the full dashboard**  
+  **Given** a user is a Transport Planner,Tenant Admin or Tenant Super Admin
   **When** they open the fleet Health Dashboard  
   **Then** they have the full dashboard
 
