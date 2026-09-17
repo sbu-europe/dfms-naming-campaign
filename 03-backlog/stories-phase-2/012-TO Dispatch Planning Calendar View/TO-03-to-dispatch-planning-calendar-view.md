@@ -1,6 +1,5 @@
 ---
-
-## jira_key: ~
+jira_key: ~
 jira_type: Story
 jira_sprint: ~
 story_id: TO-03
@@ -23,6 +22,7 @@ source_docs:
   - ../../../_meta/archive/backlog-stories-pre-sprint2/US-071-to-dispatch-planning-calendar-view.md
 implementation_docs:
   - docs/prototypes/to-dispatch-planning-calendar.html
+---
 
 # TO-03 — TO Dispatch Planning (Calendar View)
 
