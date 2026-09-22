@@ -18,7 +18,7 @@ related_stories:
   - US-004 (Role Hierarchy) — original spec used permission union; this story uses a working-role switcher instead
   - TUM-05 / US-009 (Audit logs — acting role)
 e2e_scenarios:
-  - "../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role Tenant Users/tum-06-multi-role-assignment-e2e-scenarios.md"
+  - "../../../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role Tenant Users/tum-06-multi-role-assignment-e2e-scenarios.md"
 ---
 
 # TUM-06 — Assign Multiple Operational Roles to One User
@@ -33,7 +33,7 @@ e2e_scenarios:
 **I want to** pick which of my assigned roles I am working as (the same way I pick a working POI)  
 **So that** menus, queues, and actions match that role only until I switch.
 
-**E2E scenarios:** [tum-06-multi-role-assignment-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md)
+**E2E scenarios:** [tum-06-multi-role-assignment-e2e-scenarios.md](../../../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md)
 
 ---
 
@@ -287,7 +287,7 @@ Row: email=..., role=driver,gateman
 
 ## Test Plan
 
-Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md)
+Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md)
 
 - [ ] User with one role: invite, edit, login — Select Role hidden; behaviour unchanged
 - [ ] Tenant Super Admin invites Gateman + Scaling (same POI) → Select Role lists both; working as Gateman shows gate only
