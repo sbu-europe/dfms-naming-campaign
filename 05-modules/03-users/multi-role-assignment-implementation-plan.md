@@ -81,6 +81,7 @@ The core of this plan. Each row: what changes, and why.
 | `apps/users/serializers.py::InvitationSerializer` | `role_id` (UUID) → `role_ids` (list of UUID) | REST invite path #2 — **a second, independent invite endpoint** that the story could easily ship without touching |
 | `apps/users/services.py::UserService.invite_user` | `role_id` param → `role_ids` | Wraps `create_invitation`; called by path #2 |
 | `apps/users/views.py::UserViewSet.invite` | Pass the list through | Entry point for REST invite path #2 |
+| `apps/users/admin.py::InviteUserForm.role` | `ChoiceField` → `MultipleChoiceField` rendered as `CheckboxSelectMultiple`, same optgroup-by-department layout as the edit form | Consistent widget across invite and edit; checkboxes make "pick any combination" visually obvious |
 | `apps/users/admin.py` (`InviteUserForm` save) | Pass all selected role ids, not a single `_role_id` | Admin invite is path #3 |
 
 Single-role invites (`role_ids` length 1) must keep working on all three paths.
@@ -89,9 +90,9 @@ Single-role invites (`role_ids` length 1) must keep working on all three paths.
 
 | File | Change | Why |
 |------|--------|-----|
-| `apps/users/admin.py::UserAdminForm.role` | `ChoiceField` → `MultipleChoiceField`, optgroups by department, choices minus forbidden codes, `tenant_admin` option only for Tenant Super Admin assigners | Today's single dropdown can't represent >1 role; department-first filtering blocks cross-department dual-hats (Trap 2) |
+| `apps/users/admin.py::UserAdminForm.role` | `ChoiceField` → `MultipleChoiceField` rendered as `CheckboxSelectMultiple` (one checkbox per role, grouped by department), choices minus forbidden codes, `tenant_admin` option only for Tenant Super Admin assigners | Today's single dropdown can't represent >1 role; checkboxes read faster than a multi-select listbox for a small, grouped list; department-first filtering blocks cross-department dual-hats (Trap 2) |
 | `apps/users/admin.py::UserAdminForm.clean()` | Call `validate_role_set` + per-code `user_may_assign_role`; require `operational_poi` (or per-role map) for any POI-scoped selection | Central validation point for forbidden combos |
-| `apps/users/admin.py` (new: per-role POI on **change** only) | One POI field per POI-scoped selected role (keyed `operational_poi_<role_id>`), prefilled from `UserOperationalPOI`, saved via per-role `update_or_create`/delete | AC-5/TC17: two local roles on one user may need different sites. Invite still uses one POI (Out of scope: per-role POI matrix on invite) |
+| `apps/users/admin.py` (new: per-role POI on **change** only) | One POI **dropdown** rendered inline next to each POI-scoped role's checkbox (keyed `operational_poi_<role_id>`), hidden until its checkbox is checked (JS toggle), prefilled from `UserOperationalPOI`, saved via per-role `update_or_create`/delete | AC-5/TC17: two local roles on one user may need different sites; showing the POI dropdown right next to the checkbox it belongs to (instead of one shared `operational_poi` field below the list) removes the ambiguity of which POI applies to which role. Invite still uses one POI (Out of scope: per-role POI matrix on invite) |
 | `apps/users/admin.py::UserAdminForm.save_model` | Call `sync_user_roles` instead of `assign_role_to_user` once; write audit `{added, removed, resulting}` | `assign_role_to_user` is add-only — edit needs to remove roles too |
 | `apps/users/admin.py` (changelist `primary_role` column) | Join all assigned role names, comma-separated | No "primary" role exists in the DB anymore |
 | — | Do **not** enable `UserRoleInline` (`UserAdmin.inlines` stays `[]`) | Access fieldset must remain the single source of truth — avoids two editors disagreeing |
@@ -144,8 +145,8 @@ Closes TUM-06-1. Matches AC-1 / Flow A / the E2E plan — only re-open if the PO
 |----|----------|
 | L1 | Any allowed operational combination, no cap, no named allowlist. Exclusive targets: `tenant_super_admin`, `tenant_admin`, `driver`, `driver_helper`. No `vendor` staff role exists in `SEED_ROLES`. |
 | L2 | No permission union — working role only. `has_role` stays assigned-set membership (needed for Select Role choices + fallback). |
-| L3 | Cross-department dual-hats are required (Gateman + Scaling). Role widget is multi-select grouped by department, not filtered to one. `department` fields become display-only, derived from first selected role. |
-| L4 | Invite/CSV: one POI applies to every selected POI-scoped role. Edit: per-role POI map. Global roles clear POI rows for that role only. |
+| L3 | Cross-department dual-hats are required (Gateman + Scaling). Role widget is checkboxes (`CheckboxSelectMultiple`) grouped by department, not filtered to one. `department` fields become display-only, derived from first selected role. |
+| L4 | Invite/CSV: one POI applies to every selected POI-scoped role (single shared `operational_poi` field, no per-role dropdown). Edit: per-role POI — a POI dropdown appears inline next to each POI-scoped role's checkbox as soon as it's checked, and hides again when unchecked. Global roles clear POI rows for that role only. |
 | L5 | `InvitationToken.role_ids` (JSONField). `role` FK stays `role_ids[0]` for backward compat. Empty `role_ids` on old rows → treat as `[role_id]`. |
 | L6 | Working-role persistence copies Working site exactly: session + HttpOnly cookie, `admin_set_working_role` POST, middleware binds `_working_role_code`. Don't thread `request` through every call site. |
 | L7 | Fallback role = remaining assigned role with lowest `role_code`. One role → hide switcher. Removing a role never deactivates the account. |
