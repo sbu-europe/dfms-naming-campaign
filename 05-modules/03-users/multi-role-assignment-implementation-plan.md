@@ -47,7 +47,7 @@ Verified against `nourish-backend` (2026-09-22). One-role is not a leftover comm
 |-------|--------|----------------|
 | DB | `UserRole` `uniq_userrole_user_single_role` on `(user)` (`apps/users/models.py`). `unique(user, role)` was **removed** in `0013_userrole_single_role_per_user.py`. | Drop single-role constraint; restore `unique(user, role)`. |
 | Assign primitive | `assign_role_to_user` keeps one row, **deletes the rest**, then overwrites role (`rbac_service.py`). Comment: “Single-role system”. | Add an allowed role; do not delete others. |
-| Invite | `InvitationToken.role` is a **single FK**. API already has `role_ids` but `invitation_views.py` takes `[0]`. Activation assigns `inv.role` only. Serializer `max_length=5` is a draft cap. | Persist and apply the full set. |
+| Invite | `InvitationToken.role` is a **single FK**. API already has `role_ids` but `invitation_views.py` takes `[0]`. Activation assigns `inv.role` only. Serializer `max_length=5` is a draft cap. There is a **second, separate** REST invite path: `apps/users/views.py::UserViewSet.invite` → `apps/users/serializers.py::InvitationSerializer` (singular `role_id`) → `UserService.invite_user` → `create_invitation(role_id=...)`. `create_invitation_for_provisioned_user` is a third singular-`role_id` entry point (`apps/users/services.py`). | Persist and apply the full set on **all three** entry points, not just `TenantInvitationListCreateView`. |
 | Admin UX | `InviteUserForm` / `UserAdminForm`: one `ChoiceField` `label="Role"`. Department JS filters that one dropdown. One `operational_poi`. `UserRoleInline` exists but `UserAdmin.inlines = []` — Access fieldset is the source of truth. | Multi-select + forbidden-combo validation. |
 | CSV | `import_configs.py` field `role` is one `role_code`. Department must match that one role. | Comma-separated codes; row fails on forbidden combo. |
 | Authorization | `User.get_all_permissions()` unions **all** `UserRole` rows. `User.has_role` is membership of the assigned set. `get_primary_role_code` walks `KNOWN_ROLES` and returns the first hit — **not** a session. `scaling_operator` is **not** even in `KNOWN_ROLES`. | Working role only. |
@@ -153,16 +153,17 @@ Signals already invalidate permission cache on UserRole save/delete — keep the
 
 ## Step 3 — Invite + activation (TUM-06-3)
 
-Files: `InvitationToken` + migration; `invitation_service.py`; `invitation_views.py`; `invitation_serializers.py`; `InviteUserForm` save path.
+Files: `InvitationToken` + migration; `invitation_service.py`; `invitation_views.py`; `invitation_serializers.py`; `InviteUserForm` save path; **and** the second REST invite path — `apps/users/serializers.py` (`InvitationSerializer`), `apps/users/services.py` (`UserService.invite_user`), `apps/users/views.py` (`UserViewSet.invite`), plus `create_invitation_for_provisioned_user`.
 
 1. Add `role_ids = JSONField(default=list, blank=True)`. On write: `role = Role(role_ids[0])`, `role_ids = [str(id), ...]`.
 2. Lift `CreateInvitationSerializer.role_ids` `max_length=5`. Keep `min_length=1`.
 3. `create_invitation(..., role_ids: list[UUID], ...)` — validate set + each `user_may_assign_role`. Derive `department_key` from the first role if the form no longer sends a single department (L3). Apply one `poi_id` to the token (L4).
 4. `activate_invitation`: for each id in `inv.role_ids or [inv.role_id]`, `assign_role_to_user(...)`. For each POI-scoped role, `UserOperationalPOI.update_or_create(user, poi_id=inv.poi_id, role_id=..., is_primary=True)` if `inv.poi_id` set. `sync_tenant_admin_flags_from_role` only if the set is a single admin role (exclusive — never mixed).
 5. Admin invite save: pass all selected ids, not `_role_id` singleton.
-6. REST POST: pass `data["role_ids"]` through, **not** `[0]`.
+6. REST POST (`TenantInvitationListCreateView`): pass `data["role_ids"]` through, **not** `[0]`.
+7. **Second REST invite path** (distinct code path — do not assume it is covered by #6): change `InvitationSerializer.role_id` → `role_ids` (list); `UserService.invite_user(role_id=...)` → `role_ids=...`; `UserViewSet.invite` passes the list through. Update `create_invitation_for_provisioned_user` to the same `role_ids: list[UUID]` signature as `create_invitation` (#3) so both entry points stay symmetric.
 
-Single-role invites stay valid (`role_ids` length 1).
+Single-role invites stay valid (`role_ids` length 1) on both REST paths.
 
 ---
 
@@ -236,7 +237,7 @@ POI-scoped working role: Working site still uses `get_working_poi_for_request(re
 
 1. Role assign/remove (invite save, `sync_user_roles`, CSV apply): `AuditLog` UPDATE/CREATE on User with `details`: `added`, `removed`, `resulting`, actor id, timestamp. Reuse existing `apps.audit.services` helpers; do not add a new event type unless `AuditEventType` cannot represent it (`UPDATE` + action `User.Roles` is enough).
 2. Subsequent audited writes: stamp `details["working_role"]` from `get_primary_role_code(request.user)` in `_write_audit_log_now` when user is authenticated. Gate-in then shows Gateman, not Scaling (TC26).
-3. Cache: include working role in the key; invalidate on switch and on UserRole save/delete (extend `invalidate_user_permission_cache` to delete `user_permissions_{id}*` or pass the role code).
+3. Cache: include working role in the key (`user_permissions_{pk}_{role_code}`). **Do not** rely on `cache.delete_pattern(...)` for invalidation — prod uses `django_redis` (supports it) but `config/settings/testing.py` uses `LocMemCache` (does not), so a pattern-delete call will break under the test cache backend. Instead, `invalidate_user_permission_cache(user_id)` should look up the user's **currently assigned** role codes (plus, on assign/remove, the pre-change set) and delete each `user_permissions_{user_id}_{role_code}` key explicitly. Invalidate both the old and new working-role keys on switch, and all assigned-role keys on UserRole save/delete.
 
 ---
 
@@ -255,6 +256,7 @@ Unit / integration (admin E2E is the scenario file; do not treat Playwright as t
 - Operational user cannot assign (`user_may_assign_role` False).
 - Self-approval still denied after switch to DM.
 - Update `test_effective_access_scope_global_wins` (it currently relies on replace-on-assign).
+- Grep `UserRole.objects.get(user=` before merging (found in `test_seed_dfms_rbac_removed_roles.py`, `test_import_configs.py` ×4, `test_replace_super_admin.py` ×2, `test_invitation_service.py`) — these assume exactly one row per user and will raise `MultipleObjectsReturned` if any fixture in those tests is later extended to assign a second role. Confirm none of them are silently relying on the old single-role invariant outside their own single-role scenario.
 
 Playwright: [tum-06-multi-role-assignment-e2e-scenarios.md](../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md) after Steps 2–6. Keep US-005 single-role cases green (TC06).
 
@@ -297,6 +299,8 @@ Gateman and Scaling Operator are different departments. If Role choices stay fil
 | CSV | `apps/users/import_configs.py` |
 | Working role | new `apps/users/working_role.py` (or `apps/core/working_role.py`), view + url, template include, `portal_nav.py` tag, `config/urls.py`, `config/settings/base.py` MIDDLEWARE |
 | Auth consumers | `role_access.py`, `User.get_all_permissions`, `portal_navigation.py`, `admin_base.py`, `dashboard_scope.py`, `dashboard_service.py`, yard `has_role` authorization call sites |
+| Auth consumers (sweep — grep `.has_role(` before closing this story) | `apps/transport/admin.py` (`_GATE_TO_VIEW_ROLES`, `qc_inspector_physical`/`poi_admin` queryset + `has_view_permission` gating for Transport Orders), `apps/requisitions/admin.py` (`procurement_officer` PR queue visibility filter), `apps/operations/gate/admin.py`, `apps/operations/gate/gate_poi.py` (gate write role→POI resolution) |
+| Second invite path (do not skip — separate from `invitation_views.py`) | `apps/users/serializers.py` (`InvitationSerializer`), `apps/users/services.py` (`UserService.invite_user`), `apps/users/views.py` (`UserViewSet.invite`) |
 | Audit | `apps/audit/services.py` |
 | Tests | `tests/unit/test_core/test_rbac_service.py`, new `test_working_role.py`, invitation + import tests |
 | Specs | this file; rbac.md §3.1; tenant-user-management.md; role-dashboard-kpi-widgets.md §3 |
