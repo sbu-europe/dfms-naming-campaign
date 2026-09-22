@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.1.4, 6.1.5, 6.1.6
-last_updated: 2026-02-26
-related_stories: US-004
+last_updated: 2026-09-22
+related_stories: US-004, TUM-06
 ---
 
 # Role-Based Access Control (RBAC) Specification
@@ -298,27 +298,31 @@ Role: "Transport Planner" {
 
 **Assignment Flow**:
 ```
-1. User invitation initiated by Admin
-2. Admin selects Department (predefined dropdown)
-3. Admin selects Role (filtered to chosen department)
-4. System validates role against tenant subscription tier
-5. User activates account
-6. Permissions loaded on first login (Role → Permission matrix + Access Scope)
+1. User invitation initiated by Tenant Super Admin or Tenant Admin
+2. Admin selects one or more operational roles (multi-select, grouped by department; Super Admin hidden)
+3. System validates the set (exclusive targets, assigner policy, POI per local role)
+4. User activates account — all selected roles are applied
+5. At runtime the user selects one working role (Select Role, same idea as Working site)
+6. Permissions, menus, and landing follow that working role only (no union)
 ```
 
-**Constraints**:
-- One primary operational role per user in Phase 1
-- Multiple roles supported for edge cases (e.g., user operating across departments). When a user holds multiple roles, the system applies Global over Local for access scope and the union of permissions from all roles. Self-approval prevention still applies regardless of multiple roles.
-- Department must match role's department scope for Local roles
-- Location assignment (department_id / poi_id) is required for Local roles and rejected for Global roles
-- Access scope (Global / Local) determines data row visibility (see Section 1.8)
+**Constraints** (TUM-06 — see [multi-role-assignment-implementation-plan.md](../03-users/multi-role-assignment-implementation-plan.md)):
+- A user may hold **multiple operational** roles; there is no fixed cap. Duplicate `(user, role)` is rejected.
+- **No permission union.** The user operates as the selected **working role**. Menus, queues, widgets, and API/admin checks use that role only.
+- **Exclusive targets** (cannot combine with any other role): Tenant Super Admin, Tenant Admin, Driver, Helper (`driver_helper`). Super Admin is never assignable via invite/edit/CSV.
+- Tenant Super Admin and Tenant Admin may **assign** multiple operational roles to others; they themselves hold **only one** role. Only Tenant Super Admin may grant Tenant Admin (alone).
+- Operational users cannot assign roles.
+- Each `UserRole` stores that role’s catalog department. Invite/edit is **not** locked to a single department (Gateman + Scaling Operator is a valid cross-department pair).
+- Location assignment (`UserOperationalPOI`) is required **per POI-scoped role** and cleared for that role only when the role is global.
+- Access scope (Global / Local) of the **working role** determines data row visibility (see Section 1.8).
+- Self-approval prevention still applies in the working role (`requester_id ≠ current_user_id`). Switching role does not allow approving one’s own request.
 
 ### 3.1.1 Predefined Departments & Role Department Mapping
 
 - Each **Operational Role** belongs to exactly one **Department** (predefined; not free-text).
 - When creating/configuring a role (Phase 2 custom roles) the Admin MUST select **Department** from a dropdown of predefined departments.
-- In user-facing assignment UIs (invite user / assign role), the **Department is selected first**, then the **Role dropdown is filtered** to roles under that department.
-- The API MUST validate Department↔Role consistency and reject mismatches (even if UI is bypassed).
+- In user-facing assignment UIs (invite user / assign role), roles are listed in a **multi-select grouped by department**. Selecting roles from more than one department is allowed for operational dual-hats.
+- Each assigned role MUST still belong to its catalog department (`UserRole.department` matches `Role.department`). The API MUST reject unknown / inactive codes and exclusive-set violations (even if UI is bypassed).
 
 ### 3.2 Self-Approval Prevention (Business Rule)
 

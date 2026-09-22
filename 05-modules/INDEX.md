@@ -96,11 +96,13 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Specifications
 - [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver profile, compliance, user account link
 - [optional-last-name-fb002.md](03-users/optional-last-name-fb002.md) — Sprint 8 FB-002: User & Driver last name optional
+- [multi-role-assignment-implementation-plan.md](03-users/multi-role-assignment-implementation-plan.md) — Sprint 10 TUM-06: multiple operational roles + working-role switcher
 - [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User
 
 #### Related User Stories
 - US-057: Driver user profiles & compliance
 - US-061: Helper Master Data Management
+- TUM-06: Multi-role assignment & working-role switcher
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)
@@ -353,6 +355,7 @@ Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/trackin
 #### Specifications
 - [tenant-user-management.md](03-users/tenant-user-management.md) — Tenant Admin user & role management: invite, assign roles, lifecycle, deactivation, audit trail *(US-004, US-005, US-007, US-008, US-009)*
 - [optional-last-name-fb002.md](03-users/optional-last-name-fb002.md) — Sprint 8 FB-002: User & Driver last name optional *(US-005, US-057)*
+- [multi-role-assignment-implementation-plan.md](03-users/multi-role-assignment-implementation-plan.md) — Sprint 10 TUM-06: multi-role assignment, Select Role, no permission union *(TUM-06)*
 - [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver entity beyond User account: compliance, license, state tracking *(US-057)*
 - [helper-master-data.md](03-users/helper-master-data.md) — Helper entity model, optional `user_id` FK to User, availability state machine, trip assignment *(US-061)*
 
@@ -364,6 +367,7 @@ Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/trackin
 - US-009: User Activity & Audit Logs
 - US-057: Driver user profiles & compliance
 - US-061: Helper Master Data Management
+- TUM-06: Multi-role assignment & working-role switcher
 
 #### Cross-References
 - **Depends on**: `01-foundation/` (User & Tenant Management, RBAC)

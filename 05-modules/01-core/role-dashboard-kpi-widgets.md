@@ -4,9 +4,9 @@ specification: Role-Scoped Dashboard KPI Widgets (DB-01 extension)
 version: 1.0
 phase: Phase 1
 sprint: Sprint 5
-last_updated: 2026-06-09
-changelog: "v1.0 — Initial module spec for POI-aware operational dashboard widgets (8 roles)"
-related_stories: DB-01
+last_updated: 2026-09-22
+changelog: "v1.1 — TUM-06: widgets follow working role only (no union)."
+related_stories: DB-01, TUM-06
 depends_on: YARD-01, GT-01, SC-01, CC-01, LD-01, QC-01, DS-01
 enables: Operational landing UX, GPS-01 (complementary — map dashboard is separate)
 ---
@@ -254,11 +254,13 @@ All Gateman widgets **without POI filter**, plus:
 
 ---
 
-## 3. Multi-role users
+## 3. Multi-role users (TUM-06)
 
-`UserRole` enforces **single role per user** (`uniq_userrole_user_single_role`). Widget builder selects widgets for the user's one active role code — no merge logic required.
+A user may hold multiple **assigned** operational roles. The dashboard uses the **working role** only (Select Role / session `dfms_working_role_code`) — **no widget union**, no merge, no “cap at 8”.
 
-If a user holds multiple roles in future schema changes: union widgets, dedupe by `id`, cap at 8 visible cards with “View all” link — **not in v1**.
+`get_role_widgets` / `resolve_dashboard_scope` must resolve the same working role as `get_primary_role_code`. Single-role users are unchanged (Select Role hidden).
+
+See [multi-role-assignment-implementation-plan.md](../03-users/multi-role-assignment-implementation-plan.md).
 
 ---
 
