@@ -13,4 +13,4 @@ Playwright MCP scenario plans for Sprint 10 backlog items (`03-backlog/phase-2/s
 
 | Story | Plan | Status |
 |-------|------|--------|
-| TUM-06 — Assign multiple operational roles to one user | [tum-06-multi-role-assignment-e2e-scenarios.md](./tum-06-multi-role-assignment-e2e-scenarios.md) | Planned (27 TCs) |
+| TUM-06 — Assign multiple operational roles to one user | [tum-06-multi-role-assignment-e2e-scenarios.md](./tum-06-multi-role-assignment-e2e-scenarios.md) | 21/24 Pass · 3 Fail |

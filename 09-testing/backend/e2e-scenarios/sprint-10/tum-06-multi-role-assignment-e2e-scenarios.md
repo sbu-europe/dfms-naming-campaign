@@ -17,6 +17,9 @@ implementation_reference:
   - templates/admin/includes/poi_profile_switcher.html (Working site — pattern for Select Role)
   - apps/requisitions/role_access.py (get_primary_role_code uses first matching assigned role)
 last_updated: 2026-09-23
+last_mcp_run: 2026-09-23
+last_mcp_verdict: 21/24 Pass · 3 Fail
+artifacts: tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/
 playwright_mcp: true
 ---
 
@@ -26,6 +29,8 @@ playwright_mcp: true
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
+
+**Last MCP run:** 2026-09-23 — **21/24 Pass · 3 Fail**. Accounts: `superadmin.nourish@yopmail.com`, `admin.nourish@yopmail.com`, `distribution.officer1.nourish@yopmail.com`. Artifacts: [`tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md).
 
 Sibling: [user-invitation-activation-e2e-scenarios.md](../users/user-invitation-activation-e2e-scenarios.md) (single-role invite still valid).
 
@@ -48,58 +53,61 @@ Sibling: [user-invitation-activation-e2e-scenarios.md](../users/user-invitation-
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC01 | Tenant Super Admin invite — multiple operational roles | As **Tenant Super Admin**, log in at `/admin/login/`. Open **Users & Access → Users** (`/admin/users/user/`). Click **Add user** (`admin:users_invitationtoken_add`). Assert **Role** is a multi-select (not a single dropdown). Select **Gateman** + **Scaling Operator**, set **Site (POI)** to `ctg-depot`, **2FA** `none`. Click **Save**. Assert invitation created and Users list shows **Invited**. | P0 | Planned |
-| TC02 | Tenant Admin invite — multiple operational roles | As **Tenant Admin**, **Users → Add user**. Select **Gateman** + **Scaling Operator**, same **Site (POI)**. **Save**. Assert invitation created. Assert **Tenant Super Admin** and **Super Admin** are not listed in **Role**. | P0 | Planned |
-| TC03 | Tenant Admin cannot grant Tenant Admin | As **Tenant Admin**, on **Add user** and User change (`/admin/users/user/<uuid>/change/`), attempt to select **Tenant Admin** (alone or combined). Assert denied — existing copy: `Only a Tenant Super Admin may assign the Tenant Admin role.` (or **Role** omits Tenant Admin). | P0 | Planned |
-| TC04 | Operational user cannot assign roles | As **Distribution Officer**, open `/admin/users/user/` and `/admin/users/invitationtoken/add/`. Assert forbidden / no **Add user** write (no `MENU_USERS_VIEW` / add permission). | P0 | Planned |
+| TC01 | Tenant Super Admin invite — multiple operational roles | As **Tenant Super Admin**, log in at `/admin/login/`. Open **Users & Access → Users** (`/admin/users/user/`). Click **Add user** (`admin:users_invitationtoken_add`). Assert **Role** is a multi-select (not a single dropdown). Select **Gateman** + **Scaling Operator**, set **Site (POI)** to `ctg-depot`, **2FA** `none`. Click **Save**. Assert invitation created and Users list shows **Invited**. | P0 | Pass |
+| TC02 | Tenant Admin invite — multiple operational roles | As **Tenant Admin**, **Users → Add user**. Select **Gateman** + **Scaling Operator**, same **Site (POI)**. **Save**. Assert invitation created. Assert **Tenant Super Admin** and **Super Admin** are not listed in **Role**. | P0 | Pass |
+| TC03 | Tenant Admin cannot grant Tenant Admin | As **Tenant Admin**, on **Add user** and User change (`/admin/users/user/<uuid>/change/`), attempt to select **Tenant Admin** (alone or combined). Assert denied — existing copy: `Only a Tenant Super Admin may assign the Tenant Admin role.` (or **Role** omits Tenant Admin). | P0 | Pass |
+| TC04 | Operational user cannot assign roles | As **Distribution Officer**, open `/admin/users/user/` and `/admin/users/invitationtoken/add/`. Assert forbidden / no **Add user** write (no `MENU_USERS_VIEW` / add permission). | P0 | Pass |
 
 ## B — Invite, activate, cardinality (AC-1, AC-2)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC05 | Activation applies all selected roles | Complete TC01 (or TC02) with `otp_type=none`. Open `/activate/?token=...`, set password, accept T&C. Log in as the new user. Assert **Select Role** lists **Gateman** and **Scaling Operator** (not only the first `role_ids[0]`). | P0 | Planned |
-| TC06 | Single-role invite still works; Select Role hidden | As Tenant Super Admin, **Add user** with **one** operational role (e.g. **Gateman**) and **Site (POI)**. Activate and log in. Assert **Select Role** is hidden or disabled; menus match that role only (same as today’s US-005). | P0 | Planned |
-| TC07 | Super Admin hidden on invite/edit | On **Add user** and User change **Role** multi-select, assert **Super Admin** is not listed. | P0 | Planned |
-| TC08 | Forbidden combo administrator + anything | As Tenant Super Admin, **Add user** or User change with **Tenant Super Admin** + **Gateman**, and separately **Tenant Admin** + **Gateman**. Assert validation error in `#content-main` / `.errorlist`; no extra `UserRole` row. Tenant Admin **alone** remains allowed (TC16). | P0 | Planned |
-| TC09 | Forbidden combo Driver + Gateman | **Add user** / User change **Driver** + **Gateman**. Assert clear validation error (BR-TUM06-005 exclusive targets). Driver is already excluded from today’s invite dropdown (`FORBIDDEN_INVITATION_ROLE_CODES`). | P0 | Planned |
-| TC10 | Tenant Super Admin account stays one role | As Tenant Super Admin, open the **Tenant Super Admin** seed user change form and add **Gateman**. Assert validation error; Tenant Super Admin stays one role. | P0 | Planned |
+| TC06 | Single-role invite still works; Select Role hidden | As Tenant Super Admin, **Add user** with **one** operational role (e.g. **Gateman**) and **Site (POI)**. Activate and log in. Assert **Select Role** is hidden or disabled; menus match that role only (same as today’s US-005). | P0 | Pass |
+| TC07 | Super Admin hidden on invite/edit | On **Add user** and User change **Role** multi-select, assert **Super Admin** is not listed. | P0 | Pass |
+| TC09 | Forbidden combo Driver + Gateman | **Add user** / User change **Driver** + **Gateman**. Assert clear validation error (BR-TUM06-005 exclusive targets). Driver is already excluded from today’s invite dropdown (`FORBIDDEN_INVITATION_ROLE_CODES`). | P0 | Pass |
 
 ## C — User edit add/remove (AC-1, AC-5)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC11 | Edit adds a second role without deleting the first | As Tenant Super Admin, open an existing **Distribution Officer** MCP user (`/admin/users/user/<uuid>/change/`). Add **Distribution Manager**. Click **Save**. Assert both roles remain (Access fieldset). Log in as that user: **Select Role** lists both. | P0 | Planned |
-| TC12 | Edit adds a third allowed operational role (no cap) | On the two-role user from TC11, add a third allowed operational role (e.g. **Transport Planner**). **Save**. Assert all three remain and **Select Role** lists all three. | P0 | Planned |
-| TC13 | Remove one of two roles | On a two-role user, uncheck one role. **Save**. Assert the other remains; if only one left, **Select Role** hides and that role is working. Account stays active (not deactivated). | P0 | Planned |
-| TC14 | Adding a second role to Tenant Admin is rejected | As **Tenant Super Admin**, add **Gateman** + **Site (POI)** to a user who already is Tenant Admin. As **Tenant Admin**, attempt the same on another Tenant Admin user. Assert validation error; Tenant Admin stays one role. Tenant Admin still cannot grant Tenant Admin (TC03). | P0 | Planned |
-| TC15 | Duplicate role rejected | On User change, assign the same role twice. Assert rejected (`unique(user, role)`). | P1 | Planned |
-| TC16 | Tenant Admin is single-role; Select Role hidden | As Tenant Super Admin, **Add user** with **Tenant Admin** alone. Activate and log in. Assert **Select Role** is hidden or disabled; menus are admin only. No gate write. | P0 | Planned |
-| TC17 | Multiple POIs per local role; different sets across roles | On User change, assign **Gateman** @ `CTG-001` **and** `CTG-002`, and **Scaling Operator** @ `CTG-001` only (per-role Site multi-select). **Save**. Assert three `UserOperationalPOI` rows. A global operational role must not require **Site (POI)**; leftover POI rows for that role only are cleared. Adding `CTG-002` to Gateman must not delete `CTG-001`. Duplicate same POI on the same role is rejected. | P0 | Planned |
+| TC11 | Edit adds a second role without deleting the first | As Tenant Super Admin, open an existing **Distribution Officer** MCP user (`/admin/users/user/<uuid>/change/`). Add **Distribution Manager**. Click **Save**. Assert both roles remain (Access fieldset). Log in as that user: **Select Role** lists both. | P0 | Pass |
+| TC12 | Edit adds a third allowed operational role (no cap) | On the two-role user from TC11, add a third allowed operational role (e.g. **Transport Planner**). **Save**. Assert all three remain and **Select Role** lists all three. | P0 | Pass |
+| TC13 | Remove one of two roles | On a two-role user, uncheck one role. **Save**. Assert the other remains; if only one left, **Select Role** hides and that role is working. Account stays active (not deactivated). | P0 | Pass |
+| TC14 | Adding a second role to Tenant Admin is rejected | As **Tenant Super Admin**, add **Gateman** + **Site (POI)** to a user who already is Tenant Admin. As **Tenant Admin**, attempt the same on another Tenant Admin user. Assert validation error; Tenant Admin stays one role. Tenant Admin still cannot grant Tenant Admin (TC03). | P0 | Pass |
+| TC15 | Duplicate role rejected | On User change, assign the same role twice. Assert rejected (`unique(user, role)`). | P1 | Pass |
+| TC16 | Tenant Admin is single-role; Select Role hidden | As Tenant Super Admin, **Add user** with **Tenant Admin** alone. Activate and log in. Assert **Select Role** is hidden or disabled; menus are admin only. No gate write. | P0 | Pass |
+| TC17 | Multiple POIs per local role; different sets across roles | On User change, assign **Gateman** @ `CTG-001` **and** `CTG-002`, and **Scaling Operator** @ `CTG-001` only (per-role Site multi-select). **Save**. Assert three `UserOperationalPOI` rows. A global operational role must not require **Site (POI)**; leftover POI rows for that role only are cleared. Adding `CTG-002` to Gateman must not delete `CTG-001`. Duplicate same POI on the same role is rejected. | P0 | Pass |
 
 ## D — Working role + working POI switchers (AC-3, AC-4)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC18 | Select Role follows Working site pattern; no permission union | Log in as Gateman + Scaling user. Assert header/profile **Select Role** modelled on **Working site** (`#dfms-poi-profile`, label **Working site**, `#dfms-poi-select`). Select **Gateman**. Assert gate menus/queues only; Scaling write URLs denied. Switch to **Scaling Operator** without re-login. Assert scale screens only; gate write denied. | P0 | Planned |
-| TC19 | DO + DM — approve others not self | User with Distribution Officer + Distribution Manager. Working as **Distribution Officer**, create a TR; assert **Approve** / **Reject** absent. Switch to **Distribution Manager**; assert can approve **another** user’s TR; attempting to approve **own** TR is still denied (`created_by == request.user`). | P0 | Planned |
-| TC20 | Admin removes current working role — session falls back | While the user is working as role A, as admin remove role A. On next request, assert fallback to a remaining assigned role (no crash / empty perms). | P1 | Planned |
-| TC21 | Working site lists the working role’s assigned POIs | Log in as the TC17 user. Working as **Gateman**, assert **Working site** (`#dfms-poi-select`) lists **only** `CTG-001` and `CTG-002` (not the whole tenant catalog). Pick `CTG-002`. Assert gate queue is scoped to that site. | P0 | Planned |
-| TC21b | Role switch refreshes Working site; single-POI hides it | From TC21 (working Gateman @ `CTG-002`), switch **Select Role** to **Scaling Operator** without re-login. Assert Working site is hidden (Scaling has one POI); working POI falls back to `CTG-001`; scale screens for `CTG-001` only. Switch back to Gateman: Working site lists both again; `CTG-001` stays selected (still assigned). | P0 | Planned |
+| TC18 | Select Role follows Working site pattern; no permission union | Log in as Gateman + Scaling user. Assert header/profile **Select Role** modelled on **Working site** (`#dfms-poi-profile`, label **Working site**, `#dfms-poi-select`). Select **Gateman**. Assert gate menus/queues only; Scaling write URLs denied. Switch to **Scaling Operator** without re-login. Assert scale screens only; gate write denied. | P0 | Pass |
+| TC19 | DO + DM — approve others not self | User with Distribution Officer + Distribution Manager. Working as **Distribution Officer**, create a TR; assert **Approve** / **Reject** absent. Switch to **Distribution Manager**; assert can approve **another** user’s TR; attempting to approve **own** TR is still denied (`created_by == request.user`). | P0 | Pass |
+| TC20 | Admin removes current working role — session falls back | While the user is working as role A, as admin remove role A. On next request, assert fallback to a remaining assigned role (no crash / empty perms). | P1 | Pass |
+| TC21 | Working site lists the working role’s assigned POIs | Log in as the TC17 user. Working as **Gateman**, assert **Working site** (`#dfms-poi-select`) lists **only** `CTG-001` and `CTG-002` (not the whole tenant catalog). Pick `CTG-002`. Assert gate queue is scoped to that site. | P0 | Pass |
+| TC21b | Role switch refreshes Working site; single-POI hides it | From TC21 (working Gateman @ `CTG-002`), switch **Select Role** to **Scaling Operator** without re-login. Assert Working site is hidden (Scaling has one POI); working POI falls back to `CTG-001`; scale screens for `CTG-001` only. Switch back to Gateman: Working site lists both again; `CTG-001` stays selected (still assigned). | P0 | Pass |
 
 ## E — CSV (AC-2)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC22 | CSV comma-separated roles and POIs succeed | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a row `role=gateman,scaling_operator` with `poi_code=CTG-001,CTG-002` and wipe-friendly email. Confirm **Import Preview**. After activate/import, assert two roles, each with both POIs, and **Select Role** lists both. | P0 | Planned |
-| TC23 | CSV forbidden combo fails that row only | Import a file with one good row and one `role=tenant_admin,gateman` (and/or `tenant_super_admin,gateman` / `driver,gateman`). Assert the forbidden row fails with a reason on preview; the good row is unaffected. | P0 | Planned |
-| TC24 | CSV single-role row still valid | Import `role=gateman` only. Assert one assignment; behaviour matches TC06. | P1 | Planned |
+| TC22 | CSV comma-separated roles and POIs succeed | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a row `role=gateman,scaling_operator` with `poi_code=CTG-001,CTG-002` and wipe-friendly email. Confirm **Import Preview**. After activate/import, assert two roles, each with both POIs, and **Select Role** lists both. | P0 | Fail |
+| TC23 | CSV forbidden combo fails that row only | Import a file with one good row and one `role=tenant_admin,gateman` (and/or `tenant_super_admin,gateman` / `driver,gateman`). Assert the forbidden row fails with a reason on preview; the good row is unaffected. | P0 | Pass |
+| TC24 | CSV single-role row still valid | Import `role=gateman` only. Assert one assignment; behaviour matches TC06. | P1 | Fail |
 
 ## F — Audit (AC-6)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC25 | Assign/remove logs role set | After invite/edit add/remove, open **Users & Access → Audit Logs** (`/admin/audit/auditlog/`). Assert the **set** of role codes (added, removed, resulting), actor, timestamp. | P1 | Planned |
-| TC26 | Subsequent action logs working role not full set | As Gateman+Scaling user working as **Gateman**, perform a gate-in (or equivalent gated write). Assert audit records working role **Gateman**, not Scaling. | P1 | Planned |
+| TC25 | Assign/remove logs role set | After invite/edit add/remove, open **Users & Access → Audit Logs** (`/admin/audit/auditlog/`). Assert the **set** of role codes (added, removed, resulting), actor, timestamp. | P1 | Pass |
+| TC26 | Subsequent action logs working role not full set | As Gateman+Scaling user working as **Gateman**, perform a gate-in (or equivalent gated write). Assert audit records working role **Gateman**, not Scaling. | P1 | Fail |
+
+### MCP run history
+
+| Date | Pass / Total | Notes |
+|------|--------------|-------|
+| 2026-09-23 | **21/24** | Playwright MCP vs Nourish admin. Remaining fails: TC22/TC24 CSV `pois_by_role_id` NOT NULL, TC26 no `working_role` stamp. TC05/TC08/TC10 removed. See artifacts `RESULTS.md`. |
 
 ## Implementation Notes (Playwright + Django Admin SSR)
 
