@@ -18,7 +18,7 @@ implementation_reference:
   - apps/requisitions/role_access.py (get_primary_role_code uses first matching assigned role)
 last_updated: 2026-09-23
 last_mcp_run: 2026-09-23
-last_mcp_verdict: 21/24 Pass · 3 Fail
+last_mcp_verdict: 27/28 Pass · 1 Fail
 artifacts: tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/
 playwright_mcp: true
 ---
@@ -30,7 +30,7 @@ playwright_mcp: true
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
 
-**Last MCP run:** 2026-09-23 — **21/24 Pass · 3 Fail**. Accounts: `superadmin.nourish@yopmail.com`, `admin.nourish@yopmail.com`, `distribution.officer1.nourish@yopmail.com`. Artifacts: [`tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md).
+**Last MCP run:** 2026-09-23 — **27/28 Pass · 1 Fail**. CSV section E **7/7** (`C5E22F01`). Accounts: `superadmin.nourish@yopmail.com`, `admin.nourish@yopmail.com`, `distribution.officer1.nourish@yopmail.com`. Artifacts: [`tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md`](../../../../../tests/e2e/playwright-mcp/tum-06-multi-role-assignment-artifacts/RESULTS.md).
 
 Sibling: [user-invitation-activation-e2e-scenarios.md](../users/user-invitation-activation-e2e-scenarios.md) (single-role invite still valid).
 
@@ -94,13 +94,13 @@ If **any** role on the row is local, the file **must** include `poi_code` **or**
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC22 | CSV reserved path — shared `poi_code` on every local role | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a wipe-friendly row `role=gateman,scaling_operator` with `poi_code=CTG-001,CTG-002` and **no** `pois_by_role` column (or empty). Confirm **Import Preview** valid. After activate/import, assert two roles, **each** with both POIs (cartesian), and **Select Role** lists both. | P0 | Fail |
-| TC22b | CSV optional `pois_by_role` — different sites per local role | Same Import UI. Upload `role=gateman,scaling_operator`, blank `poi_code`, `pois_by_role=gateman=CTG-001,CTG-002;scaling_operator=CTG-001`. Preview valid. After activate/import, assert Gateman @ `CTG-001`+`CTG-002` and Scaling @ `CTG-001` only (three `UserOperationalPOI` rows, not four). Log in: working as Gateman, **Working site** lists both; switch to Scaling, Working site hidden. | P0 | Planned |
-| TC22c | CSV `pois_by_role` wins when both columns are filled | Import a row with `poi_code=CTG-001,CTG-002` **and** `pois_by_role=gateman=CTG-001;scaling_operator=CTG-002`. Assert Scaling does **not** receive `CTG-001` from `poi_code`; each local role keeps only its tagged sites. | P1 | Planned |
-| TC22d | CSV export round-trip keeps per-role sets | From the TC22b user (or TC17 user), **Users** changelist **Export**. Open the file: `role` is comma-separated; `poi_code` is the union; `pois_by_role` is filled because the sets differ. Re-import that file (wipe-friendly email / same employee). Assert sets stay Gateman @ both, Scaling @ `CTG-001` only — not flattened to both hats @ both sites. If exported user has identical sets on every local role, `pois_by_role` may be empty and re-import uses TC22 reserved path. | P0 | Planned |
-| TC22e | CSV local role with neither `poi_code` nor `pois_by_role` fails | Import a wipe-friendly row `role=gateman` (or `gateman,scaling_operator`) with **both** `poi_code` and `pois_by_role` blank / omitted. Assert **Import Preview** marks that row invalid with a reason that a site is required. A second reserved-path row in the same file stays valid. | P0 | Planned |
+| TC22 | CSV reserved path — shared `poi_code` on every local role | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a wipe-friendly row `role=gateman,scaling_operator` with `poi_code=CTG-001,CTG-002` and **no** `pois_by_role` column (or empty). Confirm **Import Preview** valid. After activate/import, assert two roles, **each** with both POIs (cartesian), and **Select Role** lists both. | P0 | Pass |
+| TC22b | CSV optional `pois_by_role` — different sites per local role | Same Import UI. Upload `role=gateman,scaling_operator`, blank `poi_code`, `pois_by_role=gateman=CTG-001,CTG-002;scaling_operator=CTG-001`. Preview valid. After activate/import, assert Gateman @ `CTG-001`+`CTG-002` and Scaling @ `CTG-001` only (three `UserOperationalPOI` rows, not four). Log in: working as Gateman, **Working site** lists both; switch to Scaling, Working site hidden. | P0 | Pass |
+| TC22c | CSV `pois_by_role` wins when both columns are filled | Import a row with `poi_code=CTG-001,CTG-002` **and** `pois_by_role=gateman=CTG-001;scaling_operator=CTG-002`. Assert Scaling does **not** receive `CTG-001` from `poi_code`; each local role keeps only its tagged sites. | P1 | Pass |
+| TC22d | CSV export round-trip keeps per-role sets | From the TC22b user (or TC17 user), **Users** changelist **Export**. Open the file: `role` is comma-separated; `poi_code` is the union; `pois_by_role` is filled because the sets differ. Re-import that file (wipe-friendly email / same employee). Assert sets stay Gateman @ both, Scaling @ `CTG-001` only — not flattened to both hats @ both sites. If exported user has identical sets on every local role, `pois_by_role` may be empty and re-import uses TC22 reserved path. | P0 | Pass |
+| TC22e | CSV local role with neither `poi_code` nor `pois_by_role` fails | Import a wipe-friendly row `role=gateman` (or `gateman,scaling_operator`) with **both** `poi_code` and `pois_by_role` blank / omitted. Assert **Import Preview** marks that row invalid with a reason that a site is required. A second reserved-path row in the same file stays valid. | P0 | Pass |
 | TC23 | CSV forbidden combo fails that row only | Import a file with one good reserved-path row and one `role=tenant_admin,gateman` (and/or `tenant_super_admin,gateman` / `driver,gateman`). Assert the forbidden row fails with a reason on preview; the good row is unaffected. | P0 | Pass |
-| TC24 | CSV single-role row still valid | Import `role=gateman` only (`poi_code=CTG-001`, no `pois_by_role`). Assert one assignment; behaviour matches TC06. | P1 | Fail |
+| TC24 | CSV single-role row still valid | Import `role=gateman` only (`poi_code=CTG-001`, no `pois_by_role`). Assert one assignment; behaviour matches TC06. | P1 | Pass |
 
 ## F — Audit (AC-6)
 
@@ -113,6 +113,7 @@ If **any** role on the row is local, the file **must** include `poi_code` **or**
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
+| 2026-09-23 | **27/28** | CSV section E 7/7 (`C5E22F01`) after Celery picked up `pois_by_role_id`. Remaining fail: TC26 no `working_role` stamp. See artifacts `RESULTS.md`. |
 | 2026-09-23 | **21/24** | Playwright MCP vs Nourish admin. Remaining fails: TC22/TC24 CSV `pois_by_role_id` NOT NULL, TC26 no `working_role` stamp. TC05/TC08/TC10 removed. See artifacts `RESULTS.md`. |
 | 2026-09-23 | docs v1.4 | Added TC22b–TC22e (`pois_by_role` + export + local-role site required). Not MCP-run. Count is now 24 executed + 4 Planned. |
 
@@ -127,5 +128,5 @@ If **any** role on the row is local, the file **must** include `poi_code` **or**
 - Current UI labels: changelist **Add user** (not “Invite user”); invite breadcrumb **Add user**; submit **Save** (`name="_save"`); Access fieldset **Role**, **Site (POI)**, **2FA**; Users list **Import** and **Export**.
 - Status assertion: invitation list **Invited**; after activation the user is active. Do not trust toast copy over persisted `UserRole` rows.
 - Scope guardrail: plan ends at admin invite/edit/CSV import+export, Select Role switch, Working site among the working role’s assigned POIs, and audit of the working role. No mobile, no REST invitation contract, no permission union, no combined `(role, POI)` picker. REST stays on shared `poi_ids` (no `pois_by_role` on API in this story).
-- **Known drift:** `assign_role_to_user` deletes other roles; invitation applies `role_ids[0]`; `role_ids` `max_length=5` leftover cap; `get_primary_role_code` returns first matching assigned role, not a working-role session; User edit POI is still one value per role and `sync_user_roles` collapses extras; Working site is Tenant Admin / Super Admin only. CSV **reserved** path (`role` + shared `poi_code`) is specified in v2.3; optional `pois_by_role` is **not shipped** until `UserImportConfig` grows that column (TC22b–TC22d stay Planned). TC22/TC24 last failed on `pois_by_role_id` NOT NULL at invitation insert — fix that before treating reserved-path CSV as green. Do not implement Playwright against current single-role / single-POI behaviour and call it TUM-06.
+- **Known drift:** Public `/activate/` still requires CR-003 OTP even when CSV `otp_type=none` (that column is login 2FA). New CSV users get `UserOperationalPOI` rows on the existing-user re-import path or on activation, not on the first create insert. Audit still omits `working_role` (TC26 / BUG-04). Do not implement Playwright against current single-role / single-POI behaviour and call it TUM-06.
 - Suggested next step: persist multiple `UserRole` + Select Role switcher, then run this plan; keep US-005 single-role cases green (TC06).
