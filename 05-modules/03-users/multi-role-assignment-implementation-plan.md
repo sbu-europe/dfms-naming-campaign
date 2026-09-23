@@ -1,7 +1,7 @@
 ---
 module: 03-users
 specification: TUM-06 — Assign multiple operational roles; working-role switcher (no permission union)
-version: 2.2
+version: 2.3
 phase: Phase 2
 sprint: Sprint 10
 last_updated: 2026-09-23
@@ -18,7 +18,7 @@ implementation_reference:
   - nourish-backend/static/admin/js/dfms_poi_select2.js
   - nourish-backend/apps/users/invitation_service.py (create_invitation(..., pois_by_role_id=); activate via resolved_pois_by_role_id)
   - nourish-backend/apps/users/invitation_views.py / serializers.py / services.py (REST shared poi_ids)
-  - nourish-backend/apps/users/import_configs.py (CSV comma-separated role + poi_code → shared poi_ids)
+  - nourish-backend/apps/users/import_configs.py (CSV comma-separated role + poi_code shared set; optional pois_by_role per local role)
   - nourish-backend/apps/users/working_role.py (WorkingRoleMiddleware)
   - nourish-backend/apps/users/working_role_views.py (admin_set_working_role)
   - nourish-backend/templates/admin/includes/role_profile_switcher.html
@@ -41,7 +41,9 @@ Implements [TUM-06](../../03-backlog/phase-2/sprints/sprint-10/01-Multi-role%20T
 
 **Sequencing:** Ship Step 2 (persistence) and Step 6 (switcher) **together**. Persistence without the switcher is a regression — the DB allows two roles while menus still union permissions or pick "first assigned" (see Trap 1).
 
-**v2.2 (matches shipped admin UX):** Invite **add form** uses the same per-role Select2 Sites chips as User edit. CSV/REST still apply a shared `poi_ids` set. TUM-06 AC-2 and `tenant-user-management.md` still say invite is one shared Sites field — treat this plan as the source of truth for admin invite.
+**v2.2 (matches shipped admin UX):** Invite **add form** uses the same per-role Select2 Sites chips as User edit. TUM-06 AC-2 and `tenant-user-management.md` still say invite is one shared Sites field — treat this plan as the source of truth for admin invite.
+
+**v2.3 (CSV import/export):** If **any** role on the row is local (POI-scoped), the row **must** supply sites via `poi_code` **or** `pois_by_role` (at least one). Neither → that row fails. Reserved path: `poi_code` only (omit/empty `pois_by_role`) still applies that shared list to every local role. Optional path: `pois_by_role` (`gateman=CTG-001,CTG-002;scaling_operator=CTG-001`) maps sites per local role. If both are filled, `pois_by_role` wins. Global-only rows must leave both empty. REST invite stays on shared `poi_ids`.
 
 ---
 
@@ -111,8 +113,11 @@ Single-role invites (`role_ids` length 1) must keep working on all three paths.
 | File | Change | Why |
 |------|--------|-----|
 | `apps/users/import_configs.py` | Parse `role` column as comma-separated codes (strip/lower/dedupe, order-preserving). One code still valid | Today one row = one `role_code` |
-| `apps/users/import_configs.py` | Row-level failure (with reason) on: unknown code, forbidden combo, assigner denial, missing POI for a local role. Other rows unaffected | Bulk import must isolate bad rows, not abort the batch |
-| `apps/users/import_configs.py` | Parse `poi_code` as comma-separated codes (strip/dedupe). The set applies to every POI-scoped role on the row. One code still valid. Apply via `create_invitation(role_ids=..., poi_ids=...)` (new user) / `sync_user_roles` (existing user) — **never** `assign_role_to_user` alone, and **never** delete other POIs for a role except those not on the row | Post-Step-2, calling `assign_role_to_user` per code in a loop would only *add* — it wouldn't remove roles no longer on the row. Today's `.exclude(poi_id=one).delete()` would collapse multi-POI |
+| `apps/users/import_configs.py` | Row-level failure (with reason) on: unknown code, forbidden combo, assigner denial, **local role with neither `poi_code` nor `pois_by_role`**, unknown/inactive site, local role missing from a filled `pois_by_role`. Other rows unaffected | Bulk import must isolate bad rows, not abort the batch |
+| `apps/users/import_configs.py` | **Local-role site required:** if any `role` on the row is POI-scoped, the importer needs **at least one** of `poi_code` or `pois_by_role`. Both empty → fail that row (`At least one site (POI) is required for this role` / equivalent). Global-only rows must keep both empty | Same rule as admin invite: a local hat cannot be saved without a site |
+| `apps/users/import_configs.py` | **Reserved path:** parse `poi_code` as comma-separated codes (strip/dedupe). When `pois_by_role` is omitted or empty, that set applies to every POI-scoped role on the row. One code still valid. Apply via `create_invitation_for_provisioned_user(role_ids=..., poi_ids=...)` (new user) / per-role `sync_operational_pois_for_role` (existing user) — **never** `assign_role_to_user` alone, and **never** delete other POIs for a role except those not on the row | Old templates and TC22 stay valid. Post-Step-2, looping `assign_role_to_user` would only *add*; `.exclude(poi_id=one).delete()` would collapse multi-POI |
+| `apps/users/import_configs.py` | Optional column `pois_by_role` (not a `User` field — pop in `_prepare_for_model`). Syntax `role_code=POI,POI;other_role=POI`. When filled, this **satisfies** the local-role site requirement even if `poi_code` is blank. Resolve to `pois_by_role_id` `{role_id: [poi_id, …]}`; every local role on the row needs ≥1 active site in the cell; unknown role/site fails that row. If both columns filled, **`pois_by_role` wins** (do not cartesian-copy `poi_code`). Pass `pois_by_role_id` into `create_invitation_for_provisioned_user` (new user) and `sync_operational_pois_for_role(..., poi_ids=mapping[role])` (existing user) | Admin invite already persists this dict; CSV was the gap. No new table |
+| `apps/users/import_configs.py` (`get_export_row`) | Keep `poi_code` as the union of assigned sites. Write `pois_by_role` only when the user has more than one local role **and** the per-role sets are not identical; otherwise leave it empty so re-import uses the reserved `poi_code` path. Sample CSV: keep global + single-local rows; add one dual-hat `pois_by_role` example | Export → import must not flatten “Gateman @ A+B, Scaling @ A” into both hats @ A+B |
 
 ### Working-role switcher (Step 6) — **ships with Step 2, not after**
 
@@ -158,7 +163,7 @@ Closes TUM-06-1. Matches AC-1 / Flow A / the E2E plan — only re-open if the PO
 | L1 | Any allowed operational combination, no cap, no named allowlist. Exclusive targets: `tenant_super_admin`, `tenant_admin`, `driver`, `driver_helper`. No `vendor` staff role exists in `SEED_ROLES`. |
 | L2 | No permission union — working role only. `has_role` stays assigned-set membership (needed for Select Role choices + fallback). |
 | L3 | Cross-department dual-hats are required (Gateman + Scaling). Role widget is checkboxes (`CheckboxSelectMultiple`), rendered in a two-column grid (not one long list), grouped by department, not filtered to one. `department` fields become display-only, derived from first selected role. |
-| L4 | **Admin invite and User edit** use the same per-role Sites UX: checking a local role opens that role’s Select2 chip picker; each local role has its own set (sets may overlap or differ); ≥1 site required per checked local role. **CSV / REST** still send a **shared** `poi_ids` list applied to every selected local role (one site still valid). Global roles clear POI rows for that role only. Duplicate `(user, poi, role)` rejected. Save **syncs the set** per role (add missing, delete extras). |
+| L4 | **Admin invite and User edit** use the same per-role Sites UX: checking a local role opens that role’s Select2 chip picker; each local role has its own set (sets may overlap or differ); ≥1 site required per checked local role. **CSV:** if any role on the row is local, the user **must** fill `poi_code` **or** `pois_by_role` (or both). Neither → row fails. **Reserved path:** `poi_code` only applies that shared list to every selected local role (one site still valid). **Optional path:** `pois_by_role` maps sites per local role (and is enough on its own). When both are filled, `pois_by_role` wins. **REST** still sends a shared `poi_ids` list (no `pois_by_role_id` on REST in this story). Global roles clear POI rows for that role only and must not send sites. Duplicate `(user, poi, role)` rejected. Save **syncs the set** per role (add missing, delete extras). |
 | L5 | `InvitationToken.role_ids`, `poi_ids` (union), and `pois_by_role_id` (JSON dict). `role` / `poi` FKs stay `[0]` for backward compat. Empty `role_ids` / `poi_ids` on old rows → treat as `[fk]` if set. Empty `pois_by_role_id` → cartesian from `resolved_poi_ids` × `resolved_role_ids`. |
 | L6 | Working-role persistence copies Working site exactly: session + HttpOnly cookie, `admin_set_working_role` POST, middleware binds `_working_role_code`. Don't thread `request` through every call site. |
 | L7 | Fallback role = remaining assigned role with lowest `role_code`. One role → hide Select Role. Fallback POI = remaining assigned POI for the working role (prefer `is_primary`). One POI on that role → hide Working site. Removing a role never deactivates the account. |
@@ -183,7 +188,7 @@ Self-approval stays `created_by == request.user` — already role-independent. S
 
 ## Out of scope
 
-- Permission union (archived US-004) · Dual-hat admin/driver/helper/vendor roles · Assigning Super Admin · Mobile role picker · JWT `working_role` claim · `UserRoleInline` as a parallel editor · Named dual-hat allowlist · Combined `(role, POI)` picker · Per-role POI matrix on **CSV / REST** (those paths keep shared `poi_ids`).
+- Permission union (archived US-004) · Dual-hat admin/driver/helper/vendor roles · Assigning Super Admin · Mobile role picker · JWT `working_role` claim · `UserRoleInline` as a parallel editor · Named dual-hat allowlist · Combined `(role, POI)` picker · Per-role POI matrix on **REST** (REST keeps shared `poi_ids`) · Two CSV rows per person as a merge (email unique_lookup — last row replaces the set).
 
 ---
 
@@ -194,7 +199,10 @@ Self-approval stays `created_by == request.user` — already role-independent. S
 - Invite activation with `role_ids` length 2 → two `UserRole` + `UserOperationalPOI` rows per selected POI. Admin invite with **different** per-role sets (Gateman @ CTG-001+CTG-002, Scaling @ CTG-001) must activate those sets, not a cartesian flatten. CSV/REST with shared `poi_ids` still cartesian.
 - Adding a second POI to an existing local role keeps the first; duplicate `(user, poi, role)` rejected.
 - `role_ids` length 1 / one `poi_code` still works, on all three invite paths.
-- CSV: comma-separated `poi_code` applies to each local role on the row; forbidden-combo row fails in isolation.
+- CSV reserved: comma-separated `poi_code` (no `pois_by_role`) applies to each local role on the row; forbidden-combo row fails in isolation.
+- CSV: local role with **neither** `poi_code` nor `pois_by_role` fails that row; `poi_code` alone or `pois_by_role` alone is enough.
+- CSV optional: `pois_by_role=gateman=CTG-001,CTG-002;scaling_operator=CTG-001` writes three `UserOperationalPOI` rows, not four. Missing local role in the cell fails that row.
+- CSV export: different per-role sets emit `pois_by_role`; identical sets leave it empty. Re-import does not flatten.
 - Local operator with two POIs on Gateman sees Working site listing only those two; one POI → Working site hidden.
 - Role switch from Gateman (CTG-001+CTG-002, working CTG-002) to Scaling (CTG-001 only) falls back working POI to CTG-001.
 - `get_primary_role_code` / `get_all_permissions` with `_working_role_code="gateman"` exclude scaling permissions.
