@@ -26,12 +26,12 @@ e2e_scenarios:
 ## User Story
 
 **As a** Tenant Super Admin or Tenant Admin  
-**I want to** assign more than one operational role to the same user  
-**So that** one person can cover dual hats (for example gateman + scaling at one site) without creating a second account.
+**I want to** assign more than one operational role to the same user, and assign **multiple POIs to each local role**  
+**So that** one person can cover dual hats (for example gateman + scaling) and the same hat at more than one site, without a second account.
 
 **As a** dual-hatted user  
-**I want to** pick which of my assigned roles I am working as (the same way I pick a working POI)  
-**So that** menus, queues, and actions match that role only until I switch.
+**I want to** pick which of my assigned roles I am working as, then pick which of that role’s assigned POIs I am working at  
+**So that** menus follow the working role, and queues stay scoped to the working site, until I switch.
 
 **E2E scenarios:** [tum-06-multi-role-assignment-e2e-scenarios.md](../../../../../09-testing/backend/e2e-scenarios/stories-phase-2/010-Multi-role%20Tenant%20Users/tum-06-multi-role-assignment-e2e-scenarios.md)
 
@@ -41,7 +41,9 @@ e2e_scenarios:
 
 Smaller sites often need one person to cover two jobs — for example Gate and Scale at the same depot, or a Distribution Officer who can also approve when the manager is away. Today DFMS allows **only one role per user**. Admins either create a second login or keep changing that person’s role. That is slow, easy to get wrong, and it hides who actually did the work.
 
-This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multiple operational** roles — as many as they need, with no fixed cap. After login, that user **selects one working role** (same pattern as Select POI). Until they switch, they only see and do what that role can do. They still cannot approve their own requests.
+This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multiple operational** roles — as many as they need, with no fixed cap — and give each **local (POI-scoped) role its own set of sites**, also with no fixed cap. After login, that user **selects one working role** (Select Role) and, when that role has more than one assigned site, **selects one working POI** (Working site, listing only that role’s assigned POIs). Until they switch, they only see and do what that role can do at that site. They still cannot approve their own requests.
+
+Select Role and Working site stay **two independent controls** (not a combined `(role, POI)` picker). Tenant Admin / Tenant Super Admin Working site (all active POIs) is unchanged.
 
 **Tenant Super Admin** and **Tenant Admin** stay **one role only** — they are administrators, not dual-hats. Driver, Helper, and Vendor also stay single-role. Invitation already shipped as one role per person; this is new capability, not unfinished invite work.
 
@@ -111,9 +113,17 @@ This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multip
   **When** it is imported  
   **Then** multiple role codes on one row are accepted; a forbidden combo fails that row with a reason.
 
+- [ ] **Given** Invite User when any selected role is POI-scoped  
+  **When** the admin picks Site (POI)  
+  **Then** Site (POI) is a **multi-select**; **at least one** site is required; the selected sites apply to **every** selected local role (one site is still valid). Per-role POI sets are refined on User edit.
+
+- [ ] **Given** a CSV row with comma-separated `poi_code` values  
+  **When** it is imported  
+  **Then** those sites apply to every POI-scoped role on the row; a local role with no site fails that row with a reason. One `poi_code` is still valid.
+
 - [ ] **Given** existing single-role invites, edits, and CSV rows  
   **When** they are processed after this change  
-  **Then** they keep working (one role is still valid).
+  **Then** they keep working (one role and one POI are still valid).
 
 ### AC-3 — Working role (no permission union)
 
@@ -159,23 +169,39 @@ This story lets **Tenant Super Admin** and **Tenant Admin** give a user **multip
   **When** the portal refreshes to that working role  
   **Then** they see B’s landing and can only perform B’s operations.
 
-- [ ] **Given** the working role is POI-scoped  
-  **When** the user needs a site  
-  **Then** Select POI still applies for that role’s site.
+- [ ] **Given** the working role is POI-scoped and has **more than one** assigned POI  
+  **When** the user is in the portal  
+  **Then** **Working site** lists **only those assigned POIs** (not the whole tenant catalog). They pick one working POI without a second login.
 
-### AC-5 — POI per local role
+- [ ] **Given** the working role is POI-scoped and has **one** assigned POI  
+  **When** the user is in the portal  
+  **Then** Working site is hidden (or disabled) and that site is the working POI.
+
+- [ ] **Given** the user switches working role  
+  **When** the new role is POI-scoped  
+  **Then** Working site choices refresh to **that role’s** assigned POIs. If the current working POI is still assigned to the new role, keep it; otherwise fall back to a remaining assigned POI for that role (prefer `is_primary`).
+
+### AC-5 — Multiple POIs per local role
 
 - [ ] **Given** a POI-scoped role assigned to a user  
   **When** that role is saved  
-  **Then** it still requires its own site assignment.
+  **Then** it requires **at least one** site. There is **no fixed cap** on how many POIs that role may hold.
+
+- [ ] **Given** a local role already assigned to a user  
+  **When** additional POIs are assigned for **that same role**  
+  **Then** `UserOperationalPOI` rows are **added**; existing sites for that role are not deleted unless the admin removed them. Duplicate `(user, poi, role)` is rejected.
 
 - [ ] **Given** a user with more than one local role  
-  **When** POIs are assigned  
-  **Then** they may have different POIs for different local roles.
+  **When** POIs are assigned on User edit  
+  **Then** each local role has its **own set** of POIs (per-role multi-select). Sets may overlap or differ.
 
 - [ ] **Given** a global operational role (not POI-scoped)  
   **When** leftover POI rows exist for that role  
   **Then** the role must not require a POI, and leftover POI rows are cleared for **that role only**.
+
+- [ ] **Given** a working POI stored for the session  
+  **When** the admin removes that POI from the current working role  
+  **Then** the session falls back to a remaining assigned POI for that role.
 
 ### AC-6 — Audit
 
@@ -200,8 +226,9 @@ Tenant Super Admin or Tenant Admin → Invite User
   → User activates
   → UserRole × 2, UserOperationalPOI × 2 (same poi, two role_ids)
   → Login: Select Role shows Gateman and Scaling Operator
-  → User selects Gateman → gate queue only
-  → User switches to Scaling Operator → scale screens only
+  → User selects Gateman → gate queue only at that site
+  → User switches to Scaling Operator → scale screens only at that site
+  → Working site hidden (one assigned POI)
 ```
 
 ### Flow B — Add a role to an existing user
@@ -230,13 +257,27 @@ Tenant Admin may **not** grant the Tenant Admin role itself (existing delegation
 
 ```
 Row: email=..., role=gateman,scaling_operator, poi_code=DEPOT-01
-  → Two assignments on activate/import
+  → Two roles; each local role gets that one POI
+Row: email=..., role=gateman,scaling_operator, poi_code=DEPOT-01,DEPOT-02
+  → Two roles; each local role gets both POIs
 Row: email=..., role=tenant_admin,gateman
   → Row fails; other rows unaffected
 Row: email=..., role=tenant_super_admin,gateman
   → Row fails; other rows unaffected
 Row: email=..., role=driver,gateman
   → Row fails
+```
+
+### Flow E — Multiple POIs on one local role
+
+```
+Edit user: Gateman @ CTG-001 + CTG-002; Scaling Operator @ CTG-001
+  → UserRole × 2, UserOperationalPOI × 3
+  → Login: Select Role lists Gateman and Scaling Operator
+  → Working as Gateman: Working site lists CTG-001 and CTG-002
+  → User picks CTG-002 → gate queue for CTG-002 only
+  → User switches to Scaling Operator → Working site hidden (only CTG-001);
+    working POI falls back to CTG-001; scale screens for CTG-001 only
 ```
 
 ---
@@ -250,7 +291,7 @@ Row: email=..., role=driver,gateman
 | BR-TUM06-003 | Self-approval prevention applies in the working role; switching role does not let a user approve their own request |
 | BR-TUM06-004 | Super Admin is never assignable via invite/edit/CSV |
 | BR-TUM06-005 | As **targets**, these roles stay exclusive (cannot combine with any other role): **Tenant Super Admin**, **Tenant Admin**, Driver, Helper, Vendor. |
-| BR-TUM06-006 | POI-scoped roles require a site **per role** |
+| BR-TUM06-006 | POI-scoped roles require **at least one** site **per role**, with **no fixed cap**. Duplicate `(user, poi, role)` is rejected. Each local role has its own POI set (sets may overlap). Working site lists **only** the working role’s assigned POIs; hidden when that role has one site. Tenant Admin / Tenant Super Admin Working site (all active POIs) is unchanged. |
 | BR-TUM06-007 | Removing a role does not deactivate the user account |
 | BR-TUM06-008 | `assign_role_to_user` must not delete other allowed operational assignments |
 | BR-TUM06-009 | **Tenant Super Admin** and **Tenant Admin** may assign multiple **operational** roles as in AC-0. Operational users may not. Only Tenant Super Admin may grant the Tenant Admin role (alone). Tenant Admin may not grant Tenant Admin or Tenant Super Admin. |
@@ -264,11 +305,11 @@ Row: email=..., role=driver,gateman
 | TUM-06-1 | Policy + specs | Confirm open questions with PO; update `rbac.md` §3.1 and `tenant-user-management.md` | High | Not done |
 | TUM-06-2 | Persistence | Drop `uniq_userrole_user_single_role`; keep `unique(user, role)`; `assign_role_to_user` adds (allowed) instead of replace | High | Not done |
 | TUM-06-3 | Invite + activation | Persist and apply all `role_ids`; stop taking only `[0]` | High | Not done |
-| TUM-06-4 | Admin edit UX | Multi-select roles + per-role POI; usable by Tenant Super Admin and Tenant Admin; validation for forbidden combos | High | Not done |
-| TUM-06-5 | CSV / bulk | Comma-separated roles; row-level errors for forbidden / missing POI; same two assigners as invite/edit | Medium | Not done |
-| TUM-06-6 | Working-role switcher | Select Role control (like Select POI); session persistence; admin/API checks use working role only | High | Not done |
+| TUM-06-4 | Admin edit UX | Multi-select roles + **per-role multi-POI**; usable by Tenant Super Admin and Tenant Admin; validation for forbidden combos | High | Not done |
+| TUM-06-5 | CSV / bulk | Comma-separated roles and `poi_code`; row-level errors for forbidden / missing POI; same two assigners as invite/edit | Medium | Not done |
+| TUM-06-6 | Working-role + working-POI switchers | Select Role (like Working site); Working site for local operators lists the **working role’s** assigned POIs; session persistence; admin/API checks use working role only | High | Not done |
 | TUM-06-7 | Audit + cache | Role set on assign/remove; acting **working role** on later events; invalidate permission cache on switch | Medium | Not done |
-| TUM-06-8 | Tests | Assign/remove/forbidden; Select Role switch; single-role hides switcher; operational user cannot assign | High | Not done |
+| TUM-06-8 | Tests | Assign/remove/forbidden; Select Role switch; single-role hides switcher; multi-POI per local role; Working site filtered by working role; operational user cannot assign | High | Not done |
 
 ---
 
@@ -280,7 +321,7 @@ Row: email=..., role=driver,gateman
 | `apps.core.rbac_service.assign_role_to_user` | Today replace-on-assign — must change in TUM-06-2 |
 | Working-role session (like working POI) | TUM-06-6; follow `apps.operations.yard_poi` / Select POI pattern |
 | `apps.requisitions.role_access.get_primary_role_code` | Must resolve **working role**, not first assigned |
-| `UserOperationalPOI` | Already unique on `(user, poi, role)` |
+| `UserOperationalPOI` | Already unique on `(user, poi, role)` — that key **allows** many POIs per role. Do not collapse to one POI on save. |
 | PO sign-off on open questions | Blocks TUM-06-2 if they want a named list of dual-hats instead of any allowed combination |
 
 ---
@@ -302,7 +343,9 @@ Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../.
 - [ ] Adding Gateman to an existing Tenant Admin is rejected
 - [ ] Tenant Admin cannot grant the Tenant Admin role to someone else
 - [ ] User with DO + DM: as DO cannot approve; switch to DM can approve others’ TRs; cannot approve own
-- [ ] CSV comma-separated roles success; forbidden combo row fails
+- [ ] CSV comma-separated roles success; comma-separated `poi_code` applies to each local role on the row; forbidden combo row fails
+- [ ] Edit: Gateman @ CTG-001 **and** CTG-002; Scaling @ CTG-001 only — Working as Gateman, Working site lists both; switch to Scaling hides Working site and falls back to CTG-001
+- [ ] Adding a second POI to an existing local role keeps the first; duplicate `(user, poi, role)` rejected
 - [ ] Audit of a gate-in records working role Gateman, not Scaling
 
 ---
@@ -314,7 +357,7 @@ Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../.
 - [ ] `uniq_userrole_user_single_role` removed; one-role users still valid
 - [ ] `assign_role_to_user` no longer deletes other allowed operational roles
 - [ ] Invitation no longer ignores `role_ids[1:]`
-- [ ] Unit tests cover Select Role switch, forbidden combos, no fixed cap, and single-role (no switcher)
+- [ ] Unit tests cover Select Role switch, forbidden combos, no fixed cap, single-role (no switcher), multi-POI per local role, and Working site filtered by working role
 - [ ] Story status updated for Phase 2 tracking
 
 ---
@@ -325,4 +368,5 @@ Playwright admin E2E: [tum-06-multi-role-assignment-e2e-scenarios.md](../../../.
 - `InvitationSerializer.role_ids` `max_length=5` is leftover from a draft cap — lift it so all selected allowed roles are applied.
 - Archived US-004 described multi-role **union**; this story **does not** use union. The user works as one selected role at a time.
 - **Tenant Super Admin** and **Tenant Admin** are administrators: they may **assign** multiple operational roles to others, but they themselves may hold **only one** role.
-- Suggested PRD delta (BA, later): a person may be assigned multiple catalog roles; runtime access is the selected working role, same idea as working POI.
+- Suggested PRD delta (BA, later): a person may be assigned multiple catalog roles and, for each local role, multiple sites; runtime access is the selected working role at the selected working POI.
+- Select Role and Working site stay two controls. A combined `(role, POI)` picker is out of scope.

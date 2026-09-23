@@ -1,7 +1,7 @@
 ---
 module: 12-users
 specification: TUM-06 Tenant User — Assign Multiple Operational Roles — Playwright E2E Scenario Plan
-version: 1.2
+version: 1.3
 phase: Phase 2
 related_stories: TUM-06
 source_spec: ../../../../../03-backlog/phase-2/sprints/sprint-10/01-Multi-role Tenant Users/TUM-06-multi-role-assignment.md
@@ -16,7 +16,7 @@ implementation_reference:
   - apps/users/import_configs.py (CSV column role — single code)
   - templates/admin/includes/poi_profile_switcher.html (Working site — pattern for Select Role)
   - apps/requisitions/role_access.py (get_primary_role_code uses first matching assigned role)
-last_updated: 2026-09-22
+last_updated: 2026-09-23
 playwright_mcp: true
 ---
 
@@ -74,22 +74,23 @@ Sibling: [user-invitation-activation-e2e-scenarios.md](../../users/user-invitati
 | TC14 | Adding a second role to Tenant Admin is rejected | As **Tenant Super Admin**, add **Gateman** + **Site (POI)** to a user who already is Tenant Admin. As **Tenant Admin**, attempt the same on another Tenant Admin user. Assert validation error; Tenant Admin stays one role. Tenant Admin still cannot grant Tenant Admin (TC03). | P0 | Planned |
 | TC15 | Duplicate role rejected | On User change, assign the same role twice. Assert rejected (`unique(user, role)`). | P1 | Planned |
 | TC16 | Tenant Admin is single-role; Select Role hidden | As Tenant Super Admin, **Add user** with **Tenant Admin** alone. Activate and log in. Assert **Select Role** is hidden or disabled; menus are admin only. No gate write. | P0 | Planned |
-| TC17 | POI required per local role; different POIs allowed | Assign **Gateman** @ `CTG-001` and another POI-scoped role @ `CTG-002`. Assert each local role has its own **Site (POI)**. A global operational role must not require **Site (POI)**; leftover POI rows for that role only are cleared. | P1 | Planned |
+| TC17 | Multiple POIs per local role; different sets across roles | On User change, assign **Gateman** @ `CTG-001` **and** `CTG-002`, and **Scaling Operator** @ `CTG-001` only (per-role Site multi-select). **Save**. Assert three `UserOperationalPOI` rows. A global operational role must not require **Site (POI)**; leftover POI rows for that role only are cleared. Adding `CTG-002` to Gateman must not delete `CTG-001`. Duplicate same POI on the same role is rejected. | P0 | Planned |
 
-## D — Working role switcher (AC-3, AC-4)
+## D — Working role + working POI switchers (AC-3, AC-4)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
 | TC18 | Select Role follows Working site pattern; no permission union | Log in as Gateman + Scaling user. Assert header/profile **Select Role** modelled on **Working site** (`#dfms-poi-profile`, label **Working site**, `#dfms-poi-select`). Select **Gateman**. Assert gate menus/queues only; Scaling write URLs denied. Switch to **Scaling Operator** without re-login. Assert scale screens only; gate write denied. | P0 | Planned |
 | TC19 | DO + DM — approve others not self | User with Distribution Officer + Distribution Manager. Working as **Distribution Officer**, create a TR; assert **Approve** / **Reject** absent. Switch to **Distribution Manager**; assert can approve **another** user’s TR; attempting to approve **own** TR is still denied (`created_by == request.user`). | P0 | Planned |
 | TC20 | Admin removes current working role — session falls back | While the user is working as role A, as admin remove role A. On next request, assert fallback to a remaining assigned role (no crash / empty perms). | P1 | Planned |
-| TC21 | POI-scoped working role still uses Working site | While working as Gateman, assert **Working site** still applies for that role’s site (`Select working site` / `#dfms-poi-select`). | P1 | Planned |
+| TC21 | Working site lists the working role’s assigned POIs | Log in as the TC17 user. Working as **Gateman**, assert **Working site** (`#dfms-poi-select`) lists **only** `CTG-001` and `CTG-002` (not the whole tenant catalog). Pick `CTG-002`. Assert gate queue is scoped to that site. | P0 | Planned |
+| TC21b | Role switch refreshes Working site; single-POI hides it | From TC21 (working Gateman @ `CTG-002`), switch **Select Role** to **Scaling Operator** without re-login. Assert Working site is hidden (Scaling has one POI); working POI falls back to `CTG-001`; scale screens for `CTG-001` only. Switch back to Gateman: Working site lists both again; `CTG-001` stays selected (still assigned). | P0 | Planned |
 
 ## E — CSV (AC-2)
 
 | Test Case ID | Test Scenario | Test Description | Priority | Status |
 |--------------|---------------|------------------|----------|--------|
-| TC22 | CSV comma-separated roles succeed | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a row `role=gateman,scaling_operator` with `poi_code=CTG-001` and wipe-friendly email. Confirm **Import Preview**. After activate/import, assert two assignments and **Select Role** lists both. | P0 | Planned |
+| TC22 | CSV comma-separated roles and POIs succeed | As Tenant Super Admin, **Users** changelist **Import** (`/admin/users/user/import/`, `admin:users_user_import_upload`). Upload a row `role=gateman,scaling_operator` with `poi_code=CTG-001,CTG-002` and wipe-friendly email. Confirm **Import Preview**. After activate/import, assert two roles, each with both POIs, and **Select Role** lists both. | P0 | Planned |
 | TC23 | CSV forbidden combo fails that row only | Import a file with one good row and one `role=tenant_admin,gateman` (and/or `tenant_super_admin,gateman` / `driver,gateman`). Assert the forbidden row fails with a reason on preview; the good row is unaffected. | P0 | Planned |
 | TC24 | CSV single-role row still valid | Import `role=gateman` only. Assert one assignment; behaviour matches TC06. | P1 | Planned |
 
@@ -106,9 +107,9 @@ Sibling: [user-invitation-activation-e2e-scenarios.md](../../users/user-invitati
 - Role fixtures: distinct users per role. Do **not** use the same user for requester and approver except in TC19 (that case is the self-approval test). Do not mutate seed `distribution.officer1` / `gateman1` — create `mcp-tum06-*` users.
 - Master data: `CTG-001` / `CTG-002`; **Gateman** and **Scaling Operator** are POI-scoped and sit in different departments (`gate_operations` vs `scaling_weight`) — post-TUM-06 multi-select must allow that cross-department pair.
 - Admin URL names: `admin:users_user_changelist`, `admin:users_invitationtoken_add`, `admin:users_user_change`, `admin:users_user_import_upload`, `admin:audit_auditlog_changelist`.
-- Stable selectors: `#content-main`, `#result_list`, `.messagelist`, `.errorlist`, invite **Role** widget, **Site (POI)** (`#id_operational_poi`), `#dfms-poi-select` for Working site; new Select Role control TBD (mirror `#dfms-poi-profile`).
+- Stable selectors: `#content-main`, `#result_list`, `.messagelist`, `.errorlist`, invite **Role** widget, **Site (POI)** (`#id_operational_poi`, multi-select on invite; per-role `poi_role_<uuid>` on edit), `#dfms-poi-select` for Working site; new Select Role control TBD (mirror `#dfms-poi-profile`).
 - Current UI labels: changelist **Add user** (not “Invite user”); invite breadcrumb **Add user**; submit **Save** (`name="_save"`); Access fieldset **Role**, **Site (POI)**, **2FA**; Users list **Import**.
 - Status assertion: invitation list **Invited**; after activation the user is active. Do not trust toast copy over persisted `UserRole` rows.
-- Scope guardrail: plan ends at admin invite/edit/CSV, Select Role switch, and audit of the working role. No mobile, no REST invitation contract, no permission union.
-- **Known drift:** `assign_role_to_user` deletes other roles; invitation applies `role_ids[0]`; CSV `role` is a single code; `role_ids` `max_length=5` leftover cap; `get_primary_role_code` returns first matching assigned role, not a working-role session. Tests will fail until TUM-06-2…6 land. Do not implement Playwright against current single-role behaviour and call it TUM-06.
+- Scope guardrail: plan ends at admin invite/edit/CSV, Select Role switch, Working site among the working role’s assigned POIs, and audit of the working role. No mobile, no REST invitation contract, no permission union, no combined `(role, POI)` picker.
+- **Known drift:** `assign_role_to_user` deletes other roles; invitation applies `role_ids[0]`; CSV `role` is a single code; `role_ids` `max_length=5` leftover cap; `get_primary_role_code` returns first matching assigned role, not a working-role session; User edit POI is still one value per role and `sync_user_roles` collapses extras; Working site is Tenant Admin / Super Admin only. Tests will fail until TUM-06-2…6 land. Do not implement Playwright against current single-role / single-POI behaviour and call it TUM-06.
 - Suggested next step: persist multiple `UserRole` + Select Role switcher, then run this plan; keep US-005 single-role cases green (TC06).

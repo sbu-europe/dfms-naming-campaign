@@ -300,10 +300,10 @@ Role: "Transport Planner" {
 ```
 1. User invitation initiated by Tenant Super Admin or Tenant Admin
 2. Admin selects one or more operational roles (multi-select, grouped by department; Super Admin hidden)
-3. System validates the set (exclusive targets, assigner policy, POI per local role)
-4. User activates account — all selected roles are applied
-5. At runtime the user selects one working role (Select Role, same idea as Working site)
-6. Permissions, menus, and landing follow that working role only (no union)
+3. System validates the set (exclusive targets, assigner policy, at least one POI per local role)
+4. User activates account — all selected roles are applied, and each local role receives the invite’s POI set
+5. At runtime the user selects one working role (Select Role), then one working POI from **that role’s** assigned sites (Working site, hidden when the role has one site)
+6. Permissions, menus, and landing follow that working role only (no union); queues follow the working POI
 ```
 
 **Constraints** (TUM-06 — see [multi-role-assignment-implementation-plan.md](../03-users/multi-role-assignment-implementation-plan.md)):
@@ -313,7 +313,7 @@ Role: "Transport Planner" {
 - Tenant Super Admin and Tenant Admin may **assign** multiple operational roles to others; they themselves hold **only one** role. Only Tenant Super Admin may grant Tenant Admin (alone).
 - Operational users cannot assign roles.
 - Each `UserRole` stores that role’s catalog department. Invite/edit is **not** locked to a single department (Gateman + Scaling Operator is a valid cross-department pair).
-- Location assignment (`UserOperationalPOI`) is required **per POI-scoped role** and cleared for that role only when the role is global.
+- Location assignment (`UserOperationalPOI`) is required **per POI-scoped role** (**at least one** site, no cap). Each local role has its own POI set (sets may overlap). Duplicate `(user, poi, role)` is rejected. Cleared for that role only when the role is global. Working site lists only the working role’s assigned POIs.
 - Access scope (Global / Local) of the **working role** determines data row visibility (see Section 1.8).
 - Self-approval prevention still applies in the working role (`requester_id ≠ current_user_id`). Switching role does not allow approving one’s own request.
 

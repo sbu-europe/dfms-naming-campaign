@@ -159,14 +159,14 @@ The Tenant Admin invites a user by email. The invitation is dispatched immediate
 | Email | Required; unique per tenant |
 | Employee ID | Optional |
 | Role | Multi-select of assignable operational roles, grouped by department; Super Admin hidden. Exclusive targets (Tenant Admin, Tenant Super Admin, Driver, Helper) cannot be combined with any other role. See [multi-role-assignment-implementation-plan.md](./multi-role-assignment-implementation-plan.md) (TUM-06). |
-| Assigned POI | Required if role has Local access scope; hidden for Global roles |
+| Assigned POI | Required if **any** selected role is POI-scoped; hidden for Global-only. Invite is a **multi-select** shared across selected local roles (one site still valid). User edit has a **per-role** multi-select so each local role can hold a different set of sites. |
 
 **Validation rules:**
 ```
 Email must be unique within the tenant
 Each selected role must be a valid assignable operational role (not Super Admin)
 The set must pass exclusive-target validation (TUM-06)
-Assigned POI required if **any** selected role is POI-scoped; User edit may set a different POI per local role
+Assigned POI required if **any** selected role is POI-scoped (**at least one**, no cap). Invite/CSV: the selected POI set applies to every local role on the row. User edit may set a **different POI set per local role**.
 Role assignment validated against tenant subscription plan limits
 ```
 
@@ -199,7 +199,7 @@ sent → pending (user opens link) → activated (password set + T&C accepted)
 | First Name | Yes | |
 | Last Name | Yes | |
 | Role | Yes | One `role_code`, or comma-separated codes (`gateman,scaling_operator`); forbidden combinations fail that row |
-| Assigned POI | Conditional | Required if role is Local-scoped |
+| Assigned POI | Conditional | Required if any role is Local-scoped; comma-separated `poi_code` values apply to every local role on the row (one code still valid) |
 
 **Behaviour:**
 - Per-row validation — invalid rows reported with reason; valid rows invited
@@ -279,7 +279,7 @@ All user fields. Read-only for activated users except safe-to-edit fields.
 | First Name | |
 | Last Name | |
 | Employee ID | |
-| Assigned POI | Editable for Local-scoped roles; POI dropdown |
+| Assigned POI | Editable per Local-scoped role; **multi-select** of sites (no cap). Dual-hat users pick **working role** then **working POI** (Working site lists only that role’s assigned POIs; hidden when the role has one site). |
 | Role | Multi-select; adding a role creates a `UserRole` row (does not delete others); removing a role deletes that assignment only (account stays active). Audit logs added / removed / resulting codes. Dual-hat users pick a **working role** (Select Role) without a second login. |
 
 **Restricted updates:**
@@ -508,10 +508,11 @@ Super Admin role is hidden from all role dropdowns in the Tenant Admin UI.
 ### 12.2 Assigned POI Required for Local-Scoped Roles
 
 ```
-IF role.access_scope = 'Local':
-  assigned_poi_id is REQUIRED on invitation and user edit
+IF role.access_scope = 'Local' (POI-scoped):
+  at least one assigned POI is REQUIRED on invitation and user edit for that role
+  additional POIs for the same role are allowed (no cap); duplicate (user, poi, role) is rejected
 IF role.access_scope = 'Global':
-  assigned_poi_id is optional (ignored for access control; may be set for display)
+  assigned POI is not required; leftover UserOperationalPOI rows for that role only are cleared
 ```
 
 ### 12.3 Role Change Behaviour

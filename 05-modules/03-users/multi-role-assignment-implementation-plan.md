@@ -1,10 +1,10 @@
 ---
 module: 03-users
 specification: TUM-06 — Assign multiple operational roles; working-role switcher (no permission union)
-version: 2.0
+version: 2.1
 phase: Phase 2
 sprint: Sprint 10
-last_updated: 2026-09-22
+last_updated: 2026-09-23
 related_stories: TUM-06
 baseline_spec: tenant-user-management.md
 rbac_spec: ../01-foundation/rbac.md
@@ -33,7 +33,7 @@ Implements [TUM-06](../../03-backlog/phase-2/sprints/sprint-10/01-Multi-role%20T
 
 **Problem:** DFMS stores and authorizes **one role per user**. Dual-hat sites (Gate + Scale, DO + DM) need two catalog roles on one account — without a second login and without merging permissions.
 
-**Rule:** A user may hold **many operational** roles but works as **exactly one** selected role at a time (same idea as Working site — no permission union). Tenant Super Admin, Tenant Admin, Driver, Helper stay single-role. Super Admin is never assignable.
+**Rule:** A user may hold **many operational** roles but works as **exactly one** selected role at a time (no permission union). Each local role may hold **many POIs**; the user then picks one working POI from **that role’s** assigned set (Working site). Tenant Super Admin, Tenant Admin, Driver, Helper stay single-role. Super Admin is never assignable.
 
 **Sequencing:** Ship Step 2 (persistence) and Step 6 (switcher) **together**. Persistence without the switcher is a regression — the DB allows two roles while menus still union permissions or pick "first assigned" (see Trap 1).
 
@@ -65,24 +65,25 @@ The core of this plan. Each row: what changes, and why.
 | `apps/users/models.py` | `UserRole.Meta.constraints`: drop `uniq_userrole_user_single_role` (user-only), add `UniqueConstraint(["user", "role"], name="uniq_userrole_user_role")` | Today's constraint physically forbids a second role row. Duplicate `(user, role)` still rejected. |
 | new `apps/users` migration | Constraint swap above | — |
 | `apps/core/rbac_service.py::assign_role_to_user` | Stop deleting sibling `UserRole` rows ("Single-role system" comment). `get_or_create(user, role)` instead; validate the **resulting** role set via the new `validate_role_set` (see below) | Current code deletes every other role before writing the new one — this is *the* replace-on-assign bug the whole story exists to fix |
-| `apps/core/rbac_service.py` (new) | Add `sync_user_roles(user, roles, *, assigned_by, poi_by_role_id)` — diffs current vs. desired set, creates/deletes rows, never sets `is_active=False`, returns `{added, removed, resulting}` | Admin edit needs to add **and** remove roles in one save; `assign_role_to_user` stays add-only (invite/API can't accidentally remove a role) |
+| `apps/core/rbac_service.py` (new) | Add `sync_user_roles(user, roles, *, assigned_by, pois_by_role_id)` — diffs current vs. desired **role** set and, per POI-scoped role, diffs the **POI** set (add missing `UserOperationalPOI`, delete extras not in the desired set, never collapse to a single POI). Never sets `is_active=False`. Returns `{added, removed, resulting}` | Admin edit needs to add **and** remove roles and per-role POIs in one save; `assign_role_to_user` stays add-only (invite/API can't accidentally remove a role) |
 | `apps/users/role_assignment_policy.py` (or new `role_set_policy.py`) | Add `EXCLUSIVE_TARGET_ROLE_CODES` + `validate_role_set(role_codes)` — rejects >1 exclusive role, rejects `super_admin` | Single place enforcing BR-TUM06-005; called from admin `clean()`, CSV validate, `create_invitation`, `assign_role_to_user`, `sync_user_roles` |
 
 ### Invite + activation (Step 3) — **three separate entry points, not one**
 
 | File | Change | Why |
 |------|--------|-----|
-| `apps/users/models.py::InvitationToken` | Add `role_ids = JSONField(default=list, blank=True)`. Keep FK `role` = `role_ids[0]` | Existing list columns / resend keep working off `role`; `role_ids` carries the full set |
+| `apps/users/models.py::InvitationToken` | Add `role_ids = JSONField(default=list, blank=True)` and `poi_ids = JSONField(default=list, blank=True)`. Keep FK `role` = `role_ids[0]` and FK `poi` = `poi_ids[0]` | Existing list columns / resend keep working off `role` / `poi`; JSON fields carry the full sets |
 | `apps/users/invitation_serializers.py::CreateInvitationSerializer` | `role_ids` field: lift `max_length=5` (draft cap), keep `min_length=1` | No fixed cap per AC-1 |
 | `apps/users/invitation_service.py::create_invitation` | Signature → `role_ids: list[UUID]`. Validate set + `user_may_assign_role` per id. Derive `department_key` from first role if not sent | Currently takes singular `role_id` |
 | `apps/users/invitation_service.py::create_invitation_for_provisioned_user` | Same signature change as above | **Easy to miss** — sibling function, same singular-`role_id` bug, no callers updated automatically |
-| `apps/users/invitation_service.py::activate_invitation` | Loop `inv.role_ids or [inv.role_id]` → `assign_role_to_user` per id. Per POI-scoped role: `UserOperationalPOI.update_or_create(...)`. Call `sync_tenant_admin_flags_from_role` only when the resulting set is a single admin role | Today only `inv.role` is applied — role 2+ is silently dropped on activation |
+| `apps/users/invitation_service.py::activate_invitation` | Loop `inv.role_ids or [inv.role_id]` → `assign_role_to_user` per id. Per POI-scoped role: `UserOperationalPOI.update_or_create` for **each** id in `inv.poi_ids or ([inv.poi_id] if inv.poi_id else [])` — do **not** delete other POIs for that role first. Call `sync_tenant_admin_flags_from_role` only when the resulting set is a single admin role | Today only `inv.role` is applied — role 2+ is silently dropped on activation; today one POI per role |
 | `apps/users/invitation_views.py::TenantInvitationListCreateView.post` | Pass `data["role_ids"]` through to `create_invitation`, not `[0]` | REST invite path #1 |
 | `apps/users/serializers.py::InvitationSerializer` | `role_id` (UUID) → `role_ids` (list of UUID) | REST invite path #2 — **a second, independent invite endpoint** that the story could easily ship without touching |
 | `apps/users/services.py::UserService.invite_user` | `role_id` param → `role_ids` | Wraps `create_invitation`; called by path #2 |
 | `apps/users/views.py::UserViewSet.invite` | Pass the list through | Entry point for REST invite path #2 |
 | `apps/users/admin.py::InviteUserForm.role` | `ChoiceField` → `MultipleChoiceField` rendered as `CheckboxSelectMultiple`, same two-column grid layout as the edit form | Consistent widget across invite and edit; checkboxes make "pick any combination" visually obvious |
-| `apps/users/admin.py` (`InviteUserForm` save) | Pass all selected role ids, not a single `_role_id` | Admin invite is path #3 |
+| `apps/users/admin.py::InviteUserForm.operational_poi` | `ModelChoiceField` → `ModelMultipleChoiceField` (shared set applied to every selected local role) | AC-2 / AC-5: invite can assign multiple POIs; per-role sets are refined on edit |
+| `apps/users/admin.py` (`InviteUserForm` save) | Pass all selected role ids and **all** selected POI ids (shared set applied to every selected local role) | Admin invite is path #3 |
 
 Single-role invites (`role_ids` length 1) must keep working on all three paths.
 
@@ -91,9 +92,9 @@ Single-role invites (`role_ids` length 1) must keep working on all three paths.
 | File | Change | Why |
 |------|--------|-----|
 | `apps/users/admin.py::UserAdminForm.role` | `ChoiceField` → `MultipleChoiceField` rendered as `CheckboxSelectMultiple` (one checkbox per role, grouped by department), choices minus forbidden codes, `tenant_admin` option only for Tenant Super Admin assigners | Today's single dropdown can't represent >1 role; checkboxes read faster than a multi-select listbox for a small, grouped list; department-first filtering blocks cross-department dual-hats (Trap 2) |
-| `apps/users/admin.py::UserAdminForm.clean()` | Call `validate_role_set` + per-code `user_may_assign_role`; require `operational_poi` (or per-role map) for any POI-scoped selection | Central validation point for forbidden combos |
-| `apps/users/admin.py` (per-role POI, **every** POI-scoped role, not just assigned) | A `poi_role_<role_id>` dropdown field for **every** POI-scoped role in the catalog (`UserAdminForm.__init__`), prefilled from `UserOperationalPOI` where it already exists. Rendered inline right after that role's checkbox in the same `<li>` (JS `inlinePoiFields()`), hidden until its checkbox is checked, saved via per-role `update_or_create`/delete | AC-5/TC17: two local roles on one user may need different sites; a *newly* checked local role must get its own site picker immediately (no page reload) — not just roles the user already holds. Invite still uses one shared POI field (Out of scope: per-role POI matrix on invite) |
-| `apps/users/admin.py` (CSS: `templates`/`Media.css` or inline `<style>` in the JS block) | Two-column grid layout for the Roles checklist: role checkboxes render in a responsive 2-column grid (`display: grid; grid-template-columns: repeat(2, minmax(0,1fr))`), each cell holding the checkbox label + its inline POI dropdown stacked underneath when shown | A single-column checkbox list for 10+ roles is a long scroll and looks like a bare Django default; two columns is the professional, compact layout for a small fixed catalog |
+| `apps/users/admin.py::UserAdminForm.clean()` | Call `validate_role_set` + per-code `user_may_assign_role`; each POI-scoped selection needs **at least one** site from its per-role multi-select (or the shared invite fallback) | Central validation point for forbidden combos and missing POI |
+| `apps/users/admin.py` (per-role POI, **every** POI-scoped role, not just assigned) | A `poi_role_<role_id>` **multi-select** (`ModelMultipleChoiceField`) for **every** POI-scoped role in the catalog (`UserAdminForm.__init__`), prefilled from all `UserOperationalPOI` rows for that role. Rendered inline right after that role's checkbox in the same `<li>` (JS `inlinePoiFields()`), hidden until its checkbox is checked, saved via per-role set-diff (`update_or_create` missing, delete extras). Do **not** `.exclude(poi_id=one).delete()` | AC-5: one local role may hold many sites; two local roles may have different sets; a *newly* checked local role must get its own site picker immediately. Invite still uses one shared POI **multi-select** (Out of scope: per-role POI matrix on invite) |
+| `apps/users/admin.py` (CSS: `templates`/`Media.css` or inline `<style>` in the JS block) | Two-column grid layout for the Roles checklist: role checkboxes render in a responsive 2-column grid (`display: grid; grid-template-columns: repeat(2, minmax(0,1fr))`), each cell holding the checkbox label + its inline POI **multi-select** stacked underneath when shown | A single-column checkbox list for 10+ roles is a long scroll and looks like a bare Django default; two columns is the professional, compact layout for a small fixed catalog |
 | `apps/users/admin.py::UserAdminForm.save_model` | Call `sync_user_roles` instead of `assign_role_to_user` once; write audit `{added, removed, resulting}` | `assign_role_to_user` is add-only — edit needs to remove roles too |
 | `apps/users/admin.py` (changelist `primary_role` column) | Join all assigned role names, comma-separated | No "primary" role exists in the DB anymore |
 | — | Do **not** enable `UserRoleInline` (`UserAdmin.inlines` stays `[]`) | Access fieldset must remain the single source of truth — avoids two editors disagreeing |
@@ -104,7 +105,7 @@ Single-role invites (`role_ids` length 1) must keep working on all three paths.
 |------|--------|-----|
 | `apps/users/import_configs.py` | Parse `role` column as comma-separated codes (strip/lower/dedupe, order-preserving). One code still valid | Today one row = one `role_code` |
 | `apps/users/import_configs.py` | Row-level failure (with reason) on: unknown code, forbidden combo, assigner denial, missing POI for a local role. Other rows unaffected | Bulk import must isolate bad rows, not abort the batch |
-| `apps/users/import_configs.py` | One `poi_code` applies to every POI-scoped role on the row. Apply via `create_invitation(role_ids=...)` (new user) / `sync_user_roles` (existing user) — **never** `assign_role_to_user` alone | Post-Step-2, calling `assign_role_to_user` per code in a loop would only *add* — it wouldn't remove roles no longer on the row |
+| `apps/users/import_configs.py` | Parse `poi_code` as comma-separated codes (strip/dedupe). The set applies to every POI-scoped role on the row. One code still valid. Apply via `create_invitation(role_ids=..., poi_ids=...)` (new user) / `sync_user_roles` (existing user) — **never** `assign_role_to_user` alone, and **never** delete other POIs for a role except those not on the row | Post-Step-2, calling `assign_role_to_user` per code in a loop would only *add* — it wouldn't remove roles no longer on the row. Today's `.exclude(poi_id=one).delete()` would collapse multi-POI |
 
 ### Working-role switcher (Step 6) — **ships with Step 2, not after**
 
@@ -125,8 +126,11 @@ Copy the pattern from `apps/operations/yard_poi.py` + `admin_poi_views.py` + `po
 | `apps/requisitions/admin.py` (`procurement_officer` PR queue filter) | Same sweep | PR queue visibility currently keyed off `has_role` directly |
 | `apps/operations/gate/admin.py`, `apps/operations/gate/gate_poi.py` | Same sweep (gate write role→POI resolution) | Gate write actions resolve role via `has_role` loop |
 | — | `has_role` stays as-is for **membership** uses only (populating Select Role choices, fallback validation) | L2 — `has_role` isn't wrong everywhere, only where it's used as an authorization decision |
+| `apps/operations/yard_poi.py::user_needs_poi_switcher` | Also `True` when the **working role** is POI-scoped **and** that role has **more than one** assigned POI. Tenant Admin / Super Admin still see all active POIs | AC-4: local operators must switch site among the working role’s assigned POIs. Today the switcher is admin-only |
+| `apps/core/templatetags/portal_nav.py::poi_switcher_context` | For those local operators, `pois` = `assigned_pois_for_user(user, role_code=working)` — not `active_pois_queryset()`. Hide when that role has ≤1 POI | Working site must not list the whole tenant catalog for a Gateman |
+| `apps/core/admin_poi_views.py::set_active_poi_view` | Allow POST when `user_needs_poi_switcher`; for local operators reject a `poi_id` not assigned to the working role | Otherwise a local user could session-spoof another depot |
 
-On switch: invalidate both old and new working-role cache keys; redirect `next` (no second login). POI-scoped working roles keep using `get_working_poi_for_request(request, role_code=working)`.
+On switch: invalidate both old and new working-role cache keys; redirect `next` (no second login). POI-scoped working roles use `get_working_poi_for_request(request, role_code=working)`. Keep the current working POI if it is still assigned to the new role; otherwise fall back (L7).
 
 ### Audit + cache (Step 7)
 
@@ -147,13 +151,14 @@ Closes TUM-06-1. Matches AC-1 / Flow A / the E2E plan — only re-open if the PO
 | L1 | Any allowed operational combination, no cap, no named allowlist. Exclusive targets: `tenant_super_admin`, `tenant_admin`, `driver`, `driver_helper`. No `vendor` staff role exists in `SEED_ROLES`. |
 | L2 | No permission union — working role only. `has_role` stays assigned-set membership (needed for Select Role choices + fallback). |
 | L3 | Cross-department dual-hats are required (Gateman + Scaling). Role widget is checkboxes (`CheckboxSelectMultiple`), rendered in a two-column grid (not one long list), grouped by department, not filtered to one. `department` fields become display-only, derived from first selected role. |
-| L4 | Invite/CSV: one POI applies to every selected POI-scoped role (single shared `operational_poi` field, no per-role dropdown). Edit: **every** POI-scoped role in the catalog has its own POI dropdown (not just already-assigned ones) — it appears inline next to that role's checkbox as soon as it's checked (whether newly checked or already assigned), and hides again when unchecked. Global roles clear POI rows for that role only. |
-| L5 | `InvitationToken.role_ids` (JSONField). `role` FK stays `role_ids[0]` for backward compat. Empty `role_ids` on old rows → treat as `[role_id]`. |
+| L4 | Invite/CSV: a **shared set** of POIs (multi-select / comma-separated `poi_code`) applies to every selected POI-scoped role. One site still valid. Edit: **every** POI-scoped role in the catalog has its own POI **multi-select** (not a single dropdown, not just already-assigned roles) — it appears inline next to that role's checkbox as soon as it's checked, and hides again when unchecked. Save **syncs the set** per role (add missing, delete extras the admin unchecked). Global roles clear POI rows for that role only. Duplicate `(user, poi, role)` rejected. |
+| L5 | `InvitationToken.role_ids` and `poi_ids` (JSONField). `role` / `poi` FKs stay `[0]` for backward compat. Empty JSON on old rows → treat as `[fk]` if set. |
 | L6 | Working-role persistence copies Working site exactly: session + HttpOnly cookie, `admin_set_working_role` POST, middleware binds `_working_role_code`. Don't thread `request` through every call site. |
-| L7 | Fallback role = remaining assigned role with lowest `role_code`. One role → hide switcher. Removing a role never deactivates the account. |
+| L7 | Fallback role = remaining assigned role with lowest `role_code`. One role → hide Select Role. Fallback POI = remaining assigned POI for the working role (prefer `is_primary`). One POI on that role → hide Working site. Removing a role never deactivates the account. |
 | L8 | Admin Access fieldset is the only role editor (`UserRoleInline` stays disabled). Edit save syncs the full set; invite/API stays add-only. |
-| L9 | Django admin SSR is P0. REST invite must apply all `role_ids`. No new JWT claim in this story. |
+| L9 | Django admin SSR is P0. REST invite must apply all `role_ids` and `poi_ids`. No new JWT claim in this story. |
 | L10 | `is_approver`/`is_requester` stay a union of assigned roles (JWT leftover only) — do **not** recompute on switch (races across tabs). Portal/admin auth must use working-role permissions instead, never these flags. |
+| L11 | Select Role and Working site stay **two controls**. No combined `(role, POI)` picker. On role switch: keep working POI if still assigned to the new role, else fall back (L7). Tenant Admin / Super Admin Working site (all active POIs) is unchanged. |
 
 Self-approval stays `created_by == request.user` — already role-independent. Switching DO → DM must not approve own TRs (BR-TUM06-003).
 
@@ -163,12 +168,13 @@ Self-approval stays `created_by == request.user` — already role-independent. S
 
 1. **Drop the unique constraint, ship menus unchanged.** `get_all_permissions`, sidebar `has_role`, `YardAdminBase._yard_role` would union — a Gateman+Scaling user would see both queues and pass both write URLs. Step 6 is the security model, not polish.
 2. **Keep department-first invite JS.** Gateman and Scaling Operator are different departments; filtering Role choices to one department makes Flow A / TC01 impossible to save. Group by department, allow a mixed set (L3).
+3. **Keep collapsing POIs to one per role.** `sync_user_roles` / CSV / `assign_role_to_user` today `.exclude(poi_id=one).delete()`. That makes AC-5 impossible. Diff the **set** per role.
 
 ---
 
 ## Out of scope
 
-- Permission union (archived US-004) · Dual-hat admin/driver/helper/vendor roles · Assigning Super Admin · Mobile role picker · JWT `working_role` claim · `UserRoleInline` as a parallel editor · Named dual-hat allowlist · Per-role POI matrix on invite (edit only).
+- Permission union (archived US-004) · Dual-hat admin/driver/helper/vendor roles · Assigning Super Admin · Mobile role picker · JWT `working_role` claim · `UserRoleInline` as a parallel editor · Named dual-hat allowlist · Per-role POI matrix on invite (edit only) · Combined `(role, POI)` picker.
 
 ---
 
@@ -176,9 +182,12 @@ Self-approval stays `created_by == request.user` — already role-independent. S
 
 - `assign_role_to_user` adds a second role without deleting the first; duplicate `(user, role)` rejected.
 - Exclusive combos rejected (admin+gateman, driver+gateman, two roles on Tenant Admin).
-- Invite activation with `role_ids` length 2 → two `UserRole` + two `UserOperationalPOI` rows (same POI).
-- `role_ids` length 1 still works, on all three invite paths.
-- CSV: forbidden-combo row fails in isolation.
+- Invite activation with `role_ids` length 2 → two `UserRole` + `UserOperationalPOI` rows per selected POI (same shared set).
+- Adding a second POI to an existing local role keeps the first; duplicate `(user, poi, role)` rejected.
+- `role_ids` length 1 / one `poi_code` still works, on all three invite paths.
+- CSV: comma-separated `poi_code` applies to each local role on the row; forbidden-combo row fails in isolation.
+- Local operator with two POIs on Gateman sees Working site listing only those two; one POI → Working site hidden.
+- Role switch from Gateman (CTG-001+CTG-002, working CTG-002) to Scaling (CTG-001 only) falls back working POI to CTG-001.
 - `get_primary_role_code` / `get_all_permissions` with `_working_role_code="gateman"` exclude scaling permissions.
 - Middleware fallback when the working role is removed mid-session.
 - Operational user cannot assign roles (`user_may_assign_role` False).
@@ -196,6 +205,6 @@ Playwright: [tum-06-multi-role-assignment-e2e-scenarios.md](../../09-testing/bac
 - [ ] `uniq_userrole_user_single_role` gone; `unique(user, role)` present; one-role users still valid
 - [ ] `assign_role_to_user` no longer deletes sibling roles
 - [ ] All three invite paths apply the full `role_ids` set
-- [ ] Select Role shown iff assigned count > 1; every auth check listed above uses working role
-- [ ] Unit tests: switch, exclusive set, no cap, single-role hides switcher
+- [ ] Select Role shown iff assigned count > 1; Working site shown for a POI-scoped working role iff that role has >1 assigned POI; every auth check listed above uses working role
+- [ ] Unit tests: switch, exclusive set, no cap, single-role hides switcher, multi-POI per local role, Working site filtered by working role
 - [ ] US-005 single-role invite still green
