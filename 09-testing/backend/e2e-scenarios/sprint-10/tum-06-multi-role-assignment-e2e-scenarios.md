@@ -27,7 +27,7 @@ playwright_mcp: true
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
 
-Sibling: [user-invitation-activation-e2e-scenarios.md](../../users/user-invitation-activation-e2e-scenarios.md) (single-role invite still valid).
+Sibling: [user-invitation-activation-e2e-scenarios.md](../users/user-invitation-activation-e2e-scenarios.md) (single-role invite still valid).
 
 **Out of scope:** REST invitation API contracts; permission **union**; assigning Super Admin; Driver / Helper / Vendor dual-hat (exclusive targets); **Tenant Super Admin** / **Tenant Admin** dual-hat (administrators stay one role); CSV via API (admin **Import** UI only); email/SMS OTP success paths (`otp_type=none` only).
 
