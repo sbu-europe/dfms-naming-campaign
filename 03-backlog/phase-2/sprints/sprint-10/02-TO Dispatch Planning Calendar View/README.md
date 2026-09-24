@@ -9,17 +9,17 @@ story_points_estimated: 13
 
 # 012 — TO Dispatch Planning (Calendar View)
 
-Read-only **vehicle-lane** calendar of assigned TOs: daily (24 ticks, 12-hour labels) / weekly / monthly, idle gaps, KPI cards, drawer. Unassigned TOs count in stats but are omitted from the timeline.
+Read-only **own-fleet vehicle-lane** calendar of assigned TOs: daily (24 ticks, 12-hour labels) / weekly / monthly, KPI cards, drawer. Unassigned own-fleet TOs count in stats but are omitted from the timeline. No idle bars. Vendor TOs are out of this page.
 
 Does not replace Transport orders or Vehicle planning. Assignment and status stay on existing screens.
 
-**UI contract:** [`docs/prototypes/to-dispatch-planning-calendar.html`](../../../../docs/prototypes/to-dispatch-planning-calendar.html)
+**Implementation SSOT:** [`05-modules/05-transport/to-dispatch-planning-calendar-view.md`](../../../../05-modules/05-transport/to-dispatch-planning-calendar-view.md). UI follows the live DFMS admin; the HTML prototype is behaviour/reference only.
 
 | File | Role |
 |------|------|
 | [TO-03](./TO-03-to-dispatch-planning-calendar-view.md) | Story — TO Dispatch Planning — Calendar View (13 SP) |
 
-PRD § TO Dispatch Planning (Calendar View) · prototype wins over PRD grid sketch · predecessor US-071 (archived)
+PRD § TO Dispatch Planning (Calendar View) · plan + live DFMS admin win over PRD grid sketch and prototype chrome · predecessor US-071 (archived)
 
 **Stories:** TO-03 · **Estimated:** 13 SP
 
