@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.4
+version: 1.5
 phase: Phase 2
 sprint: Sprint 10
 status: Proposal (not implemented)
 last_updated: 2026-09-24
-changelog: "v1.4 — Vehicle column is registration + capacity + current operational_status. No N TO(s) / M concurrent / Free badge (amends TO-03 AC-2). v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
+changelog: "v1.5 — UI follows the existing DFMS admin design system, not the HTML prototype. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -16,7 +16,7 @@ prd_refs:
 amends: transport-order-management.md, vehicle-planning-view.md
 new_permission: MENU_TO_DISPATCH_PLANNING_VIEW
 django_apps: [apps/transport, apps/master_data, apps/core, apps/users, apps/requisitions]
-ui_contract: docs/prototypes/to-dispatch-planning-calendar.html
+ui_contract: DFMS admin design system (static/admin/css/custom.css; Vehicle Planning / portal lists). Prototype is behaviour reference only.
 story: ../../03-backlog/phase-2/sprints/sprint-10/02-TO Dispatch Planning Calendar View/TO-03-to-dispatch-planning-calendar-view.md
 ---
 
@@ -32,7 +32,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 **No idle bars.** Empty time between TOs stays blank. Do not paint dashed idle gaps (amends TO-03 AC-2 / BR-TO03-006).
 
-**UI contract:** the HTML prototype is the layout source of truth (vehicle-first lanes). The PRD month-grid sketch is out of scope.
+**UI contract:** follow the **existing DFMS admin design system** — same tokens, badges, search, filters, breadcrumbs, and buttons as Vehicle Planning and other portal lists (`static/admin/css/custom.css`, `admin/base_site.html`). **Pagination is the existing portal list pager** (`resolve_admin_list_pagination`, `.dfms-pagination-parent`, `?p=` + `?per_page=` with `15/25/50/100/200`, session-remembered size) — same control as Vehicle Planning / changelists. Do not invent a calendar-specific pager or a fixed page size. Do **not** copy prototype-only chrome (theme toggle, custom palette, non-DFMS cards). Vehicle-first lanes stay; the PRD month-grid sketch is out of scope. The HTML prototype is a **behaviour/reference** sketch only.
 
 **This is a new admin GET view over existing models.** No new table, no Celery, no REST endpoint.
 
@@ -491,7 +491,23 @@ The view module must not import `TDOAssignmentService` for writes. Tests assert 
 
 ## 7. Templates
 
-New templates under `templates/admin/transport/to_dispatch_planning/`, extend `admin/base_site.html`. Reuse DFMS tokens in `static/admin/css/custom.css` — no new CSS framework. Calendar-specific rules can live in a small `to_dispatch_planning.css` (or a `<style>` block on the page, same as Vehicle Planning `_base.html`).
+New templates under `templates/admin/transport/to_dispatch_planning/`, `{% extends "admin/base_site.html" %}`. **Match the live portal**, not the prototype HTML.
+
+Reuse what Vehicle Planning and changelists already use:
+
+| Concern | Reuse |
+|---|---|
+| Page chrome | `admin/base_site.html`, `.dfms-page-header` |
+| Search | `.dfms-search-wrap` / `#changelist` toolbar (same as `select_vehicle.html`) |
+| Filters | `#changelist-filter` / portal filter panel pattern |
+| Status / urgency | existing `dfms-badge--*` / `_to_badge` / urgency badges |
+| Operational status | same badge mapping as Vehicle master / Vehicle Planning |
+| Pagination | `resolve_admin_list_pagination` + `.dfms-pagination-parent` |
+| Buttons / links | `dfms-btn-save`, `dfms-btn-secondary` |
+| Icons | Bootstrap-icons already on `base_site.html` (`bi-*`) |
+| Breadcrumbs | Home → this page; never `admin:app_list` |
+
+No new CSS framework. Calendar-only rules (lane grid, bar `left`/`width`, today column, drawer) may live in a small `to_dispatch_planning.css` using **existing CSS variables** (`--dfms-*`). Do not invent a second colour system.
 
 | File | Purpose |
 |---|---|
@@ -525,7 +541,7 @@ Today mark: weekly (and monthly) highlight today’s column. Daily may show a �
 | Idle / dashed gap bars | Locked: empty time between TOs stays blank (amends TO-03 AC-2 / BR-TO03-006) |
 | GPS / FVM-03 idle hours | Different clock; not this page |
 | TO-centric month grid | Prototype wins over PRD sketch |
-| Theme toggle | Prototype chrome only |
+| Theme toggle / prototype-only chrome | Not in the live admin design system |
 | Changing Vehicle Planning or the TO list | AC / DoD |
 
 ---
@@ -590,7 +606,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 | `apps/core/constants_rbac.py` | `MENU_TO_DISPATCH_PLANNING_VIEW` | New menu capability |
 | `apps/core/role_seed_data.py` | Add to `PERMISSION_DEFINITIONS` + `transport_planner` | Tenant admin catalog + planner grant |
 | `apps/core/portal_navigation.py` | Transport item | AC-1 / AC-5 |
-| `templates/admin/transport/to_dispatch_planning/calendar.html` **(new)** | Page | Prototype layout |
+| `templates/admin/transport/to_dispatch_planning/calendar.html` **(new)** | Page | DFMS admin layout |
 | `static/admin/css/to_dispatch_planning.css` **(new)** | Lanes / bars / drawer | Avoid bloating `custom.css` |
 | `static/admin/js/to_dispatch_planning.js` **(new)** | Drawer only | No writes |
 | `tests/unit/test_transport/test_to_dispatch_planning.py` **(new)** | §9 | DoD |
@@ -606,7 +622,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 2. **`is_active=True` copy-paste** from Vehicle Planning drops under-maintenance trucks.
 3. **Paginating TOs** — lanes are vehicles; KPIs ignore the page.
 4. **Dest. arrival as bar end** — story used arrival; this plan uses **dest. departure**. Do not fall back to `eta_datetime`.
-5. **Idle bars** — do not add dashed gaps “to match the prototype.” Empty time stays empty.
+5. **Idle bars / prototype chrome** — do not add dashed gaps or a custom palette “to match the prototype.” Empty time stays empty; UI matches the live admin.
 6. **Vendor TOs in KPIs** — do not count them. Period set is `fleet_type=OWN` only; a vendor TO with a leftover `Vehicle` FK still must not draw.
 7. **`TO.transfer_type` for FG/Port** — wrong field; use `tr.tr_type`.
 8. **POST “for convenience”** — any write fails AC-5. Drawer is client-side.
@@ -621,11 +637,11 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 |---|---|
 | [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only, no idle bars, bar = start → dest. departure, and vehicle column = capacity + current status (no concurrent / Free). |
 | [Sprint folder](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | Epic index |
-| `docs/prototypes/to-dispatch-planning-calendar.html` | Layout contract |
+| `docs/prototypes/to-dispatch-planning-calendar.html` | Behaviour/reference sketch only — **not** the visual SSOT |
 | [vehicle-planning-view.md](./vehicle-planning-view.md) | Write surface this calendar does **not** replace |
 | [transport-order-management-v2.md](./transport-order-management-v2.md) | Planned milestones / assignment rules |
 | [trip-management.md](./trip-management.md) | TO status lifecycle |
-| Archived US-071 | Historical; prototype + TO-03 win on conflicts |
+| Archived US-071 | Historical; this plan + live DFMS admin win on conflicts |
 
 ---
 
@@ -643,3 +659,4 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 | L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlapping bars still stack visually. |
 | L7 | No idle bars. Empty time between a vehicle’s TOs is blank (not a dashed idle span). |
 | L8 | Vehicle column = registration + capacity + current `operational_status`. No `N TO(s)`, no concurrent, no Free badge. Portal list pagination. Empty and under-maintenance vehicles still appear. |
+| L9 | UI is consistent with the existing DFMS admin (Vehicle Planning, changelists, `custom.css`). Prototype is not the design source of truth. |
