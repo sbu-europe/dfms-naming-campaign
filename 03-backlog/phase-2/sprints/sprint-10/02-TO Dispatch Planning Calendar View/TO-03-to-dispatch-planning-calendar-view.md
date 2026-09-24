@@ -79,7 +79,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   - Result count is the number of planning-eligible **own-fleet** TOs whose planned window (`planned_start_at` → `planned_destination_departure_at`) overlaps the period (includes unassigned own-fleet TOs)
   - Page chrome matches the live DFMS admin (same search / filter / pagination / badges as Vehicle Planning and changelists)
 
-- [ ] **Given**: the planner is on TO dispatch planning  
+- [x] **Given**: the planner is on TO dispatch planning  
   **When**: they select Daily, Weekly, or Monthly  
   **Then**:
   - Daily shows 24 hour ticks in **12-hour** format (12 AM … 11 PM)
@@ -87,7 +87,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   - Monthly shows one column per day of the month
   - Layout stays vehicle-first (vehicles left, time across) in every mode
 
-- [ ] **Given**: the planner is on TO dispatch planning  
+- [x] **Given**: the planner is on TO dispatch planning  
   **When**: they use previous, next, Today, or the date picker  
   **Then**: the period label and calendar range move to that period and the lanes reload
 
@@ -105,16 +105,16 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   - Critical urgency is outlined
   - Tooltip shows TO number, TO status, TR number, planned start → dest. departure, origin → destination, driver (or “Driver not assigned”)
 
-- [ ] **Given**: a planning-eligible **own-fleet** TO with no `vehicle` and a planned window in the period  
+- [x] **Given**: a planning-eligible **own-fleet** TO with no `vehicle` and a planned window in the period  
   **When**: the planner views the calendar  
   **Then**: that TO does not appear on any lane  
   **And**: it still counts in the result count and Unassigned KPI
 
-- [ ] **Given**: a vendor-fleet TO (with or without a `Vehicle` FK) overlapping the period  
+- [x] **Given**: a vendor-fleet TO (with or without a `Vehicle` FK) overlapping the period  
   **When**: the planner views the calendar  
   **Then**: that TO is absent from every lane, KPI, and result count
 
-- [ ] **Given**: own-fleet vehicles in the tenant, including some with no TO in range, one under maintenance, one with two overlapping TOs, and one with two non-overlapping TOs  
+- [x] **Given**: own-fleet vehicles in the tenant, including some with no TO in range, one under maintenance, one with two overlapping TOs, and one with two non-overlapping TOs  
   **When**: the planner views the calendar  
   **Then**:
   - Overlapping bars stack vertically (do not overwrite); the row does **not** show N TO(s) or concurrent
@@ -126,12 +126,12 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ### AC-3 — KPI cards, filters, legend
 
-- [ ] **Given**: planning-eligible own-fleet TOs in the visible period  
+- [x] **Given**: planning-eligible own-fleet TOs in the visible period  
   **When**: the planner views the calendar  
   **Then**: cards show **TOs in period**, **Parent TRs**, **Unassigned**, and **Critical urgency** for the current period and filters  
   **And**: there is no Own fleet card (every period TO is already own-fleet)
 
-- [ ] **Given**: the planner is on TO dispatch planning  
+- [x] **Given**: the planner is on TO dispatch planning  
   **When**: they open Filters and set search (TO, TR, vehicle, driver, origin, destination), transfer type (FG / Port consignment), urgency, assignment (Unassigned / Assigned / Confirmed), and/or vehicle type  
   **Then**: KPIs, result count, bars, and (for vehicle type) listed vehicle rows match the filters  
   **And**: there is no fleet-type filter  
@@ -146,7 +146,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ### AC-4 — Read-only drawer
 
-- [ ] **Given**: an assigned TO bar is visible  
+- [x] **Given**: an assigned TO bar is visible  
   **When**: the planner clicks the bar  
   **Then**:
   - A drawer opens without navigating away
@@ -156,7 +156,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   - Footer has **Open TO detail** and **Open parent TR**
   - The selected bar stays emphasized; other bars may dim
 
-- [ ] **Given**: the drawer is open  
+- [x] **Given**: the drawer is open  
   **When**: the planner clicks X, the backdrop, or Escape  
   **Then**: the drawer closes  
   **And**: **Open TO detail** / **Open parent TR** open those existing screens and do not edit from the calendar
@@ -170,7 +170,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   **Then**: they see **TO dispatch planning**  
   **And**: other roles do not see the item unless explicitly granted
 
-- [ ] **Given**: the planner is on TO dispatch planning  
+- [x] **Given**: the planner is on TO dispatch planning  
   **When**: they navigate, filter, open the drawer, or follow Open TO / Open TR  
   **Then**: no calendar action changes TO status, quantity, vehicle, driver, or helpers  
   **And**: the calendar does not write `TransportOrder`, assignment, or `Vehicle.operational_status`
@@ -199,12 +199,12 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | #       | Sub-task                | Description                                                                                            | Priority | Status       |
 | ------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------------ |
 | TO-03-1 | Specs                   | `05-modules/` write-up — do not start Django from this file alone                                      | High     | **Done** |
-| TO-03-2 | Query                   | Own-fleet period overlap on planned start/dest departure; planning-eligible statuses; four KPI aggregations | High     | **Not done** |
-| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars (no idle), today mark, bar = TO number + status + start → dest. departure | High     | **Not done** |
-| TO-03-4 | Filters + KPIs + legend | Search and four filter selects (no fleet type); four stat cards; legend without fleet/idle             | High     | **Not done** |
-| TO-03-5 | Drawer                  | Read-only drawer + Open TO / Open TR                                                                   | High     | **Not done** |
-| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Not done** |
-| TO-03-7 | Tests                   | Unassigned omitted from lanes but counted; vendor excluded; bar window; stack without concurrent label; filters; RBAC; no writes | High     | **Not done** |
+| TO-03-2 | Query                   | Own-fleet period overlap on planned start/dest departure; planning-eligible statuses; four KPI aggregations | High     | **Partial** |
+| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars (no idle), today mark, bar = TO number + status + start → dest. departure | High     | **Partial** |
+| TO-03-4 | Filters + KPIs + legend | Search and four filter selects (no fleet type); four stat cards; legend without fleet/idle             | High     | **Partial** |
+| TO-03-5 | Drawer                  | Read-only drawer + Open TO / Open TR                                                                   | High     | **Done** |
+| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Partial** |
+| TO-03-7 | Tests                   | Unassigned omitted from lanes but counted; vendor excluded; bar window; stack without concurrent label; filters; RBAC; no writes | High     | **Done** |
 
 
 ---
@@ -227,16 +227,16 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 ## Test Plan
 
 - [ ] Weekly vehicle lanes show assigned own-fleet TOs as bars from planned start to dest. departure, with TO number and status
-- [ ] Unassigned own-fleet TO is in the Unassigned KPI and result count, and is **absent** from every lane
-- [ ] Vendor TO is absent from lanes, KPIs, and result count
-- [ ] Two overlapping TOs on one truck stack; row does **not** show concurrent
-- [ ] Empty time between two non-overlapping bars has **no** idle bar
-- [ ] Empty and under-maintenance vehicles still appear; column shows capacity + current operational status (no Free badge)
-- [ ] Daily view has 24 hour ticks labelled 12 AM–11 PM; monthly bars snap to days
-- [ ] Filter by urgency, transfer type, assignment, vehicle type, and search (no fleet type); Clear restores
-- [ ] Click bar opens drawer; Open TO detail / Open parent TR; calendar does not change status
-- [ ] Roles other than Transport Planner, Tenant Admin, and Tenant Super Admin do not see the menu
-- [ ] Pagination uses the existing portal list pager
+- [x] Unassigned own-fleet TO is in the Unassigned KPI and result count, and is **absent** from every lane
+- [x] Vendor TO is absent from lanes, KPIs, and result count
+- [x] Two overlapping TOs on one truck stack; row does **not** show concurrent
+- [x] Empty time between two non-overlapping bars has **no** idle bar
+- [x] Empty and under-maintenance vehicles still appear; column shows capacity + current operational status (no Free badge)
+- [x] Daily view has 24 hour ticks labelled 12 AM–11 PM; monthly bars snap to days
+- [x] Filter by urgency, transfer type, assignment, vehicle type, and search (no fleet type); Clear restores
+- [x] Click bar opens drawer; Open TO detail / Open parent TR; calendar does not change status
+- [x] Roles other than Transport Planner, Tenant Admin, and Tenant Super Admin do not see the menu
+- [x] Pagination uses the existing portal list pager
 
 ---
 
@@ -244,9 +244,9 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 - [ ] AC-1–AC-5 met against the live DFMS admin (vehicle lanes, not a TO month-grid; not the prototype chrome)
 - [ ] Sub-tasks TO-03-1 … TO-03-7 completed
-- [ ] `05-modules/` implementation context written (TO-03-1) before merge of Django work
-- [ ] Transport orders list and Vehicle planning unchanged
-- [ ] Tests cover unassigned-omitted-from-lanes, vendor-excluded, bar window (start → dest. departure), stack, no idle, filters, RBAC
+- [x] `05-modules/` implementation context written (TO-03-1) before merge of Django work
+- [x] Transport orders list and Vehicle planning unchanged
+- [x] Tests cover unassigned-omitted-from-lanes, vendor-excluded, bar window (start → dest. departure), stack, no idle, filters, RBAC
 - [ ] Story status updated for Phase 2 tracking
 
 ---
