@@ -22,6 +22,7 @@ source_docs:
   - ../../../_meta/archive/backlog-stories-pre-sprint2/US-071-to-dispatch-planning-calendar-view.md
 implementation_docs:
   - docs/prototypes/to-dispatch-planning-calendar.html
+  - 05-modules/05-transport/to-dispatch-planning-calendar-view.md
 ---
 
 # TO-03 — TO Dispatch Planning (Calendar View)
@@ -185,7 +186,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 | #       | Sub-task                | Description                                                                                            | Priority | Status       |
 | ------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------------ |
-| TO-03-1 | Specs                   | `05-modules/` write-up from this story + the HTML prototype — do not start Django from this file alone | High     | **Not done** |
+| TO-03-1 | Specs                   | `05-modules/` write-up from this story + the HTML prototype — do not start Django from this file alone | High     | **Done** |
 | TO-03-2 | Query                   | Period overlap on planned start/dest arrival; planning-eligible statuses; KPI aggregations             | High     | **Not done** |
 | TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars, idle gaps, today mark | High     | **Not done** |
 | TO-03-4 | Filters + KPIs + legend | Search and the five filter selects; five stat cards; legend                                            | High     | **Not done** |

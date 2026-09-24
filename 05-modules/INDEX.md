@@ -150,6 +150,7 @@ This index provides a comprehensive mapping of all module specifications, cross-
 - [transport-requisition-management.md](05-transport/transport-requisition-management.md) — TR queue (FG tab + Port Consignment tab), Transport Planner planning inputs (vehicle qty, type, C&F clearance), fleet availability counts, urgency/overdue flags, `UNDER_PLANNING` gate before TO creation *(TRQ-01, DFS-038)*
 - [transport-order-management.md](05-transport/transport-order-management.md) — TO creation against TRs (own fleet / vendor fleet), TR quantity allocation + overflow guard, multi-TO per TR, auto-routing to TDO queue by fleet type, `TO-YYYYMMDD-XXXX` numbering, TR status auto-update (Partially → Fully Allocated) *(TO-01, DFS-039)*
 - [trip-management.md](05-transport/trip-management.md) — TDO Own Fleet assignment (vehicle, driver, helpers, ETA — with conflict checks), TDO Vendor Fleet assignment (contractual vendor, auto-rate application), driver account assigned TO list, Trip 17-state machine (Sprint 4), `TripStatusHistory`, `TripIncident` *(TO-02, DFS-040)*
+- [to-dispatch-planning-calendar-view.md](05-transport/to-dispatch-planning-calendar-view.md) — Sprint 10 TO-03: read-only vehicle-lane dispatch calendar (daily / weekly / monthly), period-overlap query, stacked bars, idle gaps, KPIs, drawer
 
 #### Related User Stories
 - DFS-038 (TRQ-01): Transport Requests Queue & Planning Input
