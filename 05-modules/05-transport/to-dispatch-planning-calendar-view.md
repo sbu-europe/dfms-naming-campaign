@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.1
+version: 1.2
 phase: Phase 2
 sprint: Sprint 10
 status: Proposal (not implemented)
 last_updated: 2026-09-24
-changelog: "v1.1 — Own-fleet only. Vehicle-lane calendar excludes vendor TOs from the period set, filters, KPIs, and bars. Drops fleet_type filter, Own fleet KPI, and own-vs-vendor chrome (amends TO-03 AC-2/AC-3)."
+changelog: "v1.2 — No idle bars. Do not render dashed idle gaps (amends TO-03 AC-2 / BR-TO03-006). v1.1 — Own-fleet only. Vehicle-lane calendar excludes vendor TOs from the period set, filters, KPIs, and bars. Drops fleet_type filter, Own fleet KPI, and own-vs-vendor chrome (amends TO-03 AC-2/AC-3)."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -29,6 +29,8 @@ Planners already create TOs (TO-01) and assign vehicle, driver, helpers, and pla
 This story adds **Transport → TO dispatch planning**: a **read-only resource calendar**. Vehicles are rows; time is the axis; each assigned **own-fleet** TO is a bar on its vehicle. It does not create, assign, or change status or quantity. Assignment stays on TO detail and Vehicle Planning.
 
 **Own fleet only.** Lanes are `master_data.Vehicle` (own-fleet master). The period set is `fleet_type=OWN`. Vendor TOs never appear in KPIs, result count, filters, or bars — there is no fleet-type filter. This amends TO-03 AC-2 / AC-3 (own-vs-vendor chrome, fleet-type select, Own fleet KPI).
+
+**No idle bars.** Empty time between TOs stays blank. Do not paint dashed idle gaps (amends TO-03 AC-2 / BR-TO03-006).
 
 **UI contract:** the HTML prototype is the layout source of truth (vehicle-first lanes). The PRD month-grid sketch is out of scope.
 
@@ -92,7 +94,7 @@ Daily, weekly, and monthly are the **same resource calendar**: vehicles left, ti
 │  4 KPI cards                                                             │
 │  Filters + legend                                                        │
 ├──────── vehicle col ──────┬──────── time axis ───────────────────────────┤
-│ DHK-1234  Covered  10 MT  │  [==== TO-… 8:00–14:00 ====]  -idle-  [==]   │
+│ DHK-1234  Covered  10 MT  │  [==== TO-… 8:00–14:00 ====]          [==]   │
 │ N TO(s) · M concurrent    │                                              │
 │ Free / Under maintenance  │                                              │
 └───────────────────────────┴──────────────────────────────────────────────┘
@@ -117,7 +119,7 @@ Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). 
 
 ### 1.5 Why no new model
 
-`TransportOrder.vehicle`, `planned_start_at`, and `planned_destination_arrival_at` already store the plan. A `CalendarEvent` / `VehicleLane` table would drift from the TO. Idle gaps and stack depth are derived at read time.
+`TransportOrder.vehicle`, `planned_start_at`, and `planned_destination_arrival_at` already store the plan. A `CalendarEvent` / `VehicleLane` table would drift from the TO. Stack depth is derived at read time. Empty time between bars is just empty — **do not** draw idle spans.
 
 ---
 
@@ -333,15 +335,13 @@ Bar window = `[planned_start_at, planned_destination_arrival_at]` clipped to the
 
 Bar chrome on the lane: **TO number + start–end time** (tenant TZ, 12-hour). Full fields live in tooltip + drawer.
 
-### 4.3 Stack + idle (per vehicle, visible range)
+### 4.3 Stack (per vehicle, visible range)
 
 Sort that vehicle’s bars by `planned_start_at`.
 
 **Stack (greedy interval colouring):** assign each bar to the first lane whose last `end` ≤ this bar’s `start`. Overlapping bars get different lanes; they must not paint on top of each other. `M concurrent` = number of lanes used. `N TO(s)` = bar count.
 
-**Idle (BR-TO03-006):** union the busy intervals (lane-agnostic), clip to the visible range, emit dashed gaps between union segments. This is **not** GPS idle and **not** FVM-03 utilization hours.
-
-Empty vehicle → no bars, no idle spans, **Free** (unless under maintenance).
+**No idle bars.** Leave the empty span between non-overlapping TOs blank. Do not compute union gaps, do not paint dashed “idle” segments, and do not put idle in the legend. Empty vehicle → no bars, **Free** (unless under maintenance).
 
 ### 4.4 Bar chrome
 
@@ -480,14 +480,14 @@ New templates under `templates/admin/transport/to_dispatch_planning/`, extend `a
 | File | Purpose |
 |---|---|
 | `calendar.html` | Shell, KPIs, filters, legend, lanes, drawer markup |
-| optional `_lane.html` | One vehicle row + stacked bars + idle spans |
+| optional `_lane.html` | One vehicle row + stacked bars |
 | optional `_drawer.html` | Read-only definition list + footer links |
-| `static/admin/css/to_dispatch_planning.css` | Grid, bar, idle dash, today column, drawer |
+| `static/admin/css/to_dispatch_planning.css` | Grid, bar, today column, drawer |
 | `static/admin/js/to_dispatch_planning.js` | Drawer open/close (X, backdrop, Escape), selected-bar emphasize / others dim. **No fetch POST.** |
 
 Pagination: copy Vehicle Planning — `resolve_admin_list_pagination` + the `dfms-pagination-parent` markup from `select_vehicle.html` (per-page select `15–200`, `?p=`).
 
-Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, dashed idle, “bar = planned start → dest. arrival”.
+Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, “bar = planned start → dest. arrival”. No idle swatch.
 
 Today mark: weekly (and monthly) highlight today’s column. Daily may show a “now” line; not required by AC if the 24 ticks are correct.
 
@@ -506,7 +506,8 @@ Today mark: weekly (and monthly) highlight today’s column. Daily may show a �
 | Vendor-fleet vehicle rows | No `Vehicle` master for vendor trucks |
 | Fleet-type filter / Own fleet KPI / own-vs-vendor chrome | Redundant once the page is own-fleet only |
 | Capacity utilization bars | Out of story |
-| GPS / FVM-03 idle hours | Different clock |
+| Idle / dashed gap bars | Locked: empty time between TOs stays blank (amends TO-03 AC-2 / BR-TO03-006) |
+| GPS / FVM-03 idle hours | Different clock; not this page |
 | TO-centric month grid | Prototype wins over PRD sketch |
 | Theme toggle | Prototype chrome only |
 | Changing Vehicle Planning or the TO list | AC / DoD |
@@ -529,7 +530,7 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 | 8 | Daily labels | 24 ticks, `12 AM` … `11 PM` |
 | 9 | Weekly bounds | Sunday–Saturday in `Asia/Dhaka` |
 | 10 | Overlap stack | two overlapping TOs → two lanes, `concurrent == 2` |
-| 11 | Idle gap | two non-overlapping bars → one dashed gap in the hole; **not** FVM hours |
+| 11 | No idle bar | two non-overlapping bars → empty space between them; context/HTML has no idle span |
 | 12 | Empty / maintenance | no TOs → Free; `under_maintenance` still listed with that badge (`is_active=False` still listed) |
 | 13 | Filters | transfer type, urgency, assignment, vehicle type + search; no `fleet_type` param; Clear drops filters; vehicle type changes vehicle queryset |
 | 14 | Assignment filter | unassigned / assigned / confirmed match §2.2 |
@@ -550,7 +551,7 @@ View tests can assert template name + context keys (`kpis`, `lanes`, `period_lab
 |---|---|---|---|
 | 1 | This spec (done) | Do not start Django from the story file alone | TO-03-1 |
 | 2 | Query helpers: range, overlap, filters, KPIs | Everything else is a consumer | TO-03-2 |
-| 3 | Stack + idle + bar geometry | Needed before the template can render lanes | TO-03-3 |
+| 3 | Stack + bar geometry | Needed before the template can render lanes | TO-03-3 |
 | 4 | Admin URL + GET view + pagination | Empty lanes first, then bars | TO-03-3, TO-03-6 |
 | 5 | Templates: axis, lanes, bars, today | Visual contract | TO-03-3 |
 | 6 | Filters + KPI cards + legend | Same queryset as §2 | TO-03-4 |
@@ -567,14 +568,14 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 
 | File | Change | Why |
 |---|---|---|
-| `apps/transport/to_dispatch_planning.py` **(new)** | Range, overlap QS, filters, KPIs, stack, idle, drawer DTOs | Keep calendar math out of `admin.py` |
+| `apps/transport/to_dispatch_planning.py` **(new)** | Range, overlap QS, filters, KPIs, stack, drawer DTOs | Keep calendar math out of `admin.py` |
 | `apps/transport/to_dispatch_planning_views.py` **(new)** | GET view, platform/RBAC, pagination, `TemplateResponse` | Same split as `vehicle_planning_views.py` |
 | `apps/transport/apps.py` | Register `/admin/transport/to-dispatch-planning/` | Established custom-admin pattern |
 | `apps/core/constants_rbac.py` | `MENU_TO_DISPATCH_PLANNING_VIEW` | New menu capability |
 | `apps/core/role_seed_data.py` | Add to `PERMISSION_DEFINITIONS` + `transport_planner` | Tenant admin catalog + planner grant |
 | `apps/core/portal_navigation.py` | Transport item | AC-1 / AC-5 |
 | `templates/admin/transport/to_dispatch_planning/calendar.html` **(new)** | Page | Prototype layout |
-| `static/admin/css/to_dispatch_planning.css` **(new)** | Lanes / bars / idle / drawer | Avoid bloating `custom.css` |
+| `static/admin/css/to_dispatch_planning.css` **(new)** | Lanes / bars / drawer | Avoid bloating `custom.css` |
 | `static/admin/js/to_dispatch_planning.js` **(new)** | Drawer only | No writes |
 | `tests/unit/test_transport/test_to_dispatch_planning.py` **(new)** | §9 | DoD |
 | `apps/transport/migrations/00xx_…` **(optional)** | Window index | Performance only |
@@ -589,7 +590,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 2. **`is_active=True` copy-paste** from Vehicle Planning drops under-maintenance trucks.
 3. **Paginating TOs** — lanes are vehicles; KPIs ignore the page.
 4. **`eta_datetime` fallback** — deprecated mirror; bar window is the two planned fields only.
-5. **Idle = FVM-03 / GPS** — visual gap between planned bars only.
+5. **Idle bars** — do not add dashed gaps “to match the prototype.” Empty time stays empty.
 6. **Vendor TOs in KPIs** — do not count them. Period set is `fleet_type=OWN` only; a vendor TO with a leftover `Vehicle` FK still must not draw.
 7. **`TO.transfer_type` for FG/Port** — wrong field; use `tr.tr_type`.
 8. **POST “for convenience”** — any write fails AC-5. Drawer is client-side.
@@ -602,7 +603,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 
 | Doc | Role |
 |---|---|
-| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only scope (story still mentions fleet filter / Own fleet KPI / vendor bar chrome). |
+| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only scope and no idle bars (story still mentions fleet filter / Own fleet KPI / vendor bar chrome / idle gaps). |
 | [Sprint folder](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | Epic index |
 | `docs/prototypes/to-dispatch-planning-calendar.html` | Layout contract |
 | [vehicle-planning-view.md](./vehicle-planning-view.md) | Write surface this calendar does **not** replace |
@@ -624,5 +625,5 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 | L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day. |
 | L5 | Click = read-only drawer. Calendar never writes. |
 | L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlaps stack. |
-| L7 | Idle = dashed gap between that vehicle’s bars in the visible range. |
+| L7 | No idle bars. Empty time between a vehicle’s TOs is blank (not a dashed idle span). |
 | L8 | Portal list pagination (not a fixed 6 rows). Empty and under-maintenance vehicles still appear. |
