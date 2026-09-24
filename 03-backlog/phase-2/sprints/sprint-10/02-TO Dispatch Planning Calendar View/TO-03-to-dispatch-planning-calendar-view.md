@@ -5,7 +5,7 @@ jira_sprint: ~
 story_id: TO-03
 title: TO Dispatch Planning — Calendar View
 epic: Transport Planning Optimization
-status: Pending
+status: In Progress
 story_points: 13
 assignee: ~
 prd_refs:
@@ -131,7 +131,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
   **Then**: cards show **TOs in period**, **Parent TRs**, **Unassigned**, and **Critical urgency** for the current period and filters  
   **And**: there is no Own fleet card (every period TO is already own-fleet)
 
-- [x] **Given**: the planner is on TO dispatch planning  
+- [ ] **Given**: the planner is on TO dispatch planning  
   **When**: they open Filters and set search (TO, TR, vehicle, driver, origin, destination), transfer type (FG / Port consignment), urgency, assignment (Unassigned / Assigned / Confirmed), and/or vehicle type  
   **Then**: KPIs, result count, bars, and (for vehicle type) listed vehicle rows match the filters  
   **And**: there is no fleet-type filter  
@@ -199,11 +199,11 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 | #       | Sub-task                | Description                                                                                            | Priority | Status       |
 | ------- | ----------------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------------ |
 | TO-03-1 | Specs                   | `05-modules/` write-up — do not start Django from this file alone                                      | High     | **Done** |
-| TO-03-2 | Query                   | Own-fleet period overlap on planned start/dest departure; planning-eligible statuses; four KPI aggregations | High     | **Partial** |
-| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars (no idle), today mark, bar = TO number + status + start → dest. departure | High     | **Partial** |
+| TO-03-2 | Query                   | Own-fleet period overlap on planned start/dest departure; planning-eligible statuses; four KPI aggregations | High     | **Done** |
+| TO-03-3 | Resource calendar       | Daily (24 ticks, 12-hour labels) / weekly / monthly vehicle lanes, existing portal pagination, stacked bars (no idle), today mark, bar = TO number + status + start → dest. departure | High     | **Done** |
 | TO-03-4 | Filters + KPIs + legend | Search and four filter selects (no fleet type); four stat cards; legend without fleet/idle             | High     | **Partial** |
 | TO-03-5 | Drawer                  | Read-only drawer + Open TO / Open TR                                                                   | High     | **Done** |
-| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Partial** |
+| TO-03-6 | Nav + RBAC              | Transport → TO dispatch planning; permission for Transport Planner, Tenant Admin, and Tenant Super Admin | High     | **Done** |
 | TO-03-7 | Tests                   | Unassigned omitted from lanes but counted; vendor excluded; bar window; stack without concurrent label; filters; RBAC; no writes | High     | **Done** |
 
 
@@ -226,14 +226,14 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ## Test Plan
 
-- [ ] Weekly vehicle lanes show assigned own-fleet TOs as bars from planned start to dest. departure, with TO number and status
+- [x] Weekly vehicle lanes show assigned own-fleet TOs as bars from planned start to dest. departure, with TO number and status
 - [x] Unassigned own-fleet TO is in the Unassigned KPI and result count, and is **absent** from every lane
 - [x] Vendor TO is absent from lanes, KPIs, and result count
 - [x] Two overlapping TOs on one truck stack; row does **not** show concurrent
 - [x] Empty time between two non-overlapping bars has **no** idle bar
 - [x] Empty and under-maintenance vehicles still appear; column shows capacity + current operational status (no Free badge)
 - [x] Daily view has 24 hour ticks labelled 12 AM–11 PM; monthly bars snap to days
-- [x] Filter by urgency, transfer type, assignment, vehicle type, and search (no fleet type); Clear restores
+- [ ] Filter by urgency, transfer type, assignment, vehicle type, and search (no fleet type); Clear restores
 - [x] Click bar opens drawer; Open TO detail / Open parent TR; calendar does not change status
 - [x] Roles other than Transport Planner, Tenant Admin, and Tenant Super Admin do not see the menu
 - [x] Pagination uses the existing portal list pager
@@ -247,7 +247,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 - [x] `05-modules/` implementation context written (TO-03-1) before merge of Django work
 - [x] Transport orders list and Vehicle planning unchanged
 - [x] Tests cover unassigned-omitted-from-lanes, vendor-excluded, bar window (start → dest. departure), stack, no idle, filters, RBAC
-- [ ] Story status updated for Phase 2 tracking
+- [x] Story status updated for Phase 2 tracking
 
 ---
 
