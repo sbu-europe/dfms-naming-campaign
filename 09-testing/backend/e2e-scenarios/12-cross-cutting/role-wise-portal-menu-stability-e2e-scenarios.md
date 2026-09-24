@@ -10,8 +10,8 @@ implementation_reference:
   - ../../../apps/core/portal_navigation.py (PORTAL_NAV_SECTIONS / build_portal_navigation)
   - ../../../templates/admin/nav_sidebar.html (#dfms-nav-sidebar)
   - ../../../tests/unit/test_core/test_role_menu_stability.py (unit matrix SSOT for item ids)
-last_updated: 2026-08-11
-last_mcp_run: 2026-08-11
+last_updated: 2026-09-24
+last_mcp_run: 2026-09-24
 last_mcp_verdict: 21/21 Pass
 playwright_mcp: true
 artifacts: tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/
@@ -20,9 +20,9 @@ suite: role-wise-portal-menu-stability
 
 # Role-wise Portal Menu Stability — E2E Scenario Plan (Django Admin SSR)
 
-> **2026-08-11 — All 21 test cases passed** (TC01–TC21). Suite signed off via Playwright MCP against Nourish admin (QC Checkpoint = QC Queue only).
+> **2026-09-24 — All 21 test cases passed** (TC01–TC21). Suite signed off via Playwright MCP against Nourish admin (Transport Planner includes Calendar-View; QC Checkpoint = QC Queue only).
 
-**Last MCP run:** 2026-08-11 · **21/21 Pass** · [RESULTS.md](../../../../tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/RESULTS.md)  
+**Last MCP run:** 2026-09-24 · **21/21 Pass** · [RESULTS.md](../../../../tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/RESULTS.md)  
 **Accounts:** operational `…1.nourish@yopmail.com` + `driver1@yopmail.com`  
 **Runner:** `tests/e2e/playwright-mcp/role-wise-portal-menu-stability-artifacts/run-role-menu-stability.js`
 
@@ -30,6 +30,7 @@ suite: role-wise-portal-menu-stability
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
+| 2026-09-24 | **21/21** | All test cases passed (Playwright MCP). TC07 includes Transport › Calendar-View (11 items). |
 | 2026-08-11 | **21/21** | All test cases passed after QC v3 matrix (Queue only). |
 | 2026-08-04 | **21/21** | All test cases passed (Playwright MCP). |
 
@@ -87,7 +88,7 @@ Assert **exact ordered** flat list: scrape each `.dfms-nav-group` → heading = 
 | `procurement_officer` | Overview › Dashboard; Procurement › Port Shipments; Procurement › Transport requests |
 | `distribution_officer` | Overview › Dashboard; Distribution › Product requisitions; Distribution › Transport requests |
 | `distribution_manager` | Overview › Dashboard; Distribution › Product requisitions; Distribution › Transport requests |
-| `transport_planner` | Overview › Dashboard; Transport › Live GPS; Transport › Transport requests; Transport › Transport orders; Transport › Vehicle planning; Master Data › Vehicle Brands; Master Data › Vehicles; Master Data › Helpers; Vendors › Vendors; Users & Access › Drivers |
+| `transport_planner` | Overview › Dashboard; Transport › Live GPS; Transport › Transport requests; Transport › Transport orders; Transport › Vehicle planning; Transport › Calendar-View; Master Data › Vehicle Brands; Master Data › Vehicles; Master Data › Helpers; Vendors › Vendors; Users & Access › Drivers |
 | `tdo_vendor_fleet` | Overview › Dashboard; Transport › Live GPS; Transport › Transport orders; Transport › Bids management; Vendors › Vendors |
 | `poi_admin` | Overview › Dashboard; Gate › Vehicle Entry (Gate-In); Gate › Vehicle Exit (Gate-Out); Gate › Active Visits; Gate › Visit History; Gate › On-Demand TO; Command Center › Queue; Command Center › Bay Assignments; Command Center › Waiting Serials; Loading › Load Events; Loading › Start Loading; Unloading › Unload Events; Unloading › Start Unloading; QC Checkpoint › QC Queue; Scaling › Scale-In; Scaling › Scale-Out; Scaling › Queue Tokens; Scaling › Gate Passes; Users & Access › Drivers |
 | `command_center_officer` | Overview › Dashboard; Command Center › Queue; Command Center › Bay Assignments; Command Center › Waiting Serials |
@@ -115,7 +116,7 @@ Assert **exact ordered** flat list: scrape each `.dfms-nav-group` → heading = 
 | TC04 | Procurement Officer menu matrix | As **Procurement Officer**, assert exact match to `procurement_officer` (Dashboard + Procurement › Port Shipments + Transport requests). Assert top-level **Port Shipments** group (Commercial-only) is absent. | P0 | Pass |
 | TC05 | Distribution Officer menu matrix | As **Distribution Officer**, assert exact match to `distribution_officer`. Assert **Transport**, **Gate**, **Vendors** absent. | P0 | Pass |
 | TC06 | Distribution Manager menu matrix | As **Distribution Manager**, assert exact match to `distribution_manager` (same distribution menus as DO). | P0 | Pass |
-| TC07 | Transport Planner menu matrix | As **Transport Planner**, assert exact match to `transport_planner` including **Vendors › Vendors**, Master Data (Vehicle Brands, Vehicles, Helpers), Users & Access › Drivers, Transport (Live GPS, Transport requests, Transport orders, Vehicle planning). Assert **Gate** and **Command Center** sections absent. | P0 | Pass |
+| TC07 | Transport Planner menu matrix | As **Transport Planner**, assert exact match to `transport_planner` including **Vendors › Vendors**, Master Data (Vehicle Brands, Vehicles, Helpers), Users & Access › Drivers, Transport (Live GPS, Transport requests, Transport orders, Vehicle planning, Calendar-View). Assert **Gate** and **Command Center** sections absent. | P0 | Pass |
 | TC08 | TDO Vendor Fleet menu matrix | As **TDO Vendor Fleet**, assert exact match to `tdo_vendor_fleet` (Dashboard; Live GPS; Transport orders; Bids management; Vendors). Assert **Master Data**, **Trips**, **Users & Access**, **Fleet operations** absent. | P0 | Pass |
 | TC09 | POI-Admin yard menu matrix | As **POI-Admin**, assert exact match to `poi_admin` (Gate + Command Center + Loading + Unloading + QC Checkpoint › QC Queue only + Scaling + Drivers). Assert **QC Checkpoint › New Sample** and **QC Checkpoint › Decisions** absent (QC v3: Add QC lives on the queue). Assert **Requisition**, **Master Data** (POIs/etc.), **Distribution** absent. | P0 | Pass |
 | TC10 | Command Center Officer menu matrix | As **Command Center Officer**, assert exact match to `command_center_officer` only. Assert **Gate**, **Loading**, **Scaling**, **Transport** absent. | P0 | Pass |
