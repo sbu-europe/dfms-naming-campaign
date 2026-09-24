@@ -445,7 +445,7 @@ View responsibilities:
 },
 ```
 
-Breadcrumb: **Home › Transport › TO dispatch planning**. Home → `admin:index`. Do **not** link `admin:app_list` (operational roles 403). “Transport” in the crumb can be plain text or the TO changelist — same rule as Vehicle Planning (`_base.html`).
+Breadcrumb: **Home › Transport › Calendar-View**. Home → `admin:index`. Do **not** link `admin:app_list` (operational roles 403). “Transport” in the crumb can be plain text or the TO changelist — same rule as Vehicle Planning (`_base.html`).
 
 Header actions (existing URLs, unchanged screens):
 
