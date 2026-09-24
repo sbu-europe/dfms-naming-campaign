@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.2
+version: 1.4
 phase: Phase 2
 sprint: Sprint 10
 status: Proposal (not implemented)
 last_updated: 2026-09-24
-changelog: "v1.2 — No idle bars. Do not render dashed idle gaps (amends TO-03 AC-2 / BR-TO03-006). v1.1 — Own-fleet only. Vehicle-lane calendar excludes vendor TOs from the period set, filters, KPIs, and bars. Drops fleet_type filter, Own fleet KPI, and own-vs-vendor chrome (amends TO-03 AC-2/AC-3)."
+changelog: "v1.4 — Vehicle column is registration + capacity + current operational_status. No N TO(s) / M concurrent / Free badge (amends TO-03 AC-2). v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -94,11 +94,15 @@ Daily, weekly, and monthly are the **same resource calendar**: vehicles left, ti
 │  4 KPI cards                                                             │
 │  Filters + legend                                                        │
 ├──────── vehicle col ──────┬──────── time axis ───────────────────────────┤
-│ DHK-1234  Covered  10 MT  │  [==== TO-… 8:00–14:00 ====]          [==]   │
-│ N TO(s) · M concurrent    │                                              │
-│ Free / Under maintenance  │                                              │
+│ DHK-1234                  │  [ TO-20260924-0001  8:00 AM – 2:00 PM ]      │
+│ 10 MT                     │                                              │
+│ Scheduled                 │                                              │
 └───────────────────────────┴──────────────────────────────────────────────┘
 ```
+
+Vehicle column (left): **registration**, **capacity** (`capacity` + `capacity_unit`, or `—`), **current** `operational_status` (`get_operational_status_display()` — No Active TO / Scheduled / In-transit / Under Maintenance). Do **not** show `N TO(s)`, `M concurrent`, or a derived **Free** badge.
+
+Bar copy (on the lane): **TO number** + **planned start** → **planned destination departure** (tenant TZ, 12-hour). Example: `TO-20260924-0001  8:00 AM – 2:00 PM`. The drawn bar uses the same two datetimes.
 
 | Mode | Axis | Labels |
 |---|---|---|
@@ -119,7 +123,7 @@ Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). 
 
 ### 1.5 Why no new model
 
-`TransportOrder.vehicle`, `planned_start_at`, and `planned_destination_arrival_at` already store the plan. A `CalendarEvent` / `VehicleLane` table would drift from the TO. Stack depth is derived at read time. Empty time between bars is just empty — **do not** draw idle spans.
+`TransportOrder.vehicle`, `planned_start_at`, and `planned_destination_departure_at` already store the plan. A `CalendarEvent` / `VehicleLane` table would drift from the TO. Stack depth is derived at read time. Empty time between bars is just empty — **do not** draw idle spans.
 
 ---
 
@@ -130,7 +134,7 @@ Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). 
 | Need | Source |
 |---|---|
 | TO number, status, allocated qty | `transport.TransportOrder` (`fleet_type` is always `OWN` on this page) |
-| Planned bar window | `planned_start_at`, `planned_destination_arrival_at` |
+| Planned bar window + label | `planned_start_at` → `planned_destination_departure_at` |
 | Vehicle / driver / helpers | `vehicle`, `driver`, `helpers` M2M |
 | Origin / destination | `origin_poi`, `destination_poi` |
 | Parent TR, urgency, FG vs Port | `tr` → `requisitions.TransportRequisition` (`tr_number`, `urgency`, `tr_type`) |
@@ -167,17 +171,19 @@ Story: **FG / Port consignment** → `tr.tr_type` (`FG` / `PORT_CONSIGNMENT`). D
 
 TOs with no parent TR drop out of this filter when it is set.
 
-### 2.4 Vehicle operational badges
+### 2.4 Vehicle column
 
-| Badge | When |
+| Shown | Source |
 |---|---|
-| **Under maintenance** | `operational_status == under_maintenance` (wins even if the vehicle has bars) |
-| **Free** | not under maintenance **and** no period-TO bar on this vehicle in the visible range |
-| `N TO(s)` / `M concurrent` | N = bars on this vehicle in range; M = max stack depth (see §4.3) |
+| Registration | `registration_number` |
+| Capacity | `capacity` + `capacity_unit` (e.g. `10 MT`); `—` if capacity is null |
+| Current status | `operational_status` as stored now (`no_active_to`, `scheduled`, `in_transit`, `under_maintenance`) — use `get_operational_status_display()` |
 
-`Vehicle.objects` already excludes soft-deletes (`deleted_at`). **Do not** copy Vehicle Planning’s `is_active=True` filter — under-maintenance vehicles are often `is_active=False` in master data, and AC-2 requires them on the calendar.
+Do **not** show `N TO(s)`, `M concurrent`, or a calendar-derived **Free** label. Status is the vehicle’s current master value, not “does this lane have a bar in range?”.
 
-Include: non-deleted vehicles except `operational_status=inactive` (decommissioned; not in the story). Include empty and under-maintenance.
+`Vehicle.objects` already excludes soft-deletes (`deleted_at`). **Do not** copy Vehicle Planning’s `is_active=True` filter — under-maintenance vehicles are often `is_active=False` in master data, and they still appear.
+
+Include: non-deleted vehicles except `operational_status=inactive` (decommissioned). Include empty and under-maintenance.
 
 ---
 
@@ -199,10 +205,10 @@ A TO is in the period set when it is **own-fleet**, **both** planned endpoints a
 
 ```
 planned_start_at < range_end
-AND planned_destination_arrival_at > range_start
+AND planned_destination_departure_at > range_start
 ```
 
-(standard half-open overlap). If either field is null, or start > end, **omit** the TO from the period set. **Do not** fall back to deprecated `eta_datetime`.
+(standard half-open overlap). If either field is null, or start > dest departure, **omit** the TO from the period set. **Do not** fall back to `planned_destination_arrival_at` or deprecated `eta_datetime`.
 
 ```python
 period_tos = (
@@ -210,11 +216,11 @@ period_tos = (
         fleet_type=FleetType.OWN,
         status__in=PLANNING_ELIGIBLE_STATUSES,
         planned_start_at__isnull=False,
-        planned_destination_arrival_at__isnull=False,
+        planned_destination_departure_at__isnull=False,
         planned_start_at__lt=range_end_utc,
-        planned_destination_arrival_at__gt=range_start_utc,
+        planned_destination_departure_at__gt=range_start_utc,
     )
-    .filter(planned_start_at__lte=F("planned_destination_arrival_at"))
+    .filter(planned_start_at__lte=F("planned_destination_departure_at"))
     .select_related(
         "tr",
         "vehicle",
@@ -230,7 +236,7 @@ Then apply search + the four selects in Python/ORM on this queryset (see §3.4).
 
 ### 3.3 Why an optional index (not a new table)
 
-`planned_start_at` / `planned_destination_arrival_at` exist (FB-006 / FB-008) but have **no index**. The overlap filter will sequential-scan planning-eligible TOs.
+`planned_start_at` / `planned_destination_departure_at` exist (FB-006 / FB-008) but have **no index**. The overlap filter will sequential-scan planning-eligible TOs.
 
 **Schema change:** none required for correctness.
 
@@ -241,7 +247,7 @@ Then apply search + the four selects in Python/ORM on this queryset (see §3.4).
 migrations.AddIndex(
     model_name="transportorder",
     index=models.Index(
-        fields=["fleet_type", "status", "planned_start_at", "planned_destination_arrival_at"],
+        fields=["fleet_type", "status", "planned_start_at", "planned_destination_departure_at"],
         name="idx_to_planning_window",
     ),
 )
@@ -327,21 +333,29 @@ Convert both to UTC before the ORM filter.
 
 ### 4.2 Bar geometry
 
-Bar window = `[planned_start_at, planned_destination_arrival_at]` clipped to the visible range.
+Bar window = `[planned_start_at, planned_destination_departure_at]` clipped to the visible range. Same pair as the on-bar label.
 
-**Monthly snap (BR-TO03-003):** convert the clipped window to tenant-local dates; the bar occupies every day column from `local_start.date()` through `local_end.date()` inclusive (if end is exactly 00:00, that day is excluded — half-open).
+**Monthly snap:** convert the clipped window to tenant-local dates; the bar occupies every day column from `local_start.date()` through `local_end.date()` inclusive (if end is exactly 00:00, that day is excluded — half-open).
 
 **Daily / weekly:** CSS `left` / `width` as `%` of the visible range (minutes from `range_start` / total minutes). Clamp to `[0, 100]`.
 
-Bar chrome on the lane: **TO number + start–end time** (tenant TZ, 12-hour). Full fields live in tooltip + drawer.
+Bar chrome on the lane (required, visible without hover):
+
+| Piece | Field |
+|---|---|
+| TO number | `to_number` |
+| Start time | `planned_start_at` (tenant TZ, 12-hour) |
+| End time | `planned_destination_departure_at` (tenant TZ, 12-hour) |
+
+Format: `{to_number}  {start} – {dest_departure}` e.g. `TO-20260924-0001  8:00 AM – 2:00 PM`. Full fields live in tooltip + drawer.
 
 ### 4.3 Stack (per vehicle, visible range)
 
 Sort that vehicle’s bars by `planned_start_at`.
 
-**Stack (greedy interval colouring):** assign each bar to the first lane whose last `end` ≤ this bar’s `start`. Overlapping bars get different lanes; they must not paint on top of each other. `M concurrent` = number of lanes used. `N TO(s)` = bar count.
+**Stack (greedy interval colouring):** assign each bar to the first lane whose last `end` ≤ this bar’s `start`. Overlapping bars get different lanes; they must not paint on top of each other. Do **not** put stack depth or TO count on the vehicle column.
 
-**No idle bars.** Leave the empty span between non-overlapping TOs blank. Do not compute union gaps, do not paint dashed “idle” segments, and do not put idle in the legend. Empty vehicle → no bars, **Free** (unless under maintenance).
+**No idle bars.** Leave the empty span between non-overlapping TOs blank. Do not compute union gaps, do not paint dashed “idle” segments, and do not put idle in the legend. Empty vehicle → no bars; the left column still shows capacity + current `operational_status`.
 
 ### 4.4 Bar chrome
 
@@ -365,14 +379,16 @@ Built in the service from the TO already in memory. Fields:
 | Helper | comma-separated `helpers.full_name` or `—` |
 | Source / dest POI | `origin_poi.name` / `destination_poi.name` |
 | Allocated qty | `allocated_quantity` |
-| Planned start / dest. arrival | the two datetime fields |
+| Planned start | `planned_start_at` |
+| Planned dest. arrival | `planned_destination_arrival_at` |
+| Planned dest. departure | `planned_destination_departure_at` (bar end) |
 
 Footer URLs (GET links, existing screens):
 
 - Open TO detail → `admin:transport_transportorder_change`
 - Open parent TR → `admin:requisitions_transportrequisition_change` (hide if `tr_id` is null)
 
-Tooltip: TO number, TR number, start–end datetimes, origin → destination, driver (or “Driver not assigned”).
+Tooltip: TO number, TR number, planned start → planned dest. departure, origin → destination, driver (or “Driver not assigned”).
 
 ---
 
@@ -487,7 +503,7 @@ New templates under `templates/admin/transport/to_dispatch_planning/`, extend `a
 
 Pagination: copy Vehicle Planning — `resolve_admin_list_pagination` + the `dfms-pagination-parent` markup from `select_vehicle.html` (per-page select `15–200`, `?p=`).
 
-Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, “bar = planned start → dest. arrival”. No idle swatch.
+Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, “bar = planned start → dest. departure”. No idle swatch.
 
 Today mark: weekly (and monthly) highlight today’s column. Daily may show a “now” line; not required by AC if the 24 ticks are correct.
 
@@ -521,17 +537,17 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 | # | Case | Assert |
 |---|---|---|
 | 1 | Period overlap | TO fully inside, overlapping start, overlapping end → included; fully before/after → excluded |
-| 2 | Null / inverted window | missing `planned_start_at` or dest. arrival, or start > end → omitted |
+| 2 | Null / inverted window | missing `planned_start_at` or dest. departure, or start > dest departure → omitted |
 | 3 | Status gate | `created` / `under_planning` / `assigned` / `ready_for_dispatch` in; `cancelled` and execution statuses out |
 | 4 | Unassigned omitted from lanes | no `vehicle` → in result count + Unassigned KPI; `vehicle_id` not in any lane’s bars |
 | 5 | Vendor excluded | `fleet_type=VENDOR` (with or without a `Vehicle` FK) → absent from period set, KPIs, and every lane |
-| 6 | Bar window | geometry uses the two planned fields only (not `eta_datetime`) |
+| 6 | Bar window + label | geometry and chrome use `planned_start_at` → `planned_destination_departure_at` only (not dest. arrival, not `eta_datetime`); label includes `to_number` |
 | 7 | Monthly snap | bar occupying two local dates spans two day columns |
 | 8 | Daily labels | 24 ticks, `12 AM` … `11 PM` |
 | 9 | Weekly bounds | Sunday–Saturday in `Asia/Dhaka` |
-| 10 | Overlap stack | two overlapping TOs → two lanes, `concurrent == 2` |
+| 10 | Overlap stack | two overlapping TOs → two visual lanes; vehicle column has **no** concurrent / N TO(s) label |
 | 11 | No idle bar | two non-overlapping bars → empty space between them; context/HTML has no idle span |
-| 12 | Empty / maintenance | no TOs → Free; `under_maintenance` still listed with that badge (`is_active=False` still listed) |
+| 12 | Vehicle column | shows registration, capacity+unit, and current `operational_status`; `under_maintenance` + `is_active=False` still listed; no Free badge |
 | 13 | Filters | transfer type, urgency, assignment, vehicle type + search; no `fleet_type` param; Clear drops filters; vehicle type changes vehicle queryset |
 | 14 | Assignment filter | unassigned / assigned / confirmed match §2.2 |
 | 15 | KPIs | four cards match the filtered period set (not the current vehicle page) |
@@ -589,7 +605,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 1. **Monday-start weeks** — AC requires Sun–Sat. `datetime.weekday()` is Monday=0. Write an explicit Sunday-start helper and test it.
 2. **`is_active=True` copy-paste** from Vehicle Planning drops under-maintenance trucks.
 3. **Paginating TOs** — lanes are vehicles; KPIs ignore the page.
-4. **`eta_datetime` fallback** — deprecated mirror; bar window is the two planned fields only.
+4. **Dest. arrival as bar end** — story used arrival; this plan uses **dest. departure**. Do not fall back to `eta_datetime`.
 5. **Idle bars** — do not add dashed gaps “to match the prototype.” Empty time stays empty.
 6. **Vendor TOs in KPIs** — do not count them. Period set is `fleet_type=OWN` only; a vendor TO with a leftover `Vehicle` FK still must not draw.
 7. **`TO.transfer_type` for FG/Port** — wrong field; use `tr.tr_type`.
@@ -603,7 +619,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 
 | Doc | Role |
 |---|---|
-| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only scope and no idle bars (story still mentions fleet filter / Own fleet KPI / vendor bar chrome / idle gaps). |
+| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only, no idle bars, bar = start → dest. departure, and vehicle column = capacity + current status (no concurrent / Free). |
 | [Sprint folder](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | Epic index |
 | `docs/prototypes/to-dispatch-planning-calendar.html` | Layout contract |
 | [vehicle-planning-view.md](./vehicle-planning-view.md) | Write surface this calendar does **not** replace |
@@ -621,9 +637,9 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 |----|----------|
 | L1 | Vehicle-first only. No TO month-grid. No vehicle-wise toggle. |
 | L2 | Period set is **own-fleet only** (`fleet_type=OWN`). Bars only for those TOs that also have a `Vehicle` FK. Unassigned own-fleet TOs count in KPIs / result / filters only. Vendor TOs are out of this page. |
-| L3 | Bar = `planned_start_at` → `planned_destination_arrival_at`. Monthly snaps to days. |
+| L3 | Bar label and window = `to_number` + `planned_start_at` → `planned_destination_departure_at`. Monthly snaps to days. |
 | L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day. |
 | L5 | Click = read-only drawer. Calendar never writes. |
-| L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlaps stack. |
+| L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlapping bars still stack visually. |
 | L7 | No idle bars. Empty time between a vehicle’s TOs is blank (not a dashed idle span). |
-| L8 | Portal list pagination (not a fixed 6 rows). Empty and under-maintenance vehicles still appear. |
+| L8 | Vehicle column = registration + capacity + current `operational_status`. No `N TO(s)`, no concurrent, no Free badge. Portal list pagination. Empty and under-maintenance vehicles still appear. |
