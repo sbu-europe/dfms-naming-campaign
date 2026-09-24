@@ -71,12 +71,12 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ### AC-1 — Shell, views, navigation
 
-- [ ] **Given**: a Transport Planner, Tenant Admin, or Tenant Super Admin is logged in  
-  **When**: they open **Transport → TO dispatch planning**  
+- [x] **Given**: a Transport Planner, Tenant Admin, or Tenant Super Admin is logged in  
+  **When**: they open **Transport → Calendar-View**  
   **Then**:
   - Breadcrumb is Home › Transport › TO dispatch planning
   - Header links to **Vehicle planning** and **All transport orders** (existing screens; unchanged)
-  - Result count is the number of planning-eligible **own-fleet** TOs whose planned window (`planned_start_at` → `planned_destination_departure_at`) overlaps the period (includes unassigned own-fleet TOs)
+  - Result count is the number of **own-fleet** TOs whose planned window (`planned_start_at` → `planned_destination_departure_at`) overlaps the period (any lifecycle status, includes unassigned own-fleet TOs)
   - Page chrome matches the live DFMS admin (same search / filter / pagination / badges as Vehicle Planning and changelists)
 
 - [x] **Given**: the planner is on TO dispatch planning  
@@ -95,13 +95,13 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ### AC-2 — Vehicle lanes and TO bars
 
-- [ ] **Given**: an own-fleet TO with a `Vehicle`, `planned_start_at`, and `planned_destination_departure_at` overlapping the visible period  
+- [x] **Given**: an own-fleet TO with a `Vehicle`, `planned_start_at`, and `planned_destination_departure_at` overlapping the visible period  
   **When**: the planner views the calendar  
   **Then**:
   - Own-fleet vehicles are paginated rows using the existing portal list pagination
   - The vehicle column shows registration, capacity (`capacity` + `capacity_unit`), and current `operational_status`
-  - That TO is a bar on its vehicle from `planned_start_at` to `planned_destination_departure_at`
-  - The bar shows TO number, TO status (existing badge), and start–dest. departure time
+  - That TO is a bar on its vehicle from `planned_start_at` to `planned_destination_departure_at` (daily is timed within the day; weekly and monthly snap onto whole day columns)
+  - Daily bar shows TO number and start–dest. departure time. Weekly and monthly bars show the TO number only. TO status is the bar fill colour, not the TO list badge
   - Critical urgency is outlined
   - Tooltip shows TO number, TO status, TR number, planned start → dest. departure, origin → destination, driver (or “Driver not assigned”)
 
@@ -139,7 +139,7 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 - [ ] **Given**: the planner is on TO dispatch planning  
   **When**: they view the page  
-  **Then**: a legend shows urgency badges, assignment badges, and that a bar is planned start → dest. departure  
+  **Then**: a legend shows urgency badges, assignment badges, TO status colour swatches, and that a bar is planned start → dest. departure  
   **And**: the legend does not show fleet colors or an idle gap
 
 ---
@@ -165,10 +165,10 @@ This story adds **Transport → TO dispatch planning**: a **read-only resource c
 
 ### AC-5 — Read-only and RBAC
 
-- [ ] **Given**: a user with Transport Planner, Tenant Admin, or Tenant Super Admin  
+- [x] **Given**: a user with Transport Planner, Tenant Admin, or Tenant Super Admin  
   **When**: they use the portal  
-  **Then**: they see **TO dispatch planning**  
-  **And**: other roles do not see the item unless explicitly granted
+  **Then**: they see **Transport → Calendar-View**  
+  **And**: other roles do not see the item unless granted `Menu.Transport.TODispatchPlanning.View`, except Driver Supervisor, who does not see it
 
 - [x] **Given**: the planner is on TO dispatch planning  
   **When**: they navigate, filter, open the drawer, or follow Open TO / Open TR  
