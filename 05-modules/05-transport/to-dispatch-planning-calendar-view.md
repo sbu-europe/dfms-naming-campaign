@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.6
+version: 1.7
 phase: Phase 2
 sprint: Sprint 10
-status: Proposal (not implemented)
+status: Implemented
 last_updated: 2026-09-24
-changelog: "v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
+changelog: "v1.7 — All own-fleet statuses in the period set (including execution / closed / cancelled); bar fill colour by TO status; monthly axis is Teams-style (weekday + date, weekend shade, today circle). v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -26,7 +26,7 @@ story: ../../03-backlog/phase-2/sprints/sprint-10/02-TO Dispatch Planning Calend
 
 Planners already create TOs (TO-01) and assign vehicle, driver, helpers, and planned milestones (TO-02 / Vehicle Planning). There is no **vehicle-lane** view of that plan: the TO list is tabular, and Vehicle Planning is one vehicle at a time.
 
-This story adds **Transport → TO dispatch planning**: a **read-only resource calendar**. Vehicles are rows; time is the axis; each assigned **own-fleet** TO is a bar on its vehicle. It does not create, assign, or change status or quantity. Assignment stays on TO detail and Vehicle Planning.
+This story adds **Transport → TO dispatch planning**: a **read-only resource calendar**. Vehicles are rows; time is the axis; each **own-fleet** TO with a planned window is a bar on its vehicle (any lifecycle status). It does not create, assign, or change status or quantity. Assignment stays on TO detail and Vehicle Planning.
 
 **Own fleet only.** Lanes are `master_data.Vehicle` (own-fleet master). The period set is `fleet_type=OWN`. Vendor TOs never appear in KPIs, result count, filters, or bars — there is no fleet-type filter. This amends TO-03 AC-2 / AC-3 (own-vs-vendor chrome, fleet-type select, Own fleet KPI).
 
@@ -102,19 +102,19 @@ Daily, weekly, and monthly are the **same resource calendar**: vehicles left, ti
 
 Vehicle column (left): **registration**, **capacity** (`capacity` + `capacity_unit`, or `—`), **current** `operational_status` (`get_operational_status_display()` — No Active TO / Scheduled / In-transit / Under Maintenance). Do **not** show `N TO(s)`, `M concurrent`, or a derived **Free** badge.
 
-Bar copy (on the lane): **TO number** + **TO status** + **planned start** → **planned destination departure** (tenant TZ, 12-hour). Example: `TO-20260924-0001  Assigned  8:00 AM – 2:00 PM`. Status uses the existing `_to_badge` / `transport_order_display_status` chip (same as the TO list). The drawn bar uses the two datetimes.
+Bar copy (on the lane): **TO number** + **TO status** + **planned start** → **planned destination departure** (tenant TZ, 12-hour). Example: `TO-20260924-0001  Assigned  8:00 AM – 2:00 PM`. Status uses the existing `_to_badge` / `transport_order_display_status` chip (same as the TO list). The drawn bar uses the two datetimes. **Bar fill colour is keyed by `TransportOrder.status`** (see §4.4) so Assigned, At Source, Closed, Cancelled, etc. are distinguishable without opening the drawer.
 
 | Mode | Axis | Labels |
 |---|---|---|
 | Daily | 24 hour ticks | **12-hour** (`12 AM` … `11 AM`, `12 PM` … `11 PM`) |
-| Weekly | 7 day columns | **Sun–Sat**, today column highlighted |
-| Monthly | one column per day of the month | bars **snap to calendar days** |
+| Weekly | 7 day columns | **Sun–Sat** weekday + date; today = filled circle; Sat/Sun shaded |
+| Monthly | one column per day of the month | **Teams-style header**: weekday abbr + date number (`Tue` / `1`); today = filled circle; Sat/Sun shaded; Sunday = week boundary. Bars **snap to calendar days**. Vehicle-first stays — not a TO month-grid. |
 
 ### 1.4 Two querysets (do not collapse)
 
 | Set | What it is | Used for |
 |---|---|---|
-| **Period TOs** | Planning-eligible **own-fleet** TOs whose planned window overlaps the visible range, after search/filters | Result count, 4 KPIs, bar payload |
+| **Period TOs** | **Own-fleet** TOs (any status) whose planned window overlaps the visible range, after search/filters | Result count, 4 KPIs, bar payload |
 | **Vehicle lanes** | Paginated own-fleet `Vehicle` rows | Left-hand rows |
 
 Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). Bars are period TOs that have a `Vehicle` FK **and** whose vehicle is on the current page. Unassigned **own-fleet** TOs stay in KPIs / result count and never become a bar.
@@ -142,28 +142,23 @@ Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). 
 | Driver label | `driver.user.full_name` |
 | Helper label | `helper.full_name` |
 
-### 2.1 Planning-eligible statuses
+### 2.1 Period-set statuses (v1.7)
 
-```python
-PLANNING_ELIGIBLE_STATUSES = (
-    TOStatus.CREATED,            # created
-    TOStatus.UNDER_PLANNING,     # under_planning
-    TOStatus.ASSIGNED,           # assigned
-    TOStatus.READY_FOR_DISPATCH, # ready_for_dispatch
-)
-```
+The period set is **not** gated on planning-only statuses. Any own-fleet TO with a valid planned window is included: `created`, `under_planning`, `assigned`, `ready_for_dispatch`, **and** execution / closed / cancelled (`driving_towards_*`, `at_source`, `loaded_pickup_completed`, `at_destination`, `completed`, `closed`, `cancelled`, …).
 
-Exclude `cancelled` and every execution / closed status (`driving_towards_*`, yard, completed, closed, …).
+`PLANNING_ELIGIBLE_STATUSES` remains **only** as the assignment-filter “not yet Ready” bucket (§2.2). Do **not** put it on `period_tos_queryset`.
+
+Amends TO-03 AC-2 / BR-TO03-001 (was planning-eligible only).
 
 ### 2.2 Assignment filter (BR-TO03-007)
 
-Among **period TOs** only:
+Among **period TOs** only. Execution / closed TOs match **neither** `assigned` nor `confirmed` (they still appear when the filter is empty):
 
 | Filter | Meaning |
 |---|---|
 | `unassigned` | `vehicle_id IS NULL` |
 | `assigned` | `vehicle_id` set **and** status ∈ `{created, under_planning, assigned}` (not yet Ready for dispatch) |
-| `confirmed` | status = `ready_for_dispatch` (the only planning-eligible “or later”) |
+| `confirmed` | status = `ready_for_dispatch` |
 
 ### 2.3 Transfer-type filter
 
@@ -201,7 +196,7 @@ All datetimes in the DB are UTC (`USE_TZ`). Period bounds are computed in **`Asi
 
 ### 3.2 Period overlap (BR-TO03-001)
 
-A TO is in the period set when it is **own-fleet**, **both** planned endpoints are set, **and**:
+A TO is in the period set when it is **own-fleet**, **any status**, **both** planned endpoints are set, **and**:
 
 ```
 planned_start_at < range_end
@@ -214,7 +209,6 @@ AND planned_destination_departure_at > range_start
 period_tos = (
     TransportOrder.objects.filter(
         fleet_type=FleetType.OWN,
-        status__in=PLANNING_ELIGIBLE_STATUSES,
         planned_start_at__isnull=False,
         planned_destination_departure_at__isnull=False,
         planned_start_at__lt=range_end_utc,
@@ -236,7 +230,7 @@ Then apply search + the four selects in Python/ORM on this queryset (see §3.4).
 
 ### 3.3 Why an optional index (not a new table)
 
-`planned_start_at` / `planned_destination_departure_at` exist (FB-006 / FB-008) but have **no index**. The overlap filter will sequential-scan planning-eligible TOs.
+`planned_start_at` / `planned_destination_departure_at` exist (FB-006 / FB-008) but have **no index**. The overlap filter will sequential-scan own-fleet TOs that have both endpoints.
 
 **Schema change:** none required for correctness.
 
@@ -337,14 +331,16 @@ Bar window = `[planned_start_at, planned_destination_departure_at]` clipped to t
 
 **Monthly snap:** convert the clipped window to tenant-local dates; the bar occupies every day column from `local_start.date()` through `local_end.date()` inclusive (if end is exactly 00:00, that day is excluded — half-open).
 
-**Daily / weekly:** CSS `left` / `width` as `%` of the visible range (minutes from `range_start` / total minutes). Clamp to `[0, 100]`.
+**Weekly / monthly:** snap the clipped window onto **whole day columns** (same half-open local-date rule as monthly). A same-day TO fills that day’s cell (inset chip), not a minute-thin sliver across the week/month.
+
+**Daily:** CSS `left` / `width` as `%` of the visible range (minutes from `range_start` / total minutes). Clamp to `[0, 100]`.
 
 Bar chrome on the lane (required, visible without hover):
 
 | Piece | Field |
 |---|---|
 | TO number | `to_number` |
-| TO status | `transport_order_display_status` / `_to_badge` (Created / Under Planning / Assigned / Ready for Dispatch) |
+| TO status | `transport_order_display_status` / `_to_badge` (any lifecycle label) |
 | Start time | `planned_start_at` (tenant TZ, 12-hour) |
 | End time | `planned_destination_departure_at` (tenant TZ, 12-hour) |
 
@@ -362,7 +358,27 @@ Sort that vehicle’s bars by `planned_start_at`.
 
 All bars are own-fleet. No own-vs-vendor left-border, no fleet colour in the legend.
 
-Critical urgency (`tr.urgency == critical`) → red outline. Reuse `.dfms-badge--urgency-*` in the drawer; on the bar, a CSS modifier is enough.
+**Status fill** (class `todp-bar--{status}` with `_` → `-`, from raw `TransportOrder.status`):
+
+| Status | Bar class | Fill |
+|---|---|---|
+| `created` | `todp-bar--created` | Grey |
+| `under_planning` | `todp-bar--under-planning` | Amber |
+| `assigned` | `todp-bar--assigned` | Purple (`--dfms-primary`) |
+| `ready_for_dispatch` | `todp-bar--ready-for-dispatch` | Green |
+| `driving_towards_source` | `todp-bar--driving-towards-source` | Blue |
+| `at_source` | `todp-bar--at-source` | Indigo |
+| `loaded_pickup_completed` | `todp-bar--loaded-pickup-completed` | Cyan |
+| `driving_towards_destination` | `todp-bar--driving-towards-destination` | Violet |
+| `at_destination` | `todp-bar--at-destination` | Teal |
+| `delivered_unloaded` | `todp-bar--delivered-unloaded` | Green |
+| `in_progress` | `todp-bar--in-progress` | Blue (legacy) |
+| `completed` | `todp-bar--completed` | Dark green |
+| `bill_disbursed` | `todp-bar--bill-disbursed` | Dark teal |
+| `closed` | `todp-bar--closed` | Slate |
+| `cancelled` | `todp-bar--cancelled` | Red (`--dfms-danger`) |
+
+Critical urgency (`tr.urgency == critical`) → red outline on top of the fill. Reuse `.dfms-badge--urgency-*` in the drawer.
 
 ### 4.5 Drawer payload (read-only)
 
@@ -520,9 +536,11 @@ No new CSS framework. Calendar-only rules (lane grid, bar `left`/`width`, today 
 
 Pagination: copy Vehicle Planning — `resolve_admin_list_pagination` + the `dfms-pagination-parent` markup from `select_vehicle.html` (per-page select `15–200`, `?p=`).
 
-Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, “bar = planned start → dest. departure”. No idle swatch.
+Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, **TO status colour swatches**, “bar = planned start → dest. departure”. No idle swatch. No fleet colours.
 
-Today mark: weekly (and monthly) highlight today’s column. Daily may show a “now” line; not required by AC if the 24 ticks are correct.
+**Monthly axis (Teams-inspired, still vehicle-first):** each day column shows weekday abbr + date number; today is a filled circle on the date; Sat/Sun columns are shaded; Sunday has a stronger left border (week start). Widen month columns (~56px) and allow horizontal scroll. Narrow month bars may hide the badge + time and keep the TO number (full copy stays in tooltip / drawer).
+
+Today mark: weekly and monthly highlight today’s column (circle + column wash). Daily may show a “now” line; not required by AC if the 24 ticks are correct.
 
 ---
 
@@ -541,7 +559,7 @@ Today mark: weekly (and monthly) highlight today’s column. Daily may show a �
 | Capacity utilization bars | Out of story |
 | Idle / dashed gap bars | Locked: empty time between TOs stays blank (amends TO-03 AC-2 / BR-TO03-006) |
 | GPS / FVM-03 idle hours | Different clock; not this page |
-| TO-centric month grid | Prototype wins over PRD sketch |
+| TO-centric month grid | Vehicle-first wins; monthly is still vehicles × day columns (Teams **header**, not a month cell grid) |
 | Theme toggle / prototype-only chrome | Not in the live admin design system |
 | Changing Vehicle Planning or the TO list | AC / DoD |
 
@@ -555,7 +573,8 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 |---|---|---|
 | 1 | Period overlap | TO fully inside, overlapping start, overlapping end → included; fully before/after → excluded |
 | 2 | Null / inverted window | missing `planned_start_at` or dest. departure, or start > dest departure → omitted |
-| 3 | Status gate | `created` / `under_planning` / `assigned` / `ready_for_dispatch` in; `cancelled` and execution statuses out |
+| 3 | Status set | `created` / `under_planning` / `assigned` / `ready_for_dispatch` **and** execution / closed / `cancelled` in when the window overlaps; bar `status_class` = `todp-bar--{status}` |
+| 3b | Monthly ticks | weekday names + date numbers; Sep 2026 starts `Tue` / `1`; today + weekend flags |
 | 4 | Unassigned omitted from lanes | no `vehicle` → in result count + Unassigned KPI; `vehicle_id` not in any lane’s bars |
 | 5 | Vendor excluded | `fleet_type=VENDOR` (with or without a `Vehicle` FK) → absent from period set, KPIs, and every lane |
 | 6 | Bar window + label | geometry uses `planned_start_at` → `planned_destination_departure_at`; label includes `to_number` + TO status badge + those two times |
@@ -629,6 +648,8 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 8. **POST “for convenience”** — any write fails AC-5. Drawer is client-side.
 9. **Catalog-only permission** — must be in `PERMISSION_DEFINITIONS` so tenant admin / tenant super admin receive it on seed.
 10. **`admin:app_list` breadcrumb** — 403 for Transport Planner.
+11. **Planning-only status gate** — v1.7 shows execution / closed / cancelled. Do not re-add `status__in=PLANNING_ELIGIBLE_STATUSES` on the period queryset.
+12. **Monthly day numbers only** — axis must include weekday names (Teams-style). Do not revert to `1…31` with no `Sun`/`Mon`.
 
 ---
 
@@ -636,7 +657,7 @@ Do **not** ship step 2 without step 8 in the same PR if the URL is reachable —
 
 | Doc | Role |
 |---|---|
-| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only, no idle bars, bar = start → dest. departure, and vehicle column = capacity + current status (no concurrent / Free). |
+| [TO-03 story](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md) | AC, BRs. **This plan wins** on own-fleet-only, no idle bars, bar = start → dest. departure, vehicle column = capacity + current status (no concurrent / Free), **all statuses + status colours**, and **Teams-style monthly header**. |
 | [Sprint folder](../../03-backlog/phase-2/sprints/sprint-10/02-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | Epic index |
 | `docs/prototypes/to-dispatch-planning-calendar.html` | Behaviour/reference sketch only — **not** the visual SSOT |
 | [vehicle-planning-view.md](./vehicle-planning-view.md) | Write surface this calendar does **not** replace |
@@ -655,9 +676,11 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 | L1 | Vehicle-first only. No TO month-grid. No vehicle-wise toggle. |
 | L2 | Period set is **own-fleet only** (`fleet_type=OWN`). Bars only for those TOs that also have a `Vehicle` FK. Unassigned own-fleet TOs count in KPIs / result / filters only. Vendor TOs are out of this page. |
 | L3 | Bar label = `to_number` + TO status + `planned_start_at` → `planned_destination_departure_at`. Bar window is those two datetimes. Monthly snaps to days. |
-| L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day. |
+| L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day with weekday + date (Teams-style header). Still vehicle-first. |
 | L5 | Click = read-only drawer. Calendar never writes. |
 | L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlapping bars still stack visually. |
 | L7 | No idle bars. Empty time between a vehicle’s TOs is blank (not a dashed idle span). |
 | L8 | Vehicle column = registration + capacity + current `operational_status`. No `N TO(s)`, no concurrent, no Free badge. Portal list pagination. Empty and under-maintenance vehicles still appear. |
 | L9 | UI is consistent with the existing DFMS admin (Vehicle Planning, changelists, `custom.css`). Prototype is not the design source of truth. |
+| L10 | Period set includes **all own-fleet statuses** (planning, execution, closed, cancelled) when the planned window overlaps. Bar fill colour maps 1:1 from `TO.status`. Amends the original planning-eligible-only gate. |
+
