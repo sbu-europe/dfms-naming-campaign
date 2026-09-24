@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.5
+version: 1.6
 phase: Phase 2
 sprint: Sprint 10
 status: Proposal (not implemented)
 last_updated: 2026-09-24
-changelog: "v1.5 — UI follows the existing DFMS admin design system, not the HTML prototype. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
+changelog: "v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -94,7 +94,7 @@ Daily, weekly, and monthly are the **same resource calendar**: vehicles left, ti
 │  4 KPI cards                                                             │
 │  Filters + legend                                                        │
 ├──────── vehicle col ──────┬──────── time axis ───────────────────────────┤
-│ DHK-1234                  │  [ TO-20260924-0001  8:00 AM – 2:00 PM ]      │
+│ DHK-1234                  │  [ TO-20260924-0001  Assigned  8:00 AM – 2:00 PM ] │
 │ 10 MT                     │                                              │
 │ Scheduled                 │                                              │
 └───────────────────────────┴──────────────────────────────────────────────┘
@@ -102,7 +102,7 @@ Daily, weekly, and monthly are the **same resource calendar**: vehicles left, ti
 
 Vehicle column (left): **registration**, **capacity** (`capacity` + `capacity_unit`, or `—`), **current** `operational_status` (`get_operational_status_display()` — No Active TO / Scheduled / In-transit / Under Maintenance). Do **not** show `N TO(s)`, `M concurrent`, or a derived **Free** badge.
 
-Bar copy (on the lane): **TO number** + **planned start** → **planned destination departure** (tenant TZ, 12-hour). Example: `TO-20260924-0001  8:00 AM – 2:00 PM`. The drawn bar uses the same two datetimes.
+Bar copy (on the lane): **TO number** + **TO status** + **planned start** → **planned destination departure** (tenant TZ, 12-hour). Example: `TO-20260924-0001  Assigned  8:00 AM – 2:00 PM`. Status uses the existing `_to_badge` / `transport_order_display_status` chip (same as the TO list). The drawn bar uses the two datetimes.
 
 | Mode | Axis | Labels |
 |---|---|---|
@@ -344,10 +344,11 @@ Bar chrome on the lane (required, visible without hover):
 | Piece | Field |
 |---|---|
 | TO number | `to_number` |
+| TO status | `transport_order_display_status` / `_to_badge` (Created / Under Planning / Assigned / Ready for Dispatch) |
 | Start time | `planned_start_at` (tenant TZ, 12-hour) |
 | End time | `planned_destination_departure_at` (tenant TZ, 12-hour) |
 
-Format: `{to_number}  {start} – {dest_departure}` e.g. `TO-20260924-0001  8:00 AM – 2:00 PM`. Full fields live in tooltip + drawer.
+Format: `{to_number}  {status}  {start} – {dest_departure}` e.g. `TO-20260924-0001  Assigned  8:00 AM – 2:00 PM`. Full fields live in tooltip + drawer.
 
 ### 4.3 Stack (per vehicle, visible range)
 
@@ -388,7 +389,7 @@ Footer URLs (GET links, existing screens):
 - Open TO detail → `admin:transport_transportorder_change`
 - Open parent TR → `admin:requisitions_transportrequisition_change` (hide if `tr_id` is null)
 
-Tooltip: TO number, TR number, planned start → planned dest. departure, origin → destination, driver (or “Driver not assigned”).
+Tooltip: TO number, TO status, TR number, planned start → planned dest. departure, origin → destination, driver (or “Driver not assigned”).
 
 ---
 
@@ -557,7 +558,7 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 | 3 | Status gate | `created` / `under_planning` / `assigned` / `ready_for_dispatch` in; `cancelled` and execution statuses out |
 | 4 | Unassigned omitted from lanes | no `vehicle` → in result count + Unassigned KPI; `vehicle_id` not in any lane’s bars |
 | 5 | Vendor excluded | `fleet_type=VENDOR` (with or without a `Vehicle` FK) → absent from period set, KPIs, and every lane |
-| 6 | Bar window + label | geometry and chrome use `planned_start_at` → `planned_destination_departure_at` only (not dest. arrival, not `eta_datetime`); label includes `to_number` |
+| 6 | Bar window + label | geometry uses `planned_start_at` → `planned_destination_departure_at`; label includes `to_number` + TO status badge + those two times |
 | 7 | Monthly snap | bar occupying two local dates spans two day columns |
 | 8 | Daily labels | 24 ticks, `12 AM` … `11 PM` |
 | 9 | Weekly bounds | Sunday–Saturday in `Asia/Dhaka` |
@@ -653,7 +654,7 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 |----|----------|
 | L1 | Vehicle-first only. No TO month-grid. No vehicle-wise toggle. |
 | L2 | Period set is **own-fleet only** (`fleet_type=OWN`). Bars only for those TOs that also have a `Vehicle` FK. Unassigned own-fleet TOs count in KPIs / result / filters only. Vendor TOs are out of this page. |
-| L3 | Bar label and window = `to_number` + `planned_start_at` → `planned_destination_departure_at`. Monthly snaps to days. |
+| L3 | Bar label = `to_number` + TO status + `planned_start_at` → `planned_destination_departure_at`. Bar window is those two datetimes. Monthly snaps to days. |
 | L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day. |
 | L5 | Click = read-only drawer. Calendar never writes. |
 | L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlapping bars still stack visually. |
