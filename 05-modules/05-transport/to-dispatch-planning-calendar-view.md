@@ -362,7 +362,7 @@ All bars are own-fleet. No own-vs-vendor left-border, no fleet colour in the leg
 
 | Status | Bar class | Fill |
 |---|---|---|
-| `created` | `todp-bar--created` | Grey |
+| `created` | `todp-bar--created` | Sky (`#0284C7`) |
 | `under_planning` | `todp-bar--under-planning` | Amber |
 | `assigned` | `todp-bar--assigned` | Purple (`--dfms-primary`) |
 | `ready_for_dispatch` | `todp-bar--ready-for-dispatch` | Green |
