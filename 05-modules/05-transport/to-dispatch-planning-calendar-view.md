@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.7
+version: 1.8
 phase: Phase 2
 sprint: Sprint 10
 status: Implemented
 last_updated: 2026-09-24
-changelog: "v1.7 — All own-fleet statuses in the period set (including execution / closed / cancelled); bar fill colour by TO status; monthly axis is Teams-style (weekday + date, weekend shade, today circle). v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
+changelog: "v1.8 — A vehicle row with more than 4 stacked bars shows the first 4 and a + N more control that expands the rest. v1.7 — All own-fleet statuses in the period set (including execution / closed / cancelled); bar fill colour by TO status; monthly axis is Teams-style (weekday + date, weekend shade, today circle). v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -351,6 +351,8 @@ Format: `{to_number}  {status}  {start} – {dest_departure}` e.g. `TO-20260924-
 Sort that vehicle’s bars by `planned_start_at`.
 
 **Stack (greedy interval colouring):** assign each bar to the first lane whose last `end` ≤ this bar’s `start`. Overlapping bars get different lanes; they must not paint on top of each other. Do **not** put stack depth or TO count on the vehicle column.
+
+**Preview cap:** when a row has more than 4 stacked bars (`stack_lane` ≥ 4), show the first 4 and a **+ N more** control in that same horizontal block (the span of the hidden bars), not at the start of the row. Clicking it expands the rest; **Show less** collapses back to 4. Bars that share a lane (they do not overlap) stay visible and do not count toward the cap.
 
 **No idle bars.** Leave the empty span between non-overlapping TOs blank. Do not compute union gaps, do not paint dashed “idle” segments, and do not put idle in the legend. Empty vehicle → no bars; the left column still shows capacity + current `operational_status`.
 
