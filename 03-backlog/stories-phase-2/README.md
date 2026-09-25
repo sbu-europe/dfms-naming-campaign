@@ -3,7 +3,7 @@
 Planning backlog for Phase 2. Stories here are **not** assigned to a sprint.
 When a sprint picks one up, move it into `sprints/sprint-N/` and update that sprint's README.
 
-**Total estimated:** 181 SP
+**Total estimated:** 194 SP
 
 ---
 
@@ -23,6 +23,7 @@ When a sprint picks one up, move it into `sprints/sprint-N/` and update that spr
 | 010 | [Multi-role tenant users](010-Multi-role%20Tenant%20Users/README.md) | TUM-06 | 13 | Pending |
 | 011 | [Own-fleet vehicle plan (multi-TO)](011-Own-Fleet%20Vehicle%20Plan/README.md) | VP-01 | 21 | Pending |
 | 012 | [TO dispatch planning calendar](012-TO%20Dispatch%20Planning%20Calendar%20View/README.md) | TO-03 | 13 | Pending |
+| 013 | [Dynamic Role Builder](013-Dynamic%20Role%20Builder/README.md) | TUM-07 | 13 | Pending |
 
 ---
 
@@ -212,4 +213,18 @@ PRD § TO Dispatch Planning (Calendar View) · predecessor US-071 (archived)
 
 ---
 
-**Total estimated:** 26 (001–004) + 26 (005) + 16 (006) + 21 (007) + 19 (008) + 26 (009) + 13 (010) + 21 (011) + 13 (012) = **181 SP**
+## 013. Dynamic Role Builder
+
+Tenant Super Admin and Tenant Admin create departments and custom roles, and set Create / Read / Update / Delete per module. System roles stay locked. Deactivate and delete apply to custom roles only, and only when nobody is assigned.
+
+| Story | Title | SP | Status |
+|-------|-------|----|--------|
+| [TUM-07](013-Dynamic%20Role%20Builder/TUM-07-dynamic-role-builder.md) | Dynamic Role Builder — Custom Departments and Roles | 13 | Pending |
+
+`rbac.md` §5 · predecessor sketch for Phase 2 custom roles
+
+**Folder:** [013-Dynamic Role Builder](013-Dynamic%20Role%20Builder/README.md) · **Estimated:** 13 SP
+
+---
+
+**Total estimated:** 26 (001–004) + 26 (005) + 16 (006) + 21 (007) + 19 (008) + 26 (009) + 13 (010) + 21 (011) + 13 (012) + 13 (013) = **194 SP**
