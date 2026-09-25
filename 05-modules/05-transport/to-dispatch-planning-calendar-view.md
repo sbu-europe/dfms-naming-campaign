@@ -108,7 +108,7 @@ Bar copy (on the lane): **TO number** + **TO status** + **planned start** → **
 |---|---|---|
 | Daily | 24 hour ticks | **12-hour** (`12 AM` … `11 AM`, `12 PM` … `11 PM`) |
 | Weekly | 7 day columns | **Sun–Sat** weekday + date; today = filled circle; Sat/Sun shaded |
-| Monthly | one column per day of the month | **Teams-style header**: weekday abbr + date number (`Tue` / `1`); today = filled circle; Sat/Sun shaded; Sunday = week boundary. Bars **snap to calendar days**. Vehicle-first stays — not a TO month-grid. |
+| Monthly | one column per day of the month | **Teams-style header**: weekday abbr + date number (`Tue` / `1`); today = filled circle; Sat/Sun shaded; Sunday = week boundary. Bars are placed by elapsed time inside the day columns (12 hours fills half a column; 24 hours fills the column). Vehicle-first stays — not a TO month-grid. |
 
 ### 1.4 Two querysets (do not collapse)
 
@@ -329,11 +329,9 @@ Convert both to UTC before the ORM filter.
 
 Bar window = `[planned_start_at, planned_destination_departure_at]` clipped to the visible range. Same pair as the on-bar label.
 
-**Monthly snap:** convert the clipped window to tenant-local dates; the bar occupies every day column from `local_start.date()` through `local_end.date()` inclusive (if end is exactly 00:00, that day is excluded — half-open).
+**All views:** CSS `left` / `width` as `%` of the visible range (elapsed seconds from `range_start` / range length). Clamp to `[0, 100]`. A zero-length window uses a minimum width so the bar stays clickable.
 
-**Weekly / monthly:** snap the clipped window onto **whole day columns** (same half-open local-date rule as monthly). A same-day TO fills that day’s cell (inset chip), not a minute-thin sliver across the week/month.
-
-**Daily:** CSS `left` / `width` as `%` of the visible range (minutes from `range_start` / total minutes). Clamp to `[0, 100]`.
+**Weekly / monthly:** the axis stays one equal column per day. Each column is 24 hours, so the same fraction places the bar inside the day: 08:00–14:00 covers a quarter of that column, 12 hours covers half, midnight-to-midnight covers the column. A window that crosses midnight continues into the next column for the remaining hours. Do not snap the bar to the whole column, and do not inset it by a fixed pixel gutter (a short bar would collapse). A small `min-width` keeps a sub-hour bar clickable; the percentage stays the true duration.
 
 Bar chrome on the lane (required, visible without hover):
 
@@ -580,7 +578,7 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 | 4 | Unassigned omitted from lanes | no `vehicle` → in result count + Unassigned KPI; `vehicle_id` not in any lane’s bars |
 | 5 | Vendor excluded | `fleet_type=VENDOR` (with or without a `Vehicle` FK) → absent from period set, KPIs, and every lane |
 | 6 | Bar window + label | geometry uses `planned_start_at` → `planned_destination_departure_at`; label includes `to_number` + TO status badge + those two times |
-| 7 | Monthly snap | bar occupying two local dates spans two day columns |
+| 7 | Weekly / monthly duration | a same-day 6-hour bar covers 6/24 of that day column; a 24-hour bar fills one column; 10:00 on day 10 → 15:00 on day 11 covers 29 hours, not two full columns |
 | 8 | Daily labels | 24 ticks, `12 AM` … `11 PM` |
 | 9 | Weekly bounds | Sunday–Saturday in `Asia/Dhaka` |
 | 10 | Overlap stack | two overlapping TOs → two visual lanes; vehicle column has **no** concurrent / N TO(s) label |
@@ -677,7 +675,7 @@ From TO-03 PO table. Re-open only if the PO changes the story.
 |----|----------|
 | L1 | Vehicle-first only. No TO month-grid. No vehicle-wise toggle. |
 | L2 | Period set is **own-fleet only** (`fleet_type=OWN`). Bars only for those TOs that also have a `Vehicle` FK. Unassigned own-fleet TOs count in KPIs / result / filters only. Vendor TOs are out of this page. |
-| L3 | Bar label = `to_number` + TO status + `planned_start_at` → `planned_destination_departure_at`. Bar window is those two datetimes. Monthly snaps to days. |
+| L3 | Bar label = `to_number` + TO status + `planned_start_at` → `planned_destination_departure_at`. Bar window is those two datetimes, placed by elapsed time in every view (weekly and monthly included). |
 | L4 | Daily = 24 × 12-hour ticks. Weekly = Sun–Sat. Monthly = one column per day with weekday + date (Teams-style header). Still vehicle-first. |
 | L5 | Click = read-only drawer. Calendar never writes. |
 | L6 | No vendor vehicle rows, no fleet-type filter, no Own fleet KPI, no own-vs-vendor bar chrome. VP-01 not required; overlapping bars still stack visually. |
