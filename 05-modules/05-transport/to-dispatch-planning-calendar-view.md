@@ -1,12 +1,12 @@
 ---
 module: 05-transport
 specification: TO-03 — TO Dispatch Planning (Calendar View)
-version: 1.8
+version: 1.9
 phase: Phase 2
 sprint: Sprint 10
 status: Implemented
-last_updated: 2026-09-24
-changelog: "v1.8 — A vehicle row with more than 4 stacked bars shows the first 4 and a + N more control that expands the rest. v1.7 — All own-fleet statuses in the period set (including execution / closed / cancelled); bar fill colour by TO status; monthly axis is Teams-style (weekday + date, weekend shade, today circle). v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
+last_updated: 2026-09-28
+changelog: "v1.9 — Filter panel adds TO status (legend statuses only) and vehicle status (lanes + period TOs; Inactive is not a choice). v1.8 — A vehicle row with more than 4 stacked bars shows the first 4 and a + N more control that expands the rest. v1.7 — All own-fleet statuses in the period set (including execution / closed / cancelled); bar fill colour by TO status; monthly axis is Teams-style (weekday + date, weekend shade, today circle). v1.6 — Bar also shows TO status (existing dfms-badge). v1.5 — DFMS admin design system. v1.4 — Vehicle column = registration + capacity + current operational_status. v1.3 — Bar = TO number + start → dest. departure. v1.2 — No idle bars. v1.1 — Own-fleet only."
 primary_surface: Django admin (custom read-only view under Transport)
 problem_owner: Transport Planner / Tenant Admin / Tenant Super Admin
 related_stories: TO-03
@@ -78,6 +78,8 @@ One Django admin view, one template. Period, view mode, filters, and vehicle-lan
 | `urgency` | `normal` / `high` / `critical` | empty |
 | `assignment` | `unassigned` / `assigned` / `confirmed` | empty |
 | `vehicle_type` | `VehicleType` value | empty |
+| `to_status` | legend statuses only: `created`, `under_planning`, `assigned`, `driving_towards_source`, `at_source`, `driving_towards_destination`, `at_destination`, `closed`, `cancelled` | empty |
+| `vehicle_status` | `no_active_to` / `scheduled` / `in_transit` / `under_maintenance` | empty |
 | `p` | page (1-indexed) | `1` |
 | `per_page` | `15` / `25` / `50` / `100` / `200` | portal default `25` |
 
@@ -119,7 +121,7 @@ Bar copy (on the lane): **TO number** + **TO status** + **planned start** → **
 
 Always `fleet_type=OWN` on the period queryset (hard filter, not a UI control). Bars are period TOs that have a `Vehicle` FK **and** whose vehicle is on the current page. Unassigned **own-fleet** TOs stay in KPIs / result count and never become a bar.
 
-**Vehicle type** is the only TO filter that also changes listed vehicle rows. Search, transfer type, urgency, and assignment filter TOs only — empty vehicles still appear on the page.
+**Vehicle type** and **vehicle status** change listed vehicle rows. Search, transfer type, urgency, assignment, and **TO status** filter TOs only — empty vehicles still appear on the page. Vehicle status also drops unassigned TOs from the period set, because operational status lives on the vehicle (§2.6).
 
 ### 1.5 Why no new model
 
@@ -180,6 +182,19 @@ Do **not** show `N TO(s)`, `M concurrent`, or a calendar-derived **Free** label.
 
 Include: non-deleted vehicles except `operational_status=inactive` (decommissioned). Include empty and under-maintenance.
 
+### 2.5 TO status filter
+
+Among **period TOs** only. Choices are the legend swatches, in that order: Created, Under Planning, Assigned, Driving Towards Source, At Source, Driving Towards Destination, At Destination, Closed, Cancelled. Other `TOStatus` values (Ready for Dispatch, Loaded / Pickup Completed, Delivered / Unloaded, Completed, Bill Disbursed, In Progress) are not choices; a query value outside this set is ignored. Empty means every status. It does **not** change the vehicle queryset — lanes with no matching bar stay on the page.
+
+### 2.6 Vehicle status filter
+
+`vehicle_status` matches `Vehicle.operational_status`. Choices are the statuses that appear on lanes: No Active TO, Scheduled, In-transit, Under Maintenance. **Inactive is not a choice** — decommissioned vehicles stay excluded.
+
+When set:
+
+- Vehicle lanes: `operational_status=…`
+- Period TOs: `vehicle__operational_status=…` (unassigned TOs have no vehicle, so they drop out of KPIs and the result count)
+
 ---
 
 ## 3. Query design
@@ -226,7 +241,7 @@ period_tos = (
 )
 ```
 
-Then apply search + the four selects in Python/ORM on this queryset (see §3.4). `fleet_type` is already locked to `OWN` — do not add a UI filter for it.
+Then apply search + the selects in Python/ORM on this queryset (see §3.4). `fleet_type` is already locked to `OWN` — do not add a UI filter for it.
 
 ### 3.3 Why an optional index (not a new table)
 
@@ -267,6 +282,8 @@ Search `q` (icontains, OR):
 | `urgency` | `tr__urgency=…` |
 | `assignment` | see §2.2 |
 | `vehicle_type` | TOs: `vehicle_type=…` **or** (when assigned) `vehicle__vehicle_type=…` — pick **TO.vehicle_type** as the source of truth (set at create). Vehicle lanes: `Vehicle.vehicle_type=…` |
+| `to_status` | TOs: `status=…` for a legend status only (§2.5). Vehicle lanes unchanged |
+| `vehicle_status` | TOs: `vehicle__operational_status=…`. Vehicle lanes: `operational_status=…`. Not `inactive` (§2.6) |
 
 Clear = drop all filter/search params; keep `view`, `date`, `p`, `per_page`.
 
@@ -279,6 +296,8 @@ vehicles_qs = (
 )
 if vehicle_type:
     vehicles_qs = vehicles_qs.filter(vehicle_type=vehicle_type)
+if vehicle_status:
+    vehicles_qs = vehicles_qs.filter(operational_status=vehicle_status)
 
 page, per_page = resolve_admin_list_pagination(
     request, session_key="per_page_transport.to_dispatch_planning"
@@ -536,7 +555,7 @@ No new CSS framework. Calendar-only rules (lane grid, bar `left`/`width`, today 
 
 Pagination: copy Vehicle Planning — `resolve_admin_list_pagination` + the `dfms-pagination-parent` markup from `select_vehicle.html` (per-page select `15–200`, `?p=`).
 
-Filter UI: a “Filters” panel with search + four selects (transfer type, urgency, assignment, vehicle type) + **Clear**. No fleet-type select. Legend: urgency, assignment badges, **TO status colour swatches**, “bar = planned start → dest. departure”. No idle swatch. No fleet colours.
+Filter UI: a “Filters” panel with search + selects (transfer type, urgency, vehicle type, **TO status**, **vehicle status**) + **Clear**. No fleet-type select. Vehicle status choices omit Inactive. Legend: urgency, **TO status colour swatches**, “bar = planned start → dest. departure”. No idle swatch. No fleet colours.
 
 **Monthly axis (Teams-inspired, still vehicle-first):** each day column shows weekday abbr + date number; today is a filled circle on the date; Sat/Sun columns are shaded; Sunday has a stronger left border (week start). Widen month columns (~56px) and allow horizontal scroll. Narrow month bars may hide the badge + time and keep the TO number (full copy stays in tooltip / drawer).
 
@@ -584,7 +603,7 @@ New: `tests/unit/test_transport/test_to_dispatch_planning.py`. Prefer testing th
 | 10 | Overlap stack | two overlapping TOs → two visual lanes; vehicle column has **no** concurrent / N TO(s) label |
 | 11 | No idle bar | two non-overlapping bars → empty space between them; context/HTML has no idle span |
 | 12 | Vehicle column | shows registration, capacity+unit, and current `operational_status`; `under_maintenance` + `is_active=False` still listed; no Free badge |
-| 13 | Filters | transfer type, urgency, assignment, vehicle type + search; no `fleet_type` param; Clear drops filters; vehicle type changes vehicle queryset |
+| 13 | Filters | transfer type, urgency, assignment, vehicle type, **TO status** (legend set only), **vehicle status** + search; no `fleet_type` param; Clear drops filters; vehicle type and vehicle status change the vehicle queryset; TO status filters period TOs only; other lifecycle statuses are ignored; Inactive is not a vehicle-status choice |
 | 14 | Assignment filter | unassigned / assigned / confirmed match §2.2 |
 | 15 | KPIs | four cards match the filtered period set (not the current vehicle page) |
 | 16 | Pagination | `resolve_admin_list_pagination` session key; page 2 vehicles differ; KPI count unchanged |
