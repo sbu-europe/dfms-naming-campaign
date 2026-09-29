@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FVM-03
-source_spec: ../../../../03-backlog/stories-phase-2/003-Vehicle Utilization Analysis/FVM-03-vehicle-utilization-analysis.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/003-Vehicle Utilization Analysis/FVM-03-vehicle-utilization-analysis.md
 module_spec: ../../../../05-modules/02-master-data/vehicle-master-data.md
 suggested_impl:
   unit: UtilizationService.trips_per_vehicle / serving_hours / idle_vs_movement / utilization_pct
@@ -16,7 +16,7 @@ last_updated: 2026-09-15
 
 # FVM-03 — Vehicle Utilization Analysis — TDD test cases
 
-**Story:** [FVM-03](../../../../03-backlog/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis.md)  
+**Story:** [FVM-03](../../../03-backlog/phase-2/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis.md)  
 **TDD start here:** pure unit tests for Plan count and hour clocks.  
 **Does not:** change assignment; use FVM-02 status cards as period hours; treat idle as “no trip”.
 

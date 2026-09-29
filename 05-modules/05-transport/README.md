@@ -12,7 +12,7 @@ It maps directly to `apps/transport/` in the backend codebase. The `TransportReq
 **Dependencies**: `04-requisitions` (approved/submitted TRs), `02-master-data` (Vehicle, Driver, Helper, Route, POI), `07-vendor-management` (vendor fleet + rates)  
 **Django App**: `apps/transport/`
 
-**Sprint 3 backlog** (menu + roles + flow): [Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md) — on-disk order includes Requisition first (`01-requisition`), then `02-port-shipments` … `05-transport` (TRQ-01, TO-01, TO-02) … `08-feedback`. This module maps to the **Transport** epic: [TRQ-01](../../03-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md) · [TO-01](../../03-backlog/sprints/sprint-3/05-transport/02-transport-orders.md) · [TO-02](../../03-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md).
+**Sprint 3 backlog** (menu + roles + flow): [Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md) — on-disk order includes Requisition first (`01-requisition`), then `02-port-shipments` … `05-transport` (TRQ-01, TO-01, TO-02) … `08-feedback`. This module maps to the **Transport** epic: [TRQ-01](../../03-backlog/phase-1/sprints/sprint-3/05-transport/01-transport-requests-queue.md) · [TO-01](../../03-backlog/phase-1/sprints/sprint-3/05-transport/02-transport-orders.md) · [TO-02](../../03-backlog/phase-1/sprints/sprint-3/05-transport/03-tdo-assignment.md).
 
 ---
 

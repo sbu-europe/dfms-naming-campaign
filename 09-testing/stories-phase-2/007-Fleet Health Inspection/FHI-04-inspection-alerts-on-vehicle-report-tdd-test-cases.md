@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FHI-04
-source_spec: ../../../../03-backlog/stories-phase-2/007-Fleet Health Inspection/FHI-04-inspection-alerts-on-vehicle-report.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/007-Fleet Health Inspection/FHI-04-inspection-alerts-on-vehicle-report.md
 module_spec: ../../../../05-modules/08-fleet-management/fleet-health-inspection.md
 suggested_impl:
   unit: VehicleReportService → InspectionStatusService (no duplicate logic)
@@ -16,7 +16,7 @@ last_updated: 2026-09-14
 
 # FHI-04 — Inspection Alerts on Vehicle Report — TDD test cases
 
-**Story:** [FHI-04](../../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report.md)  
+**Story:** [FHI-04](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report.md)  
 **TDD focus:** aggregation reuse after FHI-02 `InspectionStatusService` exists.  
 **Depends on:** FHI-02 status rules; VR-02 / VR-03 surfaces.
 

@@ -4,7 +4,7 @@ specification: FB-014 — My Trips details Cargo table shows Allocated Weight wi
 version: 1.0
 phase: Phase 1
 related_stories: FB-014, DM-01
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/06-driver-mobile.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/06-driver-mobile.md
 implementation_reference:
   - ../../../../../apps/transport/admin_driver.py (DriverTransportOrderAdmin.product_summary / product_summary_display)
   - ../../../../../apps/transport/services.py (TOLineAllocationService.line_total_kg)
@@ -15,7 +15,7 @@ playwright_mcp: true
 
 # Sprint 8 — FB-014 — My Trips Cargo Allocated Weight — E2E Scenario Plan (Django Admin SSR)
 
-**Improvement:** [FB-014](../../../../03-backlog/sprints/sprint-8/improvements/06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity)
+**Improvement:** [FB-014](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/06-driver-mobile.md#fb-014--my-trips-details--cargo-table-shall-show-allocated-weight-with-allocated-quantity)
 
 **Sibling:** [FG driver My Trips / trip start](../finished-goods-workflow/06-trip-start/fg-driver-my-trips-e2e-scenarios.md) (lifecycle only; no cargo weight AC).
 

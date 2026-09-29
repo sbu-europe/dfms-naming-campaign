@@ -4,7 +4,7 @@ specification: TUM-06 Tenant User — Assign Multiple Operational Roles — Play
 version: 1.1
 phase: Phase 2
 related_stories: TUM-06, US-005, US-004, US-009
-source_spec: ../../../../../03-backlog/stories-phase-2/010-Multi-role Tenant Users/TUM-06-multi-role-assignment.md
+source_spec: ../../../../../03-backlog/phase-2/stories-phase-2/010-Multi-role Tenant Users/TUM-06-multi-role-assignment.md
 implementation_reference:
   - apps/users/admin.py (InviteUserAdmin; User change — single Role dropdown today)
   - apps/core/rbac_service.py (assign_role_to_user replaces existing role)
@@ -20,7 +20,7 @@ playwright_mcp: true
 
 # TUM-06 — Multi-role Assignment — E2E Scenario Plan (Django Admin SSR)
 
-**Story:** [TUM-06 — Assign Multiple Operational Roles to One User](../../../../../03-backlog/stories-phase-2/010-Multi-role%20Tenant%20Users/TUM-06-multi-role-assignment.md)
+**Story:** [TUM-06 — Assign Multiple Operational Roles to One User](../../../../../03-backlog/phase-2/stories-phase-2/010-Multi-role%20Tenant%20Users/TUM-06-multi-role-assignment.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.

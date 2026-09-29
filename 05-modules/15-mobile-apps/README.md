@@ -34,7 +34,7 @@ Mobile and field interfaces for DFMS users.
 
 ## Related
 
-- Backlog entrypoint: [`../../03-backlog/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md`](../../03-backlog/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
+- Backlog entrypoint: [`../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md`](../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md)
 - Testing: [`../../09-testing/mobile/`](../../09-testing/mobile/)
 - Endpoint map: [`../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md`](../../04-architecture/09-mobile/03-backend-integration/endpoint-map.md)
 

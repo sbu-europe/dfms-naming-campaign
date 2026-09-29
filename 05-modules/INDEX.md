@@ -248,11 +248,11 @@ This index provides a comprehensive mapping of all module specifications, cross-
 #### Specifications
 - [README.md](09-tracking/README.md) — Module hub
 - [providers/README.md](09-tracking/providers/README.md) — GPS devices / providers (all in one file)
-- Live GPS (§6.5.5): [GPS-01](../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc
-- Arrival / departure (§6.5.6 / §6.5.8): [GPS-03](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) — not a separate module doc
-- Maps Dashboard (§6.5.4 / §6.9.2): [GPS-05](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc
-- POI geofence radius (§6.5.7): [GPS-02](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)
-- Dwell (§6.5.9): [GPS-04](../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
+- Live GPS (§6.5.5): [GPS-01](../03-backlog/phase-1/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md) — not a separate module doc
+- Arrival / departure (§6.5.6 / §6.5.8): [GPS-03](../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md) — not a separate module doc
+- Maps Dashboard (§6.5.4 / §6.9.2): [GPS-05](../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-05-maps-dashboard-integration.md) — not a separate module doc
+- POI geofence radius (§6.5.7): [GPS-02](../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md)
+- Dwell (§6.5.9): [GPS-04](../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-04-dwell-time-tracking.md)
 
 Engineering (not BA SSOT): `apps/tracking/GT06_IMPLEMENTATION.md`, `apps/tracking/PRD_AS_BUILT.md`
 
@@ -391,7 +391,7 @@ Use the dependency information in each module's README to understand:
 
 ### By User Story
 Use the "Related User Stories" sections to map stories to specifications.  
-All stories are located in: `../03-backlog/sprints/README.md`
+All stories are located in: `../03-backlog/phase-1/sprints/README.md`
 
 ### By Phase
 See `10-phases/` for phase-wise organization of features.

@@ -450,8 +450,8 @@ All remaining user stories will follow the same comprehensive structure:
 ## Related Documents
 
 - [Feature Overview](../../03-backlog/README.md) - Cross-phase feature landscape
-- [Phase 2 Summary](../../03-backlog/sprints/sprint-2/README.md) - Optimization features
-- [Phase 3 Summary](../../03-backlog/sprints/sprint-3/README.md) - Enterprise features
+- [Phase 2 Summary](../../03-backlog/phase-1/sprints/sprint-2/README.md) - Optimization features
+- [Phase 3 Summary](../../03-backlog/phase-1/sprints/sprint-3/README.md) - Enterprise features
 - [Feature Dependencies](../../03-backlog/README.md) - Dependency mapping
 - [Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/README.md) - Detailed specs
 - [Business Objectives](../../02-domain/01-overview/business-objectives.md) - Strategic goals

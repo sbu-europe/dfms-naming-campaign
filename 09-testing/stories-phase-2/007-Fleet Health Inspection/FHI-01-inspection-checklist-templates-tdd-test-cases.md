@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FHI-01
-source_spec: ../../../../03-backlog/stories-phase-2/007-Fleet Health Inspection/FHI-01-inspection-checklist-templates.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/007-Fleet Health Inspection/FHI-01-inspection-checklist-templates.md
 module_spec: ../../../../05-modules/08-fleet-management/fleet-health-inspection.md
 suggested_impl:
   unit: InspectionCheckpointTemplate model validation
@@ -16,7 +16,7 @@ last_updated: 2026-09-14
 
 # FHI-01 — Inspection Checklist Templates — TDD test cases
 
-**Story:** [FHI-01](../../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates.md)  
+**Story:** [FHI-01](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates.md)  
 **TDD start here:** model + API for tenant templates by `vehicle_type` (not per vehicle).  
 **Used by:** FHI-02 dashboard, FHI-03 rounds.
 

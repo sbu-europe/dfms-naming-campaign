@@ -4,7 +4,7 @@ specification: FB-011 — Transport Planner TR List displays Remaining Weight (K
 version: 1.0
 phase: Phase 1
 related_stories: FB-011, TRQ-01
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md
 implementation_reference:
   - ../../../../../apps/requisitions/admin.py (TransportRequisitionAdmin.get_list_display for transport_planner)
   - ../../../../../apps/transport/services.py (TOLineAllocationService.remaining_for_tr_line / line_total_kg)
@@ -23,7 +23,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-011-transport-planner-tr-list-remaining-weight-kg-artifacts/RESULTS.md)  
 **Accounts:** `transport.planner1` · `distribution.officer1` (`.nourish@yopmail.com`) · **RUN_ID:** `AA0F7636`
 
-**Improvement:** [FB-011](../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning)
+**Improvement:** [FB-011](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md#fb-011--transport-planner-tr-list--display-remaining-weight-kg-for-planning)
 
 **Sibling:** [FB-009 TR list Total Weight](./fb-009-tr-list-total-weight-kg-e2e-scenarios.md) (DO/DM/PO only; planner remaining weight is this plan).
 

@@ -9,7 +9,7 @@ changelog: "v1.1 — Pagination & Status filter must follow 07-design-system (Dy
 related_stories: Master Data Excel / bulk import; User bulk import; Driver bulk import
 feedback_items: FB-004
 baseline_spec: bulk-import-export.md
-feedback_tracker: ../../03-backlog/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md
 e2e_scenarios: ../../09-testing/backend/e2e-scenarios/sprint-9/fb-004-bulk-import-validation-status-filter-e2e-scenarios.md
 design_system:
   - ../../07-design-system/02-components/data-display.md
@@ -25,7 +25,7 @@ implementation_reference:
 
 # Bulk Import Preview — Valid / Invalid Status filter (FB-004)
 
-Sprint 9 implementation plan for [FB-004](../../03-backlog/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md#fb-004--filter-valid-and-invalid-records-after-excel--bulk-import). Amends [bulk-import-export.md](./bulk-import-export.md) §7.3 (Import Preview). Applies to **Master Data**, **User**, and **Driver** bulk import (shared preview template).
+Sprint 9 implementation plan for [FB-004](../../03-backlog/phase-1/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md#fb-004--filter-valid-and-invalid-records-after-excel--bulk-import). Amends [bulk-import-export.md](./bulk-import-export.md) §7.3 (Import Preview). Applies to **Master Data**, **User**, and **Driver** bulk import (shared preview template).
 
 **Problem:** After CSV validation, Import Preview shows every row with a **Valid** / **Invalid** badge, but there is no way to isolate failures without scanning the full paginated list.
 

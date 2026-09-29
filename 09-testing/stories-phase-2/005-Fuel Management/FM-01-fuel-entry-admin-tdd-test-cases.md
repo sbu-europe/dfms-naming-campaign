@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FM-01
-source_spec: ../../../../03-backlog/stories-phase-2/005-Fuel Management/FM-01-fuel-entry-driver-supervisor-admin.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/FM-01-fuel-entry-driver-supervisor-admin.md
 module_spec: ../../../../05-modules/08-fleet-management/fuel-management.md
 suggested_impl:
   unit: apps/vehicle_health/services/ (or fuel calculation shared)
@@ -16,7 +16,7 @@ last_updated: 2026-09-14
 
 # FM-01 — Fuel Entry (Admin) — TDD test cases
 
-**Story:** [FM-01](../../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-driver-supervisor-admin.md)  
+**Story:** [FM-01](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-driver-supervisor-admin.md)  
 **Approach:** Write failing API/E2E tests from rows below → implement → mark Passing.  
 **Depends on:** FM-03 calcs on save; FM-05 anomaly optional on response.
 

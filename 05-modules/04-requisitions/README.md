@@ -9,7 +9,7 @@ It maps directly to `apps/requisitions/` in the backend codebase.
 **PRD Sections**: 6.6 (Requisitions, Distribution, Procurement)
 **Phase**: Phase 1 (Critical)
 **Sprint Coverage**: Sprint 3
-**Sprint 3 backlog (stories, menu order)**: [Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md) — on-disk layout is `01-requisition` → `02-port-shipments` → `03-distribution` → `04-procurement` → `05-transport` → `06-qa-testing` → `07-devops` → `08-feedback`, matching Requisition-first epic ordering.
+**Sprint 3 backlog (stories, menu order)**: [Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md) — on-disk layout is `01-requisition` → `02-port-shipments` → `03-distribution` → `04-procurement` → `05-transport` → `06-qa-testing` → `07-devops` → `08-feedback`, matching Requisition-first epic ordering.
 **Dependencies**: `01-foundation` (auth/RBAC), `02-master-data` (Product MDM-01, POI MDM-04), `03-users` (role assignment)
 **Django App**: `apps/requisitions/`
 
@@ -90,7 +90,7 @@ Sidebar
       └── Transport requests (Port consignment)   Procurement Officer — own TR list / create (triage: **top-level Port Shipments**, not a duplicate queue here)
 ```
 
-Downstream, **Transport** (05-transport) uses sibling areas **Transport requests** (unified TR queue + planning) and **Transport orders** (TO create + TDO + driver) — see **Menu structure & role access → Transport** in the [Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md).
+Downstream, **Transport** (05-transport) uses sibling areas **Transport requests** (unified TR queue + planning) and **Transport orders** (TO create + TDO + driver) — see **Menu structure & role access → Transport** in the [Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md).
 
 ---
 

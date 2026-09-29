@@ -5,13 +5,13 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: VR-01
-source_spec: ../../../../03-backlog/stories-phase-2/006-Vehicle Reports/VR-01-reports-menu-vehicle-report-navigation.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/006-Vehicle Reports/VR-01-reports-menu-vehicle-report-navigation.md
 last_updated: 2026-09-14
 ---
 
 # VR-01 — Reports Menu & RBAC — TDD test cases
 
-**Story:** [VR-01](../../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-vehicle-report-navigation.md)
+**Story:** [VR-01](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-vehicle-report-navigation.md)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|

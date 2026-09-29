@@ -10,7 +10,7 @@ related_stories: TO-01 (transport-order-management), TO-02 (trip-management), FB
 feedback_items: FB-008, FB-012, FB-013, FB-015
 supersedes: transport-order-management.md §1 (roles), §2 (model), §3 (status), §4 (creation); trip-management.md §1 (roles), §2.1 (assignment owner)
 baseline_spec: transport-order-management.md, trip-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md
 jira_epic: DFS-040
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-040
 
 ## Overview
 
-This document is the **Sprint 6 backend implementation plan** for [FB-008](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times). It amends the baseline [Transport Order Management](./transport-order-management.md) and [Trip Management](./trip-management.md) specifications.
+This document is the **Sprint 6 backend implementation plan** for [FB-008](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times). It amends the baseline [Transport Order Management](./transport-order-management.md) and [Trip Management](./trip-management.md) specifications.
 
 **Problem (client feedback — 2026-07-03):** Operations no longer want a separate **TDO — Own Fleet** persona. Today the Transport Planner creates own-fleet TOs and a different user (TDO Own Fleet) assigns vehicle, driver, helpers, and planned times in a separate Assignment Queue. This split adds hand-off friction and duplicates context the Planner already has at creation time.
 
@@ -329,7 +329,7 @@ Keep existing maintenance / double-booking exclusions. Same queryset rules apply
 
 ### 5.7 Sprint 8 — TO line allocation UX (**implemented**)
 
-Reconciled with codebase as of 2026-08-07. Tracker: [Sprint 8 Transport Planner improvements](../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md) (FB-012, FB-013, FB-015 **Resolved**).
+Reconciled with codebase as of 2026-08-07. Tracker: [Sprint 8 Transport Planner improvements](../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md) (FB-012, FB-013, FB-015 **Resolved**).
 
 #### 5.7.1 Create TO from TR (`create_from_tr.html` + `create_from_tr_view`)
 
@@ -585,14 +585,14 @@ tests/integration/                         API permission + assignment regressio
 
 ## 13. Related documentation
 
-- **[FB-008 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)**
-- **[Sprint 8 — Transport Planner improvements](../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md)** — FB-011 Remaining Weight (TR list), FB-012 Remaining Quantity (create), FB-013 TO details line items, FB-015 Allocating TO Load
-- **[FB-006 — Planned milestone times](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta)** (amended by FB-008)
+- **[FB-008 Feedback Tracker](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-008--tdo-own-fleet-role-removed-transport-planner-owns-own-fleet-to-creation-assignment-and-planned-milestone-times)**
+- **[Sprint 8 — Transport Planner improvements](../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md)** — FB-011 Remaining Weight (TR list), FB-012 Remaining Quantity (create), FB-013 TO details line items, FB-015 Allocating TO Load
+- **[FB-006 — Planned milestone times](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-006--tdo-own-fleet-planned-milestone-times-fg-four-rm-two-replace-single-eta)** (amended by FB-008)
 - **[Transport Order Management (v1 — baseline)](./transport-order-management.md)** *(module README reference)*
 - **[Trip Management (v1 — baseline)](./trip-management.md)** *(module README reference)*
 - **[Own-Fleet Vehicle Capacity Validation](./own-fleet-vehicle-capacity-validation.md)** — primary user becomes Transport Planner
 - **[User Roles — SOW](../../01-source/03-sow/user-roles.md)** — remove TDO Own Fleet entry
-- **Sprint 3 stories:** [TO-01](../../03-backlog/sprints/sprint-3/05-transport/02-transport-orders.md), [TO-02](../../03-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md)
+- **Sprint 3 stories:** [TO-01](../../03-backlog/phase-1/sprints/sprint-3/05-transport/02-transport-orders.md), [TO-02](../../03-backlog/phase-1/sprints/sprint-3/05-transport/03-tdo-assignment.md)
 
 ---
 

@@ -266,5 +266,5 @@ No ViewSet / API changes in this plan.
 | Doc | Path |
 |-----|------|
 | PRD §6.3.3 | [`../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md`](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) |
-| MDM-02 Supplier/Dealer | [`../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md`](../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md) |
+| MDM-02 Supplier/Dealer | [`../../03-backlog/phase-1/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md`](../../03-backlog/phase-1/sprints/sprint-2/01-master-data-management/MDM-02-supplier-dealer.md) |
 | Vehicle master | [`./vehicle-master-data.md`](./vehicle-master-data.md) |

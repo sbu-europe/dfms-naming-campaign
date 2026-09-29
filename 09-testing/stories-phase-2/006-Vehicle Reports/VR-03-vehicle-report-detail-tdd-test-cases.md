@@ -5,13 +5,13 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: VR-03
-source_spec: ../../../../03-backlog/stories-phase-2/006-Vehicle Reports/VR-03-vehicle-report-detail-view.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/006-Vehicle Reports/VR-03-vehicle-report-detail-view.md
 last_updated: 2026-09-14
 ---
 
 # VR-03 — Vehicle Report Detail — TDD test cases
 
-**Story:** [VR-03](../../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-03-vehicle-report-detail-view.md)
+**Story:** [VR-03](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-03-vehicle-report-detail-view.md)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|

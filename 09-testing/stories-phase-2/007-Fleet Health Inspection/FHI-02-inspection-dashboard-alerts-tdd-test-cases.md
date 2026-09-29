@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FHI-02
-source_spec: ../../../../03-backlog/stories-phase-2/007-Fleet Health Inspection/FHI-02-inspection-dashboard-alerts.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/007-Fleet Health Inspection/FHI-02-inspection-dashboard-alerts.md
 module_spec: ../../../../05-modules/08-fleet-management/fleet-health-inspection.md
 suggested_impl:
   unit: InspectionStatusService (DUE_SOON_DAYS=2)
@@ -16,7 +16,7 @@ last_updated: 2026-09-14
 
 # FHI-02 — Inspection Dashboard — TDD test cases
 
-**Story:** [FHI-02](../../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts.md)  
+**Story:** [FHI-02](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts.md)  
 **TDD focus:** unit tests for `InspectionStatusService` status math (after FHI-01 + FHI-03 state).  
 **Used by:** FHI-04 report aggregation (same service).
 

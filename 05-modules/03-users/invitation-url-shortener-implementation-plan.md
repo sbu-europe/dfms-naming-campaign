@@ -30,7 +30,7 @@ implementation_reference:
 
 ## 1. Background & deviation from AUTH-01
 
-[AUTH-01](../../03-backlog/sprints/sprint-8/01-auth-phone-channel/AUTH-01-phone-login-2fa-sms-invitation.md)
+[AUTH-01](../../03-backlog/phase-1/sprints/sprint-8/01-auth-phone-channel/AUTH-01-phone-login-2fa-sms-invitation.md)
 (assumptions **A7**, **A10**) specifies the URL shortener as a **standalone, separately
 deployed DFMS service** with its own datastore and short domain.
 

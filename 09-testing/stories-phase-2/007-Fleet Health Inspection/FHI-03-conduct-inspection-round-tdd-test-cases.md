@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FHI-03
-source_spec: ../../../../03-backlog/stories-phase-2/007-Fleet Health Inspection/FHI-03-conduct-inspection-round.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/007-Fleet Health Inspection/FHI-03-conduct-inspection-round.md
 module_spec: ../../../../05-modules/08-fleet-management/fleet-health-inspection.md
 suggested_impl:
   unit: Round submit service → VehicleCheckpointState update
@@ -16,7 +16,7 @@ last_updated: 2026-09-14
 
 # FHI-03 — Conduct Inspection Round — TDD test cases
 
-**Story:** [FHI-03](../../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round.md)  
+**Story:** [FHI-03](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round.md)  
 **TDD focus:** API/service submit after FHI-01 templates exist.  
 **Unlocks:** FHI-02 dashboard state; FHI-04 counts.
 

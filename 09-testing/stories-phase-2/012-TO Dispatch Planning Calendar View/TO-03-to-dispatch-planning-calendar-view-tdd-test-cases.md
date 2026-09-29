@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: TO-03
-source_spec: ../../../../03-backlog/stories-phase-2/012-TO Dispatch Planning Calendar View/TO-03-to-dispatch-planning-calendar-view.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/012-TO Dispatch Planning Calendar View/TO-03-to-dispatch-planning-calendar-view.md
 prototype: ../../../../../docs/prototypes/to-dispatch-planning-calendar.html
 suggested_impl:
   unit: period-set query, assignment filter, KPI aggregations, stack/idle layout, monthly day-snap
@@ -15,7 +15,7 @@ last_updated: 2026-09-17
 
 # TO-03 — TO Dispatch Planning (Calendar View) — TDD test cases
 
-**Story:** [TO-03](../../../../03-backlog/stories-phase-2/012-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md)  
+**Story:** [TO-03](../../../03-backlog/phase-2/stories-phase-2/012-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md)  
 **TDD start here:** unit tests for the period-set query and lane layout.  
 **Does not:** create/assign TOs; write status or quantity; draw unassigned bars; add vendor-fleet vehicle rows; reuse FVM-03 idle hours.
 

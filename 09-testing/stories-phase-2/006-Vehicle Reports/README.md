@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Vehicle Reports
 tdd: true
 last_updated: 2026-09-14
-source_stories: ../../../03-backlog/stories-phase-2/006-Vehicle Reports/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/006-Vehicle Reports/
 module_spec: ../../../05-modules/11-reporting/vehicle-report.md
 ---
 
@@ -25,6 +25,6 @@ module_spec: ../../../05-modules/11-reporting/vehicle-report.md
 
 ## Story links
 
-- [VR-01](../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-vehicle-report-navigation.md)
-- [VR-02](../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-02-vehicle-report-fleet-overview.md)
-- [VR-03](../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-03-vehicle-report-detail-view.md)
+- [VR-01](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-01-reports-menu-vehicle-report-navigation.md)
+- [VR-02](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-02-vehicle-report-fleet-overview.md)
+- [VR-03](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-03-vehicle-report-detail-view.md)

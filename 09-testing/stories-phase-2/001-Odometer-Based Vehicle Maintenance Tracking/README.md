@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Fleet & Vehicle Management — Maintenance
 tdd: true
 last_updated: 2026-09-15
-source_stories: ../../../03-backlog/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/
 module_spec: ../../../05-modules/02-master-data/vehicle-master-data.md
 ---
 
@@ -38,4 +38,4 @@ Remaining km is **supervisor meter reading**, not GPS mileage. Idle vs movement 
 
 ## Story links
 
-- [FVM-01](../../../03-backlog/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md)
+- [FVM-01](../../../03-backlog/phase-2/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md)

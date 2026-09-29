@@ -22,7 +22,7 @@ implementation_reference:
 > Supersedes earlier Phase 1 notes that said “email invitation only.”
 
 **Change request**: [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md)  
-**Sprint tracker**: [FB-032](../../03-backlog/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
+**Sprint tracker**: [FB-032](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
 
 > **Planned change ([CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md), draft)**: onboarding OTP (§2.4) will become **unconditional** for every invitation, regardless of `otp_type` — the "Allowed OTP types" table in §2.1 and the "Optional OTP step" language in §2.4 reflect **current** shipped behavior only. `otp_type` itself, the invite form, and the API/CSV contracts are **not changing** — `otp_type` continues to exist solely for login 2FA (§3.3), which is explicitly out of scope for CR-003 and fully unaffected. This note will be replaced with updated §2.4 language once CR-003 ships.
 
@@ -166,7 +166,7 @@ Delivers via user’s email if present; otherwise SMS to phone. Justification st
 | Module overview | This file; [03-users README](./README.md) |
 | Foundation invite/reset | [user-tenant-management.md](../01-foundation/user-tenant-management.md) |
 | Auth | [authentication-security.md](../01-foundation/authentication-security.md) |
-| Stories | [US-005](../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md), [US-008](../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md) |
+| Stories | [US-005](../../03-backlog/phase-1/sprints/sprint-2/02-tenant-user-management/US-005-user-invitation-activation.md), [US-008](../../03-backlog/phase-1/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md) |
 | E2E plans | [invitation](../../09-testing/backend/e2e-scenarios/users/user-invitation-activation-e2e-scenarios.md), [password reset](../../09-testing/backend/e2e-scenarios/users/password-account-reset-e2e-scenarios.md) |
 
 ---

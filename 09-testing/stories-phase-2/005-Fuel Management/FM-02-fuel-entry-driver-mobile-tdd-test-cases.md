@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FM-02
-source_spec: ../../../../03-backlog/stories-phase-2/005-Fuel Management/FM-02-fuel-entry-driver-mobile.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/FM-02-fuel-entry-driver-mobile.md
 module_spec: ../../../../05-modules/09-mobile-apps/driver-mobile.md
 suggested_impl:
   api: POST /api/v1/fuel-entries/; GET /api/v1/drivers/me/assignment/
@@ -15,7 +15,7 @@ last_updated: 2026-09-14
 
 # FM-02 — Fuel Entry (Driver Mobile) — TDD test cases
 
-**Story:** [FM-02](../../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile.md)  
+**Story:** [FM-02](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile.md)  
 **Approach:** API contract tests first (assignment, validation, idempotency); Maestro for UX/GPS/offline.  
 **Depends on:** FM-03 on sync/save; FM-05 for anomaly UI (TC15).
 

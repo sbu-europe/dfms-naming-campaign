@@ -2,8 +2,8 @@
 
 **PRD Section:** 6.14.11  
 **Phase:** Phase 2  
-**Status:** Planned — Phase 2 (unscheduled; stories-phase-2/008)  
-**Related Stories:** [VRS-01](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md), [VRS-02](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md), [VRS-03](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)
+**Status:** Planned — Phase 2 (unscheduled; phase-2/stories-phase-2/008)  
+**Related Stories:** [VRS-01](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md), [VRS-02](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md), [VRS-03](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)
 
 ---
 
@@ -406,7 +406,7 @@ Use `@transaction.atomic` + `select_for_update` on the entity row when updating 
 - [`vendor-bidding.md`](vendor-bidding.md) — `min_vendor_rating` on TO bid config; `vendor_rating_at_award` on BidAward
 - [`vendor-portal.md`](vendor-portal.md) — Performance Rating widget (future live data)
 - [`vendor-onboarding.md`](vendor-onboarding.md) — `Vendor.rating` field (decimal, default 0)
-- Phase 2 stories: [VRS-01](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md) · [VRS-02](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md) · [VRS-03](../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)
+- Phase 2 stories: [VRS-01](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md) · [VRS-02](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md) · [VRS-03](../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)
 
 ---
 

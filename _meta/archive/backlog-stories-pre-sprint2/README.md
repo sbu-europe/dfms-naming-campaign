@@ -3,7 +3,7 @@
 > **Status: Superseded.** This folder is the original flat `US-XXX` backlog (98+ stories,
 > created 2026-02-27, planned across an 18-sprint roadmap). It was the seed backlog before
 > the team switched to writing sprint-wise stories directly under
-> [`03-backlog/sprints/`](../../../03-backlog/sprints/).
+> [`03-backlog/phase-1/sprints/`](../../../03-backlog/phase-1/sprints/).
 >
 > **Do not use this folder as a source of truth.** Story `status` fields here were frozen
 > at creation time and were never updated as work actually progressed; the real, current
@@ -27,7 +27,7 @@
 >
 > For everything else, check whether the topic is covered by a Sprint 1, or Sprint 3–9
 > story first — most are (Sprint 3 onward were written self-contained, with no dependency
-> on this folder). See [`sprints/README.md`](../../../03-backlog/sprints/README.md) for
+> on this folder). See [`sprints/README.md`](../../../03-backlog/phase-1/sprints/README.md) for
 > the current sprint index.
 
 ---

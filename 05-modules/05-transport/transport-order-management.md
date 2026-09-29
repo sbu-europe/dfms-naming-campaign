@@ -316,7 +316,7 @@ Transport Planner creates TO
 
 ### Related documentation
 
-- **[Sprint 3 Completion Report](../../03-backlog/sprints/sprint-3/completion-report.md)**
-- **[TO-01 backlog story](../../03-backlog/sprints/sprint-3/05-transport/02-transport-orders.md)**
-- **[TRQ-01 — TR queue & planning inputs](../../03-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**
+- **[Sprint 3 Completion Report](../../03-backlog/phase-1/sprints/sprint-3/completion-report.md)**
+- **[TO-01 backlog story](../../03-backlog/phase-1/sprints/sprint-3/05-transport/02-transport-orders.md)**
+- **[TRQ-01 — TR queue & planning inputs](../../03-backlog/phase-1/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**
 - **[Typography & Label Conventions](../../07-design-system/01-foundation/typography-and-labels.md)**

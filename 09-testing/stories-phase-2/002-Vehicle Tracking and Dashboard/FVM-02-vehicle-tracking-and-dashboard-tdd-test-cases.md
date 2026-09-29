@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FVM-02
-source_spec: ../../../../03-backlog/stories-phase-2/002-Vehicle Tracking and Dashboard/FVM-02-vehicle-tracking-and-dashboard.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/002-Vehicle Tracking and Dashboard/FVM-02-vehicle-tracking-and-dashboard.md
 module_spec: ../../../../05-modules/02-master-data/vehicle-master-data.md
 suggested_impl:
   unit: FleetHealthDashboardService.status_counts / apply_filters
@@ -16,7 +16,7 @@ last_updated: 2026-09-15
 
 # FVM-02 — Vehicle Tracking and Dashboard — TDD test cases
 
-**Story:** [FVM-02](../../../../03-backlog/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard.md)  
+**Story:** [FVM-02](../../../03-backlog/phase-2/stories-phase-2/002-Vehicle%20Tracking%20and%20Dashboard/FVM-02-vehicle-tracking-and-dashboard.md)  
 **Approach:** Write failing API tests for card counts vs `operational_status` → filters → E2E.  
 **Does not:** write odometer; add a fuel-entry form; add a map; replace TDO `GET /vehicles/available`.
 

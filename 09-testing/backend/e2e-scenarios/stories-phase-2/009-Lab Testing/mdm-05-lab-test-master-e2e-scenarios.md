@@ -4,7 +4,7 @@ specification: MDM-05 Lab Test Master (Category, Lab UOM, Test & Standard Value)
 version: 1.1
 phase: Phase 2
 related_stories: MDM-05
-source_spec: ../../../../../03-backlog/stories-phase-2/009-Lab Testing/MDM-05-lab-test-master.md
+source_spec: ../../../../../03-backlog/phase-2/stories-phase-2/009-Lab Testing/MDM-05-lab-test-master.md
 implementation_reference:
   - apps/master_data/admin.py (BrandAdmin / ProductCategoryAdmin — pattern to copy; Lab Test masters not registered yet)
   - apps/core/portal_navigation.py (Master Data section; Test Categories / Lab UOM / Lab Tests not present yet)
@@ -15,7 +15,7 @@ playwright_mcp: true
 
 # MDM-05 — Lab Test Master — E2E Scenario Plan (Django Admin SSR)
 
-**Story:** [MDM-05 — Lab Test Master](../../../../../03-backlog/stories-phase-2/009-Lab%20Testing/MDM-05-lab-test-master.md)
+**Story:** [MDM-05 — Lab Test Master](../../../../../03-backlog/phase-2/stories-phase-2/009-Lab%20Testing/MDM-05-lab-test-master.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.

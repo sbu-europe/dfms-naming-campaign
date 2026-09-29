@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Fleet & Vehicle Management — Utilization
 tdd: true
 last_updated: 2026-09-15
-source_stories: ../../../03-backlog/stories-phase-2/003-Vehicle Utilization Analysis/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/003-Vehicle Utilization Analysis/
 module_spec: ../../../05-modules/02-master-data/vehicle-master-data.md
 ---
 
@@ -39,4 +39,4 @@ A **trip** = a completed **Plan** (Multi-TO Plan = 1). Idle vs moving is **GPS s
 
 ## Story links
 
-- [FVM-03](../../../03-backlog/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis.md)
+- [FVM-03](../../../03-backlog/phase-2/stories-phase-2/003-Vehicle%20Utilization%20Analysis/FVM-03-vehicle-utilization-analysis.md)

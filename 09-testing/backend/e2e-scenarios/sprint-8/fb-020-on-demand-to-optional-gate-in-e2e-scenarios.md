@@ -4,7 +4,7 @@ specification: FB-020 — On-Demand TO create optional Gate-in date/time (Option
 version: 1.0
 phase: Phase 1
 related_stories: FB-020, GT-02, GT-01
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/07-gate-operations.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/07-gate-operations.md
 implementation_reference:
   - ../../../../../apps/operations/gate/admin.py (GateOnDemandTORequestAdmin)
   - ../../../../../apps/operations/gate/forms.py (GateOnDemandTOAdminForm)
@@ -19,9 +19,9 @@ playwright_mcp: true
 
 # Sprint 8 — FB-020 — On-Demand TO optional Gate-in date/time — E2E Scenario Plan (Django Admin SSR)
 
-**Improvement:** [FB-020](../../../../03-backlog/sprints/sprint-8/improvements/07-gate-operations.md#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a)
+**Improvement:** [FB-020](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/07-gate-operations.md#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a)
 
-**Story:** [GT-02](../../../../03-backlog/sprints/sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md)
+**Story:** [GT-02](../../../../03-backlog/phase-1/sprints/sprint-4/04-gate/GT-02-on-demand-to-creation-gate.md)
 
 **AC (assert after FB-020 impl):**
 
@@ -130,6 +130,6 @@ Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwrigh
 
 ### Suggested next step
 
-1. Implement FB-020-1…4 per [07-gate-operations.md](../../../../03-backlog/sprints/sprint-8/improvements/07-gate-operations.md#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a).  
+1. Implement FB-020-1…4 per [07-gate-operations.md](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/07-gate-operations.md#fb-020--on-demand-to-create--optional-gate-in-datetime-option-a).  
 2. Run this plan via Playwright MCP; write `tests/e2e/playwright-mcp/fb-020-on-demand-to-optional-gate-in-artifacts/RESULTS.md`.  
 3. Mark TC Status Pass/Fail and update this file’s MCP run history.

@@ -4,7 +4,7 @@ specification: GPS Tracking / Live GPS — Playwright E2E Scenario Plan
 version: 1.0
 phase: Phase 1
 related_stories: Live GPS fleet, TO-centric history, GT06 ingest
-source_spec: ../../../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md
 last_updated: 2026-08-04
 playwright_mcp: true
 suite: live-gps

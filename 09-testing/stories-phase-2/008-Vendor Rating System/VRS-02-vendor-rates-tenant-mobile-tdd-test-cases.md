@@ -5,7 +5,7 @@ version: 1.1
 phase: Phase 2
 tdd: true
 related_stories: VRS-02
-source_spec: ../../../../03-backlog/stories-phase-2/008-Vendor Rating System/VRS-02-vendor-rates-tenant-mobile.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/008-Vendor Rating System/VRS-02-vendor-rates-tenant-mobile.md
 module_spec: ../../../../05-modules/07-vendor-management/vendor-rating.md
 suggested_impl:
   unit: apps/vendors/ (TenantRatingService — score + rolling Tenant.vendor_rating)
@@ -17,7 +17,7 @@ last_updated: 2026-09-17
 
 # VRS-02 — Vendor Rates Tenant (Mobile) — TDD test cases
 
-**Story:** [VRS-02](../../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md)  
+**Story:** [VRS-02](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md)  
 **Approach:** API submit/duplicate/avg first → Maestro mobile flows → admin incoming list → mark Passing.  
 **Depends on:** VRS-01 `RatingQuestion` model; vendor ACK completed trip; Join Tenant discovery screen.
 

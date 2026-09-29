@@ -4,7 +4,7 @@ specification: FB-027 — TO fleet type interchange Vendor ↔ Own before Ready 
 version: 1.0
 phase: Phase 1
 related_stories: FB-027, TO-01, TOR-005
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md
 implementation_reference:
   - ../../../../../apps/transport/admin.py (TransportOrderAdmin — fleet_type readonly / save_model)
   - ../../../../../apps/transport/planned_milestones.py (initial_to_status_for_fleet_type / vendor handoff sync)
@@ -19,9 +19,9 @@ playwright_mcp: true
 
 # Sprint 8 — FB-027 — TO Fleet Type Interchange (Vendor ↔ Own) — E2E Scenario Plan (Django Admin SSR)
 
-**Improvement:** [FB-027](../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch)
+**Improvement:** [FB-027](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md#fb-027--to-fleet-type-interchange--vendor--own-before-ready-for-dispatch)
 
-**Story / rules:** [TO-01](../../../../03-backlog/sprints/sprint-3/05-transport/02-transport-orders.md) · [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md)
+**Story / rules:** [TO-01](../../../../03-backlog/phase-1/sprints/sprint-3/05-transport/02-transport-orders.md) · [TOR-005](../../../../02-domain/03-business-rules/transport-rules.md)
 
 > **2026-08-11 — 11/11 executed cases passed** (TC01–TC10, TC13). TC11–TC12 skipped (no bid/bundle seed). Artifacts: [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-027-to-fleet-type-interchange-artifacts/RESULTS.md).
 

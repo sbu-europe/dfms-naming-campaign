@@ -4,7 +4,7 @@ specification: VM-09 — Vendors Profile — TP & TDO Read-Only Vendor List — 
 version: 1.0
 phase: Phase 1
 related_stories: VM-09
-source_spec: ../../../../03-backlog/sprints/sprint-7/02-vendor-management/VM-09-vendors-profile-readonly-tp-tdo.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/02-vendor-management/VM-09-vendors-profile-readonly-tp-tdo.md
 last_updated: 2026-07-30
 last_mcp_run: 2026-07-30
 last_mcp_verdict: 12/12 Pass
@@ -20,7 +20,7 @@ playwright_mcp: true
 **Accounts:** `transport.planner1`, `tdo.vendor.fleet1`, `admin.nourish` (`.nourish@yopmail.com`)  
 **Seed:** `make seed-vendor-approval-pw RUN_ID=A09F30A1` + `make seed-vendor-approval-gaps`
 
-**Story:** [VM-09](../../../../03-backlog/sprints/sprint-7/02-vendor-management/VM-09-vendors-profile-readonly-tp-tdo.md)  
+**Story:** [VM-09](../../../../03-backlog/phase-1/sprints/sprint-7/02-vendor-management/VM-09-vendors-profile-readonly-tp-tdo.md)  
 **Surface:** Tenant **Vendors** portal hub (`/vendors/`) — admin shell SSR + Alpine (`templates/admin/vendors/index.html`), not Platform `PlatformVendor` changelist.
 
 **AC (assert after VM-09 implementation):**

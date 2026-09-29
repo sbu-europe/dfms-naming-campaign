@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FM-04
-source_spec: ../../../../03-backlog/stories-phase-2/005-Fuel Management/FM-04-fuel-history-and-filters.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/FM-04-fuel-history-and-filters.md
 module_spec: ../../../../05-modules/08-fleet-management/fuel-management.md
 suggested_impl:
   api: GET /api/v1/fuel-entries/; GET /api/v1/vehicles/{id}/fuel-history/; optional stats
@@ -15,7 +15,7 @@ last_updated: 2026-09-14
 
 # FM-04 — Fuel History & Filters — TDD test cases
 
-**Story:** [FM-04](../../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters.md)  
+**Story:** [FM-04](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters.md)  
 **Depends on:** FM-01/FM-02 entries, FM-03 computed fields, FM-05 `anomaly_flag` for Status column.
 
 ## Required columns (TC01)

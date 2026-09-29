@@ -12,4 +12,4 @@ last_updated: 2026-09-07
 
 Phase 2 fleet ops (unscheduled) covers **Fuel** (005), **Fleet Health Inspection** (007), and **Vehicle Reports** (006) only.
 
-See [`stories-phase-2/README.md`](../../03-backlog/stories-phase-2/README.md) (005–008).
+See [`stories-phase-2/README.md`](../../03-backlog/phase-2/stories-phase-2/README.md) (005–008).

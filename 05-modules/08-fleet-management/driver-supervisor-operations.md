@@ -72,7 +72,7 @@ Tenant portal navigation is **not** a nested tree in the API. It is defined in `
 
 ### 0.1.1 DS-02-18 / FB-008 — separate Attendance and Leave nav
 
-**Story / feedback**: [DS-02 Sprint 5 carry-over](../../../03-backlog/sprints/sprint-5/01-driver-supervisor/DS-02-driver-state-attendance-leave.md) sub-task **DS-02-18**; [FB-008](../../../03-backlog/sprints/sprint-5/feedback-resolution.md#fb-008--attendance-and-leave-management-as-separate-driver-supervisor-menu-items).
+**Story / feedback**: [DS-02 Sprint 5 carry-over](../../../03-backlog/phase-1/sprints/sprint-5/01-driver-supervisor/DS-02-driver-state-attendance-leave.md) sub-task **DS-02-18**; [FB-008](../../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md#fb-008--attendance-and-leave-management-as-separate-driver-supervisor-menu-items).
 
 **Product rule**
 

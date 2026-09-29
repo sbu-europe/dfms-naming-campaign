@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FVM-01
-source_spec: ../../../../03-backlog/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/001-Odometer-Based Vehicle Maintenance Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md
 module_spec: ../../../../05-modules/02-master-data/vehicle-master-data.md
 suggested_impl:
   unit: RemainingKmService / IdleMovementService / HighStressRankingService
@@ -16,7 +16,7 @@ last_updated: 2026-09-15
 
 # FVM-01 — Odometer-Based Vehicle Maintenance Tracking — TDD test cases
 
-**Story:** [FVM-01](../../../../03-backlog/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md)  
+**Story:** [FVM-01](../../../03-backlog/phase-2/stories-phase-2/001-Odometer-Based%20Vehicle%20Maintenance%20Tracking/FVM-01-odometer-based-vehicle-maintenance-tracking.md)  
 **Approach:** Write failing unit tests for remaining-km formulas first → API meter entry → planner E2E.  
 **Does not:** decode GPS mileage; set `operational_status`; use a tenant-wide default interval.
 

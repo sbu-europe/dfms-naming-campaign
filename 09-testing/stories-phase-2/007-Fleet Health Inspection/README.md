@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Fleet Health Inspection
 tdd: true
 last_updated: 2026-09-14
-source_stories: ../../../03-backlog/stories-phase-2/007-Fleet Health Inspection/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/007-Fleet Health Inspection/
 module_spec: ../../../05-modules/08-fleet-management/fleet-health-inspection.md
 ---
 
@@ -39,7 +39,7 @@ Derived from story **Given–When–Then** scenarios (`AC-N.x`). Write failing t
 
 ## Story links
 
-- [FHI-01](../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates.md)
-- [FHI-02](../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts.md)
-- [FHI-03](../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round.md)
-- [FHI-04](../../../03-backlog/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report.md)
+- [FHI-01](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-01-inspection-checklist-templates.md)
+- [FHI-02](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-02-inspection-dashboard-alerts.md)
+- [FHI-03](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-03-conduct-inspection-round.md)
+- [FHI-04](../../../03-backlog/phase-2/stories-phase-2/007-Fleet%20Health%20Inspection/FHI-04-inspection-alerts-on-vehicle-report.md)

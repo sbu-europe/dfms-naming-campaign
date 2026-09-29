@@ -5,7 +5,7 @@ version: 1.1
 phase: Phase 2
 tdd: true
 related_stories: VRS-03
-source_spec: ../../../../03-backlog/stories-phase-2/008-Vendor Rating System/VRS-03-vendor-rating-visibility-admin.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/008-Vendor Rating System/VRS-03-vendor-rating-visibility-admin.md
 module_spec: ../../../../05-modules/07-vendor-management/vendor-rating.md
 suggested_impl:
   api: GET /api/v1/vendors/{id}/rating-summary/; GET /api/v1/vendors/{id}/ratings/; BidAward.vendor_rating_at_award
@@ -16,7 +16,7 @@ last_updated: 2026-09-17
 
 # VRS-03 — Vendor Rating Visibility (Admin) — TDD test cases
 
-**Story:** [VRS-03](../../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)  
+**Story:** [VRS-03](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)  
 **Approach:** API summary/history + award snapshot → admin E2E surfaces → vendor 403/UI denial → mark Passing.  
 **Depends on:** VRS-01 submitted `VendorRating` data + rating APIs (single score + 3 answers).
 

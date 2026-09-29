@@ -51,7 +51,7 @@ Once inside this screen, **the form is identical** for both types.
    - Optional fields (driver NID/License, helpers) are accepted if blank/empty; if provided, each helper entry must have **both** name and NID
 6. Vendor confirms details
 7. System marks TO as `ready_for_dispatch`
-8. Vendor taps **Start Trip** on Active Trip detail → `POST …/advance-status/` → lane-aware `driving_towards_source` or `driving_towards_destination` (see [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md))
+8. Vendor taps **Start Trip** on Active Trip detail → `POST …/advance-status/` → lane-aware `driving_towards_source` or `driving_towards_destination` (see [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/phase-1/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md))
 9. Yard/driver chain advances TLS-01 through to `delivered_unloaded`; vendor observes via polling
 10. Vendor taps **Complete Trip** → `completed`
 11. **After `completed`** the vendor can upload **POD, GRN copy, and Invoice** from the Completed Trip Details screen (`08-completed-trip-history.md`). Server hard-blocks all three doc-type uploads before Completed.
@@ -113,7 +113,7 @@ interface PostAwardAssignment {
 
 - VM-07 (vehicle/driver confirmation, updates with reason, audit, POD/GRN/invoice gating).
 - VM-08 (lifecycle status that gates invoice upload).
-- Feature context: [TEVF-03](../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
+- Feature context: [TEVF-03](../../../03-backlog/phase-1/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md).
 
 ## Code map
 

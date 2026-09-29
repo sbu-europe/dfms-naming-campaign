@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Transport Planning Optimization
 tdd: true
 last_updated: 2026-09-17
-source_stories: ../../../03-backlog/stories-phase-2/012-TO Dispatch Planning Calendar View/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/012-TO Dispatch Planning Calendar View/
 prototype: ../../../../docs/prototypes/to-dispatch-planning-calendar.html
 ---
 
@@ -41,4 +41,4 @@ Read-only **vehicle-lane** calendar. Unassigned TOs count in KPIs / result count
 
 ## Story links
 
-- [TO-03](../../../03-backlog/stories-phase-2/012-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md)
+- [TO-03](../../../03-backlog/phase-2/stories-phase-2/012-TO%20Dispatch%20Planning%20Calendar%20View/TO-03-to-dispatch-planning-calendar-view.md)

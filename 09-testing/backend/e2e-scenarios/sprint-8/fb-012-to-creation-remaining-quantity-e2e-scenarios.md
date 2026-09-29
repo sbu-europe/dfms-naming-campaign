@@ -4,7 +4,7 @@ specification: FB-012 — TO Creation Allocated Quantity Per Product shows Remai
 version: 1.1
 phase: Phase 1
 related_stories: FB-012, TO-01
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md
 implementation_reference:
   - ../../../../../templates/admin/transport/transportorder/create_from_tr.html (Allocate Quantities per Product table; TR Total Weight; horizontal scroll)
   - ../../../../../apps/transport/admin.py (TransportOrderAdmin.create_from_tr_view — remaining_quantity, tr_total_weight_display)
@@ -23,7 +23,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **8/8 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-012-to-creation-remaining-quantity-artifacts/RESULTS.md)  
 **Accounts:** `transport.planner1` (`.nourish@yopmail.com`) · **RUN_ID:** `28E2EEB2`
 
-**Improvement:** [FB-012](../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity)
+**Improvement:** [FB-012](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md#fb-012--to-creation-details--allocated-quantity-per-product-shall-show-remaining-quantity)
 
 **Sibling:** [FB-011 Planner TR list Remaining Weight](./fb-011-transport-planner-tr-list-remaining-weight-kg-e2e-scenarios.md) (list-level kg remainder; this plan is per-product qty on TO create).
 

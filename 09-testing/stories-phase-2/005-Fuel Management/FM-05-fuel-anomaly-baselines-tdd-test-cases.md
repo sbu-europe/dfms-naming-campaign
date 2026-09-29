@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FM-05
-source_spec: ../../../../03-backlog/stories-phase-2/005-Fuel Management/FM-05-fuel-anomaly-baselines.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/FM-05-fuel-anomaly-baselines.md
 module_spec: ../../../../05-modules/08-fleet-management/fuel-management.md
 suggested_impl:
   unit: baseline lookup + anomaly_flag on save
@@ -15,7 +15,7 @@ last_updated: 2026-09-14
 
 # FM-05 — Baselines & Anomaly Detection — TDD test cases
 
-**Story:** [FM-05](../../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines.md)  
+**Story:** [FM-05](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines.md)  
 **TDD start:** unit tests for baseline map + `>20% below avg` rule (after FM-03 km/L exists).  
 **Rule:** flag when km/L is **more than** 20% below baseline average; exact boundary is **not** anomaly.
 

@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Vendor Rating System
 tdd: true
 last_updated: 2026-09-17
-source_stories: ../../../03-backlog/stories-phase-2/008-Vendor Rating System/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/008-Vendor Rating System/
 module_spec: ../../../05-modules/07-vendor-management/vendor-rating.md
 ---
 
@@ -40,6 +40,6 @@ Derived from story **Given–When–Then** scenarios (`AC-N.x`). Write failing t
 
 ## Story links
 
-- [VRS-01](../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md)
-- [VRS-02](../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md)
-- [VRS-03](../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)
+- [VRS-01](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md)
+- [VRS-02](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md)
+- [VRS-03](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-03-vendor-rating-visibility-admin.md)

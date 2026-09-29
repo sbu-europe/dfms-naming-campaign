@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Fleet & Vehicle Management — Downtime
 tdd: true
 last_updated: 2026-09-15
-source_stories: ../../../03-backlog/stories-phase-2/004-Vehicle Downtime Management/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/004-Vehicle Downtime Management/
 module_spec: ../../../05-modules/02-master-data/vehicle-master-data.md
 ---
 
@@ -39,4 +39,4 @@ Open downtime covering now → **Under Maintenance** (reuse DS-01 mark). FVM-01 
 
 ## Story links
 
-- [FVM-04](../../../03-backlog/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management.md)
+- [FVM-04](../../../03-backlog/phase-2/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management.md)

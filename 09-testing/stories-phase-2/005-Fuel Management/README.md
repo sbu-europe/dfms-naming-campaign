@@ -4,7 +4,7 @@ phase: Phase 2
 epic: Fuel Management
 tdd: true
 last_updated: 2026-09-14
-source_stories: ../../../03-backlog/stories-phase-2/005-Fuel Management/
+source_stories: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/
 module_spec: ../../../05-modules/08-fleet-management/fuel-management.md
 ---
 
@@ -41,8 +41,8 @@ Derived from story **Given–When–Then** scenarios (`AC-N.x`). Write failing t
 
 ## Story links
 
-- [FM-01](../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-driver-supervisor-admin.md)
-- [FM-02](../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile.md)
-- [FM-03](../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations.md)
-- [FM-04](../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters.md)
-- [FM-05](../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines.md)
+- [FM-01](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-driver-supervisor-admin.md)
+- [FM-02](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-02-fuel-entry-driver-mobile.md)
+- [FM-03](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations.md)
+- [FM-04](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters.md)
+- [FM-05](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines.md)

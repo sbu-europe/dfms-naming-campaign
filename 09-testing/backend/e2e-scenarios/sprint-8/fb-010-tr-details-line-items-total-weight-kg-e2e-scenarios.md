@@ -4,7 +4,7 @@ specification: FB-010 — TR Details & line items show Total Weight (KG) and Tot
 version: 1.0
 phase: Phase 1
 related_stories: FB-010, DR-02, PC-02
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/04-transport-requests.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/04-transport-requests.md
 implementation_reference:
   - ../../../../../apps/requisitions/admin.py (TransportRequisitionAdmin fieldsets / total_weight_kg_display, TRLineItemInline)
   - ../../../../../templates/admin/requisitions/transportrequisition/change_form.html
@@ -23,7 +23,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-010-tr-details-line-items-total-weight-kg-artifacts/RESULTS.md)  
 **Accounts:** `distribution.officer1` · `distribution.manager1` · `procurement.officer1` (`.nourish@yopmail.com`) · **RUN_ID:** `5182CF45`
 
-**Improvement:** [FB-010](../../../../03-backlog/sprints/sprint-8/improvements/04-transport-requests.md#fb-010--tr-details--line-items-show-total-weight-kg-and-total-quantity-for-distribution--procurement-roles)
+**Improvement:** [FB-010](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/04-transport-requests.md#fb-010--tr-details--line-items-show-total-weight-kg-and-total-quantity-for-distribution--procurement-roles)
 
 **Sibling:** [FB-009 TR list weight](./fb-009-tr-list-total-weight-kg-e2e-scenarios.md) (changelist only; signed off).
 

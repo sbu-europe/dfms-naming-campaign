@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FM-03
-source_spec: ../../../../03-backlog/stories-phase-2/005-Fuel Management/FM-03-fuel-consumption-calculations.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/005-Fuel Management/FM-03-fuel-consumption-calculations.md
 module_spec: ../../../../05-modules/08-fleet-management/fuel-management.md
 suggested_impl:
   unit: FuelCalculationService.calculate(entry, previous_entry)
@@ -15,7 +15,7 @@ last_updated: 2026-09-14
 
 # FM-03 — Fuel Consumption Calculations — TDD test cases
 
-**Story:** [FM-03](../../../../03-backlog/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations.md)  
+**Story:** [FM-03](../../../03-backlog/phase-2/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations.md)  
 **TDD start here:** pure unit tests for `FuelCalculationService` with no UI.  
 **Used by:** FM-01, FM-02 on save.
 

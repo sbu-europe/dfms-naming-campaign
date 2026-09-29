@@ -4,7 +4,7 @@ specification: FB-007 — Helpers delete should match other master data — Play
 version: 1.0
 phase: Phase 1
 related_stories: FB-007
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 implementation_reference:
   - ../../../../../apps/users/admin.py (HelperAdmin)
   - ../../../../../apps/master_data/admin.py (MasterEntityHardDeleteAdminMixin)
@@ -25,7 +25,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-07-30 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-007-helpers-delete-match-master-data-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com`
 
-**Feedback:** [FB-007](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-007--helpers--delete-should-match-other-master-data)
+**Feedback:** [FB-007](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-007--helpers--delete-should-match-other-master-data)
 
 **AC (assert after fix):**
 

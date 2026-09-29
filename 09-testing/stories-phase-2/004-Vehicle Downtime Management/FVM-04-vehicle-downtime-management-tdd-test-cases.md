@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: FVM-04
-source_spec: ../../../../03-backlog/stories-phase-2/004-Vehicle Downtime Management/FVM-04-vehicle-downtime-management.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/004-Vehicle Downtime Management/FVM-04-vehicle-downtime-management.md
 module_spec: ../../../../05-modules/02-master-data/vehicle-master-data.md
 suggested_impl:
   unit: downtime_hours_overlap; status transition helpers
@@ -16,7 +16,7 @@ last_updated: 2026-09-15
 
 # FVM-04 — Vehicle Downtime Management — TDD test cases
 
-**Story:** [FVM-04](../../../../03-backlog/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management.md)  
+**Story:** [FVM-04](../../../03-backlog/phase-2/stories-phase-2/004-Vehicle%20Downtime%20Management/FVM-04-vehicle-downtime-management.md)  
 **Approach:** Write failing API tests for open/close + validation → status side-effects → FVM-03 hour clip.  
 **Does not:** workshop cost/parts; remaining-km tracking; replace DS-01 inspection-fail clearance.
 

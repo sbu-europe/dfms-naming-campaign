@@ -4,7 +4,7 @@ specification: QC-02 QA Lab Technician — Receive Sample, Run Tests, File Resul
 version: 1.1
 phase: Phase 2
 related_stories: QC-02, MDM-05, QC-01
-source_spec: ../../../../../03-backlog/stories-phase-2/009-Lab Testing/QC-02-lab-test-execution.md
+source_spec: ../../../../../03-backlog/phase-2/stories-phase-2/009-Lab Testing/QC-02-lab-test-execution.md
 implementation_reference:
   - apps/quality/checkpoint/admin_queue.py (QC Queue / Add QC — QC-01; no lab request yet)
   - templates/admin/quality/checkpoint/qcqueue/
@@ -16,7 +16,7 @@ playwright_mcp: true
 
 # QC-02 — Lab Test Execution — E2E Scenario Plan (Django Admin SSR)
 
-**Story:** [QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results](../../../../../03-backlog/stories-phase-2/009-Lab%20Testing/QC-02-lab-test-execution.md)
+**Story:** [QC-02 — QA Lab Technician — Receive Sample, Run Tests, File Results](../../../../../03-backlog/phase-2/stories-phase-2/009-Lab%20Testing/QC-02-lab-test-execution.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `qc.inspector.physical1.nourish@yopmail.com`, `qa.lab.technician1.nourish@yopmail.com`, `admin.nourish@yopmail.com`, `superadmin.nourish@yopmail.com`.

@@ -230,5 +230,5 @@ Update the [Provider catalogue](#provider-catalogue) table.
 
 ## Related
 
-- [Live GPS (GPS-01)](../../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)
+- [Live GPS (GPS-01)](../../../03-backlog/phase-1/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)
 - [Module hub](../README.md)

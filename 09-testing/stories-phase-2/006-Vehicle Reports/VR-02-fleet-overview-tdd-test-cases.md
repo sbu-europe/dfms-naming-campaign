@@ -5,13 +5,13 @@ version: 1.0
 phase: Phase 2
 tdd: true
 related_stories: VR-02
-source_spec: ../../../../03-backlog/stories-phase-2/006-Vehicle Reports/VR-02-vehicle-report-fleet-overview.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/006-Vehicle Reports/VR-02-vehicle-report-fleet-overview.md
 last_updated: 2026-09-14
 ---
 
 # VR-02 — Fleet Overview — TDD test cases
 
-**Story:** [VR-02](../../../../03-backlog/stories-phase-2/006-Vehicle%20Reports/VR-02-vehicle-report-fleet-overview.md)  
+**Story:** [VR-02](../../../03-backlog/phase-2/stories-phase-2/006-Vehicle%20Reports/VR-02-vehicle-report-fleet-overview.md)  
 **Start:** unit/API tests for `VehicleReportService.build_list()`.
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |

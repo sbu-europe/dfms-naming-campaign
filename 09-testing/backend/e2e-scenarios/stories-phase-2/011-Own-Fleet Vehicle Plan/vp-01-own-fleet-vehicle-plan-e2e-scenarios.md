@@ -4,7 +4,7 @@ specification: VP-01 Own-Fleet Vehicle Plan — Multi-TO on One Vehicle with Veh
 version: 1.1
 phase: Phase 2
 related_stories: VP-01, TO-01, TO-02, GT-01, SC-01, CC-01, LD-01
-source_spec: ../../../../../03-backlog/stories-phase-2/011-Own-Fleet Vehicle Plan/VP-01-own-fleet-vehicle-plan-multi-to.md
+source_spec: ../../../../../03-backlog/phase-2/stories-phase-2/011-Own-Fleet Vehicle Plan/VP-01-own-fleet-vehicle-plan-multi-to.md
 implementation_reference:
   - apps/transport/admin.py (TO create / assignment — one TO per yard visit today)
   - apps/transport/vehicle_planning_views.py (`/admin/transport/vehicle-planning/` — TO assignment board, not Vehicle Plan membership)
@@ -17,7 +17,7 @@ playwright_mcp: true
 
 # VP-01 — Own-Fleet Vehicle Plan (Multi-TO) — E2E Scenario Plan (Django Admin SSR)
 
-**Story:** [VP-01 — Own-Fleet Vehicle Plan](../../../../../03-backlog/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/VP-01-own-fleet-vehicle-plan-multi-to.md)
+**Story:** [VP-01 — Own-Fleet Vehicle Plan](../../../../../03-backlog/phase-2/stories-phase-2/011-Own-Fleet%20Vehicle%20Plan/VP-01-own-fleet-vehicle-plan-multi-to.md)
 
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: Transport Planner, Tenant Super Admin, Tenant Admin, Driver Supervisor, Gateman, Scaling Operator, Command Center Officer, Loading Personnel.

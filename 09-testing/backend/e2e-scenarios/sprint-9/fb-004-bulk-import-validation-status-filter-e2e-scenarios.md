@@ -4,7 +4,7 @@ specification: FB-004 — Filter Valid and Invalid records after Excel / bulk im
 version: 1.1
 phase: Phase 1
 related_stories: FB-004
-source_spec: ../../../../03-backlog/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md
 implementation_reference:
   - ../../../../../apps/master_data/admin.py (BulkImportExportMixin.import_preview_view)
   - ../../../../../apps/users/admin.py (BulkImportExportMixin.import_preview_view; UserBulkImportAdmin; DriverAdmin)
@@ -20,7 +20,7 @@ design_system:
 
 # Sprint 9 — FB-004 — Bulk import preview: Valid / Invalid Status filter — E2E Scenario Plan (Django Admin SSR)
 
-**Improvement:** [FB-004](../../../../03-backlog/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md#fb-004--filter-valid-and-invalid-records-after-excel--bulk-import)
+**Improvement:** [FB-004](../../../../03-backlog/phase-1/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md#fb-004--filter-valid-and-invalid-records-after-excel--bulk-import)
 
 **AC (assert after fix):**
 

@@ -4,7 +4,7 @@ specification: FB-009 — TR List shows Total Weight (KG) instead of Total Quant
 version: 1.0
 phase: Phase 1
 related_stories: FB-009, DR-02, PC-02
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/04-transport-requests.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/04-transport-requests.md
 implementation_reference:
   - ../../../../../apps/requisitions/admin.py (TransportRequisitionAdmin.get_list_display, total_weight_kg_display)
   - ../../../../../apps/core/portal_navigation.py (distribution_transport_requests, procurement_transport_requests)
@@ -22,7 +22,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **5/5 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-009-tr-list-total-weight-kg-artifacts/RESULTS.md)  
 **Accounts:** `distribution.officer1` · `distribution.manager1` · `procurement.officer1` · `transport.planner1` (`.nourish@yopmail.com`) · **RUN_ID:** `85258276`
 
-**Improvement:** [FB-009](../../../../03-backlog/sprints/sprint-8/improvements/04-transport-requests.md#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles)
+**Improvement:** [FB-009](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/04-transport-requests.md#fb-009--tr-list-show-total-weight-kg-instead-of-total-quantity-for-distribution--procurement-roles)
 
 **AC (assert after fix):**
 

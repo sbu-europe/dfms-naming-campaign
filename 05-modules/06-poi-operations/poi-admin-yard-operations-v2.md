@@ -10,14 +10,14 @@ related_stories: YARD-01 (amendment), US-005 (invitation POI gate)
 feedback_items: FB-014
 supersedes: yard single-function operator model for site-level yard administration
 baseline_spec: command-center-loading-sprint4.md, gate-operations-sprint4.md, qc-operations-sprint4.md; YARD-01 poi-scoped-yard-platform
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/README.md
 ---
 
 # POI-Admin — POI-Scoped Yard Operations Super-User (FB-014)
 
 ## Overview
 
-This document is the **Sprint 6 implementation plan v2** for [FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user).
+This document is the **Sprint 6 implementation plan v2** for [FB-014](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user).
 
 **Problem (client feedback — 2026-07-07):** Yard work at a site is split across single-function POI-scoped roles (Gateman, Scaling Operator, Command Center Officer, Loading, Unloading, QC Inspector). Operations need one **site-level yard administrator** who can run **every yard module** at **one POI** without juggling multiple role assignments. When provisioning that user, the inviting admin must **select the POI** — assignment is not optional.
 
@@ -32,7 +32,7 @@ This document is the **Sprint 6 implementation plan v2** for [FB-014](../../03-b
 **Primary module paths:** `apps/core/role_seed_data.py`, `apps/users/yard_constants.py`, `apps/operations/*/admin.py`, `apps/quality/checkpoint/admin.py`  
 **Invitation / user admin:** `apps/users/admin.py`, `apps/users/invitation_service.py`, `apps/users/invitation_constants.py`
 
-**Distinct from [FB-007](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access):** Depot Officer and Feed Mill Officer keep **Product Requisition** requester duties plus yard access. **POI-Admin** is yard-only — no `REQUISITION_TR_CREATE`, no PR menus unless separately granted.
+**Distinct from [FB-007](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access):** Depot Officer and Feed Mill Officer keep **Product Requisition** requester duties plus yard access. **POI-Admin** is yard-only — no `REQUISITION_TR_CREATE`, no PR menus unless separately granted.
 
 **Coordinate with:** [tenant-user-management-v2.md](../03-users/tenant-user-management-v2.md) — Tenant Super Admin and Tenant Admin delegates invite POI-Admin.
 
@@ -432,8 +432,8 @@ Prefer **composing** existing `_gateman_widgets` etc. only if they honour `_get_
 
 | Document | Relationship |
 |----------|--------------|
-| [feedback-resolution.md §FB-014](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) | Source feedback item |
-| [feedback-resolution.md §FB-007](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) | Prior art — `extra_operator_role_codes` pattern |
+| [feedback-resolution.md §FB-014](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-014--poi-admin-role-poi-scoped-yard-operations-super-user) | Source feedback item |
+| [feedback-resolution.md §FB-007](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-007--depot-officer--feed-mill-officer-become-poi-scoped-local-roles-with-full-yard-operations-access) | Prior art — `extra_operator_role_codes` pattern |
 | [tenant-user-management-v2.md](../03-users/tenant-user-management-v2.md) | Who invites POI-Admin |
 | [poi-scoped-roles.md](../../../../docs/architecture/poi-scoped-roles.md) | YARD-01 scoping architecture |
 | [qc-operations-v2.md](./qc-operations-v2.md) | QC module; POI-Admin gets checkpoint access |

@@ -4,7 +4,7 @@ specification: FB-006 — POI bulk import/export include optional storage capaci
 version: 1.0
 phase: Phase 1
 related_stories: FB-006
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (POIImportConfig)
   - ../../../../../apps/master_data/admin.py (POIAdmin, BulkImportExportMixin, POIAddForm)
@@ -27,7 +27,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-07-30 · **7/7 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-006-poi-bulk-import-export-capacity-opening-stock-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com`
 
-**Feedback:** [FB-006](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock)
+**Feedback:** [FB-006](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-006--poi-bulk-importexport--include-optional-storage-capacity-mt--opening-stock)
 
 **AC (assert after fix):**
 

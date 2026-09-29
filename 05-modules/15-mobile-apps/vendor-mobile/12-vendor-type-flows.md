@@ -10,11 +10,11 @@ related_files:
   - 07-active-trip-tracking.md
   - 08-completed-trip-history.md
 related_backlog:
-  - ../../../03-backlog/sprints/sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-approval.md
-  - ../../../03-backlog/sprints/sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md
-  - ../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md
-  - ../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md
-  - ../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md
+  - ../../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-approval.md
+  - ../../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VM-07-vehicle-driver-submission.md
+  - ../../../03-backlog/phase-1/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-01-contractual-vendor-assignment.md
+  - ../../../03-backlog/phase-1/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md
+  - ../../../03-backlog/phase-1/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-03-vendor-execution-confirmation.md
 ---
 
 # Vendor Mobile — Contractual vs Non-Contractual User Journeys

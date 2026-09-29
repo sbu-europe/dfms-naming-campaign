@@ -40,7 +40,7 @@ The **Bids** tab is shown in the bottom tab bar as long as the vendor has **at l
 
 ## Backlog
 
-- **VM-02** — [`VM-02-vendor-tenant-join-and-approval.md`](../../../03-backlog/sprints/sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-approval.md).
+- **VM-02** — [`VM-02-vendor-tenant-join-and-approval.md`](../../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VM-02-vendor-tenant-join-and-approval.md).
 - The `vendor_type` field is stored on the membership record `(vendor_id, tenant_id, status, vendor_type)`; required when `status=APPROVED`.
 
 ## Code map

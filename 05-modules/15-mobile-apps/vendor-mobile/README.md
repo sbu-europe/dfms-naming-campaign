@@ -55,4 +55,4 @@ Full table: [`../../../04-architecture/09-mobile/04-feature-map.md`](../../../04
 ## Quick reference
 
 - Start with [`12-vendor-type-flows.md`](12-vendor-type-flows.md) for Contractual vs Non-Contractual.
-- Sprint entrypoint: [`VENDOR-MOBILE-CONTEXT.md`](../../../03-backlog/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md).
+- Sprint entrypoint: [`VENDOR-MOBILE-CONTEXT.md`](../../../03-backlog/phase-1/sprints/sprint-4/08-vendor-management/VENDOR-MOBILE-CONTEXT.md).

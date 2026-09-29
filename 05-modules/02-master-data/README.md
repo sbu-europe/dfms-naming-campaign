@@ -32,7 +32,7 @@ This module defines master data configuration and management for the DFMS platfo
 | [loading-unloading-points.md](loading-unloading-points.md) | Loading/unloading points — POI sub-location master (bays/lines/docks). Model, admin (standalone + inline under POIAdmin), API, RBAC, seed data. Consumed by CC-01, LD-01, QC-01 | 6.5.1, 6.12.2, 6.13.1 | DFS-063 (LUP-01) — Sprint 4 | ~230 |
 | [vehicle-part-catalog.md](vehicle-part-catalog.md) | **Deferred** — garage inventory / parts not in current phase | — | — | stub |
 | [bulk-import-export.md](bulk-import-export.md) | Canonical CSV bulk import/export (jobs, Celery, admin mixin, preview, REST) | — | Sprint 2+ | long |
-| [bulk-import-preview-status-filter-fb004.md](bulk-import-preview-status-filter-fb004.md) | **Sprint 9 FB-004** — Import Preview Status filter Valid / Invalid (Master Data · User · Driver) | — | [FB-004](../../03-backlog/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md) | short |
+| [bulk-import-preview-status-filter-fb004.md](bulk-import-preview-status-filter-fb004.md) | **Sprint 9 FB-004** — Import Preview Status filter Valid / Invalid (Master Data · User · Driver) | — | [FB-004](../../03-backlog/phase-1/sprints/sprint-9/improvements/02-bulk-import-validation-filter.md) | short |
 
 **Total Documentation**: ~2,030 lines of comprehensive technical specifications (driver compliance: see `03-users/driver-user-profiles.md`)
 
@@ -103,7 +103,7 @@ Master data creation is integrated into workflow stories:
 - **US-047**: Vendor Registration
 - Product and POI data managed through admin interfaces (no dedicated stories)
 
-**Location**: `../../03-backlog/sprints/README.md`
+**Location**: `../../03-backlog/phase-1/sprints/README.md`
 
 ---
 
@@ -216,7 +216,7 @@ See OpenAPI (`/api/docs/`) for the full list. **Entity-specific `/bulk-upload`**
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Original PRD document
-- **[User Stories](../../03-backlog/sprints/README.md)** - Implementation stories
+- **[User Stories](../../03-backlog/phase-1/sprints/README.md)** - Implementation stories
 
 ---
 

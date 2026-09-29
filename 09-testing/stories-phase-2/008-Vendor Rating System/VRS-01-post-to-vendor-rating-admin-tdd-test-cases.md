@@ -5,7 +5,7 @@ version: 1.1
 phase: Phase 2
 tdd: true
 related_stories: VRS-01
-source_spec: ../../../../03-backlog/stories-phase-2/008-Vendor Rating System/VRS-01-post-to-vendor-rating-admin.md
+source_spec: ../../../03-backlog/phase-2/stories-phase-2/008-Vendor Rating System/VRS-01-post-to-vendor-rating-admin.md
 module_spec: ../../../../05-modules/07-vendor-management/vendor-rating.md
 suggested_impl:
   unit: apps/vendors/ (VendorRatingService — score + rolling Vendor.rating)
@@ -16,7 +16,7 @@ last_updated: 2026-09-17
 
 # VRS-01 — Post-TO Vendor Rating (Admin) — TDD test cases
 
-**Story:** [VRS-01](../../../../03-backlog/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md)  
+**Story:** [VRS-01](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin.md)  
 **Approach:** Write failing unit tests for score/rolling/immutability first → API → admin E2E → mark Passing.  
 **Depends on:** TO `COMPLETED`/`closed` transition; Vendor `rating` / `rating_count`; RatingQuestion VENDOR pool (≥9).
 

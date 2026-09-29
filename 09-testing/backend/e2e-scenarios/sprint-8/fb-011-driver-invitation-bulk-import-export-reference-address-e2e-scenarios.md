@@ -4,7 +4,7 @@ specification: FB-003 — Driver invitation bulk import/export include reference
 version: 1.0
 phase: Phase 1
 related_stories: FB-003
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md
 implementation_reference:
   - ../../../../../apps/users/import_configs.py (DriverImportConfig)
   - ../../../../../apps/users/admin.py (DriverAdmin, BulkImportExportMixin)
@@ -27,7 +27,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-03 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-011-driver-invitation-bulk-import-export-reference-address-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `C22D0304`
 
-**Improvement:** [FB-003](../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md#fb-003--driver-invitation-bulk-importexport--add-reference-contacts--address)
+**Improvement:** [FB-003](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md#fb-003--driver-invitation-bulk-importexport--add-reference-contacts--address)
 
 **AC (assert after fix):**
 

@@ -411,7 +411,7 @@ Keep existing behaviour: operational users see **“Welcome”** (not “Dashboa
 - `apps/core/dashboard_service.py` — DB-01 existing implementation
 - `DFMS-product-context/05-modules/06-poi-operations/gate-operations-sprint4.md`
 - `DFMS-product-context/05-modules/06-poi-operations/scaling-operations-sprint4.md`
-- `DFMS-product-context/03-backlog/sprints/sprint-5/12-gps-maps-dashboard/` — GPS dashboard (separate)
+- `DFMS-product-context/03-backlog/phase-1/sprints/sprint-5/12-gps-maps-dashboard/` — GPS dashboard (separate)
 
 ---
 

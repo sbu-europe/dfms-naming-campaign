@@ -4,7 +4,7 @@ specification: FB-005 — Product Requisition list hide Draft from status filter
 version: 1.0
 phase: Phase 1
 related_stories: FB-005
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 last_updated: 2026-07-30
 last_mcp_run: 2026-07-30
 last_mcp_verdict: 3/3 Pass
@@ -19,7 +19,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-07-30 · **3/3 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-005-product-requisition-status-filter-artifacts/RESULTS.md)  
 **Accounts:** `distribution.officer1`, `depot.officer1` (`.nourish@yopmail.com`)
 
-**Feedback:** [FB-005](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer)
+**Feedback:** [FB-005](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-005--product-requisition-list--hide-draft-from-status-filter-for-distribution-officer)
 
 **AC (assert after fix):**
 

@@ -145,11 +145,11 @@ Follow this sequence to understand the repository:
 
 ### **👔 Product Managers**
 - [Business Objectives](./02-domain/02-requirements/01-business-objectives/) - Goals and KPIs
-- [Sprint Plans](./03-backlog/sprints/) - Sprint-by-sprint task breakdown
-- [User Stories](./03-backlog/sprints/) - Full user story list
+- [Sprint Plans](./03-backlog/phase-1/sprints/) - Sprint-by-sprint task breakdown
+- [User Stories](./03-backlog/phase-1/sprints/) - Full user story list
 
 ### **💻 Engineers**
-- [User Stories](./03-backlog/sprints/) - Production-ready stories (sprint-wise)
+- [User Stories](./03-backlog/phase-1/sprints/) - Production-ready stories (sprint-wise)
 - [Module Specifications](./05-modules/) - Technical docs with data models & APIs
 - [Business Rules](./02-domain/03-business-rules/) - Validation rules
 - [API Contracts](./06-contracts/01-apis/) - OpenAPI 3.0 specs
@@ -159,11 +159,11 @@ Follow this sequence to understand the repository:
 
 ### **📊 Business Analysts**
 - [Functional Requirements](./02-domain/02-requirements/03-functional-requirements/) - High-level requirements
-- [User Stories](./03-backlog/sprints/) - Detailed implementation stories
+- [User Stories](./03-backlog/phase-1/sprints/) - Detailed implementation stories
 - [Business Processes](./02-domain/04-business-processes/) - End-to-end workflows
 
 ### **🧪 QA/Testers**
-- [User Stories](./03-backlog/sprints/) - With acceptance criteria
+- [User Stories](./03-backlog/phase-1/sprints/) - With acceptance criteria
 - [Business Rules](./02-domain/03-business-rules/) - Validation logic
 - [Non-Functional Requirements](./02-domain/02-requirements/04-non-functional-requirements/) - Performance, security
 - [Testing Strategy](09-testing/strategy/testing-strategy.md) - Overall test approach
@@ -177,7 +177,7 @@ Follow this sequence to understand the repository:
 - [Repository Purpose](./02-REPOSITORY_PURPOSE.md) - Submodule architecture
 
 ### **📅 Project Managers**
-- [Sprints](./03-backlog/sprints/) - Sprint tasks & completion reports
+- [Sprints](./03-backlog/phase-1/sprints/) - Sprint tasks & completion reports
 - [WBS](./01-source/04-wbs/) - Work breakdown structure
 
 ### **🆕 New Team Members**
@@ -191,7 +191,7 @@ Follow this sequence to understand the repository:
 
 ### **"I want to understand a specific feature"**
 
-1. Find related stories in [sprints/](./03-backlog/sprints/)
+1. Find related stories in [sprints/](./03-backlog/phase-1/sprints/)
 2. Read module specification in [05-modules/](./05-modules/)
 3. Check business rules in [02-domain/03-business-rules/](./02-domain/03-business-rules/)
 
@@ -212,7 +212,7 @@ Follow this sequence to understand the repository:
 ### **"I want to implement a module"**
 
 1. **Read user stories** for that module
-   - Browse [03-backlog/sprints/](./03-backlog/sprints/)
+   - Browse [03-backlog/phase-1/sprints/](./03-backlog/phase-1/sprints/)
    - Each story has: User Story, Acceptance Criteria, Requirements, Business Rules
 
 2. **Read module specification**
@@ -305,10 +305,10 @@ import { DataModel } from './context/06-contracts/02-data-models/...'
 grep -r "transport order" 02-domain/ 05-modules/ 03-backlog/
 
 # Search user stories only
-grep -r "vendor" 03-backlog/sprints/
+grep -r "vendor" 03-backlog/phase-1/sprints/
 
 # Find files by name
-find 03-backlog/sprints/ -name "*vendor*"
+find 03-backlog/phase-1/sprints/ -name "*vendor*"
 ```
 
 **Or use your IDE's search** (Cmd+Shift+F / Ctrl+Shift+F)
@@ -329,7 +329,7 @@ find 03-backlog/sprints/ -name "*vendor*"
 | **09-testing** | ✅ Active | 17 files (strategy + e2e scenarios) |
 | **01-source** | ✅ Current | 20+ files |
 
-**Story counts**: sprint-wise stories under `03-backlog/sprints/`, Sprints 1–9+ (see [`sprints/README.md`](./03-backlog/sprints/README.md)).  
+**Story counts**: sprint-wise stories under `03-backlog/phase-1/sprints/`, Sprints 1–9+ (see [`sprints/README.md`](./03-backlog/phase-1/sprints/README.md)).  
 **For full metrics**, see [README.md](./README.md).
 
 ---
