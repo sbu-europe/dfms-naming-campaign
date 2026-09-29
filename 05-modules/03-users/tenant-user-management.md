@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: DFMS_Product_Requirements_Document_v3.md
 sprint: Sprint 2
-last_updated: 2026-04-22
-related_stories: US-004, US-005, US-007, US-008, US-009, DFS-024, DFS-026, DFS-027, DFS-028
+last_updated: 2026-09-22
+related_stories: US-004, US-005, US-007, US-008, US-009, DFS-024, DFS-026, DFS-027, DFS-028, TUM-06
 jira_epic: DFS-029
 ---
 
@@ -158,14 +158,15 @@ The Tenant Admin invites a user by email. The invitation is dispatched immediate
 | Last Name | Required |
 | Email | Required; unique per tenant |
 | Employee ID | Optional |
-| Role | Dropdown of assignable operational roles; Super Admin hidden |
-| Assigned POI | Required if role has Local access scope; hidden for Global roles |
+| Role | Multi-select of assignable operational roles, grouped by department; Super Admin hidden. Exclusive targets (Tenant Admin, Tenant Super Admin, Driver, Helper) cannot be combined with any other role. See [multi-role-assignment-implementation-plan.md](./multi-role-assignment-implementation-plan.md) (TUM-06). |
+| Assigned POI | Required if **any** selected role is POI-scoped; hidden for Global-only. Invite is a **multi-select** shared across selected local roles (one site still valid). User edit has a **per-role** multi-select so each local role can hold a different set of sites. |
 
 **Validation rules:**
 ```
 Email must be unique within the tenant
-Role must be a valid operational role (not Super Admin)
-Assigned POI required if role.access_scope = 'Local'
+Each selected role must be a valid assignable operational role (not Super Admin)
+The set must pass exclusive-target validation (TUM-06)
+Assigned POI required if **any** selected role is POI-scoped (**at least one**, no cap). Invite/CSV: the selected POI set applies to every local role on the row. User edit may set a **different POI set per local role**.
 Role assignment validated against tenant subscription plan limits
 ```
 
@@ -174,7 +175,7 @@ Role assignment validated against tenant subscription plan limits
 1. User record created with status = 'Invited', invitation_status = 'sent'
 2. Invitation email dispatched immediately (synchronous)
 3. Email contains time-limited activation link (expires 7 days)
-4. Audit log entry: action=InvitationSent, inviter, invitee email, role, timestamp
+4. Audit log entry: action=InvitationSent, inviter, invitee email, **set of role codes**, timestamp
 ```
 
 ### 3.2 Invitation Lifecycle
@@ -197,8 +198,8 @@ sent → pending (user opens link) → activated (password set + T&C accepted)
 | Email | Yes | Unique per tenant |
 | First Name | Yes | |
 | Last Name | Yes | |
-| Role | Yes | Must match an assignable role name exactly |
-| Assigned POI | Conditional | Required if role is Local-scoped |
+| Role | Yes | One `role_code`, or comma-separated codes (`gateman,scaling_operator`); forbidden combinations fail that row |
+| Assigned POI | Conditional | Required if any role is Local-scoped; comma-separated `poi_code` values apply to every local role on the row (one code still valid) |
 
 **Behaviour:**
 - Per-row validation — invalid rows reported with reason; valid rows invited
@@ -257,7 +258,7 @@ A separate sub-tab within Users showing all pending invitations:
 | Column | Notes |
 |--------|-------|
 | Email | Invitee |
-| Role | Assigned role |
+| Role | Assigned role(s) |
 | Invitation Status | sent / pending / expired / cancelled |
 | Invited On | Timestamp |
 | Expires On | invited_at + 7 days |
@@ -278,8 +279,8 @@ All user fields. Read-only for activated users except safe-to-edit fields.
 | First Name | |
 | Last Name | |
 | Employee ID | |
-| Assigned POI | Editable for Local-scoped roles; POI dropdown |
-| Role | Role change triggers audit log; sessions not immediately invalidated (takes effect on next login) |
+| Assigned POI | Editable per Local-scoped role; **multi-select** of sites (no cap). Dual-hat users pick **working role** then **working POI** (Working site lists only that role’s assigned POIs; hidden when the role has one site). |
+| Role | Multi-select; adding a role creates a `UserRole` row (does not delete others); removing a role deletes that assignment only (account stays active). Audit logs added / removed / resulting codes. Dual-hat users pick a **working role** (Select Role) without a second login. |
 
 **Restricted updates:**
 - Email cannot be changed (primary identity key)
@@ -367,14 +368,15 @@ Covered in `01-foundation/user-tenant-management.md` (US-008/US-005). Summary:
 
 | Event | Logged Fields |
 |-------|--------------|
-| Invitation sent | Inviter, invitee email, role, timestamp |
+| Invitation sent | Inviter, invitee email, set of role codes, timestamp |
 | Invitation resent | Admin, invitee, timestamp |
 | Invitation cancelled | Admin, invitee, reason, timestamp |
 | Account activated | User, timestamp, IP |
 | Login | User, timestamp, IP, device |
 | Failed login | User, timestamp, IP, attempt count |
 | Password reset | User, admin (if assisted), timestamp |
-| Role changed | User, old role, new role, changed by, timestamp |
+| Role changed | User, added / removed / resulting role codes, changed by, timestamp |
+| Subsequent actions | Working role at event time (not the full assigned set) |
 | Assigned POI changed | User, old POI, new POI, changed by, timestamp |
 | Account suspended | Admin, user, type, reason, remarks, timestamp |
 | Account reactivated | Admin, user, reason, timestamp |
@@ -506,10 +508,11 @@ Super Admin role is hidden from all role dropdowns in the Tenant Admin UI.
 ### 12.2 Assigned POI Required for Local-Scoped Roles
 
 ```
-IF role.access_scope = 'Local':
-  assigned_poi_id is REQUIRED on invitation and user edit
+IF role.access_scope = 'Local' (POI-scoped):
+  at least one assigned POI is REQUIRED on invitation and user edit for that role
+  additional POIs for the same role are allowed (no cap); duplicate (user, poi, role) is rejected
 IF role.access_scope = 'Global':
-  assigned_poi_id is optional (ignored for access control; may be set for display)
+  assigned POI is not required; leftover UserOperationalPOI rows for that role only are cleared
 ```
 
 ### 12.3 Role Change Behaviour
