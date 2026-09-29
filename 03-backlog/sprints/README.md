@@ -8,6 +8,8 @@ everything needed to understand what was planned and what actually shipped.
 > backlog) has been archived to
 > [`_meta/archive/backlog-stories-pre-sprint2/`](../../_meta/archive/backlog-stories-pre-sprint2/README.md).
 > Do not use it as a source of truth — use the sprint folder for the relevant module instead.
+>
+> **Unscheduled Phase 2 stories** live in [`../stories-phase-2/`](../stories-phase-2/README.md), not under a sprint.
 
 ## Sprint Index
 
@@ -29,5 +31,6 @@ tracking and resolution status).
 
 ## Related
 
+- [Phase 2 planning stories (unscheduled)](../stories-phase-2/README.md)
 - [Phase 1 Sprint Plan](../phase-1-sprint-plan.md) — original high-level sprint overview
 - [Backlog Overview](../README.md)

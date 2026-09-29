@@ -79,6 +79,7 @@ See [`improvements/`](./improvements/README.md).
 - AUTH-01 URL shortener / SMS invitation for admin portal (Sprint 8 carry-over — tracked separately)
 - Vendor Mobile password change from profile (separate improvement)
 - TOTP / authenticator app; trusted device cookie
+- Phase 2 planning stories (TUM-06, VP-01, MDM-05, QC-02) — see [`stories-phase-2/`](../../stories-phase-2/README.md)
 
 ---
 
