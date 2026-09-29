@@ -871,9 +871,9 @@ CREATE INDEX idx_pr_document_pr ON pr_documents(pr_id);
 | Module | Interaction |
 |--------|-------------|
 | Distribution (DR-01) | Reads submitted FG PRs queue; creates TRs against FG PRs |
-| Procurement (PC-01) | **Port Shipments** top-level org view — [PC-01 story](../../03-backlog/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md) |
-| Procurement (PC-02) | TR destination breakdown from Port Shipment / Procurement list — [PC-02 story](../../03-backlog/sprints/sprint-3/04-procurement/PC-02-transport-requests.md) |
-| Transport Planning (TRQ-01 / TO-01) | `05-transport` — [Sprint 3 transport epic](../../03-backlog/sprints/sprint-3/README.md) — unified TR queue then TO creation |
+| Procurement (PC-01) | **Port Shipments** top-level org view — [PC-01 story](../../03-backlog/phase-1/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md) |
+| Procurement (PC-02) | TR destination breakdown from Port Shipment / Procurement list — [PC-02 story](../../03-backlog/phase-1/sprints/sprint-3/04-procurement/PC-02-transport-requests.md) |
+| Transport Planning (TRQ-01 / TO-01) | `05-transport` — [Sprint 3 transport epic](../../03-backlog/phase-1/sprints/sprint-3/README.md) — unified TR queue then TO creation |
 
 ### 16.3 Events Emitted (for downstream)
 
@@ -899,9 +899,9 @@ PRStatusChanged {
 
 - **[Product Master Data Management](../02-master-data/product-master-data-management.md)** — Product Item Code lookup, product type (FG/RM), UOM
 - **[POI Management](../02-master-data/poi-management.md)** — Destination POI, capacity snapshot
-- **[Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md)** — Menu structure, role access matrix, end-to-end workflow
-- **[PR-01: FG Product Requisition Story](../../03-backlog/sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md)**
-- **[PR-02: Port Shipment (Import) Registration](../../03-backlog/sprints/sprint-3/02-port-shipments/PR-02-port-shipment.md)**
+- **[Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md)** — Menu structure, role access matrix, end-to-end workflow
+- **[PR-01: FG Product Requisition Story](../../03-backlog/phase-1/sprints/sprint-3/01-requisition/PR-01-fg-product-requisition.md)**
+- **[PR-02: Port Shipment (Import) Registration](../../03-backlog/phase-1/sprints/sprint-3/02-port-shipments/PR-02-port-shipment.md)**
 
 **Related Jira Keys**:
 - DFS-032 — FG Product Requisition

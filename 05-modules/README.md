@@ -102,7 +102,7 @@ frontmatter: (metadata, source references)
 - **01-foundation**: Auth, RBAC, users, system
 - **02-master-data**: POI, products, vehicles, suppliers/dealers
 - **03-users**: Driver, Helper profiles
-- **04-requisitions**: FG PR, Port Shipment (import), Distribution, Procurement (aligned with [Sprint 3 backlog](../03-backlog/sprints/sprint-3/README.md) — `01-requisition` … `04-procurement`)
+- **04-requisitions**: FG PR, Port Shipment (import), Distribution, Procurement (aligned with [Sprint 3 backlog](../03-backlog/phase-1/sprints/sprint-3/README.md) — `01-requisition` … `04-procurement`)
 - **05-transport**: Transport **requests** + **Transport orders** (TRQ-01, TO-01, TO-02) — see same Sprint 3 doc (`05-transport` folder in backlog)
 - **06-poi-operations**: Gate, Scaling, QC, Command Center
 - **07-vendor-management**: Vendor onboarding, bidding, portal
@@ -118,8 +118,8 @@ frontmatter: (metadata, source references)
 ## Related Documentation
 
 - **Source PRD**: [../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md](../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md) — original product requirements
-- **Sprint 3 backlog (Requisition–first)**: [../03-backlog/sprints/sprint-3/README.md](../03-backlog/sprints/sprint-3/README.md) — menu, roles, story paths `01-requisition` … `08-feedback`
-- **User stories (current)**: [../03-backlog/sprints/README.md](../03-backlog/sprints/README.md) — sprint-wise stories, improvements & feedback (the old flat `_meta/archive/backlog-stories-pre-sprint2/` is archived)
+- **Sprint 3 backlog (Requisition–first)**: [../03-backlog/phase-1/sprints/sprint-3/README.md](../03-backlog/phase-1/sprints/sprint-3/README.md) — menu, roles, story paths `01-requisition` … `08-feedback`
+- **User stories (current)**: [../03-backlog/phase-1/sprints/README.md](../03-backlog/phase-1/sprints/README.md) — sprint-wise stories, improvements & feedback (the old flat `_meta/archive/backlog-stories-pre-sprint2/` is archived)
 - **Domain Context**: `../02-domain/` — high-level business context
 - **Technical Architecture**: `../04-architecture/` — system architecture diagrams
 

@@ -1,13 +1,13 @@
 ---
 last_updated: 2026-06-09
-sprint_ref: ../../03-backlog/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md
+sprint_ref: ../../03-backlog/phase-1/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md
 ---
 
 # Vendor Mobile — Tracks: Active Trip Tracking
 
 > **Applies to:** Both Contractual and Non-Contractual vendors. The trip lifecycle does not branch on `assignment_type` — once a TO is in execution, status updates are identical. See [`12-vendor-type-flows.md`](12-vendor-type-flows.md).
 >
-> **Canonical status model:** [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md)
+> **Canonical status model:** [`VENDOR-TRIP-LIFECYCLE.md`](../../../03-backlog/phase-1/sprints/sprint-5/08-vendor-management/VENDOR-TRIP-LIFECYCLE.md)
 
 ## Active trip tracking
 

@@ -10,7 +10,7 @@ related_stories: CC-01 (amendment), LD-01 (minimal hook only; per-line capture i
 feedback_items: FB-001
 supersedes: command-center-loading-sprint4.md §1.2 (BayAssignment OneToOne), §3.5 (one assignment per visit), §8 (duplicate assignment rule)
 baseline_spec: command-center-loading-sprint4.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/README.md
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/README.md
 jira_epic: DFS-072
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-072
 
 ## Overview
 
-This document is the **Sprint 6 implementation plan** for [FB-001](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-001--multiple-loadingunloading-point-assignments-per-to-visit). It amends the baseline [Command Center, Loading/Unloading & QC Operations (Sprint 4)](./command-center-loading-sprint4.md) specification.
+This document is the **Sprint 6 implementation plan** for [FB-001](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-001--multiple-loadingunloading-point-assignments-per-to-visit). It amends the baseline [Command Center, Loading/Unloading & QC Operations (Sprint 4)](./command-center-loading-sprint4.md) specification.
 
 **Problem (Sprint 6 demo):** After scale-in, the Command Center Officer (CCO) could assign a vehicle to **only one** loading or unloading point per yard visit. Operational reality at large sites requires the CCO to assign **as many distinct points as needed** for one TO at the POI.
 
@@ -57,7 +57,7 @@ The **only** LD-touching code changes are **internal hooks** (see §4.2) so that
 | LD start flow | Unchanged | Unchanged | **Unchanged** |
 | LD complete flow | Aggregate bags/weight (legacy) | Per-line formset + `line_items[]` API | Will consume Sprint 6 FB-005 when landed |
 
-Sprint 5 and Sprint 6 both use the label **FB-005** in their respective [feedback-resolution](../../03-backlog/sprints/sprint-5/feedback-resolution.md) trackers — always qualify by sprint.
+Sprint 5 and Sprint 6 both use the label **FB-005** in their respective [feedback-resolution](../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md) trackers — always qualify by sprint.
 
 ### Locked product decisions (2026-06-23)
 
@@ -806,4 +806,4 @@ Ordered by suggested PR sequence (§12). Checked items are **implemented** in `a
 ---
 
 **Last Updated:** 2026-06-24  
-**Related:** [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution/README.md)
+**Related:** [command-center-loading-sprint4.md](./command-center-loading-sprint4.md), [feedback-resolution.md](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/README.md)

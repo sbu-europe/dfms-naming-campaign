@@ -649,6 +649,6 @@ Field `verbose_name` values set for acronyms: `"TR number"`, `"TR type"`, `"sour
 
 ## 18. Related documentation (Sprint 3 backlog)
 
-- **[Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md)** — Full menu, role access, end-to-end flow
-- **[PC-01 — Port Shipments org-wide list & detail](../../03-backlog/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md)** (lives under `04-procurement/` in sprint-3; story PC-01)
-- **[PC-02 — Procurement transport request creation](../../03-backlog/sprints/sprint-3/04-procurement/PC-02-transport-requests.md)**
+- **[Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md)** — Full menu, role access, end-to-end flow
+- **[PC-01 — Port Shipments org-wide list & detail](../../03-backlog/phase-1/sprints/sprint-3/04-procurement/PC-01-rm-product-requisitions.md)** (lives under `04-procurement/` in sprint-3; story PC-01)
+- **[PC-02 — Procurement transport request creation](../../03-backlog/phase-1/sprints/sprint-3/04-procurement/PC-02-transport-requests.md)**

@@ -18,8 +18,8 @@ Points of Interest (POIs) are fundamental entities in the DFMS platform, represe
 This specification defines the POI data model, lifecycle management, geofencing capabilities, capacity tracking mechanisms, and integration with operational modules.
 
 > **Runtime geofence / Live GPS / dwell (product SSOT):**  
-> [`../09-tracking/README.md`](../09-tracking/README.md) · [`GPS-02`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) · [`GPS-03`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)  
-> This master-data doc owns the **POI radius field and admin UX**; product AC for radius is [GPS-02](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md); tracking owns **evaluation, events, and map**.
+> [`../09-tracking/README.md`](../09-tracking/README.md) · [`GPS-02`](../../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md) · [`GPS-03`](../../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md)  
+> This master-data doc owns the **POI radius field and admin UX**; product AC for radius is [GPS-02](../../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-02-poi-geofence-boundary-management.md); tracking owns **evaluation, events, and map**.
 
 ---
 
@@ -54,7 +54,7 @@ Sections **2–3** below remain the **intended** geofencing and capacity design;
 | Cancel | Close, backdrop click, or Escape — no form field changes |
 | Source of truth | **Latitude/longitude** for geofencing; address text is helper data |
 | Assets | `templates/admin/master_data/poi/change_form.html`, `static/admin/js/poi_map_picker.js`, `static/admin/css/poi_map_picker.css` |
-| Admin wiring | `change_form_template` + `class Media` only — **must not** alter `list_display`, fieldsets, or inlines (see [MDM-04 AC-1a](../../../03-backlog/sprints/sprint-2/01-master-data-management/MDM-04-poi-management.md)) |
+| Admin wiring | `change_form_template` + `class Media` only — **must not** alter `list_display`, fieldsets, or inlines (see [MDM-04 AC-1a](../../../03-backlog/phase-1/sprints/sprint-2/01-master-data-management/MDM-04-poi-management.md)) |
 
 ---
 

@@ -4,7 +4,7 @@ specification: FB-001 — Bulk export must round-trip with import; no missing fi
 version: 1.2
 phase: Phase 1
 related_stories: FB-001
-source_spec: ../../../../03-backlog/sprints/sprint-9/feedback-resolution.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-9/feedback-resolution.md
 implementation_reference:
   - ../../../../../apps/master_data/import_configs.py (BaseImportConfig.get_export_row, _prepare_instance_for_clean, ProductImportConfig, VehicleImportConfig, IMPORT_REGISTRY)
   - ../../../../../apps/master_data/admin.py (BulkImportExportMixin)
@@ -24,7 +24,7 @@ artifacts: tests/e2e/playwright-mcp/fb-001-bulk-export-round-trip-artifacts/
 
 # Sprint 9 — FB-001 — Bulk export round-trip with import — E2E Scenario Plan (Django Admin SSR)
 
-**Feedback:** [FB-001](../../../../03-backlog/sprints/sprint-9/feedback-resolution.md#fb-001--bulk-export-must-round-trip-with-import--no-missing-fields)
+**Feedback:** [FB-001](../../../../03-backlog/phase-1/sprints/sprint-9/feedback-resolution.md#fb-001--bulk-export-must-round-trip-with-import--no-missing-fields)
 
 **AC (assert after fix):**
 

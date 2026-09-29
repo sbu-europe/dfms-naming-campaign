@@ -4,7 +4,7 @@ specification: FB-003 — Bay Assignment add TO details — product line-item br
 version: 1.0
 phase: Phase 1
 related_stories: FB-003
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 last_updated: 2026-07-30
 last_mcp_run: 2026-07-30
 last_mcp_verdict: 7/7 Pass
@@ -14,7 +14,7 @@ playwright_mcp: true
 
 # Sprint 7 — FB-003 — Bay Assignment add: TO details (product lines & allocated qty unit) — E2E Scenario Plan (Django Admin SSR)
 
-**Feedback:** [FB-003](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit)
+**Feedback:** [FB-003](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-003--bay-assignment-add--to-details-missing-product-line-item-breakdown--allocated-qty-unit)
 
 > **2026-07-30 — All 7 test cases passed** (TC01–TC04, TC06–TC08). Suite signed off via Playwright MCP against Nourish admin.
 

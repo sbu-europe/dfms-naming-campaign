@@ -1054,13 +1054,13 @@ POST   /api/v1/qc/decisions/{id}/override-fail
 | FB-005-5 | REST: `POST/GET assignments`, `GET my-bay`, `GET waiting-serials` per §7.1 | **Pending** (CC-01-5–8) |
 | FB-005-6 / LD-01-6 | LD admin: LUP dropdown + serial queue table (click row → `bay_assignment`) | **Done** (§11.9) |
 
-Source: [feedback-resolution.md](../../03-backlog/sprints/sprint-5/feedback-resolution.md) § FB-005.
+Source: [feedback-resolution.md](../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md) § FB-005.
 
 ---
 
 ## 11. FB-005 — Implementation plan (Sprint 5)
 
-**Feedback**: [FB-005](../../03-backlog/sprints/sprint-5/feedback-resolution.md) — multiple vehicles per L/U point; daily waiting-serial reset.
+**Feedback**: [FB-005](../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md) — multiple vehicles per L/U point; daily waiting-serial reset.
 
 **Locked product decisions**
 
@@ -1154,7 +1154,7 @@ Serial issuance is **not** a separate POST in target design (satisfied by assign
 5. Unit tests (CC serial concurrency + traffic panel views)  
 6. REST endpoints + URL wiring (`GET …/assignments`, `GET …/my-bay` — my-bay mirrors LD step-2 queryset)  
 7. Surface `stock_warning` in BayAssignment admin success message (STK-01-6)  
-8. Update [feedback-resolution.md](../../03-backlog/sprints/sprint-5/feedback-resolution.md) FB-005 status when closed  
+8. Update [feedback-resolution.md](../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md) FB-005 status when closed  
 
 ### 11.8 Supersedes Sprint 4 limitation
 
@@ -1255,9 +1255,9 @@ Return `{"id", "label", "active_count"}`; label suffix `(N vehicles)` when `acti
 
 ## 12. Sprint 6 FB-005 — Per-line load/unload quantity capture (LD-01-9)
 
-**Feedback**: [Sprint 6 FB-005](../../03-backlog/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) — operators capture quantities **per `TOLineItem`**, not one aggregate per event.
+**Feedback**: [Sprint 6 FB-005](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/04-yard-and-stock.md#fb-005--loadingunloading-quantity-capture-per-to-product-line-item) — operators capture quantities **per `TOLineItem`**, not one aggregate per event.
 
-> **Naming**: Sprint 5 [FB-005](../../03-backlog/sprints/sprint-5/feedback-resolution.md#fb-005--waiting-serial-must-support-multiple-vehicles-per-lu-point--daily-reset-at-1200-am) = multiple vehicles per L/U point (§11). Sprint 6 FB-005 = per-line quantity capture (this section). Same label, different sprint trackers.
+> **Naming**: Sprint 5 [FB-005](../../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md#fb-005--waiting-serial-must-support-multiple-vehicles-per-lu-point--daily-reset-at-1200-am) = multiple vehicles per L/U point (§11). Sprint 6 FB-005 = per-line quantity capture (this section). Same label, different sprint trackers.
 
 **Codebase status (2026-07-02)**: `LoadEvent` / `UnloadEvent` store aggregate `bags_*` / `weight_*_mt` only. Admin `to_details_panel` shows TO lines read-only; capture fields are still aggregate. LD-01-9 marked Done in backlog story files but **not implemented** — this section is the authoritative plan.
 
@@ -1389,7 +1389,7 @@ E2E coverage remains LD-01-10 (out of scope for this spec slice).
 - REST/mobile LD two-step start UX (admin-only complete formset in this slice).
 - LD-01-10 Playwright E2E scenarios.
 
-Source: [Sprint 6 feedback-resolution.md](../../03-backlog/sprints/sprint-6/feedback-resolution/README.md) § FB-005; closes LD-01-9 (amend), enables LD-01-10.
+Source: [Sprint 6 feedback-resolution.md](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/README.md) § FB-005; closes LD-01-9 (amend), enables LD-01-10.
 
 ---
 

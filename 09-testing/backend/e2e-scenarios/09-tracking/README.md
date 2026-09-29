@@ -11,7 +11,7 @@ Playwright MCP scenario plans for the **Live GPS / GT06 tracking** admin surface
 
 **Credentials:** `docs/testing/playwright-mcp-credentials.yaml`  
 **Generic MCP guide:** `docs/guides/playwright-mcp-admin.md`  
-**Product context:** [`GPS-01 Live GPS`](../../../../03-backlog/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)
+**Product context:** [`GPS-01 Live GPS`](../../../../03-backlog/phase-1/sprints/sprint-5/12-gps-maps-dashboard/GPS-01-maps-dashboard-gps-tracking.md)
 
 ## Plans
 

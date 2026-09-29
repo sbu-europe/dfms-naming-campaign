@@ -7,7 +7,7 @@ last_updated: 2026-08-21
 
 # Sprint 9 — E2E scenarios
 
-Playwright MCP scenario plans for Sprint 9 backlog items (`03-backlog/sprints/sprint-9/`).
+Playwright MCP scenario plans for Sprint 9 backlog items (`03-backlog/phase-1/sprints/sprint-9/`).
 
 ### Improvements
 

@@ -58,7 +58,7 @@ GT06 device ──TCP :5023──► gt06-ingest ──► Redis (latest + histo
 
 **Identity:** `Vehicle.gps_tracker_id` = device IMEI.
 
-**Geofencing:** Evaluated in Django (`GeofenceService`) against TO origin/destination POIs — see [`GPS-03`](../../03-backlog/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md).
+**Geofencing:** Evaluated in Django (`GeofenceService`) against TO origin/destination POIs — see [`GPS-03`](../../03-backlog/phase-1/sprints/sprint-6/02-gps-maps-dashboard/GPS-03-vehicle-arrival-departure.md).
 
 **Historical GPSWOX-oriented sketch (deferred):**
 ```typescript

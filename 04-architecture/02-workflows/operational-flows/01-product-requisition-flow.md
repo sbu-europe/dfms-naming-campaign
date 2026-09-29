@@ -374,7 +374,7 @@ ProductRequisitionRejected(
 
 ### Business Context
 - [Business Process](../../../02-domain/04-business-processes/business-processes-overview.md)
-- [User Story: US-009](../../../03-backlog/sprints/README.md)
+- [User Story: US-009](../../../03-backlog/phase-1/sprints/README.md)
 - [User Story: US-011 (archived pre-Sprint-2 backlog)](../../../_meta/archive/backlog-stories-pre-sprint2/US-011-distribution-approval.md)
 
 ### Other Workflows

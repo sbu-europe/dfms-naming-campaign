@@ -4,7 +4,7 @@ specification: FB-015 — TO Creation Allocating TO Load live sum in MT (kg) —
 version: 1.0
 phase: Phase 1
 related_stories: FB-015, TO-01, FB-012
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md
 implementation_reference:
   - ../../../../../templates/admin/transport/transportorder/create_from_tr.html (Allocate Quantities per Product; Allocating TO Load)
   - ../../../../../apps/transport/admin.py (TransportOrderAdmin.create_from_tr_view)
@@ -22,7 +22,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **7/7 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-015-to-creation-allocating-to-load-artifacts/RESULTS.md)  
 **Accounts:** `transport.planner1` (`.nourish@yopmail.com`) · **RUN_ID:** `0A20F897`
 
-**Improvement:** [FB-015](../../../../03-backlog/sprints/sprint-8/improvements/05-transport-planner.md#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg)
+**Improvement:** [FB-015](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/05-transport-planner.md#fb-015--to-creation--allocating-to-load-live-sum-in-mt-kg)
 
 **Sibling:** [FB-012 Remaining Quantity](./fb-012-to-creation-remaining-quantity-e2e-scenarios.md) (same create-from-tr page).
 

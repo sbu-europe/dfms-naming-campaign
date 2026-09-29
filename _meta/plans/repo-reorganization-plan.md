@@ -330,7 +330,7 @@ Files to update:
 - `02-REPOSITORY_PURPOSE.md`
 - `02-domain/**/*.md` (3 files)
 - `05-modules/**/*.md` (multiple — specs reference arch decisions)
-- `03-backlog/sprints/sprint-3/07-devops/DEVOPS-01-aws-dev-environment.md`
+- `03-backlog/phase-1/sprints/sprint-3/07-devops/DEVOPS-01-aws-dev-environment.md`
 - `04-architecture/**/*.md` → after rename, all internal README and cross-refs (35 files)
 - `06-contracts/**/*.md` (2 files)
 - `08-development-guides/**/*.md` (multiple — dev guides reference arch)

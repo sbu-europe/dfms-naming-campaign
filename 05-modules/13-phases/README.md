@@ -26,7 +26,7 @@ Phase-wise feature rollout plan and roadmap
 ## Related User Stories
 
 **Primary Stories**: Phase-wise organization  
-**Location**: `../../03-backlog/sprints/README.md`
+**Location**: `../../03-backlog/phase-1/sprints/README.md`
 
 For detailed story information, see individual specification files above.
 
@@ -47,7 +47,7 @@ Check individual specification files for detailed cross-module references.
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Original PRD document
-- **[User Stories](../../03-backlog/sprints/README.md)** - Implementation stories
+- **[User Stories](../../03-backlog/phase-1/sprints/README.md)** - Implementation stories
 
 ---
 

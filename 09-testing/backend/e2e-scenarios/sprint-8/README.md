@@ -7,7 +7,7 @@ last_updated: 2026-08-11
 
 # Sprint 8 — E2E scenarios
 
-Playwright MCP scenario plans for Sprint 8 improvements carried from Sprint 7 (`03-backlog/sprints/sprint-8/improvements/`).
+Playwright MCP scenario plans for Sprint 8 improvements carried from Sprint 7 (`03-backlog/phase-1/sprints/sprint-8/improvements/`).
 
 ### Improvements (carried from Sprint 7)
 

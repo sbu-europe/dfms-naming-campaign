@@ -12,6 +12,7 @@ related_stories: DFS-040 (TO-02), MDM-05 (Vehicle master data), FB-006/FB-008 (p
 amends: transport-order-management-v2.md
 new_permission: MENU_VEHICLE_PLANNING_VIEW (proposed)
 django_apps: [apps/transport, apps/master_data, apps/core, apps/users]
+note: Fuel/health/parts visibility is NOT on this surface — see Reports → Vehicle Report (Sprint 10 VR-01–03)
 ---
 
 # Vehicle Planning View — Django Admin Implementation Plan
@@ -270,4 +271,4 @@ No new models, no migrations (permission seeding aside), no changes to lifecycle
 
 ---
 
-**Last Updated**: 2026-07-07
+**Last Updated**: 2026-09-01

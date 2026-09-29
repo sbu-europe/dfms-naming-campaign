@@ -5,7 +5,7 @@ specification: Password & Account Reset (US-008) - Playwright E2E Plan
 version: 1.0
 phase: Phase 1
 related_stories: US-008
-source_spec: ../../../../03-backlog/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-2/02-tenant-user-management/US-008-password-account-reset.md
 implementation_reference:
   - ../../../apps/users/password_reset_service.py
   - ../../../apps/core/views.py (US-008 API endpoints)

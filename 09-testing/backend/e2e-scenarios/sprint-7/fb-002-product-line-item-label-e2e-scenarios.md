@@ -4,7 +4,7 @@ specification: FB-002 — Product line item label includes subcategory when pres
 version: 1.0
 phase: Phase 1
 related_stories: FB-002
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 last_updated: 2026-07-30
 last_mcp_run: 2026-07-30
 last_mcp_verdict: 7/7 Pass
@@ -19,7 +19,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-07-30 · **7/7 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-002-product-line-item-label-artifacts/RESULTS.md)  
 **Accounts:** `depot.officer1`, `commercial.officer1`, `gateman1` (`.nourish@yopmail.com`)
 
-**Feedback:** [FB-002](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-002--product-line-item-label-should-include-subcategory-when-present)  
+**Feedback:** [FB-002](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-002--product-line-item-label-should-include-subcategory-when-present)  
 **Implemented helper:** `apps.master_data.display.product_line_item_label`
 
 **Label format (assert exactly; em dash `—`):**

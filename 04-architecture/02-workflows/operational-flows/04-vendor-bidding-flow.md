@@ -558,7 +558,7 @@ VendorAssigned(
 
 ### Business Context
 - [User Story: US-024](../../../_meta/archive/backlog-stories-pre-sprint2/US-024-vendor-bidding-portal.md)
-- [User Story: US-063](../../../03-backlog/sprints/README.md)
+- [User Story: US-063](../../../03-backlog/phase-1/sprints/README.md)
 
 ### Other Workflows
 - [Transport Order Creation Flow](./02-transport-order-creation-flow.md) - Previous step

@@ -697,7 +697,7 @@ Menu.MasterData.OperationPoints.View
 
 ## Sprint 5 — FB-004 TO state sequence (cross-story alignment)
 
-**Feedback:** [FB-004](../03-backlog/sprints/sprint-5/feedback-resolution.md)
+**Feedback:** [FB-004](../03-backlog/phase-1/sprints/sprint-5/feedback-resolution.md)
 
 | Step | Actor | Canonical status | Owner module spec |
 |------|-------|------------------|-------------------|
@@ -948,7 +948,7 @@ Menu.MasterData.OperationPoints.View
 
 ### Sprint 4 Backlog
 
-- [Sprint 4 README](../03-backlog/sprints/sprint-4/README.md) — Full backlog, stories, PRD traceability
+- [Sprint 4 README](../03-backlog/phase-1/sprints/sprint-4/README.md) — Full backlog, stories, PRD traceability
 - [Sprint 4 Plan](../README.md) — High-level implementation plan
 
 ### Sprint 3 Dependencies (Foundation)

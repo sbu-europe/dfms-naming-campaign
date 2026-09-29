@@ -432,7 +432,7 @@ Weight MT/KG, bag lines, unknown, mixed UOM — same matrix as v1.1 plan.
 | POI stock panel pattern | `templates/admin/requisitions/includes/poi_stock_panel.html` |
 | Badge system | `static/admin/css/custom.css` (`.dfms-badge--*`) |
 | TO status badges | `apps/transport/admin.py` `_to_badge` |
-| TO-02 story | `03-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md` |
+| TO-02 story | `03-backlog/phase-1/sprints/sprint-3/05-transport/03-tdo-assignment.md` |
 
 ---
 

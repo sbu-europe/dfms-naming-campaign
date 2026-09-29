@@ -32,7 +32,7 @@
   > `feature-dependencies.md` has not been authored yet.
 
 ### `05-modules/03-users/tenant-user-management.md`
-- [E] `../../../03-backlog/sprints/sprint-2/02-tenant-user-management/README.md`
+- [E] `../../../03-backlog/phase-1/sprints/sprint-2/02-tenant-user-management/README.md`
 
   > README.md now created — this link should resolve. ✓
 

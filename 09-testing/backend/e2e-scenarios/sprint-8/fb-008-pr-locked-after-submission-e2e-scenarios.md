@@ -4,7 +4,7 @@ specification: FB-008 — PR locked from edit by Depot / Feed Mill / Commercial 
 version: 1.0
 phase: Phase 1
 related_stories: FB-008, PR-01, PR-02
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/03-product-requisition.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/03-product-requisition.md
 implementation_reference:
   - ../../../../../apps/requisitions/admin.py (_PRBaseAdmin.get_readonly_fields, PRLineItemInline, ProductRequisitionAdmin, PortShipmentAdmin)
   - ../../../../../templates/admin/requisitions/productrequisition/change_form.html
@@ -24,7 +24,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-07 · **8/8 Pass** (TC09 Skip) · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-008-pr-locked-after-submission-artifacts/RESULTS.md)  
 **Accounts:** `depot.officer1` · `feed.mill.officer1` · `commercial.officer1` (`.nourish@yopmail.com`) · **RUN_ID:** `B69F080E`
 
-**Improvement:** [FB-008](../../../../03-backlog/sprints/sprint-8/improvements/03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission)
+**Improvement:** [FB-008](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/03-product-requisition.md#fb-008--pr-locked-from-edit-by-depot--feed-mill--commercial-officers-after-submission)
 
 **AC (assert after fix):**
 

@@ -4,7 +4,7 @@ specification: FB-004 — Driver bulk upload optional accident history & last tr
 version: 1.0
 phase: Phase 1
 related_stories: FB-004
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md
 implementation_reference:
   - ../../../../../apps/users/import_configs.py (DriverImportConfig)
   - ../../../../../apps/users/admin.py (DriverAdmin, BulkImportExportMixin)
@@ -24,7 +24,7 @@ playwright_mcp: true
 
 > **2026-08-03 — All 6 test cases passed** (TC01–TC06). Suite signed off via Playwright MCP against Nourish admin (`admin.nourish@yopmail.com`, RUN_ID `A7F3E201`). Artifacts: [`RESULTS.md`](../../../../../tests/e2e/playwright-mcp/fb-012-driver-bulk-import-export-accident-history-training-assessment-artifacts/RESULTS.md).
 
-**Improvement:** [FB-004](../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md#fb-004--driver-bulk-upload--optional-accident-history--last-training-assessment-info)
+**Improvement:** [FB-004](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md#fb-004--driver-bulk-upload--optional-accident-history--last-training-assessment-info)
 
 **AC (assert after fix):**
 

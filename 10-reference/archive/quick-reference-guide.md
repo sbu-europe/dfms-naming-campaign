@@ -33,7 +33,7 @@ updated: 2026-02-11
 ### For QA
 1. **[Functional Requirements](../../02-domain/02-requirements/03-functional-requirements/functional-requirements-summary.md)** - 91 user stories
 2. **[Non-Functional Requirements](../../02-domain/02-requirements/04-non-functional-requirements/non-functional-requirements.md)** - Performance, security, etc.
-3. **[User Stories](../../03-backlog/sprints/README.md)** - Detailed acceptance criteria
+3. **[User Stories](../../03-backlog/phase-1/sprints/README.md)** - Detailed acceptance criteria
 
 ---
 

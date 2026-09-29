@@ -4,7 +4,7 @@ specification: FB-004 — Product Requisition list search includes destination P
 version: 1.0
 phase: Phase 1
 related_stories: FB-004
-source_spec: ../../../../03-backlog/sprints/sprint-7/feedback.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md
 last_updated: 2026-07-30
 last_mcp_run: 2026-07-30
 last_mcp_verdict: 6/6 Pass
@@ -19,7 +19,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-07-30 · **6/6 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-004-product-requisition-search-destination-poi-artifacts/RESULTS.md)  
 **Accounts:** `distribution.officer1`, `depot.officer1` (`.nourish@yopmail.com`)
 
-**Feedback:** [FB-004](../../../../03-backlog/sprints/sprint-7/feedback.md#fb-004--product-requisition-list--search-should-include-destination-poi)
+**Feedback:** [FB-004](../../../../03-backlog/phase-1/sprints/sprint-7/feedback.md#fb-004--product-requisition-list--search-should-include-destination-poi)
 
 **AC (assert after fix):**
 

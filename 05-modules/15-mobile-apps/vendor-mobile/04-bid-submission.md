@@ -88,7 +88,7 @@ interface VendorBidSubmission {
 ### Backlog refs
 
 - VM-05 (bid submission), VM-04 (publish parameters), VM-06 (evaluation).
-- Feature context: [TEVF-02](../../../03-backlog/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md).
+- Feature context: [TEVF-02](../../../03-backlog/phase-1/sprints/sprint-4/09-to-execution-vendor-fleet/TEVF-02-non-contractual-bidding.md).
 
 ## Code map
 

@@ -511,6 +511,6 @@ GET   /api/v1/transport-orders/{to_id}
 
 ### Related documentation (Sprint 3)
 
-- **[Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md)**
-- **[TO-02 — TDO assignment](../../03-backlog/sprints/sprint-3/05-transport/03-tdo-assignment.md)**
-- **[TO-01 — Transport order creation](../../03-backlog/sprints/sprint-3/05-transport/02-transport-orders.md)**
+- **[Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md)**
+- **[TO-02 — TDO assignment](../../03-backlog/phase-1/sprints/sprint-3/05-transport/03-tdo-assignment.md)**
+- **[TO-01 — Transport order creation](../../03-backlog/phase-1/sprints/sprint-3/05-transport/02-transport-orders.md)**

@@ -1050,9 +1050,9 @@ TRAvailableForPlanning {
 
 - **[Product Requisition Management](product-requisition-management.md)** — FG PR data model, status lifecycle, PR-01 story
 - **[POI Management](../02-master-data/poi-management.md)** — POI capacity snapshot data source
-- **[Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md)** — Full role access matrix and end-to-end workflow
-- **[DR-01: Distribution FG PR Queue Story](../../03-backlog/sprints/sprint-3/03-distribution/DR-01-fg-product-requisitions.md)**
-- **[DR-02: Distribution TR Creation & Approval Story](../../03-backlog/sprints/sprint-3/03-distribution/DR-02-transport-requests.md)**
+- **[Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md)** — Full role access matrix and end-to-end workflow
+- **[DR-01: Distribution FG PR Queue Story](../../03-backlog/phase-1/sprints/sprint-3/03-distribution/DR-01-fg-product-requisitions.md)**
+- **[DR-02: Distribution TR Creation & Approval Story](../../03-backlog/phase-1/sprints/sprint-3/03-distribution/DR-02-transport-requests.md)**
 - **[Permission Catalog Phase 1](../01-foundation/permission-catalog-phase1.md)** — Distribution Officer / Distribution Manager permissions
 
 **Related Jira Keys**:

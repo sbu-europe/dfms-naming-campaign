@@ -239,30 +239,44 @@ interface DeliveryPhoto {
 
 ---
 
-### 5. Fuel Logging (Phase 2)
+### 5. Fuel Logging (Phase 2 — Sprint 10, FM-02)
 
-**Purpose:** Enable drivers to record refueling events for fuel consumption tracking and cost analysis.
+**Purpose:** Enable drivers to log refueling with minimal context entry — vehicle, time, location, and fuel type are captured automatically.
+
+**Spec:** [`fuel-management.md`](../08-fleet-management/fuel-management.md)  
+**Prototype:** `example-prototypes/fleet-operations.html` (Log Fuel Entry — driver view)
 
 #### Fuel Entry Workflow
 
 ```
 1. Driver refuels vehicle at gas station
 2. Driver opens app → "Log Fuel Entry"
-3. App displays form:
-   - Vehicle (auto-selected from current assignment)
-   - Fuel quantity (liters) - manual input
-   - Fuel cost (amount) - manual input
-   - Current odometer reading (km) - manual input
-   - Photo of receipt
-   - Photo of odometer reading
-4. Driver completes form
-5. App uploads entry (queued if offline)
-6. Confirmation: "Fuel entry logged!"
+3. AUTO-CAPTURED (read-only on form):
+   - Vehicle — from current assignment (not editable)
+   - Fuel type — from vehicle master fuel_type (not editable)
+   - Refueling datetime — set at submit (device/server timestamp)
+   - Location — device GPS (latitude/longitude) at submit
+4. DRIVER ENTERS:
+   - Fuel amount BEFORE intake (L) + gauge photo *
+   - Fuel amount AFTER intake (L) + gauge photo *
+   - Fuel filled (auto: After − Before)
+   - Fuel cost (BDT) *
+   - Current odometer reading (km) *
+   - Receipt photo, odometer photo (supporting)
+   - Notes (optional)
+5. Live preview: distance, km/L, ৳/km where calculable
+6. App uploads entry (queued if offline; timestamp + GPS preserved at queue time)
+7. Confirmation: "Fuel entry logged!" (+ anomaly notice if flagged)
 ```
 
 **Validation:**
-- Odometer reading must be > previous reading (no backdating)
-- Fuel quantity > 0, cost > 0
+- After intake must be > before intake
+- Odometer reading must be > previous reading
+- Gauge before/after photos required
+- Assigned own-fleet vehicle only
+- Location permission required (no manual location fallback for drivers in Sprint 10)
+
+**Contrast — Driver Supervisor (admin):** selects vehicle, manually enters refueling date and pump location, may update vehicle odometer before entry. See FM-01.
 
 ---
 

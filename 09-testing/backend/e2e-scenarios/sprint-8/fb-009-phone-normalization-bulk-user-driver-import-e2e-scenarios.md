@@ -4,7 +4,7 @@ specification: FB-001 — Phone number normalization on bulk user upload & drive
 version: 1.0
 phase: Phase 1
 related_stories: FB-001
-source_spec: ../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md
+source_spec: ../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md
 implementation_reference:
   - ../../../../../apps/core/phone.py (normalize_bd_mobile, coerce_bd_mobile, validate_bd_mobile_import)
   - ../../../../../apps/users/import_configs.py (UserImportConfig.phone_number, DriverImportConfig.contact_number)
@@ -26,7 +26,7 @@ playwright_mcp: true
 **Last MCP run:** 2026-08-03 · **8/8 Pass** · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fb-009-phone-normalization-bulk-user-driver-import-artifacts/RESULTS.md)  
 **Accounts:** `admin.nourish@yopmail.com` · **RUN_ID:** `EE845722`
 
-**Improvement:** [FB-001](../../../../03-backlog/sprints/sprint-8/improvements/01-users-and-access.md#fb-001--phone-number-normalization-on-bulk-user-upload--driver-import)
+**Improvement:** [FB-001](../../../../03-backlog/phase-1/sprints/sprint-8/improvements/01-users-and-access.md#fb-001--phone-number-normalization-on-bulk-user-upload--driver-import)
 
 **AC (assert after fix / against `normalize_bd_mobile`):**
 

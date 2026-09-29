@@ -21,16 +21,22 @@ Fleet, vehicle, driver, and helper lifecycle management
 |------|-------------|-------------|-----------------|-------|
 | [vehicle-management.md](vehicle-management.md) | Fleet asset registry with comprehensive vehicle master data, vehicle type diversity (10+ types), identification tracking (registration/chassis/VIN), specifications (capacity/body/fuel types), ownership differentiation (Own/Vendor), compliance document tracking with expiry alerts, operational status management, mileage tracking, assignment rules (POI/driver/garage), trip assignment validation, utilization tracking | 6.6 | US-082, US-083, US-084, US-085, US-086 | 655 |
 | [helper-management.md](helper-management.md) | Helper registry with national ID and reference contacts, helper-driver-trip assignment management, availability tracking to prevent double-booking, many-to-one mapping (multiple helpers per driver), assignment history for accountability, status management (Available/On Trip/On Leave) | 6.6 | US-093, US-094 | 204 |
-| [fuel-management.md](fuel-management.md) | Fuel tracking for own fleet (Phase 2), refueling event logging by drivers/supervisors, photo documentation (receipt/odometer), mileage-based fuel consumption calculation (km/liter), fuel efficiency monitoring with anomaly detection, cost per km analysis, baseline comparison and variance alerts | 6.10 | US-095, US-096, US-097 | 205 |
+| [fuel-management.md](fuel-management.md) | Fuel tracking (Phase 2, Sprint 10) — gauge before/after intake, Driver + Driver Supervisor entry, consumption calc, anomaly detection | Prototype | FM-01 – FM-05 | ~200 |
+| [fleet-health-inspection.md](fleet-health-inspection.md) | Scheduled inspection checklists per vehicle type, rounds, due/overdue alerts (Sprint 10) | Sprint 10 | FHI-01 – FHI-04 | ~200 |
+| [vehicle-report.md](../11-reporting/vehicle-report.md) | Vehicle Report under Reports menu — fuel, inspection, compliance | Sprint 10 | VR-01 – VR-03, FHI-04 | ~180 |
 
-**Total Documentation**: ~1,500 lines of comprehensive technical specifications
+**Prototype:** [`fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — single unified Fleet Operations view (fuel, inspection, fleet overview; RBAC documented in sprint README).
+
+> **Deferred:** Garage inventory / workshop jobs — not in current phase.
+
+**Total Documentation**: ~1,600 lines of comprehensive technical specifications
 
 ---
 
 ## Related User Stories
 
 **Primary Stories**: 53, 057-062  
-**Location**: `../../03-backlog/sprints/README.md`
+**Location**: `../../03-backlog/phase-1/sprints/README.md`
 
 For detailed story information, see individual specification files above.
 
@@ -51,9 +57,9 @@ Check individual specification files for detailed cross-module references.
 - **[Module Index](../README.md)** - Back to module specifications index
 - **[Complete Index](../INDEX.md)** - Full content index
 - **[Source PRD](../../01-source/01-prd/DFMS_Product_Requirements_Document_v3.md)** - Original PRD document
-- **[User Stories](../../03-backlog/sprints/README.md)** - Implementation stories
+- **[User Stories](../../03-backlog/phase-1/sprints/README.md)** - Implementation stories
 
 ---
 
-**Last Updated**: 2026-02-26  
-**Status**: Complete
+**Last Updated**: 2026-09-01  
+**Status**: Complete (fuel + inspection specs Sprint 10; vehicle-report under 11-reporting; inventory deferred)

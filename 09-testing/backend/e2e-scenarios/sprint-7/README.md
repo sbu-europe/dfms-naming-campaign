@@ -7,7 +7,7 @@ last_updated: 2026-08-04
 
 # Sprint 7 — E2E scenarios
 
-Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/sprints/sprint-7/feedback.md`) and new-scope stories.
+Playwright MCP scenario plans for Sprint 7 feedback items (`03-backlog/phase-1/sprints/sprint-7/feedback.md`) and new-scope stories.
 
 FB-009–FB-015 plans moved to [`../sprint-8/`](../sprint-8/README.md) with the Sprint 8 feedback tracker.
 

@@ -378,5 +378,5 @@ GET  /api/v1/transport-requests/{tr_id}/transport-orders
 
 ### Related documentation (Sprint 3)
 
-- **[Sprint 3 README](../../03-backlog/sprints/sprint-3/README.md)** — Menu, roles, end-to-end flow; **Transport** = **Transport requests** + **Transport orders**
-- **[TRQ-01 — Transport requests queue (FG & Port Consignment)](../../03-backlog/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**
+- **[Sprint 3 README](../../03-backlog/phase-1/sprints/sprint-3/README.md)** — Menu, roles, end-to-end flow; **Transport** = **Transport requests** + **Transport orders**
+- **[TRQ-01 — Transport requests queue (FG & Port Consignment)](../../03-backlog/phase-1/sprints/sprint-3/05-transport/01-transport-requests-queue.md)**

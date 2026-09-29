@@ -8,7 +8,7 @@ last_updated: 2026-08-13
 related_stories: US-005, US-057
 feedback_items: FB-002
 baseline_spec: tenant-user-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-8/feedback-resolution.md
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-8/feedback-resolution.md
 implementation_reference:
   - nourish-backend/apps/users/models.py
   - nourish-backend/apps/users/admin.py
@@ -20,7 +20,7 @@ implementation_reference:
 
 # User & Driver — last_name optional (FB-002)
 
-Sprint 8 implementation plan for [FB-002](../../03-backlog/sprints/sprint-8/feedback-resolution.md#fb-002--user--driver--last_name-optional). Amends [tenant-user-management.md](./tenant-user-management.md) (invite / user edit) and driver add / bulk I/O in `apps/users/`.
+Sprint 8 implementation plan for [FB-002](../../03-backlog/phase-1/sprints/sprint-8/feedback-resolution.md#fb-002--user--driver--last_name-optional). Amends [tenant-user-management.md](./tenant-user-management.md) (invite / user edit) and driver add / bulk I/O in `apps/users/`.
 
 **Problem:** Ops cannot save a User or Driver with only a first name (example: **Karim**, last name empty). The client wants first name to be enough.
 

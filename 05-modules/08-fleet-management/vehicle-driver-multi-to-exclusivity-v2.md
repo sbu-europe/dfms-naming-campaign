@@ -10,7 +10,7 @@ related_stories: TO-02 (trip-management — vehicle/driver/helper conflict check
 feedback_items: FB-011
 supersedes: ../05-transport/trip-management.md §4.1 (vehicle assignment availability checks), §4.2 (driver assignment availability checks), §4.3 (helper assignment availability checks)
 baseline_spec: ../05-transport/trip-management.md, vehicle-management.md, driver-management.md
-feedback_tracker: ../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness
+feedback_tracker: ../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness
 jira_epic: DFS-040
 ---
 
@@ -18,7 +18,7 @@ jira_epic: DFS-040
 
 ## Overview
 
-This document is the **Sprint 6 backend implementation plan** for [FB-011](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness). It amends the baseline [Trip Management](../05-transport/trip-management.md) assignment rules (§4.1–4.3).
+This document is the **Sprint 6 backend implementation plan** for [FB-011](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness). It amends the baseline [Trip Management](../05-transport/trip-management.md) assignment rules (§4.1–4.3).
 
 **Problem (client feedback — 2026-07-03):** Today, once a vehicle, driver, or helper is linked to **any** non-terminal Transport Order (even one still being planned — `created` / `under_planning` / `assigned`), the system blocks that resource from being assigned to **any other** TO until the first one is cancelled, completed, or closed. This prevents Transport Planners from queueing a vehicle/driver/helper against multiple future TOs ahead of time, which is normal operational practice — a resource should be plannable against several TOs concurrently, as long as it is only **actually out serving** one of them at any given moment.
 
@@ -319,10 +319,10 @@ CREATED / UNDER_PLANNING
 
 ## 9. Related documentation
 
-- **[FB-011 Feedback Tracker](../../03-backlog/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness)**
+- **[FB-011 Feedback Tracker](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/05-transport-orders.md#fb-011--vehicle-multi-to-planning-with-single-active-to-exclusivity-driver-supervisor-inspectskip-inspect-gates-dispatch-readiness)**
 - **[Trip Management (baseline)](../05-transport/trip-management.md)** — §4.1/4.2/4.3 vehicle/driver/helper assignment availability checks (amended by this doc)
 - **[Transport Order Management v2 (FB-008)](../05-transport/transport-order-management-v2.md)** — establishes Transport Planner as the own-fleet assignment owner that FB-011's relaxed checks apply to
-- **[DS-01 — Vehicle Licence, Health & Handover Checklists](../../03-backlog/sprints/sprint-5/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md)** — inspect/skip-inspect flow that now hosts the new exclusivity gate
+- **[DS-01 — Vehicle Licence, Health & Handover Checklists](../../03-backlog/phase-1/sprints/sprint-5/01-driver-supervisor/DS-01-vehicle-licence-health-handover-checklists.md)** — inspect/skip-inspect flow that now hosts the new exclusivity gate
 - **[Vehicle Management](vehicle-management.md)**, **[Driver Management](driver-management.md)** — module baseline (this doc is Sprint 6 amendment, module `08-fleet-management`)
 
 ---
