@@ -44,7 +44,7 @@ Write failing tests from the catalog **before** implementation.
 
 ## Business Context
 
-Once `VendorRating` records exist (from VRS-01), they must be surfaced in the relevant admin views. Each rating is a **single overall score (1–5)** plus three Yes/No answers — there is **no per-criterion star breakdown** to display.
+Once `VendorRating` records exist (from VRS-01), they must be surfaced in the relevant admin views. Each rating is a **single overall score (1–5)** plus three optional Yes/No answers — there is **no per-criterion star breakdown** to display. Profile, bid, and list averages use the rolling `Vendor.rating`, which is the average of blended `average_rating` values (70% stars, up to 30% questions). History still shows the raw stars and each answer as Yes, No, or skipped.
 
 Rating visibility surfaces in **four places**:
 

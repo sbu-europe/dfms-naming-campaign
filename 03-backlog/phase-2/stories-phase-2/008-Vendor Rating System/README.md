@@ -9,7 +9,7 @@ story_points_estimated: 19
 
 # 008 — Vendor Rating System
 
-Bidirectional (vice versa) post-TO ratings: tenant rates vendor (admin); vendor rates tenant (mobile). Each rating is a **single 1–5 score** plus **3 random Yes/No radio questions** (no multi-criterion star panels). Admin visibility + bid views. UI follows existing portal and Vendor App themes.
+Bidirectional (vice versa) post-TO ratings: tenant rates vendor (admin); vendor rates tenant (mobile). Each rating is a **single 1–5 score** plus **3 optional random Yes/No radio questions** (no multi-criterion star panels). The value that enters the rolling average is **70% stars and up to 30% questions** (Yes = 5, No = 1). Skipped questions are not negative: their share stays on the star score, and skipping all three leaves the average equal to the stars. Admin visibility + bid views. UI follows existing portal and Vendor App themes.
 
 Previously planned under Sprint 10 (`03-backlog/phase-1/sprints/sprint-10/04-vendor-ratings/`). Moved to Phase 2 unscheduled backlog.
 

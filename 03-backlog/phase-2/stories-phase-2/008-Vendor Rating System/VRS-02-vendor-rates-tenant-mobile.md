@@ -15,7 +15,7 @@ related_stories:
   - VRS-03-vendor-rating-visibility-admin.md
 source_docs:
   - ../../../../05-modules/07-vendor-management/vendor-rating.md
-  - ../../../../05-modules/09-mobile-apps/vendor-mobile.md
+  - ../../../../05-modules/15-mobile-apps/vendor-mobile.md
 module_spec: 05-modules/07-vendor-management/vendor-rating.md
 tdd_test_cases: ../../../../09-testing/stories-phase-2/008-Vendor Rating System/VRS-02-vendor-rates-tenant-mobile-tdd-test-cases.md
 tdd_index: ../../../../09-testing/stories-phase-2/008-Vendor Rating System/00-all-test-cases.md
@@ -46,7 +46,7 @@ Write failing tests from the catalog **before** implementation.
 
 The rating system is fully **symmetric (vice versa)**. Both directions use the same shape:
 
-**1 overall score (1–5) + 3 randomly selected Yes/No questions (radio) + optional comment.**
+**1 overall score (1–5) + 3 optional randomly selected Yes/No questions (radio) + optional comment.** The value that enters the rolling average is the same blend as VRS-01: **70% stars and up to 30% questions** (Yes = 5, No = 1). Skipping a question returns its share to the stars; skipping all three leaves the average equal to the star score.
 
 | Direction | Who rates | What is rated | Trigger |
 |-----------|-----------|---------------|---------|
@@ -65,16 +65,36 @@ There are **no multi-criterion star panels** (no Payment / Load / Communication 
 
 | Element | Rule |
 |---------|------|
-| **Overall score** | Required **1–5 star** selector (single) |
-| **Questions** | Exactly **3 random** Yes/No questions from TENANT pool |
-| **Answer UI** | **Radio buttons** Yes / No (existing app theme) |
+| **Overall score** | Required **1–5 star** selector (single). Stored as raw `score` |
+| **Questions** | Exactly **3 random** Yes/No questions from TENANT pool. **Optional** — any or all may be skipped |
+| **Answer UI** | **Radio buttons** Yes / No (existing app theme). Unselected = skipped |
 | **Comment** | Optional overall comment (max 1 000 chars) |
+
+### How `average_rating` is calculated
+
+Same blend as VRS-01. Each question is worth **10%**. **Yes = 5**, **No = 1**. A skip is not a No.
+
+| Questions answered | Star weight | Question weight |
+|--------------------|-------------|-----------------|
+| 0 of 3 | 100% | 0% — `average_rating` equals the star score |
+| 1 of 3 | 90% | 10% |
+| 2 of 3 | 80% | 20% |
+| 3 of 3 | 70% | 30% |
+
+```
+question_weight = 0.30 × (answered_count / 3)
+star_weight     = 1 − question_weight
+question_score  = average of (5 if Yes else 1) over answered questions
+average_rating  = round(star_weight × star_score + question_weight × question_score, 2)
+```
 
 ### Rolling update
 
+`Tenant.vendor_rating` rolls on **`average_rating`**, not the raw stars:
+
 ```
 Tenant.vendor_rating (rolling) =
-    ((current_vendor_rating × vendor_rating_count) + score) / (vendor_rating_count + 1)
+    ((current_vendor_rating × vendor_rating_count) + average_rating) / (vendor_rating_count + 1)
 ```
 
 ---
@@ -108,13 +128,13 @@ Given the vendor opens the tenant rating form,
 
 when the form renders,
 
-then it shows one 1–5 star control, exactly three Yes/No radio questions, optional comment, and submit disabled until score + all three answers are set — matching existing Vendor App theme.
+then it shows one 1–5 star control, exactly three optional Yes/No radio questions, and an optional comment — matching existing Vendor App theme. Submit requires the star score only.
 
 - [ ] **Single 1–5 star selector** (required).
 - [ ] **Exactly 3 Yes/No questions** randomly selected from TENANT pool; locked for this pending rating.
-- [ ] Each question: **radio** group Yes / No (mutually exclusive).
+- [ ] Each question: **radio** group Yes / No (mutually exclusive). Answers are **optional**.
 - [ ] Optional overall comment (max 1 000 chars).
-- [ ] Submit disabled until score and all 3 radio answers are selected.
+- [ ] Submit enabled once the star score is set, even if every question is left blank.
 - [ ] UI reuses existing Vendor App theme tokens, typography, colors, and shared controls — no new visual language.
 
 ### AC-3: Predefined Questions Loaded from API
@@ -136,8 +156,8 @@ when the API persists the rating,
 
 then records are atomic, rolling average updates, submission is immutable, duplicates return 400, and a success screen shows.
 
-- [ ] On submit, `TenantRating` + exactly 3 `TenantRatingAnswer` rows persisted atomically.
-- [ ] `score` / `average_rating` stored; `Tenant.vendor_rating` + `vendor_rating_count` updated (via `schema_context` to public schema).
+- [ ] On submit, `TenantRating` + exactly 3 `TenantRatingAnswer` rows persisted atomically. Skipped answers stay `null`.
+- [ ] Raw `score` and blended `average_rating` stored. `Tenant.vendor_rating` + `vendor_rating_count` update from **`average_rating`** (via `schema_context` to public schema). All questions skipped → aggregate uses the star score only.
 - [ ] Submission **immutable**; duplicate submit → `400`.
 - [ ] Success screen: "Thank you for your rating!" with score displayed.
 
@@ -197,7 +217,7 @@ then tenant rating is informational only and does not gate those decisions.
 ### Validation
 - Star outside 1–5: API rejects.
 - Comment length over limit: rejected.
-- Missing radio answers: reject.
+- Missing radio answers: allowed. Zero answers → `average_rating` equals the star score. A No lowers `average_rating`. A skip is not a No.
 - Vendor not assigned on the TO: submit denied.
 - TO not completed / ACK not done: allow submit when TO is `closed`/`completed` and vendor is assigned (mobile prompt after ACK).
 
@@ -237,10 +257,10 @@ GET    /api/v1/tenant-ratings/    # all incoming vendor ratings (Tenant.Rating.A
 |--------|------|
 | Submit tenant rating | `vendor` (must be assigned on the TO) |
 | View own submitted rating | `vendor` (own submission only) |
-| View tenant aggregate rating summary | `vendor` (any — during join flow) |
+| View tenant aggregate rating summary | any logged-in vendor (Join Tenant). No extra permission. |
 | View all vendor-submitted ratings for tenant | `tenant_super_admin`, `tenant_admin` |
 
-**Permission codes:** `Tenant.Rating.Create`, `Tenant.Rating.ViewOwn`, `Tenant.Rating.ViewSummary`, `Tenant.Rating.AdminView`  
+**Permission codes:** `Tenant.Rating.Create`, `Tenant.Rating.ViewOwn`, `Tenant.Rating.AdminView`  
 *(defined in `apps/core/constants_rbac.py`; seeded via `apps/core/role_seed_data.py`)*
 
 ---
@@ -252,7 +272,7 @@ GET    /api/v1/tenant-ratings/    # all incoming vendor ratings (Tenant.Rating.A
 | VRS-02-1 | Data models + migrations | `TenantRating`, `TenantRatingAnswer` + `Tenant.vendor_rating` fields | High | Not started |
 | VRS-02-2 | Seed tenant rating question pool | 9 TENANT Yes/No questions | High | Not started |
 | VRS-02-3 | Vendor mobile — rating screen | Single star + 3 Y/N radios + comment; existing app theme | High | Not started |
-| VRS-02-4 | Score + Tenant.vendor_rating update | Rolling average on submit | High | Not started |
+| VRS-02-4 | Score + Tenant.vendor_rating update | Blended `average_rating` (70% stars / up to 30% questions); rolling average uses that value | High | Not started |
 | VRS-02-5 | Submit + immutability | Atomic persist; duplicate rejection | High | Not started |
 | VRS-02-6 | Tenant rating summary in Join Tenant flow | Aggregate ★ + count on tenant card | Medium | Not started |
 | VRS-02-7 | Admin portal — incoming ratings view | List + summary card (portal theme) | Medium | Not started |
@@ -276,8 +296,8 @@ GET    /api/v1/tenant-ratings/    # all incoming vendor ratings (Tenant.Rating.A
 - [ ] `TenantRating` + `TenantRatingAnswer` models created with migrations
 - [ ] Seed data: TENANT question pool (≥ 9, show 3 random)
 - [ ] `Tenant.vendor_rating` + `vendor_rating_count` fields added
-- [ ] Vendor mobile rating screen: single score, 3 Yes/No radios, comment; app theme
-- [ ] Rolling `Tenant.vendor_rating` updated on submit
+- [ ] Vendor mobile rating screen: single score, 3 optional Yes/No radios, comment; app theme
+- [ ] Rolling `Tenant.vendor_rating` updated from blended `average_rating` on submit
 - [ ] Submission immutable; duplicate rejected
 - [ ] Tenant aggregate (avg + count) shown in Join Tenant flow
 - [ ] Tenant Super Admin / Tenant Admin can view incoming ratings in admin portal

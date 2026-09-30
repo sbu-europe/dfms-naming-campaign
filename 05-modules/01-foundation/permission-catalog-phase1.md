@@ -393,10 +393,22 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 
 ### Vendor.Rating
 
+> **Phase 2 — Implemented.** Codes defined in `apps/core/constants_rbac.py`. See [`07-vendor-management/vendor-rating.md`](../07-vendor-management/vendor-rating.md).
+
 | Permission | Description | Roles |
 |------------|-------------|-------|
-| `Vendor.Rating.Create` | Rate vendors | Transport Planner, Operations roles |
-| `Vendor.Rating.Read` | View vendor ratings | All authenticated |
+| `Vendor.Rating.Create` | Submit tenant-to-vendor rating after a completed TO | `tenant_admin`, `tenant_super_admin`, `tdo_vendor_fleet` |
+| `Vendor.Rating.View` | View vendor rating history, summary, and rating questions | `tenant_admin`, `tenant_super_admin`, `tdo_vendor_fleet`, `transport_planner` |
+
+### Tenant.Rating
+
+> **Phase 2 — Implemented.** Vendor-to-tenant bidirectional direction. Vendor mobile uses JWT auth; `Tenant.Rating.*` codes guard tenant-admin views.
+
+| Permission | Description | Roles |
+|------------|-------------|-------|
+| `Tenant.Rating.Create` | Submit vendor-to-tenant rating from mobile app | Vendor (JWT) |
+| `Tenant.Rating.ViewOwn` | View own submitted tenant rating | Vendor (JWT) |
+| `Tenant.Rating.AdminView` | View all vendor-submitted ratings for this tenant | `tenant_admin`, `tenant_super_admin` |
 
 ---
 
@@ -476,11 +488,11 @@ Permissions are determined by **Role → Permission matrix** and **Access Scope*
 | Scaling | 2 | 6 |
 | Operations | 3 | 8 |
 | QC | 5 | 14 |
-| Vendor | 5 | 14 |
+| Vendor | 7 | 21 |
 | Fleet | 3 | 7 |
 | Costing | 2 | 5 |
 | Reports | 2 | 4 |
-| **Total** | **42** | **135** |
+| **Total** | **44** | **142** |
 
 ---
 

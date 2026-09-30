@@ -32,7 +32,7 @@ This directory is the **source-of-truth** for Vendor Mobile **product** behavior
 - [05-assigned-tos-list.md](05-assigned-tos-list.md) — *(both)* convergence point for BID_WON + CONTRACTUAL
 - [06-post-award-driver-vehicle-submission.md](06-post-award-driver-vehicle-submission.md) — *(both)* VM-07 common leg
 - [07-active-trip-tracking.md](07-active-trip-tracking.md) — *(both)* trip status + map
-- [08-completed-trip-history.md](08-completed-trip-history.md) — *(both)* rate hidden for Contractual
+- [08-completed-trip-history.md](08-completed-trip-history.md) — *(both)* rate hidden for Contractual; **VRS-02 post-trip tenant rating** (Phase 2)
 - [09-profile-management.md](09-profile-management.md) — vendor profile + settings
 - [10-security-and-access-control.md](10-security-and-access-control.md) — auth + vendor isolation + tenant scope
 - [11-integration-and-design-decisions.md](11-integration-and-design-decisions.md) — integration + rationale

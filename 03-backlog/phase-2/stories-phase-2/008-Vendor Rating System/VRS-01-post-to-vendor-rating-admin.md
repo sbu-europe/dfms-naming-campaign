@@ -49,14 +49,34 @@ Rating shape (v1):
 
 | Element | Rule |
 |---------|------|
-| **Overall score** | One required **1–5 star** rating |
-| **Questions** | Exactly **3 randomly selected** Yes/No questions from the VENDOR question pool |
-| **Answer UI** | **Radio buttons** (Yes / No) — portal theme |
+| **Overall score** | One required **1–5 star** rating (`score`) |
+| **Questions** | Exactly **3 randomly selected** Yes/No questions from the VENDOR question pool. **Optional** — any or all may be skipped |
+| **Answer UI** | **Radio buttons** (Yes / No) — portal theme. Unselected = skipped |
 | **Comment** | Optional overall comment (max 1 000 chars) |
 
 There are **no separate star ratings per topic** (no Product Delivery / Driver Behaviour / Vehicle score panels). Qualitative coverage comes only from the three random questions.
 
-The submitted score updates the vendor’s rolling overall rating (`Vendor.rating`).
+`score` stores the raw stars. `average_rating` is what updates the vendor’s rolling overall rating (`Vendor.rating`).
+
+### How `average_rating` is calculated
+
+Each of the three questions is worth **10%** (30% ÷ 3). **Yes = 5**, **No = 1**, on the same 1–5 scale. A skipped question is not a No: its 10% returns to the star score.
+
+| Questions answered | Star weight | Question weight |
+|--------------------|-------------|-----------------|
+| 0 of 3 | 100% | 0% — `average_rating` equals the star score |
+| 1 of 3 | 90% | 10% |
+| 2 of 3 | 80% | 20% |
+| 3 of 3 | 70% | 30% |
+
+```
+question_weight = 0.30 × (answered_count / 3)
+star_weight     = 1 − question_weight
+question_score  = average of (5 if Yes else 1) over answered questions
+average_rating  = round(star_weight × star_score + question_weight × question_score, 2)
+```
+
+Examples: 5 stars and all skipped → `5.00`. 5 stars and three Yes → `5.00`. 5 stars and three No → `3.80`. 4 stars, two Yes and one No → `3.90`.
 
 ---
 
@@ -83,11 +103,11 @@ Given an authorized admin opens the vendor rating form for a completed TO,
 
 when the form renders,
 
-then it shows one 1–5 star control, exactly three Yes/No radio questions, and an optional overall comment — using existing portal theme/components.
+then it shows one 1–5 star control, exactly three optional Yes/No radio questions, and an optional overall comment — using existing portal theme/components. Submit requires the star score only.
 
 - [ ] Form shows a **single 1–5 star selector** (required — cannot submit without a score).
 - [ ] Form shows **exactly 3 Yes/No questions**, randomly selected from the active VENDOR `RatingQuestion` pool and locked for this pending rating (refresh does not reshuffle mid-fill).
-- [ ] Each question uses a **radio button** group: **Yes** · **No** (mutually exclusive; both options required to answer before submit).
+- [ ] Each question uses a **radio button** group: **Yes** · **No** (mutually exclusive). Answers are **optional** — submit is allowed with the star score alone, or with any subset answered.
 - [ ] An optional **overall comment** field (max 1 000 chars).
 - [ ] UI reuses **existing admin portal** layout, controls, spacing, and star display patterns — no new visual language.
 
@@ -109,13 +129,14 @@ Given a valid overall score is submitted,
 
 when the rating is persisted,
 
-then `average_rating` mirrors the score and `Vendor.rating` / `rating_count` update as a rolling average.
+then `average_rating` is the blended score and `Vendor.rating` / `rating_count` update as a rolling average of that blend.
 
-- [ ] `score` ∈ [1, 5]; `average_rating = Decimal(score)` (e.g. `4.00`).
-- [ ] `Vendor.rating` updated as rolling average:  
-  `new_avg = ((current_rating × rating_count) + score) / (rating_count + 1)` (rounded to 2 dp).
+- [ ] `score` ∈ [1, 5] stores the raw stars. `average_rating` is the blend in [How `average_rating` is calculated](#how-average_rating-is-calculated) (2 dp). All questions skipped → `average_rating = Decimal(score)`.
+- [ ] A **No** lowers `average_rating` below the star score (three Nos on 5 stars → `3.80`). A skipped question does not.
+- [ ] `Vendor.rating` updated as rolling average of **`average_rating`**, not the raw stars:  
+  `new_avg = ((current_rating × rating_count) + average_rating) / (rating_count + 1)` (rounded to 2 dp).
 - [ ] `Vendor.rating_count` incremented on each submission.
-- [ ] Exactly three `VendorRatingAnswer` rows persisted with boolean Yes/No values.
+- [ ] Exactly three `VendorRatingAnswer` rows exist for the locked questions. Answered rows store boolean Yes/No; skipped rows stay `null`.
 
 ### AC-5: Submission & Immutability
 
@@ -125,7 +146,7 @@ when persistence succeeds,
 
 then the `VendorRating` stores all fields, becomes immutable, and an audit log entry is written.
 
-- [ ] On submit, `VendorRating` persisted with: `to_id`, `vendor_id`, `tenant_id`, `rated_by`, `submitted_at`, `score`, three Y/N answers, `average_rating`, `overall_comment`.
+- [ ] On submit, `VendorRating` persisted with: `to_id`, `vendor_id`, `tenant_id`, `rated_by`, `submitted_at`, `score`, three answer rows (Yes/No or skipped), `average_rating`, `overall_comment`.
 - [ ] Submission is **immutable** — cannot be edited after submit.
 - [ ] Audit log entry created (`AuditEventType.CREATE` / `action="VendorRating.Submit"`).
 
@@ -152,7 +173,7 @@ then access is denied in v1; only Tenant Super Admin, Tenant Admin, TDO, and Tra
 ### Form & validation
 - Star score outside 1–5: rejected.
 - Overall comment > 1000: rejected.
-- Missing any of the 3 radio answers: rejected (all three required).
+- Missing radio answers: allowed. Zero answers → `average_rating` equals the star score. A partial set uses only the answered questions (see blend table). A skipped question is not stored as No.
 - Wrong / extra question IDs (not the locked set): rejected.
 - Inactive `RatingQuestion` rows: not sampled for new forms; already-answered inactive questions remain on historical ratings.
 - Active pool size &lt; 3: form/API returns a clear business error until pool is restored.
@@ -182,7 +203,7 @@ GET/POST  /vendors/<vendor_id>/rate/<to_id>/    # rate_vendor.html (Bootstrap 5 
 GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 ```
 
-**Submit body:** `{ "transport_order_id": "<uuid>", "score": 1-5, "overall_comment": "...", "answers": [{ "question_id": "<uuid>", "answer": true|false } ×3] }`
+**Submit body:** `{ "transport_order_id": "<uuid>", "score": 1-5, "overall_comment": "...", "answers": [{ "question_id": "<uuid>", "answer": true|false }] }` — `answers` is optional, length 0–3. Omit a locked question, or send `"answer": null`, to skip it.
 
 ---
 
@@ -193,10 +214,11 @@ GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 | Submit vendor rating (post-TO) | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet` |
 | View vendor rating history | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet`, `transport_planner` |
 | View rating in bid/award views | `tenant_super_admin`, `tenant_admin`, `tdo_vendor_fleet`, `transport_planner` |
-| Configure / add rating questions | `tenant_super_admin`, `tenant_admin` |
 | View own vendor rating (as vendor) | **Denied in v1** |
 
-**Permission codes:** `Vendor.Rating.Create`, `Vendor.Rating.View`, `Vendor.Rating.Configure`  
+The Yes/No question pool is the seeded default. There is no permission to add or edit questions.
+
+**Permission codes:** `Vendor.Rating.Create`, `Vendor.Rating.View`  
 *(defined in `apps/core/constants_rbac.py`; seeded via `apps/core/role_seed_data.py`)*
 
 ---
@@ -208,7 +230,7 @@ GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 | VRS-01-1 | Data models + migrations | `VendorRating`, `VendorRatingAnswer`, `RatingQuestion` (no criterion score models) | High | Not started |
 | VRS-01-2 | Seed rating question pool | 9 VENDOR Yes/No questions | High | Not started |
 | VRS-01-3 | Rating form (admin portal) | Single star + 3 random Y/N radios + comment; existing portal theme | High | Not started |
-| VRS-01-4 | Score + Vendor.rating update | Rolling average on submit; `rating_count` increment | High | Not started |
+| VRS-01-4 | Score + Vendor.rating update | Blended `average_rating` (70% stars / up to 30% questions); rolling average uses that value | High | Not started |
 | VRS-01-5 | Submit + immutability + audit log | `is_submitted` flag; audit `action="VendorRating.Submit"` | High | Not started |
 | VRS-01-6 | TO completion rating prompt | `VendorRatingService.ensure_pending_on_to_terminal()` hook in `transition_service.py` | Medium | Not started |
 | VRS-01-7 | Tests | Cover AC-1…AC-6 + edge cases | High | Not started |
@@ -231,7 +253,7 @@ GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 - [ ] `VendorRating` + `VendorRatingAnswer` + `RatingQuestion` created with migrations
 - [ ] Seed data: VENDOR question pool (≥ 9, show 3 random)
 - [ ] Admin rating form: single 1–5 score, 3 Yes/No radios, optional comment; portal theme
-- [ ] Score persisted; `Vendor.rating` + `rating_count` updated on submit
+- [ ] Raw `score` persisted; blended `average_rating` updates `Vendor.rating` + `rating_count` on submit. Skipped questions do not reduce the average.
 - [ ] Rating immutable after submission; audit log entry created
 - [ ] Vendor portal / mobile does **not** expose vendor's own rating in v1
 - [ ] Unit/API tests for AC-1…AC-6 — see [VRS-01 TDD catalog](../../../../09-testing/stories-phase-2/008-Vendor%20Rating%20System/VRS-01-post-to-vendor-rating-admin-tdd-test-cases.md)
@@ -239,4 +261,4 @@ GET       /vendors/<vendor_id>/ratings/         # vendor_rating_history.html
 
 ---
 
-*Epic: Vendor Rating System | Phase: 2 | 8 SP | Status: Pending | Last Updated: 2026-09-17*
+*Epic: Vendor Rating System | Phase: 2 | 8 SP | Status: Pending | Last Updated: 2026-09-29*
