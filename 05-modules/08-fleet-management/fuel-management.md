@@ -6,7 +6,7 @@ phase: Phase 2
 sprint: Sprint 10
 source_document: example-prototypes/fleet-operations.html
 source_sections: Fuel Entry (Log), Fuel History, Fleet Dashboard (fuel metrics only)
-last_updated: 2026-08-31
+last_updated: 2026-10-01
 related_stories: [FM-01, FM-02, FM-03, FM-04, FM-05]
 design_reference: ../../../../example-prototypes/fleet-operations.html
 context_vs_prd:
@@ -23,10 +23,12 @@ context_vs_prd:
 Fuel Management tracks refueling events for **own-fleet vehicles** using a **gauge before/after** intake model. It enables mileage-based fuel efficiency (km/L), cost analysis (৳/km), and anomaly detection against vehicle-type baselines.
 
 **Roles:**
-- **Driver** — logs fuel via mobile app for **assigned vehicle only** (`DRIVER_ENTRY`). Vehicle, datetime, location (GPS), and fuel type are **auto-captured**; driver enters gauge readings, cost, odometer, and photos.
-- **Driver Supervisor** — logs fuel via admin portal during **pre-trip vehicle checks** (`SUPERVISOR_ENTRY`). Selects vehicle, manually enters refueling date and location, may update vehicle info (e.g. odometer), and enters all fuel intake data.
+- **Driver** — uses the same Log Fuel Entry page as admins (`/admin/vehicle_health/fuelentry/log/`). The vehicle dropdown lists own-fleet vehicles on that driver’s transport orders in **Driving Towards Source**. They choose one, then enter the same fuel fields. A vehicle-master driver assignment is not the source.
+- **Driver Supervisor, Tenant Super Admin, Tenant Admin** — log fuel for **any own-fleet vehicle, at any time** (`SUPERVISOR_ENTRY`). They select the vehicle, enter refueling date and location, and enter the fuel intake. The vehicle odometer changes when the fuel entry is saved.
 
 **Design source of truth:** [`example-prototypes/fleet-operations.html`](../../../../example-prototypes/fleet-operations.html) — Fuel tab shows **Driver Supervisor** admin entry. Driver mobile entry (FM-02) is separate. Prototype uses one combined view; production RBAC per sprint README role matrix.
+
+**Theme and structure (all implementation):** Production UI uses the **existing admin portal theme** (`admin/base_site.html`, current CSS, form controls, tables, and Fleet operations navigation). The prototype fixes fields and layout intent; it does not introduce a new visual language. Driver entry is the same portal on a phone layout, with existing EN/BN translation. Backend follows the current tenant-app shape: `apps/vehicle_health`, `TenantAwareModel`, service classes, `/api/v1/` DRF views, `PermissionCodes` + role seed, `portal_navigation.py`, and `write_audit_log`. No separate frontend and no native app.
 
 ---
 
@@ -54,13 +56,14 @@ Used before trip/TO execution when the supervisor verifies the vehicle and recor
 ### 1.2 Driver — mobile entry (auto-captured context)
 
 ```
-1. Driver opens app → Log Fuel Entry
-2. AUTO: assigned vehicle (read-only), fuel type (read-only from vehicle)
-3. Driver enters: gauge before/after + photos, cost, odometer, supporting photos
-4. On submit AUTO:
+1. Driver opens Log Fuel Entry
+2. Vehicle dropdown lists own-fleet transport orders where this driver is the driver and status is Driving Towards Source. The driver chooses one. No such order: the form stays closed.
+3. Fuel type is a dropdown, prefilled when that vehicle has a fuel type. The driver can change it.
+4. Driver enters: gauge before/after + photos, cost, odometer, supporting photos
+5. On submit AUTO:
    - refueling_datetime = submit timestamp
    - location = device GPS (lat/lng + optional reverse-geocode label)
-5. System validates, calculates metrics, saves DRIVER_ENTRY
+6. Server re-checks the same order and status, then saves DRIVER_ENTRY against that vehicle
 ```
 
 ### 1.3 Shared validation & calculation
@@ -76,10 +79,10 @@ Both paths share:
 
 | Field | Driver Supervisor | Driver (mobile) |
 |-------|-------------------|-----------------|
-| Vehicle | Selectable picker * | Pre-selected (assigned), read-only |
+| Vehicle | Any own-fleet vehicle, any time | Dropdown of vehicles on the driver’s TOs in Driving Towards Source |
 | Refueling datetime | Manual (date *; optional time) | Auto at submit |
 | Location | Manual text * (`location_source: MANUAL`) | Device GPS (`location_source: DEVICE_GPS`) |
-| Fuel type | Auto from vehicle; editable | Auto from vehicle; read-only |
+| Fuel type | Dropdown; vehicle fuel type only prefills | Same dropdown; prefilled when the trip vehicle has a fuel type |
 | Gauge before/after, cost, odometer | Manual entry | Manual entry |
 | Vehicle info update | Allowed before/during entry | Not on this screen |
 
@@ -217,5 +220,5 @@ Admin **Fuel History** view (Driver Supervisor): filter by vehicle, stats strip 
 
 ---
 
-**Last Updated**: 2026-08-31  
+**Last Updated**: 2026-09-30  
 **Sprint**: Sprint 10 (FM-01 – FM-05)

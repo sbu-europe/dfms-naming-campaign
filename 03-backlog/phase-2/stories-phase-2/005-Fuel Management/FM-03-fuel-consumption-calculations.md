@@ -39,11 +39,15 @@ Write failing tests from the catalog **before** implementation.
 
 **As a** system  
 **I want to** calculate fuel efficiency from consecutive odometer readings and fuel filled quantities  
-**So that** Driver Supervisors and Transport Planners can analyse cost and consumption per vehicle
+**So that** Driver Supervisors and Transport Planners can analyse consumption per vehicle from gauge and odometer
 
 ## Business Context
 
-Calculations run **on save** of each fuel entry (except the first for a vehicle). Distance relies on **odometer delta**, not GPS (deferred).
+Calculations run **on save** of each fuel entry, not as a live reflection on the form. The **previous saved fuel entry** for the same vehicle is the reference (`previous_entry`). Distance relies on **odometer delta** against that reference, not GPS (deferred).
+
+The first saved entry has no reference. It becomes the baseline reference: gauge and odometer are stored, and distance and km/L stay empty until the next fill is saved against it.
+
+**No cost-calculation fields.** Do not compute or store `cost_per_km` or `cost_per_liter`. Fuel Cost (BDT) is an entered amount only.
 
 ---
 
@@ -55,15 +59,15 @@ Calculations run **on save** of each fuel entry (except the first for a vehicle)
 
 Given a fuel entry is being saved (FM-01 or FM-02),
 
-when calculation runs against the previous entry for the same vehicle,
+when calculation runs against the previous **saved** fuel entry for the same vehicle,
 
-then quantity, distance, km/L, and cost metrics are stored per the rules below.
+then gauge, filled quantity, odometer, distance, and km/L are stored on the new entry. The form does not reflect distance or km/L before save. Cost rates are not stored.
 
-- [ ] `fuel_quantity_liters` = `fuel_after_liters − fuel_before_liters` (unless supervisor override with audit note).
-- [ ] `distance_since_last_refuel_km` = current odometer − previous entry odometer (null on first entry).
+- [ ] Each entry updates `fuel_before_liters`, `fuel_after_liters`, and `fuel_quantity_liters` (`fuel_after_liters − fuel_before_liters`, unless supervisor override with audit note).
+- [ ] Each entry updates `odometer_reading_km`, and the vehicle’s `current_odometer_reading` when the reading is valid.
+- [ ] `distance_since_last_refuel_km` = current odometer − reference entry odometer (null when there is no previous saved entry).
 - [ ] `fuel_consumption_kmpl` = distance / fuel_quantity (null on first entry or if distance ≤ 0).
-- [ ] `cost_per_km` = fuel_cost / distance (null when distance null).
-- [ ] `cost_per_liter` = fuel_cost / fuel_quantity.
+- [ ] No `cost_per_km` and no `cost_per_liter`. Fuel Cost (BDT) is stored as entered and is not used in a rate.
 
 ### AC-2: Odometer validation
 
@@ -82,11 +86,11 @@ Given a vehicle has no prior fuel entries,
 
 when the first fuel entry is saved,
 
-then distance/km/L/cost_per_km are null and the UI explains baseline behaviour.
+then gauge and odometer are stored, and distance and km/L are null. This saved row is the baseline reference for the next fill. The note is on the saved entry and in history, not on a live form preview.
 
-- [ ] First fuel entry for a vehicle: distance, km/L, cost/km stored as null; no error.
-- [ ] UI shows “First entry — baseline established from next fill-up.”
-- [ ] `cost_per_liter` is still computed when fuel_quantity > 0.
+- [ ] First fuel entry for a vehicle: gauge and odometer stored; distance and km/L null; no error. This entry is the reference baseline.
+- [ ] History (and the saved entry) shows “First entry — baseline established from next fill-up.” The entry form does not live-preview this.
+- [ ] No cost rate is computed on the first entry or on later entries.
 
 ### AC-4: Service layer
 
@@ -107,7 +111,7 @@ then unit tests cover happy path and edge cases (zero distance, first entry, ove
 - Very small quantity with large distance: still compute km/L; anomaly may flag later (FM-05).
 
 ### Ordering
-- Previous entry is the latest by `refueling_datetime` (then created_at) for the same vehicle within tenant — not by submit order across clocks without that rule documented in module spec.
+- Previous entry is the latest **saved** fuel entry by `refueling_datetime` (then `created_at`) for the same vehicle within the tenant. That row is the reference. Unsaved form input is not a reference.
 - Back-dated supervisor entry that would sit between two existing entries: TODO(PO) — recalculate chain vs validate against latest odometer only (v1 likely latest-odometer rule only).
 
 ### Cross-entry types
@@ -117,7 +121,7 @@ then unit tests cover happy path and edge cases (zero distance, first entry, ove
 
 ## API Endpoints
 
-Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoint. Computed fields returned in fuel entry response.
+Invoked internally on `POST /api/v1/fuel-entries/` — no public preview endpoint and no live reflection on the form. Computed fields are stored on the entry and returned in the fuel entry response. That response row is the reference for the next entry.
 
 ---
 
@@ -133,7 +137,7 @@ Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoi
 
 | # | Sub-task | Description | Priority | Status |
 |---|----------|-------------|----------|--------|
-| FM-03-1 | Calculation service | distance, km/L, ৳/km, ৳/L | High | Not started |
+| FM-03-1 | Calculation service | gauge quantity, distance, km/L; no cost rates | High | Not started |
 | FM-03-2 | Odometer validation | Reject if ≤ last reading; update vehicle odometer | High | Not started |
 | FM-03-3 | Tests | Unit tests for AC-1…AC-4 scenarios + Edge Cases (first entry, override, ≤ odometer) | High | Not started |
 
@@ -148,8 +152,13 @@ Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoi
 
 ---
 
+## Implementation
+
+No new UI. `FuelCalculationService` sits in `apps/vehicle_health` and follows existing service-class and unit-test layout. See the epic rule in the [Fuel Management README](./README.md).
+
 ## Definition of Done
 
+- [ ] Service lives in the existing backend structure (`apps/vehicle_health`, unit tests under `tests/unit`)
 - [ ] Calculation service implemented and tested (scenarios AC-1.1…AC-4.2) — see [FM-03 TDD catalog](../../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-03-fuel-consumption-calculations-tdd-test-cases.md)
 - [ ] TDD catalog statuses updated for P0 rows (`Planned` → `Failing` → `Passing`)
 - [ ] Vehicle odometer updated on each entry
@@ -157,4 +166,4 @@ Invoked internally on `POST /api/v1/fuel-entries/` — no separate public endpoi
 
 ---
 
-*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-14*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-10-01*
