@@ -47,7 +47,7 @@ This module defines the foundational layer of the DFMS platform, including authe
 
 ### User & Tenant Management
 - **Organization Onboarding**: Self-service signup with tenant creation
-- **User Invitation**: Email-based invitation with activation workflow
+- **User Invitation**: Email or phone invitation. A placeholder user (`account_status=invited`) is created immediately; activation requires OTP, then password and terms. See [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md).
 - **OTP Verification**: Phone/email verification with retry logic
 - **Account Management**: Activation, deactivation, password reset
 - **Audit Logging**: Comprehensive activity tracking

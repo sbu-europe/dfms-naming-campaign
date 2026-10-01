@@ -5,8 +5,8 @@ version: 1.0
 phase: Phase 1
 source_document: DFMS_Product_Requirements_Document_v3.md
 source_sections: 6.2.1-6.2.8
-last_updated: 2026-07-28
-phase1_note: Staff users may be invited via email OR phone (BD mobile). Phone-invited users may have null email. Login and forgot-password use the same identifier channel. See 03-users/staff-invite-login-password-channels.md and CR-002.
+last_updated: 2026-10-01
+phase1_note: Staff users are invited by email or phone (BD mobile). Invite creates a placeholder User (account_status=invited) plus an InvitationToken. Activation OTP is always required for new invitations; otp_type is login 2FA only. See 03-users/staff-invite-login-password-channels.md.
 related_stories: US-005, US-006, US-007, US-008, US-009, PAP-05, PAP-06, BUG-01, BUG-02
 scope_note: US-005 now consolidates password reset functionality from US-008 (self-service + admin-assisted). Channel-aware invite/login/reset — CR-002.
 ---
@@ -441,195 +441,144 @@ function checkLimit(tenant: Tenant, limitType: string): boolean {
 
 ## 4. User Invitation & Activation
 
-### 4.1 Invitation Workflow
+Staff onboarding as implemented in `apps/users/`. Channel, OTP, and password detail: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md). Tenant Admin screens: [tenant-user-management.md](../03-users/tenant-user-management.md).
+
+### 4.1 Invitation workflow
 
 ```
-Admin (Tenant Admin) → Invite User Form → Submit →
-  System creates user record + dispatches invitation (email OR SMS) immediately →
-  invitation_status = "sent" →
-User Clicks Link → invitation_status = "pending" →
-  Complete Profile → Verify OTP (if required) → Accept T&C →
-  invitation_status = "activated" → Account Active
+Tenant Admin → Invite user →
+  Placeholder User (account_status = invited, unusable password) +
+  InvitationToken (user FK, status = sent, 7-day expiry, activation OTP always generated) →
+  Email or SMS dispatched →
+  stored status = pending when send succeeds; stays sent when send fails →
+Invitee opens /activate/?token=… →
+  Verify activation OTP (invite channel) →
+  Set password + accept T&C →
+  User account_status = active, invitation_status = activated
 ```
 
-> **Invite channel (Phase 1)**: Admin selects **`invite_channel`**: `email` or `phone`.
-> - **Email**: email required; activation/OTP via email when configured.
-> - **Phone**: BD mobile required; `User.email` may be null; activation/OTP via SMS when configured (`SMS_ENABLED`).
-> - **Reinvite** always follows the original `invite_channel`.
-> - Full overview: [staff-invite-login-password-channels.md](../03-users/staff-invite-login-password-channels.md) · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
+- **Email channel**: email required; phone optional. Link is the full `/activate/?token=` URL. OTP is in the same email.
+- **Phone channel**: BD mobile required; `User.email` may be null. SMS carries the OTP and a shortened activation URL (`shorten_for_sms`).
+- **Reinvite** uses the stored `invite_channel`, regenerates the OTP, and keeps the token unless the channel or identity changed.
+- **`otp_type` (admin label 2FA)** is login 2FA. It does not enable or skip the activation OTP. Allowed values must match the channel: email invites `none`/`email`; phone invites `none`/`phone`.
+- Create API response body returns `invitation_status: "sent"` even after the row has moved to `pending`.
 
-> **Immediate dispatch**: The invitation is sent within the same request/transaction cycle as invitation record creation. The response to the admin includes `invitation_status: "sent"` confirming email/SMS was queued/dispatched (or logged when SMS is disabled). If dispatch fails, status remains `pending` and a retry is attempted.
+**Who can invite**: a Tenant Admin invites operational roles. Staff invite cannot assign `super_admin`, `tenant_super_admin`, `driver`, or `driver_helper`. `tenant_admin` is listed only for a Tenant Super Admin or platform Super Admin. Super Admin accounts are seeded, not invited.
 
-**Permission-Based Invitation**:
-- **Tenant Admin** can invite: Operational Users (any department)
+### 4.2 Invitation form
 
-### 4.2 Invitation Form
+**Fields** (Django admin `InviteUserForm` and `POST /api/v1/tenants/{tenant_id}/users/invitations/`):
 
-**Required Fields**:
-- First Name
-- Last Name
-- **Invite channel** (`email` | `phone`)
-- Email Address (**required when channel = email**; not required for phone-only invites)
-- Phone number (**required when channel = phone**; BD mobile, stored E.164 `+8801…`)
-- Role (from 18 predefined operational roles, multi-select supported; **Super Admin role is not listed and cannot be selected**)
-- Department (Depot / Feed Mill / Commercial / Procurement / Distribution / Transport / QA-QC / Operations)
-- POI Assignment (if applicable, e.g., Gate Operator → specific gate, Depot Officer → specific depot)
-- Employee ID
-- Functional Role Type (Requester / Approver / Executor)
-- OTP type — default None; must match channel (`none`/`email` for email invites; `none`/`phone` for phone invites)
+| Field | Required | Rules |
+|-------|----------|-------|
+| Invite channel | Yes | `email` or `phone` |
+| Email | Email channel | Unique among active users; normalized |
+| Phone | Phone channel | BD mobile → E.164 `+8801…`; unique among active users |
+| First name | Yes | |
+| Last name | No | |
+| Employee ID | Yes | Unique when non-blank |
+| Role | Yes | One role. API field is `role_ids` (list); only the first id is applied. Department must allow that role. |
+| Site (POI) | POI-scoped roles | Required for those roles; must be omitted for the others |
+| 2FA (`otp_type`) | Yes (has a default) | Default `none`. Login 2FA only |
 
-**Optional Fields**:
-- Custom invitation message (freeform text)
-- Scheduled send date/time (for deferred invitations)
-- Phone (optional on email invites)
+There is no custom invitation message, scheduled send, functional role type, or per-tenant email template editor.
 
-**Validation**:
-```typescript
-{
-  invite_channel: {
-    enum: ['email', 'phone']
-  },
-  email: {
-    unique_per_tenant: true,
-    format: 'email',
-    required_when: "invite_channel === 'email'"
-  },
-  phone_number: {
-    unique_per_tenant_when_set: true,
-    format: 'BD_E164', // +8801XXXXXXXXX; accepts 01… / +8801…
-    required_when: "invite_channel === 'phone'"
-  },
-  role: {
-    validate: (role, tenant) => {
-      // Super Admin role is strictly forbidden during invitation
-      if (role.name === 'Super Admin') {
-        throw new ForbiddenError('ROLE-403-SUPER-ADMIN-RESTRICTED',
-          'Super Admin role cannot be assigned through invitation. Super Admins are provisioned manually.');
-      }
-      // Check if subscription tier allows this role
-      return tenant.enabled_modules.includes(role.required_module);
-    }
-  }
-}
-```
+**Plan limit**: when the tenant `max_users` is set, invite is rejected with `PLAN-403-LIMIT` once the active-user count has reached it.
 
-### 4.2.1 Bulk Invitation via CSV Upload
+### 4.2.1 Bulk invitation (CSV)
 
-Admins can upload a CSV file to invite multiple users at once:
+`POST /api/v1/tenants/{tenant_id}/users/invitations/bulk/` with multipart `file` or `csv`.
 
-**CSV Columns**: Employee ID, Email, First Name, Last Name, Role, Department, POI, Functional Role Type
+**Columns**: `employee_id`, `invite_channel`, `email`, `phone_number`, `first_name`, `last_name`, `role_code`, `department`, `poi_code`, `otp_type`.
 
-**Processing Rules**:
-- Validate that Department is one of the predefined department options
-- Validate that Role belongs to the selected Department (reject row if mismatch)
-- Maximum 100 invitations per batch
-- CSV format and data validated before processing
-- Partial processing supported (valid rows processed, invalid rows reported)
-- Success/failure report generated per row with specific error reasons
-- CSV template download available for admin convenience
+- Maximum **100** rows.
+- One `role_code` per row. Department must match that role.
+- Valid rows are invited; invalid rows are reported with a row number and reason.
+- Each success follows the same placeholder-user + token + OTP path as a single invite.
 
-**Validation per Row**:
-```typescript
-async function validateCSVRow(row: CSVRow, tenant: Tenant): Promise<ValidationResult> {
-    const errors: string[] = [];
-    
-    if (!isValidEmail(row.email)) errors.push('Invalid email format');
-    if (await emailExistsInTenant(row.email, tenant.id)) errors.push('Email already exists');
-    if (!await roleExists(row.role)) errors.push('Invalid role');
-    if (row.role === 'Super Admin') errors.push('Super Admin role cannot be assigned via invitation');
-    if (await isOverPlanLimit(tenant.id)) errors.push('Plan user limit exceeded');
-    
-    return { valid: errors.length === 0, errors };
-}
-```
+### 4.3 Invitation message and token
 
-### 4.3 Invitation Email
+**Email** includes the inviter name, organisation name, the activation URL, the 6-digit OTP, and the 7-day expiry.
 
-**Email Content**:
-```
-Subject: You're invited to join [Organization Name] on DFMS
+**SMS** uses the short URL and the same OTP. When `SMS_ENABLED` is false the body is logged and the invitation still becomes `pending`.
 
-Hi [First Name] [Last Name],
+**Resend**:
 
-[Admin Name] has invited you to join [Organization Name]'s DFMS account.
+- Cooldown 2 minutes (`last_resent_at`), including when dispatch fails.
+- Same activation token, new OTP, same channel.
+- Expired invitations are renewed for another 7 days and `otp_verified` is cleared.
+- Identity or channel change rotates the token and revokes short links.
 
-Your Role: [Role Name]
-Department: [Department]
-
-[Custom Message from Admin - if provided]
-
-To activate your account:
-1. Click the link below (valid for 7 days)
-2. Enter your OTP if prompted (only if OTP type was set to "Email")
-3. Set a password
-4. Review and accept Terms & Conditions
-
-[Activate Account Button: https://dfms.app/activate/[token]]
-
-Need help? Reply to this email or contact your administrator.
-
-This invitation expires on [Expiry DateTime].
-```
-
-**Email Template Support**: The system supports customizable email templates per tenant. Admins can modify the invitation email body while preserving required elements (activation link, expiry).
-
-**Resend Rules**:
-- Cooldown: 2 minutes between resend requests
-- Resending generates a new email but preserves the original activation token
-- Expired invitations can be resent by admin (generates a new token with fresh 7-day expiry)
-
-**Invitation Token**:
 ```typescript
 InvitationToken {
-  token: string           // Unique, 64-char hex
-  user_id: UUID
-  email: string
-  first_name: string
-  last_name: string
+  token: UUID
+  user_id: UUID | null          // placeholder User; set on create
+  email: string                 // blank for phone-only
+  phone_number: string
+  invite_channel: 'email' | 'phone'
+  role_id: UUID
+  department: string
+  employee_id: string
+  invitee_first_name: string
+  invitee_last_name: string
+  poi_id: UUID | null
   invited_by: UUID
-  expires_at: DateTime    // 7 days from creation
-  invitation_status: enum ['sent', 'pending', 'activated', 'expired', 'cancelled']
-    // sent      — email dispatched on creation
-    // pending   — user received email, not yet activated
-    // activated — user completed activation
-    // expired   — expiry passed without activation
-    // cancelled — admin cancelled before activation
-  created_at: DateTime
+  expires_at: DateTime          // 7 days from creation
+  invitation_status: 'sent' | 'pending' | 'activated' | 'expired' | 'cancelled'
+    // sent      — created; delivery not confirmed
+    // pending   — email/SMS dispatch succeeded
+    // activated — password set and T&C accepted
+    // expired   — expiry passed (set when activation is attempted late)
+    // cancelled — API cancel
+  otp_type: 'none' | 'email' | 'phone'   // login 2FA, not the activation gate
+  activation_otp_hash: string            // SHA-256; always set for new invites
+  activation_otp_expires_at: DateTime    // 10 minutes
+  activation_otp_attempts: number        // max 3
+  otp_verified: boolean
+  is_used: boolean
+  used_at: DateTime | null
 }
 ```
 
-### 4.4 Account Activation Steps
+Pending uniqueness: one unused, non-terminal invitation per email, per phone, per employee ID, and per user.
 
-**Step 1: Click Activation Link**
-- Validate token (not expired, not used, matches email)
-- Load invitation details
+### 4.4 Account activation steps
 
-**Step 2: Complete Profile**
-- Set password (meet complexity requirements)
-- Confirm password
-- Optional: Upload profile photo
+Page: `GET/POST /activate/?token={uuid}` on the tenant host.
 
-**Step 3: OTP Verification**
-- OTP requirement depends on **OTP type** selected during invitation:
-  - OTP type = None → Skip OTP verification
-  - OTP type = Email → Send OTP to email; user enters OTP
-- System validates against stored code (max 3 attempts, 10-minute validity)
+**Step 1 — Open the link**
 
-**Step 4: Accept Terms**
-- Display Terms & Conditions
-- Display Privacy Policy
-- Require explicit checkbox acceptance
+- Token must be unused, not cancelled/expired/activated, and before `expires_at`. The page rejects the link once that clock has passed.
+- Submitting activation after expiry (`activate_invitation`) stores `invitation_status=expired`.
 
-**Step 5: Activation Complete**
-- Set user status to 'Active'
-- Mark invitation token as 'Activated'
-- Send welcome email
-- Log activation event
-- Redirect to login or dashboard
+**Step 2 — Activation OTP**
+
+- Shown when `activation_otp_hash` is set and `otp_verified` is false. That is every new invitation.
+- Code was already delivered with the invite (email or SMS). The page masks the destination.
+- 10-minute validity, 3 attempts, then the invitee must resend (`POST …/otp/resend/` or the page resend, 2-minute cooldown).
+- Success sets `otp_verified` and the page moves to the password step.
+- Legacy rows with an empty hash skip this step until someone resends them.
+
+**Step 3 — Password and terms**
+
+- Password and confirmation. Rules: 8+ characters, uppercase, lowercase, digit, special character.
+- Terms & Conditions checkbox is required.
+- No profile photo on this page. First and last name are taken from the invitation (API may override them).
+
+**Step 4 — Complete**
+
+- Placeholder user is updated: password set, `account_status=active`, `is_staff=true`, `is_email_verified=true` when an email exists.
+- Role assignment is refreshed from the invitation; POI-scoped roles get `UserOperationalPOI`.
+- Invitation `is_used=true`, status `activated`; short links revoked.
+- Welcome email when the user has an email.
+- Audit action `User.Activate`.
+- `/activate/success/` logs out any previous portal session and issues a new JWT pair.
 
 ---
 
 ## 5. OTP Verification System
+
+Activation OTP for staff onboarding is stored on `InvitationToken` (`activation_otp_hash`, 10-minute expiry, 3 attempts), not in a separate OTP table. New invitations always generate one, delivered on `invite_channel`. `otp_type` on the same row is login 2FA and is not the activation gate. Login and password-reset OTPs are separate records. The shapes below describe that family of checks (hash compare, expiry, attempt cap, resend cooldown).
 
 ### 5.1 OTP Generation
 
