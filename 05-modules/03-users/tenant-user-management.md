@@ -5,7 +5,7 @@ version: 1.0
 phase: Phase 1
 source_document: DFMS_Product_Requirements_Document_v3.md
 sprint: Sprint 2
-last_updated: 2026-09-22
+last_updated: 2026-10-01
 related_stories: US-004, US-005, US-007, US-008, US-009, DFS-024, DFS-026, DFS-027, DFS-028, TUM-06
 jira_epic: DFS-029
 ---
@@ -95,24 +95,23 @@ All roles below are **predefined system roles**. Tenant Admin assigns them durin
 ```typescript
 User {
   user_id: UUID
-  tenant_id: UUID
-  email: string                        // Unique per tenant; invitation channel
-  first_name: string
-  last_name: string
-  employee_id: string (nullable)       // Optional; set during invitation or later
+  tenant_id: UUID                      // schema-per-tenant; not a column on users
+  email: string | null                 // Unique when set; null for phone-only invites
+  phone_number: string                 // Unique when set; E.164 for BD mobile
+  first_name: string                   // Required
+  last_name: string                    // Optional (blank allowed)
+  employee_id: string                  // Required on staff invite; unique when non-blank
 
-  // Role & Department
-  role_id: UUID                        // FK → OperationalRole
-  department: string                   // Derived from role; displayed for context
-  functional_role_type: enum ['Requester', 'Approver', 'Executor']  // Metadata; from role
-  access_scope: enum ['Local', 'Global']  // From role definition
+  // Role & Department — one UserRole row on invite (department copied from the role)
+  role_id: UUID
+  department: string
 
-  // Location assignment (for Local-scoped roles)
-  assigned_poi_id: UUID (nullable)     // FK → POI — required for Local-scoped roles
+  // Location — UserOperationalPOI, required for POI-scoped roles
+  assigned_poi_id: UUID (nullable)
 
-  // Account status
-  status: enum ['Invited', 'Active', 'Suspended', 'Deactivated']
-  invitation_status: enum ['sent', 'pending', 'activated', 'expired', 'cancelled']
+  // Account status (users.account_status). Invitation lifecycle is on InvitationToken, not here.
+  account_status: enum ['invited', 'active', 'suspended', 'deactivated']
+  // invited users are is_active=True with an unusable password until activation
 
   // Deactivation metadata
   deactivation_type: enum ['Temporary', 'Permanent'] (nullable)
@@ -146,82 +145,89 @@ OperationalRole {
 
 ## 3. User Invitation
 
+Channel rules, OTP, and activation steps: [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md).
+
 ### 3.1 Single User Invitation
 
-The Tenant Admin invites a user by email. The invitation is dispatched immediately on submission.
+Tenant Admin opens **Invite user** from the Users list (`InviteUserAdmin`; the model is hidden from the sidebar). The invitation is created and dispatched in the same request.
 
-**Invite User form fields:**
+**Invite User form fields** (`InviteUserForm`):
 
 | Field | Notes |
 |-------|-------|
-| First Name | Required |
-| Last Name | Required |
-| Email | Required; unique per tenant |
-| Employee ID | Optional |
-| Role | Multi-select of assignable operational roles, grouped by department; Super Admin hidden. Exclusive targets (Tenant Admin, Tenant Super Admin, Driver, Helper) cannot be combined with any other role. See [multi-role-assignment-implementation-plan.md](./multi-role-assignment-implementation-plan.md) (TUM-06). |
-| Assigned POI | Required if **any** selected role is POI-scoped; hidden for Global-only. Invite is a **multi-select** shared across selected local roles (one site still valid). User edit has a **per-role** multi-select so each local role can hold a different set of sites. |
+| Invitation via | `email` or `phone` |
+| Email | Required for email channel; optional for phone |
+| Phone | Required for phone channel; BD mobile, stored E.164 `+8801…` |
+| First name | Required |
+| Last name | Optional |
+| Employee ID | Required; unique when non-blank |
+| Role | One role. Department is filled from the role and submitted as a hidden field. Staff invite excludes `super_admin`, `tenant_super_admin`, `driver`, and `driver_helper`. `tenant_admin` appears only for a Tenant Super Admin or platform Super Admin. |
+| Site (POI) | Required for POI-scoped roles (gate, scale, command center, loading, unloading, QC, POI-Admin). Rejected when the role is not POI-scoped. |
+| 2FA (`otp_type`) | `none` (default), `email`, or `phone`, and it must match the channel. This value is **login 2FA**. Activation OTP is always sent and does not read this field. |
 
-**Validation rules:**
-```
-Email must be unique within the tenant
-Each selected role must be a valid assignable operational role (not Super Admin)
-The set must pass exclusive-target validation (TUM-06)
-Assigned POI required if **any** selected role is POI-scoped (**at least one**, no cap). Invite/CSV: the selected POI set applies to every local role on the row. User edit may set a **different POI set per local role**.
-Role assignment validated against tenant subscription plan limits
-```
+Plan user limit is checked before create (`PLAN-403-LIMIT`).
 
-**On submit:**
-```
-1. User record created with status = 'Invited', invitation_status = 'sent'
-2. Invitation email dispatched immediately (synchronous)
-3. Email contains time-limited activation link (expires 7 days)
-4. Audit log entry: action=InvitationSent, inviter, invitee email, **set of role codes**, timestamp
-```
-
-### 3.2 Invitation Lifecycle
+**On submit** (`create_invitation` → `_create_token_and_dispatch`):
 
 ```
-sent → pending (user opens link) → activated (password set + T&C accepted)
-                                 → expired   (7-day expiry, no action taken)
-                                 → cancelled (admin cancels)
+1. Placeholder User: account_status = invited, is_active = true, unusable password, is_staff = true
+2. One UserRole for the selected role (any other role rows for that user are removed)
+3. InvitationToken (user FK, status sent, 7-day expiry, activation OTP always generated)
+4. Email or SMS dispatched. Stored status becomes pending when send succeeds; stays sent when send fails
+5. Audit: User.InvitePlaceholderCreate (or User.InvitePlaceholderUpdate)
 ```
 
-**Resend invitation**: Available for `sent` and `expired` invitations. 2-minute cooldown between resends.
+The invited person appears on the Users list with status **Invited** before they activate.
 
-**Cancel invitation**: Admin can cancel any `sent` or `pending` invitation. User is notified. Audit logged.
+### 3.2 Invitation lifecycle (`InvitationToken.invitation_status`)
+
+```
+sent      — row created; delivery not confirmed
+pending   — email or SMS dispatch succeeded (SMS may be log-only when SMS_ENABLED is false)
+activated — invitee verified OTP, set password, and accepted T&C
+expired   — activation attempted after expires_at (also treated as invalid once the clock passes)
+cancelled — DELETE /api/v1/users/invitations/cancel/{invitation_id}/
+```
+
+Opening the activation link does not change status.
+
+**Reinvite** (Users list action, user detail button, and `POST /api/v1/users/invitations/{token}/resend/`): allowed unless the invitation is activated, cancelled, or already used. Expired invitations get a new 7-day expiry. Cooldown is 2 minutes. The activation token is kept unless the channel or identity changed, in which case the token is rotated and short links are revoked. The placeholder user is not removed.
+
+**Cancel** is the API above. It sets `cancelled` and revokes short links. It does not delete the placeholder user. Activated invitations cannot be cancelled. There is no cancel control on the Users admin screen.
 
 ### 3.3 Bulk User Invitation (CSV)
 
-| CSV Column | Required | Notes |
-|-----------|----------|-------|
-| Employee ID | Optional | |
-| Email | Yes | Unique per tenant |
-| First Name | Yes | |
-| Last Name | Yes | |
-| Role | Yes | One `role_code`, or comma-separated codes (`gateman,scaling_operator`); forbidden combinations fail that row |
-| Assigned POI | Conditional | Required if any role is Local-scoped; comma-separated `poi_code` values apply to every local role on the row (one code still valid) |
+`POST /api/v1/tenants/{tenant_id}/users/invitations/bulk/` — multipart field `file` or `csv`. Maximum **100** rows. Each valid row calls `create_invitation`. Invalid rows are returned with a reason; valid rows are still invited.
 
-**Behaviour:**
-- Per-row validation — invalid rows reported with reason; valid rows invited
-- Batch audit log entry for the bulk operation
-- Error report downloadable after upload
+| CSV column | Required | Notes |
+|-----------|----------|-------|
+| `employee_id` | Yes | Blank fails inside `create_invitation` |
+| `invite_channel` | No | `email` (default) or `phone` |
+| `email` | When channel is email | |
+| `phone_number` | When channel is phone | Also accepted as `Phone` / `phone` |
+| `first_name` | Yes | |
+| `last_name` | No | |
+| `role_code` | Yes | One code (`Role` header also accepted) |
+| `department` | Yes | Must allow that `role_code` |
+| `poi_code` | Conditional | Required by the service for POI-scoped roles |
+| `otp_type` | No | Defaults to `none`. Login 2FA only |
 
 ---
 
 ## 4. User Account Activation
 
-The activation flow is handled in `01-foundation/user-tenant-management.md`. Summary for reference:
+Implemented in `apps/users/web_views.py` and `activate_invitation()`. Full channel notes: [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md).
 
 ```
-User receives invitation (email or SMS, per invite_channel)
-  → Opens activation link
-  → (If OTP type = Email/Phone) Enters OTP code
-  → Sets password (complexity rules enforced)
-  → Accepts Terms & Conditions
-  → Account status: Invited → Active
+Invitee opens /activate/?token={uuid}   (SMS uses the short link, which resolves to this URL)
+  → Enters the activation OTP sent on the invite channel
+  → Sets password and accepts Terms & Conditions
+  → Placeholder user: account_status invited → active
+  → InvitationToken: activated; short links revoked
+  → /activate/success/ issues a fresh session
 ```
 
-Invite channel may be **email or phone** (BD mobile). Phone-invited users may have no email. See [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md) and [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md).
+OTP is required for every invitation created by the current service (the row always has `activation_otp_hash`). `otp_type` does not skip this step. A legacy token that has no hash still activates without OTP until it is resent; resend generates a hash.
 
 ---
 
@@ -231,38 +237,33 @@ Invite channel may be **email or phone** (BD mobile). Phone-invited users may ha
 
 | Column | Notes |
 |--------|-------|
-| Name | First + Last name |
-| Email | |
-| Role | Operational role name |
-| Department | From role |
-| Assigned POI | For Local-scoped users |
-| Status | Active / Invited / Suspended / Deactivated — badge |
-| Last Login | `last_login_at` — "Never" if not yet logged in |
-| Actions | View / Edit / Suspend / Deactivate |
+| Name | First + last name |
+| Employee ID | |
+| Email or phone | Phone-only users show the phone |
+| Role | Primary role |
+| Department | From the role |
+| 2FA | `otp_type` on the latest invitation (`none` / `email` / `phone`) |
+| Status | Active, Invited, Suspended (account `suspended` or `deactivated`), Invitation Expired |
+| Last active | `last_active_at` |
 
 ### 5.2 Filters & Search
 
 | Filter | Options |
 |--------|---------|
-| Status | Active / Invited / Suspended / Deactivated |
-| Department | All departments |
-| Role | All operational roles |
-| Access Scope | Local / Global |
-| Assigned POI | POI dropdown |
-| Search | Name, email, employee ID |
+| Status | Active / Invited / Suspended / Invitation Expired |
+| | Also: tenant admin, super admin, department |
+| Search | Email, phone, first name, last name, employee ID |
 
-### 5.3 Invitation Queue Sub-tab
+### 5.3 Invited users on the Users list
 
-A separate sub-tab within Users showing all pending invitations:
+There is no separate invitation queue. Placeholder users stay on this list.
 
-| Column | Notes |
+| Status filter | Who |
 |--------|-------|
-| Email | Invitee |
-| Role | Assigned role(s) |
-| Invitation Status | sent / pending / expired / cancelled |
-| Invited On | Timestamp |
-| Expires On | invited_at + 7 days |
-| Actions | Resend / Cancel |
+| Invited | `account_status=invited` and the latest invitation is missing, `sent`, or `pending` |
+| Invitation Expired | `account_status=invited` and the latest invitation is `expired` or `cancelled` |
+
+**Reinvite** is a changelist action and a button on the user change page. Search matches email, phone, first name, last name, and employee ID.
 
 ---
 
@@ -466,11 +467,15 @@ All endpoints require Tenant Admin authentication. Scoped to the authenticated t
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/users/invitations` | Invite single user |
-| `POST` | `/api/v1/users/invitations/bulk` | Bulk CSV invitation |
-| `GET` | `/api/v1/users/invitations` | List invitations (filter by status) |
-| `POST` | `/api/v1/users/invitations/{token}/resend` | Resend (2-min cooldown) |
-| `DELETE` | `/api/v1/users/invitations/{id}` | Cancel invitation |
+| `POST` | `/api/v1/tenants/{tenant_id}/users/invitations/` | Invite one user (`role_ids` is accepted; only the first id is used) |
+| `GET` | `/api/v1/tenants/{tenant_id}/users/invitations/` | List invitations (`?status=`) |
+| `POST` | `/api/v1/tenants/{tenant_id}/users/invitations/bulk/` | Bulk CSV (`file` or `csv`) |
+| `GET` | `/api/v1/users/invitations/{token}/` | Public invitation info |
+| `POST` | `/api/v1/users/invitations/{token}/otp/verify/` | Verify activation OTP |
+| `POST` | `/api/v1/users/invitations/{token}/otp/resend/` | Resend activation OTP (2-min cooldown) |
+| `POST` | `/api/v1/users/invitations/{token}/activate/` | Set password and activate |
+| `POST` | `/api/v1/users/invitations/{token}/resend/` | Admin reinvite (2-min cooldown) |
+| `DELETE` | `/api/v1/users/invitations/cancel/{invitation_id}/` | Cancel by invitation id |
 
 ### 11.3 Roles
 
@@ -538,13 +543,13 @@ API contract: user selection endpoints always apply:
 ### 12.5 Tenant User Limits
 
 ```
-Subscription plan enforces max_users limit.
+Subscription plan enforces max_users when that limit is set.
 On invitation:
-  active_user_count = count(users WHERE status IN ['Invited', 'Active'])
-  IF active_user_count >= tenant.max_users:
+  counted = users WHERE is_active = true
+  (includes invited placeholders; excludes suspended/deactivated accounts that are is_active = false)
+  IF counted >= tenant.max_users:
     BLOCK invitation
-    RETURN 402 Payment Required:
-      { "error": "User limit reached", "current": X, "limit": Y }
+    RETURN 403 PLAN-403-LIMIT
 ```
 
 ---
@@ -558,10 +563,10 @@ On invitation:
 ### 13.2 Core Test Cases
 
 **Invitation Tests**
-- Invite user with valid role → invitation_status = 'sent', email dispatched
-- Invite with Super Admin role → 403
-- Invite with Local-scoped role without assigned_poi → 400
-- Invite beyond tenant user limit → 402
+- Invite user with a valid role → placeholder user `account_status=invited`, invitation moves to `pending` when email/SMS send succeeds, activation OTP included
+- Invite with Super Admin role → 403 `ROLE-403-SUPER-ADMIN-RESTRICTED`
+- Invite with a POI-scoped role and no site → 400
+- Invite beyond tenant user limit → 403 `PLAN-403-LIMIT`
 - Bulk CSV: valid rows invited; invalid rows reported with per-row errors
 - Resend within 2-min cooldown → 429
 

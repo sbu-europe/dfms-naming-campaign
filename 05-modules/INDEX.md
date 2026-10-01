@@ -94,6 +94,8 @@ This index provides a comprehensive mapping of all module specifications, cross-
 **Django App**: `apps/users/`
 
 #### Specifications
+- [staff-invite-login-password-channels.md](03-users/staff-invite-login-password-channels.md) — Staff onboarding: email or phone invite, placeholder user, mandatory activation OTP, login and password reset
+- [tenant-user-management.md](03-users/tenant-user-management.md) — Tenant Admin invite, Users list, activation, deactivation
 - [driver-user-profiles.md](03-users/driver-user-profiles.md) — Driver profile, compliance, user account link
 - [optional-last-name-fb002.md](03-users/optional-last-name-fb002.md) — Sprint 8 FB-002: User & Driver last name optional
 - [multi-role-assignment-implementation-plan.md](03-users/multi-role-assignment-implementation-plan.md) — Sprint 10 TUM-06: multiple operational roles + working-role switcher

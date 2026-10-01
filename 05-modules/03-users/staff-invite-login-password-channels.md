@@ -3,11 +3,12 @@ module: 03-users
 specification: Staff invite, login & password reset — channel overview
 version: 1.0
 phase: Phase 1
-last_updated: 2026-07-28
+last_updated: 2026-10-01
 related_stories: US-005, US-006, US-008
 related_cr: CR-002
 implementation_reference:
   - nourish-backend/apps/users/invitation_service.py
+  - nourish-backend/apps/users/web_views.py (SSR /activate/)
   - nourish-backend/apps/users/services.py (AuthService)
   - nourish-backend/apps/users/password_reset_service.py
   - nourish-backend/apps/core/admin_otp.py
@@ -24,7 +25,7 @@ implementation_reference:
 **Change request**: [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md)  
 **Sprint tracker**: [FB-032](../../03-backlog/phase-1/sprints/sprint-6/feedback-resolution/01-users-and-access.md#fb-032--staff-invite--login--forgot-password-email-or-phone-channel)
 
-> **Planned change ([CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md), draft)**: onboarding OTP (§2.4) will become **unconditional** for every invitation, regardless of `otp_type` — the "Allowed OTP types" table in §2.1 and the "Optional OTP step" language in §2.4 reflect **current** shipped behavior only. `otp_type` itself, the invite form, and the API/CSV contracts are **not changing** — `otp_type` continues to exist solely for login 2FA (§3.3), which is explicitly out of scope for CR-003 and fully unaffected. This note will be replaced with updated §2.4 language once CR-003 ships.
+> **Onboarding OTP ([CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md)) is shipped.** Every new invitation generates an activation OTP and the invitee must verify it before setting a password. Delivery follows `invite_channel`. `otp_type` (admin label **2FA**) is stored for login 2FA only (§3.3) and does not turn the activation OTP on or off.
 
 ---
 
@@ -32,7 +33,7 @@ implementation_reference:
 
 | Capability | Email channel | Phone channel |
 |---|---|---|
-| **Invite** | Email required; optional email OTP for activation / login 2FA | Phone (BD mobile) required; `User.email` may be null; optional SMS OTP |
+| **Invite** | Email required; activation OTP always in the email. `otp_type` is login 2FA only | Phone (BD mobile) required; `User.email` may be null; activation OTP always in the SMS |
 | **Identity** | Unique email per tenant | Unique phone per tenant (when set); no mock `@invite.local` emails |
 | **Reinvite** | Resends via original `invite_channel` (email) | Resends via original `invite_channel` (SMS) |
 | **Login (admin)** | Email tab or email identifier | Phone tab; UI prefix **`+88`** + 11-digit local (`01XXXXXXXXX`); resolves to E.164 `+8801…` |
@@ -55,29 +56,61 @@ Admin chooses **`invite_channel`**: `email` | `phone`.
 | `email` | Email; phone optional | `email` set; phone optional |
 | `phone` | BD mobile (E.164 / local forms accepted); email **not** required | `phone_number` set; `email` may be `null` |
 
-**OTP type** must match channel:
+**Login 2FA (`otp_type`)** must match channel. It is not the onboarding OTP switch.
 
-| Invite channel | Allowed OTP types |
+| Invite channel | Allowed `otp_type` (login 2FA) |
 |---|---|
 | email | `none`, `email` |
 | phone | `none`, `phone` |
 
-### 2.2 Delivery
+Admin field label is **2FA**. Default is `none`.
 
-- **Email invite**: activation URL (+ OTP if `otp_type=email`) via email task.
-- **Phone invite**: activation URL (+ OTP if `otp_type=phone`) via `send_staff_invitation_sms` (or log when SMS disabled).
+### 2.2 What invite creates
 
-### 2.3 Reinvite
+`create_invitation()` (Django admin **Invite user**, REST, and bulk CSV):
 
-`resend_invitation()` always uses the invitation’s stored **`invite_channel`** — phone invites are never re-sent as email (and vice versa).
+1. **Placeholder `User`** in the tenant schema: `account_status=invited`, `is_active=True`, `is_staff=True`, unusable password. The row shows on the Users list immediately. One `UserRole` is attached for the selected role.
+2. **`InvitationToken`** linked by `user` FK. Token is a UUID. Expiry is **7 days** (`US005_INVITATION_EXPIRY_DAYS`). A 6-digit activation OTP is always hashed onto the row (SHA-256), valid **10 minutes** (`OTP_EXPIRY_MINUTES`), **3 attempts** (`OTP_MAX_ATTEMPTS`).
+3. Dispatch on `invite_channel`. On success the stored status moves **`sent` → `pending`**. If send throws, the row stays **`sent`** and the admin can Reinvite. The create API response body still returns the literal `invitation_status: "sent"`.
 
-### 2.4 Activation
+**Required invite fields**
 
-Unchanged SSR flow at `/activate/?token=…`:
+| Field | Rule |
+|---|---|
+| First name | Required |
+| Last name | Optional |
+| Employee ID | Required; unique among non-blank IDs |
+| Role | One role. Department is derived from the role. Staff invite cannot assign `super_admin`, `tenant_super_admin`, `driver`, or `driver_helper`. `tenant_admin` is offered only to a Tenant Super Admin (or platform Super Admin). |
+| Site (POI) | Required for POI-scoped roles; rejected for roles that are not POI-scoped |
+| Email / phone | Required for the chosen channel; the other is optional |
 
-1. Optional OTP step (email or SMS per invitation).
-2. Set password + accept T&C.
-3. Account becomes active; user signs in with the **same identifier** used for invite (email or phone).
+Active users with the same email or phone are rejected. A second pending invitation for the same email, phone, employee ID, or user is rejected (DB unique constraints). Orphan pending tokens with no `user` FK that collide on those fields are cancelled first.
+
+### 2.3 Delivery
+
+- **Email invite**: full activation URL `https://{tenant-host}/activate/?token={uuid}` plus the OTP, via the email task.
+- **Phone invite**: the same OTP, and a **short** activation URL from `shorten_for_sms` (email links stay long), via `send_staff_invitation_sms`. When `SMS_ENABLED` is false the SMS body is logged and the invitation still moves to `pending`.
+
+### 2.4 Reinvite
+
+`resend_invitation()` always uses the stored **`invite_channel`**. It regenerates the activation OTP, keeps the same token, and enforces a **2-minute** cooldown (`INVITATION_RESEND_COOLDOWN_SECONDS`, stamped on `last_resent_at` even if dispatch fails).
+
+Resend is refused when status is `activated` or `cancelled`, or `is_used` is true. An **expired** invitation is renewed: expiry reset to 7 days, `otp_verified` cleared, status set back to `sent`, then the message is sent again.
+
+Changing the invite identity (channel, email, or phone) rotates the token and revokes previous short links before the resend.
+
+### 2.5 Activation
+
+SSR page `GET/POST /activate/?token=…` (`apps/users/web_views.py`):
+
+1. **OTP** when `activation_otp_hash` is set and `otp_verified` is false. Destination follows `invite_channel` (masked email or phone). Invitee can resend the code (`resend_activation_otp`, 2-minute cooldown). A token with no hash (legacy, never resent) skips this step.
+2. **Password + Terms & Conditions.** Password: at least 8 characters, one uppercase, one lowercase, one digit, one special character.
+3. The placeholder user is updated in place: password set, `account_status=active`, email marked verified when an email exists, role assignment refreshed. Invitation status becomes `activated`, short links are revoked, and a welcome email is sent when the user has an email.
+4. `/activate/success/` clears any previous portal session and issues a fresh JWT pair.
+
+Public API equivalents: `POST /api/v1/users/invitations/{token}/otp/verify/`, `POST …/otp/resend/`, `POST …/activate/`. Activate accepts a one-shot `otp_code` or a prior verify call. Missing OTP on a token that has a hash returns `INV-400-OTP-REQUIRED`.
+
+`GET /api/v1/users/invitations/{token}/` field `requires_otp` still follows `otp_type` (true only for `email` or `phone`, and only while `otp_verified` is false). The activation page and `activate_invitation` do not use that flag; they require OTP whenever `activation_otp_hash` is set.
 
 ---
 
@@ -171,4 +204,4 @@ Delivers via user’s email if present; otherwise SMS to phone. Justification st
 
 ---
 
-**Last Updated**: 2026-08-12
+**Last Updated**: 2026-10-01

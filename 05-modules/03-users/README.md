@@ -16,8 +16,7 @@ The `03-users` module covers all user management concerns within a tenant — fr
 
 | File | Description | Sprint | Related Stories |
 |------|-------------|--------|-----------------|
-| [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md) | **Channel overview** — staff email vs phone invitation, admin login (`+88` + 11-digit local), forgot-password single identifier field, SMS gating | Sprint 2+ | US-005, US-008 · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md) |
-| [mandatory-onboarding-otp.md](mandatory-onboarding-otp.md) | **Draft spec (pre-implementation)** — makes onboarding OTP unconditional (independent of `otp_type`) for all invitations; single-file change to `invitation_service.py` only; `otp_type` and login 2FA untouched | Sprint 8 | US-005 · [CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md) |
+| [staff-invite-login-password-channels.md](staff-invite-login-password-channels.md) | **Staff onboarding** — email vs phone invite, placeholder user, mandatory activation OTP, admin login, forgot-password, SMS gating. `otp_type` is login 2FA only | Sprint 2+ | US-005, US-008 · [CR-002](../../11-change-requests/CR-002-staff-phone-invite-login-password.md) · [CR-003](../../11-change-requests/CR-003-mandatory-onboarding-otp.md) |
 | [optional-last-name-fb002.md](optional-last-name-fb002.md) | **Sprint 8 FB-002** — User & Driver `last_name` optional on invite, create, change, activation, and bulk import; first name stays required | Sprint 8 | US-005, US-057 · [FB-002](../../03-backlog/phase-1/sprints/sprint-8/feedback-resolution.md#fb-002--user--driver--last_name-optional) |
 | [tenant-user-management.md](tenant-user-management.md) | Tenant Admin's user & role management — invite users, assign operational roles, manage user lifecycle (active/suspended/deactivated), roles & permissions view, audit trail, deactivation with session termination | Sprint 2 | US-004, US-005, US-007, US-008, US-009 |
 | [multi-role-assignment-implementation-plan.md](multi-role-assignment-implementation-plan.md) | **Sprint 10 TUM-06** — multiple operational roles on one user; Select Role (working role, no permission union); exclusive admin/driver/helper targets | Sprint 10 | TUM-06 |
@@ -31,8 +30,8 @@ The `03-users` module covers all user management concerns within a tenant — fr
 ```
 Tenant Admin sidebar ({tenant}.dfms.com/admin)
 └── Users                            — list; invite; filter; bulk deactivate/reactivate
-      ├── User List                   — email, name, role, department, status, last login
-      ├── Invite User                 — reached via "Invite user" button on User List
+      ├── User List                   — name, employee ID, email or phone, role, department, 2FA, status (Active / Invited / Suspended / Invitation Expired)
+      ├── Invite User                 — "Invite user" on the Users list; email or phone; one role; activation OTP always sent
       └── User Detail / Edit          — role multi-select (TUM-06), deactivate/reactivate, password reset
 
 Platform Admin sidebar (admin.dfms.com) — Super Admin only
@@ -75,6 +74,6 @@ Platform Admin sidebar (admin.dfms.com) — Super Admin only
 
 ---
 
-**Last Updated**: 2026-09-22
+**Last Updated**: 2026-10-01
 **Previous Module**: [02-master-data/](../02-master-data/README.md) — Master Data Management
 **Next Module**: [04-requisitions/](../04-requisitions/README.md) — Requisition & Distribution Management
