@@ -27,15 +27,16 @@ playwright_mcp: true
 Target runner: **Playwright MCP** against seeded Nourish (`docs/guides/playwright-mcp-admin.md`).  
 Credentials: `docs/testing/playwright-mcp-credentials.yaml`.
 
-**2026-10-02 — All 25 test cases passed** (TC01–TC25). Suite signed off via Playwright MCP against Nourish admin. RUN_ID `26ED230F`. TC08 rechecked after Finished Goods create was limited to the selected working role.
+**2026-10-02 — All 25 test cases passed** (TC01–TC25). Suite signed off via Playwright MCP against Nourish admin. RUN_ID `58DCB2DB`. Chain `PR-FG-20261002-0006` → `TR-FG-20261002-0002` → `TO-20261002-0002` closed.
 
 **Last MCP run:** 2026-10-02 · [RESULTS.md](../../../../../tests/e2e/playwright-mcp/fg-multi-role-poi-flow-artifacts/RESULTS.md)  
-Accounts: `superadmin.nourish@yopmail.com`, `mcp-fgmr-dest-26ed230f@yopmail.com`, `mcp-fgmr-src-26ed230f@yopmail.com`, fixture driver `mcp.drv.26ed230f@example.com`.
+Accounts: `superadmin.nourish@yopmail.com`, `mcp-fgmr-dest-58dcb2db@yopmail.com`, `mcp-fgmr-src-58dcb2db@yopmail.com`, fixture driver `mcp.drv.58dcb2db@example.com`.
 
 ### MCP run history
 
 | Date | Pass / Total | Notes |
 |------|--------------|-------|
+| 2026-10-02 | **25/25** | Fresh RUN_ID `58DCB2DB`. Product and driver picks use autocomplete. Source lists still show that site's own row for the same TO; destination records stay denied. |
 | 2026-10-02 | **25/25** | TC08 recheck Pass. Distribution Officer add is 403. Earlier cases the same day stayed Pass. |
 | 2026-10-02 | **24/25** | TC08 Fail — Distribution Officer could still open Submit Requisition. |
 
