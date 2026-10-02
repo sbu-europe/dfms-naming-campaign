@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-13
+last_updated: 2026-09-17
 ---
 
 # Vendor Mobile — Tracks: Completed Trip History
@@ -102,6 +102,92 @@ interface CompletedTrip {
 ### Backlog refs
 
 - VM-03 (visibility scoping), VM-07 (POD/GRN/Invoice upload contract — **all three gated to Completed**), VM-08 (status terminal `COMPLETED`/`CLOSED` that opens the upload gate).
+
+---
+
+## Post-trip Tenant Rating (VRS-02)
+
+> **Story:** [VRS-02 — Vendor rates tenant (mobile)](../../../03-backlog/phase-2/stories-phase-2/008-Vendor%20Rating%20System/VRS-02-vendor-rates-tenant-mobile.md)
+
+When a TO reaches `COMPLETED` / `CLOSED`, the backend automatically creates a **pending `TenantRating`** for the assigned vendor (symmetric to how `VendorRating` is created for the tenant). The vendor is prompted to rate their experience from the Completed Trip Details screen.
+
+### Trigger & visibility
+
+- A **"Rate your experience"** / **"Rate Tenant"** CTA appears in the Completed Trip Details screen when:
+  - `to_status == COMPLETED`
+  - A pending (not yet submitted) `TenantRating` exists for this TO + vendor
+- Once submitted (`is_submitted=True`), the CTA is replaced by a **read-only submitted rating card** showing the vendor's own score, answered questions, and comment.
+- Rating is **not** shown for TOs that have no TenantRating row (e.g. non-vendor-fleet TOs where tenant rating is not applicable).
+
+### Rating form (VRS-02)
+
+| Element | Rule |
+|---------|------|
+| **Overall score** | Required **1–5 star** selector (single control) |
+| **Questions** | Exactly **3** randomly selected Yes/No questions from the active TENANT pool, locked on first form load |
+| **Answer UI** | **Radio buttons**: Yes · No — each required on submit |
+| **Overall comment** | Optional, max 1 000 characters |
+
+### API flow (vendor mobile)
+
+```
+GET  /api/v1/vendor/transport-orders/<to_id>/rate-tenant/form/
+     → {pending_rating, locked_questions[3]}
+
+POST /api/v1/vendor/transport-orders/<to_id>/rate-tenant/submit/
+     Body: { score, answers:[{question_id, answer}×3], overall_comment? }
+     → submitted rating with rolling Tenant aggregate update
+
+GET  /api/v1/vendor/transport-orders/<to_id>/rate-tenant/
+     → read-only submitted rating (for own-view after submit)
+```
+
+### Type interface addition
+
+```typescript
+interface CompletedTrip {
+  // ... existing fields ...
+
+  // VRS-02 — Tenant Rating (Phase 2)
+  tenant_rating?: {
+    is_submitted: boolean;
+    score?: number;                            // 1–5, present after submit
+    overall_comment?: string;
+    answers?: Array<{
+      question_text: string;
+      answer: boolean;                         // true=Yes, false=No
+    }>;
+    submitted_at?: Date;
+  };
+}
+```
+
+### UI components
+
+- **Completed Trip Details — Rating section:**
+  - If `tenant_rating` is absent or `to_status != COMPLETED`: section hidden.
+  - If `tenant_rating.is_submitted == false`: show **"Rate Tenant"** primary button.
+  - On tap: navigate to **Rate Tenant screen** (star picker → 3 Yes/No radio groups → comment field → Submit).
+  - After submit: replace button with **read-only rating card** (star display, Q&A list, comment, submitted date).
+- **List View card:** May surface a small "⭐ Rate" badge on cards where `tenant_rating.is_submitted == false` to draw attention.
+
+### Tenant aggregate — join flow integration
+
+Vendors browsing tenants (VM-02 Join Tenant) can see the aggregate `vendor_rating` + `vendor_rating_count` sourced from:
+
+```
+GET /api/v1/vendor/tenants/<schema>/rating-summary/
+→ { average_rating: "3.82", rating_count: 47 }
+```
+
+This provides social proof before a vendor commits to joining a tenant.
+
+### Theme rules (mobile)
+
+Reuse existing Vendor App Flutter `ThemeData` / design tokens:
+- Star selector: same widget used elsewhere in the app (or nearest Material/Cupertino equivalent already in-use).
+- Yes/No radio groups: `RadioListTile` in existing app style — no new palette or one-off visual language.
+- Submit button: existing primary button style.
 
 ## Code map
 

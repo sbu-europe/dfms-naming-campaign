@@ -45,22 +45,26 @@ Write failing tests from the catalog **before** implementation.
 
 ## Business Context
 
-Driver Supervisors use fuel entry as part of **pre-trip / pre-execution vehicle checks** — before a TO moves to dispatch, the supervisor may verify the vehicle, **update vehicle information** (e.g. odometer on the vehicle record), and **manually enter all fuel intake data** for the selected vehicle.
+Driver Supervisors use fuel entry as part of **pre-trip / pre-execution vehicle checks** — before a TO moves to dispatch, the supervisor verifies the vehicle and **manually enters the fuel intake**, including the current odometer. Saving the entry updates the vehicle odometer.
 
 v1 uses a **gauge before/after** model from the approved prototype. Supervisor entries are logged from the admin portal (Fleet operations).
+
+The form does **not** reflect a live calculation. The saved `FuelEntry` is the reference for the next fill (see the epic rule in the [Fuel Management README](./README.md)).
 
 **Entry type:** `SUPERVISOR_ENTRY` — distinct from driver mobile entries for audit.
 
 **Own fleet only** — vendor vehicles are excluded from the vehicle picker.
 
+**Any vehicle, any time.** Driver Supervisor, Tenant Super Admin, and Tenant Admin are not limited to a started trip or to Driving Towards Source. The driver form (FM-02) is the path that uses the transport order.
+
 ### Supervisor vs Driver entry (field behaviour)
 
 | Field | Driver Supervisor (FM-01) | Driver mobile (FM-02) |
 |-------|----------------------------|------------------------|
-| Vehicle | **Selectable** (picker) | **Pre-selected** (assigned vehicle, read-only) |
+| Vehicle | **Any own-fleet vehicle, any time** | **Dropdown** of vehicles on the driver’s TOs in Driving Towards Source. Same page |
 | Refueling date/time | **Manual** (supervisor picks date; time optional) | **Auto-logged** at submit (device/server timestamp) |
 | Location | **Manual** (pump name / location text) | **From device** (GPS coordinates + optional reverse-geocoded label) |
-| Fuel type | Auto-filled from vehicle; **editable** if correcting data | Auto-filled from vehicle; **read-only** |
+| Fuel type | Dropdown; vehicle fuel type only prefills | Dropdown; prefilled when the trip vehicle has a fuel type |
 | All fuel intake fields | Supervisor **manually enters** all values | Driver enters gauge, cost, odometer, photos |
 
 ---
@@ -75,12 +79,11 @@ Given a Driver Supervisor, Tenant Super Admin, or Tenant Admin opens Log Fuel En
 
 when they select a vehicle from the own-fleet picker,
 
-then the form loads a vehicle context panel and allows optional vehicle-info updates before/during fuel entry.
+then the form loads a vehicle context panel. The vehicle odometer changes when the fuel entry is saved, from **Current odometer (km)** on that entry.
 
 - [ ] Supervisor **selects vehicle** from own-fleet picker before entering fuel data.
-- [ ] On vehicle select, form shows **vehicle context panel**: registration, model, assigned driver, current odometer (from vehicle master / last fuel entry), last fuel entry summary.
-- [ ] Supervisor may **update vehicle information** relevant to the check (at minimum: `current_odometer_reading` on vehicle record) before or while completing fuel entry.
-- [ ] Vehicle info updates are audit-logged separately from the fuel entry.
+- [ ] On vehicle select, form shows **vehicle context panel**: registration, model, assigned driver, current odometer (from vehicle master), and the **previous saved fuel entry** as the reference (odometer, quantity, datetime). No calculated preview of the entry being typed.
+- [ ] There is no separate odometer update on this form. Saving the fuel entry updates `Vehicle.current_odometer_reading`.
 
 ### AC-2: Fuel entry form fields (supervisor — all manual except auto-calcs)
 
@@ -122,16 +125,17 @@ then it is tagged as a supervisor on-behalf entry with manual location source.
 - [ ] `entered_by` = current supervisor user; `entry_type = SUPERVISOR_ENTRY`.
 - [ ] `location_source = MANUAL`; `refueling_datetime` from supervisor-selected date/time.
 
-### AC-5: Live calculation preview
+### AC-5: Saved entry is the reference (no live calculation)
 
 Given the supervisor is editing fuel intake fields,
 
-when values change,
+when gauge, cost, or odometer values change,
 
-then the right panel updates live preview metrics (and shows N/A on first entry).
+then the form does **not** preview distance or km/L. On save, the entry updates gauge (before, after, filled) and odometer, and stores distance and km/L from the previous saved entry (FM-03). That saved row is the reference for the next fill. There are **no cost-calculation fields** (no ৳/km, no ৳/L).
 
-- [ ] Right panel shows live preview: Tank Before, Tank After, Net Filled, Previous Odometer, Distance Since Last Fill, Fuel Efficiency (km/L), Cost Per km, Cost Per Liter.
-- [ ] First entry for vehicle: distance and km/L show **N/A** with explanatory note.
+- [ ] No live calculation panel, and no ৳/km or ৳/L on the form or the saved entry.
+- [ ] Context shows the **previous saved fuel entry** (gauge quantity, odometer, datetime) as a read-only reference. If there is no previous entry, the panel says this save will be the baseline reference.
+- [ ] After a successful save, gauge and odometer on this entry are the reference for the next fill. History shows the stored distance and km/L.
 
 ### AC-6: Validation rules & RBAC
 
@@ -154,7 +158,7 @@ then save is blocked (or access denied) with a clear error.
 ### Form & selection
 - Vehicle with no assigned driver: context panel shows empty/unassigned driver; entry still allowed.
 - Inactive own-fleet vehicle: TODO(PO) — confirm whether picker excludes inactive vehicles or allows with warning.
-- Switching vehicle mid-form: clear prior vehicle-specific preview and photo associations for the previous selection.
+- Switching vehicle mid-form: replace the reference context with the newly selected vehicle’s previous saved fuel entry. Do not keep a calculated preview from the previous vehicle.
 
 ### Validation boundaries
 - Before = 0 and After > 0 is valid; negative liters rejected.
@@ -175,8 +179,7 @@ then save is blocked (or access denied) with a clear error.
 
 ```
 POST   /api/v1/fuel-entries/                    # create supervisor entry
-GET    /api/v1/vehicles/{id}/                    # vehicle context (odometer, driver, fuel_type)
-PATCH  /api/v1/vehicles/{id}/                   # optional odometer update before entry
+GET    /api/v1/vehicles/{id}/fuel-context/      # vehicle context (odometer, driver, fuel_type, previous entry)
 GET    /api/v1/vehicles/{id}/fuel-history/      # last entry for context panel
 POST   /api/v1/uploads/                         # gauge/receipt/odometer images (existing pattern)
 
@@ -192,7 +195,7 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 |--------|------|
 | Open fuel entry form | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
 | Select any own-fleet vehicle | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
-| Update vehicle odometer on vehicle record | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
+| Vehicle odometer updates from the saved fuel entry | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
 | View fuel history (all vehicles) | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
 | Log fuel for vendor fleet | **Denied** — own fleet only |
 
@@ -206,9 +209,9 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 |---|----------|-------------|----------|--------|
 | FM-01-1 | `FuelEntry` model | Gauge fields, `location_source`, `refueling_datetime`, image URLs | High | Not started |
 | FM-01-2 | Admin form — vehicle picker | Own-fleet picker + vehicle context panel | High | Not started |
-| FM-01-3 | Vehicle info update | Optional `current_odometer_reading` patch with audit | High | Not started |
+| FM-01-3 | Vehicle odometer | Updated from the saved fuel entry only; no separate patch | High | Not started |
 | FM-01-4 | Manual date + location | Supervisor refueling date * and pump location * | High | Not started |
-| FM-01-5 | Live calculation preview | Tank before/after, distance, km/L, ৳/km panel | High | Not started |
+| FM-01-5 | Reference entry context | Show previous saved fuel entry; no live efficiency preview | High | Not started |
 | FM-01-6 | Photo uploads | Gauge before/after required; receipt + odometer supporting | High | Not started |
 | FM-01-7 | Tests | Cover AC-1…AC-6 scenarios + Edge Cases (validation, RBAC, first entry) | High | Not started |
 
@@ -219,21 +222,26 @@ GET    /admin/vehicle_health/fuelentry/add/     # or Fleet → Log Fuel Entry cu
 | Dependency | Direction | Note |
 |------------|-----------|------|
 | MDM-05 Vehicle master | Upstream | Own-fleet vehicles, `fuel_type`, odometer fields |
-| FM-03 calculations | Downstream | Metrics computed on save |
+| FM-03 calculations | Downstream | Metrics stored on the saved entry; that entry is the next reference |
 | Driver assignment | Upstream | Assigned driver shown read-only |
 | File upload service | Upstream | Existing tenant upload pattern |
 
 ---
 
+## Implementation
+
+Follow the epic rule in the [Fuel Management README](./README.md): existing admin portal theme and existing backend structure. This form extends `admin/base_site.html`, reuses portal CSS and controls, and is linked from Fleet operations. Field set follows the prototype; chrome matches the live portal.
+
 ## Definition of Done
 
+- [ ] Screen uses the existing admin portal theme and Fleet operations structure (no new visual language)
 - [ ] Admin fuel entry form matches prototype field set
 - [ ] Gauge photos required; receipt/odometer optional
-- [ ] Live preview updates on input
+- [ ] Each save updates gauge and odometer; no cost-calculation fields (no ৳/km, no ৳/L)
 - [ ] Supervisor on-behalf entry persisted with correct entry_type
 - [ ] Unit/API tests for scenarios AC-1.1…AC-6.4 (and listed edge cases in scope) — see [FM-01 TDD catalog](../../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-01-fuel-entry-admin-tdd-test-cases.md)
 - [ ] TDD catalog statuses updated (`Planned` → `Failing` → `Passing`) for P0 rows
 
 ---
 
-*Epic: Fuel Management | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-09-14*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 8 SP | Last Updated: 2026-10-01*

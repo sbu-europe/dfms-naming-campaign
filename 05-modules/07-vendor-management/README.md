@@ -22,8 +22,9 @@ Vendor ecosystem management including onboarding, bidding, and portal operations
 | [vendor-onboarding.md](vendor-onboarding.md) | Vendor lifecycle entry point, self-registration via web/mobile, vendor type differentiation (Contractual/Non-Contractual), document verification (Trade License/BIN/TIN), admin approval workflow, profile management (vehicles/drivers), access control, resubmission support, audit trail | 6.11.1-6.11.2 | US-064, US-065, US-066, US-067, US-068, US-069 | 715 |
 | [vendor-bidding.md](vendor-bidding.md) | Competitive procurement layer for Non-Contractual vendors, TO publication by Transport Planners, structured bid submission (rate/vehicle availability), side-by-side bid comparison, automated ranking (rate + performance), blind bidding (confidentiality), immutable bids, bid award notifications, winning log tracking | 6.11.3-6.11.4 | US-070, US-071, US-072, US-073, US-074 | 786 |
 | [vendor-portal.md](vendor-portal.md) | Vendor-facing web/mobile interface, centralized dashboard, available bids view (Non-Contractual), assigned TOs view (Contractual/winners), post-award vehicle/driver assignment, real-time trip tracking, completed trips history, profile management, real-time TO/Trip notifications, mobile responsive | 6.11.5-6.11.7 | US-075, US-076, US-077, US-078, US-079, US-080, US-081 | 764 |
+| [vendor-rating.md](vendor-rating.md) | ✅ **Implemented Phase 2** — Bidirectional rating system (Tenant→Vendor via admin portal; Vendor→Tenant via mobile). Single 1–5 star score + 3 random Yes/No questions (radio). Rolling average on `Vendor.rating` and `Tenant.vendor_rating`. Immutable after submit. Shared `RatingQuestion` model. Full RBAC, audit logging, seed management command | 6.14.11 | VRS-01, VRS-02, VRS-03 | ~450 |
 
-**Total Documentation**: ~2,265 lines of comprehensive technical specifications
+**Total Documentation**: ~3,715 lines of comprehensive technical specifications
 
 ---
 
@@ -55,5 +56,5 @@ Check individual specification files for detailed cross-module references.
 
 ---
 
-**Last Updated**: 2026-02-26  
-**Status**: Complete
+**Last Updated**: 2026-09-17  
+**Status**: Active (Phase 2 — Vendor Rating System implemented)

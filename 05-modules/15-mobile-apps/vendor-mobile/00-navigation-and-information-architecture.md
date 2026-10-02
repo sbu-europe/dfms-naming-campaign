@@ -47,6 +47,7 @@ last_updated: 2026-08-12
   | **Assigned TOs** tab | Populated (direct assignments) | Populated (won bids) |
   | **Tracks** tab | Populated | Populated |
   | Rate / bid_amount on TO Details + Completed Trip History | **Hidden** (rate is contractual + backend-controlled) | Visible (vendor's own bid amount) |
+  | **Rate Tenant** CTA (Completed Trip Details) *(Phase 2 ✅)* | Shown when pending TenantRating exists | Shown when pending TenantRating exists |
   | **Profile** tab | Same | Same |
 
 - A vendor may have **different vendor types per tenant**. The Tenant switcher (below) is the source of truth for which gating is currently active.
@@ -245,7 +246,6 @@ flowchart LR
 ```
 
 ---
-
 
 ## Code map
 

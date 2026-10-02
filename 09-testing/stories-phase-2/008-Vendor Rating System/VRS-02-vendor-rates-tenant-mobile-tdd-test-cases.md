@@ -12,7 +12,7 @@ suggested_impl:
   api: POST/GET /api/v1/transport-orders/{id}/tenant-rating/; GET /api/v1/tenants/{id}/vendor-rating-summary/
   maestro: Vendor mobile — Rate Tenant after ACK (single star + 3 Y/N radios); Join Tenant card
   e2e: Playwright admin — incoming vendor ratings list
-last_updated: 2026-09-17
+last_updated: 2026-09-29
 ---
 
 # VRS-02 — Vendor Rates Tenant (Mobile) — TDD test cases
@@ -36,46 +36,46 @@ last_updated: 2026-09-17
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
 | VRS-02-TC01 | AC-1.1 | Maestro | Rate this Tenant after ACK | After vendor ACK completion, assert "Rate this Tenant" screen/bottom sheet shown. | P0 | Planned |
-| VRS-02-TC02 | AC-1.2 | Maestro | Prompt skippable | Tap dismiss/skip. Assert no submit; flow continues. | P0 | Planned |
-| VRS-02-TC03 | AC-1.3 | Maestro | Rate from trip detail after skip | After skip with unsubmitted rating, open completed trip detail. Assert "Rate Tenant" action available. | P0 | Planned |
+| VRS-02-TC02 | AC-1.2 | Maestro | Prompt skippable | Open Rate tenant from completed trip details, leave with Back before submit. Assert no rating is stored and the trip detail returns. `01_skip_then_rate_from_details.yaml` passed on emulator-5554 (2026-09-29). Skip for now is the post-complete prompt; this flow covers dismiss from trip details. | P0 | Passing |
+| VRS-02-TC03 | AC-1.3 | Maestro | Rate from trip detail after skip | After leaving the form unsubmitted, completed trip detail still shows Rate tenant. Same flow; passed on emulator-5554 (2026-09-29). | P0 | Passing |
 | VRS-02-TC04 | AC-1.4 | API / Maestro | One rating per TO | Existing draft/submitted. Re-open. Assert same rating; no duplicate row. | P0 | Planned |
 
 ## B — Form: single score + radios (AC-2)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-02-TC05 | AC-2.1 | Maestro | Single star + 3 Y/N radios | Assert one 1–5 star control; exactly 3 questions with Yes/No radios; optional comment. No multi-criterion panels. | P0 | Planned |
-| VRS-02-TC06 | AC-2.2 | Maestro | Submit disabled until score + answers | Score missing or one radio unanswered. Assert submit disabled. | P0 | Planned |
+| VRS-02-TC05 | AC-2.1 | Maestro | Single star + 3 Y/N radios | One 1–5 star control, exactly 3 Yes/No questions, optional comment. `02_submit_stars_only.yaml` and `03_three_nos_lower_average.yaml` passed on emulator-5554 (2026-09-29). | P0 | Passing |
+| VRS-02-TC06 | AC-2.2 | Maestro | Submit disabled until stars | Submit rating stays disabled with no stars (`01`). Stars only, questions left blank, counts as 5.00 with each question Skipped (`02`). Passed on emulator-5554 (2026-09-29). | P0 | Passing |
 | VRS-02-TC07 | AC-2.3 | Maestro | Theme continuity | Assert rating controls use existing app theme (shared widgets / theme tokens) — no one-off palette. | P2 | Planned |
 
 ## C — Questions API (AC-3)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-02-TC08 | AC-3.1 | API / Maestro | Three random questions loaded | GET tenant-rating / rating-questions. Assert exactly 3 TENANT questions populate form. | P0 | Planned |
-| VRS-02-TC09 | AC-3.2 | Maestro / API | Pool &lt; 3 error | Fewer than 3 active TENANT questions. Assert clear error / cannot submit. | P1 | Planned |
+| VRS-02-TC08 | AC-3.1 | API / Maestro | Three random questions loaded | Form shows exactly 3 TENANT questions. `03_three_nos_lower_average.yaml` taps all three and passed on emulator-5554 (2026-09-29). | P0 | Passing |
+| VRS-02-TC09 | AC-3.2 | Maestro / API | Pool &lt; 3 error | Fewer than 3 active TENANT questions. Assert clear error / cannot submit. Unit covers `pick_random_questions` only. | P1 | Partial |
 
 ## D — Submit, duplicate, immutability (AC-4)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-02-TC10 | AC-4.1 | API | Atomic submit + rolling update | POST score 4 + 3 answers. Assert TenantRating+3 answers; `average_rating=4.00`; `Tenant.vendor_rating` / count updated. | P0 | Planned |
-| VRS-02-TC11 | AC-4.2 | API | Duplicate submit → 400 | Second POST for same TO+vendor. Assert `400`; single row; count incremented once. | P0 | Planned |
-| VRS-02-TC12 | AC-4.3 | API | Immutable after submit | Attempt edit after submit. Assert rejected; values unchanged. | P0 | Planned |
-| VRS-02-TC13 | AC-4.4 | Maestro | Success screen | After success, assert "Thank you for your rating!" + score shown. | P1 | Planned |
+| VRS-02-TC10 | AC-4.1 | API | Atomic submit + rolling update | POST uses the same blend as VRS-01. 4 stars, all skipped → `average_rating=4.00` and that value rolls `Tenant.vendor_rating`. 5 stars + 3 Nos → blend `3.80`; prior 4.00 count 1 becomes `3.90` count 2. HTTP not covered. | P0 | Partial |
+| VRS-02-TC11 | AC-4.2 | API | Duplicate submit → 400 | Second POST for same TO+vendor. Assert `400`; single row; count incremented once. Service rejects resubmit; HTTP not covered. | P0 | Partial |
+| VRS-02-TC12 | AC-4.3 | API | Immutable after submit | Attempt edit after submit. Assert rejected; values unchanged. Service rejects; HTTP not covered. | P0 | Partial |
+| VRS-02-TC13 | AC-4.4 | Maestro | Success screen | After submit, "Thank you for your rating!" and the blend are shown. `02_submit_stars_only.yaml` passed on emulator-5554 (2026-09-29). | P1 | Passing |
 
 ## E — Join Tenant visibility (AC-5)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-02-TC14 | AC-5.1 | Maestro / API | Join Tenant aggregate | Tenant with rating 4.2 count 8. Assert card shows 4.2/5.0 + count copy (no per-criterion). | P0 | Planned |
-| VRS-02-TC15 | AC-5.2 | Maestro | No ratings yet | `vendor_rating_count=0`. Assert "No ratings yet" displayed. | P0 | Planned |
+| VRS-02-TC14 | AC-5.1 | Maestro / API | Join Tenant aggregate | Tenants tab shows an overall score and "Based on N vendor ratings" (no per-criterion breakdown). After the stars and three-No submits, Nourish Poultry showed 4.40 from 2 ratings. `04_join_tenant_shows_rating.yaml` passed on emulator-5554 (2026-09-29). | P0 | Passing |
+| VRS-02-TC15 | AC-5.2 | Maestro | No ratings yet | A tenant with no ratings shows "No ratings yet". Same flow; passed on emulator-5554 (2026-09-29). | P0 | Passing |
 
 ## F — Own submitted rating (AC-6)
 
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
-| VRS-02-TC16 | AC-6.1 | Maestro / API | Own rating read-only on trip detail | After submit, open trip detail. Assert score, 3 Y/N, comment, date read-only. | P0 | Planned |
+| VRS-02-TC16 | AC-6.1 | Maestro / API | Own rating read-only on trip detail | After submit, trip detail shows the blend, the three answers (Skipped or No), and the date, with no Rate tenant action. `02` and `03` passed on emulator-5554 (2026-09-29). | P0 | Passing |
 
 ## G — Admin incoming ratings (AC-7)
 
@@ -96,12 +96,12 @@ last_updated: 2026-09-17
 
 | Test Case ID | Layer | Scenario | Assert | Priority | Status |
 |--------------|-------|----------|--------|----------|--------|
-| VRS-02-EC01 | API | Star outside 1–5 | Rejected | P0 | Planned |
+| VRS-02-EC01 | API | Star outside 1–5 | Rejected | P0 | Passing |
 | VRS-02-EC02 | API | Vendor not on TO | Submit denied | P0 | Planned |
 | VRS-02-EC03 | API | Double-tap duplicate | Second → 400; count +1 once | P0 | Planned |
-| VRS-02-EC04 | Unit | Skip/draft does not update Tenant.vendor_rating | Aggregates unchanged until submit | P0 | Planned |
+| VRS-02-EC04 | Unit | Skip/draft does not update Tenant.vendor_rating | Aggregates unchanged until submit. Covered for the app in-memory repository. | P0 | Partial |
 | VRS-02-EC05 | API | Comment over max length | Rejected | P1 | Planned |
-| VRS-02-EC06 | API | Missing radio answers | Rejected | P0 | Planned |
+| VRS-02-EC06 | API | Missing radio answers | Allowed. Zero answers → `average_rating` equals the star score. Null answer is a skip. Non-boolean rejected. | P0 | Passing |
 
 ---
 

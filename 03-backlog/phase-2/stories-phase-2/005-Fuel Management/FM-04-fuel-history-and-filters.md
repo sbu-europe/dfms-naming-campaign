@@ -42,6 +42,8 @@ Write failing tests from the catalog **before** implementation.
 **I want to** view fuel entry history with filters and summary statistics  
 **So that** I can review consumption patterns and investigate anomalies
 
+History reads **saved fuel entries**. Each row shows the gauge and odometer updated by that entry, plus distance and km/L stored at save. There is no ৳/km or ৳/L column. Each row is the reference used by the next fill for that vehicle.
+
 ## Acceptance Criteria
 
 > **Test scenarios:** see [FM-04 TDD catalog](../../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-04-fuel-history-and-filters-tdd-test-cases.md) · [Fuel Management index](../../../../09-testing/stories-phase-2/005-Fuel%20Management/00-all-test-cases.md)
@@ -54,7 +56,7 @@ when entries exist for own-fleet vehicles,
 
 then a newest-first table shows the prototype columns and supports vehicle filtering.
 
-- [ ] Columns: Date, Vehicle, Before (L), After (L), Filled (L), Cost (BDT), Odometer, Distance, km/L, ৳/km, Entry Type, Entered By, Status (Normal / Anomaly).
+- [ ] Columns: Date, Vehicle, Before (L), After (L), Filled (L), Cost (BDT, entered amount only), Odometer, Distance, km/L, Entry Type, Entered By, Status (Normal / Anomaly). No ৳/km or ৳/L.
 - [ ] Sorted newest first.
 - [ ] Vehicle filter dropdown (All Vehicles + per-vehicle).
 
@@ -66,7 +68,7 @@ when the filtered set is applied,
 
 then the stats strip recalculates for that set only.
 
-- [ ] Total Entries, Total Liters, Total Cost (BDT), Avg km/L, Anomalies Flagged.
+- [ ] Total Entries, Total Liters, Avg km/L, Anomalies Flagged. No cost-rate stat (no ৳/km, no ৳/L). Total Cost is a sum of entered Fuel Cost amounts only, not a calculated rate.
 
 ### AC-3: Access
 
@@ -74,10 +76,10 @@ Given different roles request fuel history,
 
 when they list entries,
 
-then supervisors/admins see all own-fleet entries and drivers see only their assigned-vehicle entries.
+then supervisors and admins see all own-fleet entries, and a driver sees the entries that driver created.
 
-- [ ] Driver Supervisor: all own-fleet entries.
-- [ ] Driver (mobile): own entries for assigned vehicle only.
+- [ ] Driver Supervisor, Tenant Super Admin, Tenant Admin: all own-fleet entries.
+- [ ] Driver: **Fuel History** in Fleet operations. The list and the detail page show only entries that user created, including after the trip leaves Driving Towards Source. Opening another user’s entry is not allowed.
 
 ### AC-4: Admin + API
 
@@ -104,8 +106,8 @@ then Django admin (and optional custom view) and list APIs support vehicle filte
 - Tenant isolation: entries from another tenant never returned.
 
 ### Driver scope
-- If driver has no assignment: history empty with guidance message.
-- Driver cannot widen filter to other vehicles via API `vehicle_id` tampering.
+- A driver with no created entries sees an empty list.
+- A driver cannot read another user’s entries, or another vehicle, by changing `vehicle_id`.
 
 ---
 
@@ -124,7 +126,7 @@ GET    /api/v1/fuel-entries/stats/?vehicle_id={id}   # optional aggregated stats
 | Action | Role |
 |--------|------|
 | View all own-fleet fuel history | `driver_supervisor`, `tenant_super_admin`, `tenant_admin` |
-| View own entries (assigned vehicle) | `driver` |
+| View own entries (entries that user created) | `driver` |
 | Export (CSV/PDF) | Out of scope (v1) |
 
 ---
@@ -147,8 +149,13 @@ GET    /api/v1/fuel-entries/stats/?vehicle_id={id}   # optional aggregated stats
 
 ---
 
+## Implementation
+
+Follow the epic rule in the [Fuel Management README](./README.md). History is an admin portal page: `admin/base_site.html`, existing table and filter patterns, Fleet operations nav. Columns follow the prototype; chrome matches the live portal.
+
 ## Definition of Done
 
+- [ ] History page uses the existing admin portal theme and list/filter structure (no new visual language)
 - [ ] History view matches prototype columns
 - [ ] Stats strip recalculates on filter change
 - [ ] RBAC enforced (scenarios AC-3.1…AC-3.3)
@@ -157,4 +164,4 @@ GET    /api/v1/fuel-entries/stats/?vehicle_id={id}   # optional aggregated stats
 
 ---
 
-*Epic: Fuel Management | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-09-14*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 3 SP | Last Updated: 2026-10-01*

@@ -71,9 +71,9 @@ when efficiency is more than 20% below the vehicle-type baseline average,
 
 then `anomaly_flag = true`, the entry is still saved, and UI surfaces the status.
 
-- [ ] On save: if km/L calculable and **>20% below** baseline avg → `anomaly_flag = true`.
-- [ ] Entry **still saved** (flag-only, not blocked).
-- [ ] UI shows anomaly alert in live preview and history Status column.
+- [ ] On save: if km/L calculable and **>20% below** baseline avg → `anomaly_flag = true` on the saved entry.
+- [ ] Entry **still saved** (flag-only, not blocked). The saved entry remains the reference for the next fill.
+- [ ] UI shows anomaly status on the **saved entry** and in the history Status column. The entry form does not live-preview the flag.
 - [ ] Override / clear anomaly is out of scope (v1).
 
 ### AC-3: Own-fleet enforcement
@@ -149,8 +149,13 @@ Anomaly flag set on `POST /api/v1/fuel-entries/` response and included in fuel h
 
 ---
 
+## Implementation
+
+No new UI kit. Anomaly status uses the history table’s existing status styling. `FuelAnomalyService` lives in `apps/vehicle_health` with the other fuel services. See the epic rule in the [Fuel Management README](./README.md).
+
 ## Definition of Done
 
+- [ ] Anomaly flag is shown with existing portal status styling; service stays in `apps/vehicle_health`
 - [ ] Baseline lookup by vehicle type
 - [ ] Anomaly computed on save
 - [ ] Unit tests for boundary cases (exactly 20%, first entry, null km/L) — scenarios AC-2.2…AC-2.4 — see [FM-05 TDD catalog](../../../../09-testing/stories-phase-2/005-Fuel%20Management/FM-05-fuel-anomaly-baselines-tdd-test-cases.md)
@@ -159,4 +164,4 @@ Anomaly flag set on `POST /api/v1/fuel-entries/` response and included in fuel h
 
 ---
 
-*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-09-14*
+*Epic: Fuel Management | Phase: 2 (unscheduled) | 5 SP | Last Updated: 2026-10-01*

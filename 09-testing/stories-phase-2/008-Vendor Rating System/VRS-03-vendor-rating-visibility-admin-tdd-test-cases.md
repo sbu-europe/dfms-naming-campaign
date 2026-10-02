@@ -35,7 +35,7 @@ last_updated: 2026-09-17
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
 | VRS-03-TC01 | AC-1.1 | E2E / API | Profile summary (overall only) | Open Performance Rating. Assert overall stars/numeric + count. Assert **no** per-criterion average table. | P0 | Planned |
-| VRS-03-TC02 | AC-1.2 | E2E / API | History newest first | Multiple ratings. Assert paginated history newest first with TO, rated by, score, Y/N answers, comment. | P0 | Planned |
+| VRS-03-TC02 | AC-1.2 | E2E / API | History newest first | Multiple ratings. Assert paginated history newest first with TO, rated by, score, Y/N answers, comment. Playwright asserts the submitted TO number is listed. Sort, rated-by, and answer columns are not asserted. | P0 | Partial |
 | VRS-03-TC03 | AC-1.3 | E2E | Rate Vendor for unrated TO | Completed TO without submitted rating. Assert Rate Vendor links to VRS-01 form. | P1 | Planned |
 | VRS-03-TC04 | AC-1.4 | E2E | Empty state | Zero submitted ratings. Assert "No ratings yet — complete a transport order to rate this vendor." | P1 | Planned |
 
@@ -65,7 +65,7 @@ last_updated: 2026-09-17
 | Test Case ID | Story AC | Layer | Test Scenario | Test Description / Assert | Priority | Status |
 |--------------|----------|-------|---------------|---------------------------|----------|--------|
 | VRS-03-TC11 | AC-5.1 | E2E | Rated TO summary | Submitted score 4. Assert "Vendor Rated" + View Rating (score + 3 answers). | P0 | Planned |
-| VRS-03-TC12 | AC-5.2 | E2E | Unrated TO CTA | No submitted rating. Assert "Rate this Vendor" CTA to VRS-01. | P0 | Planned |
+| VRS-03-TC12 | AC-5.2 | E2E | Unrated TO CTA | No submitted rating. Assert "Rate Vendor" CTA to VRS-01. Playwright passed. | P0 | Passing |
 
 ## F — Vendor denied (AC-6)
 
