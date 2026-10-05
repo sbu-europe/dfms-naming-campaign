@@ -1,4 +1,9 @@
-# Sprint 10 — E2E Scenarios (Stubs)
+---
+section: 09-testing/backend/e2e-scenarios/sprint-10
+title: Sprint 10 — Phase 2 E2E Scenario Plans
+version: 1.0
+last_updated: 2026-10-02
+---
 
 E2E scenario files for Sprint 10 stories. Expand during implementation.
 
@@ -14,10 +19,7 @@ E2E scenario files for Sprint 10 stories. Expand during implementation.
 | FHI-03 | `FHI-03-inspection-round-e2e-scenarios.md` | P1 |
 | VR-02 | `VR-02-vehicle-report-overview-e2e-scenarios.md` | P0 |
 
-**Related specs:**
-- [Fuel Management](../../../05-modules/08-fleet-management/fuel-management.md)
-- [Fleet Health Inspection](../../../05-modules/08-fleet-management/fleet-health-inspection.md)
-- [Vehicle Report](../../../05-modules/11-reporting/vehicle-report.md)
-- [Prototype — fleet-operations.html](../../../../example-prototypes/fleet-operations.html)
-
-> Garage inventory / workshop E2E stubs removed — inventory not in current phase.
+| Story | Plan | Status |
+|-------|------|--------|
+| TUM-06 — Assign multiple operational roles to one user | [tum-06-multi-role-assignment-e2e-scenarios.md](./tum-06-multi-role-assignment-e2e-scenarios.md) | 21/24 Pass · 3 Fail |
+| TUM-06 + FG — Two multi-role users, one POI each, full FG chain | [fg-multi-role-poi-flow-e2e-scenarios.md](./fg-multi-role-poi-flow-e2e-scenarios.md) | Planned (25) |
