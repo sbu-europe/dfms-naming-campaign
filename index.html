@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="DFMS brand naming campaign: propose a global name and .com domain for our Distribution and Fleet Management Platform.">
+<meta name="description" content="Name It. Win It. Propose a global name and .com domain for DFMS, our Distribution and Fleet Management Platform.">
 <title>Name DFMS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +24,11 @@
   --primary-light: #eeeffd;
   --navy: #122056;          /* Pantone 2766 C */
   --on-primary: #ffffff;
+  --reward-bg: #fef3c7;     /* warning-light */
+  --reward-accent: #d97706; /* warning */
+  --reward-ink: #7c3d06;
+  --shine: rgba(255, 255, 255, .6);
+  --ok: #1e8a4c; --ok-bg: #e8f7ee; --bad: #c0392b; --bad-bg: #fdecea;
   --net: 91, 101, 220;      /* route network rgb */
   --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -35,6 +40,8 @@
     --bg: #0d0f17; --surface: #151827; --surface-alt: #11131f; --ink: #f3f4f6; --ink-2: #d1d5db;
     --muted: #9ca3af; --line: #262a3d; --primary: #7580f0; --primary-hover: #8a94f5;
     --primary-light: #1c2044; --navy: #c7ccf9; --on-primary: #0d0f17; --net: 117, 128, 240;
+    --reward-bg: #2b2110; --reward-accent: #f59e0b; --reward-ink: #fcd34d; --shine: rgba(255, 255, 255, .12);
+    --ok: #4ade80; --ok-bg: #12301f; --bad: #f87171; --bad-bg: #3a1716;
     color-scheme: dark;
   }
 }
@@ -42,6 +49,8 @@
   --bg: #0d0f17; --surface: #151827; --surface-alt: #11131f; --ink: #f3f4f6; --ink-2: #d1d5db;
   --muted: #9ca3af; --line: #262a3d; --primary: #7580f0; --primary-hover: #8a94f5;
   --primary-light: #1c2044; --navy: #c7ccf9; --on-primary: #0d0f17; --net: 117, 128, 240;
+    --reward-bg: #2b2110; --reward-accent: #f59e0b; --reward-ink: #fcd34d; --shine: rgba(255, 255, 255, .12);
+    --ok: #4ade80; --ok-bg: #12301f; --bad: #f87171; --bad-bg: #3a1716;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -91,12 +100,25 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) { .domain .caret { animation: none; } }
 .hero .lede { font-size: clamp(1.05rem, 2vw, 1.2rem); color: var(--ink-2); max-width: 33rem; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
-.reward { display: inline-flex; align-items: center; gap: .55rem; width: fit-content; max-width: 100%; font-size: .875rem; font-weight: 500; color: var(--primary); background: var(--primary-light); padding: .4rem .85rem; border-radius: 999px; }
-.reward i { width: .45rem; height: .45rem; border-radius: 50%; background: var(--primary); flex: none; }
+/* reward highlight */
+.prize { position: relative; overflow: hidden; display: flex; align-items: center; gap: .9rem; width: fit-content; max-width: 34rem; padding: .85rem 1.15rem .85rem .85rem; border-radius: 12px; background: var(--reward-bg); border: 1px solid color-mix(in srgb, var(--reward-accent) 45%, transparent); box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--reward-accent) 80%, transparent); }
+.prize::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 28%; background: linear-gradient(100deg, transparent, var(--shine), transparent); transform: skewX(-20deg); animation: shine 4.5s ease-in-out infinite; pointer-events: none; }
+@keyframes shine { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+.prize-icon { width: 2.75rem; height: 2.75rem; border-radius: 10px; background: var(--reward-accent); color: #ffffff; display: grid; place-items: center; flex: none; animation: wiggle 4.5s ease-in-out infinite; }
+.prize-icon svg { width: 1.45rem; height: 1.45rem; }
+@keyframes wiggle { 0%, 78%, 100% { transform: rotate(0); } 82% { transform: rotate(-12deg); } 86% { transform: rotate(10deg); } 90% { transform: rotate(-6deg); } 94% { transform: rotate(3deg); } }
+.prize-text { display: grid; gap: .1rem; min-width: 0; }
+.prize-text strong { color: var(--reward-ink); font-size: 1.02rem; font-weight: 700; letter-spacing: -.01em; }
+.prize-text span { color: var(--reward-ink); opacity: .85; font-size: .875rem; line-height: 1.45; }
+.bar-prize { display: inline-flex; align-items: center; gap: .4rem; font-size: .78rem; font-weight: 600; color: var(--reward-ink); background: var(--reward-bg); border-radius: 999px; padding: .32rem .7rem; }
+.bar-prize svg { width: .95rem; height: .95rem; color: var(--reward-accent); }
+.bar-right { display: flex; align-items: center; gap: .75rem; }
+@media (prefers-reduced-motion: reduce) { .prize::after, .prize-icon { animation: none; } }
 
 /* sections */
 section.band { padding-block: clamp(3rem, 7vw, 4.75rem); }
-.head { display: grid; gap: .5rem; margin-bottom: 1.75rem; max-width: 44rem; }
+.head { display: grid; gap: .5rem; margin-bottom: 1.75rem; }
+.nowrap { white-space: nowrap; }
 .head h2 { font-size: clamp(1.6rem, 3.8vw, 2.3rem); line-height: 1.12; font-weight: 700; }
 .head p { color: var(--muted); font-size: 1.05rem; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
@@ -108,6 +130,84 @@ section.band { padding-block: clamp(3rem, 7vw, 4.75rem); }
 .product .copy p.muted { color: var(--muted); font-size: .95rem; }
 .audience { display: flex; flex-wrap: wrap; gap: .4rem; }
 .audience span { font-size: .8rem; font-weight: 500; padding: .25rem .6rem; border-radius: 6px; background: var(--primary-light); color: var(--primary); }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.stats div { padding: 1.25rem 1.4rem; display: grid; gap: .2rem; align-content: start; border-bottom: 1px solid var(--line); min-width: 0; }
+.stats div:nth-child(odd) { border-right: 1px solid var(--line); }
+.stats div:nth-last-child(-n+2) { border-bottom: 0; }
+.stats b { font-size: 2.1rem; font-weight: 800; line-height: 1.1; letter-spacing: -.03em; color: var(--primary); font-variant-numeric: tabular-nums; }
+.stats span { color: var(--muted); font-size: .875rem; }
+.flow { margin-top: 1rem; padding: 1.75rem 1.5rem 1.6rem; display: grid; gap: .35rem; justify-items: center; text-align: center; }
+.flow-title { font-size: 1.15rem; font-weight: 700; }
+.flow-sub { color: var(--muted); font-size: .92rem; }
+.phases { width: 100%; margin-top: 1.1rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.phases span { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); padding-bottom: .45rem; border-bottom: 2px solid var(--primary-light); }
+.flow-wrap { position: relative; width: 100%; margin-top: .9rem; }
+.flow-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: .5rem; position: relative; }
+.flow-steps::before { content: ""; position: absolute; top: 23px; left: 5.5%; right: 5.5%; border-top: 2px dashed color-mix(in srgb, var(--primary) 35%, transparent); }
+.flow-steps li { position: relative; z-index: 2; display: grid; justify-items: center; align-content: start; gap: .3rem; min-width: 0; }
+.node { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--primary-light); color: var(--primary); box-shadow: 0 4px 12px -8px rgba(91, 101, 220, .6); margin-bottom: .35rem; }
+.node svg { width: 22px; height: 22px; }
+.flow-steps li:last-child .node { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.flow-steps b { font-size: .82rem; font-weight: 600; line-height: 1.25; }
+.flow-steps small { font-size: .74rem; color: var(--muted); line-height: 1.35; }
+.flow-truck { position: absolute; z-index: 1; top: 15px; left: 5.5%; width: 30px; height: 16px; animation: drive 14s linear infinite; }
+.flow-truck::before { content: ""; position: absolute; left: 0; top: 0; width: 20px; height: 16px; border-radius: 3px; background: var(--primary); }
+.flow-truck::after { content: ""; position: absolute; right: 0; top: 2px; width: 9px; height: 14px; border-radius: 3px 5px 3px 3px; background: var(--navy); }
+@keyframes drive { from { left: 5.5%; } to { left: calc(94.5% - 30px); } }
+@media (prefers-reduced-motion: reduce) { .flow-truck { display: none; } }
+@media (max-width: 760px) {
+  .flow { justify-items: stretch; text-align: left; }
+  .phases, .flow-truck { display: none; }
+  .flow-steps { grid-template-columns: 1fr; gap: 0; }
+  .flow-steps::before { top: 24px; bottom: 24px; left: 23px; right: auto; border-top: 0; border-left: 2px dashed color-mix(in srgb, var(--primary) 35%, transparent); }
+  .flow-steps li { grid-template-columns: 48px 1fr; justify-items: start; column-gap: .9rem; row-gap: 0; padding-block: .45rem; }
+  .flow-steps li .node { grid-row: span 2; margin-bottom: 0; }
+  .flow-steps b { align-self: end; font-size: .92rem; }
+  .flow-steps small { font-size: .82rem; }
+}
+.story { margin-top: 2.5rem; display: grid; gap: 1.5rem; }
+.story-head { text-align: center; display: grid; gap: .3rem; justify-items: center; }
+.story-head h3 { font-size: clamp(1.3rem, 3vw, 1.6rem); font-weight: 700; color: var(--navy); }
+.story-head p { color: var(--muted); }
+.chapters { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 1.1rem; }
+.chapters::before { content: ""; position: absolute; top: .5rem; bottom: .5rem; left: 50%; transform: translateX(-1px); border-left: 2px dashed color-mix(in srgb, var(--primary) 35%, transparent); }
+.chapter { position: relative; display: grid; grid-template-columns: 1fr 1fr; column-gap: 4.25rem; }
+.chapter + .chapter { margin-top: -3.6rem; }
+.chapter .ch-card { grid-column: 1; }
+.chapter:nth-child(even) .ch-card { grid-column: 2; }
+.ch-dot { position: absolute; left: 50%; top: 1.15rem; transform: translateX(-50%); z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--primary-light); color: var(--primary); box-shadow: 0 4px 12px -8px rgba(91, 101, 220, .6); }
+.ch-dot svg { width: 20px; height: 20px; }
+.chapter:last-child .ch-dot { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.ch-card { padding: 1.2rem 1.35rem; display: grid; gap: .45rem; min-width: 0; position: relative; }
+.ch-card::after { content: ""; position: absolute; top: 1.95rem; width: .9rem; border-top: 2px dashed color-mix(in srgb, var(--primary) 35%, transparent); }
+.chapter:nth-child(odd) .ch-card::after { right: -.95rem; }
+.chapter:nth-child(even) .ch-card::after { left: -.95rem; }
+.ch-meta { display: flex; align-items: center; gap: .55rem; font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ch-time { font-family: var(--mono); letter-spacing: 0; font-size: .78rem; color: var(--primary); background: var(--primary-light); border-radius: 6px; padding: .12rem .45rem; }
+.ch-card h4 { margin: 0; font-size: 1.12rem; font-weight: 700; letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
+.ch-card p { color: var(--ink-2); font-size: .92rem; }
+.ch-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .2rem; }
+.ch-tags span { font-size: .74rem; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: .15rem .55rem; }
+.story-foot { text-align: center; font-size: .88rem; color: var(--muted); }
+@media (max-width: 760px) {
+  .chapters::before { left: 22px; }
+  .chapter { grid-template-columns: 1fr; padding-left: 3.6rem; }
+  .chapter + .chapter { margin-top: 0; }
+  .chapter .ch-card, .chapter:nth-child(even) .ch-card { grid-column: 1; }
+  .ch-dot { left: 22px; }
+  .chapter:nth-child(odd) .ch-card::after, .chapter:nth-child(even) .ch-card::after { left: -.95rem; right: auto; }
+}
+.caps3 { margin-top: 1rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.caps3 .card { padding: 1.1rem 1.25rem; display: grid; gap: .25rem; align-content: start; min-width: 0; }
+.caps3 b { font-weight: 600; font-size: .95rem; }
+.caps3 span { color: var(--muted); font-size: .875rem; }
+.fit { margin-top: 1rem; display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; }
+.fit .card { padding: 1.3rem 1.5rem; display: grid; gap: .7rem; align-content: start; min-width: 0; }
+.fit h3 { font-size: 1rem; font-weight: 700; }
+.fit ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; color: var(--ink-2); font-size: .92rem; }
+.fit li::marker { color: var(--primary); }
+.fit .not li::marker { color: var(--muted); }
+.fit .hint { font-size: .85rem; font-weight: 500; color: var(--primary); background: var(--primary-light); border-radius: 8px; padding: .45rem .7rem; width: fit-content; }
 .caps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .caps div { padding: 1.1rem 1.25rem; display: grid; gap: .15rem; border-bottom: 1px solid var(--line); min-width: 0; }
 .caps div:nth-child(odd) { border-right: 1px solid var(--line); }
@@ -138,6 +238,12 @@ section.band { padding-block: clamp(3rem, 7vw, 4.75rem); }
 .tip { background: var(--primary-light) !important; border-color: transparent !important; }
 .tip .label { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
 .tip p { color: var(--ink-2); font-size: .92rem; }
+.registrars { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.registrars span { font-size: .8rem; font-weight: 600; color: var(--ink-2); margin-right: .15rem; }
+.registrars a { font-size: .82rem; font-weight: 600; color: var(--primary); background: var(--surface); border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent); border-radius: 6px; padding: .28rem .6rem; text-decoration: none; }
+.registrars a:hover { background: var(--primary); color: var(--on-primary); }
+.registrars a:focus-visible { outline: 3px solid rgba(91, 101, 220, .4); outline-offset: 2px; }
+.tip code { font-family: var(--mono); font-size: .85em; background: var(--surface); border-radius: 4px; padding: .05rem .3rem; }
 
 .steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; counter-reset: s; }
 .steps li { counter-increment: s; padding: 1.25rem 1.4rem; display: grid; gap: .35rem; align-content: start; }
@@ -145,23 +251,84 @@ section.band { padding-block: clamp(3rem, 7vw, 4.75rem); }
 .steps h3 { font-size: 1rem; font-weight: 700; }
 .steps p { color: var(--muted); font-size: .9rem; }
 
-.closing { padding-block: 0 clamp(3rem, 7vw, 4.75rem); }
-.closing .card { padding: clamp(1.75rem, 5vw, 3rem); display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center; }
-.closing .card > div { display: grid; gap: .6rem; min-width: 0; }
-.closing h2 { font-size: clamp(1.5rem, 3.6vw, 2.2rem); line-height: 1.15; font-weight: 700; color: var(--navy); }
-.closing p { color: var(--muted); }
-.closing .card > div > div { margin-top: .6rem; }
-.qr-card { margin: 0; display: grid; gap: .75rem; justify-items: center; text-align: center; }
-.qr-tile { width: 176px; height: 176px; padding: 14px; background: #ffffff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px -14px rgba(91, 101, 220, .5); }
-.qr-tile svg { display: block; width: 100%; height: 100%; }
-.qr-tile path { fill: #122056; }
-.qr-card figcaption { display: grid; gap: .1rem; font-size: .8rem; color: var(--muted); max-width: 13rem; }
-.qr-card figcaption b { color: var(--ink); font-size: .875rem; font-weight: 600; }
+/* search & submit */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.submit-band { padding-top: 0; }
+.submit-band .prize { margin-bottom: 1.25rem; }
+.finder { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; align-items: start; }
+.pane { padding: 1.4rem 1.5rem; display: grid; gap: .9rem; min-width: 0; }
+.pane-head { display: flex; align-items: center; gap: .6rem; }
+.pane-head.sub { margin-top: .6rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.pane-head h3 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: baseline; gap: .5rem; }
+.pane-head h3 small { font-size: .8rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.step-num { width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 700; background: var(--primary-light); color: var(--primary); flex: none; }
+.search { display: flex; gap: .6rem; }
+.search-box { flex: 1; min-width: 0; display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding-right: .75rem; }
+.search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91, 101, 220, .25); }
+.search-box input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: 500 1rem var(--mono); padding: .75rem .85rem; }
+.tld-suffix { font: 600 1rem var(--mono); color: var(--primary); }
+.hint-line { font-size: .8rem; color: var(--muted); }
+.hint-line a { color: var(--primary); }
+.results { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.results .empty, .picks .empty { font-size: .875rem; color: var(--muted); padding: .9rem; border: 1px dashed var(--line); border-radius: 8px; text-align: center; }
+.res { display: grid; grid-template-columns: 1fr auto; gap: .35rem .75rem; align-items: center; padding: .75rem .85rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-alt); }
+.res-domain { font: 600 .95rem var(--mono); color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
+.res-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; font-size: .8rem; color: var(--muted); }
+.res-meta a { color: var(--primary); font-weight: 600; }
+.warn-note { color: var(--reward-ink); }
+.pill { display: inline-flex; align-items: center; gap: .3rem; font-size: .74rem; font-weight: 700; border-radius: 999px; padding: .18rem .55rem; }
+.pill::before { content: ""; width: .4rem; height: .4rem; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: var(--ok-bg); }
+.pill.bad { color: var(--bad); background: var(--bad-bg); }
+.pill.maybe { color: var(--reward-ink); background: var(--reward-bg); }
+.pill.idle { color: var(--muted); background: var(--line); }
+.pill.busy::before { animation: pulse 1s ease-in-out infinite; }
+.add-btn { font: 600 .82rem var(--sans); color: var(--primary); background: var(--surface); border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); border-radius: 6px; padding: .35rem .7rem; cursor: pointer; white-space: nowrap; }
+.add-btn:hover:not(:disabled) { background: var(--primary); color: var(--on-primary); }
+.add-btn:disabled { opacity: .45; cursor: not-allowed; }
+.add-btn:focus-visible, .rm-btn:focus-visible, .ghost-btn:focus-visible { outline: 3px solid rgba(91, 101, 220, .4); outline-offset: 2px; }
+.picks { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; counter-reset: p; }
+.pick { counter-increment: p; display: grid; grid-template-columns: auto 1fr auto; gap: .35rem .6rem; align-items: center; padding: .7rem .8rem; border: 1px solid var(--line); border-left: 3px solid var(--primary); border-radius: 4px 8px 8px 4px; background: var(--surface); }
+.pick::before { content: counter(p); font-size: .75rem; font-weight: 700; color: var(--primary); }
+.pick-domain { font: 600 .95rem var(--mono); overflow-wrap: anywhere; min-width: 0; }
+.pick input { grid-column: 1 / -1; width: 100%; font: .85rem var(--sans); color: var(--ink); background: var(--surface-alt); border: 1px solid var(--line); border-radius: 6px; padding: .45rem .6rem; }
+.pick input:focus { outline: 0; border-color: var(--primary); }
+.rm-btn { font: 600 .78rem var(--sans); color: var(--muted); background: none; border: 0; cursor: pointer; padding: .2rem .3rem; }
+.rm-btn:hover { color: var(--bad); }
+.details { display: grid; gap: .4rem; }
+.details label { font-size: .8rem; font-weight: 600; color: var(--ink-2); margin-top: .3rem; }
+.details input { font: 1rem var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .7rem .8rem; }
+.details input:focus { outline: 0; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91, 101, 220, .25); }
+.details input[aria-invalid="true"] { border-color: var(--bad); }
+.btn.wide { width: 100%; margin-top: .5rem; border: 0; cursor: pointer; font-family: var(--sans); }
+.search .btn { border: 0; cursor: pointer; font-family: var(--sans); }
+.btn:disabled { opacity: .55; cursor: wait; }
+.form-msg { font-size: .875rem; min-height: 1.2em; }
+.form-msg.ok { color: var(--ok); font-weight: 600; }
+.form-msg.err { color: var(--bad); }
+.ghost-btn { background: var(--surface); color: var(--primary); border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent); cursor: pointer; font-family: var(--sans); }
+.ghost-btn:hover { background: var(--primary-light); }
+.owner-band { padding-top: 0; }
+.owner-card { padding: 1.2rem 1.4rem; display: grid; gap: .9rem; }
+.owner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; }
+.owner-actions .btn { border: 0; cursor: pointer; font-family: var(--sans); }
+.csv-msg { font-size: .85rem; color: var(--muted); }
+.head h2 small { font-size: .9rem; font-weight: 600; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+.subs { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.subs th { text-align: left; font-size: .75rem; font-weight: 600; color: var(--muted); padding: .55rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.subs td { padding: .65rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.subs td.mono { font-family: var(--mono); font-size: .82rem; color: var(--ink); }
+.subs td.when { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); }
+.subs .empty { text-align: center; color: var(--muted); padding: 1.2rem; }
+@media (max-width: 860px) { .finder { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .search { flex-direction: column; } .search .btn { width: 100%; } }
 footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: .8rem; }
 footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; }
 
 @media (max-width: 860px) {
-  .product, .musts { grid-template-columns: 1fr; }
+  .product, .musts, .fit { grid-template-columns: 1fr; }
+  .caps3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .steps { grid-template-columns: 1fr; }
   .closing .card { grid-template-columns: 1fr; }
@@ -172,64 +339,370 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
 @media (max-width: 560px) {
   .initiative { grid-template-columns: 1fr; }
   .fact + .fact { border-left: 0; border-top: 1px solid var(--line); }
-  .pillars, .caps { grid-template-columns: 1fr; }
+  .pillars, .caps, .caps3 { grid-template-columns: 1fr; }
   .caps div:nth-child(odd) { border-right: 0; }
   .caps div:nth-last-child(2) { border-bottom: 1px solid var(--line); }
   .brand small { display: none; }
+  .bar-prize { display: none; }
 }
-.qr-tile img, .qr-tile canvas { width: 100% !important; height: 100% !important; }
+/* hosted: search & submit section under the hero */
+.finder-band { scroll-margin-top: 0; }
+.stepper { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; }
+.stepper li { position: relative; display: inline-flex; align-items: center; gap: .5rem; font-size: .9rem; font-weight: 600; color: var(--muted); }
+.stepper li + li::before { content: ""; position: absolute; left: -1.4rem; top: 50%; width: 1rem; border-top: 2px solid var(--line); }
+.stepper li span { width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: .78rem; font-weight: 700; background: var(--surface); border: 1.5px solid var(--line); color: var(--muted); }
+.stepper li.is-active { color: var(--ink); }
+.stepper li.is-active span { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.stepper li.is-done span { background: var(--primary-light); border-color: transparent; color: var(--primary); }
+.stepper li.is-done { color: var(--ink-2); }
+.finder2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.fpane { padding: 1.4rem 1.5rem; display: grid; gap: 1.25rem; min-width: 0; }
+.fsearch { display: grid; gap: .45rem; }
+.flabel { font-size: .85rem; font-weight: 600; color: var(--ink-2); }
+.hbar { display: flex; align-items: center; gap: .35rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .35rem .35rem .35rem .9rem; }
+.hbar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(91, 101, 220, .2); }
+.hbar .proto { font: 500 .82rem var(--mono); color: var(--muted); }
+.hbar input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: 500 1.15rem var(--mono); padding: .55rem 0; }
+.hbar input::placeholder { color: var(--muted); opacity: .8; }
+.hbar .tld-suffix { font: 600 1.15rem var(--mono); color: var(--primary); margin-right: .35rem; }
+.hbar .btn { border: 0; cursor: pointer; font-family: var(--sans); padding: .65rem 1.2rem; }
+.fresults { display: grid; gap: .6rem; }
+.fresults-head { display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 1rem; }
+.fresults-head b { font-size: .95rem; }
+.fresults-head small { font-size: .8rem; color: var(--muted); }
+.results:empty { display: none; }
+.results-empty { padding: 1rem 1.1rem; border: 1px dashed var(--line); border-radius: 10px; font-size: .9rem; color: var(--muted); display: grid; gap: .4rem; }
+.results-empty b { color: var(--ink-2); }
+.results-empty ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .2rem; }
+.tray { padding: 1.3rem 1.4rem; display: grid; gap: .8rem; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.25rem); scroll-margin-top: 1.25rem; }
+.tray-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; }
+.tray-head h3 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.tray-head small { font-size: .85rem; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+.pick-meter { display: grid; grid-template-columns: repeat(3, 1fr); gap: .3rem; }
+.pick-meter i { height: 4px; border-radius: 4px; background: var(--line); transition: background .2s ease; }
+.pick-meter i.on { background: var(--primary); }
+.tray-form { gap: .35rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+.tray-form input { width: 100%; }
+.tray .btn.wide { margin-top: .6rem; }
+.tray-note { margin: .2rem 0 0; padding-left: 1rem; display: grid; gap: .2rem; font-size: .78rem; color: var(--muted); }
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+.timeline li { display: grid; gap: .05rem; padding: .55rem .9rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); min-width: 10.5rem; }
+.timeline span { font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.timeline b { font-size: .98rem; color: var(--ink); }
+.timeline small { font-size: .78rem; font-weight: 600; color: var(--primary); }
+.timeline small:empty { display: none; }
+.brief-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; margin: 0 0 1.25rem; padding: .85rem 1.1rem; border-radius: 12px; background: var(--primary-light); color: var(--ink-2); font-size: .88rem; }
+.brief-rules { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; min-width: 0; }
+.brief-rules b { color: var(--primary); }
+.brief-rules ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem .9rem; }
+.brief-rules li::before { content: "✓ "; color: var(--primary); font-weight: 700; }
+.brief-links { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; }
+.brief-links span { color: var(--muted); }
+.brief-links a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.brief-links a:hover { text-decoration: underline; }
+.hero-search { gap: 0; padding: .4em .4em .4em .9em; }
+.hero-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(91, 101, 220, .2); }
+.hero-search input { font: inherit; color: var(--ink); background: transparent; border: 0; outline: 0; padding: 0; width: 9.5ch; min-width: 0; flex: 1 1 auto; }
+.hero-search input::placeholder { color: var(--muted); opacity: 1; }
+.hero-go { margin-left: .6em; border: 0; border-radius: 8px; background: var(--primary); color: var(--on-primary); font: 600 .95rem var(--sans); padding: .6rem 1rem; cursor: pointer; flex: none; }
+.hero-go:hover { filter: brightness(1.08); }
+.pick-flag { flex-basis: 100%; font-size: .76rem; color: var(--reward-ink); }
+.extra { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.extra > div { padding: 1.4rem 1.5rem; display: grid; gap: .6rem; align-content: start; min-width: 0; }
+.extra h3 { font-size: 1rem; font-weight: 700; }
+.extra ol, .extra ul { margin: 0; padding-left: 1.15rem; display: grid; gap: .45rem; font-size: .92rem; color: var(--ink-2); }
+.examples { margin-top: 1rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.examples > div { padding: 1.3rem 1.5rem; display: grid; gap: .6rem; align-content: start; min-width: 0; }
+.examples h3 { font-size: 1rem; font-weight: 700; }
+.examples ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; font-size: .9rem; color: var(--ink-2); }
+.examples li b { font-family: var(--mono); font-weight: 600; color: var(--ink); margin-right: .35rem; }
+.examples .good h3 { color: var(--ok); }
+.examples .weak h3 { color: var(--bad); }
+.examples small { font-size: .78rem; color: var(--muted); }
+.in-short { margin-bottom: 1rem; padding: 1rem 1.25rem; border-left: 3px solid var(--primary); background: var(--surface); border-radius: 0 10px 10px 0; font-size: 1rem; color: var(--ink-2); }
+.in-short b { color: var(--ink); }
+@media (max-width: 860px) {
+  .extra, .examples { grid-template-columns: 1fr; }
+  body.has-mbar { padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 560px) {
+  .hero-search { width: 100%; font-size: 1.05rem; }
+  .hero-go { padding: .55rem .8rem; }
+}
+.closed-note { padding: .8rem 1rem; border-radius: 10px; background: var(--reward-bg); color: var(--reward-ink); font-size: .9rem; }
+.mbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px -16px rgba(17, 24, 39, .4); padding: .7rem max(16px, env(safe-area-inset-right, 0px)) calc(.7rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); font-size: .9rem; color: var(--ink-2); }
+.mbar b { color: var(--primary); }
+.closing-cta { padding-block: 0 clamp(3rem, 7vw, 4.75rem); }
+.closing-cta .card { padding: clamp(1.5rem, 4vw, 2.5rem); display: grid; gap: .8rem; justify-items: start; }
+.closing-cta h2 { font-size: clamp(1.5rem, 3.6vw, 2.2rem); line-height: 1.15; font-weight: 700; color: var(--navy); }
+.closing-cta p { color: var(--muted); }
+@media (min-width: 861px) { .mbar { display: none !important; } }
+@media (max-width: 860px) {
+  .finder2 { grid-template-columns: 1fr; }
+  .tray { position: static; }
+}
+@media (max-width: 560px) {
+  .hbar { flex-wrap: wrap; padding: .5rem .6rem .6rem .8rem; }
+  .hbar .btn { width: 100%; }
+  .stepper { gap: .5rem 1.4rem; }
+  .stepper li { font-size: .82rem; }
+}
 </style>
 </head>
 <body>
-<nav class="bar" aria-label="Campaign">
-  <div class="inner">
-    <a class="brand" href="#top"><span class="mark" aria-hidden="true">DF</span><span><strong>DFMS naming campaign</strong><small>Brain Station 23 · Europe SBU</small></span></a>
-    <a class="btn sm js-form" href="#" target="_blank" rel="noopener">Submit ideas</a>
-  </div>
-</nav>
-
 <header class="hero" id="top">
   <div class="inner">
-    <div class="kicker">Brand naming campaign</div>
-    <h1>Name the platform that <em>moves the goods.</em></h1>
-    <div class="domain" aria-label="An empty domain waiting for your idea: blank dot com">
-      <span class="proto" aria-hidden="true">https://</span><span class="blank">your-idea</span><span class="caret" aria-hidden="true"></span><span class="tld">.com</span>
+    <div class="kicker">DFMS brand naming campaign</div>
+    <h1>Name It. <em>Win It.</em></h1>
+    <form class="domain hero-search" id="hero-form" role="search" autocomplete="off">
+      <span class="proto" aria-hidden="true">https://</span>
+      <input id="hq" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="your-idea" aria-label="Try a name: check if the .com is free">
+      <span class="tld" aria-hidden="true">.com</span>
+      <button class="hero-go" type="submit">Check</button>
+    </form>
+    <p class="lede">DFMS, our Distribution and Fleet Management Platform, is growing into a global product. It needs a name, and a .com domain, that can carry it there. Search your ideas and send up to three.</p>
+    <div class="prize">
+      <span class="prize-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
+      <div class="prize-text"><strong>Win a reward for the best name</strong><span>The person whose name is selected receives a token of appreciation and a special reward.</span></div>
     </div>
-    <p class="lede">DFMS, our Distribution and Fleet Management Platform, is growing into a global product. It needs a name, and a .com domain, that can carry it there. Propose up to three.</p>
+    <ul class="timeline" aria-label="Campaign dates">
+      <li><span>Submissions close</span><b>Fri 6 Nov 2026</b><small id="dl-left"></small></li>
+      <li><span>Winner announced</span><b>Fri 13 Nov 2026</b></li>
+    </ul>
     <div class="actions">
-      <a class="btn js-form" href="#" target="_blank" rel="noopener">Submit your name ideas →</a>
-      <a class="link" href="#guidelines">Read the naming guidelines</a>
+      <a class="btn" href="#search">Search &amp; Submit Your Names ↓</a>
+      <a class="link" href="#guidelines">Read The Naming Guidelines</a>
     </div>
-    <div class="reward"><i></i>The winning name earns a token of appreciation and a special reward</div>
   </div>
   <div class="scene" aria-hidden="true">
     <canvas></canvas>
-    <span class="live"><i></i>6 trucks on route</span>
   </div>
 </header>
 
 <main>
+  <section class="band finder-band" id="search">
+    <div class="inner">
+      <div class="head">
+        <div class="kicker">Search &amp; submit</div>
+        <h2>Find Your Domain, Send Your Best Three</h2>
+        <p>Check ideas live, keep the ones that are free, then submit them together.</p>
+      </div>
+
+      <div class="brief-strip">
+        <div class="brief-rules">
+          <b>Quick rules</b>
+          <ul>
+            <li>An unregistered .com</li>
+            <li>One word, or two combined</li>
+            <li>Works worldwide: no Bangla or local-language words</li>
+            <li>Hints at movement, delivery or logistics</li>
+          </ul>
+        </div>
+        <div class="brief-links">
+          <span>New to DFMS?</span>
+          <a href="#product">What DFMS Does ↓</a>
+          <a href="#guidelines">Full Naming Guidelines ↓</a>
+        </div>
+      </div>
+
+      <ol class="stepper" aria-label="Progress">
+        <li class="is-active" data-step="1"><span>1</span>Search</li>
+        <li data-step="2"><span>2</span>Pick up to 3</li>
+        <li data-step="3"><span>3</span>Submit</li>
+      </ol>
+
+      <div class="finder2">
+        <div class="card fpane">
+          <form id="search-form" class="fsearch" autocomplete="off" role="search">
+            <label for="q" class="flabel">Domain name</label>
+            <div class="hbar">
+              <span class="proto" aria-hidden="true">https://</span>
+              <input id="q" name="q" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="your-idea" aria-describedby="q-help">
+              <span class="tld-suffix" aria-hidden="true">.com</span>
+              <button class="btn" type="submit" id="search-btn">Search</button>
+            </div>
+            <p id="q-help" class="hint-line">Type a name without .com. Letters only, one word or two combined. Live check by <a href="https://dotsweep.com/" target="_blank" rel="noopener">DotSweep</a>.</p>
+          </form>
+          <div class="fresults">
+            <div class="fresults-head"><b>Results</b><small id="res-count"></small></div>
+            <ul id="results" class="results" aria-live="polite"></ul>
+            <div id="results-empty" class="results-empty">
+              <p><b>No searches yet.</b> Try a few directions:</p>
+              <ul>
+                <li>Join two short words, like a movement word and a goods word</li>
+                <li>Shorten or blend a real word into something new</li>
+                <li>Keep it under 12 letters and easy to say aloud</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <aside class="card tray" id="tray" aria-labelledby="tray-title">
+          <div class="tray-head"><h3 id="tray-title">Your Picks</h3><small id="pick-count">0 / 3</small></div>
+          <div class="pick-meter" aria-hidden="true"><i></i><i></i><i></i></div>
+          <ol id="picks" class="picks"></ol>
+          <form id="submit-form" class="details tray-form" novalidate>
+            <label for="f-name">Full name</label>
+            <input id="f-name" type="text" autocomplete="name" maxlength="80" required>
+            <label for="f-email">Brain Station 23 email</label>
+            <input id="f-email" type="email" autocomplete="email" placeholder="name@brainstation-23.com" maxlength="120" required>
+            <button class="btn wide" type="submit" id="submit-btn">Submit My Names →</button>
+            <p id="form-msg" class="form-msg" role="status"></p>
+            <ul class="tray-note">
+              <li>Your picks are saved on this device until you submit.</li>
+              <li>A confirmation is emailed to the address you enter.</li>
+              <li>You can change your names until Fri 6 Nov. Your latest submission counts.</li>
+              <li>Same name from two people? The earliest submission gets the credit.</li>
+            </ul>
+          </form>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <div class="mbar" id="mbar" hidden>
+    <span><b id="mbar-count">0</b> of 3 picked</span>
+    <a class="btn sm" href="#tray">Review &amp; Submit</a>
+  </div>
+
   <section class="band" id="product">
     <div class="inner">
       <div class="head">
         <div class="kicker">The product</div>
-        <h2>What you are naming</h2>
+        <h2>The Engine Behind Every Delivery</h2>
+        <p>One operational backbone for companies that move goods at scale, from the first request to the final invoice.</p>
       </div>
+
+      <p class="in-short"><b>In short:</b> DFMS helps companies move goods. It plans each delivery, finds a free truck, tracks it on the road, checks quality on arrival and shows what the trip cost, all in one system instead of spreadsheets, chat groups and phone calls.</p>
       <div class="product">
         <div class="card copy">
-          <p>DFMS is a cloud platform for companies that move goods, with their own trucks or with hired vendor trucks. It plans every delivery, tracks vehicles live, checks the goods at loading and at the door, and works out what each trip really cost.</p>
-          <p class="muted">It is a multi-tenant product: one platform that distributors, manufacturers and logistics providers anywhere can sign up to and configure to the way they work.</p>
+          <p>DFMS is a cloud platform that plans, runs, monitors and optimises transport, fleet and distribution across factories, feed mills, depots, warehouses and ports.</p>
+          <p>Today many of these companies run on Excel sheets, WhatsApp groups, paper delivery slips and disconnected systems. DFMS replaces them with a single source of operational truth for product movement, fleet use, vendors, quality, cost and compliance.</p>
           <div class="audience" aria-label="Who uses it">
-            <span>Transport planners</span><span>Drivers</span><span>Transport vendors</span><span>QC supervisors</span><span>Finance teams</span><span>Company admins</span>
+            <span>Transport planners</span><span>Drivers &amp; helpers</span><span>Transport vendors</span><span>Gate &amp; yard teams</span><span>QC inspectors</span><span>Finance</span><span>Management</span>
           </div>
         </div>
-        <div class="card caps">
-          <div><b>Distribution</b><span>Requests become orders, then trips, from dispatch to delivery.</span></div>
-          <div><b>Live tracking</b><span>GPS, geofences and points of interest for every truck.</span></div>
-          <div><b>Vendor marketplace</b><span>Vendors bid on trips, supply trucks and invoice in one portal.</span></div>
-          <div><b>Quality checks</b><span>Inspections at loading and delivery, on mobile, even offline.</span></div>
-          <div><b>Fleet health</b><span>Fuel, mileage, preventive maintenance and workshops.</span></div>
-          <div><b>Cost &amp; intelligence</b><span>Trip costing, ERP sync, KPIs, and AI for routes and vendors.</span></div>
+        <div class="card stats">
+          <div><b>14</b><span>core modules</span></div>
+          <div><b>3</b><span>mobile apps: driver, vendor, QC</span></div>
+          <div><b>4</b><span>SaaS plans: Basic, Starter, Growth, Enterprise</span></div>
+          <div><b>1</b><span>multi-tenant platform, data isolated per company</span></div>
+        </div>
+      </div>
+
+      <div class="flow card" aria-label="How goods move through DFMS">
+        <h3 class="flow-title">From Request To Delivery, In One System</h3>
+        <p class="flow-sub">Every hand-off between teams happens inside DFMS.</p>
+        <div class="phases" aria-hidden="true"><span>Plan</span><span>Move</span><span>Verify &amp; Close</span></div>
+        <div class="flow-wrap">
+          <span class="flow-truck" aria-hidden="true"></span>
+          <ol class="flow-steps">
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></span><b>Product Requisition</b><small>Depot or sales team requests stock</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></span><b>Transport Requisition</b><small>Distribution approves the move</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 15h3M8 18h6"/></svg></span><b>Transport Order</b><small>Planner picks own fleet or vendor bid</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span><b>Trip</b><small>Driver or vendor runs it, tracked live</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 21h14"/><path d="m3 9 3-6 3 6a3 3 0 0 1-6 0z"/><path d="m15 9 3-6 3 6a3 3 0 0 1-6 0z"/><path d="M6 3h12"/></svg></span><b>Gate &amp; Scale</b><small>Yard team logs entry and weight</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></span><b>Load / Unload</b><small>Command center assigns the bay</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><b>Quality Check</b><small>QC inspector samples and approves</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><b>Proof Of Delivery</b><small>Driver confirms handover</small></li>
+          <li><span class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 1 .7V2l-3 2-3-2-3 2-3-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><b>Costing</b><small>Finance sees the full trip cost</small></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-head">
+          <h3>A Day In The Life Of One Delivery</h3>
+          <p>Follow one load from a depot running low to the final invoice.</p>
+        </div>
+        <ol class="chapters">
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"/><path d="M7 21v-8h10v8"/><path d="M7 17h10"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">08:00</span><span>Chapter 1</span></div>
+              <h4>Plan With Real Stock And Capacity</h4>
+              <p>A depot is running low. Its manager raises a requisition, and DFMS shows live free capacity at both ends, warning before a warehouse overflows.</p>
+              <div class="ch-tags"><span>Product requisition</span><span>Capacity view</span><span>Approvals</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">09:30</span><span>Chapter 2</span></div>
+              <h4>Pick The Right Truck In Minutes</h4>
+              <p>Distribution approves the move and the planner turns it into a transport order. DFMS shows which own trucks and drivers are truly free, and vendors bid for the rest from their app.</p>
+              <div class="ch-tags"><span>Transport orders</span><span>Fleet availability</span><span>Vendor bidding</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 21h14"/><path d="m3 9 3-6 3 6a3 3 0 0 1-6 0z"/><path d="m15 9 3-6 3 6a3 3 0 0 1-6 0z"/><path d="M6 3h12"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">11:00</span><span>Chapter 3</span></div>
+              <h4>Clear The Yard Without The Queue</h4>
+              <p>The truck arrives at the feed mill. It is gated in, weighed and given a queue token, and the command center sends it to a free bay. Every minute is time-stamped.</p>
+              <div class="ch-tags"><span>Gate</span><span>Scale</span><span>Command center</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">13:00</span><span>Chapter 4</span></div>
+              <h4>Watch Every Trip Move, Live</h4>
+              <p>On the road, GPS and virtual boundaries around each site show exactly where the load is. The team knows the moment it reaches the depot, and how long it waits there.</p>
+              <div class="ch-tags"><span>Live GPS</span><span>Arrival alerts</span><span>Waiting time</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">16:00</span><span>Chapter 5</span></div>
+              <h4>Prove Quality With Evidence</h4>
+              <p>At the depot a QC inspector takes samples, prints QR labels, sends them to the lab and captures photos. Pass or fail is decided on evidence, not opinion.</p>
+              <div class="ch-tags"><span>QC inspection</span><span>QR samples</span><span>Lab tests</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">17:00</span><span>Chapter 6</span></div>
+              <h4>Close The Trip With Proof</h4>
+              <p>The driver confirms delivery in the app. Once QC passes, the trip closes itself and stock updates at both locations.</p>
+              <div class="ch-tags"><span>Proof of delivery</span><span>Auto-closure</span><span>Stock update</span></div>
+            </div>
+          </li>
+          <li class="chapter">
+            <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></span>
+            <div class="card ch-card">
+              <div class="ch-meta"><span class="ch-time">18:00</span><span>Chapter 7</span></div>
+              <h4>Know What Every Trip Really Cost</h4>
+              <p>Fuel, driver, vendor rate and maintenance roll into one trip cost. Finance compares own fleet against vendors, and invoices arrive without chasing.</p>
+              <div class="ch-tags"><span>Trip costing</span><span>Vendor invoices</span><span>KPI dashboards</span></div>
+            </div>
+          </li>
+        </ol>
+        <p class="story-foot">Behind every trip: fuel tracking, workshop jobs, role-based access and a full audit trail.</p>
+      </div>
+
+      <div class="fit">
+        <div class="card">
+          <h3>Built For</h3>
+          <ul>
+            <li>Large manufacturers with their own distribution</li>
+            <li>Agro-based enterprises and feed producers</li>
+            <li>FMCG and food &amp; beverage logistics operators</li>
+            <li>Multi-depot, multi-vendor transport networks</li>
+            <li>Companies with strict quality and compliance needs</li>
+          </ul>
+        </div>
+        <div class="card not">
+          <h3>What It Is Not</h3>
+          <ul>
+            <li>Not a warehouse management system</li>
+            <li>Not an ERP replacement</li>
+            <li>Not a GPS hardware provider</li>
+            <li>Not a CRM or dealer sales tool</li>
+          </ul>
+          <p class="hint">Naming tip: avoid names that suggest any of these.</p>
         </div>
       </div>
     </div>
@@ -239,13 +712,13 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     <div class="inner">
       <div class="head">
         <div class="kicker">The initiative</div>
-        <h2>One name, built to go global</h2>
-        <p>"DFMS" describes the product but doesn't sell it. We're asking everyone at Brain Station 23 for a name that a customer in any market will remember after hearing it once.</p>
+        <h2>One Name, Built To Go Global</h2>
+        <p>"DFMS" describes the product but doesn't sell it. We need a name customers anywhere remember after hearing it once.</p>
       </div>
       <div class="card initiative">
-        <div class="fact"><span class="label">Ideas per person</span><div class="num">Up to 3</div><p>Each a .com name, with a line on why it fits.</p><div class="bar-ind"><i style="width:100%"></i></div></div>
+        <div class="fact"><span class="label">Ideas Per Person</span><div class="num">Up to 3</div><p>Each a .com name. A line on why it fits is optional but helps the shortlist.</p><div class="bar-ind"><i style="width:100%"></i></div></div>
         <div class="fact"><span class="label">Domain</span><div class="num">.com</div><p>Free to register today, not a resale listing.</p><div class="bar-ind"><i style="width:100%"></i></div></div>
-        <div class="fact"><span class="label">Winner</span><div class="num">1 name</div><p>The DFMS team shortlists, and the person behind the chosen name is rewarded.</p><div class="bar-ind"><i style="width:100%"></i></div></div>
+        <div class="fact"><span class="label">Winner</span><div class="num">1 name</div><p>The DFMS team shortlists, and the person behind the chosen name is rewarded. If two people send the same name, the earliest submission gets the credit.</p><div class="bar-ind"><i style="width:100%"></i></div></div>
       </div>
     </div>
   </section>
@@ -254,29 +727,53 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     <div class="inner">
       <div class="head">
         <div class="kicker">Naming guidelines</div>
-        <h2>What makes a qualified name</h2>
+        <h2>What Makes A Qualified Name</h2>
         <p>Test every idea against these four before you send it.</p>
       </div>
       <div class="pillars">
         <div class="card pillar"><h3>Relevant</h3><p>Hints at distribution, fleets, routes, logistics or supply chain, without being a generic industry word.</p><q>Does it suggest movement or delivery?</q></div>
         <div class="card pillar"><h3>Unique</h3><p>Not close in sound or spelling to an existing brand, especially in logistics or software.</p><q>Did a quick search show nothing similar?</q></div>
         <div class="card pillar"><h3>Memorable</h3><p>Short, easy to say and spell after hearing it once, in any language.</p><q>Could a colleague type it from a phone call?</q></div>
-        <div class="card pillar"><h3>Brand-ready</h3><p>Works on an app icon, an invoice and a trade-show banner, in any country.</p><q>Would a global enterprise trust it?</q></div>
+        <div class="card pillar"><h3>Brand-Ready</h3><p>Works on an app icon, an invoice and a trade-show banner, in any country.</p><q>Would a global enterprise trust it?</q></div>
       </div>
       <div class="musts">
         <div class="card rules">
-          <h3>Must-haves</h3>
+          <h3>Must-Haves</h3>
           <ul>
             <li><span>The <b>.com</b> domain is unregistered.</span></li>
             <li><span>It is not listed for resale or as a premium domain.</span></li>
             <li><span>One word, or at most two words combined.</span></li>
             <li><span>No client names, and nothing tied to one country.</span></li>
+            <li><span><b>No Bangla or other local-language names.</b> It must work for customers worldwide.</span></li>
           </ul>
         </div>
         <div class="card tip">
           <div class="label">How to check a .com</div>
-          <h3>Search it at any domain registrar</h3>
-          <p>If it shows as available at the normal price, it qualifies. If it says "premium", "make an offer" or "for sale", someone owns it and wants to resell it. Skip that one.</p>
+          <h3>Search It Right Here</h3>
+          <p>Use the domain search at the top of this page. It checks the live .com registry through DotSweep. If a name shows as available, it qualifies. If it is taken, or priced far above normal, skip it.</p>
+          <div class="registrars">
+            <a href="#search">Go to the domain search ↑</a>
+          </div>
+        </div>
+      </div>
+      <div class="examples">
+        <div class="card good">
+          <h3>Strong Patterns</h3>
+          <ul>
+            <li><b>Samsara</b>One short, ownable word that is easy to say anywhere.</li>
+            <li><b>Motive</b>A real word that hints at movement without saying "truck".</li>
+            <li><b>Onfleet</b>Two short words joined into one clear idea.</li>
+          </ul>
+          <small>Existing brands, shown only to illustrate the style. They are taken.</small>
+        </div>
+        <div class="card weak">
+          <h3>Weak Patterns</h3>
+          <ul>
+            <li><b>LogiTrackPro</b>Generic industry words, long, sounds like many others.</li>
+            <li><b>BDFleet</b>Tied to one country.</li>
+            <li><b>Gari</b>A Bangla word: not understood by customers worldwide.</li>
+            <li><b>fleet-24</b>Hyphens and numbers are hard to say and remember.</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -286,29 +783,50 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     <div class="inner">
       <div class="head">
         <div class="kicker">How to take part</div>
-        <h2>Three steps, five minutes</h2>
+        <h2>Three Steps, Five Minutes</h2>
       </div>
       <ol class="steps">
-        <li class="card"><h3>Read the brief</h3><p>Know what DFMS does and who it serves. You just did.</p></li>
-        <li class="card"><h3>Check the .com</h3><p>Make sure each idea is free and not a premium resale domain.</p></li>
-        <li class="card"><h3>Submit up to three</h3><p>Open the form and add your names. Your name and email are recorded automatically.</p></li>
+        <li class="card"><h3>Read The Brief</h3><p>Know what DFMS does and who it serves, from <a href="#product">the product story</a> on this page.</p></li>
+        <li class="card"><h3>Search The .com</h3><p>Check each idea in the search at the top and keep the ones that are free.</p></li>
+        <li class="card"><h3>Submit Up To Three</h3><p>Add your picks, your name and your Brain Station 23 email, then submit them together.</p></li>
       </ol>
     </div>
   </section>
 
-  <section class="closing">
+  <section class="band" id="rules" style="padding-top:0">
+    <div class="inner">
+      <div class="extra">
+        <div class="card">
+          <h3>How The Winner Is Chosen</h3>
+          <ol>
+            <li>Entries close on Friday 6 November 2026 at 23:59 (Dhaka time).</li>
+            <li>The DFMS team checks each person's latest names against the must-haves and re-checks every .com.</li>
+            <li>A shortlist is reviewed and one name is chosen.</li>
+            <li>The winner is announced on Friday 13 November 2026 and contacted by email.</li>
+            <li>If two people sent the same name, the earliest submission gets the credit.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>The Small Print</h3>
+          <ul>
+            <li>Up to three names per person. Only your latest submission counts.</li>
+            <li>By submitting, you agree that Brain Station 23 may use, adapt or register any name you send, whether or not it wins.</li>
+            <li>If no name fits the brief, the team may decide not to choose one.</li>
+            <li>Your name and email are used only to run this campaign and contact the winner.</li>
+            <li>Questions? Message Nishat Farzana (DFMS team) on Teams.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing-cta">
     <div class="inner">
       <div class="card">
-        <div>
-          <div class="kicker">Your idea could be the name</div>
-          <h2>Give DFMS the name it will carry worldwide.</h2>
-          <p>Brain Station 23 colleagues only. Sign in with your work account to submit.</p>
-          <div><a class="btn js-form" href="#" target="_blank" rel="noopener">Submit your name ideas →</a></div>
-        </div>
-        <figure class="qr-card">
-          <div class="qr-tile"><svg role="img" aria-label="QR code for this campaign page" version="1.1" viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg"><path d="M0,0H1V1H0zM1,0H2V1H1zM2,0H3V1H2zM3,0H4V1H3zM4,0H5V1H4zM5,0H6V1H5zM6,0H7V1H6zM9,0H10V1H9zM11,0H12V1H11zM13,0H14V1H13zM14,0H15V1H14zM15,0H16V1H15zM16,0H17V1H16zM17,0H18V1H17zM18,0H19V1H18zM22,0H23V1H22zM24,0H25V1H24zM25,0H26V1H25zM26,0H27V1H26zM27,0H28V1H27zM28,0H29V1H28zM30,0H31V1H30zM31,0H32V1H31zM32,0H33V1H32zM33,0H34V1H33zM34,0H35V1H34zM35,0H36V1H35zM36,0H37V1H36zM0,1H1V2H0zM6,1H7V2H6zM11,1H12V2H11zM14,1H15V2H14zM15,1H16V2H15zM16,1H17V2H16zM17,1H18V2H17zM18,1H19V2H18zM19,1H20V2H19zM22,1H23V2H22zM25,1H26V2H25zM28,1H29V2H28zM30,1H31V2H30zM36,1H37V2H36zM0,2H1V3H0zM2,2H3V3H2zM3,2H4V3H3zM4,2H5V3H4zM6,2H7V3H6zM8,2H9V3H8zM9,2H10V3H9zM12,2H13V3H12zM13,2H14V3H13zM17,2H18V3H17zM21,2H22V3H21zM23,2H24V3H23zM27,2H28V3H27zM28,2H29V3H28zM30,2H31V3H30zM32,2H33V3H32zM33,2H34V3H33zM34,2H35V3H34zM36,2H37V3H36zM0,3H1V4H0zM2,3H3V4H2zM3,3H4V4H3zM4,3H5V4H4zM6,3H7V4H6zM10,3H11V4H10zM11,3H12V4H11zM14,3H15V4H14zM16,3H17V4H16zM20,3H21V4H20zM23,3H24V4H23zM25,3H26V4H25zM26,3H27V4H26zM28,3H29V4H28zM30,3H31V4H30zM32,3H33V4H32zM33,3H34V4H33zM34,3H35V4H34zM36,3H37V4H36zM0,4H1V5H0zM2,4H3V5H2zM3,4H4V5H3zM4,4H5V5H4zM6,4H7V5H6zM8,4H9V5H8zM9,4H10V5H9zM10,4H11V5H10zM14,4H15V5H14zM20,4H21V5H20zM21,4H22V5H21zM25,4H26V5H25zM26,4H27V5H26zM27,4H28V5H27zM30,4H31V5H30zM32,4H33V5H32zM33,4H34V5H33zM34,4H35V5H34zM36,4H37V5H36zM0,5H1V6H0zM6,5H7V6H6zM8,5H9V6H8zM14,5H15V6H14zM16,5H17V6H16zM17,5H18V6H17zM18,5H19V6H18zM19,5H20V6H19zM21,5H22V6H21zM22,5H23V6H22zM25,5H26V6H25zM26,5H27V6H26zM28,5H29V6H28zM30,5H31V6H30zM36,5H37V6H36zM0,6H1V7H0zM1,6H2V7H1zM2,6H3V7H2zM3,6H4V7H3zM4,6H5V7H4zM5,6H6V7H5zM6,6H7V7H6zM8,6H9V7H8zM10,6H11V7H10zM12,6H13V7H12zM14,6H15V7H14zM16,6H17V7H16zM18,6H19V7H18zM20,6H21V7H20zM22,6H23V7H22zM24,6H25V7H24zM26,6H27V7H26zM28,6H29V7H28zM30,6H31V7H30zM31,6H32V7H31zM32,6H33V7H32zM33,6H34V7H33zM34,6H35V7H34zM35,6H36V7H35zM36,6H37V7H36zM12,7H13V8H12zM13,7H14V8H13zM14,7H15V8H14zM16,7H17V8H16zM18,7H19V8H18zM19,7H20V8H19zM21,7H22V8H21zM24,7H25V8H24zM26,7H27V8H26zM1,8H2V9H1zM4,8H5V9H4zM6,8H7V9H6zM8,8H9V9H8zM9,8H10V9H9zM10,8H11V9H10zM11,8H12V9H11zM14,8H15V9H14zM18,8H19V9H18zM19,8H20V9H19zM20,8H21V9H20zM22,8H23V9H22zM24,8H25V9H24zM25,8H26V9H25zM26,8H27V9H26zM27,8H28V9H27zM29,8H30V9H29zM31,8H32V9H31zM32,8H33V9H32zM34,8H35V9H34zM0,9H1V10H0zM1,9H2V10H1zM3,9H4V10H3zM4,9H5V10H4zM8,9H9V10H8zM9,9H10V10H9zM11,9H12V10H11zM12,9H13V10H12zM13,9H14V10H13zM14,9H15V10H14zM15,9H16V10H15zM17,9H18V10H17zM18,9H19V10H18zM21,9H22V10H21zM22,9H23V10H22zM23,9H24V10H23zM24,9H25V10H24zM28,9H29V10H28zM30,9H31V10H30zM31,9H32V10H31zM32,9H33V10H32zM33,9H34V10H33zM35,9H36V10H35zM0,10H1V11H0zM6,10H7V11H6zM8,10H9V11H8zM9,10H10V11H9zM10,10H11V11H10zM11,10H12V11H11zM16,10H17V11H16zM18,10H19V11H18zM22,10H23V11H22zM23,10H24V11H23zM25,10H26V11H25zM26,10H27V11H26zM28,10H29V11H28zM29,10H30V11H29zM31,10H32V11H31zM32,10H33V11H32zM33,10H34V11H33zM35,10H36V11H35zM0,11H1V12H0zM2,11H3V12H2zM4,11H5V12H4zM8,11H9V12H8zM9,11H10V12H9zM10,11H11V12H10zM12,11H13V12H12zM13,11H14V12H13zM15,11H16V12H15zM16,11H17V12H16zM17,11H18V12H17zM19,11H20V12H19zM21,11H22V12H21zM23,11H24V12H23zM24,11H25V12H24zM26,11H27V12H26zM29,11H30V12H29zM34,11H35V12H34zM4,12H5V13H4zM5,12H6V13H5zM6,12H7V13H6zM8,12H9V13H8zM12,12H13V13H12zM13,12H14V13H13zM14,12H15V13H14zM16,12H17V13H16zM17,12H18V13H17zM18,12H19V13H18zM20,12H21V13H20zM21,12H22V13H21zM27,12H28V13H27zM28,12H29V13H28zM29,12H30V13H29zM30,12H31V13H30zM31,12H32V13H31zM32,12H33V13H32zM33,12H34V13H33zM34,12H35V13H34zM1,13H2V14H1zM5,13H6V14H5zM8,13H9V14H8zM11,13H12V14H11zM12,13H13V14H12zM14,13H15V14H14zM15,13H16V14H15zM17,13H18V14H17zM21,13H22V14H21zM22,13H23V14H22zM23,13H24V14H23zM25,13H26V14H25zM26,13H27V14H26zM27,13H28V14H27zM28,13H29V14H28zM29,13H30V14H29zM32,13H33V14H32zM34,13H35V14H34zM1,14H2V15H1zM4,14H5V15H4zM5,14H6V15H5zM6,14H7V15H6zM9,14H10V15H9zM10,14H11V15H10zM11,14H12V15H11zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM20,14H21V15H20zM23,14H24V15H23zM24,14H25V15H24zM25,14H26V15H25zM26,14H27V15H26zM27,14H28V15H27zM29,14H30V15H29zM32,14H33V15H32zM33,14H34V15H33zM34,14H35V15H34zM1,15H2V16H1zM2,15H3V16H2zM11,15H12V16H11zM13,15H14V16H13zM15,15H16V16H15zM18,15H19V16H18zM22,15H23V16H22zM23,15H24V16H23zM27,15H28V16H27zM31,15H32V16H31zM34,15H35V16H34zM35,15H36V16H35zM36,15H37V16H36zM2,16H3V17H2zM4,16H5V17H4zM5,16H6V17H5zM6,16H7V17H6zM9,16H10V17H9zM10,16H11V17H10zM11,16H12V17H11zM12,16H13V17H12zM15,16H16V17H15zM16,16H17V17H16zM17,16H18V17H17zM19,16H20V17H19zM22,16H23V17H22zM24,16H25V17H24zM29,16H30V17H29zM30,16H31V17H30zM31,16H32V17H31zM33,16H34V17H33zM34,16H35V17H34zM35,16H36V17H35zM0,17H1V18H0zM2,17H3V18H2zM4,17H5V18H4zM9,17H10V18H9zM10,17H11V18H10zM11,17H12V18H11zM17,17H18V18H17zM19,17H20V18H19zM20,17H21V18H20zM26,17H27V18H26zM27,17H28V18H27zM28,17H29V18H28zM29,17H30V18H29zM32,17H33V18H32zM2,18H3V19H2zM4,18H5V19H4zM6,18H7V19H6zM9,18H10V19H9zM11,18H12V19H11zM12,18H13V19H12zM13,18H14V19H13zM15,18H16V19H15zM16,18H17V19H16zM17,18H18V19H17zM20,18H21V19H20zM21,18H22V19H21zM26,18H27V19H26zM27,18H28V19H27zM28,18H29V19H28zM31,18H32V19H31zM32,18H33V19H32zM34,18H35V19H34zM8,19H9V20H8zM15,19H16V20H15zM16,19H17V20H16zM17,19H18V20H17zM19,19H20V20H19zM21,19H22V20H21zM22,19H23V20H22zM24,19H25V20H24zM26,19H27V20H26zM27,19H28V20H27zM30,19H31V20H30zM31,19H32V20H31zM32,19H33V20H32zM34,19H35V20H34zM3,20H4V21H3zM5,20H6V21H5zM6,20H7V21H6zM8,20H9V21H8zM11,20H12V21H11zM12,20H13V21H12zM17,20H18V21H17zM20,20H21V21H20zM21,20H22V21H21zM22,20H23V21H22zM23,20H24V21H23zM29,20H30V21H29zM30,20H31V21H30zM34,20H35V21H34zM36,20H37V21H36zM0,21H1V22H0zM1,21H2V22H1zM2,21H3V22H2zM5,21H6V22H5zM7,21H8V22H7zM9,21H10V22H9zM10,21H11V22H10zM12,21H13V22H12zM13,21H14V22H13zM15,21H16V22H15zM16,21H17V22H16zM17,21H18V22H17zM18,21H19V22H18zM23,21H24V22H23zM27,21H28V22H27zM29,21H30V22H29zM30,21H31V22H30zM32,21H33V22H32zM33,21H34V22H33zM35,21H36V22H35zM1,22H2V23H1zM2,22H3V23H2zM4,22H5V23H4zM6,22H7V23H6zM7,22H8V23H7zM9,22H10V23H9zM11,22H12V23H11zM12,22H13V23H12zM14,22H15V23H14zM15,22H16V23H15zM16,22H17V23H16zM18,22H19V23H18zM21,22H22V23H21zM22,22H23V23H22zM23,22H24V23H23zM24,22H25V23H24zM25,22H26V23H25zM26,22H27V23H26zM27,22H28V23H27zM28,22H29V23H28zM30,22H31V23H30zM33,22H34V23H33zM2,23H3V24H2zM3,23H4V24H3zM5,23H6V24H5zM16,23H17V24H16zM17,23H18V24H17zM18,23H19V24H18zM19,23H20V24H19zM21,23H22V24H21zM22,23H23V24H22zM23,23H24V24H23zM25,23H26V24H25zM28,23H29V24H28zM29,23H30V24H29zM30,23H31V24H30zM31,23H32V24H31zM34,23H35V24H34zM35,23H36V24H35zM36,23H37V24H36zM3,24H4V25H3zM5,24H6V25H5zM6,24H7V25H6zM7,24H8V25H7zM8,24H9V25H8zM10,24H11V25H10zM14,24H15V25H14zM19,24H20V25H19zM21,24H22V25H21zM22,24H23V25H22zM23,24H24V25H23zM25,24H26V25H25zM27,24H28V25H27zM28,24H29V25H28zM29,24H30V25H29zM34,24H35V25H34zM36,24H37V25H36zM0,25H1V26H0zM2,25H3V26H2zM22,25H23V26H22zM23,25H24V26H23zM25,25H26V26H25zM26,25H27V26H26zM30,25H31V26H30zM32,25H33V26H32zM33,25H34V26H33zM35,25H36V26H35zM4,26H5V27H4zM5,26H6V27H5zM6,26H7V27H6zM10,26H11V27H10zM11,26H12V27H11zM12,26H13V27H12zM13,26H14V27H13zM14,26H15V27H14zM16,26H17V27H16zM18,26H19V27H18zM23,26H24V27H23zM24,26H25V27H24zM25,26H26V27H25zM27,26H28V27H27zM29,26H30V27H29zM33,26H34V27H33zM34,26H35V27H34zM3,27H4V28H3zM4,27H5V28H4zM5,27H6V28H5zM7,27H8V28H7zM8,27H9V28H8zM9,27H10V28H9zM11,27H12V28H11zM15,27H16V28H15zM16,27H17V28H16zM21,27H22V28H21zM26,27H27V28H26zM27,27H28V28H27zM28,27H29V28H28zM30,27H31V28H30zM32,27H33V28H32zM33,27H34V28H33zM34,27H35V28H34zM35,27H36V28H35zM0,28H1V29H0zM1,28H2V29H1zM2,28H3V29H2zM3,28H4V29H3zM6,28H7V29H6zM8,28H9V29H8zM10,28H11V29H10zM11,28H12V29H11zM13,28H14V29H13zM14,28H15V29H14zM16,28H17V29H16zM19,28H20V29H19zM21,28H22V29H21zM22,28H23V29H22zM24,28H25V29H24zM28,28H29V29H28zM29,28H30V29H29zM30,28H31V29H30zM31,28H32V29H31zM32,28H33V29H32zM33,28H34V29H33zM34,28H35V29H34zM36,28H37V29H36zM8,29H9V30H8zM10,29H11V30H10zM11,29H12V30H11zM12,29H13V30H12zM14,29H15V30H14zM16,29H17V30H16zM17,29H18V30H17zM19,29H20V30H19zM20,29H21V30H20zM22,29H23V30H22zM23,29H24V30H23zM25,29H26V30H25zM26,29H27V30H26zM27,29H28V30H27zM28,29H29V30H28zM32,29H33V30H32zM33,29H34V30H33zM0,30H1V31H0zM1,30H2V31H1zM2,30H3V31H2zM3,30H4V31H3zM4,30H5V31H4zM5,30H6V31H5zM6,30H7V31H6zM10,30H11V31H10zM15,30H16V31H15zM16,30H17V31H16zM17,30H18V31H17zM18,30H19V31H18zM19,30H20V31H19zM21,30H22V31H21zM22,30H23V31H22zM23,30H24V31H23zM28,30H29V31H28zM30,30H31V31H30zM32,30H33V31H32zM33,30H34V31H33zM34,30H35V31H34zM35,30H36V31H35zM0,31H1V32H0zM6,31H7V32H6zM9,31H10V32H9zM11,31H12V32H11zM12,31H13V32H12zM13,31H14V32H13zM14,31H15V32H14zM20,31H21V32H20zM21,31H22V32H21zM23,31H24V32H23zM24,31H25V32H24zM26,31H27V32H26zM27,31H28V32H27zM28,31H29V32H28zM32,31H33V32H32zM34,31H35V32H34zM0,32H1V33H0zM2,32H3V33H2zM3,32H4V33H3zM4,32H5V33H4zM6,32H7V33H6zM8,32H9V33H8zM10,32H11V33H10zM12,32H13V33H12zM13,32H14V33H13zM15,32H16V33H15zM17,32H18V33H17zM18,32H19V33H18zM20,32H21V33H20zM23,32H24V33H23zM28,32H29V33H28zM29,32H30V33H29zM30,32H31V33H30zM31,32H32V33H31zM32,32H33V33H32zM33,32H34V33H33zM34,32H35V33H34zM35,32H36V33H35zM36,32H37V33H36zM0,33H1V34H0zM2,33H3V34H2zM3,33H4V34H3zM4,33H5V34H4zM6,33H7V34H6zM9,33H10V34H9zM11,33H12V34H11zM13,33H14V34H13zM14,33H15V34H14zM15,33H16V34H15zM18,33H19V34H18zM19,33H20V34H19zM21,33H22V34H21zM22,33H23V34H22zM24,33H25V34H24zM25,33H26V34H25zM26,33H27V34H26zM28,33H29V34H28zM30,33H31V34H30zM34,33H35V34H34zM35,33H36V34H35zM0,34H1V35H0zM2,34H3V35H2zM3,34H4V35H3zM4,34H5V35H4zM6,34H7V35H6zM9,34H10V35H9zM10,34H11V35H10zM11,34H12V35H11zM12,34H13V35H12zM14,34H15V35H14zM15,34H16V35H15zM18,34H19V35H18zM19,34H20V35H19zM21,34H22V35H21zM22,34H23V35H22zM23,34H24V35H23zM24,34H25V35H24zM25,34H26V35H25zM27,34H28V35H27zM28,34H29V35H28zM30,34H31V35H30zM31,34H32V35H31zM34,34H35V35H34zM35,34H36V35H35zM0,35H1V36H0zM6,35H7V36H6zM8,35H9V36H8zM9,35H10V36H9zM12,35H13V36H12zM15,35H16V36H15zM16,35H17V36H16zM19,35H20V36H19zM20,35H21V36H20zM21,35H22V36H21zM23,35H24V36H23zM29,35H30V36H29zM31,35H32V36H31zM33,35H34V36H33zM34,35H35V36H34zM35,35H36V36H35zM0,36H1V37H0zM1,36H2V37H1zM2,36H3V37H2zM3,36H4V37H3zM4,36H5V37H4zM5,36H6V37H5zM6,36H7V37H6zM9,36H10V37H9zM10,36H11V37H10zM15,36H16V37H15zM17,36H18V37H17zM21,36H22V37H21zM22,36H23V37H22zM27,36H28V37H27zM31,36H32V37H31zM32,36H33V37H32zM34,36H35V37H34zM35,36H36V37H35zM36,36H37V37H36z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg></div>
-          <figcaption><b>Scan to open on your phone</b><span>Or show it on screen to share the campaign</span></figcaption>
-        </figure>
+        <div class="kicker">Your idea could be the name</div>
+        <h2>Name It. Win It.</h2>
+        <p>Search your ideas, keep up to three that are free, and send them together by Friday 6 November 2026. Brain Station 23 colleagues only.</p>
+        <a class="btn" href="#search">Search &amp; Submit Your Names ↑</a>
       </div>
     </div>
   </section>
@@ -316,13 +834,11 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
 <footer>
   <div class="inner">
     <span>DFMS naming campaign · Brain Station 23 · Europe SBU</span>
-    <span>Run by Nishat Farzana, DFMS team</span>
+    <span>Questions? Message Nishat Farzana (DFMS team) on Teams</span>
   </div>
 </footer>
 
 <script>
-  var FORM_URL = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=lRTioYcgEkOnGH-ErRCUOXA3Uw9rjzhDlK9RUj4qc8VUN1NFSEpFQVJIR0ZRS1VaSTJTVUQ3MzJJUi4u";
-  document.querySelectorAll(".js-form").forEach(function (a) { a.href = FORM_URL; });
 
   // Hero fleet scene: curved roads between depots, delivery pins pulsing, trucks driving each route and turning back at the end.
   (function () {
@@ -417,17 +933,285 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { build(); draw(); });
   })();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-  // When hosted, the QR encodes this page's own address. Opened as a local file, the built-in QR (fallback link) stays.
+  // ===== Campaign settings =====
+  // SUBMIT_URL: the Google Apps Script web app URL (see README.md). Submissions are written to the Google Sheet.
+  var CONFIG = {
+    SUBMIT_URL: "https://script.google.com/macros/s/AKfycbyvsiFf3MevyI1b-orWqP2UQQ_eZZzaceiJ8e2GQfsRLleSfHHBfRu7pMhvkpbYhhOjzw/exec",
+    MAX_PICKS: 3,
+    // End of Friday 6 November 2026, Dhaka time. Keep in step with CLOSES_AT in Code.gs.
+    CLOSES_AT: "2026-11-06T23:59:59+06:00"
+  };
+
+  // Hero search: live .com check via DotSweep, up to three picks, one submission to the sheet.
   (function () {
-    if (!/^https?:$/.test(location.protocol) || typeof QRCode === "undefined") return;
-    var tile = document.querySelector(".qr-tile");
-    if (!tile) return;
-    tile.innerHTML = "";
-    new QRCode(tile, { text: location.origin + location.pathname, width: 296, height: 296,
-      colorDark: "#122056", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.Q });
+    var MAX = CONFIG.MAX_PICKS;
+    var EMAIL_RE = /^[^@\s]+@brainstation-?23\.com$/i;
+    var STORE_KEY = "dfms-naming-last";
+    var DRAFT_KEY = "dfms-naming-draft";
+    var PREMIUM_PRICE = 25;
+    var CLOSES = new Date(CONFIG.CLOSES_AT);
+    var isClosed = function () { return new Date() > CLOSES; };
+    var state = { results: [], picks: [] };
+    var $ = function (s) { return document.querySelector(s); };
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var q = $("#q");
+
+    function normalize(raw) {
+      var s = String(raw || "").trim().toLowerCase();
+      s = s.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\s+/g, "");
+      if (s.slice(-4) === ".com") s = s.slice(0, -4);
+      return s;
+    }
+    function rules(label) {
+      var issues = [], warns = [];
+      if (!/^[a-z]+$/.test(label)) issues.push("Use letters a–z only: no numbers, hyphens, spaces, dots or accents.");
+      else {
+        if (label.length < 3) issues.push("Use at least 3 letters.");
+        if (label.length > 63) issues.push("Too long for a domain.");
+        if (label.length > 15) warns.push("Over 15 letters is hard to remember. Is it more than two words?");
+      }
+      return { issues: issues, warns: warns };
+    }
+    function check(domain) {
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 8000);
+      return fetch("https://dotsweep.com/check/" + encodeURIComponent(domain), ctl ? { signal: ctl.signal } : {})
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j && j.error) return { status: j.error.code === "rate_limited" ? "busy" : "error", msg: j.error.message };
+          var p = j && j.price, price = p && p.registration;
+          // A normal .com costs about 10–15 USD a year; far above that means a premium or resale listing.
+          var premium = j.status === "available" && price > PREMIUM_PRICE && (!p.currency || p.currency === "USD");
+          return { status: j.status || "unknown", confidence: j.confidence, price: price, currency: p && p.currency, premium: premium };
+        })
+        .catch(function () { return { status: "offline" }; })
+        .then(function (res) { clearTimeout(timer); return res; });
+    }
+
+    // ---- animated placeholder ----
+    (function typewriter() {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) return;
+      var words = ["your-idea", "type a name", "one-word-brand", "search it here"], wi = 0, ci = 0, del = false;
+      (function step() {
+        if (document.activeElement === q || q.value) { q.placeholder = "your-idea"; setTimeout(step, 1200); return; }
+        var w = words[wi];
+        ci += del ? -1 : 1;
+        q.placeholder = w.slice(0, ci) + "▍";
+        var wait = del ? 45 : 95;
+        if (!del && ci === w.length) { del = true; wait = 1500; }
+        else if (del && ci === 0) { del = false; wi = (wi + 1) % words.length; wait = 350; }
+        setTimeout(step, wait);
+      })();
+    })();
+
+    // ---- results ----
+    function isPicked(d) { return state.picks.some(function (p) { return p.domain === d; }); }
+    function statusPill(r) {
+      if (r.pending) return el("span", "pill idle busy", "Checking…");
+      if (r.issues.length) return el("span", "pill bad", "Doesn't fit the rules");
+      if (r.check.premium) return el("span", "pill bad", "Premium price: doesn't qualify");
+      switch (r.check.status) {
+        case "available": return el("span", "pill ok", r.check.confidence === "estimated" ? "Likely available" : "Available");
+        case "taken": return el("span", "pill bad", "Taken");
+        case "busy": return el("span", "pill maybe", "Too many checks, wait a minute");
+        case "offline": return el("span", "pill idle", "Couldn't reach the checker");
+        default: return el("span", "pill maybe", "Couldn't confirm");
+      }
+    }
+    function canAdd(r) { return !r.pending && !r.issues.length && r.check.status !== "taken" && !r.check.premium && state.picks.length < MAX && !isPicked(r.domain); }
+    function renderResults() {
+      var ul = $("#results"); ul.textContent = "";
+      $("#results-empty").hidden = state.results.length > 0;
+      $("#res-count").textContent = state.results.length ? state.results.length + (state.results.length === 1 ? " name checked" : " names checked") : "";
+      state.results.forEach(function (r) {
+        var li = el("li", "res");
+        li.appendChild(el("span", "res-domain", r.domain));
+        var btn = el("button", "add-btn", isPicked(r.domain) ? "Added" : "+ Add to picks");
+        btn.type = "button"; btn.disabled = !canAdd(r);
+        btn.addEventListener("click", function () { addPick(r); });
+        li.appendChild(btn);
+        var meta = el("div", "res-meta");
+        meta.appendChild(statusPill(r));
+        if (!r.pending) {
+          r.issues.forEach(function (t) { meta.appendChild(el("span", null, t)); });
+          r.warns.forEach(function (t) { meta.appendChild(el("span", "warn-note", t)); });
+          if (!r.issues.length && r.check.status === "available" && r.check.price) meta.appendChild(el("span", null, "about " + Math.round(r.check.price) + " " + (r.check.currency || "USD") + " a year"));
+          if (r.check.premium) meta.appendChild(el("span", null, "A normal .com costs about 10–15 USD. This one is listed as premium or for resale."));
+          if (!r.issues.length && r.check.status !== "available" && r.check.status !== "taken") {
+            meta.appendChild(el("span", "warn-note", "You can still add it, but it will be marked unconfirmed and checked by the DFMS team."));
+            var a = el("a", null, "Check on DotSweep ↗"); a.href = "https://dotsweep.com/"; a.target = "_blank"; a.rel = "noopener";
+            meta.appendChild(a);
+          }
+        }
+        li.appendChild(meta);
+        ul.appendChild(li);
+      });
+    }
+    $("#search-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var label = normalize(q.value);
+      if (!label) { q.focus(); return; }
+      var domain = label + ".com", v = rules(label);
+      state.results = state.results.filter(function (r) { return r.domain !== domain; });
+      var r = { domain: domain, issues: v.issues, warns: v.warns, pending: !v.issues.length, check: { status: "unknown" } };
+      state.results.unshift(r); state.results = state.results.slice(0, 6);
+      renderResults();
+      if (r.pending) check(domain).then(function (c) { r.check = c; r.pending = false; renderResults(); });
+      q.select();
+    });
+
+    // ---- picks ----
+    function addPick(r) {
+      if (!canAdd(r)) return;
+      state.picks.push({ domain: r.domain, why: "", status: r.check.status === "available" ? (r.check.confidence === "estimated" ? "likely" : "available") : "unverified" });
+      renderPicks(); renderResults();
+    }
+    function renderPicks() {
+      var ol = $("#picks"); ol.textContent = "";
+      $("#pick-count").textContent = state.picks.length + " / " + MAX;
+      if (!state.picks.length) ol.appendChild(el("li", "empty", "Search a name, then add up to three domains you like."));
+      state.picks.forEach(function (p, i) {
+        var li = el("li", "pick");
+        li.appendChild(el("span", "pick-domain", p.domain));
+        var rm = el("button", "rm-btn", "Remove"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + p.domain);
+        rm.addEventListener("click", function () { state.picks.splice(i, 1); renderPicks(); renderResults(); });
+        li.appendChild(rm);
+        if (p.status !== "available") li.appendChild(el("span", "pick-flag", p.status === "likely" ? "Likely available: the DFMS team will confirm it." : "Unconfirmed: the DFMS team will check it, and it may not qualify."));
+        var why = el("input"); why.type = "text"; why.maxLength = 160; why.value = p.why || "";
+        why.placeholder = "Why does it fit? (optional)"; why.setAttribute("aria-label", "Why " + p.domain + " fits");
+        why.addEventListener("input", function () { p.why = why.value; saveDraft(); });
+        li.appendChild(why);
+        ol.appendChild(li);
+      });
+      [].forEach.call(document.querySelectorAll(".pick-meter i"), function (m, i) { m.classList.toggle("on", i < state.picks.length); });
+      $("#mbar").hidden = !state.picks.length;
+      document.body.classList.toggle("has-mbar", state.picks.length > 0);
+      $("#mbar-count").textContent = state.picks.length;
+      updateSteps();
+      saveDraft();
+    }
+
+    // ---- draft: picks and details survive a reload until submitted ----
+    function saveDraft() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ picks: state.picks, name: $("#f-name").value, email: $("#f-email").value }));
+      } catch (e) {}
+    }
+
+    // ---- deadline ----
+    function renderDeadline() {
+      var left = CLOSES - new Date(), out = $("#dl-left");
+      if (left <= 0) { out.textContent = "Closed"; return; }
+      var days = Math.floor(left / 864e5), hours = Math.floor(left / 36e5);
+      out.textContent = days >= 2 ? days + " days left" : hours >= 1 ? hours + (hours === 1 ? " hour left" : " hours left") : "Closing soon";
+    }
+    function applyClosed() {
+      if (!isClosed()) return;
+      $("#submit-btn").disabled = true;
+      $("#submit-btn").textContent = "Submissions Closed";
+      var note = el("p", "closed-note", "Submissions closed on Friday 6 November 2026. The winner is announced on Friday 13 November. You can still search names for fun.");
+      $("#submit-form").insertBefore(note, $("#submit-form").firstChild);
+    }
+
+    // ---- progress stepper ----
+    function updateSteps(submitted) {
+      var hasPicks = state.picks.length > 0;
+      var hasDetails = $("#f-name").value.trim() && $("#f-email").value.trim();
+      var active = submitted ? 4 : !hasPicks ? 1 : hasDetails ? 3 : 2;
+      [].forEach.call(document.querySelectorAll(".stepper li"), function (li) {
+        var n = +li.getAttribute("data-step");
+        li.classList.toggle("is-active", n === active);
+        li.classList.toggle("is-done", n < active);
+        if (n === active) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+      });
+    }
+    ["#f-name", "#f-email"].forEach(function (id) { $(id).addEventListener("input", function () { updateSteps(); saveDraft(); }); });
+
+    // ---- submit ----
+    function msg(text, kind) { var m = $("#form-msg"); m.textContent = text; m.className = "form-msg" + (kind ? " " + kind : ""); }
+    function remember(payload) { try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); } catch (e) {} }
+    function post(payload) {
+      var opts = { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) };
+      return fetch(CONFIG.SUBMIT_URL, opts)
+        .then(function (r) { return r.json(); })
+        .catch(function () {
+          // Some networks block reading the reply; send it anyway and treat delivery as done.
+          return fetch(CONFIG.SUBMIT_URL, Object.assign({ mode: "no-cors" }, opts)).then(function () { return { ok: true, unconfirmed: true }; });
+        });
+    }
+    $("#submit-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = $("#f-name").value.trim(), email = $("#f-email").value.trim();
+      $("#f-name").removeAttribute("aria-invalid"); $("#f-email").removeAttribute("aria-invalid");
+      if (!state.picks.length) { msg("Add at least one domain to your picks first.", "err"); q.focus(); return; }
+      if (!name) { $("#f-name").setAttribute("aria-invalid", "true"); msg("Enter your full name.", "err"); $("#f-name").focus(); return; }
+      if (!EMAIL_RE.test(email)) { $("#f-email").setAttribute("aria-invalid", "true"); msg("Use your Brain Station 23 email, ending in @brainstation-23.com.", "err"); $("#f-email").focus(); return; }
+      if (isClosed()) { msg("Submissions closed on Friday 6 November 2026.", "err"); return; }
+      if (!CONFIG.SUBMIT_URL) { msg("Submissions aren't open yet. Your picks are kept on this page, so please try again soon.", "err"); return; }
+      var payload = {
+        name: name, email: email, submittedAt: new Date().toISOString(),
+        picks: state.picks.map(function (p) { return { domain: p.domain, why: (p.why || "").slice(0, 160), status: p.status }; })
+      };
+      var btn = $("#submit-btn"); btn.disabled = true; msg("Sending…");
+      post(payload).then(function (res) {
+        if (res && res.ok) {
+          remember(payload);
+          var text = res.updated ? "Updated. These picks now replace your earlier ones." : "Submitted. Thank you, and good luck!";
+          if (res.id) text += " Reference: " + res.id + ".";
+          if (res.emailed) text += " A confirmation is on its way to " + email + ".";
+          if (res.earlierByOthers && res.earlierByOthers.length) {
+            text += " Heads up: someone proposed " + res.earlierByOthers.join(", ") + " before you, so the credit for " + (res.earlierByOthers.length === 1 ? "that name" : "those names") + " goes to them. You can swap in a different name and submit again.";
+          }
+          msg(text, "ok");
+          btn.textContent = "Update My Submission →";
+          updateSteps(true);
+        } else {
+          msg((res && res.error) || "Couldn't submit just now. Your picks are still saved here, so please try again.", "err");
+        }
+      }, function () {
+        msg("Couldn't reach the submission service. Check your connection and try again.", "err");
+      }).then(function () { btn.disabled = false; });
+    });
+
+    // ---- hero box: check the name in the search section ----
+    $("#hero-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = $("#hq").value.trim();
+      $("#search").scrollIntoView({ behavior: "smooth", block: "start" });
+      if (!v) { setTimeout(function () { q.focus({ preventScroll: true }); }, 350); return; }
+      q.value = v;
+      $("#search-form").dispatchEvent(new Event("submit", { cancelable: true }));
+      $("#hq").value = "";
+    });
+
+    // ---- jump links focus the search ----
+    document.querySelectorAll('a[href="#search"]').forEach(function (a) {
+      a.addEventListener("click", function () { setTimeout(function () { q.focus({ preventScroll: true }); }, 350); });
+    });
+
+    // ---- restore unsent draft, or the last submission, on this device ----
+    var last = null, draft = null;
+    try { last = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (e) {}
+    try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch (e) {}
+    var from = draft && Array.isArray(draft.picks) ? draft : last && Array.isArray(last.picks) ? last : null;
+    if (from) {
+      state.picks = from.picks.slice(0, MAX).filter(function (p) { return p && p.domain; });
+      $("#f-name").value = from.name || ""; $("#f-email").value = from.email || "";
+    }
+    renderPicks();
+    if (last && Array.isArray(last.picks)) {
+      $("#submit-btn").textContent = "Update My Submission →";
+      msg("You've submitted from this device before. Change anything and submit again to update.", "ok");
+    } else if (state.picks.length) {
+      msg("Welcome back. Your picks are still here, ready to submit.");
+    }
+    renderResults(); updateSteps();
+    renderDeadline(); setInterval(renderDeadline, 60000);
+    applyClosed();
   })();
 </script>
+
 </body>
 </html>
