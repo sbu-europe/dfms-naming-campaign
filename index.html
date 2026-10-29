@@ -4,7 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Name It. Win It. Propose a global name and .com domain for DFMS, our Distribution and Fleet Management Platform.">
-<title>Name DFMS</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sbu-europe.github.io/dfms-naming-campaign/">
+<meta property="og:title" content="Name It. Win It. | DFMS Naming Campaign">
+<meta property="og:description" content="Suggest a global name and .com domain for DFMS. Submissions open Mon 2 Nov, 11:00 AM to Fri 6 Nov, 9:00 PM (Dhaka). The winner gets a surprise gift at the next SBU Town Hall.">
+<meta property="og:image" content="https://sbu-europe.github.io/dfms-naming-campaign/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>Name It. Win It. | DFMS Naming Campaign</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap">
@@ -447,6 +455,22 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
   .stepper { gap: .5rem 1.4rem; }
   .stepper li { font-size: .82rem; }
 }
+.tz-note { margin: -.6rem 0 0; font-size: .8rem; color: var(--muted); }
+.remind { margin: -.6rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .9rem; font-size: .85rem; color: var(--ink-2); }
+.remind a { font-weight: 600; color: var(--primary); }
+.story-more { display: grid; gap: 1.5rem; }
+.story-more > summary { justify-self: center; cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .5rem; padding: .6rem 1.1rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 600; color: var(--primary); }
+.story-more > summary::-webkit-details-marker { display: none; }
+.story-more > summary::after { content: "↓"; }
+.story-more[open] > summary::after { content: "↑"; }
+.story-more > summary small { font-weight: 500; color: var(--muted); }
+footer a, .extra a { color: inherit; font-weight: 600; }
+@media (max-width: 560px) {
+  .timeline { display: grid; grid-template-columns: 1fr; }
+  .timeline li { min-width: 0; grid-template-columns: 1fr auto; align-items: baseline; column-gap: .75rem; }
+  .timeline li span { grid-column: 1 / -1; }
+  .scene { display: none; }
+}
 </style>
 </head>
 <body>
@@ -456,19 +480,22 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     <h1>Name It. <em>Win It.</em></h1>
     <form class="domain hero-search" id="hero-form" role="search" autocomplete="off">
       <span class="proto" aria-hidden="true">https://</span>
-      <input id="hq" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="your-idea" aria-label="Try a name: check if the .com is free">
+      <input id="hq" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="yourbrand" aria-label="Try a name: check if the .com is free">
       <span class="tld" aria-hidden="true">.com</span>
       <button class="hero-go" type="submit">Check</button>
     </form>
     <p class="lede">DFMS, our Distribution and Fleet Management Platform, is growing into a global product. It needs a name, and a .com domain, that can carry it there. Search your ideas and send up to three.</p>
     <div class="prize">
       <span class="prize-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
-      <div class="prize-text"><strong>Win a reward for the best name</strong><span>The person whose name is selected receives a token of appreciation and a special reward.</span></div>
+      <div class="prize-text"><strong>Win a surprise gift</strong><span>The person behind the chosen name gets a surprise gift and is recognised in front of everyone at our next SBU Town Hall.</span></div>
     </div>
     <ul class="timeline" aria-label="Campaign dates">
-      <li><span>Submissions close</span><b>Fri 6 Nov 2026</b><small id="dl-left"></small></li>
-      <li><span>Winner announced</span><b>Fri 13 Nov 2026</b></li>
+      <li><span>Submissions open</span><b>Mon 2 Nov, 11:00 AM</b><small id="dl-open"></small></li>
+      <li><span>Submissions close</span><b>Fri 6 Nov, 9:00 PM</b><small id="dl-left"></small></li>
+      <li><span>Winner revealed</span><b>Next SBU Town Hall</b></li>
     </ul>
+    <p class="tz-note" id="tz-note">All times are Dhaka time (GMT+6).</p>
+    <p class="remind" id="remind" hidden>Don't miss the opening: <a id="cal-outlook" target="_blank" rel="noopener">Add to Outlook calendar</a></p>
     <div class="actions">
       <a class="btn" href="#search">Search &amp; Submit Your Names ↓</a>
       <a class="link" href="#guidelines">Read The Naming Guidelines</a>
@@ -517,7 +544,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
             <label for="q" class="flabel">Domain name</label>
             <div class="hbar">
               <span class="proto" aria-hidden="true">https://</span>
-              <input id="q" name="q" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="your-idea" aria-describedby="q-help">
+              <input id="q" name="q" type="text" inputmode="url" spellcheck="false" maxlength="70" placeholder="yourbrand" aria-describedby="q-help">
               <span class="tld-suffix" aria-hidden="true">.com</span>
               <button class="btn" type="submit" id="search-btn">Search</button>
             </div>
@@ -549,9 +576,9 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
             <button class="btn wide" type="submit" id="submit-btn">Submit My Names →</button>
             <p id="form-msg" class="form-msg" role="status"></p>
             <ul class="tray-note">
-              <li>Your picks are saved on this device until you submit.</li>
+              <li>Your picks are saved in this browser only, until you submit. Switching to another phone or laptop starts empty.</li>
               <li>A confirmation is emailed to the address you enter.</li>
-              <li>You can change your names until Fri 6 Nov. Your latest submission counts.</li>
+              <li>You can change your names until the close. Your latest submission counts.</li>
               <li>Same name from two people? The earliest submission gets the credit.</li>
             </ul>
           </form>
@@ -615,7 +642,9 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
           <h3>A Day In The Life Of One Delivery</h3>
           <p>Follow one load from a depot running low to the final invoice.</p>
         </div>
-        <ol class="chapters">
+        <details class="story-more">
+          <summary>Read the full story <small>7 short chapters</small></summary>
+          <ol class="chapters">
           <li class="chapter">
             <span class="ch-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"/><path d="M7 21v-8h10v8"/><path d="M7 17h10"/></svg></span>
             <div class="card ch-card">
@@ -681,6 +710,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
           </li>
         </ol>
         <p class="story-foot">Behind every trip: fuel tracking, workshop jobs, role-based access and a full audit trail.</p>
+        </details>
       </div>
 
       <div class="fit">
@@ -750,7 +780,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
         <div class="card tip">
           <div class="label">How to check a .com</div>
           <h3>Search It Right Here</h3>
-          <p>Use the domain search at the top of this page. It checks the live .com registry through DotSweep. If a name shows as available, it qualifies. If it is taken, or priced far above normal, skip it.</p>
+          <p>Use the domain search at the top of this page. It checks the live .com registry through DotSweep. If a name shows as available, it passes the domain rule. Then check it against the guidelines above and make sure it doesn't sound like an existing brand. If it is taken, or priced far above normal, skip it.</p>
           <div class="registrars">
             <a href="#search">Go to the domain search ↑</a>
           </div>
@@ -799,21 +829,20 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
         <div class="card">
           <h3>How The Winner Is Chosen</h3>
           <ol>
-            <li>Entries close on Friday 6 November 2026 at 23:59 (Dhaka time).</li>
-            <li>The DFMS team checks each person's latest names against the must-haves and re-checks every .com.</li>
-            <li>A shortlist is reviewed and one name is chosen.</li>
-            <li>The winner is announced on Friday 13 November 2026 and contacted by email.</li>
-            <li>If two people sent the same name, the earliest submission gets the credit.</li>
+            <li>Entries are open from Monday 2 November 2026, 11:00 AM to Friday 6 November 2026, 9:00 PM (Dhaka time).</li>
+            <li>The DFMS team will check each person's latest names against the must-haves and re-check every .com.</li>
+            <li>A shortlist will be reviewed and one name will be chosen.</li>
+            <li>The winner will be revealed at our next SBU Town Hall, recognised in front of everyone and given a surprise gift.</li>
           </ol>
         </div>
         <div class="card">
           <h3>The Small Print</h3>
           <ul>
             <li>Up to three names per person. Only your latest submission counts.</li>
-            <li>By submitting, you agree that Brain Station 23 may use, adapt or register any name you send, whether or not it wins.</li>
+            <li>By submitting, you agree that Brain Station 23 may use, adapt or register any name you send.</li>
             <li>If no name fits the brief, the team may decide not to choose one.</li>
             <li>Your name and email are used only to run this campaign and contact the winner.</li>
-            <li>Questions? Message Nishat Farzana (DFMS team) on Teams.</li>
+            <li>Questions? <a href="https://teams.microsoft.com/l/chat/0/0?users=nishat.farzana@brainstation-23.com" target="_blank" rel="noopener">Message Nishat Farzana (DFMS team) on Teams</a>.</li>
           </ul>
         </div>
       </div>
@@ -825,7 +854,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
       <div class="card">
         <div class="kicker">Your idea could be the name</div>
         <h2>Name It. Win It.</h2>
-        <p>Search your ideas, keep up to three that are free, and send them together by Friday 6 November 2026. Brain Station 23 colleagues only.</p>
+        <p>Search your ideas, keep up to three that are free, and send them together between Monday 2 November, 11:00 AM and Friday 6 November, 9:00 PM. Brain Station 23 colleagues only.</p>
         <a class="btn" href="#search">Search &amp; Submit Your Names ↑</a>
       </div>
     </div>
@@ -834,7 +863,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
 <footer>
   <div class="inner">
     <span>DFMS naming campaign · Brain Station 23 · Europe SBU</span>
-    <span>Questions? Message Nishat Farzana (DFMS team) on Teams</span>
+    <span>Questions? <a href="https://teams.microsoft.com/l/chat/0/0?users=nishat.farzana@brainstation-23.com" target="_blank" rel="noopener">Message Nishat Farzana (DFMS team) on Teams</a></span>
   </div>
 </footer>
 
@@ -939,8 +968,11 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
   var CONFIG = {
     SUBMIT_URL: "https://script.google.com/macros/s/AKfycbyvsiFf3MevyI1b-orWqP2UQQ_eZZzaceiJ8e2GQfsRLleSfHHBfRu7pMhvkpbYhhOjzw/exec",
     MAX_PICKS: 3,
-    // End of Friday 6 November 2026, Dhaka time. Keep in step with CLOSES_AT in Code.gs.
-    CLOSES_AT: "2026-11-06T23:59:59+06:00"
+    // Submission window, Dhaka time. Keep in step with OPENS_AT and CLOSES_AT in Code.gs.
+    OPENS_AT: "2026-11-02T11:00:00+06:00",
+    CLOSES_AT: "2026-11-06T21:00:00+06:00",
+    // Public address of this page, used in the calendar reminder.
+    PAGE_URL: "https://sbu-europe.github.io/dfms-naming-campaign/"
   };
 
   // Hero search: live .com check via DotSweep, up to three picks, one submission to the sheet.
@@ -951,7 +983,11 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     var DRAFT_KEY = "dfms-naming-draft";
     var PREMIUM_PRICE = 25;
     var CLOSES = new Date(CONFIG.CLOSES_AT);
+    var OPENS = new Date(CONFIG.OPENS_AT);
     var isClosed = function () { return new Date() > CLOSES; };
+    // Add ?preview to the page address to try a submission before opening; the script only accepts its TEST_EMAILS then.
+    var PREVIEW = /[?&]preview\b/.test(location.search);
+    var notOpenYet = function () { return !PREVIEW && new Date() < OPENS; };
     var state = { results: [], picks: [] };
     var $ = function (s) { return document.querySelector(s); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -969,7 +1005,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
       else {
         if (label.length < 3) issues.push("Use at least 3 letters.");
         if (label.length > 63) issues.push("Too long for a domain.");
-        if (label.length > 15) warns.push("Over 15 letters is hard to remember. Is it more than two words?");
+        if (label.length > 12) warns.push("Over 12 letters is hard to remember. Can you make it shorter?");
       }
       return { issues: issues, warns: warns };
     }
@@ -993,9 +1029,9 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     (function typewriter() {
       var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduce) return;
-      var words = ["your-idea", "type a name", "one-word-brand", "search it here"], wi = 0, ci = 0, del = false;
+      var words = ["yourbrand", "movora", "routiva", "typeanidea"], wi = 0, ci = 0, del = false;
       (function step() {
-        if (document.activeElement === q || q.value) { q.placeholder = "your-idea"; setTimeout(step, 1200); return; }
+        if (document.activeElement === q || q.value) { q.placeholder = "yourbrand"; setTimeout(step, 1200); return; }
         var w = words[wi];
         ci += del ? -1 : 1;
         q.placeholder = w.slice(0, ci) + "▍";
@@ -1101,19 +1137,56 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
     }
 
     // ---- deadline ----
-    function renderDeadline() {
-      var left = CLOSES - new Date(), out = $("#dl-left");
-      if (left <= 0) { out.textContent = "Closed"; return; }
-      var days = Math.floor(left / 864e5), hours = Math.floor(left / 36e5);
-      out.textContent = days >= 2 ? days + " days left" : hours >= 1 ? hours + (hours === 1 ? " hour left" : " hours left") : "Closing soon";
+    function until(ms, word) {
+      var days = Math.floor(ms / 864e5), hours = Math.floor(ms / 36e5);
+      return days >= 2 ? days + " days " + word : hours >= 1 ? hours + (hours === 1 ? " hour " : " hours ") + word : "under an hour " + word;
     }
-    function applyClosed() {
-      if (!isClosed()) return;
-      $("#submit-btn").disabled = true;
-      $("#submit-btn").textContent = "Submissions Closed";
-      var note = el("p", "closed-note", "Submissions closed on Friday 6 November 2026. The winner is announced on Friday 13 November. You can still search names for fun.");
+    function renderDeadline() {
+      var now = new Date(), open = $("#dl-open"), out = $("#dl-left");
+      open.textContent = now < OPENS ? "Opens in " + until(OPENS - now, "").trim() : "Open now";
+      if (now < OPENS) out.textContent = "";
+      else if (now <= CLOSES) out.textContent = until(CLOSES - now, "left");
+      else { out.textContent = "Closed"; open.textContent = ""; }
+      applyWindow();
+    }
+    // Before the window: search and save picks, but no submit. After it: closed.
+    var windowState = null;
+    function applyWindow() {
+      var s = notOpenYet() ? "before" : isClosed() ? "after" : "open";
+      if (s === windowState) return;
+      windowState = s;
+      var old = $("#window-note"); if (old) old.remove();
+      var btn = $("#submit-btn");
+      $("#remind").hidden = s !== "before";
+      if (s === "open") { btn.disabled = false; btn.textContent = safeGet(STORE_KEY) ? "Update My Submission →" : "Submit My Names →"; return; }
+      btn.disabled = true;
+      btn.textContent = s === "before" ? "Opens Mon 2 Nov, 11:00 AM" : "Submissions Closed";
+      var note = el("p", "closed-note", s === "before"
+        ? "Submissions open on Monday 2 November 2026 at 11:00 AM (Dhaka time). You can search and pick your names now. They are kept in this browser only, so come back on the same phone or laptop to submit."
+        : "Submissions closed on Friday 6 November 2026 at 9:00 PM. The winner will be revealed, and receive a surprise gift, at our next SBU Town Hall.");
+      note.id = "window-note";
       $("#submit-form").insertBefore(note, $("#submit-form").firstChild);
     }
+    // ---- reminder for the opening, in Outlook on the web ----
+    (function reminder() {
+      var start = OPENS.toISOString().replace(/\.\d+Z$/, "Z"), end = new Date(+OPENS + 30 * 6e4).toISOString().replace(/\.\d+Z$/, "Z");
+      var title = "DFMS naming campaign: submissions open";
+      var body = "Submit up to three .com names for DFMS before Fri 6 Nov, 9:00 PM (Dhaka time): " + CONFIG.PAGE_URL;
+      $("#cal-outlook").href = "https://outlook.office.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent" +
+        "&subject=" + encodeURIComponent(title) + "&startdt=" + start + "&enddt=" + end + "&body=" + encodeURIComponent(body) + "&location=" + encodeURIComponent(CONFIG.PAGE_URL);
+    })();
+
+    // ---- the dates are Dhaka time; show them in the visitor's own time zone too when it differs ----
+    (function localTimes() {
+      var f = { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true };
+      try {
+        var mine = function (d) { return d.toLocaleString("en-GB", f).replace(" at ", ", "); };
+        if (mine(OPENS) === OPENS.toLocaleString("en-GB", Object.assign({ timeZone: "Asia/Dhaka" }, f)).replace(" at ", ", ")) return;
+        $("#tz-note").textContent += " In your time zone: opens " + mine(OPENS) + ", closes " + mine(CLOSES) + ".";
+      } catch (e) {}
+    })();
+
+    function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
     // ---- progress stepper ----
     function updateSteps(submitted) {
@@ -1148,7 +1221,8 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
       if (!state.picks.length) { msg("Add at least one domain to your picks first.", "err"); q.focus(); return; }
       if (!name) { $("#f-name").setAttribute("aria-invalid", "true"); msg("Enter your full name.", "err"); $("#f-name").focus(); return; }
       if (!EMAIL_RE.test(email)) { $("#f-email").setAttribute("aria-invalid", "true"); msg("Use your Brain Station 23 email, ending in @brainstation-23.com.", "err"); $("#f-email").focus(); return; }
-      if (isClosed()) { msg("Submissions closed on Friday 6 November 2026.", "err"); return; }
+      if (notOpenYet()) { msg("Submissions open on Monday 2 November 2026 at 11:00 AM.", "err"); return; }
+      if (isClosed()) { msg("Submissions closed on Friday 6 November 2026 at 9:00 PM.", "err"); return; }
       if (!CONFIG.SUBMIT_URL) { msg("Submissions aren't open yet. Your picks are kept on this page, so please try again soon.", "err"); return; }
       var payload = {
         name: name, email: email, submittedAt: new Date().toISOString(),
@@ -1208,8 +1282,7 @@ footer .inner { padding-block: 1.1rem; display: flex; flex-wrap: wrap; justify-c
       msg("Welcome back. Your picks are still here, ready to submit.");
     }
     renderResults(); updateSteps();
-    renderDeadline(); setInterval(renderDeadline, 60000);
-    applyClosed();
+    renderDeadline(); setInterval(renderDeadline, 30000);
   })();
 </script>
 

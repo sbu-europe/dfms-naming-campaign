@@ -6,8 +6,9 @@ A one-page campaign site where colleagues search `.com` domains live and submit 
 |---|---|
 | `index.html` | The campaign website. Host it on any static web server. |
 | `google-apps-script/Code.gs` | Receives submissions and writes them to the Google Sheet. |
-| `dfms-naming-campaign-a4.pdf` | Printable A4 poster with a QR code. |
-| `qr-landing-page.png` | QR code image for slides and posts. |
+| `dfms-naming-campaign-a4.pdf` | Printable A4 poster. Its QR code opens https://sbu-europe.github.io/dfms-naming-campaign/. |
+| `qr-landing-page.png` | QR code image for slides and posts. Points to https://sbu-europe.github.io/dfms-naming-campaign/. |
+| `og-image.png` | Preview image shown when the page link is pasted into Teams or Outlook. Must sit next to `index.html` on the live site. |
 
 ## How it works
 
@@ -15,7 +16,8 @@ A one-page campaign site where colleagues search `.com` domains live and submit 
 2. **Pick.** Each person keeps up to three domains and can add an optional "why it fits" line to each. Picks, name and email are saved on their device as they go, so a reload or closed tab loses nothing.
 3. **Submit.** They add their full name and Brain Station 23 email, and all their picks are sent together. A confirmation email goes to that address.
 4. **Sheet.** The Apps Script adds one row per proposed name and never deletes anything. If someone submits again, their earlier rows are marked "Replaced" and the new ones are "Active". If someone else submits with their email, they get an email about it and the original rows are still in the sheet.
-5. **Deadline.** Submissions close at the end of Friday 6 November 2026 (Dhaka time); the winner is announced Friday 13 November. The page shows a countdown and locks the Submit button after the deadline, and the script refuses late entries. To change the date, edit `CLOSES_AT` in both `Code.gs` and `index.html`, plus the dates in the page text.
+5. **Submission window.** Entries are accepted only from **Monday 2 November 2026, 11:00 AM** to **Friday 6 November 2026, 9:00 PM** (Dhaka time). Before the window, people can search and save picks but the Submit button stays locked; after it, the page shows "Submissions Closed". The script refuses anything sent outside the window, so the page can't be bypassed. The winner is announced, and the prize given, at the next SBU Town Hall. To change the times, edit `OPENS_AT` and `CLOSES_AT` in both `Code.gs` and `index.html`, plus the dates in the page text.
+6. **Testing before launch.** Open the page with `?preview` at the end of its address (for example `index.html?preview`). The Submit button then works early, but the script only accepts addresses listed in `TEST_EMAILS` in `Code.gs`. Delete your test rows from the sheet before 2 November.
 
 There is no external form: the Google Sheet (or the Excel option below) is the only place submissions are stored. Until `SUBMIT_URL` is set, the Submit button shows "Submissions aren't open yet" and keeps the person's picks on the page.
 
@@ -34,7 +36,8 @@ There is no external form: the Google Sheet (or the Excel option below) is the o
    var CONFIG = {
      SUBMIT_URL: "https://script.google.com/macros/s/XXXX/exec",
      MAX_PICKS: 3,
-     CLOSES_AT: "2026-11-06T23:59:59+06:00"
+     OPENS_AT: "2026-11-02T11:00:00+06:00",
+     CLOSES_AT: "2026-11-06T21:00:00+06:00"
    };
    ```
 6. **Publish `index.html`** on your web host, then send one test submission and check that a row appears in the sheet.

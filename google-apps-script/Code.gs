@@ -1,4 +1,6 @@
 /**
+ * @OnlyCurrentDoc  Limits this script to the spreadsheet it is attached to; it cannot open your other files.
+ *
  * DFMS naming campaign: receives submissions from index.html and writes them to this Google Sheet.
  *
  * One row per proposed name. Nothing is ever deleted or overwritten:
@@ -13,10 +15,13 @@
 
 const SHEET_NAME = 'Entries';
 const MAX_PICKS = 3;
-// Submissions close at the end of Friday 6 November 2026, Dhaka time.
-const CLOSES_AT = new Date('2026-11-06T23:59:59+06:00');
+// Submissions are accepted only between these times (Dhaka time, UTC+6).
+const OPENS_AT = new Date('2026-11-02T11:00:00+06:00');  // Monday 2 November 2026, 11:00 AM
+const CLOSES_AT = new Date('2026-11-06T21:00:00+06:00'); // Friday 6 November 2026, 9:00 PM
+// Addresses allowed to send test entries before the campaign opens. Empty the list at launch if you like.
+const TEST_EMAILS = ['nishat.farzana@brainstation-23.com', 'sbueu.license18@brainstation-23.com'];
 const SEND_CONFIRMATION = true;
-const CAMPAIGN_PAGE = ''; // optional: the hosted page URL, shown in the confirmation email
+const CAMPAIGN_PAGE = 'https://sbu-europe.github.io/dfms-naming-campaign/'; // optional: the hosted page URL, shown in the confirmation email
 
 const EMAIL_RE = /^[^@\s]+@brainstation-?23\.com$/i;
 const DOMAIN_RE = /^[a-z]{3,63}\.com$/; // letters only, same rule as the page
@@ -28,8 +33,12 @@ const COL = { submitted: 1, since: 2, email: 4, domain: 6, entry: 10 };
 const ACTIVE = 'Active';
 
 function doPost(e) {
-  if (new Date() > CLOSES_AT) {
-    return reply({ ok: false, closed: true, error: 'Submissions closed on Friday 6 November 2026. Thank you for your interest.' });
+  const nowCheck = new Date();
+  if (nowCheck > CLOSES_AT) {
+    return reply({ ok: false, closed: true, error: 'Submissions closed on Friday 6 November 2026 at 9:00 PM. Thank you for your interest.' });
+  }
+  if (nowCheck < OPENS_AT && !isTester(e)) {
+    return reply({ ok: false, notOpen: true, error: 'Submissions open on Monday 2 November 2026 at 11:00 AM. Your picks stay saved on the page until then.' });
   }
   const lock = LockService.getScriptLock();
   try {
@@ -113,7 +122,8 @@ function doPost(e) {
 
 /** Health check: open the web app URL in a browser to confirm it is live. */
 function doGet() {
-  return reply({ ok: true, service: 'dfms-naming-campaign', open: new Date() <= CLOSES_AT });
+  const now = new Date();
+  return reply({ ok: true, service: 'dfms-naming-campaign', open: now >= OPENS_AT && now <= CLOSES_AT });
 }
 
 /** Run this once from the Apps Script editor to grant email permission and check the daily quota. */
@@ -122,6 +132,15 @@ function testEmail() {
   Logger.log('Emails left today: ' + MailApp.getRemainingDailyQuota());
   MailApp.sendEmail(me, 'DFMS naming campaign: email test', 'Confirmation emails are working.');
   Logger.log('Test email sent to ' + me);
+}
+
+function isTester(e) {
+  try {
+    const email = String(JSON.parse(e.postData.contents).email || '').trim().toLowerCase();
+    return TEST_EMAILS.indexOf(email) >= 0;
+  } catch (err) {
+    return false;
+  }
 }
 
 function sendConfirmation(c) {
@@ -134,8 +153,8 @@ function sendConfirmation(c) {
     list,
     '',
     'Reference: ' + c.id,
-    'You can change your names until Friday 6 November 2026 by submitting again with this email. Your latest submission counts.',
-    'The winner will be announced on Friday 13 November 2026.',
+    'You can change your names until Friday 6 November 2026 at 9:00 PM by submitting again with this email. Your latest submission counts.',
+    'The winner will be revealed, and receive a surprise gift, at our next SBU Town Hall.',
     CAMPAIGN_PAGE ? 'Campaign page: ' + CAMPAIGN_PAGE : '',
     '',
     'Did not submit this? Reply to this email so we can remove the entry.',
