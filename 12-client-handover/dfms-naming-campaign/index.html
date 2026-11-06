@@ -7,7 +7,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sbu-europe.github.io/dfms-naming-campaign/">
 <meta property="og:title" content="Name It. Win It. | DFMS Naming Campaign">
-<meta property="og:description" content="Suggest a global name and .com domain for DFMS. Submissions open Mon 2 Nov, 11:00 AM to Fri 6 Nov, 9:00 PM (Dhaka). The winner gets a surprise gift at the next SBU Town Hall.">
+<meta property="og:description" content="Suggest a global name and .com domain for DFMS. Submissions open Mon 2 Nov, 11:00 AM to Fri 13 Nov, 9:00 PM (Dhaka). The winner gets a surprise gift at the next SBU Town Hall.">
 <meta property="og:image" content="https://sbu-europe.github.io/dfms-naming-campaign/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -491,7 +491,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
     </div>
     <ul class="timeline" aria-label="Campaign dates">
       <li><span>Submissions open</span><b>Mon 2 Nov, 11:00 AM</b><small id="dl-open"></small></li>
-      <li><span>Submissions close</span><b>Fri 6 Nov, 9:00 PM</b><small id="dl-left"></small></li>
+      <li><span>Submissions close</span><b>Fri 13 Nov, 9:00 PM</b><small id="dl-left"></small></li>
       <li><span>Winner revealed</span><b>Next SBU Town Hall</b></li>
     </ul>
     <p class="tz-note" id="tz-note">All times are Dhaka time (GMT+6).</p>
@@ -829,7 +829,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
         <div class="card">
           <h3>How The Winner Is Chosen</h3>
           <ol>
-            <li>Entries are open from Monday 2 November 2026, 11:00 AM to Friday 6 November 2026, 9:00 PM (Dhaka time).</li>
+            <li>Entries are open from Monday 2 November 2026, 11:00 AM to Friday 13 November 2026, 9:00 PM (Dhaka time).</li>
             <li>The DFMS team will check each person's latest names against the must-haves and re-check every .com.</li>
             <li>A shortlist will be reviewed and one name will be chosen.</li>
             <li>The winner will be revealed at our next SBU Town Hall, recognised in front of everyone and given a surprise gift.</li>
@@ -854,7 +854,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
       <div class="card">
         <div class="kicker">Your idea could be the name</div>
         <h2>Name It. Win It.</h2>
-        <p>Search your ideas, keep up to three that are free, and send them together between Monday 2 November, 11:00 AM and Friday 6 November, 9:00 PM. Brain Station 23 colleagues only.</p>
+        <p>Search your ideas, keep up to three that are free, and send them together between Monday 2 November, 11:00 AM and Friday 13 November, 9:00 PM. Brain Station 23 colleagues only.</p>
         <a class="btn" href="#search">Search &amp; Submit Your Names ↑</a>
       </div>
     </div>
@@ -970,7 +970,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
     MAX_PICKS: 3,
     // Submission window, Dhaka time. Keep in step with OPENS_AT and CLOSES_AT in Code.gs.
     OPENS_AT: "2026-11-02T11:00:00+06:00",
-    CLOSES_AT: "2026-11-06T21:00:00+06:00",
+    CLOSES_AT: "2026-11-13T21:00:00+06:00",
     // Public address of this page, used in the calendar reminder.
     PAGE_URL: "https://sbu-europe.github.io/dfms-naming-campaign/"
   };
@@ -1163,7 +1163,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
       btn.textContent = s === "before" ? "Opens Mon 2 Nov, 11:00 AM" : "Submissions Closed";
       var note = el("p", "closed-note", s === "before"
         ? "Submissions open on Monday 2 November 2026 at 11:00 AM (Dhaka time). You can search and pick your names now. They are kept in this browser only, so come back on the same phone or laptop to submit."
-        : "Submissions closed on Friday 6 November 2026 at 9:00 PM. The winner will be revealed, and receive a surprise gift, at our next SBU Town Hall.");
+        : "Submissions closed on Friday 13 November 2026 at 9:00 PM. The winner will be revealed, and receive a surprise gift, at our next SBU Town Hall.");
       note.id = "window-note";
       $("#submit-form").insertBefore(note, $("#submit-form").firstChild);
     }
@@ -1171,7 +1171,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
     (function reminder() {
       var start = OPENS.toISOString().replace(/\.\d+Z$/, "Z"), end = new Date(+OPENS + 30 * 6e4).toISOString().replace(/\.\d+Z$/, "Z");
       var title = "DFMS naming campaign: submissions open";
-      var body = "Submit up to three .com names for DFMS before Fri 6 Nov, 9:00 PM (Dhaka time): " + CONFIG.PAGE_URL;
+      var body = "Submit up to three .com names for DFMS before Fri 13 Nov, 9:00 PM (Dhaka time): " + CONFIG.PAGE_URL;
       $("#cal-outlook").href = "https://outlook.office.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent" +
         "&subject=" + encodeURIComponent(title) + "&startdt=" + start + "&enddt=" + end + "&body=" + encodeURIComponent(body) + "&location=" + encodeURIComponent(CONFIG.PAGE_URL);
     })();
@@ -1222,7 +1222,7 @@ footer a, .extra a { color: inherit; font-weight: 600; }
       if (!name) { $("#f-name").setAttribute("aria-invalid", "true"); msg("Enter your full name.", "err"); $("#f-name").focus(); return; }
       if (!EMAIL_RE.test(email)) { $("#f-email").setAttribute("aria-invalid", "true"); msg("Use your Brain Station 23 email, ending in @brainstation-23.com.", "err"); $("#f-email").focus(); return; }
       if (notOpenYet()) { msg("Submissions open on Monday 2 November 2026 at 11:00 AM.", "err"); return; }
-      if (isClosed()) { msg("Submissions closed on Friday 6 November 2026 at 9:00 PM.", "err"); return; }
+      if (isClosed()) { msg("Submissions closed on Friday 13 November 2026 at 9:00 PM.", "err"); return; }
       if (!CONFIG.SUBMIT_URL) { msg("Submissions aren't open yet. Your picks are kept on this page, so please try again soon.", "err"); return; }
       var payload = {
         name: name, email: email, submittedAt: new Date().toISOString(),
