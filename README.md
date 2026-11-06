@@ -16,7 +16,7 @@ A one-page campaign site where colleagues search `.com` domains live and submit 
 2. **Pick.** Each person keeps up to three domains and can add an optional "why it fits" line to each. Picks, name and email are saved on their device as they go, so a reload or closed tab loses nothing.
 3. **Submit.** They add their full name and Brain Station 23 email, and all their picks are sent together. A confirmation email goes to that address.
 4. **Sheet.** The Apps Script adds one row per proposed name and never deletes anything. If someone submits again, their earlier rows are marked "Replaced" and the new ones are "Active". If someone else submits with their email, they get an email about it and the original rows are still in the sheet.
-5. **Submission window.** Entries are accepted only from **Monday 2 November 2026, 11:00 AM** to **Friday 6 November 2026, 9:00 PM** (Dhaka time). Before the window, people can search and save picks but the Submit button stays locked; after it, the page shows "Submissions Closed". The script refuses anything sent outside the window, so the page can't be bypassed. The winner is announced, and the prize given, at the next SBU Town Hall. To change the times, edit `OPENS_AT` and `CLOSES_AT` in both `Code.gs` and `index.html`, plus the dates in the page text.
+5. **Submission window.** Entries are accepted only from **Monday 2 November 2026, 11:00 AM** to **Friday 13 November 2026, 9:00 PM** (Dhaka time). Before the window, people can search and save picks but the Submit button stays locked; after it, the page shows "Submissions Closed". The script refuses anything sent outside the window, so the page can't be bypassed. The winner is announced, and the prize given, at the next SBU Town Hall. To change the times, edit `OPENS_AT` and `CLOSES_AT` in both `Code.gs` and `index.html`, plus the dates in the page text.
 6. **Testing before launch.** Open the page with `?preview` at the end of its address (for example `index.html?preview`). The Submit button then works early, but the script only accepts addresses listed in `TEST_EMAILS` in `Code.gs`. Delete your test rows from the sheet before 2 November.
 
 There is no external form: the Google Sheet (or the Excel option below) is the only place submissions are stored. Until `SUBMIT_URL` is set, the Submit button shows "Submissions aren't open yet" and keeps the person's picks on the page.
@@ -37,7 +37,7 @@ There is no external form: the Google Sheet (or the Excel option below) is the o
      SUBMIT_URL: "https://script.google.com/macros/s/XXXX/exec",
      MAX_PICKS: 3,
      OPENS_AT: "2026-11-02T11:00:00+06:00",
-     CLOSES_AT: "2026-11-06T21:00:00+06:00"
+     CLOSES_AT: "2026-11-13T21:00:00+06:00"
    };
    ```
 6. **Publish `index.html`** on your web host, then send one test submission and check that a row appears in the sheet.

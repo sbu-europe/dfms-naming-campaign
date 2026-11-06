@@ -17,7 +17,7 @@ const SHEET_NAME = 'Entries';
 const MAX_PICKS = 3;
 // Submissions are accepted only between these times (Dhaka time, UTC+6).
 const OPENS_AT = new Date('2026-11-02T11:00:00+06:00');  // Monday 2 November 2026, 11:00 AM
-const CLOSES_AT = new Date('2026-11-06T21:00:00+06:00'); // Friday 6 November 2026, 9:00 PM
+const CLOSES_AT = new Date('2026-11-13T21:00:00+06:00'); // Friday 13 November 2026, 9:00 PM
 // Addresses allowed to send test entries before the campaign opens. Empty the list at launch if you like.
 const TEST_EMAILS = ['nishat.farzana@brainstation-23.com', 'sbueu.license18@brainstation-23.com'];
 const SEND_CONFIRMATION = true;
@@ -35,7 +35,7 @@ const ACTIVE = 'Active';
 function doPost(e) {
   const nowCheck = new Date();
   if (nowCheck > CLOSES_AT) {
-    return reply({ ok: false, closed: true, error: 'Submissions closed on Friday 6 November 2026 at 9:00 PM. Thank you for your interest.' });
+    return reply({ ok: false, closed: true, error: 'Submissions closed on Friday 13 November 2026 at 9:00 PM. Thank you for your interest.' });
   }
   if (nowCheck < OPENS_AT && !isTester(e)) {
     return reply({ ok: false, notOpen: true, error: 'Submissions open on Monday 2 November 2026 at 11:00 AM. Your picks stay saved on the page until then.' });
@@ -153,7 +153,7 @@ function sendConfirmation(c) {
     list,
     '',
     'Reference: ' + c.id,
-    'You can change your names until Friday 6 November 2026 at 9:00 PM by submitting again with this email. Your latest submission counts.',
+    'You can change your names until Friday 13 November 2026 at 9:00 PM by submitting again with this email. Your latest submission counts.',
     'The winner will be revealed, and receive a surprise gift, at our next SBU Town Hall.',
     CAMPAIGN_PAGE ? 'Campaign page: ' + CAMPAIGN_PAGE : '',
     '',
